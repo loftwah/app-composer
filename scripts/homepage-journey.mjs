@@ -3,7 +3,8 @@
 // qualification can opt into the fuller set of widths once.
 export async function verifyHomepage(page, origin, { capture, full = false } = {}) {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
-  const entryLinks = ['/learn', '#example'];
+  const entryLinks = ['/learn', '/demo'];
+  const film = '/media-studio#fighter-after-hours';
   const receipt = { url: new URL('/', origin).href, views: [], keyboard: [], limits: [
     'Chromium viewport and text reflow checks do not establish physical device, native browser zoom or screen reader acceptance.',
     'Screenshots require visual review; geometric checks alone cannot establish a finished composition.',
@@ -18,34 +19,29 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
         await page.locator('#theme-toggle').click();
       }
       await page.evaluate(() => document.fonts.ready);
-      await page.locator('.studio-stage').scrollIntoViewIfNeeded();
-      const poster = await page.locator(`.studio-poster-${theme} img`).evaluate(async image => {
-        await image.decode();
-        return image.naturalWidth;
+      const images = await page.locator('.home-lead img, .home-project img').evaluateAll(async images => {
+        await Promise.all(images.map(image => image.decode()));
+        return images.map(image => image.naturalWidth);
       });
       const geometry = await page.evaluate(() => {
         const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
-        return { opening: box('.home-opening'), workshop: box('.studio-hero'), copy: box('.studio-copy'), stage: box('.studio-stage'), deck: box('.studio-deck'), next: box('#make-something'),
+        return { opening: box('.home-opening'), lineup: box('.home-portfolio'), workflow: box('#make-something'),
+          heading: box('#home-heading'), header: box('.site-header'),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
           scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior };
       });
       ensure(!geometry.overflow, `Homepage overflows at ${width}/${theme}`);
-      ensure(poster > 0, `Missing workshop poster at ${width}/${theme}`);
+      ensure(images.length === 3 && images.every(width => width > 0), 'Featured imagery is incomplete');
       ensure(geometry.reducedMotion, 'Reduced motion preference was lost');
       ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
-      ensure(geometry.copy.bottom <= geometry.deck.top + 1, 'Workshop desk covers headline, actions or context');
-      if (width <= 900) ensure(geometry.stage.bottom <= geometry.deck.top + 1, 'Workshop stage overlaps the desk');
-      ensure(geometry.copy.top >= geometry.workshop.top - 1, 'Workshop copy is outside its section');
-      ensure(Math.abs(geometry.next.top - geometry.opening.bottom) <= 2, 'Opening and next section do not meet');
+      ensure(geometry.heading.top >= geometry.header.bottom, 'Header overlaps the opening heading');
+      ensure(geometry.opening.bottom <= geometry.lineup.top + 1, 'Portfolio overlaps the opening');
+      ensure(geometry.lineup.bottom <= geometry.workflow.top + 1, 'Workflow overlaps the portfolio');
       for (const href of entryLinks) {
         ensure(await page.locator(`.home-opening-actions a[href="${href}"]`).isVisible(), `${href} is not visible in the opening`);
       }
-      ensure(
-        await page.locator('.home-opening-note a[href="/demo"]').isVisible(),
-        'The explained trial-app link is missing from the setup note',
-      );
-      ensure(await page.locator('.studio-copy a[href="/apps"]').isVisible(), 'Workshop apps link is missing');
+      ensure(await page.locator(`.home-lead a[href="${film}"]`).isVisible(), 'The Fighter film link is missing');
       const name = `${width}-${theme}`;
       if (capture) {
         // Scroll through lazy content before a full-page capture; the browser
@@ -75,13 +71,12 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
     ensure(focused.href === href && focused.outline !== 'none', `Keyboard path or focus missing for ${href}`);
     receipt.keyboard.push(focused);
   }
-  await page.keyboard.press('Tab');
-  const trial = await page.evaluate(() => ({ href: document.activeElement.getAttribute('href'), outline: getComputedStyle(document.activeElement).outlineStyle }));
-  ensure(trial.href === '/demo' && trial.outline !== 'none', 'Keyboard path or focus missing for the explained trial link');
-  receipt.keyboard.push(trial);
   await page.keyboard.press('Enter');
   await page.waitForURL(url => url.pathname === '/demo');
   ensure(await page.locator('h1').isVisible(), 'Sandbox failed to open by keyboard');
+  await page.locator('a[href="/demo/workshop"]').click();
+  await page.waitForURL(url => url.pathname === '/demo/workshop');
+  ensure(await page.locator('.studio-stage').isVisible(), 'The illustrated workshop failed to open');
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
   for (const theme of ['dark', 'light']) {

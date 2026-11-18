@@ -1,889 +1,139 @@
 ---
 import Base from "../layouts/Base.astro";
-import { ArrowRight, ArrowDown, ArrowUpRight, Play } from "@lucide/astro";
-import { apps } from "../lib/apps";
-import { studioStations } from "../scripts/studio/studio-data.js";
+import { ArrowRight, ArrowUpRight, Play } from "@lucide/astro";
+import { portfolioArt, portfolioProjects } from "../lib/portfolio-projects";
 import instance from "../../config/instance.json";
 import "../styles/product-home.css";
 
-const ownerInstance = instance.enabled ? instance : null;
-const appById = (id: string) => {
-  const app = apps.find((entry) => entry.id === id);
-  if (!app) throw new Error(`Unknown app in the homepage: ${id}`);
-  return app;
-};
-const paperwork = appById("paperwork");
-const selectedApps = [
+const portfolioCopy = [
   {
-    app: paperwork,
-    purpose: "Finish the paperwork.",
-    detail:
-      "Fill a PDF, add your signature and save the completed document. Your files stay in your browser.",
+    id: "foilbury",
+    detail: "Open packs, collect variants and build a cabinet worth showing off.",
+    alt: "Four illustrated Drop Bear cards with different foil finishes.",
   },
   {
-    app: appById("ldraw"),
-    purpose: "Give an idea some shape.",
-    detail:
-      "Draw an editable diagram, work from the included examples and export a PNG or SVG.",
-  },
-  {
-    app: appById("launch-kit"),
-    purpose: "Give your work an identity.",
-    detail:
-      "Turn your own artwork into app icons, profile cards and share images. Inspect the files before exporting.",
+    id: "shoalshot",
+    detail: "An arcade fishing game. Work the tides and land a leviathan.",
+    alt: "A Tide Leviathan in the blue depths of SHOALSHOT.",
   },
 ];
-const previewHeights: Record<string, number> = {
-  paperwork: 1100,
-  ldraw: 1000,
-  "launch-kit": 900,
-};
+const selectedWork = portfolioCopy.map(({ id, detail, alt }) => {
+  const project = portfolioProjects.find((entry) => entry.id === id);
+  if (!project?.site || !project.art) throw new Error(`Missing featured project: ${id}`);
+  return { name: project.name, href: project.site, image: portfolioArt(project), detail, alt };
+});
+
+const steps = [
+  { title: "Shape the idea", detail: "Bring a goal and references. Use Init to turn them into a brief your agent can build from.", href: "/init", link: "Write a brief in Init" },
+  { title: "Build and publish", detail: "Prepare a Cloudflare environment and build the app with your coding agent in your own repository.", href: "/ready", link: "Set up with Get Ready" },
+  { title: "Run it and come back", detail: "Manage content in EmDash, then ask your agent for the next change on the same live project.", href: "/creator-hub#follow-up", link: "See a change after launch" },
+];
 const siteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "App Composer",
   url: "https://composer.loftwah.com/",
 };
-const defaultStation = studioStations[0];
-const commercial = "/brand/campaign/take-it-with-you-20261118";
 ---
 
 <Base
   homePage
   title="App Composer — create, ship and run projects with AI"
-  description="An open-source platform for creating and running projects with AI agents, reusable building blocks, Media Studio and Cloudflare."
+  description="Build and run software you own with your AI agent. App Composer brings together reusable apps, Media Studio and your own Cloudflare account."
 >
-  <script
-    slot="head"
-    type="application/ld+json"
-    set:html={JSON.stringify(siteSchema)}
-  />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
   <div class="composer-home">
     <section class="home-opening" aria-labelledby="home-heading">
-      <div class="home-opening-inner">
+      <div class="home-container home-opening-inner">
         <div class="home-opening-main">
-          <h1 id="home-heading">Build with AI.<br /><span>Keep it yours.</span></h1>
-          <p>
-            App Composer connects your AI agent, reusable apps, creative tools
-            and cloud hosting. Tell your agent what you want to make. It uses
-            those pieces to build, test and publish what you asked for in your
-            own accounts, where you can keep improving it.
-          </p>
+          <h1 id="home-heading">Make it with AI.<br /><span>Keep it yours.</span></h1>
+          <p>App Composer brings your AI agent, reusable apps and creative tools together. Start with an idea, publish in your own accounts and come back to make it better.</p>
           <div class="home-opening-actions">
-            <a class="home-button" href="/learn">Build your first app <ArrowUpRight size={21} aria-hidden="true" /></a>
-            <a class="studio-text-link" href="#example">Follow a real project <ArrowDown size={18} aria-hidden="true" /></a>
+            <a class="home-button" href="/learn">Build your first app <ArrowRight size={20} aria-hidden="true" /></a>
+            <a class="home-text-link" href="/demo">Try the sandbox <ArrowUpRight size={17} aria-hidden="true" /></a>
           </div>
-          <p class="home-opening-note">
-            App Composer is open source.{" "}
-            <a href="/architecture#project-workspace">See how the tools connect</a>
-            {" "}or <a href="/demo">try a demo</a>.
-          </p>
         </div>
-        <figure class="home-opening-art" id="commercial">
-          <video controls playsinline preload="none" width="1280" height="720" poster={commercial + ".webp"} aria-labelledby="commercial-title">
-            <source src={commercial + ".mp4"} type="video/mp4" />
-            <track kind="captions" src={commercial + ".vtt"} srclang="en" label="English (high contrast)" />
-            <a href={commercial + ".mp4"}>Open the App Composer commercial</a>
-          </video>
+        <figure class="home-lead">
+          <a class="home-lead-link" href="/media-studio#fighter-after-hours" aria-label="Watch Fighter: After Hours and see how it was edited in Media Studio">
+            <img src="/media-studio/fighter-before-the-bell-20261114.webp" width="680" height="680" alt="A boxer stands under the lights between a Viking and the Grim Reaper." fetchpriority="high" decoding="async" />
+            <span class="home-lead-play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>
+          </a>
           <figcaption>
-            <span id="commercial-title">Take it with you · App Composer commercial</span>
-            <a href={commercial + ".txt"}>Read the transcript <ArrowUpRight size={16} aria-hidden="true" /></a>
+            <strong>Fighter: After Hours</strong>
+            <span>Gameplay and LoftwahFM music, cut and mixed in Media Studio.</span>
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="home-proof" id="example" aria-labelledby="example-heading">
-      <div class="home-container proof-layout">
-        <div class="proof-copy">
-          <h2 id="example-heading">Two apps. One Creator Hub.</h2>
-          <p>
-            Mara wanted a site for her ceramics and a guestbook whose submissions
-            she could review. Her agent turned one Init brief into two connected
-            apps, each with its own GitHub source, Cloudflare deployment and data.
-          </p>
-          <ol class="proof-steps">
-            <li><a class="home-text-link" href="/creator-hub#brief">Read the brief <ArrowRight size={17} aria-hidden="true" /></a><span>One request for a portfolio and moderated postcards.</span></li>
-            <li><a class="home-text-link" href="/creator-hub#live">See the live apps <ArrowRight size={17} aria-hidden="true" /></a><span>Linkarooie displays selected postcards. Here / there controls approval.</span></li>
-            <li><a class="home-text-link" href="/creator-hub#follow-up">See what changed later <ArrowRight size={17} aria-hidden="true" /></a><span>The agent featured two links on the same site and kept its approved postcard.</span></li>
-          </ol>
-          <p class="proof-note">Live reference build with a fictional owner.</p>
-        </div>
-        <figure class="proof-shot">
-          <img
-            src="/creator-hub/guestbook-20261111.webp"
-            width="1440"
-            height="1500"
-            alt="The live Postcards for Mara guestbook, showing the illustrated invitation and an approved postcard."
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption>Here / there owns the original postcard and its approval. Linkarooie reads it from there.</figcaption>
-        </figure>
-      </div>
-      <div class="home-container proof-creative">
+    <section class="home-portfolio home-container" aria-labelledby="work-heading">
+      <div class="home-section-head">
         <div>
-          <h3>From artwork to an app draft</h3>
-          <p>Media Studio pulled eight colours from Foilbury artwork. Launch Kit used a swatch on a share card, then Composer Init adopted the package into an app draft.</p>
-          <a class="home-text-link" href="/projects?example=creative-handoff#creative-handoff">Follow the Foilbury handoff <ArrowRight size={17} aria-hidden="true" /></a>
+          <h2 id="work-heading">From our lineup</h2>
+          <p>Explore two live games from the Loftwah portfolio.</p>
         </div>
-        <img src="/launch-kit/cards/foilbury-launch-palette-social-20261117.png" width="1200" height="630" alt="Foilbury share card with a gold foil tag on an illustrated workbench." loading="lazy" decoding="async" />
+        <a class="home-text-link" href="/projects">Explore all projects <ArrowUpRight size={17} aria-hidden="true" /></a>
       </div>
-    </section>
-
-    <section
-      class="home-start home-container"
-      id="make-something"
-      aria-labelledby="start-heading"
-    >
-      <div class="section-intro">
-        <h2 id="start-heading">Start your own project.</h2>
-        <p class="section-lede">
-          Start with an app or website on Cloudflare. Bring a brief, or get your
-          tools ready while you explore what to make.
-        </p>
-      </div>
-      <ol class="build-steps">
-        <li>
-          <span class="step-index" aria-hidden="true">
-            01 /
-          </span>
-          <div>
-            <h3>Prepare your tools.</h3>
-            <p>
-              Get Ready is the setup step. It checks the source, tools and
-              Cloudflare account your agent will use, then proves a small
-              starter works. You can start before you have an app idea.
-            </p>
-            <a class="home-text-link" href="/ready">
-              Open Get Ready <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </li>
-        <li>
-          <span class="step-index" aria-hidden="true">
-            02 /
-          </span>
-          <div>
-            <h3>Shape what you need.</h3>
-            <p>
-              Choose a starting point in Init. Turn the useful details into a
-              clear brief for your existing coding agent.
-            </p>
-            <a class="home-text-link" href="/init">
-              Shape an app in Init <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </li>
-        <li>
-          <span class="step-index" aria-hidden="true">
-            03 /
-          </span>
-          <div>
-            <h3>Make it your own.</h3>
-            <p>
-              Your agent implements the brief in your repository and account.
-              Keep building on software you can inspect and change.
-            </p>
-            <a class="home-text-link" href="/learn">
-              Follow the tutorial{" "}
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </li>
-      </ol>
-    </section>
-
-    <section class="studio-hero" aria-labelledby="workshop-heading">
-      <div class="studio-stage" data-studio-stage data-state="poster">
-        <div class="studio-backdrop" aria-hidden="true"></div>
-        <picture class="studio-poster studio-poster-dark" data-studio-poster>
-          <source
-            media="(max-width: 600px)"
-            srcset="/brand/studio/studio-poster-mobile-dark-20261113.webp"
-          />
-          <img
-            src="/brand/studio/studio-poster-desktop-dark-20261113.webp"
-            width="1600"
-            height="1000"
-            alt="A midnight-blue illustrated workshop: an orange Paperwork press stamps a cream form, a pencil drawing rises into a paper staircase, and a separate brass evidence lens hangs above the floor."
-            fetchpriority="high"
-            decoding="async"
-          />
-        </picture>
-        <picture class="studio-poster studio-poster-light" data-studio-poster>
-          <source
-            media="(max-width: 600px)"
-            srcset="/brand/studio/studio-poster-mobile-light-20261113.webp"
-          />
-          <img
-            src="/brand/studio/studio-poster-desktop-light-20261113.webp"
-            width="1600"
-            height="1000"
-            alt="A warm, daylight-lit illustrated workshop: an orange Paperwork press stamps a cream form, a pencil drawing rises into a paper staircase, and a separate brass evidence lens hangs above the floor."
-            loading="lazy"
-            decoding="async"
-          />
-        </picture>
-        <canvas
-          class="studio-canvas"
-          data-studio-canvas
-          aria-hidden="true"
-        ></canvas>
-        <div class="studio-vignette" aria-hidden="true"></div>
-        <div class="studio-scene-meta">
-          <p class="studio-status-line">
-            <span class="studio-live-dot" aria-hidden="true"></span>
-            <span data-studio-status>Illustrated workshop</span>
-          </p>
-          <p class="studio-scene-label" data-studio-scene-label>
-            {defaultStation.sceneLabel}
-          </p>
-          <p class="studio-hint">Drag to look · keys 1–3 · P pause</p>
-        </div>
-        <p class="studio-scene-caption" data-studio-caption>
-          {defaultStation.caption}
-        </p>
-      </div>
-
-      <div class="studio-copy">
-        <p class="studio-eyebrow"><span class="studio-kicker-mark" aria-hidden="true">✳</span> An illustrated demo</p>
-        <h2 id="workshop-heading">Explore a<br /><span>fictional workshop.</span></h2>
-        <p class="studio-lede">Try a playful view of Paperwork, LDraw and Composer reporting. The workshop is an illustration; the real apps are linked below.</p>
-        <div class="studio-actions"><a class="home-button" href="/apps">Explore the real apps <ArrowUpRight size={21} aria-hidden="true" /></a></div>
-        <a class="studio-proof-print" href="/media-studio#made">
-          <img
-            src="/brand/studio/media-studio-print-20261114.webp"
-            width="504"
-            height="277"
-            alt="A paper studio bench with an orange waveform and a cream camera"
-            decoding="async"
-          />
-          <span class="studio-proof-label">
-            <strong>Made in Media Studio</strong>
-            <span>See the still, mask and motion</span>
-          </span>
-          <ArrowUpRight size={16} aria-hidden="true" />
-        </a>
-      </div>
-
-      <div class="studio-deck">
-        <div class="studio-console" data-studio-console hidden>
-          <div class="studio-console-head">
-            <div
-              class="studio-stations"
-              role="group"
-              aria-label="Choose a workshop station"
-            >
-              {studioStations.map((station, index) => (
-                <button
-                  class="studio-station"
-                  type="button"
-                  data-station={station.id}
-                  aria-pressed={index === 0 ? "true" : "false"}
-                  tabindex={index === 0 ? 0 : -1}
-                >
-                  <span class="studio-station-number">{station.number}</span>
-                  <span>{station.name}</span>
-                </button>
-              ))}
-            </div>
-            <button
-              class="studio-pause"
-              type="button"
-              id="studio-pause"
-              data-studio-pause
-              aria-pressed="false"
-            >
-              <span data-studio-pause-label>Pause motion</span>
-              <span aria-hidden="true" class="studio-pause-glyph">Ⅱ</span>
-            </button>
-          </div>
-          <p class="studio-instruction" data-studio-instruction>
-            {defaultStation.instruction}
-          </p>
-          <div class="studio-console-controls" aria-describedby="studio-control-help">
-            <button class="studio-feed" type="button" data-studio-feed aria-pressed="false">
-              <span data-studio-feed-label>Feed the sheet</span>
-            </button>
-            <button class="studio-action" type="button" id="studio-action" data-studio-action>
-              <span data-studio-action-label>{defaultStation.actionIdle}</span>
-            </button>
-          </div>
-          <div class="studio-console-foot">
-            <div>
-              <p class="studio-readout" data-studio-readout>
-                {defaultStation.readout}
-              </p>
-              <p class="studio-context" data-studio-context>
-                {defaultStation.context}
-              </p>
-            </div>
-            <nav class="studio-app-links" aria-label="Open the real applications">
-              <a href="/paperwork">Paperwork</a>
-              <a href="/ldraw">LDraw</a>
-              <a href="/activity">Analytics</a>
-              <a class="studio-product-link" data-studio-link href={defaultStation.href}>
-                {defaultStation.linkLabel} <ArrowUpRight size={14} aria-hidden="true" />
-              </a>
-            </nav>
-          </div>
-          <p id="studio-control-help" class="sr-only">
-            Choose a station, then use its buttons. Arrow keys move between
-            station buttons. Press 1, 2 or 3 to move between stations and P to
-            pause ambient motion.
-          </p>
-        </div>
-
-        <div class="studio-static" data-studio-static>
-          <div class="studio-static-head">
-            <p>Three jobs, one workshop</p>
-            <span>The illustrated view</span>
-          </div>
-          <ul>
-            {studioStations.map((station) => (
-              <li>
-                <span class="studio-static-number">{station.number}</span>
+      <ul class="home-projects">
+        {selectedWork.map((project) => (
+          <li>
+            <a class="home-project" href={project.href}>
+              <img src={project.image} width="1000" height="563" alt={project.alt} loading="lazy" decoding="async" />
+              <div class="home-project-caption">
                 <div>
-                  <h2>{station.name}</h2>
-                  <p>{station.context}</p>
+                  <h3>{project.name}</h3>
+                  <p>{project.detail}</p>
                 </div>
-                <a href={station.href}>
-                  {station.linkLabel} <ArrowUpRight size={15} aria-hidden="true" />
-                </a>
-              </li>
-            ))}
-          </ul>
-          <p class="studio-static-note" data-studio-static-note>
-            The interactive workshop adds camera movement and three controls.
-            The links and actions above also work in this view.
-          </p>
-        </div>
-      </div>
-
-      <a class="studio-scroll" href="#work-heading">
-        See software you can use <ArrowDown size={17} aria-hidden="true" />
-      </a>
-      <p class="sr-only">
-        An interactive illustrated workshop. The Paperwork press stamps a
-        fictional form. LDraw lifts a pencil drawing into paper architecture.
-        A separate evidence lens explores supported, recorded Composer
-        analytics. The three stations are independent: documents and drawings do
-        not feed analytics.
-      </p>
-      <p
-        class="sr-only"
-        aria-live="polite"
-        data-studio-announcement
-      ></p>
-    </section>
-
-
-
-    <section class="home-work" aria-labelledby="work-heading">
-      <div class="home-container">
-        <div class="work-heading">
-          <div>
-            <p class="home-eyebrow">
-              <span class="section-number">02</span> Built here. Open now.
-            </p>
-            <h2 id="work-heading">
-              Software you can
-              <br />
-              use right now.
-            </h2>
-          </div>
-          <div class="work-aside">
-            <p>
-              Independent apps with their own source, data and release. Try the
-              finished work, then explore how it is made.
-            </p>
-            <a class="home-text-link" href="/apps">
-              Browse all {apps.length} apps{" "}
-              <ArrowUpRight size={19} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-        <div class="work-gallery" data-home-gallery>
-          <div
-            class="work-tabs"
-            aria-label="Choose an application"
-            data-home-tabs
-          >
-            {selectedApps.map(({ app }, index) => (
-              <a
-                class="work-tab"
-                href={`#work-${app.id}`}
-                id={`work-tab-${app.id}`}
-                data-home-tab
-              >
-                <span class="tab-number">0{index + 1}</span>
-                <span>{app.name}</span>
-                <ArrowUpRight size={18} aria-hidden="true" />
-              </a>
-            ))}
-          </div>
-          {selectedApps.map(({ app, purpose, detail }) => (
-            <div class="work-panel" id={`work-${app.id}`} data-home-panel>
-              <div class="work-panel-caption">
-                <div>
-                  <h3>{purpose}</h3>
-                  <p>{detail}</p>
-                </div>
-                <a class="home-button home-button-quiet" href={app.href}>
-                  Open {app.name} <ArrowUpRight size={19} aria-hidden="true" />
-                </a>
+                <ArrowUpRight size={24} aria-hidden="true" />
               </div>
-              <figure class={`work-screen work-screen-${app.id}`}>
-                <a href={app.href} aria-label={`Open ${app.name}`}>
-                  <img
-                    src={app.previewWide}
-                    width="1440"
-                    height={previewHeights[app.id] ?? 960}
-                    alt={app.previewAlt}
-                    loading="lazy"
-                    decoding="async"
-                    data-captured={app.previewCaptured}
-                  />
-                </a>
-                <figcaption>
-                  <span>
-                    Deployed app capture ·{" "}
-                    <time datetime={app.previewCaptured}>
-                      {app.previewCaptured.replaceAll("-", "/")}
-                    </time>
-                  </span>
-                  <a href={app.source}>
-                    Explore the source{" "}
-                    <ArrowUpRight size={14} aria-hidden="true" />
-                  </a>
-                </figcaption>
-              </figure>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="home-composition" aria-labelledby="composition-heading">
-      <div class="home-container composition-layout">
-        <div class="composition-copy">
-          <p class="home-eyebrow">
-            <span class="section-number">03</span> Better together
-          </p>
-          <h2 id="composition-heading">
-            Make the pieces
-            <br />
-            work together.
-          </h2>
-          <p>
-            Here / there keeps the photos. Linkarooie makes the collection.
-            Connect them, change a source postcard and see what follows.
-          </p>
-          <a class="home-button home-button-ink" href="/demo/connected-apps">
-            Try the composition studio{" "}
-            <ArrowUpRight size={21} aria-hidden="true" />
-          </a>
-          <span class="composition-note">
-            An interactive experiment with fictional postcards, saved on this
-            device.
-          </span>
-          <a class="composition-live" href="/creator-hub">
-            See a live Creator Hub built this way{" "}
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
-        </div>
-        <figure class="composition-art">
-          <svg
-            class="composition-wiring"
-            viewBox="0 0 620 570"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path d="M60 130H460V420H180" />
-            <path d="m194 406-14 14 14 14" />
-            <circle cx="60" cy="130" r="6" />
-          </svg>
-          <div class="postcard postcard-source">
-            <div class="postcard-label">
-              <span>Here / there</span>
-              <span>The source</span>
-            </div>
-            <img
-              src="/brand/demo/ringmarket-v5.webp"
-              width="1200"
-              height="900"
-              alt="Fictional postcard from the demo: an orange market above a ringed planet."
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="postcard postcard-collection">
-            <div class="postcard-label">
-              <span>Linkarooie</span>
-              <span>The collection</span>
-            </div>
-            <img
-              src="/brand/demo/lighthouse-v5.webp"
-              width="1200"
-              height="900"
-              alt="Fictional postcard from the demo: a lighthouse on a small moon."
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <figcaption>Each app keeps its own source and records.</figcaption>
-        </figure>
-      </div>
-      <div class="composition-foot home-container">
-        <span>One connected experience.</span>
-        <a href="/architecture">
-          See how the parts fit <ArrowRight size={19} aria-hidden="true" />
-        </a>
-      </div>
-    </section>
-
-    <section class="home-film home-container" aria-labelledby="film-heading">
-      <div class="film-heading">
-        <p class="home-eyebrow">
-          <span class="section-number">04</span> The work behind the interface
-        </p>
-        <h2 id="film-heading">
-          Watch a Creator Hub
-          <br />
-          come together.
-        </h2>
-        <div>
-          <p>
-            A ceramics profile and a moderated guestbook, built from one brief.
-            See how the two apps work together and what the creator changes later.
-          </p>
-          <a class="home-text-link" href="/manage">
-            Explore the owner side <ArrowRight size={18} aria-hidden="true" />
-          </a>
-        </div>
-      </div>
-      <a
-        class="film-cover"
-        href="/creator-hub#film"
-        aria-label="Watch the 34-second Creator Hub film"
-      >
-        <img
-          src="/brand/campaign/building-og-20261117.jpg"
-          width="1200"
-          height="630"
-          alt="App Composer. Build it. Keep it running. A sketch feeds into orange-lit workshop modules."
-          loading="lazy"
-          decoding="async"
-        />
-        <span class="film-play">
-          <span class="play-circle">
-            <Play size={27} fill="currentColor" aria-hidden="true" />
-          </span>
-          <span>
-            Watch the 34-second film{" "}
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </span>
-        </span>
-      </a>
-      <div class="film-foot">
-        <span>Live reference build · fictional creator</span>
-        <a href="/platform/demo">
-          Watch the team walkthroughs{" "}
-          <ArrowRight size={17} aria-hidden="true" />
-        </a>
-      </div>
-    </section>
-
-    <section
-      class="home-community home-container"
-      aria-labelledby="community-heading"
-    >
-      <div class="community-heading">
-        <p class="home-eyebrow">From the community</p>
-        <h2 id="community-heading">
-          The next idea
-          <br />
-          doesn’t have to be ours.
-        </h2>
-      </div>
-      <article class="community-project">
-        <span class="community-mark" aria-hidden="true">
-          ↗
-        </span>
-        <div>
-          <p class="community-byline">Robert DeVore</p>
-          <h3>Agent Black Box</h3>
-          <p>
-            Robert built three independent Worker apps to import records of
-            agent runs, replay them and publish an approved report. The project
-            uses Composer’s manifest and composition checks.
-          </p>
-          <p class="community-scope">
-            The open-source demo runs locally and uses an adapter built for this
-            project.
-          </p>
-          <div class="community-links">
-            <a
-              class="home-text-link"
-              href="https://github.com/robertdevore/agent-black-box"
-            >
-              Explore the project <ArrowUpRight size={18} aria-hidden="true" />
             </a>
-            <a href="https://x.com/deviorobert/status/2117347151525134372">
-              Read Robert’s announcement{" "}
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-      </article>
+          </li>
+        ))}
+      </ul>
     </section>
 
-    <section class="home-next" aria-labelledby="next-heading">
+    <section class="home-workflow" id="make-something" aria-labelledby="start-heading">
       <div class="home-container">
-        <p class="home-eyebrow">A useful place to start</p>
-        <div class="next-heading">
-          <h2 id="next-heading">
-            What would
-            <br />
-            you make?
-          </h2>
-          <img
-            src="/brand/composer-icon-20261022b.svg"
-            width="180"
-            height="180"
-            alt=""
-            loading="lazy"
-          />
+        <div class="home-section-head">
+          <div>
+            <h2 id="start-heading">Build, ship, keep going.</h2>
+            <p>App Composer is open source. The supported app and website path uses your agent, GitHub, Cloudflare and EmDash.</p>
+          </div>
+          <a class="home-text-link" href="/architecture#project-workspace">See how it fits together <ArrowUpRight size={17} aria-hidden="true" /></a>
         </div>
-        <div class="next-actions">
-          <a class="home-button" href="/learn">
-            Build your first app <ArrowUpRight size={21} aria-hidden="true" />
-          </a>
-          <a class="home-text-link" href="/agent">
-            Point your existing agent here{" "}
-            <ArrowRight size={19} aria-hidden="true" />
-          </a>
+        <ol class="home-steps">
+          {steps.map((step) => (
+            <li>
+              <h3>{step.title}</h3>
+              <p>{step.detail}</p>
+              <a class="home-text-link" href={step.href}>{step.link} <ArrowRight size={17} aria-hidden="true" /></a>
+            </li>
+          ))}
+        </ol>
+        <div class="home-case" id="example">
+          <div>
+            <h3>See an app go from brief to live</h3>
+            <p>Creator Hub shows how an agent connected two apps, released them to Cloudflare and changed the live site later.</p>
+          </div>
+          <a class="home-text-link" href="/creator-hub">Follow the Creator Hub build <ArrowUpRight size={17} aria-hidden="true" /></a>
         </div>
-        <p class="next-note">
-          You can browse without an account. To build, use your own source, agent
-          and Cloudflare account.
-        </p>
       </div>
     </section>
 
-    <section
-      class="home-depth home-container"
-      aria-label="Explore App Composer"
-    >
-      <div class="depth-intro">
-        <img
-          src="/brand/composer-icon-tile-20261022b.svg"
-          width="40"
-          height="40"
-          alt=""
-          loading="lazy"
-        />
-        <h2>
-          Go as deep
-          <br />
-          as you need.
-        </h2>
-        <p>The tools, the build story and the details behind the work.</p>
-      </div>
-      <div>
-        <h3>Make something</h3>
-        <ul>
-          <li>
-            <a href="/prompts">Prompt library</a>
-          </li>
-          <li>
-            <a href="/init">Init</a>
-          </li>
-          <li>
-            <a href="/setup">Set up your project</a>
-          </li>
-          <li>
-            <a href="/learn">Learn the workflow</a>
-          </li>
-          <li>
-            <a href="/launch-kit">Launch Kit</a>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <h3>Explore the work</h3>
-        <ul>
-          <li>
-            <a href="/apps">App library</a>
-          </li>
-          <li>
-            <a href="/discover">Find a path for your work</a>
-          </li>
-          <li>
-            <a href="/studio">Creator stacks</a>
-          </li>
-          <li>
-            <a href="/activity">Analytics &amp; reports</a>
-          </li>
-          <li>
-            <a href="/php2shell">The PHP2Shell Australia briefing</a>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <h3>Understand it</h3>
-        <ul>
-          <li>
-            <a href="/architecture">How it works</a>
-          </li>
-          <li>
-            <a href="/cloudflare">Cloudflare costs &amp; operations</a>
-          </li>
-          <li>
-            <a href="/guide">Platform &amp; service guide</a>
-          </li>
-          <li>
-            <a href="/building">Build story</a>
-          </li>
-          <li>
-            <a href="/diagrams">Diagram atlas</a>
-          </li>
-          <li>
-            <a href="/resources">Runbooks &amp; resources</a>
-          </li>
-          <li>
-            <a href="/release">Release evidence</a>
-          </li>
-        </ul>
-      </div>
-    </section>
-    {ownerInstance && (
+    <nav class="home-resources home-container" aria-label="More places to explore">
+      <a class="home-text-link" href="/media-studio">Media Studio <ArrowUpRight size={17} aria-hidden="true" /></a>
+      <a class="home-text-link" href="/share">Browse artwork <ArrowUpRight size={17} aria-hidden="true" /></a>
+      <a class="home-text-link" href="/apps">App library <ArrowUpRight size={17} aria-hidden="true" /></a>
+      <a class="home-text-link" href="/agent">Connect your agent <ArrowUpRight size={17} aria-hidden="true" /></a>
+      <a class="home-text-link" href="/release">Release evidence <ArrowUpRight size={17} aria-hidden="true" /></a>
+    </nav>
+    {instance.enabled && (
       <div class="home-instance home-container">
-        <p>
-          <strong>{ownerInstance.name}</strong> — {ownerInstance.description}
-        </p>
-        <a href={ownerInstance.profile}>
-          Open {ownerInstance.owner}’s Linkarooie profile{" "}
-          <ArrowUpRight size={17} aria-hidden="true" />
+        <p><strong>{instance.name}</strong> · {instance.description}</p>
+        <a class="home-text-link" href={instance.profile}>
+          Open {instance.owner}’s Linkarooie profile <ArrowUpRight size={17} aria-hidden="true" />
         </a>
       </div>
     )}
   </div>
 </Base>
-
-<script>
-  // The workshop is a separately loaded visual enhancement. The poster, product
-  // copy and every app link are already in the HTML, so no JavaScript is needed
-  // to understand or use the page.
-  const studioStage = document.querySelector<HTMLElement>("[data-studio-stage]");
-  const studioCanvas = studioStage?.querySelector("canvas");
-  const studioConsole = document.querySelector<HTMLElement>("[data-studio-console]");
-  const studioStatic = document.querySelector<HTMLElement>("[data-studio-static]");
-  const studioStatus = document.querySelector<HTMLElement>("[data-studio-status]");
-
-  const showStaticWorkshop = (message: string) => {
-    if (!studioStage) return;
-    studioStage.dataset.state = "static";
-    studioStage.classList.remove("is-ready");
-    studioStage
-      .querySelectorAll<HTMLElement>("[data-studio-poster]")
-      .forEach((poster) => {
-        poster.hidden = false;
-      });
-    if (studioConsole) studioConsole.hidden = true;
-    if (studioStatic) studioStatic.hidden = false;
-    if (studioStatus) {
-      studioStatus.textContent = "Illustrated workshop · static";
-      studioStatus.dataset.tone = "warn";
-    }
-    const note = document.querySelector<HTMLElement>(
-      "[data-studio-static-note]",
-    );
-    if (note) note.textContent = message;
-  };
-
-  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } })
-    .connection?.saveData;
-  if (studioStage && studioCanvas) {
-    if (saveData) {
-      showStaticWorkshop("Illustrated workshop · Save-Data");
-    } else {
-      const startStudio = () =>
-        import("../scripts/studio/studio-hero.js").catch((error) => {
-          console.warn("Studio module unavailable:", error?.message ?? error);
-          showStaticWorkshop("Illustrated workshop · live view unavailable");
-        });
-      const scheduleStudio = () => {
-        if ("requestIdleCallback" in window) {
-          window.requestIdleCallback(startStudio, { timeout: 350 });
-        } else {
-          globalThis.setTimeout(startStudio, 0);
-        }
-      };
-      // The workshop now sits below the product introduction. Preload it as
-      // the visitor approaches, instead of creating a WebGL scene offscreen
-      // during the landing page's first render. The poster stays visible.
-      if ("IntersectionObserver" in window) {
-        const observer = new IntersectionObserver((entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return;
-          observer.disconnect();
-          scheduleStudio();
-        }, { rootMargin: "700px 0px" });
-        observer.observe(studioStage);
-      } else {
-        scheduleStudio();
-      }
-    }
-  }
-
-  // Without JavaScript these remain ordinary links and all screens are readable.
-  for (const gallery of document.querySelectorAll<HTMLElement>(
-    "[data-home-gallery]",
-  )) {
-    const tabList = gallery.querySelector<HTMLElement>("[data-home-tabs]");
-    const tabs = Array.from(
-      gallery.querySelectorAll<HTMLAnchorElement>("[data-home-tab]"),
-    );
-    const panels = Array.from(
-      gallery.querySelectorAll<HTMLElement>("[data-home-panel]"),
-    );
-    if (!tabList || tabs.length !== panels.length) continue;
-    tabList.setAttribute("role", "tablist");
-    const select = (index: number, focus = false) => {
-      tabs.forEach((tab, position) => {
-        tab.setAttribute("aria-selected", String(position === index));
-        tab.tabIndex = position === index ? 0 : -1;
-        panels[position].hidden = position !== index;
-      });
-      if (focus) tabs[index].focus();
-    };
-    tabs.forEach((tab, index) => {
-      tab.setAttribute("role", "tab");
-      tab.setAttribute("aria-controls", panels[index].id);
-      panels[index].setAttribute("role", "tabpanel");
-      panels[index].setAttribute("aria-labelledby", tab.id);
-      tab.addEventListener("click", (event) => {
-        event.preventDefault();
-        select(index);
-      });
-      tab.addEventListener("keydown", (event) => {
-        let next = index;
-        if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
-        else if (event.key === "ArrowLeft")
-          next = (index + tabs.length - 1) % tabs.length;
-        else if (event.key === "Home") next = 0;
-        else if (event.key === "End") next = tabs.length - 1;
-        else return;
-        event.preventDefault();
-        select(next, true);
-      });
-    });
-    const anchored = panels.findIndex(
-      (panel) => `#${panel.id}` === window.location.hash,
-    );
-    select(anchored < 0 ? 0 : anchored);
-    gallery.classList.add("is-enhanced");
-  }
-
-</script>

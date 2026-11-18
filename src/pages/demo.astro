@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import LaunchpadSandbox from '../components/LaunchpadSandbox';
 import { ArrowRight, ExternalLink, GitBranch, Layers, ShieldCheck } from '@lucide/astro';
+
+const commercial = '/brand/campaign/take-it-with-you-20261118';
 ---
 <Base title="Build something people can use" description="Shape a real app from reusable parts in the browser, then take the same validated blueprint to your own coding agent and your own Cloudflare account.">
  <div class="demo-heading">
@@ -34,6 +36,7 @@ import { ArrowRight, ExternalLink, GitBranch, Layers, ShieldCheck } from '@lucid
   <div class="demo-links">
    <a href="/creator-hub"><Layers size={20} aria-hidden="true"/><strong>Creator Hub</strong><span>A home for your work, built with an agent and changed after release.</span></a>
    <a href="/demo/connected-apps"><GitBranch size={20} aria-hidden="true"/><strong>Two apps, one collection</strong><span>The photo guestbook and Linkarooie, with the ownership peel and revisions.</span></a>
+   <a href="/demo/workshop"><Layers size={20} aria-hidden="true"/><strong>Illustrated workshop</strong><span>Explore Paperwork, LDraw and Analytics in a playful 3D demo.</span></a>
    <a href="https://creator-hub-guestbook.loftwah.com"><ExternalLink size={20} aria-hidden="true"/><strong>Live guestbook</strong><span>Submit a fictional note and see the moderation path on a real deployment.</span></a>
   </div>
  </section>
@@ -41,6 +44,18 @@ import { ArrowRight, ExternalLink, GitBranch, Layers, ShieldCheck } from '@lucid
  <section class="demo-section" aria-labelledby="next-title">
   <h2 id="next-title">Start your own</h2>
   <p>Choose your app, name it and prepare the brief. <a href="/init">Open Init</a> when you are ready for a real build, or <a href="/ready">get your environment ready first</a>. The build and deployment belong to your agent; <a href="/release">the release page</a> records what has actually been verified.</p>
+ </section>
+
+ <section class="demo-section" id="commercial" aria-labelledby="commercial-title">
+  <h2 id="commercial-title">Take it with you</h2>
+  <figure class="commercial">
+   <video controls playsinline preload="none" width="1280" height="720" poster={commercial + '.webp'} aria-label="App Composer commercial">
+    <source src={commercial + '.mp4'} type="video/mp4" />
+    <track kind="captions" src={commercial + '.vtt'} srclang="en" label="English captions" />
+    <a href={commercial + '.mp4'}>Open the App Composer commercial</a>
+   </video>
+   <figcaption><a href={commercial + '.txt'}>Read the transcript</a></figcaption>
+  </figure>
  </section>
 </Base>
 <style>
@@ -53,6 +68,8 @@ import { ArrowRight, ExternalLink, GitBranch, Layers, ShieldCheck } from '@lucid
  .demo-steps li{margin:0;padding:16px 0;border-top:1px solid var(--color-border)}
  .demo-steps strong{display:block;margin-bottom:6px}
  .demo-steps li{color:var(--color-muted)}
+ .commercial{margin:20px 0 0;max-width:720px}
+ .commercial video{display:block;width:100%;height:auto}
  .demo-note{display:flex;gap:10px;align-items:flex-start;margin-top:24px;font-size:14px;color:var(--color-muted);max-width:70ch}
  .demo-note svg{flex:none;margin-top:3px;color:var(--color-accent)}
  .demo-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}

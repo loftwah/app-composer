@@ -2,68 +2,45 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-test('the opening names App Composer, offers one first action and links to the project architecture', () => {
-  const home = readFileSync(new URL('../src/components/ProductHome.astro', import.meta.url), 'utf8');
-  const opening = home.indexOf('class="home-opening"');
-  const steps = home.indexOf('id="make-something"');
-  const proof = home.indexOf('id="example"');
-  const workshop = home.indexOf('class="studio-hero"');
-  assert.ok(opening >= 0 && opening < proof && proof < steps && steps < workshop);
-  const first = home.slice(opening, proof);
-  assert.match(first, /App Composer is open source/);
+const readSource = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
+
+test('the opening leads with owned software and a real Studio project', () => {
+  const home = readSource('../src/components/ProductHome.astro');
+  const first = home.slice(home.indexOf('class="home-opening"'), home.indexOf('class="home-portfolio'));
+  assert.match(first, /App Composer brings your AI agent, reusable apps and creative tools together/);
+  assert.match(first, /publish in your own accounts/);
   assert.match(first, /href="\/learn">Build your first app/);
-  assert.match(first, /href="#example">Follow a real project/);
-  assert.match(home.slice(steps, workshop), /Get Ready is the setup step/);
-  assert.match(first, /href="\/architecture#project-workspace"/);
-  const architecture = readFileSync(new URL('../src/pages/architecture.astro', import.meta.url), 'utf8');
+  assert.match(first, /href="\/demo">Try the sandbox/);
+  assert.match(first, /href="\/media-studio#fighter-after-hours"/);
+  assert.match(first, /fighter-before-the-bell/);
+  assert.doesNotMatch(home, /guestbook-20261111|foilbury-launch-palette|data-studio-stage/);
+
+  const studio = readSource('../src/pages/media-studio.astro');
+  assert.match(studio, /id="fighter-after-hours"[\s\S]*?fighter-after-hours-20261115\.mp4/);
+});
+
+test('portfolio projects lead into the supported build journey', () => {
+  const home = readSource('../src/components/ProductHome.astro');
+  assert.ok(home.indexOf('class="home-portfolio') < home.indexOf('id="make-something"'));
+  assert.match(home, /id: "foilbury"/);
+  assert.match(home, /id: "shoalshot"/);
+  assert.match(home, /Loftwah portfolio/);
+  assert.match(home, /href="\/architecture#project-workspace"/);
+  assert.match(home, /id="example"[\s\S]*?href="\/creator-hub"/);
+  assert.match(home, /href: "\/creator-hub#follow-up"/);
+  assert.match(home, /href="\/agent"/);
+
+  const architecture = readSource('../src/pages/architecture.astro');
   assert.match(architecture, /id="project-workspace"[\s\S]*?href="\/release"/);
-  assert.doesNotMatch(first, /href="\/ready"[^>]*>Get started/);
 });
 
-test('the opening explains what App Composer connects and how to act', () => {
-  const home = readFileSync(new URL('../src/components/ProductHome.astro', import.meta.url), 'utf8');
-  const opening = home.indexOf('class="home-opening"');
-  const proof = home.indexOf('id="example"');
-  const first = home.slice(opening, proof);
-  const lede = first.match(/<h1[\s\S]*?<\/h1>\s*<p>([\s\S]*?)<\/p>/);
-  assert.ok(lede, 'the opening has one paragraph after the heading');
-  assert.match(lede[1], /connects your AI agent, reusable apps, creative tools/);
-  assert.match(lede[1], /build, test and publish/);
-  assert.match(lede[1], /own accounts, where you can keep improving it/);
-  // One button plus one in-page proof link; the trial app is explained in the
-  // setup note rather than offered as a third peer action.
-  const actions = first.slice(
-    first.indexOf('class="home-opening-actions"'),
-    first.indexOf('class="home-opening-note"'),
-  );
-  assert.equal(actions.match(/<a\b/g)?.length, 2, 'the action row has two links');
-  assert.doesNotMatch(actions, /<a class="studio-text-link" href="\/demo"/);
-  assert.match(first, /href="\/demo">try a demo/);
-});
-
-test('the real example shows the owned app and its later change before the fictional workshop', () => {
-  const home = readFileSync(new URL('../src/components/ProductHome.astro', import.meta.url), 'utf8');
-  const proof = home.indexOf('id="example"');
-  const workshop = home.indexOf('class="studio-hero"');
-  const example = home.slice(proof, workshop);
-  assert.match(example, /one Init brief into two connected/);
-  assert.match(example, /href="\/creator-hub#brief"/);
-  assert.match(example, /href="\/creator-hub#live"/);
-  assert.match(example, /featured two links on the same site/);
-  assert.match(example, /href="\/projects\?example=creative-handoff#creative-handoff"/);
-  const projects = readFileSync(new URL('../src/pages/projects.astro', import.meta.url), 'utf8');
-  assert.match(projects, /searchParams.get\("example"\) === "creative-handoff"[\s\S]*?id="creative-handoff"/);
-  assert.match(example, /href="\/creator-hub#follow-up"/);
-  assert.match(example, /fictional owner/);
-  assert.match(home, /id="workshop-heading"[\s\S]*fictional workshop/);
-});
-
-test('the closing action is the same first step as the opening, not a second start', () => {
-  const home = readFileSync(new URL('../src/components/ProductHome.astro', import.meta.url), 'utf8');
-  const next = home.slice(home.indexOf('class="home-next"'));
-  assert.match(next, /class="next-actions"[\s\S]*?href="\/learn">[\s\S]*?Build your first app/);
-  assert.doesNotMatch(next, /href="\/ready"/);
-  assert.match(next, /Point your existing agent here/);
+test('the workshop and captioned commercial remain reachable through Demos', () => {
+  const demo = readSource('../src/pages/demo.astro');
+  assert.match(demo, /href="\/demo\/workshop"/);
+  assert.match(demo, /id="commercial"[\s\S]*?<track kind="captions"[\s\S]*?Read the transcript/);
+  const workshop = readSource('../src/pages/demo/workshop.astro');
+  assert.match(workshop, /id="workshop-heading"[\s\S]*?data-studio-static/);
+  assert.match(readSource('../src/pages/media-studio/direct.astro'), /href: "\/demo#commercial"/);
 });
 
 test('the shared header leads with Learn, keeps setup under More and preserves mobile and app navigation', () => {
