@@ -146,6 +146,10 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   });
   controls.hidden = false;
   filter();
+  // History restoration can refill the search box after this script runs without
+  // firing an input event (for example, returning from a mounted app). Re-apply the
+  // restored value so the visible query and the displayed destinations agree.
+  window.addEventListener('pageshow', filter);
 </script>
 
 <style>
