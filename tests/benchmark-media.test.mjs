@@ -79,10 +79,6 @@ function clone(value) {
   return structuredClone(value);
 }
 
-function checkIds(trial) {
-  return trial.checks.map((check) => check.id).sort();
-}
-
 test("the committed record is a genuinely matched pair", () => {
   const validation = validateMediaRecord(record, {
     expectedSourceVersion: record.sourceVersion,

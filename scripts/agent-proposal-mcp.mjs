@@ -14,7 +14,6 @@
 //
 // The credential is read from the environment, never from a tool argument, so
 // a model never has to handle it. Redacted refusals are written to stderr.
-import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { McpServer } from "@modelcontextprotocol/server";
 import {

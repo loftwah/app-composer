@@ -8,7 +8,7 @@
 // blind side paths agree with the same hash rule the vote API uses. It then
 // writes `run.json`, the record the page and export read.
 import { createHash } from "node:crypto";
-import { readFileSync, statSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -36,13 +36,9 @@ function readJson(file) {
   return JSON.parse(readFileSync(file, "utf8"));
 }
 
-function sha256File(file) {
-  return createHash("sha256").update(readFileSync(file)).digest("hex");
-}
-
 function compactDigest(file) {
   const bytes = readFileSync(file);
-  return { bytes: statSync(file).size, sha256: createHash("sha256").update(bytes).digest("hex") };
+  return { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
 }
 
 function composeRecord(task, configurations) {

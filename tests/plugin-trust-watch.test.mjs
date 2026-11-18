@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {gzipSync} from 'node:zlib';
 import {pluginTrustSnapshot,evaluatePlugin} from '../src/lib/plugin-trust-contract.ts';
 import {diffObservation,reviewItems,reviewKey,retainSnapshots,watchStatus,watchPolicy} from '../src/lib/plugin-trust-watch.ts';
-import {multihashDigest,readArchiveFile,inspectBundle} from '../scripts/plugin-trust-observe.mjs';
+import {multihashDigest,inspectBundle} from '../scripts/plugin-trust-observe.mjs';
 
 const cid='b'+'a'.repeat(30);
 const label=(uri,val,neg=false)=>({ver:1,src:'did:web:labels.emdashcms.com',uri,val,cts:'2026-10-20T14:14:34.597Z',cid,neg});

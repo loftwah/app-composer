@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   archiveMembers,
-  privateValues,
   textFindings,
   riskyPath,
 } from "./lib/publication-secrets.mjs";

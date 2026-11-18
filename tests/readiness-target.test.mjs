@@ -1,7 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {referenceDeployment,verifyNewWorkersDevTarget} from '../lib/get-ready/local.mjs';
 import {recipe,createReadinessSession,runReadinessSession,inspectReadiness,ReadinessFailure,createLocalAdapter,discoverWorkspace} from '../lib/get-ready/index.mjs';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,existsSync,realpathSync,linkSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
+import {writeFileSync,readFileSync,existsSync,linkSync} from 'node:fs';
+import {join} from 'node:path';
 const scope={workspace:'/fictional/hello',repo:'fixture/hello',source:'a'.repeat(40),dirty:false,account:'b'.repeat(32),worker:'my-first-app',target:{origin:'https://my-first-app.fixture.workers.dev',repo:'fixture/hello'}};
 import {fixture} from './fixtures/readiness-target.mjs';
 const response=body=>Response.json({success:true,result:body});

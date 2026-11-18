@@ -6,10 +6,7 @@ import { createRequire, registerHooks } from "node:module";
 import { fixture, user, origin } from "./helpers/resource-fixture.mjs";
 import { workspaceForUser } from "../src/lib/stacks.mjs";
 import { creatorPlugin } from "../src/lib/creator-plugin.ts";
-import {
-  encryptionProbeOption,
-  encryptionProbeField,
-} from "../src/lib/connection-encryption.ts";
+import { encryptionProbeOption } from "../src/lib/connection-encryption.ts";
 const hooks = registerHooks({
   resolve(specifier, context, next) {
     if (specifier === "virtual:emdash/config")

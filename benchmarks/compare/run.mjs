@@ -17,17 +17,15 @@
 // Every trial is written under public/benchmarks/trials so the comparison page can
 // open the real page a configuration produced. A trial that cannot start, times
 // out or leaves unusable files is recorded as blocked or failed, never as passed.
-import { execFile, spawn } from "node:child_process";
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
 import { createHash } from "node:crypto";
 import { evaluateTrial, REQUIRED_FILES } from "../../src/lib/benchmark-compare.mjs";
 
-const exec = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
 const taskFile = path.join(here, "task.json");
