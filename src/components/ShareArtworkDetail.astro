@@ -30,6 +30,7 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
     {artwork.description && <p class="gallery-description">{artwork.description}</p>}
     <div class="gallery-piece-actions">
       <a class="button gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {artwork.original ? 'Download original' : 'Download preview'}</a>
+      <a class="button secondary" href={path + '/palette'}>Pick colours</a>
       <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
       <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
     </div>

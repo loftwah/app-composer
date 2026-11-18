@@ -68,6 +68,7 @@ const actions: Record<string, string> = {
             <div class="entry-actions">
               <a class:list={['entry-open', {button: feature}]} href={href}>{label} <ArrowRight size={16} aria-hidden="true" /></a>
               {isStudio && <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>}
+              {isShare && <a href="/share/artwork/poster-study-fighter/palette">Pick poster colours</a>}
             </div>
           </div>
           {feature && <figure>
