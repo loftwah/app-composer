@@ -339,6 +339,17 @@ export function BrandStudioPage() {
             environment. Independent app identities and public pages keep their
             own settings.
           </p>
+          <p className="bs-boundary">
+            Use{" "}
+            <a href="/launch-kit" target="_blank" rel="noopener">
+              Launch Kit
+            </a>{" "}
+            for app icons and sharing images, and browse{" "}
+            <a href="/share" target="_blank" rel="noopener">
+              Composer Share
+            </a>{" "}
+            for artwork. Both links open in a new tab.
+          </p>
           <div className="bs-workspace">
             <form onSubmit={submit} className="bs-form">
               <h2>Appearance</h2>
