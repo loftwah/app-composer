@@ -31,22 +31,20 @@ notes and project kits remain available in the viewer and at the artwork's
 permalink. On phones the details follow the artwork. The gallery retains
 ordinary links, a native filter form and server pagination without JavaScript.
 
-## The public project story — 17 November 2026
+## The homepage project selection — 18 November 2026
 
-The homepage leads with the existing Make. Keep. Remix. campaign artwork. The
-illustrated print workshop represents creative reuse. The Creator Hub section
-that follows shows a captured live app and links to its original brief, running
-services and later change. The Foilbury card shows a separate Studio, Launch Kit
-and Init handoff with a direct link to its release record. Use original artwork
-for expression and actual product output for evidence. The architecture page
-explains what each connected system owns. The ink and warm paper theme surfaces
-and shared controls carry through the story.
+The homepage opens with the promise of creating and running work you own. Media
+Studio's Before the Bell artwork leads into the actual Fighter: After Hours cut.
+Foilbury and SHOALSHOT are linked as games from the Loftwah portfolio. Creator
+Hub follows as proof of the app build and follow-up path. The home canvas keeps
+the Composer mark, Space type and the ink and paper themes. The illustrated
+workshop and the Composer commercial are available through Demos.
 
 ## Public front door — owner direction 2026/11/10 (Melbourne AEDT / UTC)
 
 MP selected [0.security](https://0.security/) as the quality reference for Woodhouse and App Composer: a coherent full-width composition, confident readable typography, generous space, purposeful motion and strong product-specific visuals throughout the page. This raises the presentation standard without copying the reference site's identity or changing Composer's approved mark.
 
-The current opening leads with building an owned app. Its actions link to Learn, the Creator Hub example and the working sandbox. The illustrated workshop appears farther down the page. The header, menu, launcher, gallery, film and community surfaces use the active theme tokens. The `product-home.css` stylesheet is confined to the homepage and its opt-in shell.
+The current opening leads with building an owned app. Its primary actions open Learn and the working sandbox. The Creator Hub example follows the featured work. The header, menu, launcher, gallery, film and community surfaces use the active theme tokens. The `product-home.css` stylesheet is confined to the homepage and its opt-in shell.
 
 Theme correction, 11 November 2026: the opening and closing panels previously stayed dark/light regardless of the toggle. They now follow the active theme, and the header controls sit on matching surfaces. The light opening uses dark ink on warm paper with a darker orange accent; the dark opening uses light text on ink with the brighter accent. The closing panel follows the same pairing.
 
