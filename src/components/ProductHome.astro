@@ -1,13 +1,18 @@
 ---
 import Base from "../layouts/Base.astro";
-import PostcardDesk from "./PostcardDesk.astro";
+import { portfolioProjects } from "../lib/portfolio-projects";
 import { ArrowRight, ArrowUpRight } from "@lucide/astro";
 import { apps } from "../lib/apps";
 import instance from "../../config/instance.json";
 import "../styles/product-home.css";
 
-const miniApps = apps.filter(app => app.id === "guestbook" || app.id === "showcase");
-
+const miniApps = apps.filter(app => app.id !== "media-studio" && app.id !== "showcase");
+const projects = portfolioProjects.filter(project => project.site && project.id !== "app-composer" && project.id !== "media-studio");
+const resources = [
+  {title: "Learn and create", links: [["First app", "/learn"], ["Project sandbox", "/demo"], ["Illustrated workshop", "/demo/workshop"], ["Studio films", "/media-studio/films"], ["Screening room", "/demo/screening-room"], ["Prompt library", "/prompts"], ["Diagrams", "/diagrams"]]},
+  {title: "Run your apps", links: [["Manage apps", "/manage"], ["Platform console", "/platform"], ["Console demo", "/platform/demo"], ["Analytics and reports", "/activity"], ["Creator stacks", "/studio"], ["Cloudflare costs", "/cloudflare"], ["Release evidence", "/release"]]},
+  {title: "Explore Composer", links: [["Build story", "/building"], ["Find a tool by task", "/discover"], ["Project setup", "/setup"], ["Connect an agent", "/agent"], ["Service guide", "/guide"], ["Operator resources", "/resources"], ["PHP2Shell briefing", "/php2shell"]]},
+];
 const steps = [
   { title: "Shape the idea", detail: "Bring a goal and references. Use Init to turn them into a brief your agent can build from.", href: "/init", link: "Write a brief in Init" },
   { title: "Build and publish", detail: "Prepare a Cloudflare environment and build the app with your coding agent in your own repository.", href: "/ready", link: "Set up with Get Ready" },
@@ -23,45 +28,33 @@ const siteSchema = {
 
 <Base
   homePage
+  shareImage="/brand/campaign/build-it-keep-it-running.png" shareWidth={1728} shareHeight={910} shareAlt="App Composer. Build it. Keep it running."
   title="App Composer — create, ship and run projects with AI"
   description="Build and run software you own with your AI agent. App Composer brings together reusable apps, Media Studio and your own Cloudflare account."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
   <div class="composer-home">
-    <PostcardDesk />
-
-    <section class="home-miniapps home-container" aria-labelledby="work-heading">
-      <div class="home-section-head">
-        <div>
-          <h2 id="work-heading">A guestbook meets a profile</h2>
-          <p>Here / there collects the postcards. Linkarooie gives the ones you select a home. Open either app to see its part.</p>
+    <section class="home-opening campaign-opening" aria-labelledby="home-heading">
+      <div class="campaign-frame">
+        <h1 id="home-heading"><img class="campaign-master" src="/brand/campaign/build-it-keep-it-running.png" width="1728" height="910" fetchpriority="high" alt="App Composer. Build it. Keep it running." /></h1>
+        <div class="campaign-bar">
+          <p>Build and run apps with your AI agent, in accounts you own.</p>
+          <nav class="home-opening-actions" aria-label="Open App Composer tools">
+            <a class="home-button" href="/media-studio/studio">Open Media Studio <ArrowUpRight size={17} aria-hidden="true" /></a>
+            <a href="/apps">App library</a><a href="/showcase/">Linkarooie</a><a href="/share">Share</a>
+          </nav>
         </div>
-        <a class="home-text-link" href="/apps">Explore the app library <ArrowUpRight size={17} aria-hidden="true" /></a>
       </div>
-      <ul class="home-projects">
-        {miniApps.map((project) => (
-          <li>
-            <a class="home-project" href={project.href}>
-              <img src={project.image} width="480" height="480" alt="" loading="lazy" decoding="async" />
-              <div class="home-project-caption">
-                <div>
-                  <h3>{project.name}</h3>
-                  <p>{project.description}</p>
-                </div>
-                <ArrowUpRight size={24} aria-hidden="true" />
-              </div>
-            </a>
-          </li>
-        ))}
-      </ul>
     </section>
 
-    <section class="home-creative home-container" aria-labelledby="creative-heading">
-      <div class="home-section-head"><h2 id="creative-heading">Media Studio &amp; Share</h2></div>
-      <div class="home-creative-links">
-        <a href="/media-studio"><img src="/media-studio/brand/studio-launch-thumb.webp" width="112" height="112" alt="" loading="lazy" /><div><h3>Media Studio</h3><p>Follow a still image through a masked edit, sound and motion. Open the tools to make your own.</p></div><ArrowUpRight size={21} aria-hidden="true" /></a>
-        <a href="/share"><img src="/brand/campaign/composer-family-atlas.webp" width="112" height="112" alt="" loading="lazy" /><div><h3>App Composer Share</h3><p>Explore the project artwork. Open a piece to see its credit, download the original or sample its colours.</p></div><ArrowUpRight size={21} aria-hidden="true" /></a>
+    <section class="home-miniapps home-container" aria-labelledby="work-heading">
+      <div class="home-section-head"><h2 id="work-heading">Apps &amp; creative tools</h2><a class="home-text-link" href="/apps">Browse the library <ArrowRight size={18} aria-hidden="true" /></a></div>
+      <div class="home-features">
+        <article><a href="/media-studio"><img src="/brand/campaign/media-studio-og-20261117-v2.jpg" width="1200" height="630" alt="Media Studio. Make something worth keeping." loading="lazy" /><h3>Media Studio</h3></a><p>Create images, edit video and mix sound. Keep the source files, takes and finished work together.</p><a href="/media-studio/films">Watch the films →</a></article>
+        <article><a href="/showcase/"><img src="/brand/apps/linkarooie-share-20261018-v2.jpg" width="1200" height="630" alt="Linkarooie’s workshop curator" loading="lazy" /><h3>Linkarooie</h3></a><p>Open Loftwah’s published profile for music, games, writing and the projects behind them.</p><a href="/showcase/">Explore the profile →</a></article>
+        <article><a href="/share"><img src="/brand/campaign/share-og-20261117-v2.jpg" width="1200" height="630" alt="App Composer Share. Find your next idea." loading="lazy" /><h3>App Composer Share</h3></a><p>Browse original artwork by project, see the credits, and take the artwork or its colours into your own work.</p><a href="/share/artwork/atlas-04-composer-family/palette">Sample the Composer palette →</a></article>
       </div>
+      <ul class="home-tools">{miniApps.map(app => <li><a href={app.href}><img src={app.thumbnail} alt="" width="32" height="32" loading="lazy" />{app.name}<ArrowUpRight size={15} aria-hidden="true" /></a></li>)}</ul>
     </section>
 
     <section class="home-workflow" id="make-something" aria-labelledby="start-heading">
@@ -73,6 +66,7 @@ const siteSchema = {
           </div>
           <a class="home-text-link" href="/architecture#project-workspace">See how it fits together <ArrowUpRight size={17} aria-hidden="true" /></a>
         </div>
+        <a class="cloudflare-campaign" href="/cloudflare" aria-label="Read the Cloudflare Workers costs and operations guide"><img src="/brand/campaign/get-started-workers.png" width="1672" height="941" alt="Get started on Cloudflare Workers. Paid plans from $5 a month." loading="lazy" /></a>
         <ol class="home-steps">
           {steps.map((step) => (
             <li>
@@ -92,16 +86,15 @@ const siteSchema = {
       </div>
     </section>
 
-    <nav class="home-resources home-container" aria-label="More places to explore">
-      <a class="home-text-link" href="/learn">Build your first app <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/demo">Try the sandbox <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/agent">Connect your agent <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/release">Release evidence <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/projects">Other projects <ArrowUpRight size={17} aria-hidden="true" /></a>
+    <nav class="home-resource-index home-container" aria-label="Composer guides and tools">
+      {resources.map(group => <section><h2>{group.title}</h2>{group.links.map(([label, href]) => <a href={href}>{label}</a>)}</section>)}
     </nav>
+    <section class="home-other home-container" aria-label="Portfolio projects"><h2><a href="/projects">Other projects →</a></h2>
+      <nav aria-label="Open a portfolio project">{projects.map(project => <a href={project.site}>{project.name}</a>)}<a href="/projects">Full project directory</a></nav>
+    </section>
     {instance.enabled && (
       <div class="home-instance home-container">
-        <p><strong>{instance.name}</strong> · {instance.description}</p>
+        <p><strong>{instance.name}</strong></p>
         <a class="home-text-link" href={instance.profile}>
           Open {instance.owner}’s Linkarooie profile <ArrowUpRight size={17} aria-hidden="true" />
         </a>
@@ -109,3 +102,9 @@ const siteSchema = {
     )}
   </div>
 </Base>
+
+
+<script>
+  // Bookmarks to editions created by the former homepage editor still open that edition.
+  if (location.hash.startsWith('#postcards=1&')) location.replace('/demo/postcards/edit' + location.hash);
+</script>

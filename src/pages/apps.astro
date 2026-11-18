@@ -12,9 +12,8 @@ const share = {
   description: 'Find a poster, sketch or cover. Open the artwork, download it or share the credited original.',
   href: '/share',
 } as const;
-const connected = apps.filter(app => app.id === 'guestbook' || app.id === 'showcase');
-const entries = [...connected, ...apps.filter(app => app.id === 'media-studio'), share,
-  ...apps.filter(app => app.id !== 'guestbook' && app.id !== 'showcase' && app.id !== 'media-studio')];
+const entries = [...apps.filter(app => app.id === 'media-studio'), ...apps.filter(app => app.id === 'showcase'), share,
+  ...apps.filter(app => app.id !== 'media-studio' && app.id !== 'showcase')];
 const features = {
   'media-studio': { image: '/media-studio/brand/studio-launch-thumb.webp', title: 'Build your own media studio', label: 'Studio launch artwork', href: '/media-studio#made' },
   'composer-share': { image: '/brand/campaign/composer-family-atlas.webp', title: 'One platform. Independent apps', label: 'App Composer illustration', href: '/share/artwork/atlas-04-composer-family' },
@@ -35,7 +34,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   <header class="directory-intro">
     <div>
       <h1>App library<span>.</span></h1>
-      <p>Start with a guestbook and profile, make media in Studio, or pick a tool for the job.</p>
+      <p>Make images, video and sound in Media Studio, explore a Linkarooie profile, or choose a tool below.</p>
     </div>
     <a href="/demo/connected-apps">Try two apps together <ArrowRight size={17} aria-hidden="true" /></a>
   </header>

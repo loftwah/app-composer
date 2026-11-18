@@ -33,15 +33,15 @@ ordinary links, a native filter form and server pagination without JavaScript.
 
 ## The homepage project selection — 18 November 2026
 
-Lead with App Composer and its independent mini apps. The hero is a working two-app editor. A visitor chooses a Here / there postcard and edits the caption in a Linkarooie collection. Its page link, print and workbench edition carry the actual choices. Their own artwork, names and live apps anchor the next section. Media Studio and App Composer Share follow with work made for Composer, then the build journey and supporting resources. The portfolio lives under Other projects.
+The owner selected the complete **Build it. Keep it running.** workshop campaign as the front door. Use the supplied artwork edge to edge within its frame, including its lettering and mark. The opening actions lead directly to Media Studio, the apps, Linkarooie and Share. Use the approved globe artwork alongside the Cloudflare build and cost guide. These two references establish the brand direction for this surface.
 
-Carry this order into discovery, examples, preview imagery, navigation and release demonstrations. Show the work the visitor can do with the product being presented. Keep each external example credited on its own project or case-study page.
+Linkarooie is a destination for its published music, writing, games and projects. Guestbook is one library app. The fictional postcard collection and its editor belong in Demos. Show the broader build, creative and operating tools on the homepage, with the wider portfolio last.
 
 ## Public front door — owner direction 2026/11/10 (Melbourne AEDT / UTC)
 
 MP selected [0.security](https://0.security/) as the quality reference for Woodhouse and App Composer: a coherent full-width composition, confident readable typography, generous space, purposeful motion and strong product-specific visuals throughout the page. This raises the presentation standard without copying the reference site's identity or changing Composer's approved mark.
 
-The current opening leads with building an owned app. Its primary actions open the collection and its editable workbench. The Creator Hub example follows the featured work. The header, menu, launcher, gallery, film and community surfaces use the active theme tokens. The `product-home.css` stylesheet is confined to the homepage and its opt-in shell.
+The current opening leads with building an owned app. Its primary actions open Media Studio, the library, Linkarooie and Share. The Creator Hub example follows the featured work. The header, menu, launcher, gallery, film and community surfaces use the active theme tokens. The `product-home.css` stylesheet is confined to the homepage and its opt-in shell.
 
 Theme correction, 11 November 2026: the opening and closing panels previously stayed dark/light regardless of the toggle. They now follow the active theme, and the header controls sit on matching surfaces. The light opening uses dark ink on warm paper with a darker orange accent; the dark opening uses light text on ink with the brighter accent. The closing panel follows the same pairing.
 

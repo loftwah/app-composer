@@ -3,7 +3,7 @@
 // qualification can opt into the fuller set of widths once.
 export async function verifyHomepage(page, origin, { capture, full = false } = {}) {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
-  const entryLinks = ['/demo/postcards', '/demo/connected-apps'];
+  const entryLinks = ['/media-studio/studio', '/apps', '/showcase/', '/share'];
   const receipt = { url: new URL('/', origin).href, views: [], keyboard: [], limits: [
     'Chromium viewport and text reflow checks do not establish physical device, native browser zoom or screen reader acceptance.',
     'Screenshots require visual review; geometric checks alone cannot establish a finished composition.',
@@ -18,7 +18,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
         await page.locator('#theme-toggle').click();
       }
       await page.evaluate(() => document.fonts.ready);
-      const images = await page.locator('.post-proof [data-post-photo], .home-project img').evaluateAll(async images => {
+      const images = await page.locator('.campaign-master, .home-features img').evaluateAll(async images => {
         await Promise.all(images.map(image => image.decode()));
         return images.map(image => image.naturalWidth);
       });
@@ -31,7 +31,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
           scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior };
       });
       ensure(!geometry.overflow, `Homepage overflows at ${width}/${theme}`);
-      ensure(images.length === 3 && images.every(width => width > 0), 'Featured imagery is incomplete');
+      ensure(images.length === 4 && images.every(width => width > 0), 'Featured imagery is incomplete');
       ensure(geometry.reducedMotion, 'Reduced motion preference was lost');
       ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
       ensure(geometry.heading.top >= geometry.header.bottom, 'Header overlaps the opening heading');
@@ -40,7 +40,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       for (const href of entryLinks) {
         ensure(await page.locator(`.home-opening-actions a[href^="${href}"]`).isVisible(), `${href} is not visible in the opening`);
       }
-      ensure(await page.locator('[data-post-name]').isVisible(), 'The collection editor is missing');
+      ensure(await page.locator('.campaign-master').isVisible(), 'The approved campaign is missing');
       const name = `${width}-${theme}`;
       if (capture) {
         // Scroll through lazy content before a full-page capture; the browser
@@ -64,14 +64,14 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
   await page.keyboard.press('Tab');
   ensure(await page.locator('.skip').evaluate(element => element === document.activeElement), 'Skip link is not the first keyboard target');
   await page.keyboard.press('Enter');
-  for (const selector of ['input[name=post-cover]:checked', '[data-post-name]', '[data-post-note]', '[data-post-view]', '[data-post-bench]']) {
+  for (const href of entryLinks) {
     await page.keyboard.press('Tab');
-    ensure(await page.locator(selector).evaluate(el => el === document.activeElement), 'Keyboard focus missed ' + selector);
-    receipt.keyboard.push(selector);
+    ensure(await page.locator('.home-opening-actions a[href="' + href + '"]').evaluate(el => el === document.activeElement), 'Keyboard focus missed ' + href);
+    receipt.keyboard.push(href);
   }
   await page.keyboard.press('Enter');
-  await page.waitForURL(url => url.pathname === '/demo/connected-apps');
-  await page.locator('[data-workbench]').waitFor({ state: 'visible' });
+  await page.waitForURL(url => url.pathname === '/share');
+  await page.locator('main h1').waitFor({state: 'visible'});
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
   for (const theme of ['dark', 'light']) {

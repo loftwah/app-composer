@@ -27,7 +27,7 @@ if (desk) {
       print.querySelector('[data-post-caption]')!.textContent = card.caption;
     }
     const hash = editionHash(edition);
-    for (const [selector, path] of [['[data-post-view]', '/demo/postcards'], ['[data-post-bench]', '/demo/connected-apps'], ['[data-post-remix]', '/']]) {
+    for (const [selector, path] of [['[data-post-view]', '/demo/postcards'], ['[data-post-bench]', '/demo/connected-apps'], ['[data-post-remix]', '/demo/postcards/edit']]) {
       const link = desk?.querySelector<HTMLAnchorElement>(selector);
       if (link) link.href = path + hash;
     }
