@@ -119,7 +119,7 @@
     { name: "Review a saved check", description: "Read a saved Link Check report and prepare a bounded agent handoff.", keywords: "review report saved handoff link check findings", aliases: ["review", "report", "handoff", "link check report", "review share report"], audience: "public", group: "tool", path: "/review", icon: "review" },
     // Apps: the remaining shipped catalogue entries, each once.
     { name: "Media Studio", description: "Read how the studio works and set up your own.", memberDescription: "Open or set up your studio: images, video and sound.", keywords: "media studio images video sound edit project creative", aliases: ["edit media", "studio", "images", "video", "sound"], audience: "public", group: "apps", path: "/media-studio", memberPath: "/media-studio/studio", image: "apps/media-studio-launcher-20261118.webp", catalogue: "media-studio" },
-    { name: "Edit images", description: "Media Studio Image Tools. Resize, crop and convert locally. To make a sprite atlas, open Batch.", keywords: "image images workbench resize crop convert inspect photo jpeg png webp local browser sprite spritesheet atlas sheet batch", aliases: ["image workbench", "image editor", "edit images", "browser-local image", "image tools", "images", "resize image", "crop image", "convert image", "sprite atlas", "sprite sheet", "spritesheet", "make a sprite atlas", "make a sprite sheet"], audience: "public", group: "apps", href: "https://media.loftwah.com/tools/images", icon: "tool" },
+    { name: "Edit images", description: "Media Studio Image Tools. Make social sizes or edit images locally. To make a sprite atlas, open Batch.", keywords: "image images workbench resize crop convert inspect photo jpeg png webp local browser social sizes kit sprite spritesheet atlas sheet batch", aliases: ["image workbench", "image editor", "edit images", "browser-local image", "image tools", "images", "resize image", "crop image", "convert image", "social sizes", "make 4 social sizes", "social kit", "sprite atlas", "sprite sheet", "spritesheet", "make a sprite atlas", "make a sprite sheet"], audience: "public", group: "apps", href: "https://media.loftwah.com/tools/images", icon: "tool" },
     { name: "LDraw", description: "Draw and save editable diagrams locally, then export PNG or SVG.", keywords: "draw drawing diagram excalidraw scene png svg local offline", aliases: ["draw", "diagram", "drawing"], audience: "public", group: "apps", href: "https://ldraw.loftwah.com/", image: "apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp", catalogue: "ldraw" },
     { name: "Here / there", description: "Collect photos and messages, then choose what to publish.", keywords: "photo photos guestbook contribute postcard approve moderation gallery", aliases: ["guestbook", "photos", "postcards", "publish"], audience: "public", group: "apps", path: "/guestbook/", image: "apps/herethere-small-20261018.webp", catalogue: "guestbook" },
     { name: "Linkarooie", description: "Arrange your links and approved photos into a page you control.", keywords: "profile curate collection favourites favorites showcase links publish share", aliases: ["profile", "links", "publish", "share"], audience: "public", group: "apps", path: "/showcase/", image: "apps/linkarooie-small-20261018.webp", catalogue: "showcase" },
@@ -170,12 +170,13 @@
   /** Every query word must match. A name match outranks an alias, which
    * outranks descriptive copy, so "create site" chooses the job rather than a
    * page that merely mentions it. */
-  function scoreText(name: string, description: string, keywords: string, aliases: string, words: string[]) {
+  function scoreText(name: string, description: string, keywords: string, aliases: readonly string[], words: string[]) {
     if (!words.length) return 0;
     const label = searchable(name);
-    const alias = searchable(aliases);
+    const alias = searchable(aliases.join(" "));
     const text = searchable(description + " " + keywords);
-    let score = 0;
+    const phrase = words.join(" ");
+    let score = aliases.some(value => searchWords(value).join(" ") === phrase) ? 1 : 0;
     for (const word of words) {
       if (label === word) score += 120;
       else if (label.startsWith(word)) score += 80;
@@ -188,7 +189,7 @@
     return score;
   }
   function scoreDestination(item: Destination, words: string[]) {
-    return scoreText(item.name, item.description, item.keywords, (item.aliases ?? []).join(" "), words);
+    return scoreText(item.name, item.description, item.keywords, item.aliases ?? [], words);
   }
   function visibleDestinations(items: readonly Destination[], audience: Viewer) {
     return items.filter(item => audience === "member" || item.audience === "public");
@@ -201,7 +202,7 @@
     name: string;
     description: string;
     keywords: string;
-    aliases: string;
+    aliases: readonly string[];
     order: number;
     score: number;
   }
@@ -265,7 +266,7 @@
     go.classList.add("launcher-go");
     link.append(go);
     entry.append(link);
-    rows.push({ entry, group: item.group, name: item.name, description, keywords: entry.dataset.keywords ?? "", aliases: (item.aliases ?? []).join(" "), order: rows.length, score: 0 });
+    rows.push({ entry, group: item.group, name: item.name, description, keywords: entry.dataset.keywords ?? "", aliases: item.aliases ?? [], order: rows.length, score: 0 });
     bindRow(entry);
     return entry;
   }
@@ -298,7 +299,7 @@
     normaliseAuthored(entry);
     entry.dataset.launcherGroup = group;
     const text = (entry.textContent ?? "").replace(/\s+/g, " ").trim();
-    rows.push({ entry, group, name: text, description: text, keywords: entry.dataset.keywords ?? "", aliases: "", order: rows.length, score: 0 });
+    rows.push({ entry, group, name: text, description: text, keywords: entry.dataset.keywords ?? "", aliases: [], order: rows.length, score: 0 });
     bindRow(entry);
   }
 
@@ -457,7 +458,7 @@
     go.classList.add("launcher-go");
     link.append(symbol, copy, go);
     entry.append(link);
-    rows.push({ entry, group: "recents", name: label, description, keywords: entry.dataset.keywords ?? "", aliases: "", order: -1000 + rows.length, score: 0 });
+    rows.push({ entry, group: "recents", name: label, description, keywords: entry.dataset.keywords ?? "", aliases: [], order: -1000 + rows.length, score: 0 });
     bindRow(entry);
     return entry;
   }

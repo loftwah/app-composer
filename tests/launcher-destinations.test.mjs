@@ -157,6 +157,9 @@ test("plain-language aliases rank the intended job first", () => {
   for (const query of ["sprite atlas", "sprite sheet", "spritesheet", "make a sprite atlas", "make a sprite sheet"]) {
     assert.equal(ranked(query)[0], "Edit images", `${query} must open Image Tools sprite atlas`);
   }
+  for (const query of ["social sizes", "make 4 social sizes", "social kit"]) {
+    assert.equal(ranked(query)[0], "Edit images", `${query} must open Image Tools`);
+  }
   assert.equal(ranked("launch kit")[0], "Prepare launch artwork");
   assert.equal(ranked("nothing-matches-xyz").length, 0);
 });
