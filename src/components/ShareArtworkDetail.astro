@@ -84,8 +84,14 @@ const postTextFileName = `${artwork.assetId}-post-text.txt`;
     </details>
     <details class="gallery-piece-section">
       <summary>Use in Media Studio</summary>
-      <p>For a browser-local edit, use <strong>{primaryDownloadLabel}</strong>, then choose the saved file in <a href="https://media.loftwah.com/tools/images">Image Tools</a>. You can resize, crop or convert it without signing in or uploading it. Check the source record before reusing the artwork.</p>
-      <p>Open your Studio project and choose <strong>Library → Import from Woodhouse Share</strong>. Paste this asset ID and confirm you have permission to reuse the original.</p>
+      <p>Make a social kit on this device.</p>
+      <ol>
+        <li><a href={download(0)} download>{primaryDownloadLabel}</a> to your device.</li>
+        <li>In <a href="https://media.loftwah.com/tools/images">Image Tools</a>, add the file and choose <strong>Make 4 social sizes</strong>, then download the ZIP.</li>
+        <li>Keep the <a href={postTextDownload} download={postTextFileName}>credited post text (TXT)</a> with your crops. It includes the artwork link and image alt text.</li>
+      </ol>
+      <p>Image Tools also resizes, crops and converts files in your browser. Check the source record before reusing the artwork.</p>
+      <p>In your Studio project, choose <strong>Library → Import from Woodhouse Share</strong>, enter this asset ID and confirm you have permission to reuse the original.</p>
       <label>Share asset ID<input type="text" value={artwork.assetId} readonly data-studio-asset-id /></label>
       <button type="button" class="secondary" data-copy-studio-id hidden><Copy size={16} aria-hidden="true" /> Copy asset ID</button>
       <span role="status" data-studio-id-status></span>
