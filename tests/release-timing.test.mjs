@@ -98,16 +98,17 @@ test("the limit is strict: 299,999 passes and 300,000 is already a breach", () =
   assert.equal(classifyDuration(10, { failed: true }), "failed");
 });
 
-for (const [label, duration, expected, alerts] of [
+for (const [label, duration, expected, alerts, limitMs] of [
   ["pass at 299,999ms", 299_999, "passed", 0],
   ["breach at exactly 300,000ms", 300_000, "over-budget", 1],
   ["breach at 300,001ms", 300_001, "over-budget", 1],
+  ["Composer breaches at 120,000ms", 120_000, "over-budget", 1, 120_000],
 ]) {
   test(label, async (t) => {
     const dir = ownedDir(t);
     const clock = fakeClock();
     const github = fakeGitHub();
-    const run = runFor(dir, clock, github);
+    const run = runFor(dir, clock, github, limitMs ? { targetMs: limitMs, limitMs } : {});
     await run.stage("qualification", async () => {
       clock.advance(duration);
     });
