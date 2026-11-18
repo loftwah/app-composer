@@ -146,5 +146,6 @@ export async function call(
   );
   const decoded = decodeStackReply(action, data);
   confirmWorkspace(workspace, decoded.workspace?.id);
-  return decoded;
+  // The scope check above rejects a missing or different workspace.
+  return decoded as typeof decoded & { workspace: Workspace };
 }
