@@ -650,6 +650,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   .tut h1{font:600 clamp(2.2rem,4.4vw,3.6rem)/1.04 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.035em;margin:0 0 16px}
   .tut h2{font:600 clamp(1.5rem,2.4vw,2rem)/1.12 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 14px}
   .tut h3{font:600 1.02rem/1.3 "Space Grotesk",system-ui,sans-serif;margin:0 0 8px}
+  .tut :is(h1,h2,h3){overflow-wrap:anywhere}
   .deck{font-size:1.1rem;line-height:1.6;color:var(--muted,#b9b2a8);max-width:64ch}
   .tutorial-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,300px);gap:clamp(24px,4vw,52px);align-items:center}
   .tutorial-intro-copy{min-width:0}
