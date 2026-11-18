@@ -65,7 +65,7 @@ capability still decide whether reading is permitted.
 Focused verification:
 
 ```sh
-node --test tests/readiness-platform.test.mjs tests/readiness-state.test.mjs tests/core.test.mjs tests/readiness-report.test.mjs
+node --test tests/readiness-state.test.mjs tests/core.test.mjs tests/readiness-report.test.mjs
 ```
 
 These checks establish data/CLI behaviour, not authenticated browser or

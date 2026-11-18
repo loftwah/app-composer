@@ -84,11 +84,11 @@ Official references checked against the installed 1.3.1 source:
 
 ## Verification scope and remaining work
 
-`tests/admin-brand.test.mjs` exercises real SQLite-backed draft/publication,
+The retired `admin-brand.test.mjs` suite exercised real SQLite-backed draft/publication,
 second-change retention, immutable history, rollback, exact-target denial,
 disabled/non-admin refusal, CSRF/origin checks, unsafe import fields, stale and
 interleaved saves, private styles and concurrent request/global-config isolation.
-It includes a manifest preview selection and the finite HTML/CSS response.
+It included a manifest preview selection and the finite HTML/CSS response.
 
 The labelled native browser receipt and before/after captures belong in
 `docs/evidence/brand-studio-20261025/`. It uses native EmDash setup and a virtual

@@ -10,15 +10,15 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
+import { isCalendarDate } from "../lib/content-model/calendar-date.mjs";
+
 export const INVENTORY = "docs/portfolio/woodhouse-inventory-20261116.json";
 export const RECIPE = "docs/portfolio/blueprints.md";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const readJson = (path) => JSON.parse(read(path));
 
 const SHA = /^[0-9a-f]{40}$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ID = /^[a-z0-9-]+$/;
 const LIFECYCLES = new Set(["active", "paused", "retired"]);
 const STATES = new Set(["reference", "evidence-pending", "ready"]);
@@ -36,14 +36,10 @@ const RELATIONSHIP_KEYS = new Set(["tier", "evidence", "canonicalUrl"]);
 
 function https(value) {
   try {
-    return new URL(value).protocol === "https:";
+    return typeof value === "string" && new URL(value).protocol === "https:";
   } catch {
     return false;
   }
-}
-
-function date(value) {
-  return typeof value === "string" && DATE.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 }
 
 function instant(value) {
@@ -80,7 +76,7 @@ export function checkInventory(doc, options = {}) {
   const recipe = options.recipe ?? read(RECIPE);
 
   if (doc?.schema !== "composer.portfolio-inventory/1") fail("schema must be composer.portfolio-inventory/1");
-  if (!date(doc?.asOf)) fail("asOf must be a real YYYY-MM-DD date");
+  if (!isCalendarDate(doc?.asOf)) fail("asOf must be a real YYYY-MM-DD date");
   if (!text(doc?.title)) fail("title is required");
   if (!text(doc?.method?.summary)) fail("method.summary is required");
   if (!text(doc?.method?.liveRequests)) fail("method.liveRequests is required");
@@ -95,8 +91,8 @@ export function checkInventory(doc, options = {}) {
     if (snapshot.status !== 200) fail("snapshot.status must be 200");
     if (!/^[0-9a-f]{64}$/.test(snapshot.sha256 ?? "")) fail("snapshot.sha256 must be a 64-character digest");
     if (!Number.isSafeInteger(snapshot.bytes) || snapshot.bytes < 1) fail("snapshot.bytes must be positive");
-    if (!date(snapshot.reviewed)) fail("snapshot.reviewed must be a date");
-    if (!date(snapshot.currentAsOf)) fail("snapshot.currentAsOf must be a date");
+    if (!isCalendarDate(snapshot.reviewed)) fail("snapshot.reviewed must be a date");
+    if (!isCalendarDate(snapshot.currentAsOf)) fail("snapshot.currentAsOf must be a date");
     if (!text(snapshot.recordType)) fail("snapshot.recordType is required");
     if (!Number.isSafeInteger(snapshot.projectCount) || snapshot.projectCount < 1) fail("snapshot.projectCount must be positive");
     if (!Array.isArray(snapshot.projectIds) || snapshot.projectIds.some((id) => !ID.test(id))) fail("snapshot.projectIds must be ids");
@@ -118,12 +114,13 @@ export function checkInventory(doc, options = {}) {
   for (const [position, entry] of projects.entries()) {
     const where = `project ${entry?.id ?? `#${position + 1}`}`;
     if (!ID.test(entry?.id ?? "")) fail(`${where}: id must be lowercase letters, digits or dashes`);
+    if (!entry || typeof entry !== "object") continue;
     if (ids.has(entry.id)) fail(`${where}: duplicate id`);
     ids.add(entry.id);
     for (const key of ["name", "summary", "state", "current", "nextProof", "proofBoundary", "discipline"])
       if (!text(entry?.[key])) fail(`${where}: ${key} is required`);
     if (!LIFECYCLES.has(entry?.lifecycle)) fail(`${where}: lifecycle must be active, paused or retired`);
-    if (!date(entry?.reviewed)) fail(`${where}: reviewed must be a date`);
+    if (!isCalendarDate(entry?.reviewed)) fail(`${where}: reviewed must be a date`);
     if (entry?.dossier !== `https://woodhouse.loftwah.com/projects/${entry?.id}/`) fail(`${where}: dossier must be the canonical Woodhouse URL`);
 
     checkRelationship(entry, where, fail, canonicalUrls);
@@ -131,7 +128,7 @@ export function checkInventory(doc, options = {}) {
     checkRecord(entry?.statusRecord, `${where}: statusRecord`, 200, fail);
     if (entry?.live) checkRecord(entry.live, `${where}: live`, 200, fail);
     else if (entry?.probe) {
-      if (!https(entry.probe.url) || entry.probe.status < 400) fail(`${where}: a probe is only for a failed entry point`);
+      if (!https(entry.probe.url) || !Number.isInteger(entry.probe.status) || entry.probe.status < 400 || entry.probe.status > 599) fail(`${where}: a probe is only for a failed entry point`);
       if (!text(entry.probe.title) || !instant(entry.probe.observedAt) || !text(entry.probe.request)) fail(`${where}: probe needs title, observedAt and request`);
       if (!text(entry.probe.reason)) fail(`${where}: a failed probe needs a reason`);
     } else fail(`${where}: a live record or a failed probe is required`);
@@ -140,7 +137,7 @@ export function checkInventory(doc, options = {}) {
     checkDeployedSource(entry?.deployedSource, where, fail);
   }
 
-  const sourceIds = [...(snapshot?.projectIds ?? [])].sort().join(",");
+  const sourceIds = (Array.isArray(snapshot?.projectIds) ? [...snapshot.projectIds] : []).sort().join(",");
   const projectIds = [...ids].sort().join(",");
   if (sourceIds !== projectIds) fail("projects must cover exactly snapshot.projectIds");
   if (snapshot?.projectCount !== projects.length) fail("snapshot.projectCount must equal the project list length");
@@ -157,11 +154,12 @@ export function checkInventory(doc, options = {}) {
     if (!text(entry?.lockedSource?.declaredIn)) fail(`${where}: lockedSource.declaredIn is required`);
     if (!text(entry?.pinNote)) fail(`${where}: pinNote is required`);
   }
-  if ((doc?.connected ?? []).length !== 3) fail("connected must list guestbook, showcase and media-studio");
+  if (connectedEntries.length !== 3 || new Set(connectedEntries.map((entry) => entry?.id)).size !== 3) fail("connected must list guestbook, showcase and media-studio");
 
   if (!Array.isArray(doc?.surfaces) || doc.surfaces.length !== 1) fail("surfaces must hold Woodhouse");
   const surfaceEntries = Array.isArray(doc?.surfaces) ? doc.surfaces : [];
   for (const entry of surfaceEntries) {
+    if (entry?.id !== "woodhouse") fail("surfaces must hold Woodhouse");
     checkRecord(entry?.live, "surface woodhouse: live", 200, fail);
     checkRepository(entry?.repository, "surface woodhouse", fail);
     checkDeployedSource(entry?.deployedSource, "surface woodhouse", fail);
@@ -169,7 +167,6 @@ export function checkInventory(doc, options = {}) {
 
   const lockApps = new Map((lock.apps ?? []).map((app) => [app.id, app]));
   const declaredPins = new Set();
-  const anchors = new Set();
   if (!Array.isArray(doc?.blueprints)) fail("blueprints must be a list");
   const blueprintEntries = Array.isArray(doc?.blueprints) ? doc.blueprints : [];
   for (const blueprint of blueprintEntries) {
@@ -183,13 +180,16 @@ export function checkInventory(doc, options = {}) {
     const [file, anchor] = recipePath.split("#");
     if (file !== RECIPE || !anchor) fail(`${where}: recipe must point into ${RECIPE}`);
     else {
-      anchors.add(anchor);
       const body = section(recipe, anchor);
       if (!body) fail(`${where}: recipe section #${anchor} is missing`);
       else if (!/Replay status:.*not replayed/is.test(body)) fail(`${where}: recipe must label the build as not replayed`);
     }
     if (!Array.isArray(blueprint?.pins) || blueprint.pins.length < 1) fail(`${where}: pins are required`);
-    for (const pin of blueprint?.pins ?? []) {
+    for (const pin of Array.isArray(blueprint?.pins) ? blueprint.pins : []) {
+      if (!pin || typeof pin !== "object") {
+        fail(`${where}: each pin must be a record`);
+        continue;
+      }
       declaredPins.add(pin.commit);
       if (!SHA.test(pin?.commit ?? "")) fail(`${where}: ${pin?.app} pin must be a full revision`);
       if (!https(pin?.repository)) fail(`${where}: ${pin?.app} repository must be https`);
@@ -210,15 +210,14 @@ export function checkInventory(doc, options = {}) {
 
   const observedRevisions = new Set([
     ...declaredPins,
-    ...(doc?.connected ?? []).map((entry) => entry?.deployedSource?.value).filter(Boolean),
+    ...connectedEntries.map((entry) => entry?.deployedSource?.value).filter(Boolean),
     ...projects.map((entry) => entry?.deployedSource?.value).filter(Boolean),
   ]);
-  for (const revision of revisionsIn(recipe)) {
+  const namedInRecipe = new Set(revisionsIn(recipe));
+  for (const revision of namedInRecipe) {
     if (!observedRevisions.has(revision)) fail(`recipe names a revision that is neither a declared pin nor an observed identity: ${revision}`);
   }
-  const namedInRecipe = new Set(revisionsIn(recipe));
   for (const pin of declaredPins) if (!namedInRecipe.has(pin)) fail(`recipe omits the declared pin ${pin}`);
-  for (const anchor of anchors) if (!section(recipe, anchor)) fail(`recipe section #${anchor} is missing`);
 
   return problems;
 }
@@ -242,7 +241,7 @@ function checkRelationship(entry, where, fail, canonicalUrls) {
   }
   if (!https(canonical)) return fail(`${where}: relationship canonicalUrl must be an https URL or null`);
   if (!entry.live) return fail(`${where}: a canonical URL requires a recorded live entry point`);
-  if (!text(entry.live.finalUrl) || new URL(canonical).href !== new URL(entry.live.finalUrl).href)
+  if (!https(entry.live.finalUrl) || new URL(canonical).href !== new URL(entry.live.finalUrl).href)
     fail(`${where}: canonical URL must match the recorded live finalUrl`);
 
   const key = new URL(canonical).href.replace(/\/$/, "");

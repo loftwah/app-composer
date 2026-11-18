@@ -18,7 +18,7 @@ The approved-portable contract declares at most eight original approved contribu
 
 The returned receipt contains exact source and selection IDs, versions, plan/policy/configuration identities, declared approved-subset coverage, bounded media IDs/dimensions/byte counts/digests, manifest-JSON and transport-response hashes, and read-only observations. It returns neither base64, captions, authors, private items, credentials nor the full portable manifest. The caller may retain this bounded result in its existing native receipt.
 
-`node --test tests/platform-native-export.test.mjs tests/creator-maintenance.test.mjs` exercises real Composer route/SQLite guards with explicitly labelled app/browser transport doubles, including byte limits, wrong bridge, altered scope/source/media, private coverage, missing synthetic item and post-export state or capability drift. These tests are separate from native browser/workerd evidence; source changes require a fresh admitted run at the integrated revision.
+The retired platform export and Creator maintenance tests exercised real Composer route/SQLite guards with explicitly labelled app/browser transport doubles, including byte limits, wrong bridge, altered scope/source/media, private coverage, missing synthetic item and post-export state or capability drift. For current browser and workerd evidence, repeat the native export against the integrated revision.
 
 ## Recorded local export — 23 October 2026
 

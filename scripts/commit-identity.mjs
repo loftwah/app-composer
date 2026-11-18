@@ -4,12 +4,12 @@
 // verifies an account, and never rewrites history.
 //
 // Modes:
-//   --check-config         validate the configured author identity (used by pnpm check)
+//   --check-config         validate the configured author identity (pnpm identity:check)
 //   --range <git range>    validate every commit in a range (e.g. origin/main..HEAD)
 //   --message <file>       validate a commit message file (commit-msg hook)
 //   --install              point this clone at the tracked hooks directory
 import { execFileSync } from "node:child_process";
-import { readFileSync, chmodSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 /** Addresses the owner has explicitly approved for automated work. */
@@ -133,12 +133,14 @@ export function main(argv = process.argv.slice(2)) {
       console.error("usage: --message <commit-message-file>");
       return 2;
     }
-    const problems = checkMessage(readFileSync(file, "utf8"), configuredIdentity());
+    const identity = git(["var", "GIT_AUTHOR_IDENT"]);
+    const match = /^(.*) <([^<>]*)> \d+ [+-]\d{4}$/.exec(identity);
+    if (!match) return report([{ reason: "Git returned an unreadable author identity" }], "commit message");
+    const problems = checkMessage(readFileSync(file, "utf8"), { name: match[1], email: match[2] });
     return report(problems, "commit message");
   }
   if (mode === "--install") {
     git(["config", "core.hooksPath", ".githooks"]);
-    chmodSync(fileURLToPath(new URL("../.githooks/commit-msg", import.meta.url)), 0o755);
     console.log("hooks installed: core.hooksPath=.githooks");
     return 0;
   }

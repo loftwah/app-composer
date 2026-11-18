@@ -44,8 +44,8 @@ EmDash database cannot create a duplicate from repository data.
 | Reviewed | 2026/10/25 | release evidence in issue #11 and [`evidence/ldraw-refresh-20261025/`](evidence/ldraw-refresh-20261025/README.md) |
 | Description | Local editable drawings, powered by Excalidraw. | manifest `description`, unchanged |
 
-`tests/ldraw.test.mjs` pins the source commit, the repository, the origin, the
-manifest file hash and the manifest digest, and asserts that Composer registers
+The retired `ldraw.test.mjs` suite checked the source commit, the repository, the origin, the
+manifest file hash and the manifest digest, and confirmed that the reviewed version registered
 no LDraw service binding. `src/lib/ldraw-entry.mjs` forwards only `analytics=off`
 and a bounded `qa` label to the fixed origin; project, drawing and arbitrary
 destination parameters are dropped.

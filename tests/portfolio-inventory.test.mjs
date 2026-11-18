@@ -155,3 +155,24 @@ test("two projects cannot claim the same canonical URL", () => {
   });
   assert.match(found.join("\n"), /duplicate canonical URL, already recorded for bubbles/);
 });
+
+test("invalid inventory evidence returns actionable findings", () => {
+  const found = problems((doc) => {
+    doc.asOf = "2026-02-31";
+    doc.projects.find((entry) => entry.live).live.finalUrl = "invalid";
+    delete doc.projects.find((entry) => entry.probe).probe.status;
+    doc.projects.push(null);
+    doc.connected[1] = doc.connected[0];
+    doc.surfaces[0].id = "unknown";
+    doc.method.snapshot.projectIds = {};
+    doc.blueprints[0].pins = {};
+    doc.blueprints[1].pins.push(null);
+  }).join("\n");
+  for (const reason of [
+    "asOf must be a real YYYY-MM-DD date", "finalUrl must be https",
+    "a probe is only for a failed entry point", "id must be lowercase",
+    "connected must list", "surfaces must hold Woodhouse",
+    "snapshot.projectIds must be ids", "pins are required", "each pin must be a record",
+  ]) assert.ok(found.includes(reason), reason);
+  assert.match(problems((doc) => { doc.connected = {}; }).join("\n"), /connected must be a list/);
+});

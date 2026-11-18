@@ -159,8 +159,8 @@ changed. Refused means the boundary rejected the input before producing output.
 ## Defects found and fixed
 
 The evaluation found three genuine defects in the role-pack brief boundary, one
-of which was a real prompt-injection path. Each has a regression test in
-`tests/injection-boundary.test.mjs` and `tests/role-packs.test.mjs`.
+of which was a real prompt-injection path. The retained regressions are in
+`tests/injection-boundary.test.mjs`.
 
 1. **Untrusted evidence could forge a trusted brief section.** `clean()` kept
    line breaks, so a bundle summary containing

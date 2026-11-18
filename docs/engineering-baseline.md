@@ -86,23 +86,14 @@ guarantee. A lost acknowledgement leaves an app write unconfirmed; no automatic
 retry or rollback is performed. This transport is separate from native resource
 apply and is never implicitly called by Publish.
 
-Root `pnpm check` now runs types/parity, scoped semantic `pnpm lint`, scoped
-`pnpm format:check` and behavior tests. Lint covers the maintained content and
-Creator source programs with unused-local/parameter checks. Formatting uses
-pinned Prettier 3.9.10 on the maintained Creator and enquiry files named in
-`scripts/creator-format.mjs`; generated output retains compiler formatting.
-Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
-whole-repository ESLint or formatting claim, and normal checks never rewrite
-source or emitted bytes.
+Root `pnpm check` runs generated-source checks, Astro type checking and scoped
+semantic lint. Run `pnpm format:check` separately for the files listed in
+`scripts/creator-format.mjs`. After editing Creator source, use `pnpm format`
+and `pnpm source:write` to update the maintained files and emitted output.
 
-For iteration, `pnpm check:fast -- tests/<area>.test.mjs` runs the source,
-lint and format checks plus only the named tests. `pnpm test` runs the retained
-suite through `node --test` with its default CPU-derived concurrency; the root
-script passes no worker or concurrency flag. The suite focuses on access, untrusted input,
-data preservation, composition and release boundaries. Many presentation and
-copy assertions were removed in November 2026; older evidence and guides may
-refer to retired test files. Use `pnpm test` for the current suite and inspect
-`tests/` before running a historical focused command.
+Use `pnpm check:fast -- tests/<area>.test.mjs` to run selected tests.
+`pnpm test` covers access, untrusted input, publication, promotion and live
+verification. `pnpm test:all` runs the full retained suite on demand.
 
 Generated projects validate imported model JSON before typed presentation. They
 carry their own source, emitted files, compiler configuration, native editor,

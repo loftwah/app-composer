@@ -48,7 +48,6 @@ export function validateAnnouncement(value){
 
 export function messageBody(value){
  const a=validateAnnouncement(value);
- const state=a.deployed?1:0;
  const header=a.deployed?'**Shipped to production — '+a.title+'**':'**Reached main — '+a.title+'**';
  const lines=[header];
  if(a.summary)lines.push('',a.summary);

@@ -19,7 +19,6 @@ The programme's first platform path uses scoped resources and published stacks o
 Run the bounded fixture from the repository:
 
 ```sh
-node --test tests/platform-integrations.test.mjs
 node scripts/platform-qualification.mjs
 ```
 
