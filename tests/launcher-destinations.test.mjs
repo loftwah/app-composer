@@ -151,6 +151,10 @@ test("plain-language aliases rank the intended job first", () => {
   for (const query of ["images", "image workbench", "image editor", "edit images", "resize image"]) {
     assert.equal(ranked(query)[0], "Edit images", `${query} must open Image Tools`);
   }
+  for (const query of ["favicon", "make a favicon", "site icon", "app icon", "make an icon"]) {
+    assert.equal(ranked(query)[0], "Prepare launch artwork", `${query} must open Launch Kit icons`);
+  }
+  assert.equal(ranked("launch kit")[0], "Prepare launch artwork");
   assert.equal(ranked("nothing-matches-xyz").length, 0);
 });
 
