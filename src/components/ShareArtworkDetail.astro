@@ -3,16 +3,19 @@ import { ArrowUpRight, Copy, Download, Maximize2, Share2 } from '@lucide/astro';
 import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
 import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
+import { artworkPostText } from '../lib/share-artwork-post.ts';
 import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
 import '../styles/share-gallery.css';
 
 interface Props { artwork: CatalogueArtwork; signedIn: boolean; tags: string[]; }
 const { artwork, signedIn, tags } = Astro.props;
 const path = `/share/artwork/${artwork.assetId}`;
+const canonical = publicPageCanonical(path).href;
 const [revision, shareUrl] = await Promise.all([
   artworkRevision(artwork),
-  currentShareURL(publicPageCanonical(path).href, artwork.title.includes('App Composer') ? artwork.title : `${artwork.title} · App Composer`, artwork.alt, artwork.previewUrl),
+  currentShareURL(canonical, artwork.title.includes('App Composer') ? artwork.title : `${artwork.title} · App Composer`, artwork.alt, artwork.previewUrl),
 ]);
+const postText = artworkPostText(artwork, canonical);
 const files = artworkFiles(artwork);
 const primary = files[0].url;
 const primaryDownloadLabel = artwork.original ? 'Download original' : 'Download preview';
@@ -34,9 +37,11 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
       <a class="button secondary" href={path + '/palette'}>Pick colours</a>
       <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
       <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
+      <button class="secondary" type="button" data-gallery-copy-post hidden><Copy size={16} aria-hidden="true" /> Copy post text</button>
     </div>
     <p role="status" data-gallery-copy-status></p>
     <input data-gallery-copy-fallback aria-label="Artwork link" readonly hidden />
+    <textarea data-gallery-post-field aria-label="Post text to copy manually" rows="6" readonly hidden>{postText}</textarea>
     {files.length > 1 && (
       <details class="gallery-piece-section">
         <summary>Available formats</summary>
