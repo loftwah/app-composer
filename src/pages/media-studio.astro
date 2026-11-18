@@ -110,13 +110,10 @@ const costs = [
       </nav>
       <p class="meta"><time datetime="2026-11-14">14 November 2026</time> · App Composer + Media Studio</p>
     </div>
-    <div class="art-hero-figure" aria-label="From original artwork to Studio variation">
-      <div class="hero-art-pair">
-        <figure><a href="/share/artwork/poster-study-fighter"><img src="/media-studio/fighter-across-the-ring-20261114.webp" width="544" height="680" alt="Across the Ring: a colourful Woodhouse Fighter poster" loading="eager" /></a><figcaption>Original · Woodhouse</figcaption></figure>
-        <figure><a href="https://media.loftwah.com/p/yFSN93LOFy1ja4j0"><img src="/media-studio/fighter-before-the-bell-20261114.webp" width="680" height="680" alt="Before the Bell: a Viking, a boxer and the Grim Reaper in a ring" loading="eager" /></a><figcaption>Variation · Media Studio</figcaption></figure>
-      </div>
-      <p class="hero-art-note">One original. A new direction. <a href="#from-share">See how it was made →</a></p>
-    </div>
+    <figure class="art-hero-figure">
+      <a href="#made"><img src={brandShare} width="1200" height="630" alt="App Composer’s paper studio, with a film strip, waveform, camera and orange ring." fetchpriority="high" /></a>
+      <figcaption class="hero-art-note"><a href="#made">How we made the Studio launch artwork →</a></figcaption>
+    </figure>
   </header>
 
   <section id="watch" class="showcase" aria-labelledby="showcase-heading">
@@ -282,7 +279,7 @@ url.searchParams.set("s", signature);`}</code></pre>
       <figcaption>A silent, edited browser recording of the live tool, followed by the exported clip. File selection was automated and waits were cut. <a href="https://media.loftwah.com/p/9UX85ricWNKOeA96">Original animation and credit</a>: Woodhouse artwork, GPT Image 2.6 via Fal, animated with MiniMax H3 Max Turbo. Pippa is an illustration. <a href="/media-studio/demos/pippa-clip-workflow-20261115.mp4" download>Download the demo</a>.</figcaption>
     </figure>
     <h3 id="fighter-after-hours">Fighter: After Hours</h3>
-    <p>We clipped Fighter gameplay and added music using Studio’s local tools, then exported this 720p film. The homepage cover is <a href="https://media.loftwah.com/p/yFSN93LOFy1ja4j0">Before the Bell</a>, a separate artwork made in Media Studio.</p>
+    <p>We clipped Fighter gameplay and added music using Studio’s local tools, then exported this 720p film. The accompanying square study is <a href="https://media.loftwah.com/p/yFSN93LOFy1ja4j0">Before the Bell</a>, a separate artwork made in Media Studio.</p>
     <figure class="figure pippa-demo">
       <video controls playsinline preload="none" poster="/media-studio/demos/fighter-after-hours-poster-20261115.jpg" width="1280" height="720" aria-label="Fighter gameplay with After Hours music">
         <source src="/media-studio/demos/fighter-after-hours-20261115.mp4" type="video/mp4" />
@@ -565,10 +562,7 @@ url.searchParams.set("s", signature);`}</code></pre>
   .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:22px 0 0}
   .row.end{margin-top:36px;padding-top:24px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
   .quiet-link{font-weight:600;font-size:.92rem}
-  .art-hero-figure{min-width:0;width:100%;margin:0;padding:clamp(16px,2vw,28px);background:#6b1d72;color:#fff4de}
-  .hero-art-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.5vw,20px);align-items:end}
-  .hero-art-pair figure{margin:0;min-width:0}
-  .hero-art-pair figcaption{color:#fff4de;font-weight:600}
+  .art-hero-figure{min-width:0;width:100%;margin:0;padding:clamp(16px,2vw,28px);background:#312a25;color:#fff4de}
   .hero-art-note{margin:18px 0 0;font-size:.9rem;font-weight:600;line-height:1.5}
   .art .hero-art-note a{color:#fff4de;text-decoration:underline;text-underline-offset:3px}
   .art-hero-figure img,.figure img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16));box-shadow:0 32px 70px -52px rgba(0,0,0,.7)}

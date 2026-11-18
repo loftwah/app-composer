@@ -12,10 +12,12 @@ const share = {
   description: 'Find a poster, sketch or cover. Open the artwork, download it or share the credited original.',
   href: '/share',
 } as const;
-const entries = [...apps.slice(0, 1), share, ...apps.slice(1)];
+const connected = apps.filter(app => app.id === 'guestbook' || app.id === 'showcase');
+const entries = [...connected, ...apps.filter(app => app.id === 'media-studio'), share,
+  ...apps.filter(app => app.id !== 'guestbook' && app.id !== 'showcase' && app.id !== 'media-studio')];
 const features = {
-  'media-studio': { image: '/media-studio/fighter-before-the-bell-20261114.webp', title: 'Before the Bell', label: 'Studio variation', href: 'https://media.loftwah.com/p/yFSN93LOFy1ja4j0' },
-  'composer-share': { image: '/media-studio/fighter-across-the-ring-20261114.webp', title: 'Across the Ring', label: 'Original poster', href: '/share/artwork/poster-study-fighter' },
+  'media-studio': { image: '/media-studio/brand/studio-launch-thumb.webp', title: 'Build your own media studio', label: 'Studio launch artwork', href: '/media-studio#made' },
+  'composer-share': { image: '/brand/campaign/composer-family-atlas.webp', title: 'One platform. Independent apps', label: 'App Composer illustration', href: '/share/artwork/atlas-04-composer-family' },
 };
 const actions: Record<string, string> = {
   paperwork: 'Open PDF editor', 'launch-kit': 'Make a profile card', ldraw: 'Open drawing board',
@@ -33,7 +35,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   <header class="directory-intro">
     <div>
       <h1>App library<span>.</span></h1>
-      <p>Make something in Media Studio, find the original in Share, or pick a tool for the job.</p>
+      <p>Start with a guestbook and profile, make media in Studio, or pick a tool for the job.</p>
     </div>
     <a href="/demo/connected-apps">Try two apps together <ArrowRight size={17} aria-hidden="true" /></a>
   </header>
@@ -78,7 +80,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
               <a class:list={['entry-open', {button: feature}]} href={href}>{label} <ArrowRight size={16} aria-hidden="true" /></a>
               {isStudio && <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>}
               {app.id === 'launch-kit' && <a href={new URL('/?operation=icons', app.standalone).href}>Make app icons</a>}
-              {isShare && <a href="/share/artwork/poster-study-fighter/palette">Pick poster colours</a>}
+              {isShare && <a href="/share/artwork/atlas-04-composer-family/palette">Pick artwork colours</a>}
             </div>
           </div>
           {feature && <figure>

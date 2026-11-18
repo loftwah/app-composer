@@ -1,27 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
 import { ArrowRight, ArrowUpRight, Play } from "@lucide/astro";
-import { portfolioArt, portfolioProjects } from "../lib/portfolio-projects";
+import { apps } from "../lib/apps";
 import instance from "../../config/instance.json";
 import "../styles/product-home.css";
 
-const portfolioCopy = [
-  {
-    id: "foilbury",
-    detail: "Open packs, collect variants and build a cabinet worth showing off.",
-    alt: "Four illustrated Drop Bear cards with different foil finishes.",
-  },
-  {
-    id: "shoalshot",
-    detail: "An arcade fishing game. Work the tides and land a leviathan.",
-    alt: "A Tide Leviathan in the blue depths of SHOALSHOT.",
-  },
-];
-const selectedWork = portfolioCopy.map(({ id, detail, alt }) => {
-  const project = portfolioProjects.find((entry) => entry.id === id);
-  if (!project?.site || !project.art) throw new Error(`Missing featured project: ${id}`);
-  return { name: project.name, href: project.site, image: portfolioArt(project), detail, alt };
-});
+const miniApps = apps.filter(app => app.id === "guestbook" || app.id === "showcase");
 
 const steps = [
   { title: "Shape the idea", detail: "Bring a goal and references. Use Init to turn them into a brief your agent can build from.", href: "/init", link: "Write a brief in Init" },
@@ -46,43 +30,43 @@ const siteSchema = {
     <section class="home-opening" aria-labelledby="home-heading">
       <div class="home-container home-opening-inner">
         <div class="home-opening-main">
-          <h1 id="home-heading">Make it with AI.<br /><span>Keep it yours.</span></h1>
-          <p>App Composer brings your AI agent, reusable apps and creative tools together. Start with an idea, publish in your own accounts and come back to make it better.</p>
+          <h1 id="home-heading">Build your app<br /><span>from mini apps.</span></h1>
+          <p>Start with a photo guestbook and a profile. Connect them with App Composer, then use your AI agent to make the app your own. You keep the code, the content and the accounts.</p>
           <div class="home-opening-actions">
-            <a class="home-button" href="/learn">Build your first app <ArrowRight size={20} aria-hidden="true" /></a>
-            <a class="home-text-link" href="/demo">Try the sandbox <ArrowUpRight size={17} aria-hidden="true" /></a>
+            <a class="home-button" href="/demo/connected-apps">Try two apps together <ArrowRight size={20} aria-hidden="true" /></a>
+            <a class="home-text-link" href="/learn">Build your first app <ArrowUpRight size={17} aria-hidden="true" /></a>
           </div>
         </div>
         <figure class="home-lead">
-          <a class="home-lead-link" href="/media-studio#fighter-after-hours" aria-label="Watch Fighter: After Hours and see how it was edited in Media Studio">
-            <img src="/media-studio/fighter-before-the-bell-20261114.webp" width="680" height="680" alt="A boxer stands under the lights between a Viking and the Grim Reaper." fetchpriority="high" decoding="async" />
+          <a class="home-lead-link" href="/demo#commercial" aria-label="Watch Take it with you, the App Composer short film">
+            <img src="/brand/campaign/take-it-with-you-20261118.webp" width="1280" height="720" alt="Orange and ivory App Composer blocks on a blue workbench." fetchpriority="high" decoding="async" />
             <span class="home-lead-play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>
           </a>
           <figcaption>
-            <strong>Fighter: After Hours</strong>
-            <span>Gameplay and LoftwahFM music, cut and mixed in Media Studio. <a href="/demo/screening-room?film=fighter">Make a screening room with this film</a></span>
+            <strong>Take it with you</strong>
+            <span>App Composer short film · 11 seconds</span>
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="home-portfolio home-container" aria-labelledby="work-heading">
+    <section class="home-miniapps home-container" aria-labelledby="work-heading">
       <div class="home-section-head">
         <div>
-          <h2 id="work-heading">From our lineup</h2>
-          <p>Explore two live games from the Loftwah portfolio.</p>
+          <h2 id="work-heading">A guestbook meets a profile</h2>
+          <p>Here / there collects the postcards. Linkarooie gives the ones you select a home. Open either app to see its part.</p>
         </div>
-        <a class="home-text-link" href="/projects">Explore all projects <ArrowUpRight size={17} aria-hidden="true" /></a>
+        <a class="home-text-link" href="/apps">Explore the app library <ArrowUpRight size={17} aria-hidden="true" /></a>
       </div>
       <ul class="home-projects">
-        {selectedWork.map((project) => (
+        {miniApps.map((project) => (
           <li>
             <a class="home-project" href={project.href}>
-              <img src={project.image} width="1000" height="563" alt={project.alt} loading="lazy" decoding="async" />
+              <img src={project.image} width="480" height="480" alt="" loading="lazy" decoding="async" />
               <div class="home-project-caption">
                 <div>
                   <h3>{project.name}</h3>
-                  <p>{project.detail}</p>
+                  <p>{project.description}</p>
                 </div>
                 <ArrowUpRight size={24} aria-hidden="true" />
               </div>
@@ -90,6 +74,14 @@ const siteSchema = {
           </li>
         ))}
       </ul>
+    </section>
+
+    <section class="home-creative home-container" aria-labelledby="creative-heading">
+      <div class="home-section-head"><h2 id="creative-heading">Media Studio &amp; Share</h2></div>
+      <div class="home-creative-links">
+        <a href="/media-studio"><img src="/media-studio/brand/studio-launch-thumb.webp" width="112" height="112" alt="" loading="lazy" /><div><h3>Media Studio</h3><p>Follow a still image through a masked edit, sound and motion. Open the tools to make your own.</p></div><ArrowUpRight size={21} aria-hidden="true" /></a>
+        <a href="/share"><img src="/brand/campaign/composer-family-atlas.webp" width="112" height="112" alt="" loading="lazy" /><div><h3>App Composer Share</h3><p>Explore the project artwork. Open a piece to see its credit, download the original or sample its colours.</p></div><ArrowUpRight size={21} aria-hidden="true" /></a>
+      </div>
     </section>
 
     <section class="home-workflow" id="make-something" aria-labelledby="start-heading">
@@ -121,12 +113,10 @@ const siteSchema = {
     </section>
 
     <nav class="home-resources home-container" aria-label="More places to explore">
-      <a class="home-text-link" href="/media-studio">Media Studio <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/share">Browse artwork <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/share/artwork/poster-study-fighter/palette">Pick a poster palette <ArrowUpRight size={17} aria-hidden="true" /></a>
-      <a class="home-text-link" href="/apps">App library <ArrowUpRight size={17} aria-hidden="true" /></a>
+      <a class="home-text-link" href="/demo">Try the sandbox <ArrowUpRight size={17} aria-hidden="true" /></a>
       <a class="home-text-link" href="/agent">Connect your agent <ArrowUpRight size={17} aria-hidden="true" /></a>
       <a class="home-text-link" href="/release">Release evidence <ArrowUpRight size={17} aria-hidden="true" /></a>
+      <a class="home-text-link" href="/projects">Other projects <ArrowUpRight size={17} aria-hidden="true" /></a>
     </nav>
     {instance.enabled && (
       <div class="home-instance home-container">

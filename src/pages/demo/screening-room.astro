@@ -4,7 +4,8 @@ import { initialEdition, screeningFilms } from '../../lib/screening-films';
 import '../../styles/screening-print.css';
 import '../../styles/screening-room.css';
 
-const edition = initialEdition(Astro.url.searchParams.get('film') === 'fighter' ? 'fighter' : 'workbench');
+const requested = Astro.url.searchParams.get('film');
+const edition = initialEdition(requested === 'fighter' || requested === 'studio' ? requested : 'workbench');
 const film = screeningFilms[edition.film];
 ---
 <Base homePage title="Make a screening room" description="Give a short film its own premiere page. Download the whole screening, play it offline and come back to edit it." shareImage={film.poster} shareAlt={film.name}>

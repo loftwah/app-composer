@@ -175,8 +175,7 @@ export function galleryPage(
         return newest(a, b);
     }
   });
-  // The opening wall mixes projects with recent work. Explicit sorts keep
-  // their global order, and the owner’s featured choices always come first.
+  // Within each part of the collection, keep featured picks and rotate series.
   if (
     filters.sort === "featured" &&
     !filters.legacy &&
@@ -196,7 +195,14 @@ export function galleryPage(
         return [item.assetId, Math.max(project, series)];
       }),
     );
-    matches.sort((a, b) => rank.get(a.assetId)! - rank.get(b.assetId)!);
+    const familyOrder = (project: string) => {
+      if (project === "app-composer") return 0;
+      if (project === "composer-media-studio" || project.startsWith("app-composer-")) return 1;
+      return 2;
+    };
+    matches.sort((a, b) =>
+      familyOrder(a.project) - familyOrder(b.project) || rank.get(a.assetId)! - rank.get(b.assetId)!,
+    );
   }
   const start = filters.legacy
     ? matches.filter((item) => item.assetId <= filters.after).length
