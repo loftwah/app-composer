@@ -122,7 +122,7 @@ function Collection({
                 className="bench-place"
                 onClick={() => place(slot)}
                 disabled={!selected}
-                aria-label={`Add postcard to position ${slot + 1}`}
+                aria-label={`Add here, position ${slot + 1}`}
               >
                 Add here
               </button>
