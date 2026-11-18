@@ -126,8 +126,9 @@ test("the Foilbury build record names each verification link", () => {
 });
 
 test("the build refuses a missing or unusable inventory before rendering", () => {
-  assert.match(packageJson.scripts.build, /scripts\/portfolio-inventory\.mjs --check/);
-  assert.match(packageJson.scripts["check:types"], /scripts\/portfolio-inventory\.mjs --check/);
+  assert.match(packageJson.scripts.build, /^pnpm source:check && astro build\b/);
+  assert.match(packageJson.scripts["check:types"], /^pnpm source:check && astro check\b/);
+  assert.ok(packageJson.scripts["source:check"].split(" && ").includes("node scripts/portfolio-inventory.mjs --check"));
   assert.throws(() => projectFamily({}), new RegExp(`${inventoryPath}: projects must be a list`));
   assert.throws(
     () => projectFamily({ ...inventory, projects: [{ ...inventory.projects[0], relationship: undefined }] }),

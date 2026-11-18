@@ -289,6 +289,6 @@ Alternatives checked, each refused for its own reason:
   (…192k tokens) exceeds its 32k context.
 
 Smallest operator step: restore Codex usage or supply a valid API key, then run
-the unchanged `codex exec` command in [Connect your agent](../agent-connect.md).
+the unchanged `codex exec` command in [Connect your agent](../../agent-connect.md).
 The MCP endpoint, credential checks, proposal, review and revocation above are
 real; the model-driven turn is not claimed.

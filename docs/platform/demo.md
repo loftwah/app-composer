@@ -8,7 +8,6 @@ Reuse the installed Composer Node 22 dependencies and a clean existing Guestbook
 
 ```sh
 COMPOSER_DEMO_GUESTBOOK=/absolute/existing/app-composer-guestbook node --experimental-transform-types scripts/platform-demo.mjs
-COMPOSER_DEMO_GUESTBOOK=/absolute/existing/app-composer-guestbook node --experimental-transform-types --test tests/platform-demo.test.mjs
 ```
 
 The normal test suite skips this optional lab only when its selected source directory is absent. A present but dirty, mismatched or incomplete checkout fails. Explicit qualification must run it with the reviewed source selected and retain a passing receipt. The first command emits a bounded JSON receipt. Save it under ignored `output/` when useful. `output/platform-demo-20261023.json` records the historical initial run at Guestbook `376129c8b48d29d26e982777084aa241966569c7`; it is not qualification of a later pin. Save each fresh selected-source run under a distinct evidence filename. The original local media excerpts retain their historical sources. Runtime/source changes require a fresh receipt; a fixture is not a production acceptance result.

@@ -192,7 +192,7 @@ The independent Node example also supports pre-idea setup without invented cloud
 
 `pnpm compose` fetches and validates known public app manifests at exact commits, verifies their actual deployed identities and stages an inspectable cached candidate. Arbitrary catalogue repositories are never executed. `pnpm compose --spec path/to/spec.json --apply` additionally validates the portable spec and applies authorised configuration using private owner credential files in the adjacent independent app checkouts; purchases and unverified targets are blocked. This operator path is deliberately narrow, not public multi-tenant provisioning.
 
-Production uses `pnpm deploy`: clean pushed main, type/risk checks, production build, Wrangler and exact live-host source verification. There are no GitHub Actions. Preview is a separate named environment with separate D1/R2 and no production app service bindings; missing app services fail explicitly rather than sharing production data.
+Production uses `pnpm deploy`: clean pushed main, dependency audit, production build and publication scan, remote migrations, Worker upload and exact live-host source verification. There are no GitHub Actions. Preview is a separate named environment with separate D1/R2 and no production app service bindings; missing app services fail explicitly rather than sharing production data.
 
 ## Secrets and human gates
 
@@ -230,7 +230,7 @@ Hello Init uses `pnpm init:hello --spec FILE --workspace /path/to/hello --accoun
 
 EmDash 1.2.0 upgrade: direct CMS/Cloudflare packages move together, with a rehearsed raw D1 recovery export and retained runtime keys before its forward core migrations. Native admin ships English only and caps media uploads at 1 MiB; customer mini-app media limits remain independent. Vendor-generated upgrade work orders and refreshed skills are private operator evidence.
 
-Focused checks: `pnpm check:types`, `pnpm check:fast -- tests/<area>.test.mjs`, `pnpm test:core`, `pnpm test:ready`, `pnpm test:access`, `pnpm test:email` and `pnpm test:release` run independently without network mutation. `check:fast` still runs the complete generated-source/type, lint and format gates and then only the named tests, so it is the quicker loop for an ordinary UI, content or app edit. Run the relevant group while developing; `pnpm check` retains every required release gate. For a single regression, use `node --test --test-name-pattern="name" tests/core.test.mjs`. Browser, real deployment and disaster-recovery checks are separate explicit operations, never hidden behind a unit test.
+Focused checks: `pnpm check:types`, `pnpm check:fast -- tests/<area>.test.mjs`, `pnpm test:core`, `pnpm test:ready`, `pnpm test:access`, `pnpm test:email` and `pnpm test:release` run independently without network mutation. `check:fast` runs the named tests. Use `pnpm check` for generated-source parity, types and lint, and `pnpm format:check` for maintained Creator files. For a single regression, use `node --test --test-name-pattern="name" tests/core.test.mjs`. Browser, real deployment and disaster-recovery checks are separate explicit operations, never hidden behind a unit test.
 
 The public app library at `/apps` and native nine-dot launcher share one list of shipped entry points. That navigation list does not replace EmDash's published catalogue contracts.
 

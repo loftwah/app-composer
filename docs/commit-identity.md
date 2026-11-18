@@ -43,8 +43,8 @@ node scripts/commit-identity.mjs --install             # core.hooksPath=.githook
 before the commit exists. Nothing forces it on an existing clone, and no
 published commit is rewritten.
 
-`pnpm check` runs `--check-config`, so a clone configured to fabricate an
-address fails the ordinary check rather than a special gate.
+`pnpm identity:check` checks the configured name and email. During a commit,
+the hook checks the author Git selected, including an explicit author override.
 
 ## Portfolio
 

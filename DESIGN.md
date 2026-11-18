@@ -67,7 +67,7 @@ separate instrument and PDFs, signatures or drawings never feed it; no invented
 live counts are shown.
 
 Details, poster provenance and the checked width/theme/interaction set live in
-[studio-hero.md](studio-hero.md).
+[studio-hero.md](docs/studio-hero.md).
 
 Motion correction, 2026/11/14 AEDT (Australia/Melbourne, UTC+11) / 2026/11/14 UTC:
 the camera opens settled and only travels when a station is selected. Stamping

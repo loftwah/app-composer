@@ -16,8 +16,8 @@ inventory to [#219](https://github.com/loftwah/app-composer/issues/219).
 - `scripts/finops-attribution.mjs` — the adapter. `--plan` prints the fixed GET
   reads without network access. `--allow-live-read` performs **GET only** and
   prints a bounded observation; adding `--view` builds the attribution view.
-- `tests/cost-attribution.test.mjs` — refuses ambiguous or unsafe input, keeps
-  unknown measures `unverified`, and proves `/` is never rendered as zero.
+- The retired `cost-attribution.test.mjs` suite covered ambiguous input, unverified
+  measures and the distinction between a missing value (`/`) and zero.
 
 Rules enforced by the contract:
 
