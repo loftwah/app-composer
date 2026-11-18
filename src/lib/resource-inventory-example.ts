@@ -3,6 +3,10 @@
 // and tested without a Cloudflare credential. Everything here is invented and
 // labelled as fictional in the interface; it is never mixed into a real read.
 import {
+  launcherProjectHref,
+  launcherWorkspaceHref,
+} from "./launcher-recents.ts";
+import {
   configurationDigest,
   effectiveGuestbookConfiguration,
 } from "./resource-client.ts";
@@ -32,9 +36,6 @@ const WORKSPACE = {
 
 export async function fictionalResourceInventory(): Promise<ResourceInventorySnapshot> {
   const now = Date.parse(READ_AT);
-  const actionHref =
-    "/_emdash/admin/plugins/composer-stacks/stacks?" +
-    new URLSearchParams({ workspace: WORKSPACE.id });
   const digest = async (values: Record<string, string>) =>
     configurationDigest(effectiveGuestbookConfiguration(values));
   const base = {
@@ -151,7 +152,11 @@ export async function fictionalResourceInventory(): Promise<ResourceInventorySna
         ? { pinned: input.pinned, current: configuration?.revision ?? null }
         : null,
       providerTags,
-      actionHref,
+      // The fictional rows each bind at most one stack, so their action opens
+      // that exact stack; an unbound row stays scoped to the workspace.
+      actionHref: input.stack
+        ? launcherProjectHref(WORKSPACE.id, input.stack.id)
+        : launcherWorkspaceHref(WORKSPACE.id),
     };
     const { status, findings } = classifyResource(observation, now);
     return {
