@@ -70,7 +70,10 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
     </details>
     <details class="gallery-piece-section">
       <summary>Use in Media Studio</summary>
-      <p>In Media Studio, choose your project, open <strong>Library</strong> and expand <strong>Import from Woodhouse Share</strong>. Find <strong>{artwork.title}</strong> using <strong>Search Woodhouse Share</strong>, or paste <code>{artwork.assetId}</code> into <strong>Share asset ID</strong>. Confirm reuse permission before importing the original.</p>
+      <p>Open your Studio project and choose <strong>Library → Import from Woodhouse Share</strong>. Paste this asset ID and confirm you have permission to reuse the original.</p>
+      <label>Share asset ID<input type="text" value={artwork.assetId} readonly data-studio-asset-id /></label>
+      <button type="button" class="secondary" data-copy-studio-id hidden><Copy size={16} aria-hidden="true" /> Copy asset ID</button>
+      <span role="status" data-studio-id-status></span>
       <a href="/media-studio/studio">Open Media Studio <ArrowUpRight size={14} /></a>
     </details>
     {signedIn ? (

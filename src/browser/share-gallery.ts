@@ -26,6 +26,23 @@ export function mountArtworkActions(piece: HTMLElement) {
     });
   }
 
+  const copyId = piece.querySelector<HTMLButtonElement>("[data-copy-studio-id]");
+  const assetId = piece.querySelector<HTMLInputElement>("[data-studio-asset-id]");
+  if (copyId && assetId) {
+    const status = piece.querySelector<HTMLElement>("[data-studio-id-status]")!;
+    copyId.hidden = false;
+    copyId.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(assetId.value);
+        status.textContent = "Asset ID copied.";
+      } catch {
+        assetId.focus();
+        assetId.select();
+        status.textContent = "Copy the selected asset ID.";
+      }
+    });
+  }
+
   const share = piece.querySelector<HTMLButtonElement>("[data-gallery-native]");
   if (share && navigator.share) {
     share.hidden = false;

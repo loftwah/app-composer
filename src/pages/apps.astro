@@ -1,30 +1,182 @@
 ---
 import Base from '../layouts/Base.astro';
 import DeviceSupport from '../components/DeviceSupport.astro';
-import {appDeviceSupport} from '../lib/app-device-support';
-import {deviceFilterTokens} from '../lib/device-support.mjs';
+import { appDeviceSupport } from '../lib/app-device-support';
+import { deviceFilterTokens } from '../lib/device-support.mjs';
 import { apps, appDetails } from '../lib/apps';
-import { ArrowUpRight, Code, Search } from '@lucide/astro';
+import { ArrowRight, Search, SlidersHorizontal } from '@lucide/astro';
+
+const share = {
+  id: 'composer-share', name: 'App Composer Share', category: 'Creative',
+  description: 'Find a poster, sketch or cover. Open the artwork, download it or share the credited original.',
+  href: '/share',
+} as const;
+const entries = [...apps.slice(0, 1), share, ...apps.slice(1)];
+const features = {
+  'media-studio': { image: '/media-studio/fighter-before-the-bell-20261114.webp', title: 'Before the Bell', label: 'Studio variation', href: 'https://media.loftwah.com/p/yFSN93LOFy1ja4j0' },
+  'composer-share': { image: '/media-studio/fighter-across-the-ring-20261114.webp', title: 'Across the Ring', label: 'Original poster', href: '/share/artwork/poster-study-fighter' },
+};
+const actions: Record<string, string> = {
+  paperwork: 'Open PDF editor', 'launch-kit': 'Make a profile card', ldraw: 'Open drawing board',
+  linkcheck: 'Check a link', guestbook: 'Visit guestbook', showcase: 'Visit profile',
+  hello: 'Open starter app', state: 'Try the fictional vault',
+};
 ---
-<Base title="App library" description="Open the shipped App Composer mini-apps, try their standalone versions and inspect the GitHub source.">
-<h1>App library.</h1><p class="lede">Open an app, try it on its own, or take its source to your agent. Loftwah’s instance runs Linkarooie and Here / there alongside the shared product.</p>
-<div class="library-controls"><label><span class="icon-label"><Search size={16} aria-hidden="true"/>Find an app</span><input type="search" id="app-search" placeholder="Name or purpose"/></label><label>Category<select id="app-category"><option value="">All categories</option>{[...new Set(apps.map(a=>a.category))].map(c=><option>{c}</option>)}</select></label><label>Device support<select id="app-device"><option value="">All assessments</option><option value="desktop">Desktop supported</option><option value="phone">Phone supported</option><option value="tablet">Tablet supported</option><option value="limited">Limited support</option><option value="unknown">Not checked yet</option></select></label></div>
-<p id="app-results" class="small" role="status" aria-live="polite">{apps.length} apps available</p>
-<p><a href="/discover">Find a tool or example for your task →</a></p>
-<div class="app-library">{apps.map(app=><article data-app data-devices={deviceFilterTokens(appDeviceSupport(app.id))} data-category={app.category} data-search={`${app.name} ${app.description} ${app.category}`.toLowerCase()}><a class="app-art" href={app.href} tabindex="-1" aria-hidden="true"><img src={app.thumbnail} width="96" height="96" alt="" loading="lazy"/></a><div><h2><a href={app.href}>{app.name}</a></h2><p>{app.description}</p><span class="small">{app.category}</span><DeviceSupport support={appDeviceSupport(app.id)}/><div class="app-links"><a class="button secondary" href={app.href}>Open app <ArrowUpRight size={18} aria-hidden="true"/></a><a href={app.standalone}>Standalone</a><a href={app.source}><Code size={18} aria-hidden="true"/>GitHub source</a></div><details class="app-explanation"><summary>Real screen and what it does</summary><figure class="app-screen"><a href={app.href}><picture><source type="image/webp" srcset={`${app.preview} 960w, ${app.previewWide} 1440w`} sizes="(max-width: 800px) calc(100vw - 64px), 560px"/><img src={app.preview} width="960" height="600" alt={app.previewAlt} loading="lazy" decoding="async"/></picture></a><figcaption>Real screenshot of <a href={('previewOrigin' in app?app.previewOrigin:app.standalone)}>{app.name} at {new URL(('previewOrigin' in app?app.previewOrigin:app.standalone)).host}</a>, captured {new Date(app.previewCaptured+'T00:00:00Z').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}. {'thumbnailCaption' in app ? app.thumbnailCaption : 'The artwork beside the title is the app’s identity illustration, not a screen.'}</figcaption></figure><p>{appDetails[app.id].example}</p><ul>{appDetails[app.id].features.map(feature=><li>{feature}</li>)}</ul><p><strong>Make it yours.</strong> {appDetails[app.id].configuration}</p><p><strong>Works with.</strong> {appDetails[app.id].connection}</p></details></div></article>)}</div>
-<div id="app-empty" hidden><p>No apps match. Unchecked apps are not listed as confirmed compatible.</p><button type="button" class="button secondary" id="app-clear-filters">Clear filters</button></div>
-<p><a href="/activity">Explore the recorded app analytics →</a></p>
-<section class="section"><h2>Make them work together.</h2><p>Here / there owns submissions and moderation. Linkarooie can feature its approved photos, and removes access when their source becomes private.</p><a href="/demo/connected-apps">Try the composition</a> · <a href="/review">Review a Link Check report</a> · <a href="/catalogue">Read the published app contracts</a> · <a href="/init">Configure a composition</a></section>
-<script>
-const search=document.querySelector<HTMLInputElement>('#app-search')!;const category=document.querySelector<HTMLSelectElement>('#app-category')!;const device=document.querySelector<HTMLSelectElement>('#app-device')!;const entries=[...document.querySelectorAll<HTMLElement>('[data-app]')];function filter(){let count=0;for(const entry of entries){entry.hidden=!(entry.dataset.search!.includes(search.value.trim().toLowerCase())&&(!category.value||entry.dataset.category===category.value)&&(!device.value||entry.dataset.devices!.split(' ').includes(device.value)));if(!entry.hidden)count++;}document.querySelector('#app-results')!.textContent=`${count} ${count===1?'app':'apps'} available`;document.querySelector<HTMLElement>('#app-empty')!.hidden=count!==0;}search.addEventListener('input',filter);category.addEventListener('change',filter);device.addEventListener('change',filter);
-document.querySelector<HTMLButtonElement>('#app-clear-filters')!.addEventListener('click', () => {
-  search.value = '';
-  category.value = '';
-  device.value = '';
-  filter();
-  search.focus();
-});
-</script>
+<Base title="App library" description="Find a working app, explore project artwork and see how independent apps work together.">
+  <header class="directory-intro">
+    <div>
+      <h1>App library<span>.</span></h1>
+      <p>Make something in Media Studio, find the original in Share, or pick a tool for the job.</p>
+    </div>
+    <a href="/demo/connected-apps">Try two apps together <ArrowRight size={17} aria-hidden="true" /></a>
+  </header>
+
+  <div class="directory-tools" data-library-controls hidden>
+    <label class="directory-search"><Search size={19} aria-hidden="true" />
+      <input type="search" id="app-search" aria-label="Find an app" placeholder="Find an app by name or purpose" />
+    </label>
+    <details class="directory-filters">
+      <summary><SlidersHorizontal size={16} aria-hidden="true" /> Filters<span id="filter-count"></span></summary>
+      <div>
+        <label>Category<select id="app-category"><option value="">All categories</option>{[...new Set(entries.map(app => app.category))].map(category => <option>{category}</option>)}</select></label>
+        <label>Device support<select id="app-device"><option value="">All assessments</option><option value="desktop">Desktop supported</option><option value="phone">Phone supported</option><option value="tablet">Tablet supported</option><option value="limited">Limited support</option><option value="unknown">Not checked yet</option></select></label>
+      </div>
+    </details>
+    <span id="app-results" role="status">{entries.length} destinations</span>
+  </div>
+
+  <div class="directory">
+    {entries.map(app => {
+      const isShare = app.id === 'composer-share';
+      const isStudio = app.id === 'media-studio';
+      const feature = isShare || isStudio ? features[app.id] : null;
+      const support = appDeviceSupport(app.id);
+      const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? app.standalone : app.href;
+      const label = isStudio ? 'Open Media Studio' : isShare ? 'Browse artwork' : actions[app.id];
+      const details = isShare ? null : appDetails[app.id];
+      return (
+        <article id={app.id} class:list={['directory-entry', { featured: feature }]} data-app
+          data-category={app.category} data-devices={deviceFilterTokens(support)}
+          data-search={[app.name, app.description, app.category, label, feature?.title].join(' ').toLowerCase()}>
+          <div class="entry-body">
+            <div class="entry-title">
+              {!feature && !isShare && <img src={app.thumbnail} width="52" height="52" alt="" loading="lazy" />}
+              <h2><a href={href}>{app.name}</a></h2>
+            </div>
+            <p>{isStudio ? 'Create stills, edit clips and mix sound in your own project.' : app.description}</p>
+            <div class="entry-actions">
+              <a class:list={['entry-open', {button: feature}]} href={href}>{label} <ArrowRight size={16} aria-hidden="true" /></a>
+              {isStudio && <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>}
+            </div>
+          </div>
+          {feature && <figure>
+            <a href={feature.href} aria-label={feature.title}><img src={feature.image} width="190" height="190" alt="" /></a>
+            <figcaption><strong>{feature.title}</strong><span>{feature.label}</span></figcaption>
+          </figure>}
+          {!isShare && details && <details class="entry-details">
+            <summary>About {app.name}</summary>
+            <p>{details.example}</p>
+            <div class="entry-resources">
+              {app.href !== href && <a href={app.href}>{isStudio ? 'Read the Studio build story' : 'Read the app guide'}</a>}
+              {app.standalone !== href && <a href={app.standalone}>Standalone app</a>}
+              <a href={app.source}>GitHub source</a>
+            </div>
+            <figure class="app-screen">
+              <img src={app.preview} srcset={app.preview !== app.previewWide ? app.preview + ' 960w, ' + app.previewWide + ' 1440w' : undefined} sizes="(max-width: 720px) 90vw, 560px" width="960" height="600" alt={app.previewAlt} loading="lazy" decoding="async" />
+              <figcaption>Captured {app.previewCaptured} at <a href={'previewOrigin' in app ? app.previewOrigin : app.standalone}>{new URL('previewOrigin' in app ? app.previewOrigin : app.standalone).host}</a>. {'thumbnailCaption' in app && app.thumbnailCaption}</figcaption>
+            </figure>
+            <ul>{details.features.map(feature => <li>{feature}</li>)}</ul>
+            <p><strong>Make it yours.</strong> {details.configuration}</p>
+            <p><strong>Works with.</strong> {details.connection}</p>
+            <DeviceSupport support={support} />
+          </details>}
+        </article>
+      );
+    })}
+  </div>
+  <div id="app-empty" hidden><h2>No matching apps</h2><p>Try a different name or clear your filters.</p><button type="button" class="secondary" id="app-clear-filters">Clear filters</button></div>
+  <nav class="directory-footer" aria-label="Explore App Composer">
+    <a href="/discover">Find tools by task</a><a href="/activity">App analytics</a><a href="/review">Review a Link Check report</a><a href="/catalogue">App contracts</a><a href="/init">Configure a composition</a>
+  </nav>
 </Base>
 
-<style>.library-controls{max-width:100%;flex-wrap:wrap}.library-controls label{min-width:180px}</style>
+<script>
+  const controls = document.querySelector<HTMLElement>('[data-library-controls]')!;
+  const search = controls.querySelector<HTMLInputElement>('#app-search')!;
+  const category = controls.querySelector<HTMLSelectElement>('#app-category')!;
+  const device = controls.querySelector<HTMLSelectElement>('#app-device')!;
+  const entries = [...document.querySelectorAll<HTMLElement>('[data-app]')];
+  const results = controls.querySelector<HTMLElement>('#app-results')!;
+  const empty = document.querySelector<HTMLElement>('#app-empty')!;
+
+  function filter() {
+    const query = search.value.trim().toLowerCase();
+    let count = 0;
+    for (const entry of entries) {
+      const matches = entry.dataset.search!.includes(query)
+        && (!category.value || entry.dataset.category === category.value)
+        && (!device.value || entry.dataset.devices!.split(' ').includes(device.value));
+      entry.hidden = !matches;
+      if (matches) count++;
+    }
+    const filters = [category.value, device.value].filter(Boolean).length;
+    controls.querySelector('#filter-count')!.textContent = filters ? ' (' + filters + ')' : '';
+    results.textContent = count + (count === 1 ? ' destination' : ' destinations');
+    empty.hidden = count !== 0;
+  }
+  controls.addEventListener('input', filter);
+  controls.addEventListener('change', filter);
+  document.querySelector('#app-clear-filters')!.addEventListener('click', () => {
+    search.value = category.value = device.value = '';
+    filter();
+    search.focus();
+  });
+  controls.hidden = false;
+  filter();
+</script>
+
+<style>
+  .directory-intro { display:flex; align-items:end; justify-content:space-between; flex-wrap:wrap; gap:.25rem 2rem; margin-bottom:1.5rem; }
+  .directory-intro h1 { margin:0; font-size:clamp(2.65rem,6vw,5.1rem); }
+  .directory-intro h1 span,.entry-open:not(.button) { color:var(--color-accent); }
+  .directory-intro p { margin:.45rem 0 0; max-width:60ch; color:var(--color-muted); }
+  .directory-intro>a,.entry-actions>a,.entry-resources a { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; }
+  .directory-tools { display:flex; flex-wrap:wrap; align-items:start; gap:.5rem 1rem; margin-bottom:1.4rem; }
+  .directory-search { display:flex; align-items:center; position:relative; flex:1 1 15rem; max-width:34rem; }
+  .directory-search svg { position:absolute; left:.8rem; pointer-events:none; }
+  .directory-search input { width:100%; margin:0; padding-left:2.5rem; }
+  .directory-filters summary,.directory-tools>span { display:flex; gap:.4rem; align-items:center; min-height:44px; }
+  .directory-filters summary,.entry-details summary { cursor:pointer; }
+  .directory-filters>div { display:flex; flex-wrap:wrap; gap:.7rem; margin:.5rem 0; }
+  .directory-filters label { min-width:0; }
+  .directory-tools>span { margin-left:auto; font-size:.9rem; color:var(--color-muted); }
+  .directory { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 2rem; align-items:start; }
+  .directory-entry { display:grid; grid-template-columns:minmax(0,1fr); border-top:1px solid var(--color-border); padding:1.25rem 0 .65rem; min-width:0; }
+  .directory-entry.featured { grid-template-columns:minmax(0,1fr) minmax(6rem,34%); column-gap:1rem; border-top:3px solid var(--color-accent); }
+  .entry-title { display:flex; gap:.8rem; align-items:center; }
+  .entry-title img { width:3.25rem; height:3.25rem; object-fit:contain; border-radius:.4rem; }
+  .entry-title h2 { margin:0; font-size:clamp(1.45rem,3vw,2.2rem); overflow-wrap:anywhere; }
+  .entry-body>p { max-width:52ch; margin:.6rem 0; }
+  .entry-actions,.entry-resources { display:flex; flex-wrap:wrap; align-items:center; gap:.2rem 1rem; }
+  .featured>figure { margin:0; }
+  .featured>figure img { width:100%; aspect-ratio:1; object-fit:cover; object-position:center 35%; border-radius:.45rem; }
+  .featured figcaption strong,.featured figcaption span { display:block; }
+  .featured>figure figcaption { padding:.4rem 0; font-size:.86rem; line-height:1.4; }
+  .featured figcaption span,.entry-details>summary { color:var(--color-muted); }
+  .entry-details { grid-column:1/-1; margin:.2rem 0 0; overflow-wrap:anywhere; }
+  .entry-details>summary { min-height:44px; padding:.6rem 0; }
+  .entry-details ul { padding-left:1.25rem; }
+  .directory-footer { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--color-border); }
+  [hidden] { display:none!important; }
+  @media(max-width:800px) { .directory { grid-template-columns:minmax(0,1fr); } }
+  @media(max-width:540px) {
+    .directory-intro { margin-bottom:.75rem; }
+    .directory-tools { gap:.25rem .8rem; }
+    .directory-search { flex-basis:100%; max-width:none; }
+    .directory-entry.featured { grid-template-columns:minmax(0,1fr) minmax(4.6rem,27%); }
+    .directory-filters[open] { width:100%; }
+    .directory-filters label { flex:1 1 9rem; }
+    .entry-actions { gap:0 .75rem; }
+    .entry-open.button { padding-inline:.7rem; }
+  }
+</style>
