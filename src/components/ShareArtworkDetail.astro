@@ -71,6 +71,7 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
     </details>
     <details class="gallery-piece-section">
       <summary>Use in Media Studio</summary>
+      <p>To work on a local copy, use <strong>Download original</strong>, then <a href="https://media.loftwah.com/tools/images">open Image Tools</a>. Resize, crop or convert it in this browser and download the result. No sign-in and no upload; check the source record above before reusing it.</p>
       <p>Open your Studio project and choose <strong>Library → Import from Woodhouse Share</strong>. Paste this asset ID and confirm you have permission to reuse the original.</p>
       <label>Share asset ID<input type="text" value={artwork.assetId} readonly data-studio-asset-id /></label>
       <button type="button" class="secondary" data-copy-studio-id hidden><Copy size={16} aria-hidden="true" /> Copy asset ID</button>
