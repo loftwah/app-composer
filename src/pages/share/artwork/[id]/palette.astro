@@ -9,7 +9,7 @@ const art = result.status === 200 ? result.artwork : null;
 const path = art ? '/share/artwork/' + art.assetId : '/share';
 const revision = art ? await artworkRevision(art) : '';
 const preview = art ? '/api/share-artwork-download?' + new URLSearchParams({ id: art.assetId, file: 'preview', revision }) : '';
-Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
+Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 ---
 <Base title={art ? art.title + ' colour palette' : 'Artwork unavailable'} description="Pick colours from original project artwork and take the palette into your own project." noindex>
   <div class="palette-page">
