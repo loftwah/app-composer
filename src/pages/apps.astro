@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import DeviceSupport from '../components/DeviceSupport.astro';
+import paperworkSource from '../../lib/paperwork/source.json';
 import { appDeviceSupport } from '../lib/app-device-support';
 import { deviceFilterTokens } from '../lib/device-support.mjs';
 import { apps, appDetails } from '../lib/apps';
@@ -51,7 +52,7 @@ const actions: Record<string, string> = {
       const isStudio = app.id === 'media-studio';
       const feature = isShare || isStudio ? features[app.id] : null;
       const support = appDeviceSupport(app.id);
-      const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? app.standalone : app.href;
+      const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? paperworkSource.origin : app.href;
       const label = isStudio ? 'Open Media Studio' : isShare ? 'Browse artwork' : actions[app.id];
       const details = isShare ? null : appDetails[app.id];
       return (
