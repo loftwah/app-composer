@@ -35,7 +35,10 @@ if (desk) {
 
   function load() {
     const incoming = readEdition(location.hash);
-    edition = incoming ?? newEdition();
+    const saved = editor ? history.state?.composerPostcardDraft : null;
+    const restored = saved?.source === location.hash && typeof saved.edition === 'string'
+      ? readEdition(saved.edition) : null;
+    edition = restored ?? incoming ?? newEdition();
     if (status && location.hash.startsWith('#postcards=') && !incoming) {
       status.textContent = 'This link is incomplete. The sample collection is shown.';
     }
@@ -47,6 +50,14 @@ if (desk) {
   load();
   window.addEventListener('hashchange', load);
   if (editor) {
+    // Keep Back/Forward edits in this history entry, including when opened from a remix.
+    desk.addEventListener('change', () => {
+      try {
+        history.replaceState({...history.state, composerPostcardDraft: {
+          source: location.hash, edition: editionHash(edition),
+        }}, '');
+      } catch { /* Links still carry the edition when browser history is unavailable. */ }
+    });
     name?.addEventListener('input', () => { edition.name = name.value; paint(); });
     note?.addEventListener('input', () => { edition.captions[edition.cover] = note.value; paint(); });
     for (const input of radio) input.addEventListener('change', () => {
