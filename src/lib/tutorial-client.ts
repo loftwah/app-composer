@@ -70,17 +70,17 @@ function updateAnchorOffset() {
  article.style.scrollMarginTop = `${article.getBoundingClientRect().top-content.getBoundingClientRect().top+16}px`;
 }
 window.addEventListener('resize',updateAnchorOffset);
-function positionLesson(focus = false) {
+function positionLesson(focus = false, focusTarget?: HTMLElement) {
  // Measure the document position, not the sticky toolbar's current position.
  const content = root.querySelector<HTMLElement>('.lesson-content')!;
  const top = Math.max(0,content.getBoundingClientRect().top+window.scrollY-16);
- if (focus) document.getElementById(current+'-title')!.focus({preventScroll:true});
+ if (focus) (focusTarget ?? document.getElementById(current+'-title')!).focus({preventScroll:true});
  window.scrollTo({top,behavior:'instant'});
 }
-function navigateLesson(id: string) {
+function navigateLesson(id: string, focusTarget?: HTMLElement) {
  if (!lessonIds.includes(id)) return;
  if (location.hash !== '#'+id) history.pushState(null,'','#'+id);
- current=id;showLesson();positionLesson(true);save(false);
+ current=id;showLesson();positionLesson(true, focusTarget);save(false);
 }
 // Keep ordinary links, copy-link and new-tab behaviour. Own only same-page,
 // unmodified activation so native fragment scrolling cannot race panel changes.
@@ -91,7 +91,7 @@ document.addEventListener('click',event=>{
  const url=new URL(target.href);
  if(url.origin!==location.origin||url.pathname!==location.pathname||url.search!==location.search)return;
  const id=url.hash.slice(1);if(!lessonIds.includes(id))return;
- event.preventDefault();navigateLesson(id);
+ event.preventDefault();navigateLesson(id, target.hasAttribute('data-start') ? picker : undefined);
 });
 picker.hidden=false;picker.disabled=false;
 picker.addEventListener('change',()=>navigateLesson(picker.value));
