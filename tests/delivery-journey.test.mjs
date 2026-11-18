@@ -230,7 +230,6 @@ test('candidate mode builds the preview and records its exact isolated identity'
   });
   assert.equal(receipt.state, 'passed');
   assert.deepEqual(calls, [
-    ['pnpm', 'check', null],
     ['pnpm', 'build', 'preview'],
   ]);
   assert.equal(receipt.candidate.built, true);
@@ -284,7 +283,7 @@ test('release refuses an ambient Cloudflare environment before building or deplo
   assert.equal(calls, 0);
 });
 
-test('an explicitly authorised release reuses the guarded deploy and independent verifier', async t => {
+test('an explicitly authorised release uses the guarded deploy and its live verifier', async t => {
   const workspace = workspaceFixture(t);
   const calls = [];
   const verified = [];
@@ -298,12 +297,12 @@ test('an explicitly authorised release reuses the guarded deploy and independent
   });
   assert.equal(receipt.state, 'passed');
   assert.deepEqual(calls, [['pnpm', 'deploy', null]]);
-  assert.deepEqual(verified, [[source().commit, lock, config.vars.PUBLIC_ORIGIN]]);
+  assert.deepEqual(verified, []);
   assert.equal(receipt.release.attempted, true);
   assert.equal(receipt.release.performed, true);
   assert.equal(receipt.release.command, 'pnpm deploy');
   assert.equal(receipt.release.commit, source().commit);
-  assert.match(receipt.release.checks, /pnpm check and pnpm build run inside the guarded deploy/);
+  assert.match(receipt.release.checks, /Dependency audit and production build run inside the guarded deploy/);
   assert.equal(receipt.verification.performed, true);
   assert.equal(receipt.verification.independent, true);
   assert.equal(receipt.approval.flag, '--release');

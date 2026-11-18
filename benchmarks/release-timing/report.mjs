@@ -13,10 +13,11 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
-  LIMIT_MS,
   RECEIPT_SCHEMA,
   assertReceipt,
   classifyDuration,
+  COMPOSER_LIMIT_MS,
+  LIMIT_MS,
   redact,
 } from "../../lib/delivery/release-timing.mjs";
 
@@ -145,8 +146,8 @@ export function validateReceipt(receipt, { source = "receipt" } = {}) {
   if (!Number.isFinite(receipt.targetMs) || receipt.targetMs <= 0) {
     throw new Error(`${where} targetMs is invalid`);
   }
-  if (receipt.limitMs !== LIMIT_MS) {
-    throw new Error(`${where} limitMs must be ${LIMIT_MS} for release-timing/v1`);
+  if (![COMPOSER_LIMIT_MS, LIMIT_MS].includes(receipt.limitMs)) {
+    throw new Error(`${where} limitMs must be ${COMPOSER_LIMIT_MS} or ${LIMIT_MS}`);
   }
   if (receipt.targetMs > receipt.limitMs) {
     throw new Error(`${where} targetMs is above the strict limit`);
@@ -186,7 +187,7 @@ export function validateReceipt(receipt, { source = "receipt" } = {}) {
     throw new Error(`${where} unmeasuredMs hides time the stages do not account for`);
   }
 
-  const expected = classifyDuration(receipt.totalMs);
+  const expected = classifyDuration(receipt.totalMs, { limitMs: receipt.limitMs });
   if ((status === "passed" || status === "over-budget") && status !== expected) {
     throw new Error(
       `${where} status "${status}" does not match the measured total (${receipt.totalMs}ms is ${expected})`,

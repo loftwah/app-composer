@@ -48,7 +48,7 @@ node scripts/delivery-journey.mjs
 # Machine-readable receipt, plus an optional saved receipt.
 node scripts/delivery-journey.mjs --json --receipt output/delivery/local.json
 
-# Local preview candidate: checks, CLOUDFLARE_ENV=preview build and binding inspection.
+# Local preview candidate: CLOUDFLARE_ENV=preview build and binding inspection.
 node scripts/delivery-journey.mjs --candidate --receipt output/delivery/candidate.json
 
 # Explicit authorised release of clean pushed main. This is the only mode that uploads.
@@ -64,18 +64,18 @@ node scripts/delivery-journey.mjs --verify --receipt output/delivery/verify.json
 
 | Step | Command | Boundary |
 | --- | --- | --- |
-| Local checks | `pnpm check` | Existing required gates. No upload and no production claim. |
-| Focused iteration | `pnpm check:fast -- tests/<area>.test.mjs` | Same type/source, lint and format gates plus only the named tests. Not a release gate. |
-| Preview candidate | `pnpm check`, then `CLOUDFLARE_ENV=preview pnpm build` | Build-time environment selection. No upload. |
+| Local checks | `pnpm check` | On-demand source, type and lint checks. No upload. |
+| Focused iteration | `pnpm check:fast -- tests/<area>.test.mjs` | Runs only the named tests. |
+| Preview candidate | `CLOUDFLARE_ENV=preview pnpm build` | Build-time environment selection. No upload. |
 | Review | read the printed or saved receipt | The candidate digest, source commit, target, bindings and next action are explicit. |
-| Authorised release | `pnpm deploy` | Runs the dependency audit, full `pnpm check` and production build before remote migrations and upload. Explicit `--release` only. |
-| Independent result | `scripts/verify-live.mjs` | Re-reads `/build.json` and every mounted `/APP/build.json` after release, or on its own via `--verify`. |
+| Authorised release | `pnpm deploy` | Runs the dependency audit and production build before remote migrations and upload. Explicit `--release` only. |
+| Independent result | `scripts/verify-live.mjs` | Re-reads `/build.json` and every mounted `/APP/build.json` inside deploy, or on its own via `--verify`. |
 
-The candidate is a separate stage for preview work; release does not rebuild it or claim its evidence. Run the candidate and relevant isolated integration or browser checks when the change needs them, including changes to preview bindings or behaviour; a local candidate alone does not establish those checks. `pnpm deploy` rechecks clean pushed `main`, runs the dependency audit, full check and production build, validates the generated target and packages, and rechecks remote main before migrations and upload. A preview artefact is never uploaded by the production command.
+The candidate is a separate stage for preview work; release does not rebuild it or claim its evidence. Run the candidate and relevant isolated integration or browser checks when the change needs them, including changes to preview bindings or behaviour; a local candidate alone does not establish those checks. `pnpm deploy` rechecks clean pushed `main`, runs the dependency audit and production build, validates the generated target and packages, and rechecks remote main before migrations and upload. A preview artefact is never uploaded by the production command.
 
 ### Measured local cost
 
-On a 14-core macOS host with Node 22.23.4 and a warm pnpm store, 8 November 2026: `pnpm test` 30.4s for the same 575 tests that took 90.8s at the former two-worker setting; `pnpm check` 66.3s (types/generated source 25.2s, lint 4.6s, format 1.1s, tests 33.4s); `pnpm check:fast -- tests/check-fast.test.mjs tests/emdash-key-deploy-gate.test.mjs` 38.8s; `pnpm deploy` 139.3s by its own elapsed clock (142.4s wall including startup), covering the full check, production build, remote migrations, upload and live gates. The suite now uses Node's default concurrency (`availableParallelism - 1`), so smaller hosts run fewer files at once. The earlier 25 October measurement was `pnpm check` 103.8s, `pnpm build` 12.2s and `pnpm check:fast` 21.9s with two test workers. Release runs one `pnpm check` and one production build, and `pnpm deploy` prints each gate with its duration plus `Release elapsed`.
+On a 14-core macOS host with Node 22.23.4 and a warm pnpm store, 8 November 2026: `pnpm test` 30.4s for the same 575 tests that took 90.8s at the former two-worker setting; `pnpm check` 66.3s (types/generated source 25.2s, lint 4.6s, format 1.1s, tests 33.4s); `pnpm check:fast -- tests/check-fast.test.mjs tests/emdash-key-deploy-gate.test.mjs` 38.8s; `pnpm deploy` 139.3s by its own elapsed clock (142.4s wall including startup), covering the full check, production build, remote migrations, upload and live gates. The suite used Node's default concurrency (`availableParallelism - 1`), so smaller hosts run fewer files at once. The earlier 25 October measurement was `pnpm check` 103.8s, `pnpm build` 12.2s and `pnpm check:fast` 21.9s with two test workers. The current release path runs one production build and prints each measured stage.
 
 ## Preview isolation
 

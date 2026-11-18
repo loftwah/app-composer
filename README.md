@@ -33,14 +33,15 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm check:types` | Check strict source, emitted distributions and Astro |
 | `pnpm lint` | Check semantic and unused-source rules in the maintained content/Creator programs |
 | `pnpm format:check` | Check maintained Creator and enquiry files named by the format gate |
-| `pnpm test` | Run the small retained behavioural and boundary suite (parallel across available CPUs) |
-| `pnpm check` | Run source checks and the retained test suite |
-| `pnpm check:fast -- tests/...` | Iterate with the same type/source, lint and format gates plus only the named tests; not the release gate |
+| `pnpm check` | Run on-demand source, type and lint checks |
+| `pnpm test` | Run the core access, injection, publication and release safety tests |
+| `pnpm test:all` | Run the full retained suite on demand |
+| `pnpm check:fast -- tests/...` | Run only the named test files |
 | `pnpm freshness` | Report installed dependencies against the reviewed supported ranges |
 | `pnpm freshness:remote` | Explicitly compare locked versions with the npm registry and refresh the committed Stack status report |
 | `pnpm build` | Build and inspect the public artifact |
 | `pnpm source:write` | Explicitly regenerate checked runtime files |
-| `pnpm deploy` | Guarded clean pushed-main production release and live verification |
+| `pnpm deploy` | Guarded clean pushed-main production release and live verification with a two-minute routine budget |
 | `pnpm ready` | Inspect the explicitly selected workspace and environment |
 | `pnpm init:paperwork` | Reproduce the exact reviewed static PDF editor with a portable configuration |
 | `pnpm init:site` | Generate an independent content project |

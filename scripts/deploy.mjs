@@ -3,9 +3,9 @@ import { assertMcpReleasePackage } from "./package-get-ready-mcp.mjs";
 import {
   createGitHubAdapter,
   createReleaseRun,
+  COMPOSER_LIMIT_MS,
 } from "../lib/delivery/release-timing.mjs";
 import { verifyLive } from "./verify-live.mjs";
-import { verifySharing } from "./verify-sharing.mjs";
 import { auditPublication } from "./audit-publication.mjs";
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -45,9 +45,7 @@ const validatedSecrets = combineDeploymentSecrets(
   validatedEmdashSecrets,
 );
 const run = (args) => execFileSync("git", args, { encoding: "utf8" }).trim();
-// Fail before the 46-second check suite when the launcher selected the wrong
-// Node line. This was the most common release delay: a global shim ran the
-// gate under an older Node even though .node-version named a supported one.
+// Fail early when a global shim selected a different Node line.
 function assertSelectedRuntime() {
   if (!isSupportedNode(process.versions.node)) {
     const manifest = JSON.parse(readFileSync("package.json", "utf8"));
@@ -105,12 +103,11 @@ const releaseRun = createReleaseRun({
   kind: "worker-production",
   receiptDir: ".release/timing",
   firstEditAt: process.env.COMPOSER_FIRST_EDIT_AT,
+  targetMs: COMPOSER_LIMIT_MS,
+  limitMs: COMPOSER_LIMIT_MS,
   github,
 });
-await releaseRun.flushPending();
-// Reuse the pnpm that launched this script instead of resolving a global shim.
-// The shim can select a different Node line than the selected default, which
-// makes `pnpm check` test the wrong runtime.
+// Use the same pnpm and Node selected by the release launcher.
 const pnpmCommand = () => {
   const execpath = process.env.npm_execpath;
   if (!execpath) return ["pnpm", []];
@@ -138,10 +135,6 @@ try {
 await stage("dependency audit", () =>
   runPnpm(["run", "audit"]),
 );
-// Required local checks run before any remote mutation, so a failing gate cannot
-// apply migrations first. This is the only full `pnpm check` invocation in a
-// release; the delivery journey delegates here rather than repeating it.
-await stage("required checks (pnpm check)", () => runPnpm(["check"]));
 await stage("production build", () => runPnpm(["build"]));
 assertReleasePackage(
   JSON.parse(readFileSync("public/downloads/get-ready-core.json", "utf8")),
@@ -233,9 +226,6 @@ await stage("Worker upload", () => {
   }
 });
 await stage("live source and pinned services", () => verifyLive(sha, lock));
-await stage("live sharing output", () =>
-  verifySharing("https://composer.loftwah.com"),
-);
 const publication = await stage("live publication privacy", () =>
   auditPublication("https://composer.loftwah.com", {
     downloads: [

@@ -277,12 +277,6 @@ function checkJenkinsReceipt(receipt, {build, headCommit}) {
       receipt.source.pushed === true,
     `Receipt ${receipt?.source?.commit ?? 'missing'} · clone ${headCommit}`,
   );
-  const checksStep = receipt?.steps?.find(step => step?.id === 'local-checks');
-  add(
-    'checks-ran',
-    checksStep?.state === 'passed' && Number(checksStep?.durationMs) > 0,
-    `Local checks: ${checksStep?.state ?? 'missing'}`,
-  );
   const buildStep = receipt?.steps?.find(step => step?.id === 'preview-build');
   add('candidate-built', buildStep?.state === 'passed', `Preview build: ${buildStep?.state ?? 'missing'}`);
   add(

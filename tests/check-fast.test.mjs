@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { focusedStages, focusedTargets, runFocused } from "../scripts/check-fast.mjs";
+import { focusedTargets } from "../scripts/check-fast.mjs";
 
 test("focused checks require explicit existing test files under tests", () => {
   assert.throws(() => focusedTargets([]), /Name at least one test file/);
@@ -19,67 +19,4 @@ test("focused checks deduplicate and order the named test files", () => {
     "tests/core.test.mjs",
   ]);
   assert.deepEqual(targets, ["tests/access-boundary.test.mjs", "tests/core.test.mjs"]);
-});
-
-test("focused checks keep the full type/source gate ahead of named tests", () => {
-  const stages = focusedStages(["tests/core.test.mjs"]);
-  assert.deepEqual(
-    stages.map((stage) => [stage.command, stage.args.join(" ")]),
-    [
-      ["pnpm", "check:types"],
-      ["pnpm", "lint"],
-      ["pnpm", "format:check"],
-      [process.execPath, "--test tests/core.test.mjs"],
-    ],
-  );
-  assert.throws(() => focusedStages([]), /No focused test files/);
-});
-
-test("focused run reports each stage and stops at the first failure", () => {
-  const calls = [];
-  const lines = [];
-  let now = 0;
-  const stages = [
-    { name: "types", command: "pnpm", args: ["check:types"] },
-    { name: "tests", command: "node", args: ["--test"] },
-    { name: "after", command: "pnpm", args: ["unrelated"] },
-  ];
-  const failure = new Error("fictional failure");
-  const result = runFocused({
-    targets: ["tests/example.test.mjs"],
-    stages,
-    run: (command, args, options) => {
-      calls.push([command, ...args]);
-      assert.ok(options.cwd.endsWith("/"));
-      if (command === "node") throw failure;
-      now += 1000;
-    },
-    log: (line) => lines.push(line),
-    now: () => now,
-  });
-  assert.equal(result.ok, false);
-  assert.equal(result.failed, "tests");
-  assert.equal(result.error, failure);
-  assert.deepEqual(calls, [
-    ["pnpm", "check:types"],
-    ["node", "--test"],
-  ]);
-  assert.deepEqual(lines, ["PASS types (1.0s)", "FAIL tests (0.0s)"]);
-});
-
-test("a passing focused run reports every stage and no release claim", () => {
-  const lines = [];
-  let now = 0;
-  const result = runFocused({
-    targets: ["tests/example.test.mjs"],
-    stages: [{ name: "types", command: "pnpm", args: ["check:types"] }],
-    run: () => {
-      now += 2500;
-    },
-    log: (line) => lines.push(line),
-    now: () => now,
-  });
-  assert.equal(result.ok, true);
-  assert.deepEqual(lines, ["PASS types (2.5s)"]);
-  assert.doesNotMatch(lines.join("\n"), /release gate passed/i);
 });

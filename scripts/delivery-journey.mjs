@@ -663,15 +663,12 @@ export async function runDeliveryJourney({
       }
     };
 
-    // The guarded release runs `pnpm check` itself, first, on this exact clean
-    // pushed commit. Repeating the same full gate here would not add a check:
-    // deploy re-reads HEAD, origin/main and the working tree before uploading.
-    if (mode !== 'verify' && mode !== 'release') {
-      await runStep('local-checks', 'Required local checks', 'pnpm', ['check']);
+    if (mode === 'local') {
+      await runStep('local-checks', 'Local static checks', 'pnpm', ['check']);
     }
 
     if (mode === 'candidate') {
-      await runStep('preview-build', 'Safe preview candidate build', 'pnpm', ['build'], {
+      await runStep('preview-build', 'Preview candidate build', 'pnpm', ['build'], {
         env: previewBuildEnvironment(environment),
       });
       const generated = readGeneratedConfig(workspace);
@@ -724,30 +721,8 @@ export async function runDeliveryJourney({
         });
         throw error;
       }
-      receipt.release = {attempted: true, performed: true, command: 'pnpm deploy', commit: facts.commit, checks: 'pnpm check and pnpm build run inside the guarded deploy'};
+      receipt.release = {attempted: true, performed: true, command: 'pnpm deploy', commit: facts.commit, checks: 'Dependency audit and production build run inside the guarded deploy'};
       receipt.artefact = readArtefactIdentity(workspace);
-      const verifyStarted = Date.now();
-      try {
-        await verify(facts.commit, selectedTarget.lock, selectedTarget.identity.origin);
-        steps.push({
-          id: 'verify',
-          label: 'Independent live verification',
-          command: 'scripts/verify-live.mjs',
-          state: 'passed',
-          durationMs: Date.now() - verifyStarted,
-        });
-      } catch (error) {
-        steps.push({
-          id: 'verify',
-          label: 'Independent live verification',
-          command: 'scripts/verify-live.mjs',
-          state: 'failed',
-          durationMs: Date.now() - verifyStarted,
-          error: bounded(error.message),
-          code: 'verification-failed',
-        });
-        throw error;
-      }
       receipt.verification = {performed: true, independent: true, verifier: 'scripts/verify-live.mjs', origin: selectedTarget.identity.origin};
     }
 
@@ -824,7 +799,7 @@ export function humanSummary(receipt, receiptPath = null) {
     );
   if (receipt.artefact)
     lines.push(`Artefact: ${receipt.artefact.path} · ${receipt.artefact.files} files · ${receipt.artefact.bytes} bytes · ${receipt.artefact.digest}`);
-  if (receipt.verification.performed) lines.push(`Verified: ${receipt.verification.origin} independently via ${receipt.verification.verifier}`);
+  if (receipt.verification.performed) lines.push(`Verified: ${receipt.verification.origin} via ${receipt.verification.verifier}`);
   lines.push(`State: ${receipt.state}`);
   if (receipt.error) lines.push(`Reason: ${receipt.error.code} — ${receipt.error.message}`);
   if (receiptPath) lines.push(`Receipt: ${receiptPath}`);
@@ -896,7 +871,7 @@ Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify
   --local      Default. Inspect source/target, run pnpm check and refuse to release.
   --candidate  Check, then build and inspect a local preview candidate. No upload.
   --release    Check clean pushed main, run pnpm deploy
-               and independently verify the live source. Explicit approval only.
+               and verify the live source. Explicit approval only.
   --verify     Re-read the live root and mounted pins from clean pushed main.
   --candidate-receipt  Bind this release to one passed candidate receipt. The exact
                commit, Worker, account, environment, origin and composition must

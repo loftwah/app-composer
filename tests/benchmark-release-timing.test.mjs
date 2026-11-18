@@ -152,7 +152,7 @@ test("missing, extra and unknown fields are refused", () => {
   assert.throws(() => ingestReceipts([running]), /unsupported status "running"/);
 
   const forgedLimit = validReceipt({ limitMs: 600000 });
-  assert.throws(() => ingestReceipts([forgedLimit]), /limitMs must be 300000/);
+  assert.throws(() => ingestReceipts([forgedLimit]), /limitMs must be 120000 or 300000/);
 
   const hiddenGap = validReceipt({
     totalMs: 100000,
