@@ -14,6 +14,8 @@ interface DirectingLesson {
   source: string;
   artworkCredit?: string;
   studioNote?: string;
+  // Alternate words a visitor may search for that the title/outcome do not already contain.
+  terms?: string;
 }
 
 const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
@@ -141,6 +143,7 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
         source:
           "Trim mono or stereo audio up to 16 MB and five minutes on this device. Export WAV clips up to three minutes. High-rate audio may need a shorter selection.",
         studioNote: "Select your project, then open Assemble to order the saved takes and mix the song.",
+        terms: "music clip music video make a music clip",
       },
       {
         title: "Plan a 15-second spoken spot",
@@ -154,6 +157,7 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
         source:
           "A 10.5-second commercial made in ElevenCreative Producer with narration. English captions and a transcript are available. Use it as an example for pacing.",
         studioNote: "Select your project, then open Create to plan the three five-second shots.",
+        terms: "spoken promo 15s spoken promo make a 15s spoken promo 15s promo 15-second promo",
       },
       {
         title: "Caption a lyric or line",
@@ -218,7 +222,7 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
       <h2>{group.title}</h2>
       <div class="director-lessons">
         {group.lessons.map((lesson, i) => (
-          <article class="director-lesson">
+          <article class="director-lesson" data-search-terms={lesson.terms ?? ''}>
             <h3>{lesson.title}</h3>
             <p class="director-outcome">{lesson.outcome}</p>
             <p>{lesson.steps}</p>
@@ -261,7 +265,8 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
       const term = search.value.trim().toLocaleLowerCase();
       let count = 0;
       for (const lesson of lessons) {
-        const match = !term || (lesson.textContent ?? '').toLocaleLowerCase().includes(term);
+        const haystack = ((lesson.textContent ?? '') + ' ' + (lesson.dataset.searchTerms ?? '')).toLocaleLowerCase();
+        const match = !term || haystack.includes(term);
         lesson.hidden = !match;
         if (match) count++;
       }
