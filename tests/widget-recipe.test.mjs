@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { GET } from '../src/pages/widgets/loftwahfm-night-signal-v1.json.ts';
+import { GET as downloadStarter } from '../src/pages/widgets/loftwahfm-night-signal-v1.html.ts';
 import {
   agentTask,
   embed,
@@ -9,6 +10,8 @@ import {
   embedJsx,
   recipeFilename,
   recipeUrl,
+  starterFilename,
+  starterHtml,
   widgetRecipe,
   widgetRecipeJson,
 } from '../src/lib/widget-recipe.ts';
@@ -84,6 +87,17 @@ test('the public recipe route serves the same JSON the page embeds, as a downloa
   const body = await response.text();
   assert.equal(body, widgetRecipeJson, 'the route serves the exact page serialisation');
   assert.deepEqual(JSON.parse(body), widgetRecipe);
+});
+
+test('the standalone HTML stays a byte-preserving attachment at the edge', async () => {
+  const response = await downloadStarter({ url: new URL(starterFilename, recipeUrl), params: {} });
+  assert.equal(response.headers.get('content-type'), 'application/octet-stream');
+  assert.equal(response.headers.get('content-disposition'), `attachment; filename="${starterFilename}"`);
+  assert.equal(response.headers.get('cache-control'), 'no-store, no-transform');
+  const body = await response.text();
+  assert.equal(body, starterHtml);
+  assert.ok(body.includes(embedHtml));
+  assert.doesNotMatch(body, /<script\b/);
 });
 
 test('the widget page consumes the shared definition and the CSP swap stays exact', async () => {
