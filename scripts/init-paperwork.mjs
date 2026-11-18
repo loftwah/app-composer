@@ -1,6 +1,8 @@
 // Offline, explicit reproduction of a reviewed static mini-app; no install or deployment.
 import { execFileSync } from "node:child_process";
 import {
+  closeSync,
+  openSync,
   readFileSync,
   existsSync,
   mkdirSync,
@@ -78,14 +80,18 @@ export function reproducePaperwork({ source, destination, configuration }) {
   mkdirSync(to);
   try {
     for (const name of entries) {
-      const bytes = execFileSync(
-        "git",
-        ["-C", from, "show", sourcePin.commit + ":" + name],
-        { maxBuffer: 8 * 1024 * 1024 },
-      );
       const target = join(to, name);
       mkdirSync(dirname(target), { recursive: true });
-      writeFileSync(target, bytes, { flag: "wx" });
+      const output = openSync(target, "wx");
+      try {
+        execFileSync(
+          "git",
+          ["-C", from, "cat-file", "blob", sourcePin.commit + ":" + name],
+          { stdio: ["ignore", output, "pipe"] },
+        );
+      } finally {
+        closeSync(output);
+      }
     }
     // Reproduction transfers source, never the reference instance's upload target.
     const target = JSON.parse(readFileSync(join(to, "wrangler.jsonc"), "utf8"));
