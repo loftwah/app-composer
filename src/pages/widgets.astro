@@ -15,13 +15,19 @@ import {
   widgetUrl,
 } from '../lib/widget-recipe';
 
+const bubblesReport = `${stationOrigin}/analytics/?source=games&game=bubbles&days=30`;
+const bubblesCards = [
+  { format: 'landscape', label: 'Landscape', dimensions: '1200 × 630' },
+  { format: 'square', label: 'Square', dimensions: '1200 × 1200' },
+  { format: 'portrait', label: 'Portrait', dimensions: '1080 × 1920' },
+];
 ---
-<Base title="Widget library" description="Add LoftwahFM’s public Night Signal player to your site using HTML, React or a task for your coding agent.">
+<Base title="Widget library" description="Embed LoftwahFM’s Night Signal player or download a Bubbles listening card.">
   <script type="application/json" id="loftwahfm-widget-recipe" set:html={widgetRecipeJson}></script>
   <header class="widget-intro">
     <div>
       <h1>Widget library</h1>
-      <p>Add a live radio player to your own website.</p>
+      <p>Embed a live radio player or <a href="#bubbles-listening-card">share a Bubbles listening card</a>.</p>
     </div>
     <a href="/apps">App library <ArrowRight size={17} aria-hidden="true" /></a>
   </header>
@@ -92,6 +98,27 @@ import {
         <li>LoftwahFM serves its public catalogue and may update the station rotation.</li>
         <li>Your site controls the frame size. Use the LoftwahFM builder to change the appearance inside it.</li>
       </ul>
+    </section>
+  </article>
+
+  <article class="widget-entry" id="bubbles-listening-card">
+    <h2>Bubbles listening card</h2>
+    <p class="entry-summary">Download LoftwahFM’s 30-day Bubbles listening report as a share card.</p>
+
+    <section aria-labelledby="bubbles-card-downloads">
+      <h3 id="bubbles-card-downloads">Download the current card</h3>
+      <ul class="card-downloads">
+        {bubblesCards.map(({ format, label, dimensions }) => (
+          <li><a class="button secondary" href={`${stationOrigin}/api/analytics/games-card.png?game=bubbles&days=30&format=${format}&download=1`}>
+            {label} <span>{dimensions} PNG</span>
+          </a></li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="bubbles-card-snapshot">
+      <h3 id="bubbles-card-snapshot">Share a dated snapshot</h3>
+      <p>Open the <a href={bubblesReport}>Bubbles report on LoftwahFM</a> and select <strong>Share this snapshot</strong> to get the card, caption and link for the same snapshot. Keep the publisher’s credits with the card.</p>
     </section>
   </article>
 
@@ -183,6 +210,10 @@ import {
   .react-version { margin-top:1.4rem; border-top:1px solid var(--color-border); }
   .widget-limits { max-width:72ch; }
   .widget-limits li { margin:12px 0; }
+  #bubbles-listening-card { scroll-margin-top:24px; }
+  .card-downloads { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; margin:0; padding:0; }
+  .card-downloads a { display:flex; flex-direction:column; align-items:start; min-height:44px; }
+  .card-downloads span { font-size:.8rem; font-weight:400; }
   .widget-foot { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--color-border); color:var(--color-muted); max-width:none; }
   @media(max-width:600px) {
     .widget-facts>div { grid-template-columns:minmax(0,1fr); }
