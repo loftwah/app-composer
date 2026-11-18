@@ -3,27 +3,58 @@ import type { ShareFeedback } from "../lib/share-feedback.ts";
 const feedbackApi = "/api/share-feedback";
 
 export function mountArtworkActions(piece: HTMLElement) {
+  const status = piece.querySelector<HTMLElement>("[data-gallery-copy-status]");
+  const linkFallback = piece.querySelector<HTMLInputElement>(
+    "[data-gallery-copy-fallback]",
+  );
+  const postField = piece.querySelector<HTMLTextAreaElement>(
+    "[data-gallery-post-field]",
+  );
+  let latestCopy = 0;
+
+  async function copyText(
+    value: string,
+    field: HTMLInputElement | HTMLTextAreaElement,
+    copiedMessage: string,
+    manualMessage: string,
+  ) {
+    const attempt = ++latestCopy;
+    if (linkFallback) linkFallback.hidden = true;
+    if (postField) postField.hidden = true;
+    try {
+      await navigator.clipboard.writeText(value);
+      if (status && attempt === latestCopy) status.textContent = copiedMessage;
+    } catch {
+      if (attempt !== latestCopy) return;
+      field.value = value;
+      field.hidden = false;
+      field.focus();
+      field.select();
+      if (status) status.textContent = manualMessage;
+    }
+  }
+
   const copy = piece.querySelector<HTMLButtonElement>("[data-gallery-copy]");
-  if (copy) {
+  if (copy && linkFallback) {
     copy.hidden = false;
-    copy.addEventListener("click", async () => {
+    copy.addEventListener("click", () => {
       const link = new URL(copy.dataset.galleryCopy!, location.origin).href;
-      const status = piece.querySelector<HTMLElement>(
-        "[data-gallery-copy-status]",
-      )!;
-      try {
-        await navigator.clipboard.writeText(link);
-        status.textContent = "Link copied.";
-      } catch {
-        const fallback = piece.querySelector<HTMLInputElement>(
-          "[data-gallery-copy-fallback]",
-        )!;
-        fallback.hidden = false;
-        fallback.value = link;
-        fallback.select();
-        status.textContent = "Copy the selected link.";
-      }
+      void copyText(link, linkFallback, "Link copied.", "Copy the selected link.");
     });
+  }
+
+  const copyPost = piece.querySelector<HTMLButtonElement>(
+    "[data-gallery-copy-post]",
+  );
+  if (copyPost && postField) {
+    copyPost.hidden = false;
+    copyPost.addEventListener("click", () =>
+      void copyText(
+        postField.value,
+        postField,
+        "Post text copied.",
+        "Copy the selected post text.",
+      ));
   }
 
   const copyId = piece.querySelector<HTMLButtonElement>("[data-copy-studio-id]");

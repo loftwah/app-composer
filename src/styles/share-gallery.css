@@ -597,6 +597,15 @@ p.gallery-piece-section a {
 .gallery-piece-section p {
   margin: 0.4rem 0;
 }
+[data-gallery-post-field] {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+}
+[data-gallery-post-field][hidden],
+[data-gallery-copy-fallback][hidden] {
+  display: none;
+}
 [data-gallery-copy-status]:empty,
 [data-review-status]:empty {
   display: none;
