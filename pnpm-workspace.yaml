@@ -65,3 +65,8 @@ overrides:
   'body-parser@>=2.0.0 <2.4.0': 2.4.0
   # GHSA-f86p-h4j2-7qgj and GHSA-9wx9-5pv9-3349.
   'seroval@>=1.5.5 <1.6.11': 1.6.11
+
+# Temporary parser backports for CVE-2026-112366. Remove with the audit verification once both paths have upstream fixes.
+patchedDependencies:
+  picomatch@2.3.2: patches/picomatch@2.3.2.patch
+  picomatch@4.0.7: patches/picomatch@4.0.7.patch

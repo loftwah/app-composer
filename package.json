@@ -41,7 +41,7 @@
     "test:mcp": "node --test tests/readiness-mcp.test.mjs",
     "ready:pack": "node scripts/package-downloads.mjs",
     "test:package": "node --test tests/readiness-package.test.mjs",
-    "audit": "pnpm audit --audit-level low",
+    "audit": "node scripts/audit-dependencies.mjs",
     "freshness": "node scripts/freshness.mjs",
     "studio:capabilities": "node scripts/studio-capabilities.mjs --write",
     "studio:capabilities:check": "node scripts/studio-capabilities.mjs --check",
