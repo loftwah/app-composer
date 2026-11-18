@@ -226,7 +226,26 @@ form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEven
  let text:string;try{text=assistedHandoff(read(),currentAssistance());}catch(e){handoffStatus.dataset.state='manual';handoffStatus.textContent=(e instanceof Error?e.message:String(e))+' Nothing was copied.';return;}
  try{await navigator.clipboard.writeText(text);handoffStatus.dataset.state='copied';handoffStatus.textContent='Handoff copied. Paste it into your coding agent in the authorised project.';}
  catch{const prompt=document.querySelector<HTMLElement>('#prompt')!;prompt.textContent=text;prompt.closest('details')!.open=true;prompt.focus();const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);handoffStatus.dataset.state='manual';handoffStatus.textContent='Clipboard access failed. The handoff is selected below; copy it using your browser.';}
-});document.querySelector('#download')!.addEventListener('click',()=>{try{const url=URL.createObjectURL(new Blob([JSON.stringify(read(),null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='app-composer-spec.json';a.click();URL.revokeObjectURL(url);}catch(e){report(e);}});importInput.addEventListener('change',async()=>{
+});
+document.querySelector('#download')!.addEventListener('click', () => {
+ clearHandoffStatus();
+ try {
+  const spec = read();
+  const url = URL.createObjectURL(new Blob([JSON.stringify(spec, null, 2)], {type: 'application/json'}));
+  try {
+   const link = document.createElement('a');
+   link.href = url;
+   link.download = 'app-composer-spec.json';
+   link.click();
+   handoffStatus.textContent = 'Download requested. Look for app-composer-spec.json in your browser’s downloads.';
+  } finally {
+   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+ } catch (error) {
+  handoffStatus.textContent = 'Could not prepare the download. ' + (error instanceof Error ? error.message : String(error));
+ }
+});
+importInput.addEventListener('change',async()=>{
  const file=importInput.files?.[0];if(!file)return;importInput.value='';
  const selectedRevision=++revision;dismissImport();message.textContent='Reading the selected spec…';
  try{
