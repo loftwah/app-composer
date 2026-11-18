@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -12,10 +12,10 @@ const parserHashes = new Map([
 ]);
 const executable = process.env.npm_execpath || "pnpm";
 const pnpmIsScript = /\.(?:c|m)?js$/.test(executable);
+const command = pnpmIsScript ? process.execPath : executable;
+const prefix = pnpmIsScript ? [executable] : [];
 const pnpm = (args, options) =>
-  pnpmIsScript
-    ? execFileSync(process.execPath, [executable, ...args], options)
-    : execFileSync(executable, args, options);
+  execFileSync(command, [...prefix, ...args], options);
 const list = (...flags) =>
   pnpm(["list", "picomatch", "--depth", "Infinity", "--parseable", ...flags], {
     encoding: "utf8",
@@ -63,9 +63,45 @@ for (const directory of installed) {
     throw Error("A dependency resolves to an unverified picomatch copy.");
   }
 }
-console.log(
-  "Verified both installed picomatch parser backports for GHSA-fc5q-39xc-vjpf.",
+// The raw audit still reports the registry versions. Only this invocation
+// accepts the known finding after verifying the locally installed backports.
+const advisoryId = "GHSA-fc5q-39xc-vjpf";
+const audit = spawnSync(
+  command,
+  [...prefix, "audit", "--audit-level", "low", "--json"],
+  {
+    encoding: "utf8",
+  },
 );
-pnpm(["audit", "--audit-level", "low", "--ignore", "GHSA-fc5q-39xc-vjpf"], {
-  stdio: "inherit",
-});
+if (audit.error) throw audit.error;
+if (audit.stderr) process.stderr.write(audit.stderr);
+const { advisories, metadata } = JSON.parse(audit.stdout);
+const findings = Object.values(advisories);
+if (
+  Object.values(metadata.vulnerabilities).reduce(
+    (total, count) => total + count,
+    0,
+  ) !== findings.length
+) {
+  throw Error("Dependency audit report contains an unexpected finding count.");
+}
+const onlyVerifiedBackport =
+  audit.status === 1 &&
+  findings.length === 1 &&
+  findings[0].github_advisory_id === advisoryId &&
+  findings[0].module_name === "picomatch" &&
+  findings[0].findings.length > 0 &&
+  findings[0].findings.every(({ version }) => versions.has(version));
+
+if (onlyVerifiedBackport) {
+  console.log(
+    `Dependency audit passed with both verified local backports for ${advisoryId}.`,
+  );
+} else if (audit.status === 0 && findings.length === 0) {
+  console.log("Dependency audit found no vulnerabilities.");
+} else {
+  for (const { github_advisory_id, module_name, severity } of findings) {
+    console.error(`${github_advisory_id} ${module_name} (${severity})`);
+  }
+  throw Error("Dependency audit failed.");
+}

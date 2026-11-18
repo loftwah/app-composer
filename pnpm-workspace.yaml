@@ -3,9 +3,6 @@ allowBuilds:
   workerd: true
   sharp: true
   better-sqlite3: true
-auditConfig:
-  ignoreGhsas:
-    - GHSA-fc5q-39xc-vjpf
 minimumReleaseAgeExclude:
   - '@cloudflare/workerd-darwin-64@1.20261013.1'
   - '@cloudflare/workerd-darwin-arm64@1.20261013.1'
