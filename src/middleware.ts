@@ -56,6 +56,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (teamRejection) return teamRejection;
   const appearance = await prepareAdminBrand(context, runtime);
   const response = await brandAdminResponse(await next(), appearance);
+  // The public widget catalogue embeds exactly one reviewed third-party origin.
+  // Astro's global CSP keeps frame-src 'none' everywhere else; this route swaps
+  // in that one origin. The swap is exact-match and fails closed: if the token
+  // moves, the page simply stays blocked instead of widening trust.
+  if (context.url.pathname === "/widgets") {
+    const csp = response.headers.get("content-security-policy");
+    if (csp) {
+      response.headers.set(
+        "content-security-policy",
+        csp.replace(
+          "frame-src 'none'",
+          "frame-src https://fm.loftwah.com",
+        ),
+      );
+    }
+  }
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-Frame-Options", "DENY");
