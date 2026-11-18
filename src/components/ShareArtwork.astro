@@ -39,36 +39,36 @@ const options = {
       <input type="search" name="art" placeholder="Search artwork" value={query} maxlength={SHARE_CATALOGUE_QUERY_MAX} />
     </label>
     <button class="secondary gallery-apply" type="submit">Apply <span class="gallery-visually-hidden">search and filters</span></button>
-    <label class="gallery-sort">
-      <span>Sort</span>
-      <select name="sort">
+    <div class="gallery-sort">
+      <label for="gallery-sort">Sort</label>
+      <select id="gallery-sort" name="sort">
         {Object.entries(artworkSorts).map(([value, label]) => <option value={value} selected={value === sort}>{label}</option>)}
       </select>
-    </label>
+    </div>
     <details class="gallery-filter-menu">
       <summary><SlidersHorizontal size={16} aria-hidden="true" /> Filters{facetCount > 0 && ` (${facetCount})`} <ChevronDown size={14} aria-hidden="true" /></summary>
       <div class="gallery-filters">
-        <label>
-          Project
-          <select name="project">
+        <div>
+          <label for="gallery-project">Project</label>
+          <select id="gallery-project" name="project">
             <option value="">All projects</option>
             {options.projects.map(value => <option value={value} selected={value === project}>{artworkLabel(value)}</option>)}
           </select>
-        </label>
-        <label>
-          Category
-          <select name="category">
+        </div>
+        <div>
+          <label for="gallery-category">Category</label>
+          <select id="gallery-category" name="category">
             <option value="">All categories</option>
             {Object.entries(artworkCategories).map(([value, label]) => <option value={value} selected={value === category}>{label}</option>)}
           </select>
-        </label>
-        <label>
-          Tag
-          <select name="tag">
+        </div>
+        <div>
+          <label for="gallery-tag">Tag</label>
+          <select id="gallery-tag" name="tag">
             <option value="">All tags</option>
             {options.tags.map(value => <option value={value} selected={value === tag}>{artworkLabel(value)}</option>)}
           </select>
-        </label>
+        </div>
         <button type="submit">Apply filters</button>
       </div>
     </details>
