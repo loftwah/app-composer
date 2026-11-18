@@ -61,7 +61,7 @@ let actions: string[] = [];
 // default stays what a single-workspace creator sees today.
 const requestedWorkspace = Astro.url.searchParams.get("workspace");
 const workspaceSelectorValid =
-  requestedWorkspace === null || /^[a-z0-9-]{6,64}$/.test(requestedWorkspace);
+  requestedWorkspace === null || /^[a-z0-9-]{1,64}$/.test(requestedWorkspace);
 
 if (user && runtime.DB) {
   const select = `SELECT w.id,w.name,m.role FROM creator_members m
