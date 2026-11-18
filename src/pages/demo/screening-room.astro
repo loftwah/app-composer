@@ -1,0 +1,67 @@
+---
+import Base from '../../layouts/Base.astro';
+import { initialEdition, screeningFilms } from '../../lib/screening-films';
+import '../../styles/screening-print.css';
+import '../../styles/screening-room.css';
+
+const edition = initialEdition(Astro.url.searchParams.get('film') === 'fighter' ? 'fighter' : 'workbench');
+const film = screeningFilms[edition.film];
+---
+<Base homePage title="Make a screening room" description="Give a short film its own premiere page. Download the whole screening, play it offline and come back to edit it." shareImage={film.poster} shareAlt={film.name}>
+  <div class="room-maker">
+    <header class="room-heading">
+      <a href="/media-studio/films">← Studio films</a>
+      <h1>Make a screening room</h1>
+      <p>Give a short film its own premiere page. Take the film, programme and player home in one file.</p>
+      <a class="room-jump" href="#edit-title">Edit this screening ↓</a>
+    </header>
+    <div class="room-desk">
+      <article class="screening-print" aria-label="Screening programme" id="screening-print" data-treatment="midnight">
+        <header class="programme">
+          <div class="bill"><span>Now showing</span><span data-duration>{film.duration} · {film.kind}</span></div>
+          <h2 class="screen-title">{edition.title}</h2>
+        </header>
+        <video controls playsinline preload="none" poster={film.poster} src={film.video} aria-label={film.name}>
+          <track kind="captions" srclang="en" label="English" src={film.captions} />
+        </video>
+        <div class="programme">
+          <p class="screen-note">{edition.note}</p>
+          <p class="credit"><a href={film.source}>{film.name}</a> <span>{film.credit}</span></p>
+          <details><summary>Film description</summary><p>{film.transcript}</p></details>
+        </div>
+      </article>
+      <section class="room-editor" aria-labelledby="edit-title">
+        <h2 id="edit-title">Edit the programme</h2>
+        <fieldset><legend>Film</legend>
+          <div class="room-films">
+          {Object.entries(screeningFilms).map(([id, cut]) => <label>
+            <input type="radio" name="room-film" value={id} checked={id === edition.film}/>
+            <img src={cut.poster} alt="" width="80" height="45"/>
+            <span><strong>{cut.name}</strong><small>{cut.kind} · {cut.duration}</small></span>
+          </label>)}
+          </div>
+        </fieldset>
+        <label class="room-field" for="room-title">Screening title</label>
+        <input id="room-title" type="text" maxlength="80" value={edition.title} />
+        <label class="room-field" for="room-note">Programme note</label>
+        <textarea id="room-note" maxlength="400" rows="3">{edition.note}</textarea>
+        <fieldset><legend>Paper and ink</legend>
+          <div class="room-inks">
+            <label><input type="radio" name="room-ink" value="midnight" checked />Midnight</label>
+            <label><input type="radio" name="room-ink" value="matinee" />Matinee</label>
+          </div>
+        </fieldset>
+        <button class="room-save" type="button" id="room-save">Download screening room <span aria-hidden="true">↓</span></button>
+        <p class="room-format">One HTML file with the film inside. Plays offline.</p>
+        <button class="room-open" type="button" id="room-open">Open a saved screening room</button>
+        <input type="file" accept=".html,text/html" id="room-file" hidden />
+        <p id="room-status" role="status"></p>
+        <a class="room-jump" href="#screening-print">Watch your screening ↑</a>
+        <noscript>Enable JavaScript to edit and download the screening room.</noscript>
+      </section>
+    </div>
+  </div>
+</Base>
+<script>
+  import '../../browser/screening-room';
+</script>
