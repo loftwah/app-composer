@@ -34,7 +34,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   paperwork: 'edit a PDF · sign a PDF · fill a PDF',
   'launch-kit': 'make a favicon · make app icons',
   ldraw: 'draw a diagram · make a diagram',
-  'composer-widgets': 'embed a music player · radio station widget · loftwahfm',
+  'composer-widgets': 'embed a music player · radio station widget · loftwahfm · bubbles listening card · download a Bubbles listening report share card',
 };
 ---
 <Base title="App library" description="Find a working app, explore project artwork and see how independent apps work together.">
@@ -85,6 +85,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
             {knownSupport && <DeviceSupport support={support} compact />}
             <div class="entry-actions">
               <a class:list={['entry-open', {button: feature}]} href={href}>{label} <ArrowRight size={16} aria-hidden="true" /></a>
+              {isWidgets && <a href="/widgets#bubbles-listening-card">Bubbles listening card</a>}
               {isStudio && <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>}
               {app.id === 'launch-kit' && <a href={new URL('/?operation=icons', app.standalone).href}>Make app icons</a>}
               {isShare && <a href="/share/artwork/atlas-04-composer-family/palette">Pick artwork colours</a>}
