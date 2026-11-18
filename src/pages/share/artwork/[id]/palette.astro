@@ -1,0 +1,89 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import { ArrowLeft, Download } from '@lucide/astro';
+import { artworkRevision, publicShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../../../../lib/share-catalogue-asset';
+const result = await publicShareArtwork(Astro.params.id ?? '');
+Astro.response.status = result.status;
+Astro.response.headers.set('Cache-Control', 'no-store');
+const art = result.status === 200 ? result.artwork : null;
+const path = art ? '/share/artwork/' + art.assetId : '/share';
+const preview = art ? '/api/share-artwork-download?' + new URLSearchParams({ id: art.assetId, file: 'preview', revision: await artworkRevision(art) }) : '';
+Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
+---
+<Base title={art ? art.title + ' colour palette' : 'Artwork unavailable'} description="Pick colours from original project artwork and take the palette into your own project." noindex>
+  <div class="palette-page">
+    <a class="back" href={path}><ArrowLeft size={16} aria-hidden="true" /> {art ? 'Back to artwork' : 'Browse Share'}</a>
+    {art ? <section class="desk" data-palette data-preview={preview} data-id={art.assetId} data-title={art.title} data-source={new URL(path,'https://composer.loftwah.com').href}>
+      <div class="work">
+        <figure>
+          <div class="art-stage">
+            <img src={art.previewUrl} alt={art.alt} data-poster />
+            <canvas tabindex="0" aria-label={'Pick a colour from ' + art.title} aria-describedby="picker-help" data-picker hidden></canvas>
+          </div>
+          <figcaption><strong>{art.title}</strong><span>{art.credit}</span></figcaption>
+        </figure>
+      </div>
+      <div class="bench">
+        <h1>Colour study<span>.</span></h1>
+        <p id="picker-help">Choose a swatch, then tap a colour in the artwork. With a keyboard, focus the artwork and use the arrow keys.</p>
+        <p role="status" data-status>Preparing the artwork…</p>
+        <noscript>Enable JavaScript to sample the artwork and save a palette.</noscript>
+        <div data-controls hidden>
+          <div class="swatches" role="group" aria-label="Palette swatches">
+            {[1,2,3,4,5].map(n => <button type="button" class="swatch" data-swatch aria-pressed={n === 1 ? 'true' : 'false'}><span class="chip"><b>{n}</b></span><span class="hex"></span></button>)}
+          </div>
+          <div class="exports">
+            <button type="button" data-png><Download size={17} aria-hidden="true" /> Save swatch sheet</button>
+            <button type="button" class="secondary" data-css>Save CSS</button>
+          </div>
+          <details class="brief">
+            <summary>Use this palette in a project</summary>
+            <label>What are you making?<input data-goal maxlength="240" placeholder="A poster for my next show" /></label>
+            <label>Brief for your agent<textarea data-brief readonly rows="7"></textarea></label>
+            <button type="button" class="secondary" data-copy>Copy brief</button>
+            <p role="status" data-copy-status></p>
+          </details>
+        </div>
+      </div>
+    </section> : <div><h1>Artwork unavailable</h1><p>{result.status === 404 ? 'This artwork is no longer in the public collection.' : 'The collection could not be reached. Reload to try again.'}</p></div>}
+  </div>
+</Base>
+<script>
+  import { startColourStudy } from '../../../../browser/colour-study';
+  const desk = document.querySelector<HTMLElement>('[data-palette]');
+  if (desk) void startColourStudy(desk);
+</script>
+<style>
+  .palette-page { max-width:76rem; margin:auto; }
+  .back,.exports button { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; }
+  .desk { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:clamp(1.5rem,4vw,4rem); align-items:start; margin-top:.7rem; }
+  .desk figure { margin:0; }
+  .art-stage { display:grid; place-items:center; padding:clamp(.75rem,2.5vw,2rem); background:var(--color-surface); border-radius:.55rem; }
+  .art-stage :is(img,canvas) { display:block; width:auto; max-width:100%; max-height:63vh; height:auto; }
+  .art-stage canvas { cursor:crosshair; touch-action:manipulation; }
+  .desk figcaption { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:.15rem .8rem; padding:.6rem 0; }
+  figcaption span,.bench>p { color:var(--color-muted); }
+  figcaption span { font-size:.85rem; }
+  .bench h1 { margin:.1rem 0 .55rem; font-size:clamp(2.8rem,5.5vw,5rem); }
+  .bench h1 span { color:var(--color-accent); }
+  .bench p { margin:.5rem 0; }
+  .swatches { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.3rem; margin:1.2rem 0; }
+  .swatch,.swatch:hover { padding:0; display:block; width:100%; color:var(--color-foreground); background:transparent; border:0; }
+  .swatch .chip { display:flex; align-items:end; aspect-ratio:.77; padding:.35rem; border-radius:.23rem; border:1px solid var(--color-control-border); }
+  .chip b { display:grid; place-items:center; width:1.45rem; height:1.45rem; border-radius:50%; background:var(--color-background); color:var(--color-foreground); font-size:.8rem; }
+  .swatch[aria-pressed=true] .chip { outline:2px solid var(--color-foreground); outline-offset:2px; }
+  .swatch .hex { display:block; margin-top:.5rem; font:500 clamp(.62rem,1.1vw,.85rem)/1.5 ui-monospace,monospace; }
+  .exports { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .brief { border-top:1px solid var(--color-border); margin-top:1.5rem; padding:.6rem 0; }
+  .brief summary { cursor:pointer; padding:.5rem 0; font-weight:650; }
+  .brief label { display:block; margin:.65rem 0; }
+  .brief textarea,.brief input { width:100%; }
+  [hidden] { display:none!important; }
+  @media(max-width:740px) {
+    .desk { grid-template-columns:minmax(0,1fr); gap:.7rem; }
+    .art-stage { padding:.55rem; }
+    .art-stage :is(img,canvas) { max-height:clamp(13rem,40svh,23rem); }
+    .swatches { max-width:29rem; }
+    .swatch .chip { aspect-ratio:1.15; }
+  }
+</style>

@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ url }) => {
   const id = url.searchParams.get("id") ?? "";
   const index = url.searchParams.get("file") ?? "";
   const revision = url.searchParams.get("revision") ?? "";
-  if (!/^\d{1,2}$/.test(index) || !/^[a-f0-9]{64}$/.test(revision))
+  if ((index !== "preview" && !/^\d{1,2}$/.test(index)) || !/^[a-f0-9]{64}$/.test(revision))
     return error(400, "Choose a file from the artwork page.");
   const result = await publicShareArtwork(id);
   if (result.status !== 200)
@@ -35,7 +35,9 @@ export const GET: APIRoute = async ({ url }) => {
         ? "Artwork is no longer public."
         : "Artwork is temporarily unavailable.",
     );
-  const file = artworkFiles(result.artwork)[Number(index)];
+  const file = index === "preview"
+    ? { url: result.artwork.previewUrl }
+    : artworkFiles(result.artwork)[Number(index)];
   if (!file || (await artworkRevision(result.artwork)) !== revision)
     return error(
       409,
