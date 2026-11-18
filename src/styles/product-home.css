@@ -253,6 +253,8 @@
 .home-tools li {margin: 0;}
 .home-tools a {display: flex; align-items: center; gap: 10px; padding: .65rem 0; border-top: 1px solid var(--home-rule);}
 .home-tools svg {margin-left: auto;}
+.home-widget-trail {margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--home-rule);}
+.home-widget-trail p {margin: 0 0 .5rem; color: var(--color-muted); max-width: 59ch; line-height: 1.55;}
 .cloudflare-campaign {display: block; max-width: 760px; margin-bottom: 1.7rem;}
 .home-resource-index {display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; padding-block: clamp(32px,5vw,68px);}
 .home-resource-index h2, .home-other h2 {font-size: 1.3rem; margin-bottom: .5rem;}
