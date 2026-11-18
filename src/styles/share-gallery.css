@@ -686,10 +686,6 @@ p.gallery-piece-section a {
     justify-content: space-between;
   }
 
-  .gallery-filter-menu summary {
-    height: 100%;
-  }
-
   .gallery-search input,
   .gallery-sort select {
     font-size: 1rem;
