@@ -1,5 +1,5 @@
 ---
-import { ArrowUpRight, Copy, Download, Share2 } from '@lucide/astro';
+import { ArrowUpRight, Copy, Download, Maximize2, Share2 } from '@lucide/astro';
 import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
 import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
@@ -21,12 +21,15 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
 <article class="gallery-piece" data-gallery-piece>
   <a class="gallery-stage" href={primary} target="_blank" rel="noreferrer" aria-label="Open full-size image in a new tab">
     <img src={artwork.previewUrl} alt={artwork.alt} decoding="async" referrerpolicy="no-referrer" />
+    <span class="gallery-full-size"><Maximize2 size={15} aria-hidden="true" /> Full size</span>
   </a>
   <div class="gallery-details">
     <p class="gallery-piece-category"><a href={`/share?project=${artwork.project}`}>{artworkLabel(artwork.project)}</a> · <a href={`/share?category=${artwork.category}`}>{artworkCategories[artwork.category]}</a></p>
     <h1>{artwork.title}</h1>
+    <p class="gallery-credit">{artwork.credit}</p>
+    {artwork.description && <p class="gallery-description">{artwork.description}</p>}
     <div class="gallery-piece-actions">
-      <a class="gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {artwork.original ? 'Download original' : 'Download preview'}</a>
+      <a class="button gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {artwork.original ? 'Download original' : 'Download preview'}</a>
       <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
       <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
     </div>
@@ -51,15 +54,13 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
         ))}</ul>
       </details>
     )}
-    {artwork.description && <p class="gallery-description">{artwork.description}</p>}
     {tags.length > 0 && (
       <ul class="gallery-tags" aria-label="Tags">
         {tags.map(tag => <li><a href={`/share?${new URLSearchParams({tag})}`}>{artworkLabel(tag)}</a></li>)}
       </ul>
     )}
     <details class="gallery-piece-section">
-      <summary>Credit and source</summary>
-      <p>{artwork.credit}</p>
+      <summary>Source and project kits</summary>
       <div class="gallery-piece-links">
         {artwork.projectUrl && <a href={artwork.projectUrl}>Visit project <ArrowUpRight size={14} /></a>}
         <a href={artwork.shareUrl}>Project share kit <ArrowUpRight size={14} /></a>
