@@ -563,11 +563,13 @@ for (const [label, firstEditToLiveMs, expectedAlerts] of [
     assert.equal(receipt.status, "passed", "the guard classification is unchanged");
     assert.equal(receipt.totalMs, 1_000, "the guard total is unchanged");
     assert.equal(receipt.notes.firstEditToLiveIdentityMs, firstEditToLiveMs);
+    assert.equal(receipt.notes.firstEditToGuardStartMs, firstEditToLiveMs - 1_000);
     assert.equal(github.issues.length, expectedAlerts);
     assert.equal(receipt.alert.state, expectedAlerts ? "created" : "none");
     if (expectedAlerts) {
       assert.match(github.issues[0].title, /First edit/);
       assert.ok(github.issues[0].body.includes(`| First edit → live | ${firstEditToLiveMs} ms |`));
+      assert.match(github.issues[0].body, new RegExp(`First edit → guard start \\| ${firstEditToLiveMs - 1_000} ms`));
       assert.ok(!github.issues[0].body.includes(firstEditAt), "no raw input time in GitHub");
     }
   });
@@ -584,6 +586,7 @@ test("a first-edit alert needs a verified exact live revision", async (t) => {
   assert.equal(failed.status, "failed");
   assert.equal(mismatchGithub.issues.length, 0);
   assert.ok(!("firstEditToLiveIdentityMs" in failed.notes));
+  assert.ok(!("firstEditToGuardStartMs" in failed.notes));
 
   const noLiveClock = fakeClock();
   const noLiveGithub = fakeGitHub();
@@ -607,6 +610,7 @@ test("a guard breach does not also raise a second first-edit alert", async (t) =
   assert.equal(github.issues.length, 1, "only the guard alert is filed");
   assert.equal(receipt.notes.firstEditToLiveIdentityMs, 400_000 + LIMIT_MS);
   assert.match(github.issues[0].title, /Routine release exceeded 300s/);
+  assert.doesNotMatch(github.issues[0].body, /First edit → guard start/);
 });
 
 test("a first-edit breach gets no false recovery from missing or still-slow timing", async (t) => {
@@ -642,6 +646,7 @@ test("a first-edit breach gets no false recovery from missing or still-slow timi
   await ok.finish({ liveRevision: SHA });
   assert.match(issue.comments.at(-1), /Measured recovery/);
   assert.match(issue.comments.at(-1), /120000 ms/);
+  assert.match(issue.comments.at(-1), /First edit → guard start \| 119000 ms/);
 });
 
 test("a queued first-edit breach is filed by the pending path without raw input time", async (t) => {
