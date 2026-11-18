@@ -14,7 +14,7 @@ interface DirectingLesson {
   source: string;
   artworkCredit?: string;
   studioNote?: string;
-  localFinishing?: boolean;
+  localTool?: { href: string; label: string; detail: string };
   // Alternate words a visitor may search for that the title/outcome do not already contain.
   terms?: string;
 }
@@ -112,6 +112,12 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
         href: "https://media.loftwah.com/p/1qjHzSyIrIAQ4Zuk",
         source:
           "This 768 × 960 Studio result is 4:5, not 9:16. Check dimensions before calling a version vertical 9:16.",
+        localTool: {
+          href: "https://media.loftwah.com/tools/video-clip",
+          label: "Clip and frame a video",
+          detail:
+            "Choose your own video, set Frame to 9:16, and save the MP4 on this device. No sign-in or generation.",
+        },
       },
       {
         title: "Remix footage responsibly",
@@ -157,7 +163,12 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
         href: "/demo#commercial",
         source:
           "A 10.5-second commercial made in ElevenCreative Producer with narration. English captions and a transcript are available. Use it as an example for pacing.",
-        localFinishing: true,
+        localTool: {
+          href: "https://media.loftwah.com/tools/add-music",
+          label: "Add narration to a clip locally",
+          detail:
+            "Choose your own video and narration, adjust each track, and download an MP4 on this device.",
+        },
         studioNote: "Select your project, then open Create to plan the three five-second shots.",
         terms: "spoken promo 15s spoken promo make a 15s spoken promo 15s promo 15-second promo",
       },
@@ -240,9 +251,9 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
             {lesson.artworkCredit && (
               <p class="director-example"><a href={lesson.artworkCredit}>See the original artwork and credit →</a></p>
             )}
-            {lesson.localFinishing && (
+            {lesson.localTool && (
               <p class="director-example">
-                <a href="https://media.loftwah.com/tools/add-music">Add narration to a clip locally →</a><br/><span>Choose your own video and narration, adjust each track, and download an MP4 on this device.</span>
+                <a href={lesson.localTool.href}>{lesson.localTool.label} →</a><br/><span>{lesson.localTool.detail}</span>
               </p>
             )}
             {lesson.studioNote && (
