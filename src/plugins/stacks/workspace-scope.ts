@@ -40,3 +40,19 @@ export function stackSelection(
     return { stackId: current, refused: false };
   return { stackId: authorizedStackIds[0], refused: false };
 }
+
+/**
+ * Address of an opened stack after an authorized, successful manual selection.
+ * Persist the server-confirmed workspace and stack together so reload opens
+ * the same editor. Keep any other view parameters and the fragment.
+ */
+export function openedStackHref(
+  href: string,
+  workspaceId: string,
+  stackId: string,
+): string {
+  const url = new URL(href);
+  url.searchParams.set("workspace", workspaceId);
+  url.searchParams.set("stack", stackId);
+  return url.pathname + url.search + url.hash;
+}

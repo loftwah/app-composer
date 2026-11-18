@@ -11,7 +11,10 @@ import {
   launcherProjectHref,
   launcherWorkspaceHref,
 } from "../src/lib/launcher-recents.ts";
-import { stackSelection } from "../src/plugins/stacks/workspace-scope.ts";
+import {
+  stackSelection,
+  openedStackHref,
+} from "../src/plugins/stacks/workspace-scope.ts";
 import { sqliteD1 } from "./helpers/stacks-sqlite.mjs";
 import {
   account,
@@ -193,4 +196,51 @@ test("the editor consumes stackSelection and the card links every binding", () =
     "utf8",
   );
   assert.match(card, /launcherProjectHref\(workspace, binding\.stackId\)/);
+});
+
+test("a confirmed manual selection persists its exact stack address", () => {
+  const origin = "https://composer.loftwah.com";
+  const path = "/_emdash/admin/plugins/composer-stacks/stacks";
+  const stale = `${origin}${path}?workspace=fictional-workspace&stack=missing-stack`;
+  assert.equal(
+    openedStackHref(stale, "fictional-workspace", "fictional-launch-board"),
+    launcherProjectHref("fictional-workspace", "fictional-launch-board"),
+  );
+  // Only the stack selector changes: workspace, other view state and the
+  // fragment survive, so the canonical scope is never widened or swapped.
+  assert.equal(
+    openedStackHref(
+      `${origin}${path}?view=resources&workspace=fictional-workspace&stack=missing-stack#editor`,
+      "fictional-workspace",
+      "fictional-launch-board",
+    ),
+    `${path}?view=resources&workspace=fictional-workspace&stack=fictional-launch-board#editor`,
+  );
+
+  assert.equal(
+    openedStackHref(`${origin}${path}`, "fictional-workspace", "fictional-launch-board"),
+    launcherProjectHref("fictional-workspace", "fictional-launch-board"),
+  );
+
+  // The rewrite lives only in openStack, after the server confirmed a saved
+  // stack and adopt ran. Refusals, a cancelled confirm and failed opens return
+  // before it, so those paths leave the address untouched.
+  const editor = readFileSync(
+    new URL("../src/plugins/stacks-admin.tsx", import.meta.url),
+    "utf8",
+  );
+  const openBlock = editor.slice(
+    editor.indexOf("const openStack"),
+    editor.indexOf("const update = ("),
+  );
+  assert.match(openBlock, /history\.replaceState\(/);
+  assert.ok(
+    openBlock.indexOf("adopt(data.stack)") <
+      openBlock.indexOf("history.replaceState("),
+    "the address changes only after the confirmed stack is adopted",
+  );
+  assert.ok(
+    openBlock.indexOf("!data.stack") < openBlock.indexOf("history.replaceState("),
+    "a failed open cannot persist a stack address",
+  );
 });
