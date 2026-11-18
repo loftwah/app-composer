@@ -62,7 +62,7 @@ Inspect existing copies with explicit checkout paths:
 pnpm ui:assets --check /absolute/app-checkout /absolute/another-app-checkout
 ```
 
-After reviewing the source change, copy those six interaction files and the ten reviewed versioned assets into selected checkouts:
+After reviewing the source change, copy those six interaction files and the reviewed versioned assets into selected checkouts:
 
 ```sh
 pnpm ui:assets --write /absolute/app-checkout /absolute/another-app-checkout
@@ -70,7 +70,7 @@ pnpm ui:assets --write /absolute/app-checkout /absolute/another-app-checkout
 
 Check is read-only and exits nonzero for different bytes. Write preflights every selected app and changes only different named files. It refuses unknown packages and linked destination files/directories. It preserves unrelated branding, configuration and content. Inspect existing edits and review each resulting Git diff before committing; this explicit write command replaces local edits in the six selected interaction files. A repeated write leaves matching files untouched. Updates still use each app's own review/release process and exact composition pins.
 
-The same explicit operation distributes `space-latin-20261018.woff2`, all five `apps/*-small-20261018.webp` identities, the existing Launch Kit icon, the app-owned Paperwork SVG, the source-bound LDraw typographic discovery tile and `composer-icon-20261022b-96.png`. Their exact reviewed SHA-256 identities are pinned in the maintainer. Missing versioned files may be created; an existing file with different bytes is refused before any selected destination is changed. Every parent directory must already exist and be unlinked. New font/pixel content requires a new filename, source hash and consumer update. The command has no default app paths and never touches owner image settings. Link Check retains its app-owned font location under `public/`; the other apps use `public/brand/`. Active CSS/preload/launcher references remain reviewed app-owned source.
+The same explicit operation distributes `space-latin-20261018.woff2`, all five `apps/*-small-20261018.webp` identities, the existing Launch Kit icon, the app-owned Paperwork SVG, the existing Media Studio discovery thumbnail, the source-bound LDraw typographic discovery tile and `composer-icon-20261022b-96.png`. Their exact reviewed SHA-256 identities are pinned in the maintainer. Missing versioned files may be created; an existing file with different bytes is refused before any selected destination is changed. Every parent directory must already exist and be unlinked. New font/pixel content requires a new filename, source hash and consumer update. The command has no default app paths and never touches owner image settings. Link Check retains its app-owned font location under `public/`; the other apps use `public/brand/`. Active CSS/preload/launcher references remain reviewed app-owned source.
 
 Launch Kit and Paperwork use the same locally committed launcher files. Their explicit maintenance command leaves app-specific sharing/theme files alone:
 
@@ -78,7 +78,7 @@ Launch Kit and Paperwork use the same locally committed launcher files. Their ex
 pnpm ui:assets --write --launcher-only /absolute/launch-kit-checkout /absolute/paperwork-checkout
 ```
 
-Check with the same paths and `--check --launcher-only`. This mode distributes only launcher JS/CSS and the ten reviewed font/identity assets. Shell markup must still supply the heading, search, status and illustrated destination rows below, load the local script as a classic deferred script, and define its local Space font face. Renderer-only automation pages are excluded.
+Check with the same paths and `--check --launcher-only`. This mode distributes only launcher JS/CSS and the reviewed font and identity assets. Shell markup must still supply the heading, search, status and illustrated destination rows below, load the local script as a classic deferred script, and define its local Space font face. Renderer-only automation pages are excluded.
 
 ### Launcher markup and maintenance contract
 
