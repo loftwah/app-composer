@@ -3,7 +3,7 @@ import type { ShareFeedback } from "../lib/share-feedback.ts";
 const feedbackApi = "/api/share-feedback";
 
 export function mountArtworkActions(piece: HTMLElement) {
-  const status = piece.querySelector<HTMLElement>("[data-gallery-copy-status]");
+  const copyStatus = piece.querySelector<HTMLElement>("[data-gallery-copy-status]");
   const linkFallback = piece.querySelector<HTMLInputElement>(
     "[data-gallery-copy-fallback]",
   );
@@ -21,16 +21,17 @@ export function mountArtworkActions(piece: HTMLElement) {
     const attempt = ++latestCopy;
     if (linkFallback) linkFallback.hidden = true;
     if (postField) postField.hidden = true;
+    if (copyStatus) copyStatus.textContent = "";
     try {
       await navigator.clipboard.writeText(value);
-      if (status && attempt === latestCopy) status.textContent = copiedMessage;
+      if (copyStatus && attempt === latestCopy) copyStatus.textContent = copiedMessage;
     } catch {
       if (attempt !== latestCopy) return;
       field.value = value;
       field.hidden = false;
       field.focus();
       field.select();
-      if (status) status.textContent = manualMessage;
+      if (copyStatus) copyStatus.textContent = manualMessage;
     }
   }
 
