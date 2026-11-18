@@ -7,13 +7,18 @@ Astro.response.status = result.status;
 Astro.response.headers.set('Cache-Control', 'no-store');
 const art = result.status === 200 ? result.artwork : null;
 const path = art ? '/share/artwork/' + art.assetId : '/share';
-const preview = art ? '/api/share-artwork-download?' + new URLSearchParams({ id: art.assetId, file: 'preview', revision: await artworkRevision(art) }) : '';
+const revision = art ? await artworkRevision(art) : '';
+const preview = art ? '/api/share-artwork-download?' + new URLSearchParams({ id: art.assetId, file: 'preview', revision }) : '';
 Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
 ---
 <Base title={art ? art.title + ' colour palette' : 'Artwork unavailable'} description="Pick colours from original project artwork and take the palette into your own project." noindex>
   <div class="palette-page">
     <a class="back" href={path}><ArrowLeft size={16} aria-hidden="true" /> {art ? 'Back to artwork' : 'Browse Share'}</a>
-    {art ? <section class="desk" data-palette data-preview={preview} data-id={art.assetId} data-title={art.title} data-source={new URL(path,'https://composer.loftwah.com').href}>
+    {art ? <section class="desk" data-palette data-preview={preview} data-revision={revision} data-id={art.assetId} data-title={art.title} data-source={new URL(path,'https://composer.loftwah.com').href}>
+      <header class="desk-title">
+        <h1>Colour study<span>.</span></h1>
+        <p id="picker-help">Choose a swatch, then tap the artwork to sample it. Keyboard users can focus the artwork and use the arrow keys.</p>
+      </header>
       <div class="work">
         <figure>
           <div class="art-stage">
@@ -24,8 +29,6 @@ Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
         </figure>
       </div>
       <div class="bench">
-        <h1>Colour study<span>.</span></h1>
-        <p id="picker-help">Choose a swatch, then tap a colour in the artwork. With a keyboard, focus the artwork and use the arrow keys.</p>
         <p role="status" data-status>Preparing the artwork…</p>
         <noscript>Enable JavaScript to sample the artwork and save a palette.</noscript>
         <div data-controls hidden>
@@ -35,7 +38,9 @@ Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
           <div class="exports">
             <button type="button" data-png><Download size={17} aria-hidden="true" /> Save swatch sheet</button>
             <button type="button" class="secondary" data-css>Save CSS</button>
+            <button type="button" class="secondary" data-share-palette>Copy palette link</button>
           </div>
+          <input aria-label="Palette link" data-link-fallback readonly hidden />
           <details class="brief">
             <summary>Use this palette in a project</summary>
             <label>What are you making?<input data-goal maxlength="240" placeholder="A poster for my next show" /></label>
@@ -47,6 +52,7 @@ Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
       </div>
     </section> : <div><h1>Artwork unavailable</h1><p>{result.status === 404 ? 'This artwork is no longer in the public collection.' : 'The collection could not be reached. Reload to try again.'}</p></div>}
   </div>
+  <Fragment slot="page-share" />
 </Base>
 <script>
   import { startColourStudy } from '../../../../browser/colour-study';
@@ -57,16 +63,20 @@ Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
   .palette-page { max-width:76rem; margin:auto; }
   .back,.exports button { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; }
   .desk { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:clamp(1.5rem,4vw,4rem); align-items:start; margin-top:.7rem; }
+  .desk { grid-template-areas:"art title" "art controls"; grid-template-rows:auto 1fr; row-gap:0; }
+  .desk-title { grid-area:title; }
+  .work { grid-area:art; }
+  .bench { grid-area:controls; }
   .desk figure { margin:0; }
   .art-stage { display:grid; place-items:center; padding:clamp(.75rem,2.5vw,2rem); background:var(--color-surface); border-radius:.55rem; }
   .art-stage :is(img,canvas) { display:block; width:auto; max-width:100%; max-height:63vh; height:auto; }
   .art-stage canvas { cursor:crosshair; touch-action:manipulation; }
   .desk figcaption { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:.15rem .8rem; padding:.6rem 0; }
-  figcaption span,.bench>p { color:var(--color-muted); }
+  figcaption span,.desk-title>p,.bench>p { color:var(--color-muted); }
   figcaption span { font-size:.85rem; }
-  .bench h1 { margin:.1rem 0 .55rem; font-size:clamp(2.8rem,5.5vw,5rem); }
-  .bench h1 span { color:var(--color-accent); }
-  .bench p { margin:.5rem 0; }
+  .desk-title h1 { margin:.1rem 0 .55rem; font-size:clamp(2.8rem,5.5vw,5rem); }
+  .desk-title h1 span { color:var(--color-accent); }
+  .bench p,.desk-title p { margin:.5rem 0; }
   .swatches { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.3rem; margin:1.2rem 0; }
   .swatch,.swatch:hover { padding:0; display:block; width:100%; color:var(--color-foreground); background:transparent; border:0; }
   .swatch .chip { display:flex; align-items:end; aspect-ratio:.77; padding:.35rem; border-radius:.23rem; border:1px solid var(--color-control-border); }
@@ -80,9 +90,10 @@ Astro.csp?.insertDirective('img-src ' + SHARE_CATALOGUE_ORIGIN + '/campaign/');
   .brief textarea,.brief input { width:100%; }
   [hidden] { display:none!important; }
   @media(max-width:740px) {
-    .desk { grid-template-columns:minmax(0,1fr); gap:.7rem; }
+    .desk { grid-template-columns:minmax(0,1fr); grid-template-areas:"title" "art" "controls"; grid-template-rows:auto; gap:.5rem; }
+    .desk-title h1 { font-size:2.65rem; }
     .art-stage { padding:.55rem; }
-    .art-stage :is(img,canvas) { max-height:clamp(13rem,40svh,23rem); }
+    .art-stage :is(img,canvas) { max-height:clamp(11rem,32svh,21rem); }
     .swatches { max-width:29rem; }
     .swatch .chip { aspect-ratio:1.15; }
   }
