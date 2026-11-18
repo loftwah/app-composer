@@ -53,13 +53,17 @@
   .post-spread {grid-template-columns: 1fr;}
 }
 @media print {
-  @page {size: landscape; margin: 8mm;}
-  body:has(.post-reader) {background: white;}
+  @page composerPostcard {size: 6in 4in; margin: 0;}
+  html:has(.post-reader), body:has(.post-reader) {margin: 0; background: white; color-scheme: light;}
   body:has(.post-reader) :is(.site-header,footer,.skip,.builder-context,.post-reader-intro,.post-reader-actions,[data-post-status],[data-post-address]) {display: none !important;}
   body:has(.post-reader) main, .post-reader, .post-spread {display: block; padding: 0; max-width: none; margin: 0; background: none;}
-  .post-reader .post-print {box-sizing: border-box; box-shadow: none; padding: 3mm; width: min(100%, 188mm); margin: auto; break-inside: avoid; print-color-adjust: exact;}
+  .post-reader .post-print {page: composerPostcard; display: grid; grid-template-rows: 5mm auto minmax(0,1fr) auto; box-sizing: border-box; width: 6in; height: 4in; margin: 0; padding: 3.5mm; box-shadow: none; break-inside: avoid; print-color-adjust: exact;}
   .post-reader .post-print + .post-print {break-before: page;}
-  .post-reader .post-print-title {font-size: 22pt;}
-  .post-reader .post-window {height: 105mm; aspect-ratio: auto;}
-  .post-reader .post-window img {object-fit: contain;}
+  .post-reader .post-print-head {padding: 0 0 1mm;}
+  .post-reader .post-imprint {font-size: 8pt;}
+  .post-reader .post-imprint img {width: 4mm; height: 4mm;}
+  .post-reader .post-print-title {font-size: 16pt; padding: 1mm 0 1.5mm;}
+  .post-reader .post-window {height: 100%; width: 100%; aspect-ratio: auto;}
+  .post-reader .post-print figcaption {margin-top: 1.5mm; font-size: 9pt;}
+  .post-reader .post-print figcaption small, .post-reader .post-folio {font-size: 6pt;}
 }
