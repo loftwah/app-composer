@@ -73,7 +73,10 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
         <a href={artwork.shareUrl}>Project share kit <ArrowUpRight size={14} /></a>
         {artwork.kitUrl && <a href={artwork.kitUrl}>Open social kit <ArrowUpRight size={14} /></a>}
         {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source record <ArrowUpRight size={14} /></a>}
+        <button class="secondary" type="button" data-gallery-copy-alt hidden><Copy size={16} aria-hidden="true" /> Copy image alt text</button>
       </div>
+      <p role="status" data-gallery-alt-status></p>
+      <input data-gallery-alt-field aria-label="Image alt text to copy manually" value={artwork.alt} readonly hidden />
     </details>
     <details class="gallery-piece-section">
       <summary>Use in Media Studio</summary>

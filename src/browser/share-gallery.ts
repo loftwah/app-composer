@@ -10,6 +10,10 @@ export function mountArtworkActions(piece: HTMLElement) {
   const postField = piece.querySelector<HTMLTextAreaElement>(
     "[data-gallery-post-field]",
   );
+  const altField = piece.querySelector<HTMLInputElement>(
+    "[data-gallery-alt-field]",
+  );
+  const altStatus = piece.querySelector<HTMLElement>("[data-gallery-alt-status]");
   let latestCopy = 0;
 
   async function copyText(
@@ -17,21 +21,24 @@ export function mountArtworkActions(piece: HTMLElement) {
     field: HTMLInputElement | HTMLTextAreaElement,
     copiedMessage: string,
     manualMessage: string,
+    status = copyStatus,
   ) {
     const attempt = ++latestCopy;
     if (linkFallback) linkFallback.hidden = true;
     if (postField) postField.hidden = true;
+    if (altField) altField.hidden = true;
     if (copyStatus) copyStatus.textContent = "";
+    if (altStatus) altStatus.textContent = "";
     try {
       await navigator.clipboard.writeText(value);
-      if (copyStatus && attempt === latestCopy) copyStatus.textContent = copiedMessage;
+      if (status && attempt === latestCopy) status.textContent = copiedMessage;
     } catch {
       if (attempt !== latestCopy) return;
       field.value = value;
       field.hidden = false;
       field.focus();
       field.select();
-      if (copyStatus) copyStatus.textContent = manualMessage;
+      if (status) status.textContent = manualMessage;
     }
   }
 
@@ -55,6 +62,21 @@ export function mountArtworkActions(piece: HTMLElement) {
         postField,
         "Post text copied.",
         "Copy the selected post text.",
+      ));
+  }
+
+  const copyAlt = piece.querySelector<HTMLButtonElement>(
+    "[data-gallery-copy-alt]",
+  );
+  if (copyAlt && altField) {
+    copyAlt.hidden = false;
+    copyAlt.addEventListener("click", () =>
+      void copyText(
+        altField.value,
+        altField,
+        "Image alt text copied.",
+        "Copy the selected image alt text.",
+        altStatus,
       ));
   }
 
