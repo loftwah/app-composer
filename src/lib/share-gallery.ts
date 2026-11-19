@@ -23,6 +23,15 @@ export const artworkSorts = {
   random: "Random",
 };
 
+// Recorded original dimensions decide orientation. "any" is the default and
+// never hides an artwork whose original size is unknown.
+export const artworkOrientations = {
+  any: "Any",
+  landscape: "Landscape",
+  portrait: "Portrait",
+  square: "Square",
+};
+
 export function artworkLabel(text: string) {
   const brands: Record<string, string> = {
     "app-composer": "App Composer",
@@ -65,10 +74,14 @@ export function artworkFilters(params: URLSearchParams) {
     : "featured";
   const seed = params.get("seed") ?? "";
   const rawCategory = params.get("category") ?? "";
+  const rawOrientation = params.get("orientation") ?? "";
   return {
     query: (params.get("art") ?? "").slice(0, SHARE_CATALOGUE_QUERY_MAX).trim(),
     project: normalizeShareAssetId(params.get("project")) ?? "",
     category: Object.hasOwn(artworkCategories, rawCategory) ? rawCategory : "",
+    orientation: Object.hasOwn(artworkOrientations, rawOrientation)
+      ? (rawOrientation as keyof typeof artworkOrientations)
+      : "any",
     tag: (params.get("tag") ?? "").trim().toLowerCase().slice(0, 48),
     sort,
     seed:
@@ -94,6 +107,7 @@ export function galleryHref(
     art: state.query,
     project: state.project,
     category: state.category,
+    orientation: state.orientation !== "any" ? state.orientation : "",
     tag: state.tag,
     sort: state.sort !== "featured" || state.after ? state.sort : "",
     seed: state.sort === "random" ? state.seed : "",
@@ -134,6 +148,17 @@ export function galleryPage(
   const matches = all.filter((item) => {
     if (filters.project && item.project !== filters.project) return false;
     if (filters.category && item.category !== filters.category) return false;
+    if (filters.orientation !== "any") {
+      const width = item.original?.width;
+      const height = item.original?.height;
+      if (!width || !height) return false;
+      if (
+        (filters.orientation === "landscape" && width <= height) ||
+        (filters.orientation === "portrait" && width >= height) ||
+        (filters.orientation === "square" && width !== height)
+      )
+        return false;
+    }
     if (filters.tag && !item.tags.includes(filters.tag)) return false;
     const text = [
       item.title,

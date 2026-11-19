@@ -66,6 +66,83 @@ test("artwork facets and featured picks apply before pagination and shuffle stay
   assert.notDeepEqual(walk("1234abcd"), walk("4321abcd"));
 });
 
+test("orientation filter uses recorded original dimensions and survives gallery URLs", () => {
+  const piece = (assetId, original, thumbnail) => ({
+    assetId,
+    project: "bubbles",
+    title: assetId,
+    alt: "Festival",
+    description: "",
+    credit: "Composer",
+    category: "illustration",
+    tags: [],
+    reviewedAt: "2026-11-14",
+    original: original
+      ? {
+          url: `https://woodhouse.loftwah.com/campaign/${assetId}.png`,
+          label: "Original",
+          width: original[0],
+          height: original[1],
+        }
+      : null,
+    thumbnailSize: {
+      url: `https://woodhouse.loftwah.com/campaign/${assetId}-thumb.png`,
+      label: "",
+      width: thumbnail[0],
+      height: thumbnail[1],
+    },
+  });
+  // "tall" is a portrait original with a deliberately misleading landscape
+  // thumbnail: classification must come from the original, never the preview.
+  const entries = [
+    piece("wide", [1600, 900], [1600, 900]),
+    piece("tall", [900, 1600], [1600, 900]),
+    piece("square", [1000, 1000], [1000, 1000]),
+    piece("unknown", null, [1600, 900]),
+  ];
+  const forURL = (value) =>
+    artworkFilters(new URL(value, "https://composer.test").searchParams);
+  const ids = (url) =>
+    galleryPage(entries, [], forURL(url)).items
+      .map((item) => item.assetId)
+      .sort();
+  const all = ["square", "tall", "unknown", "wide"];
+  const params = (value) =>
+    new URL(value, "https://composer.test").searchParams;
+
+  // Default and unknown/invalid values never hide an artwork with unknown size.
+  assert.deepEqual(ids("/share"), all);
+  assert.deepEqual(ids("/share?orientation=any"), all);
+  assert.deepEqual(ids("/share?orientation=diagonal"), all);
+  assert.deepEqual(ids("/share?orientation=landscape"), ["wide"]);
+  assert.deepEqual(ids("/share?orientation=portrait"), ["tall"]);
+  assert.deepEqual(ids("/share?orientation=square"), ["square"]);
+
+  // The selection survives pagination, Shuffle, Back and chip removal.
+  const filters = forURL(
+    "/share?orientation=portrait&art=lantern&category=illustration",
+  );
+  assert.equal(filters.orientation, "portrait");
+  for (const updates of [
+    { after: "" },
+    { after: "tall" },
+    { sort: "random", seed: "abcd1234" },
+  ]) {
+    const next = params(galleryHref(filters, updates));
+    assert.equal(next.get("orientation"), "portrait");
+    assert.equal(next.get("art"), "lantern");
+    assert.equal(next.get("category"), "illustration");
+  }
+  assert.equal(
+    params(galleryHref(filters, { orientation: "any" })).has("orientation"),
+    false,
+  );
+  assert.equal(
+    params(galleryHref(forURL("/share"))).has("orientation"),
+    false,
+  );
+});
+
 test("artwork feedback stores the current public revision privately without entering film history", async () => {
   const base = "https://composer.test/api/share-feedback";
   const record = {
