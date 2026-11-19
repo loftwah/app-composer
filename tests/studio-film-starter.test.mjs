@@ -4,15 +4,20 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { GET } from '../src/pages/widgets/take-it-with-you-v1.html.ts';
 import { GET as getRecipe } from '../src/pages/widgets/take-it-with-you-v1.json.ts';
+import { GET as getReact } from '../src/pages/widgets/TakeItWithYouFilm.tsx.ts';
 import {
   captionText,
   captionTrackUrl,
   filmCaptionSrc,
+  filmComponentSource,
   filmEmbedFragment,
+  filmReactInstallSnippet,
   filmRecipe,
   filmRecipeJson,
   filmTitle,
   posterUrl,
+  reactComponentFilename,
+  reactComponentPath,
   starterFilename,
   starterHtml,
   starterPath,
@@ -128,4 +133,36 @@ test('the native film recipe carries the exact published source and install frag
     'img-src': [posterUrl], 'media-src': [videoUrl, 'data:'],
   });
   assert.equal(filmRecipe.source.captions.sha256, createHash('sha256').update(captionText).digest('hex'));
+});
+
+test('the stable .tsx route serves the exact component as a trusted local attachment', async () => {
+  assert.equal(reactComponentFilename, 'TakeItWithYouFilm.tsx');
+  assert.equal(reactComponentPath, '/widgets/TakeItWithYouFilm.tsx');
+  const response = await getReact({ url: new URL(`https://composer.loftwah.com${reactComponentPath}`), params: {} });
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/octet-stream');
+  assert.equal(response.headers.get('content-disposition'), `attachment; filename="${reactComponentFilename}"`);
+  assert.equal(response.headers.get('cache-control'), 'no-store, no-transform');
+  assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(await response.text(), filmComponentSource);
+});
+
+test('the React installer uses the approved film, poster, caption and publication', async () => {
+  assert.ok(filmComponentSource.includes(JSON.stringify(videoUrl)));
+  assert.ok(filmComponentSource.includes(JSON.stringify(posterUrl)));
+  assert.ok(filmComponentSource.includes(JSON.stringify(watchUrl)));
+  assert.ok(filmComponentSource.includes(JSON.stringify(captionTrackUrl)));
+  assert.match(filmComponentSource, /export function TakeItWithYouFilm/);
+  const page = await readFile('src/pages/widgets.astro', 'utf8');
+  assert.ok(page.includes('href={filmReactPath} download={filmReactFilename}'));
+  assert.ok(filmReactInstallSnippet.includes('<TakeItWithYouFilm />'));
+});
+
+test('the v1 HTML and JSON artifacts stay byte-for-byte unchanged', async () => {
+  assert.equal(createHash('sha256').update(starterHtml).digest('hex'), '288efff3a357748288619116dcd300a26d101dc394f7f51c6f2b3c0d99bbf465');
+  const html = await GET({ url: new URL(`https://composer.loftwah.com${starterPath}`), params: {} });
+  assert.equal(await html.text(), starterHtml);
+  const recipe = await getRecipe();
+  assert.equal(await recipe.text(), filmRecipeJson);
+  assert.equal(createHash('sha256').update(filmRecipeJson).digest('hex'), 'fea371f24cb5d360f6ae80692e1b414b4c0e5c01ee1c51d46f3cde94f4174346');
 });
