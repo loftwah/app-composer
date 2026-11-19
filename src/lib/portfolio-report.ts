@@ -182,6 +182,19 @@ export function formatPortfolioValue(value: number, unit: PortfolioMetric["unit"
   return `${numberFormat.format(value)} s`;
 }
 
+// Export exactly the daily values already rendered in the trend table. Only
+// fixed headers, validated ISO days, source-normalized safe integers and
+// literal flags enter the CSV. No producer-supplied label or free text is
+// included, so no cell can be interpreted as a formula.
+export function dailyValuesCsv(days: ActivityDay[]): string {
+  const rows = ["date,value,partial,capped"];
+  for (const day of days) {
+    const value = day.value === null ? "" : String(day.value);
+    rows.push(`${day.date},${value},${day.partial ? "true" : "false"},${day.capped ? "true" : "false"}`);
+  }
+  return `${rows.join("\r\n")}\r\n`;
+}
+
 export type InstallerRelease = { tag: string; downloads: number; url: string };
 export const liferaftReleases = "https://github.com/loftwah/liferaft/releases";
 async function readLiferaftDownloads(token?: string): Promise<InstallerRelease[] | null> {

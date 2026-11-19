@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  comparePortfolioMetric, parsePortfolioPeriod, parseProjectReport, previousPeriod,
+  comparePortfolioMetric, dailyValuesCsv, parsePortfolioPeriod, parseProjectReport, previousPeriod,
 } from "../src/lib/portfolio-report.ts";
 
 const project = { id: "loftwahfm", measures: ["listening_starts"] };
@@ -23,6 +23,15 @@ test("portfolio windows exclude today and validate bookmarked dates", () => {
   assert.deepEqual(earlier, { from: "2026-11-03", to: "2026-11-09", days: 7 });
   assert.equal(parsePortfolioPeriod(new URLSearchParams("from=2026-11-11&to=2026-11-17"), now), null);
   assert.equal(parsePortfolioPeriod(new URLSearchParams("days=7&days=30"), now), null);
+});
+
+test("daily value CSV exports exact normalized days with blanks and flags", () => {
+  const csv = dailyValuesCsv([
+    { date: "2026-11-10", value: 12, partial: true, current: false, capped: false },
+    { date: "2026-11-11", value: null, partial: false, current: false, capped: false },
+    { date: "2026-11-12", value: 1000, partial: false, current: false, capped: true },
+  ]);
+  assert.equal(csv, "date,value,partial,capped\r\n2026-11-10,12,true,false\r\n2026-11-11,,false,false\r\n2026-11-12,1000,false,true\r\n");
 });
 
 test("scope mismatch, duplicates and unknown metrics cannot leak into a report", () => {
