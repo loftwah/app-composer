@@ -109,6 +109,12 @@ import {
       <div data-manual hidden>
         <label for="widget-manual-copy">Copy this value manually<textarea id="widget-manual-copy" readonly rows="10"></textarea></label>
       </div>
+      <details class="csp-note">
+        <summary>Using a Content Security Policy?</summary>
+        <p>Add <code>{stationOrigin}</code> to your policy’s <code>frame-src</code> directive. Keep your existing frame origins.</p>
+        <pre class="widget-code" tabindex="0"><code>frame-src {stationOrigin}</code></pre>
+        <p>The HTML starter and agent task for this player use the same directive.</p>
+      </details>
       <details class="react-version">
         <summary>React version</summary>
         <p>The same iframe with the same attributes, for a React page. LoftwahFM’s builder generates the same shape.</p>
@@ -393,7 +399,7 @@ import {
   .preview-status, .copy-status { min-height:1.6em; font-size:.9rem; color:var(--color-accent); margin:.7rem 0 0; }
   .copy-actions { display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:center; margin:1rem 0 0; }
   .copy-actions button { font-size:.9rem; }
-  .react-version { margin-top:1.4rem; border-top:1px solid var(--color-border); }
+  .react-version, .csp-note { margin-top:1.4rem; border-top:1px solid var(--color-border); }
   .widget-limits { max-width:72ch; }
   .widget-limits li { margin:12px 0; }
   .card-downloads { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; margin:0; padding:0; }
