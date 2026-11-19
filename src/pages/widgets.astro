@@ -7,6 +7,8 @@ import {
   embed,
   embedHtml,
   embedJsx,
+  installKitFilename as stationInstallKitFilename,
+  installKitPath as stationInstallKitPath,
   recipeFilename,
   recipePath,
   starterFilename,
@@ -26,6 +28,8 @@ import {
   filmEmbedFragment,
   filmReactInstallSnippet,
   filmTitle,
+  installKitFilename as filmInstallKitFilename,
+  installKitPath as filmInstallKitPath,
   posterUrl,
   reactComponentFilename as filmReactFilename,
   reactComponentPath as filmReactPath,
@@ -70,6 +74,7 @@ import {
       <div><dt>Cost</dt><dd>The public embed is free for personal listening. <a href={`${stationOrigin}/business-licence/`}>Business and venue playback terms</a> are separate.</dd></div>
       <div><dt>Recipe</dt><dd>Night Signal · compact player · {embed.width} × {embed.height} · <a href={recipePath} download={recipeFilename}>Download recipe (JSON)</a></dd></div>
       <div><dt>Starter page</dt><dd><a href={starterPath} download={starterFilename}>Download HTML starter</a>. Serve the file over HTTP or HTTPS, including on localhost.</dd></div>
+      <div><dt>Install kit</dt><dd><a href={stationInstallKitPath} download={stationInstallKitFilename}>Download install kit (ZIP)</a> with the recipe, HTML starter and agent task.</dd></div>
     </dl>
 
     <section aria-labelledby="widget-preview-heading">
@@ -169,6 +174,7 @@ import {
       <a class="button secondary" href={filmRecipeV2Path} download={filmRecipeV2Filename}>Download film recipe (JSON)</a>
       <a class="button secondary" href={filmStarterPath} download={filmStarterFilename}>Download film HTML starter</a>
       <a class="button secondary" href={filmReactPath} download={filmReactFilename}>Download React + TS component</a>
+      <a class="button secondary" href={filmInstallKitPath} download={filmInstallKitFilename}>Download install kit (ZIP)</a>
       <a class="button secondary" href={watchUrl}>Watch on Media Studio</a>
     </div>
     <section aria-labelledby="film-preview-heading" data-enhanced hidden>

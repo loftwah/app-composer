@@ -12,6 +12,7 @@ import {
   itemApprovalAndDelivery,
   isSafeShareLink,
   scheduleLabels,
+  type BlueskyDeliveryRecord,
   type CaptionUnit,
   type ShareCalendarItem,
   type ShareCalendarVariant,
@@ -20,6 +21,7 @@ import {
   type ShareChannel,
 } from "./share-calendar.ts";
 import type {
+  BlueskyApprovalRecord,
   SharePackageBluesky,
   SharePackagePublishedReceipt,
 } from "./share-approval.ts";
@@ -319,6 +321,23 @@ export function buildShareApprovalPackage(
   };
 }
 
+export function sharePackagePublishedReceipt(
+  item: Pick<ShareCalendarItem, "id" | "revision">,
+  approval: BlueskyApprovalRecord | null,
+  delivery: BlueskyDeliveryRecord | null,
+): SharePackagePublishedReceipt | null {
+  // Derived only from saved values: the exact item revision and its approval
+  // revision must both match the persisted published delivery. No fetch and no
+  // provider identifier is added to the package.
+  const permalink = delivery?.permalink;
+  if (
+    !permalink?.startsWith("https://bsky.app/profile/") ||
+    !isSafeShareLink(permalink) ||
+    !hasPublishedBlueskyRevision(item, approval, delivery)
+  ) return null;
+  return { publishedAt: delivery?.publishedAt ?? null, permalink };
+}
+
 // The native page uses this exact helper, so a page-data test can prove the
 // package is assembled from the persisted snapshot and not from editor state.
 export function approvalPackageForItem(
@@ -333,19 +352,7 @@ export function approvalPackageForItem(
     },
     item,
   );
-  // Derived only from saved values: the exact item revision and its approval
-  // revision must both match the persisted published delivery. No fetch and no
-  // provider identifier is added to the package.
-  const permalink = delivery?.permalink;
-  const published =
-    permalink?.startsWith("https://bsky.app/profile/") &&
-    isSafeShareLink(permalink) &&
-    hasPublishedBlueskyRevision(item, approval, delivery)
-      ? {
-          publishedAt: delivery?.publishedAt ?? null,
-          permalink,
-        }
-      : null;
+  const published = sharePackagePublishedReceipt(item, approval, delivery);
   return buildShareApprovalPackage(item, {
     workspace: snapshot.workspace.name,
     source:

@@ -61,6 +61,11 @@ export const starterPath = `/widgets/${starterFilename}`;
 export const stationAgentTaskFilename = `${widgetRecipe.id}-v${widgetRecipe.version}-agent-task.md`;
 export const stationAgentTaskPath = `/widgets/${stationAgentTaskFilename}`;
 
+// Signed-out install kit: the exact native recipe, HTML and agent task in one ZIP.
+// Reuses the v1 id/version naming; the ZIP entry names are the exported filenames.
+export const installKitFilename = `${widgetRecipe.id}-v${widgetRecipe.version}-install-kit.zip`;
+export const installKitPath = `/widgets/${installKitFilename}`;
+
 export const starterHtml = `<!doctype html>
 <html lang="en">
 <head>
