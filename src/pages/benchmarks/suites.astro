@@ -3,6 +3,10 @@ import Base from '../../layouts/Base.astro';
 import BenchmarksNav from '../../components/BenchmarksNav.astro';
 import latest from '../../../benchmarks/results/latest.json';
 import { assertBenchmarkSuite } from '../../lib/benchmark-suite.mjs';
+import selfRebuildProfiles from '../../../benchmarks/cloudflare-composition/cases/real-product-profiles.json';
+
+const selfRebuild = selfRebuildProfiles.profiles.find((profile) => profile.id === 'CF-R08');
+if (!selfRebuild) throw new Error('Missing CF-R08 self-rebuild profile');
 
 const modules = import.meta.glob(
   [
@@ -72,6 +76,7 @@ const stateClass = (state: string) =>
     <div class="packs-actions">
       <a class="button" href="/benchmarks/compare">Open the blind comparison</a>
       <a class="button secondary" href="/benchmarks">See the sandbox checks</a>
+      <a class="button secondary" href="#self-rebuild">Self-rebuild challenge</a>
       <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
     </div>
   </div>
@@ -153,6 +158,46 @@ const stateClass = (state: string) =>
     </div>
   </section>
 
+  <section class="packs-section" id="self-rebuild" aria-labelledby="self-rebuild-title">
+    <h2 id="self-rebuild-title">Can App Composer build App Composer?</h2>
+    <p>
+      The challenge is to rebuild and operate App Composer and its supported apps in an independently
+      owned Cloudflare account, then repeat the process from the rebuilt instance. If a creator can
+      reproduce this system from documented inputs, they can use the same method to understand,
+      own and evolve their own projects.
+    </p>
+    <dl class="self-facts">
+      <div><dt>Target</dt><dd><code>{selfRebuild.id}</code> · v{selfRebuildProfiles.version}</dd></div>
+      <div><dt>Status</dt><dd>{selfRebuild.status === 'not-run' ? 'Not run' : selfRebuild.status}</dd></div>
+      <div><dt>Evidence entries</dt><dd>{selfRebuild.evidenceRecorded.length}</dd></div>
+      <div><dt>Owner</dt><dd><a href={selfRebuild.owners[0]}>Self-rebuild challenge</a></dd></div>
+    </dl>
+
+    <h3>The A → B → C sequence</h3>
+    <ol class="packs-limits">
+      <li><strong>Pin A.</strong> Freeze a baseline and publish the permitted blueprints and contracts.</li>
+      <li><strong>Build B.</strong> Use a supported, authorised agent in a separate account with its own credentials. Use only the published inputs and record any assistance.</li>
+      <li><strong>Repeat from B.</strong> Create and evolve an app using B, then use B to construct C. Compare both rebuilds with the frozen parity checklist and record any gaps.</li>
+    </ol>
+    <h3>First milestone · A → B</h3>
+    <p>
+      Deploy a functional Composer slice in a separately owned account and exercise real auth,
+      data, media and operations. B → C starts after that evidence is available.
+      Routine releases continue independently of this challenge.
+    </p>
+
+    <h3>Before a run</h3>
+    <ul class="packs-limits">
+      {selfRebuild.prerequisites.map((prerequisite) => <li>{prerequisite}</li>)}
+    </ul>
+
+    <ul class="packs-limits">
+      <li><a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/cloudflare-composition/cases/real-product-profiles.json">CF-R08 definition and acceptance checks</a></li>
+      <li><a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/cloudflare-composition/README.md">Versioned CF-COMPOSE protocol</a></li>
+      <li><a href="https://github.com/loftwah/app-composer/issues/600">Portable LEGO blueprints</a> and <a href="https://github.com/loftwah/app-composer/issues/603">technical demo</a></li>
+    </ul>
+  </section>
+
   <section class="packs-section" aria-labelledby="run-title">
     <h2 id="run-title">Run one pack</h2>
     <p>From a checkout of this repository, run only the checks the pack names:</p>
@@ -215,6 +260,10 @@ const stateClass = (state: string) =>
   .packs-limits{max-width:74ch;line-height:1.8}
   .packs-limits li{margin:10px 0}
   pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  #self-rebuild h3{font-size:1.05rem;margin:24px 0 8px}
+  .self-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:18px 0;padding:14px;background:var(--color-surface);border-radius:8px}
+  .self-facts dt{font-size:12px;color:var(--color-muted)}
+  .self-facts dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
   @media(max-width:600px){
     .pack{padding:14px}
     .pack-facts{grid-template-columns:1fr 1fr;padding:12px}
