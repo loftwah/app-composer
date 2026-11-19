@@ -6,6 +6,7 @@ import { GET } from '../src/pages/widgets/take-it-with-you-v1.html.ts';
 import {
   captionText,
   captionTrackUrl,
+  filmCaptionSrc,
   filmEmbedFragment,
   filmTitle,
   posterUrl,
@@ -68,9 +69,18 @@ test('the widget page adds the film section without loading it or disturbing the
   assert.ok(page.includes('<li><a href="#take-it-with-you-film">Take it with you film</a></li>'), 'one native jump link');
   assert.ok(page.includes(`href={watchUrl}>Watch on Media Studio</a>`), 'Watch action');
   assert.ok(page.includes(`href={filmStarterPath} download={filmStarterFilename}`), 'starter download action');
-  assert.ok(!page.includes('<video'), 'the Composer page embeds no video');
-  assert.ok(!page.includes('poster='), 'the Composer page loads no poster');
-  assert.ok(!page.includes('<img'), 'the Composer page loads no external image');
+  const template = page.match(/<template data-film-template>([\s\S]*?)<\/template>/)?.[1];
+  assert.ok(template, 'the film lives in one inert template');
+  assert.ok(template.includes('<video'), 'the template holds the video element');
+  assert.ok(template.includes('poster={posterUrl}'), 'the pinned poster is used');
+  assert.ok(template.includes('src={videoUrl}'), 'the pinned video is used');
+  assert.ok(template.includes('src={filmCaptionSrc}'), 'the same-origin caption track is used');
+  assert.ok(page.includes('data-load-film'), 'an opt-in load control exists');
+  assert.ok(page.includes('data-close-film'), 'an unload control exists');
+  const rendered = page.replace(/<template data-film-template>[\s\S]*?<\/template>/, '');
+  assert.ok(!rendered.includes('<video'), 'no live video is rendered before activation');
+  assert.ok(!rendered.includes('poster='), 'no poster is rendered before activation');
+  assert.ok(!rendered.includes('<img'), 'no external image is rendered');
 });
 
 test('the paste-ready fragment is the exact published video and credit, shown as text with no media fetch', async () => {
@@ -90,7 +100,12 @@ test('the paste-ready fragment is the exact published video and credit, shown as
   assert.ok(page.includes('<pre class="widget-code film-code" tabindex="0">'), 'the code block keeps the existing keyboard focus');
   assert.ok(page.includes('data-copy-film'), 'the copy control reuses the existing copy() helper and fallback');
   assert.ok(page.includes('void copy(filmEmbedText,'), 'copy uses the shared clipboard/fallback function');
-  assert.ok(!page.includes('<video'), 'no live video element before a visitor asks');
-  assert.ok(!page.includes('poster='), 'no poster attribute is rendered in the Composer page');
-  assert.ok(!page.includes('<img'), 'no external image is rendered in the Composer page');
+  assert.ok(page.includes('<template data-film-template>'), 'the pasted fragment is only demoed inside an inert template');
+});
+
+test('the preview captions are the committed English VTT served from this origin', async () => {
+  const committed = await readFile('public/brand/campaign/take-it-with-you-20261118.vtt', 'utf8');
+  assert.equal(filmCaptionSrc, '/brand/campaign/take-it-with-you-20261118.vtt');
+  assert.equal(captionText, committed, 'the preview track and the inlined starter captions are the same cues');
+  assert.ok(!filmCaptionSrc.startsWith('data:'), 'the live preview needs no data: media source');
 });
