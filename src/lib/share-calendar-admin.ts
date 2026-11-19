@@ -630,10 +630,12 @@ async function sourceStillCurrent(
 async function resolveCatalogue(
   assetId: string,
   runtime: ShareCalendarRuntime,
+  expectedArtworkRevision?: string,
 ) {
   const resolved = await resolveShareCatalogueAsset(assetId, {
     fetch: runtime.fetch,
     timeoutMs: runtime.blueskyTimeoutMs,
+    expectedArtworkRevision,
   });
   if (!resolved.ok) throw new StackError("SOURCE_STALE", resolved.message, 409);
   return resolved.asset;
@@ -1174,7 +1176,11 @@ export async function manageShareCalendar(
             "FORBIDDEN",
             "The workspace owner can confirm reuse of Woodhouse artwork.",
           );
-        const asset = await resolveCatalogue(parsedRead.data.assetId, runtime);
+        const asset = await resolveCatalogue(
+          parsedRead.data.assetId,
+          runtime,
+          parsedRead.data.artworkRevision,
+        );
         return {
           ok: true as const,
           asset,

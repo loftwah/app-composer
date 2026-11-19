@@ -411,9 +411,11 @@ type CataloguePreview = {
 async function cataloguePreviewCall(
   assetId: string,
   workspace?: string,
+  artworkRevision?: string,
 ): Promise<CataloguePreview> {
   const params = new URLSearchParams({ action: "cataloguePreview", assetId });
   if (workspace) params.set("workspace", workspace);
+  if (artworkRevision) params.set("artworkRevision", artworkRevision);
   const response = await apiFetch(
     base + "shareCalendarRead?" + params.toString(),
     { cache: "no-store" },
@@ -1543,7 +1545,21 @@ const emptyShareList: Record<ShareListFilter, string> = {
     "No failed or unconfirmed deliveries or stale sources in this view.",
 };
 
+function readArtworkHandoff(search: string) {
+  const params = new URLSearchParams(search);
+  const assets = params.getAll("artwork");
+  const revisions = params.getAll("revision");
+  if (assets.length === 0 && revisions.length === 0) return { state: "absent" } as const;
+  const assetId = assets[0] ?? "";
+  const revision = revisions[0] ?? "";
+  if (assets.length !== 1 || revisions.length !== 1 || assetId.trim() !== assetId ||
+      !SHARE_CATALOGUE_ID_PATTERN.test(assetId) || revision.length !== 64 || !/^[a-f0-9]+$/.test(revision))
+    return { state: "invalid" } as const;
+  return { state: "linked", assetId, revision } as const;
+}
+
 function ShareCalendar({ search }: { search: string }) {
+  const artworkHandoff = useMemo(() => readArtworkHandoff(search), [search]);
   const [snapshot, setSnapshot] = useState<ShareCalendarSnapshot>();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -1759,7 +1775,9 @@ function ShareCalendar({ search }: { search: string }) {
     setError("");
     setNotice("");
     try {
-      const reply = await cataloguePreviewCall(id, selection.current);
+      const expectedRevision = !editing && artworkHandoff.state === "linked" && artworkHandoff.assetId === id
+        ? artworkHandoff.revision : undefined;
+      const reply = await cataloguePreviewCall(id, selection.current, expectedRevision);
       if (!alive.current) return;
       setCataloguePreview(reply);
       setRightsConfirmed(false);
@@ -1839,7 +1857,11 @@ function ShareCalendar({ search }: { search: string }) {
         const approval = result.approvals[0];
         return result.bluesky.configuredHandle ?? approval?.accountHandle ?? "";
       });
-      if (!editing && !sourceId && result.sources[0]) {
+      if (!editing && !sourceId && artworkHandoff.state === "linked" && result.workspace.role === "owner") {
+        setSourceKind("catalogue");
+        setChannel("bluesky");
+        setAssetId(artworkHandoff.assetId);
+      } else if (!editing && !sourceId && result.sources[0]) {
         setSourceKind("stack");
         setSourceId(result.sources[0].id);
         setCaption(result.sources[0].description);
@@ -2728,6 +2750,12 @@ function ShareCalendar({ search }: { search: string }) {
           <p>{error}</p>
         </div>
       )}
+      {artworkHandoff.state === "invalid" && (
+        <p className="sc-hint">Open Share and choose Prepare in Share calendar again to get a valid artwork link.</p>
+      )}
+      {snapshot && !loading && artworkHandoff.state === "linked" && !isOwner && (
+        <p className="sc-hint">Choose a workspace you own to preview the linked artwork.</p>
+      )}
       {loading && (
         <p role="status">Loading published stacks and saved shares…</p>
       )}
@@ -2908,6 +2936,12 @@ function ShareCalendar({ search }: { search: string }) {
                     </a>
                   </div>
 
+                  {!editing && artworkHandoff.state === "linked" && assetId === artworkHandoff.assetId && (
+                    <p className="sc-hint">
+                      Artwork from Composer Share. Preview it here, or{" "}
+                      <a className="sc-text-link" href={`/share/artwork/${artworkHandoff.assetId}`}>return to the artwork page</a>.
+                    </p>
+                  )}
                   {!isOwner && (
                     <p className="sc-hint">
                       Only a workspace owner can prepare a Woodhouse Share

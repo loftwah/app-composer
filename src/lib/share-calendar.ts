@@ -256,6 +256,13 @@ export const shareCalendarReadInput = z.union([
       action: z.literal("cataloguePreview"),
       workspace: workspaceId.optional(),
       assetId: catalogueAssetId,
+      // Optional exact public artwork revision (#477/#663). EmDash supplies GET
+      // parameters as strings. When present, the resolver derives the current
+      // revision from the same catalogue JSON it already reads and refuses a
+      // stale or unavailable link before fetching any rendition. It is a
+      // comparison token only, never an authority; the owner/rights check and
+      // the exact byte resolver stay unchanged.
+      artworkRevision: catalogueDigest.optional(),
     })
     .strict(),
   // The picker query. It is only a bounded search string: the server builds the

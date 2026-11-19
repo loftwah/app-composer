@@ -183,6 +183,11 @@ function parseAsset(payload: unknown, assetId: string) {
 
 export interface CatalogueFetchOptions extends BlueskyFetchOptions {
   timeoutMs?: number;
+  // Optional exact public artwork revision. When supplied, the resolver derives
+  // the current revision from the already-fetched catalogue JSON and refuses a
+  // stale or unavailable link before fetching the rendition. Without it the
+  // direct preview/save path is byte-for-byte unchanged.
+  expectedArtworkRevision?: string;
 }
 
 // Resolve the exact asset: bounded JSON from the fixed URL, no redirects, then
@@ -249,6 +254,24 @@ export async function resolveShareCatalogueAsset(
         "catalogue_invalid",
         "The catalogue did not supply a current public image rendition, alt, credit and project URL for this asset.",
       );
+    // Verify the linked public artwork against the SAME bounded JSON response
+    // already in hand, before any rendition fetch. No second catalogue record
+    // is read and the supplied token is never trusted as an authority: the
+    // current revision is always derived locally from the live payload.
+    if (options.expectedArtworkRevision !== undefined) {
+      const linked = catalogueArtwork(catalogueObject(payload)?.asset);
+      const current = linked ? await artworkRevision(linked) : null;
+      if (!current)
+        return failed(
+          "artwork_unavailable",
+          "The linked public artwork is no longer available in the catalogue. Return to the artwork page and use its current Calendar link.",
+        );
+      if (current !== options.expectedArtworkRevision)
+        return failed(
+          "artwork_stale",
+          "The linked public artwork revision changed. Return to the artwork page and use its current Calendar link.",
+        );
+    }
     const imageResult = await fetchBlueskyImage(asset.renditionUrl, {
       fetch: doFetch,
       timeoutMs,
