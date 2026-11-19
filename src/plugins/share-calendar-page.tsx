@@ -20,6 +20,7 @@ import {
   scheduleLabels,
   SHARE_ITEM_LINK_RECOVERY,
   shareCalendarSnapshot,
+  shareConnectionsItemHref,
   shareItemLink,
   shareItemLinkSelection,
   shareListItemFilters,
@@ -3981,6 +3982,17 @@ function ShareCalendar({ search }: { search: string }) {
                       {manualItemLink?.item === item.id && (
                         <a className="sc-text-link" href={manualItemLink.href} target="_blank" rel="noopener noreferrer">
                           Open private item link
+                        </a>
+                      )}
+                      {isOwner && item.channel === "bluesky" && (
+                        <a
+                          className="sc-text-link"
+                          href={shareConnectionsItemHref(
+                            snapshot.workspace.id,
+                            item.id,
+                          )}
+                        >
+                          View connection settings
                         </a>
                       )}
                       {exportEvent && (

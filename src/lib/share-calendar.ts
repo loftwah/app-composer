@@ -955,7 +955,7 @@ export const SHARE_ITEM_LINK_RECOVERY =
 export type ShareItemLinkSelection =
   | { state: "absent" }
   | { state: "invalid" }
-  | { state: "requested"; itemId: string };
+  | { state: "requested"; workspace: string; itemId: string };
 
 // The private admin link is read from the same TanStack route search as the
 // workspace scope. A malformed or repeated row ID is refused before any read.
@@ -969,20 +969,23 @@ export function shareItemLinkSelection(search: string): ShareItemLinkSelection {
   if (values.length !== 1 || values[0].length !== 36 || !itemId.safeParse(values[0]).success ||
       workspaces.length !== 1 || !workspaceId.safeParse(workspaces[0]).success)
     return { state: "invalid" };
-  return { state: "requested", itemId: values[0] };
+  return { state: "requested", workspace: workspaces[0], itemId: values[0] };
 }
 
-// A clean private link: only the exact workspace and saved row travel. Caption,
-// account details, draft state and artwork handoff stay on the page itself.
-export function shareItemLink(
-  origin: string,
-  workspace: string,
-  id: string,
-): string {
-  const url = new URL(shareCalendarEntry(true), origin);
-  url.searchParams.set("workspace", workspace);
-  url.searchParams.set(SHARE_ITEM_LINK_PARAM, id);
-  return url.href;
+function scopedShareItemSearch(workspace: string, id: string): URLSearchParams {
+  return new URLSearchParams({ workspace, [SHARE_ITEM_LINK_PARAM]: id });
+}
+
+export function shareItemHref(workspace: string, id: string): string {
+  return `${shareCalendarEntry(true)}?${scopedShareItemSearch(workspace, id)}`;
+}
+
+export function shareItemLink(origin: string, workspace: string, id: string): string {
+  return new URL(shareItemHref(workspace, id), origin).href;
+}
+
+export function shareConnectionsItemHref(workspace: string, id: string): string {
+  return `/_emdash/admin/plugins/composer-stacks/share-connections?${scopedShareItemSearch(workspace, id)}`;
 }
 
 export interface ShareCalendarIcsItem {

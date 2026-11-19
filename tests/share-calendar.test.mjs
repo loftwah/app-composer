@@ -26,6 +26,8 @@ import {
   shareCalendarCommand,
   shareCalendarReadInput,
   shareCalendarSnapshot,
+  shareConnectionsItemHref,
+  shareItemHref,
   shareItemLink,
   shareItemLinkSelection,
   shareQueuePresetsReplySchema,
@@ -2038,7 +2040,11 @@ test("private Calendar links require one scoped saved item and carry no other ro
 
   assert.equal(url.pathname, "/_emdash/admin/plugins/composer-stacks/share-calendar");
   assert.deepEqual([...url.searchParams], [["workspace", workspace], ["item", itemId]]);
-  assert.deepEqual(shareItemLinkSelection(url.search), { state: "requested", itemId });
+  const connections = new URL(shareConnectionsItemHref(workspace, itemId), origin);
+  assert.match(connections.pathname, /\/share-connections$/);
+  assert.equal(connections.search, url.search);
+  assert.equal(shareItemHref(workspace, itemId), url.pathname + url.search);
+  assert.deepEqual(shareItemLinkSelection(url.search), { state: "requested", workspace, itemId });
   assert.deepEqual(shareItemLinkSelection(`?workspace=${workspace}`), { state: "absent" });
   for (const search of [
     `?item=${itemId}`,
