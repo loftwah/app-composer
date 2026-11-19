@@ -7,7 +7,10 @@ import {
   SHARE_CHANNEL_LABELS,
   SHARE_STATE_LABELS,
   captionUsage,
+  hasPublishedBlueskyRevision,
   isXVariant,
+  itemApprovalAndDelivery,
+  isSafeShareLink,
   scheduleLabels,
   type CaptionUnit,
   type ShareCalendarItem,
@@ -16,7 +19,10 @@ import {
   type ShareCalendarSource,
   type ShareChannel,
 } from "./share-calendar.ts";
-import type { SharePackageBluesky } from "./share-approval.ts";
+import type {
+  SharePackageBluesky,
+  SharePackagePublishedReceipt,
+} from "./share-approval.ts";
 
 export const SHARE_PACKAGE_SCHEMA = "composer.share-approval-package/v1";
 export const SHARE_PACKAGE_NOT_RECORDED = "not recorded";
@@ -25,6 +31,12 @@ export const SHARE_PACKAGE_POSTING_STATEMENT =
   "This approval package does not post by itself. A Bluesky send needs a separate configured connection and an explicit confirmation; otherwise you perform this share yourself.";
 export const SHARE_PACKAGE_PROVENANCE_STATEMENT =
   "Prepared in App Composer from the persisted published stack revision and the saved item revision. The package makes no network request and changes no state.";
+// Wording for the exact published Bluesky target only. The approval state is
+// unchanged; this label replaces "Approved (not sent)" where a saved receipt
+// proves the post, so the package no longer contradicts the native card.
+export const SHARE_PACKAGE_PUBLISHED_LABEL = "Published receipt";
+const PUBLISHED_POSTING_STATEMENT =
+  "This approval package does not post. The Bluesky revision is already published. Review the native post before sharing to another destination.";
 const ARTWORK_SAVED = "Saved artwork details. Approval checks the current rendition separately.";
 const ARTWORK_HISTORICAL = "Historical artwork details. Select the current rendition before sharing.";
 
@@ -106,7 +118,7 @@ export interface ShareApprovalPackage {
   };
   posting: {
     composerPosts: false;
-    ownerPerformsShare: true;
+    ownerPerformsShare: boolean;
     statement: string;
   };
   // Present only when the item has a Bluesky draft. It carries the exact
@@ -163,6 +175,7 @@ export function buildShareApprovalPackage(
     workspace: string;
     source?: ShareCalendarSource | null;
     bluesky?: SharePackageBluesky | null;
+    published?: SharePackagePublishedReceipt | null;
   },
 ): ShareApprovalPackage {
   // The share card path includes a digest of the exact published revision. It
@@ -222,6 +235,30 @@ export function buildShareApprovalPackage(
     : labels
       ? `${labels.melbourne} · ${labels.utc}`
       : "Unreadable date";
+  // The published receipt describes the exact Bluesky target in this package.
+  const published = options.bluesky && options.published;
+  const bluesky: SharePackageBluesky | undefined = options.bluesky
+    ? {
+        ...options.bluesky,
+        ...(published
+          ? {
+              published,
+              send: {
+                ok: false as const,
+                available: false as const,
+                code: "already_published" as const,
+                message: "The exact Bluesky revision is already published.",
+              },
+            }
+          : {}),
+        approval: {
+          ...options.bluesky.approval,
+          ...(published
+            ? { label: SHARE_PACKAGE_PUBLISHED_LABEL, notSent: false }
+            : {}),
+        },
+      }
+    : undefined;
   return {
     schema: SHARE_PACKAGE_SCHEMA,
     item: {
@@ -271,10 +308,13 @@ export function buildShareApprovalPackage(
     },
     posting: {
       composerPosts: false,
-      ownerPerformsShare: true,
-      statement: SHARE_PACKAGE_POSTING_STATEMENT,
+      ownerPerformsShare:
+        !published || destinationList.some((entry) => entry.channel !== "bluesky"),
+      statement: published
+        ? PUBLISHED_POSTING_STATEMENT
+        : SHARE_PACKAGE_POSTING_STATEMENT,
     },
-    ...(options.bluesky ? { bluesky: options.bluesky } : {}),
+    ...(bluesky ? { bluesky } : {}),
     ...(artwork ? { artwork } : {}),
   };
 }
@@ -286,6 +326,26 @@ export function approvalPackageForItem(
   item: ShareCalendarItem,
   bluesky?: SharePackageBluesky | null,
 ): ShareApprovalPackage {
+  const { approval, delivery } = itemApprovalAndDelivery(
+    {
+      approvals: snapshot.approvals ?? [],
+      deliveries: snapshot.deliveries ?? [],
+    },
+    item,
+  );
+  // Derived only from saved values: the exact item revision and its approval
+  // revision must both match the persisted published delivery. No fetch and no
+  // provider identifier is added to the package.
+  const permalink = delivery?.permalink;
+  const published =
+    permalink?.startsWith("https://bsky.app/profile/") &&
+    isSafeShareLink(permalink) &&
+    hasPublishedBlueskyRevision(item, approval, delivery)
+      ? {
+          publishedAt: delivery?.publishedAt ?? null,
+          permalink,
+        }
+      : null;
   return buildShareApprovalPackage(item, {
     workspace: snapshot.workspace.name,
     source:
@@ -294,6 +354,7 @@ export function approvalPackageForItem(
           entry.id === item.stack && entry.publication === item.publication,
       ) ?? null,
     bluesky,
+    published,
   });
 }
 
@@ -334,8 +395,15 @@ function blueskyMarkdown(value: SharePackageBluesky): string[] {
     `- **Link:** ${value.link ?? SHARE_PACKAGE_NOT_RECORDED}`,
     `- **Schedule:** ${value.schedule.local ?? "not recorded"} · ${value.schedule.utc ?? "not recorded"} · UTC instant \`${value.schedule.scheduledAt ?? "not scheduled"}\``,
     `- **Approval:** ${value.approval.label} · revision ${value.approval.approvalRevision ?? "none"}${value.approval.expiresAt ? ` · expires \`${value.approval.expiresAt}\`` : ""}${value.approval.reasons.length ? ` · reasons: ${value.approval.reasons.join(", ")}` : ""}`,
+    ...(value.published
+      ? [
+          `- **Published:** ${value.published.publishedAt ?? SHARE_PACKAGE_NOT_RECORDED} · ${value.published.permalink}`,
+        ]
+      : []),
     `- **Source and rights:** ${value.source.rightsNote}`,
-    `- **Send:** unavailable · ${value.send.code} · ${value.send.message}`,
+    ...(value.published
+      ? []
+      : [`- **Send:** unavailable · ${value.send.code} · ${value.send.message}`]),
     "",
     fenced(value.text),
     "",
@@ -416,9 +484,16 @@ function blueskyPlainText(value: SharePackageBluesky): string {
       value.approval.reasons.length
         ? " · reasons: " + value.approval.reasons.join(", ")
         : ""
-    } · not sent`,
+    }${value.published ? "" : " · not sent"}`,
+    ...(value.published
+      ? [
+          `Published: ${value.published.publishedAt ?? SHARE_PACKAGE_NOT_RECORDED} · ${value.published.permalink}`,
+        ]
+      : []),
     `Source and rights: ${value.source.rightsNote}`,
-    `Send: unavailable · ${value.send.code} · ${value.send.message}`,
+    ...(value.published
+      ? []
+      : [`Send: unavailable · ${value.send.code} · ${value.send.message}`]),
   ].join("\n");
 }
 

@@ -918,6 +918,14 @@ export function blueskyApprovalStatus(
   );
 }
 
+// Public-safe receipt for an exact published revision. Only the persisted
+// publication time and the native permalink travel into a package: delivery
+// keys, account identifiers and provider internals deliberately do not.
+export interface SharePackagePublishedReceipt {
+  publishedAt: string | null;
+  permalink: string;
+}
+
 export interface SharePackageBluesky {
   schema: typeof BLUESKY_PACKAGE_SCHEMA;
   item: { id: string; revision: number };
@@ -963,9 +971,15 @@ export interface SharePackageBluesky {
     approvedAt: string | null;
     expiresAt: string | null;
     bindingHash: string | null;
-    notSent: true;
+    notSent: boolean;
   };
-  send: BlueskySendOutcome;
+  send: BlueskySendOutcome | {
+    ok: false;
+    available: false;
+    code: "already_published";
+    message: string;
+  };
+  published?: SharePackagePublishedReceipt;
 }
 
 export function buildBlueskyPackage(
