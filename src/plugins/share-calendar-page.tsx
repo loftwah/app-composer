@@ -1651,7 +1651,7 @@ function ShareCalendar({ search }: { search: string }) {
     !scheduledLocal &&
     Boolean(queuePreview?.nextInstant);
   const scheduled = useMemo(
-    () => calendarExportItems(snapshot?.items ?? []),
+    () => calendarExportItems(snapshot?.items ?? [], snapshot),
     [snapshot],
   );
 
@@ -3845,8 +3845,10 @@ function ShareCalendar({ search }: { search: string }) {
               <p>
                 The .ics file contains only scheduled items whose published
                 source is still current. Drafts and locally shared items stay
-                out. Each event is thirty minutes, begins at the recorded
-                instant and says that you perform the share yourself.
+                out. Events last thirty minutes and start at the recorded time.
+                A confirmed Bluesky post keeps its date as a record of the
+                published revision. Manual handoffs identify where you need to
+                share yourself.
               </p>
               <button
                 type="button"
