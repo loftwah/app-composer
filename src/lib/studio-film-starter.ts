@@ -7,6 +7,7 @@ export const watchUrl = `${studioOrigin}/p/PbvQYtyGG-YlF0Dh`;
 export const videoUrl = `${watchUrl}/media`;
 export const posterUrl = `${watchUrl}/thumb`;
 export const videoSha256 = '187134b76dc0687d95e263d7b3bb2b7cf6507affb4204e61c2badaeff567d046';
+const captionSha256 = 'ad52a56ff7046f95dc2cd78e724c2a078cbdcd0e64bcd083dc5c037722ee6a78';
 
 // Exact bytes of the committed public/brand/campaign/take-it-with-you-20261118.vtt.
 // Inlined so the starter stays self-contained; a focused test ties this string
@@ -70,3 +71,31 @@ ${filmMarkup}
 </body>
 </html>
 `;
+
+const composerOrigin = 'https://composer.loftwah.com';
+export const recipeFilename = 'take-it-with-you-v1.json';
+export const recipePath = `/widgets/${recipeFilename}`;
+
+export const filmRecipe = {
+  schema: 'app-composer/widget-film',
+  version: 1,
+  id: 'take-it-with-you',
+  title: filmTitle,
+  catalogue: composerOrigin + filmWidgetHref,
+  watch: watchUrl,
+  source: {
+    video: { url: videoUrl, mime: 'video/mp4', sha256: videoSha256 },
+    poster: { url: posterUrl },
+    captions: { url: composerOrigin + filmCaptionSrc, language: 'en', sha256: captionSha256 },
+  },
+  installation: {
+    starter: composerOrigin + starterPath,
+    embedHtml: filmEmbedFragment,
+    contentSecurityPolicy: { 'img-src': [posterUrl], 'media-src': [videoUrl, 'data:'] },
+    accountRequired: false,
+    scriptsRequired: false,
+    autoplay: false,
+  },
+} as const;
+
+export const filmRecipeJson = JSON.stringify(filmRecipe, null, 2);
