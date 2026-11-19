@@ -11,6 +11,8 @@ import {
   recipePath,
   starterFilename,
   starterPath,
+  stationAgentTaskFilename,
+  stationAgentTaskPath,
   stationName,
   stationOrigin,
   widgetRecipeJson,
@@ -112,6 +114,7 @@ import {
     <section aria-labelledby="widget-agent-heading">
       <h3 id="widget-agent-heading">Have your coding agent add it</h3>
       <p>Copy this task into the coding agent you already use. It carries the exact embed, the boundaries and the checks to report back.</p>
+      <a href={stationAgentTaskPath} download={stationAgentTaskFilename}>Download agent task (Markdown)</a>
       <pre class="widget-code" tabindex="0" data-agent-task>{agentTask}</pre>
       <div class="copy-actions" data-enhanced hidden>
         <button type="button" data-copy-agent>Copy agent task</button>
