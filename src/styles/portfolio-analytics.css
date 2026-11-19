@@ -65,6 +65,7 @@
 .portfolio-stage {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(0, 390px);
+  max-inline-size: 100%;
   min-height: 210px;
   background: var(--color-surface);
   border: 1px solid var(--pf-line);
@@ -80,6 +81,9 @@
   align-items: start;
   justify-content: space-between;
   gap: 16px;
+  /* Long names and date rows must wrap inside the cropped stage instead of
+     forcing the grid track wider than the viewport and being clipped. */
+  overflow-wrap: anywhere;
 }
 
 .portfolio-stage h2 {
@@ -169,7 +173,7 @@
   .portfolio-controls { grid-template-columns: minmax(0, 1fr) auto; }
   .portfolio-controls label { grid-column: 1 / -1; }
   .portfolio-period { grid-column: 1 / -1; justify-self: start; }
-  .portfolio-stage { grid-template-columns: 1fr; min-height: 0; }
+  .portfolio-stage { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .portfolio-stage-content { padding: 20px; gap: 12px; }
   .portfolio-art-panel, .portfolio-type-art { height: auto; min-height: 100px; aspect-ratio: 3.2; border-radius: 0; }
   .portfolio-art-panel { max-height: 130px; }
