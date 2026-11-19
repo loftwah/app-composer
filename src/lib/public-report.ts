@@ -532,6 +532,24 @@ export function reportUrl(id: string) {
 export function reportImagePath(id: string, format: ReportFormat) {
   return `${reportPath(id)}/${format}.png`;
 }
+export function reportKitPath(id: string) {
+  return `${reportPath(id)}/kit.zip`;
+}
+
+export function reportKitManifest(report: FrozenReport) {
+  return {
+    schema: "composer.frozen-report-kit/v1",
+    id: report.id,
+    title: report.headline,
+    canonical: reportUrl(report.id),
+    measurement: { key: report.metric, label: report.metricLabel, value: report.value, unit: report.unit, quality: report.quality },
+    window: { from: report.period.from, to: report.period.to, days: report.period.days, scope: reportSurfaceLabel(report), timezone: "UTC" },
+    frozenAt: report.createdAt,
+    sourceRevision: report.sourceRevision,
+    coverage: { quality: report.coverage.quality, startedAt: report.coverage.startedAt, limitations: report.coverage.limitations },
+  };
+}
+
 export function reportCaption(report: FrozenReport) {
   return `${report.headline}. ${report.origin || report.story ? reportStoryLabel(report) + ". " : ""}${report.period.days} UTC days, ${reportSurfaceLabel(report)}, through ${report.period.to}. Recorded lower bound, not unique people. ${reportUrl(report.id)}`;
 }
