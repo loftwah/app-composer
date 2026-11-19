@@ -19,7 +19,14 @@ const widgets = {
   description: `Embed the LoftwahFM station player, share a listening card or host the captioned film ${filmTitle}.`,
   href: '/widgets',
 } as const;
-const entries = [...apps.filter(app => app.id === 'media-studio'), ...apps.filter(app => app.id === 'showcase'), share,
+// Composer-native workbench, like Share and the widget library: no invented
+// thumbnail and no device-support assessment. Scope stays to what the page does.
+const benchmarks = {
+  id: 'benchmarks', name: 'Benchmarks Studio', category: 'Development',
+  description: 'Inspect test suites, recorded runs and compare results for models, App Composer and other applications.',
+  href: '/benchmarks',
+} as const;
+const entries = [...apps.filter(app => app.id === 'media-studio'), ...apps.filter(app => app.id === 'showcase'), share, benchmarks,
   ...apps.filter(app => app.id !== 'media-studio' && app.id !== 'showcase'), widgets];
 const features = {
   'media-studio': { image: '/media-studio/brand/studio-launch-thumb.webp', title: 'Build your own media studio', label: 'Studio launch artwork', href: '/media-studio#made' },
@@ -29,10 +36,12 @@ const actions: Record<string, string> = {
   paperwork: 'Open PDF editor', 'launch-kit': 'Make a profile card', ldraw: 'Open drawing board',
   linkcheck: 'Check a link', guestbook: 'Visit guestbook', showcase: 'Visit profile',
   hello: 'Open starter app', state: 'Try the fictional vault', 'composer-widgets': 'Browse widgets',
+  benchmarks: 'Open Benchmarks Studio',
 };
 const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   'media-studio': 'Image Tools · clip and caption a video · subtitle a clip · SRT · WebVTT',
   'composer-share': 'portfolio report kits · portfolio analytics · public report cards',
+  benchmarks: 'benchmark benchmarks evaluate model comparison test app test suites recorded runs compare results',
   paperwork: 'edit a PDF · sign a PDF · fill a PDF',
   'launch-kit': 'make a favicon · make app icons',
   ldraw: 'draw a diagram · make a diagram',
@@ -67,20 +76,21 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
       const isShare = app.id === 'composer-share';
       const isStudio = app.id === 'media-studio';
       const isWidgets = app.id === 'composer-widgets';
+      const isBenchmarks = app.id === 'benchmarks';
       const feature = isShare || isStudio ? features[app.id] : null;
       const support = appDeviceSupport(app.id);
       const deviceTokens = deviceFilterTokens(support);
       const knownSupport = deviceTokens !== 'unknown';
       const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? paperworkSource.origin : app.href;
       const label = isStudio ? 'Open Media Studio' : isShare ? 'Browse artwork' : actions[app.id];
-      const details = isShare || isWidgets ? null : appDetails[app.id];
+      const details = isShare || isWidgets || isBenchmarks ? null : appDetails[app.id];
       return (
         <article id={app.id} class:list={['directory-entry', { featured: feature }]} data-app
           data-category={app.category} data-devices={deviceTokens}
           data-search={[app.name, app.description, app.category, label, feature?.title, taskSearch[app.id]].join(' ').toLowerCase()}>
           <div class="entry-body">
             <div class="entry-title">
-              {!feature && !isShare && !isWidgets && <img src={app.thumbnail} width="52" height="52" alt="" loading="lazy" />}
+              {!feature && !isShare && !isWidgets && !isBenchmarks && <img src={app.thumbnail} width="52" height="52" alt="" loading="lazy" />}
               <h2><a href={href}>{app.name}</a></h2>
             </div>
             <p>{isStudio ? 'Create stills, edit clips and mix sound in your own project.' : app.description}</p>
@@ -101,7 +111,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
             <a href={feature.href} aria-label={feature.title}><img src={feature.image} width="190" height="190" alt="" /></a>
             <figcaption><strong>{feature.title}</strong><span>{feature.label}</span></figcaption>
           </figure>}
-          {!isShare && !isWidgets && details && <details class="entry-details">
+          {!isShare && !isWidgets && !isBenchmarks && details && <details class="entry-details">
             <summary>About {app.name}</summary>
             <p>{details.example}</p>
             <div class="entry-resources">
