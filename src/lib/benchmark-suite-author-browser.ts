@@ -1,6 +1,6 @@
 import { createSuiteDefinition, type SuiteAuthorBase } from './benchmark-suite-author';
 
-export function mountSuiteAuthor() {
+export function mountSuiteAuthor(useInProject: (definition: unknown) => void) {
   const form = document.querySelector<HTMLFormElement>('#suite-author');
   const baseSelect = document.querySelector<HTMLSelectElement>('#suite-author-base');
   const checkList = document.getElementById('suite-author-checks');
@@ -10,7 +10,8 @@ export function mountSuiteAuthor() {
   const status = document.getElementById('suite-author-status');
   const command = document.getElementById('suite-author-command');
   const submit = document.querySelector<HTMLButtonElement>('#suite-author-download');
-  if (!form || !baseSelect || !checkList || !id || !name || !description || !status || !command || !submit) return;
+  const useProject = document.querySelector<HTMLButtonElement>('#suite-author-use-project');
+  if (!form || !baseSelect || !checkList || !id || !name || !description || !status || !command || !submit || !useProject) return;
 
   let catalogue: SuiteAuthorBase[];
   try {
@@ -25,6 +26,7 @@ export function mountSuiteAuthor() {
   for (const pack of catalogue) baseSelect.add(new Option(pack.name, pack.id));
   baseSelect.disabled = false;
   submit.disabled = false;
+  useProject.disabled = false;
 
   const choosePack = () => {
     for (const row of checkList.querySelectorAll('label')) row.remove();
@@ -56,6 +58,11 @@ export function mountSuiteAuthor() {
     }, ids);
     if (!spec) {
       status.textContent = issues[0] ?? 'Check the definition and try again.';
+      return;
+    }
+
+    if (event.submitter === useProject) {
+      useInProject(spec);
       return;
     }
 

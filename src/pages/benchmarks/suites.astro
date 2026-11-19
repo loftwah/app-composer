@@ -2,27 +2,13 @@
 import Base from '../../layouts/Base.astro';
 import BenchmarksNav from '../../components/BenchmarksNav.astro';
 import latest from '../../../benchmarks/results/latest.json';
-import { assertBenchmarkSuite } from '../../lib/benchmark-suite.mjs';
+import { benchmarkSuiteCatalogue } from '../../lib/benchmark-suite-catalogue';
 import selfRebuildProfiles from '../../../benchmarks/cloudflare-composition/cases/real-product-profiles.json';
 
 const selfRebuild = selfRebuildProfiles.profiles.find((profile) => profile.id === 'CF-R08');
 if (!selfRebuild) throw new Error('Missing CF-R08 self-rebuild profile');
 
-const modules = import.meta.glob(
-  [
-    '../../../benchmarks/suites/*.json',
-    '../../../benchmarks/cloudflare-composition/cf-compose-01.json',
-  ],
-  { eager: true, import: 'default' },
-);
-const packs = Object.entries(modules)
-  .sort(([left], [right]) => left.localeCompare(right))
-  .map(([file, spec]) => ({
-    file: file.split('/').pop() ?? file,
-    inCloudflareDirectory: file.startsWith('../../../benchmarks/cloudflare-composition/'),
-    spec: spec as any,
-    summary: assertBenchmarkSuite(spec, { results: latest }) as any,
-  }));
+const packs = benchmarkSuiteCatalogue(latest);
 const knownChecks = packs.flatMap(({ summary }) =>
   summary.checks.map(({ module, id }: { module: string; id: string }) => [module, id]),
 );
@@ -98,6 +84,7 @@ const stateClass = (state: string) =>
       <a class="button secondary" href="/benchmarks">See the sandbox checks</a>
       <a class="button secondary" href="#self-rebuild">Self-rebuild challenge</a>
       <a class="button secondary" href="#suite-definition">Inspect a suite definition</a>
+      <a class="button secondary" href="#private-suites">Project suites</a>
       <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
     </div>
   </div>
@@ -287,7 +274,7 @@ const stateClass = (state: string) =>
     <details class="suite-author">
       <summary>Create a suite definition</summary>
       <p class="small">
-        Choose existing checks from one catalogue pack and download a definition for your local checkout.
+        Choose existing checks from one catalogue pack. Download the definition or prepare it for a project.
       </p>
       <form id="suite-author" data-catalogue={JSON.stringify(suiteAuthorCatalogue)}>
         <div class="suite-author-fields">
@@ -313,12 +300,33 @@ const stateClass = (state: string) =>
         </fieldset>
         <div class="packs-actions">
           <button id="suite-author-download" class="button" type="submit" disabled>Download suite JSON</button>
+          <button id="suite-author-use-project" class="button secondary" type="submit" disabled>Use in project suites</button>
         </div>
         <noscript>Enable JavaScript to create a suite definition on this device.</noscript>
         <p id="suite-author-status" role="status" class="small"></p>
         <pre id="suite-author-command" class="small"></pre>
       </form>
     </details>
+  </section>
+
+  <section class="packs-section" id="private-suites" aria-labelledby="private-suites-title">
+    <h2 id="private-suites-title" tabindex="-1">Project suites</h2>
+    <p>Choose an owner workspace and a project to keep a definition. Saved definitions are private to the owner who saved them.</p>
+    <button id="private-suite-access" class="button secondary" type="button" disabled>Open project suites</button>
+    <p id="private-suite-status" role="status"></p>
+    <div class="suite-author-fields">
+      <div class="local-command">
+        <label for="private-suite-workspace">Suite workspace</label>
+        <select id="private-suite-workspace" disabled></select>
+      </div>
+      <div class="local-command">
+        <label for="private-suite-project">Suite project</label>
+        <select id="private-suite-project" disabled></select>
+      </div>
+    </div>
+    <p id="private-suite-definition">Open or create a suite definition and choose Use in project suites.</p>
+    <button id="private-suite-save" class="button" type="button" disabled>Save in project</button>
+    <div id="private-suite-list"></div>
   </section>
 
   <section class="packs-section" id="private-history" aria-labelledby="private-history-title">
@@ -362,6 +370,7 @@ const stateClass = (state: string) =>
   import { mountPrivateBenchmarkHistory } from '../../lib/benchmark-private-history-browser';
   import { mountBenchmarkSuiteFile } from '../../lib/benchmark-suite-file-browser';
   import { mountSuiteAuthor } from '../../lib/benchmark-suite-author-browser';
+  import { mountPrivateBenchmarkSuites } from '../../lib/benchmark-private-suite-browser';
   import type { parseLocalBenchmarkResult } from '../../lib/benchmark-local-result';
   import {
     LOCAL_BENCHMARK_STORAGE_KEY,
@@ -393,8 +402,15 @@ const stateClass = (state: string) =>
     });
   }
 
-  mountBenchmarkSuiteFile();
-  mountSuiteAuthor();
+  const setProjectDefinition = mountPrivateBenchmarkSuites();
+  const chooseProjectDefinition = (definition: unknown) => {
+    setProjectDefinition(definition);
+    const heading = document.getElementById('private-suites-title');
+    heading?.focus();
+    heading?.scrollIntoView({ block: 'start' });
+  };
+  mountBenchmarkSuiteFile(chooseProjectDefinition);
+  mountSuiteAuthor(chooseProjectDefinition);
 
   const node = (tag: string, text?: string) => {
     const element = document.createElement(tag);

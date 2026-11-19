@@ -11,6 +11,7 @@ import {
 } from "../../../lib/benchmark-private-runs.ts";
 import { parseLocalBenchmarkResult } from "../../../lib/benchmark-local-result.ts";
 import { MAX_LOCAL_BENCHMARK_BYTES } from "../../../lib/benchmark-local-retention.ts";
+import { readBoundedJsonBody } from "../../../lib/benchmark-body.ts";
 
 export const prerender = false;
 
@@ -19,56 +20,6 @@ const reply = (value: unknown, status = 200) => Response.json(value, { status, h
 const fail = (status: number, error: string) => reply({ ok: false, error }, status);
 const workspacePattern = /^[a-z0-9-]{6,64}$/;
 const runPattern = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
-
-type ReadResult =
-  | { ok: true; value: unknown }
-  | { ok: false; status: number; error: string };
-
-/** Stream the report with a hard UTF-8 byte ceiling: no Request.text(), the
- * reader is cancelled as soon as the limit is passed, and invalid UTF-8 is
- * refused rather than decoded into replacement characters. */
-async function readReport(request: Request): Promise<ReadResult> {
-  const declared = request.headers.get("content-length");
-  if (declared !== null) {
-    const length = Number(declared);
-    if (Number.isFinite(length) && length > MAX_LOCAL_BENCHMARK_BYTES)
-      return { ok: false, status: 413, error: "That report is too large." };
-  }
-  const reader = request.body?.getReader();
-  if (!reader) return { ok: false, status: 400, error: "Send one JSON object." };
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    for (;;) {
-      const part = await reader.read();
-      if (part.done) break;
-      size += part.value.byteLength;
-      if (size > MAX_LOCAL_BENCHMARK_BYTES) {
-        void reader.cancel().catch(() => {});
-        return { ok: false, status: 413, error: "That report is too large." };
-      }
-      chunks.push(part.value);
-    }
-  } catch {
-    void reader.cancel().catch(() => {});
-    return { ok: false, status: 400, error: "The report could not be read." };
-  } finally {
-    reader.releaseLock();
-  }
-  const bytes = new Uint8Array(size);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  let value: unknown;
-  try {
-    value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
-  } catch {
-    return { ok: false, status: 400, error: "Send one valid JSON report." };
-  }
-  return { ok: true, value };
-}
 
 const handle: APIRoute = async ({ request, locals }) => {
   const ownerId = locals.user?.id;
@@ -113,7 +64,12 @@ const handle: APIRoute = async ({ request, locals }) => {
     if (request.headers.get("content-type")?.split(";")[0]?.trim().toLowerCase() !== "application/json")
       return fail(415, "Upload a native benchmark JSON report.");
 
-    const input = await readReport(request);
+    const input = await readBoundedJsonBody(request, MAX_LOCAL_BENCHMARK_BYTES, {
+      tooLarge: "That report is too large.",
+      missing: "Send one JSON object.",
+      unreadable: "The report could not be read.",
+      invalid: "Send one valid JSON report.",
+    });
     if (!input.ok) return fail(input.status, input.error);
     let parsed: ReturnType<typeof parseLocalBenchmarkResult>;
     try {
