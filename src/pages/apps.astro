@@ -31,7 +31,7 @@ const actions: Record<string, string> = {
   hello: 'Open starter app', state: 'Try the fictional vault', 'composer-widgets': 'Browse widgets',
 };
 const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
-  'media-studio': 'Image Tools',
+  'media-studio': 'Image Tools · clip and caption a video · subtitle a clip · SRT · WebVTT',
   'composer-share': 'portfolio report kits · portfolio analytics · public report cards',
   paperwork: 'edit a PDF · sign a PDF · fill a PDF',
   'launch-kit': 'make a favicon · make app icons',
@@ -91,6 +91,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
               {isWidgets && <a href="/widgets#top-tracks-share-card">Top Tracks share card</a>}
               {isWidgets && <a href={filmWidgetHref}>{filmTitle} film</a>}
               {isStudio && <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>}
+              {isStudio && <a href="https://media.loftwah.com/tools/video-clip">Clip and caption a video</a>}
               {app.id === 'launch-kit' && <a href={new URL('/?operation=icons', app.standalone).href}>Make app icons</a>}
               {isShare && <a href="/share/artwork/atlas-04-composer-family/palette">Pick artwork colours</a>}
               {isShare && <a href="/activity/portfolio">Portfolio report kits</a>}
