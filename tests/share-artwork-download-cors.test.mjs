@@ -153,12 +153,193 @@ test("the handoff is a native reference link and keeps the manual instructions",
   assert.match(source, /Open in Studio Image Tools/);
   assert.doesNotMatch(source, /fetch\(studioToolsUrl/, "the fragment is a reference, not a fetch");
   for (const kept of [
-    "Make a social kit on this device.",
+    "Load Composer artwork",
     "Make 4 social sizes",
     "credited post text (TXT)",
     "Library → Import from Woodhouse Share",
     "Open Media Studio",
   ]) {
     assert.ok(source.includes(kept), `keeps: ${kept}`);
+  }
+});
+
+// ---- Bounded download diagnostic wire contract (#477 section 3) ----
+
+const FAILURE_HEADER = "x-composer-artwork-failure";
+const REQUEST_HEADER = "x-composer-artwork-request";
+const EXPOSED_HEADERS = "X-Composer-Artwork-Failure, X-Composer-Artwork-Request";
+const ALLOWED_STAGES = new Set([
+  "invalid-request",
+  "artwork-unavailable",
+  "revision-changed",
+  "catalogue-unavailable",
+  "file-unavailable",
+  "file-timeout",
+  "file-rejected",
+]);
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+async function assertFailure(response, status, stage, copy) {
+  assert.equal(response.status, status);
+  assert.equal(response.headers.get(FAILURE_HEADER), stage);
+  assert.ok(ALLOWED_STAGES.has(stage), `allowed stage: ${stage}`);
+  assert.match(response.headers.get(REQUEST_HEADER) ?? "", UUID_V4);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  const text = await response.text();
+  if (copy) assert.ok(text.includes(copy), `kept recovery copy: ${copy}`);
+  return text;
+}
+
+function originalOverride(original) {
+  return (input) => {
+    const url = typeof input === "string" ? input : input.url;
+    if (url.startsWith(`${CATALOGUE_ORIGIN}/api/v1/assets/`))
+      return Promise.resolve(catalogueResponse(200, { version: 1, asset }));
+    if (url === ORIGINAL || url === PREVIEW)
+      return typeof original === "function" ? original() : Promise.resolve(original);
+    return stubFetch(input);
+  };
+}
+
+function catalogueFailure(status) {
+  return (input) => {
+    const url = typeof input === "string" ? input : input.url;
+    if (url.startsWith(`${CATALOGUE_ORIGIN}/api/v1/assets/`))
+      return Promise.resolve(catalogueResponse(status));
+    return stubFetch(input);
+  };
+}
+
+async function captureWarn(fn) {
+  const previous = console.warn;
+  const logs = [];
+  console.warn = (...args) => { logs.push(args); };
+  try {
+    return { value: await fn(), logs };
+  } finally {
+    console.warn = previous;
+  }
+}
+
+test("successful download carries neither diagnostic header and logs nothing", async () => {
+  const { value: response, logs } = await captureWarn(async () =>
+    call(await currentRevision(), STUDIO_ORIGIN));
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get(FAILURE_HEADER), null);
+  assert.equal(response.headers.get(REQUEST_HEADER), null);
+  assert.equal(logs.length, 0);
+});
+
+test("invalid request is 400 invalid-request with a bounded reference", async () => {
+  await assertFailure(await call("not-a-sha", STUDIO_ORIGIN), 400, "invalid-request");
+});
+
+test("public gate 404 keeps artwork-unavailable, status and recovery copy", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN, catalogueFailure(404));
+  await assertFailure(response, 404, "artwork-unavailable", "no longer public");
+});
+
+test("stale revision 409 keeps revision-changed, status and recovery copy", async () => {
+  const response = await call("f".repeat(64), STUDIO_ORIGIN);
+  await assertFailure(response, 409, "revision-changed", "Reopen the artwork page");
+});
+
+test("catalogue failure is 503 catalogue-unavailable without leaking the upstream status body", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN, catalogueFailure(500));
+  await assertFailure(response, 503, "catalogue-unavailable", "temporarily unavailable");
+});
+
+test("unexpected original response is 502 file-unavailable", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN,
+    originalOverride(new Response("", { status: 503 })));
+  await assertFailure(response, 502, "file-unavailable", "still has an image link");
+});
+
+test("original transport failure is 502 file-unavailable with retry copy", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN,
+    originalOverride(() => Promise.reject(new TypeError("network down"))));
+  await assertFailure(response, 502, "file-unavailable", "Try again.");
+});
+
+test("signal timeout alone is 504 file-timeout with retry copy", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN,
+    originalOverride(() => Promise.reject(new DOMException("timed out", "TimeoutError"))));
+  await assertFailure(response, 504, "file-timeout", "Try again.");
+});
+
+test("successful original with invalid content type is 502 file-rejected", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN,
+    originalOverride(new Response(PNG, {
+      status: 200,
+      headers: { "content-type": "text/plain", "content-length": String(PNG.byteLength) },
+    })));
+  await assertFailure(response, 502, "file-rejected", "still has an image link");
+});
+
+test("successful original with invalid length is 502 file-rejected", async () => {
+  const response = await call(await currentRevision(), STUDIO_ORIGIN,
+    originalOverride(new Response(PNG, {
+      status: 200,
+      headers: { "content-type": "image/png", "content-length": "0" },
+    })));
+  await assertFailure(response, 502, "file-rejected");
+});
+
+test("the two diagnostic headers are exposed only to the Studio origin on file=0", async () => {
+  const stale = "f".repeat(64);
+  const studio = await call(stale, STUDIO_ORIGIN);
+  await assertFailure(studio, 409, "revision-changed");
+  assert.equal(studio.headers.get("access-control-allow-origin"), STUDIO_ORIGIN);
+  assert.equal(studio.headers.get("access-control-expose-headers"), EXPOSED_HEADERS);
+  assert.equal(studio.headers.get("vary"), "Origin");
+  assert.equal(studio.headers.get("access-control-allow-credentials"), null);
+  assert.equal(studio.headers.get("access-control-allow-methods"), null);
+  assert.equal(studio.headers.get("access-control-max-age"), null);
+
+  for (const origin of [null, "https://evil.example", "http://media.loftwah.com",
+    "https://media.loftwah.com.evil.example"]) {
+    const other = await call(stale, origin);
+    assert.equal(other.headers.get("access-control-allow-origin"), null);
+    assert.equal(other.headers.get("access-control-expose-headers"), null);
+  }
+
+  const otherIndex = await call(stale, STUDIO_ORIGIN, stubFetch, "1");
+  assert.equal(otherIndex.headers.get("access-control-allow-origin"), null);
+  assert.equal(otherIndex.headers.get("access-control-expose-headers"), null);
+});
+
+test("preview and index failures also carry bounded diagnostic headers", async () => {
+  for (const index of ["preview", "1"]) {
+    const response = await call("f".repeat(64), null, stubFetch, index);
+    await assertFailure(response, 409, "revision-changed");
+  }
+});
+
+test("each failure gets a distinct bounded UUID reference", async () => {
+  const stale = "f".repeat(64);
+  const first = await call(stale, STUDIO_ORIGIN);
+  const second = await call(stale, STUDIO_ORIGIN);
+  assert.match(first.headers.get(REQUEST_HEADER) ?? "", UUID_V4);
+  assert.match(second.headers.get(REQUEST_HEADER) ?? "", UUID_V4);
+  assert.notEqual(first.headers.get(REQUEST_HEADER), second.headers.get(REQUEST_HEADER));
+});
+
+test("failure logging carries only stage, reference and integer status", async () => {
+  const revision = await currentRevision();
+  const { value: response, logs } = await captureWarn(async () =>
+    call(revision, STUDIO_ORIGIN, originalOverride(new Response(PNG, {
+      status: 200,
+      headers: { "content-type": "text/plain", "content-length": String(PNG.byteLength) },
+    }))));
+  await assertFailure(response, 502, "file-rejected");
+  assert.equal(logs.length, 1);
+  const line = logs[0][0];
+  const entry = JSON.parse(line);
+  assert.deepEqual(Object.keys(entry).sort(), ["request", "stage", "status"]);
+  assert.equal(entry.stage, "file-rejected");
+  assert.equal(entry.status, 502);
+  assert.equal(entry.request, response.headers.get(REQUEST_HEADER));
+  for (const leak of [ORIGINAL, PREVIEW, ASSET_ID, revision, "text/plain", "image/png"]) {
+    assert.ok(!line.includes(leak), `log omits ${leak}`);
   }
 });
