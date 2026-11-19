@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   shareConnectionStatusSchema,
   type ShareConnectionState,
   type ShareConnectionStatus,
 } from "../lib/share-connections";
-import { SHARE_CHANNELS } from "../lib/share-calendar";
+import {
+  SHARE_ITEM_LINK_RECOVERY,
+  SHARE_CHANNELS,
+  shareItemHref,
+  shareItemLinkSelection,
+} from "../lib/share-calendar";
+import { shareCalendarEntry } from "../lib/share-calendar-entry";
 import "./share-connections-page.css";
 
 const base = "/_emdash/api/plugins/composer-stacks/";
@@ -71,10 +78,13 @@ async function connectionsCall(
 }
 
 export function ShareConnectionsPage() {
-  return <ShareConnections />;
+  const search = useLocation({ select: (location) => location.searchStr });
+  return <ShareConnections key={search} search={search} />;
 }
 
-function ShareConnections() {
+function ShareConnections({ search }: { search: string }) {
+  // The selected Calendar item affects navigation only.
+  const itemReturn = shareItemLinkSelection(search);
   const [status, setStatus] = useState<ShareConnectionStatus>();
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState<
@@ -231,6 +241,19 @@ function ShareConnections() {
         <div role="alert" className="shc-error">
           <p>{error}</p>
         </div>
+      )}
+      {itemReturn.state === "requested" && (
+        <p>
+          <a className="shc-text-link" href={shareItemHref(itemReturn.workspace, itemReturn.itemId)}>
+            Return to this Calendar item
+          </a>
+        </p>
+      )}
+      {itemReturn.state === "invalid" && (
+        <p role="status" className="shc-hint">
+          {SHARE_ITEM_LINK_RECOVERY}{" "}
+          <a className="shc-text-link" href={shareCalendarEntry(true)}>Open the Share calendar</a>.
+        </p>
       )}
       {loading && !status && (
         <p role="status">Checking the saved Bluesky connection…</p>
