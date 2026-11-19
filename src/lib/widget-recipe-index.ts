@@ -17,7 +17,7 @@ export const widgetIndexPath = '/widgets/recipes.json';
 
 export const bubblesReport = `${stationOrigin}/analytics/?source=games&game=bubbles&days=30`;
 export const topTracksReport = `${stationOrigin}/analytics?view=music&days=30&report=tracks`;
-export const topTracksRecipeLabel = 'Download Top Tracks recipe (JSON)';
+
 
 export type BubblesCard = {
   format: 'landscape' | 'square' | 'portrait';
@@ -69,8 +69,9 @@ export const widgetRecipeIndex = {
       actions: [
         {
           kind: 'generated-recipe',
-          label: topTracksRecipeLabel,
+          label: 'Open Top Tracks report (HTML)',
           url: topTracksReport,
+          instruction: 'Choose a shape, then select Download Top Tracks recipe (JSON) on the LoftwahFM page.',
         },
       ],
     },
