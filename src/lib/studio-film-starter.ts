@@ -200,7 +200,7 @@ Use the [version 2 recipe](${composerOrigin}${recipeV2Path}) to add the publishe
 - [Script-free HTML starter](${composerOrigin}${starterPath})
 - [React and TypeScript component](${composerOrigin}${reactComponentPath})
 
-Keep the publisher credit, the English captions and the exact media sources in the recipe. Use the browser’s native video controls and leave autoplay off.
+Keep the publisher credit and use native video controls with autoplay off. Both installers include the English captions as an inline \`data:text/vtt\` track, so playback needs no Composer caption request. To verify the original VTT bytes, use \`source.captions.url\` and its SHA-256 in the recipe.
 
 Try the result on a separate test origin at 390px and a desktop width. Confirm that keyboard Play starts playback, Pause stops it, the English cues are visible when enabled and the page has no horizontal overflow.
 
