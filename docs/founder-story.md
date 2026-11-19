@@ -18,9 +18,13 @@ App Composer is the product of an accumulated way of building, rather than a ret
 
 ## Public naming and privacy boundaries
 
-The founder has explicitly approved **Royal Australian Navy**, **Shake Down Records** and **Grind Mode Cypher** as named background organisations. App Composer itself is named as the product. Appropriate technical products and platforms (for example WordPress, WooCommerce, GitHub, Ruby on Rails, Heroku, AWS and Cloudflare) may be named **only as tools or infrastructure** when relevant to explaining actual work; references do not imply sponsorship, affiliation or endorsement.
+The founder has explicitly approved **Royal Australian Navy**, **Shake Down Records** and **Grind Mode Cypher** as named background organisations. App Composer itself is named as the product. Appropriate technical products and platforms (for example WordPress, WooCommerce, GitHub, Ruby on Rails, Heroku, AWS and Cloudflare) can be named as factual tools or infrastructure when relevant to actual work, not as endorsements.
 
-**Do not name** other employers, clients, collaborators, chat participants or personal contacts. Do not publish private conversation screenshots, attribute third-party remarks, expose personal circumstances or infer internal relationships or endorsements. Do not add unverifiable career achievements, audiences, metrics or heroic claims. Keep the first-person account approachable, lightly self-deprecating and specific.
+**Update — 2026/11/19:** The founder also permits named organisations, clients and roles from his **own publicly presented LinkedIn employment history**, where relevant to the story. Specifically approved examples: **Unisys, Thales, SchoolStatus, UXC Connect, DXC Connect, NAB (as a contracting client)** and **PlayHQ**. Other employers or client names can be used when genuinely present in the founder's published LinkedIn history or separately confirmed by him; do not guess names, dates, projects, outcomes or employment relationships. Distinguish direct employment, contracting organisations, their clients and projects accurately. Never imply employer, client or platform endorsement of App Composer or reveal confidential work by naming a public employer.
+
+**Editorial judgement:** The canonical story is about the founder's approach to making things — music storefronts, practical reuse, DevOps, agents and ownership — **not a CV or a logo wall**. Keep specific professional names only when they substantively illuminate that development or a credible use case, and prefer a natural account of the work over a catalogue of employers.
+
+**Still private:** Names of coworkers, private correspondents, personal contacts and collaborators who are not themselves relevant, separately public participants; private messages/screenshots, employer/client confidential information, personal circumstances and third-party remarks. Do not expose these merely because a workplace is publicly listed. Do not invent career achievements, dates, audience numbers, metrics or heroic claims. Keep the first-person account approachable, lightly self-deprecating and specific.
 
 ## How this appears in the product
 
