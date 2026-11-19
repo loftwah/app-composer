@@ -76,7 +76,6 @@
   cursor: pointer;
   width: fit-content;
   padding-block: 6px;
-  color: var(--sc-accent);
   font-weight: 600;
 }
 .composer-share-calendar .sc-notice:empty {
