@@ -19,9 +19,15 @@ const packs = Object.entries(modules)
   .sort(([left], [right]) => left.localeCompare(right))
   .map(([file, spec]) => ({
     file: file.split('/').pop() ?? file,
+    inCloudflareDirectory: file.startsWith('../../../benchmarks/cloudflare-composition/'),
     spec: spec as any,
     summary: assertBenchmarkSuite(spec, { results: latest }) as any,
   }));
+const suiteCommand = (pack: (typeof packs)[number]) => {
+  const suites = pack.inCloudflareDirectory ? ' --suites benchmarks/cloudflare-composition' : '';
+  const id = pack.summary.id;
+  return `node benchmarks/runner.mjs${suites} --suite ${id} > ${id.toLowerCase()}-result.json`;
+};
 const latestSource = typeof latest.source === 'string' ? latest.source : 'unknown';
 const sourceShort = latestSource === 'unknown' ? 'unknown' : latestSource.slice(0, 7);
 const instant = (value: string | null | undefined) => {
@@ -213,7 +219,16 @@ const stateClass = (state: string) =>
   <section class="packs-section" id="local-result" aria-labelledby="local-result-title">
     <h2 id="local-result-title">Inspect a local run result</h2>
     <p>Save a runner result as JSON and open it here. The report stays in this tab.</p>
-    <pre>node benchmarks/runner.mjs --suites benchmarks/cloudflare-composition --suite CF-COMPOSE-01 &gt; cf-compose-01.json</pre>
+    <div class="local-command">
+      <label for="local-result-suite">Benchmark suite</label>
+      <select id="local-result-suite" disabled>
+        {packs.map((pack) => (
+          <option value={pack.summary.id} data-command={suiteCommand(pack)}>{pack.summary.name} · {pack.summary.id}</option>
+        ))}
+      </select>
+      <pre id="local-result-command">{packs[0] ? suiteCommand(packs[0]) : ''}</pre>
+      <p>Run this command from a checkout of this repository, then open the JSON below.</p>
+    </div>
     <div class="packs-actions">
       <label for="local-result-file">Benchmark result (JSON, up to 1 MB)</label>
       <input id="local-result-file" type="file" accept="application/json,.json" disabled />
@@ -242,6 +257,16 @@ const stateClass = (state: string) =>
   const clear = document.querySelector<HTMLButtonElement>('#local-result-clear');
   const status = document.getElementById('local-result-status');
   const view = document.getElementById('local-result-view');
+  const suiteSelect = document.querySelector<HTMLSelectElement>('#local-result-suite');
+  const command = document.getElementById('local-result-command');
+
+  if (suiteSelect && command) {
+    suiteSelect.disabled = false;
+    suiteSelect.addEventListener('change', () => {
+      const selected = suiteSelect.selectedOptions[0];
+      if (selected?.dataset.command) command.textContent = selected.dataset.command;
+    });
+  }
 
   const node = (tag: string, text?: string) => {
     const element = document.createElement(tag);
@@ -348,6 +373,10 @@ const stateClass = (state: string) =>
   pre{white-space:pre-wrap;overflow-wrap:anywhere}
   #local-result-file{max-width:100%}
   #local-result-view{overflow-wrap:anywhere}
+  .local-command{margin-top:16px}
+  .local-command label{display:block;font-size:12px;color:var(--color-muted);margin-bottom:6px}
+  .local-command select{max-width:100%;font:inherit;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:inherit}
+  #local-result-command{margin-top:10px}
   #self-rebuild h3{font-size:1.05rem;margin:24px 0 8px}
   .self-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:18px 0;padding:14px;background:var(--color-surface);border-radius:8px}
   .self-facts dt{font-size:12px;color:var(--color-muted)}
