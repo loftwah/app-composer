@@ -1,0 +1,11 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import site from "../site.json";
+---
+
+<SiteLayout title="About" description={site.about}>
+  <article>
+    <h1>About</h1>
+    <p class="lede">{site.about}</p>
+  </article>
+</SiteLayout>

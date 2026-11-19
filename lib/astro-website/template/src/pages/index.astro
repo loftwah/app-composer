@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import site from "../site.json";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.localeCompare(a.data.date),
+);
+---
+
+<SiteLayout title={site.title} description={site.description}>
+  <section aria-labelledby="intro-heading">
+    <h1 id="intro-heading">{site.title}</h1>
+    <p class="lede">{site.description}</p>
+    <p><a href="/posts/">Browse all posts</a></p>
+  </section>
+
+  <section aria-labelledby="recent-heading">
+    <h2 id="recent-heading">Recent posts</h2>
+    {
+      posts.length ? (
+        <ul class="post-list">
+          {posts.slice(0, 5).map((post) => {
+            const date = post.data.date;
+            return (
+              <li>
+                <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+                <p>{post.data.description}</p>
+                <p>
+                  <time datetime={date}>{date}</time>
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p>No published posts yet.</p>
+      )
+    }
+  </section>
+</SiteLayout>

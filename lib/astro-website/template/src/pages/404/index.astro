@@ -1,0 +1,17 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import site from "../../site.json";
+---
+
+<SiteLayout
+  title="Page not found"
+  description={`The page you asked for was not found on ${site.title}.`}
+>
+  <article>
+    <h1>Page not found</h1>
+    <p>That page does not exist here. It may have moved, or the address may be misspelled.</p>
+    <p>
+      <a href="/">Return to the home page</a> · <a href="/posts/">Browse posts</a>
+    </p>
+  </article>
+</SiteLayout>

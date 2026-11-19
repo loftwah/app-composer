@@ -7,6 +7,7 @@
   "exclude": [
     "dist",
     "lib/content-model/site-template",
+    "lib/astro-website/template",
     "output",
     "labs/wordpress/weekender/destination",
     "labs/self-use-club/app"
