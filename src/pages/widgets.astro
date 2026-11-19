@@ -17,6 +17,7 @@ import {
   widgetUrl,
 } from '../lib/widget-recipe';
 import {
+  filmEmbedFragment,
   filmTitle,
   starterFilename as filmStarterFilename,
   starterPath as filmStarterPath,
@@ -149,11 +150,26 @@ const bubblesCards = [
 
   <article class="widget-entry" id="take-it-with-you-film">
     <h2>{filmTitle}</h2>
-    <p class="entry-summary">Host this 10.5-second App Composer film on your site with English captions. The starter page streams the published video from Media Studio.</p>
+    <p class="entry-summary">Host this 10.5-second App Composer film on your site with English captions. Paste the fragment below into an existing page, or download the complete starter.</p>
     <div class="card-downloads">
       <a class="button secondary" href={filmStarterPath} download={filmStarterFilename}>Download film HTML starter</a>
       <a class="button secondary" href={watchUrl}>Watch on Media Studio</a>
     </div>
+    <section aria-labelledby="film-embed-heading">
+      <h3 id="film-embed-heading">Add it to an existing page</h3>
+      <p>If your site sets a content security policy, allow <code>media.loftwah.com</code> for the video and poster, and <code>data:</code> for the caption track.</p>
+      <details class="react-version">
+        <summary>Show the HTML fragment</summary>
+        <pre class="widget-code film-code" tabindex="0"><code data-film-embed>{filmEmbedFragment}</code></pre>
+        <div class="copy-actions" data-enhanced hidden>
+          <button type="button" data-copy-film>Copy fragment</button>
+        </div>
+        <p class="copy-status" role="status" data-film-status></p>
+        <div data-manual hidden>
+          <label for="film-manual-copy">Copy this value manually<textarea id="film-manual-copy" readonly rows="10"></textarea></label>
+        </div>
+      </details>
+    </section>
   </article>
 
   <p class="widget-foot">For other stations, releases, playlists and sizes, use <a href={builderUrl}>LoftwahFM’s builder</a>. For games, see <a href={`${stationOrigin}/game-music/`}>LoftwahFM’s audio SDK</a>.</p>
@@ -235,6 +251,13 @@ const bubblesCards = [
     void copy(agentText, 'Agent task copied. Paste it into your coding agent to begin.', agentStatus, agentManual);
   });
 
+  const filmEmbedText = document.querySelector<HTMLElement>('[data-film-embed]')!.textContent ?? '';
+  const filmStatus = document.querySelector<HTMLElement>('[data-film-status]')!;
+  const filmManual = document.querySelector<HTMLElement>('#take-it-with-you-film [data-manual]')!;
+  document.querySelector<HTMLButtonElement>('[data-copy-film]')!.addEventListener('click', () => {
+    void copy(filmEmbedText, 'Fragment copied. Paste it into your page.', filmStatus, filmManual);
+  });
+
   for (const element of document.querySelectorAll<HTMLElement>('[data-enhanced]')) element.hidden = false;
 </script>
 
@@ -257,6 +280,7 @@ const bubblesCards = [
   .widget-entry h3 { font-family:system-ui,sans-serif; font-weight:650; font-size:1rem; letter-spacing:0; margin:0 0 .7rem; }
   .widget-entry section>p { max-width:64ch; margin:.6rem 0; }
   .widget-code { max-height:none; }
+  .film-code { white-space:pre-wrap; overflow-wrap:anywhere; }
   .preview-frame { max-width:560px; height:420px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-field); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8rem; text-align:center; padding:16px; overflow:hidden; margin:1.1rem 0 0; }
   .preview-frame:has(iframe) { padding:0; border:0; }
   .preview-frame iframe { width:100%; height:100%; border:0; }
