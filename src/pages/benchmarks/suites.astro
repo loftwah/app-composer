@@ -247,6 +247,30 @@ const stateClass = (state: string) =>
     <div id="local-result-compare-view"></div>
   </section>
 
+  <section class="packs-section" aria-labelledby="private-history-title">
+    <h2 id="private-history-title">Private run history</h2>
+    <p>Signed-in workspace owners can save a report here to reopen on another device.</p>
+    <button type="button" class="button secondary" id="private-history-open" disabled>Open private history</button>
+    <p id="private-history-status" role="status"></p>
+    <div id="private-history-controls" hidden>
+      <p class="small">Saving uploads the open report to the selected workspace. Review it for sensitive information first.</p>
+      <div class="local-command">
+        <label for="private-history-workspace">Owner workspace</label>
+        <select id="private-history-workspace"></select>
+      </div>
+      <button type="button" class="button secondary" id="private-history-save">Save current report</button>
+      <div class="local-command">
+        <label for="private-history-run">Saved runs</label>
+        <select id="private-history-run"></select>
+      </div>
+      <div class="packs-actions">
+        <button type="button" class="button secondary" id="private-history-reopen">Open saved run</button>
+        <button type="button" class="button secondary" id="private-history-download">Download run JSON</button>
+        <button type="button" class="button secondary" id="private-history-remove">Delete saved run</button>
+      </div>
+    </div>
+  </section>
+
   <section class="packs-section" aria-labelledby="limits-title">
     <h2 id="limits-title">What a pack does not prove</h2>
     <ul class="packs-limits">
@@ -260,6 +284,7 @@ const stateClass = (state: string) =>
 
 <script>
   import { compareLocalBenchmarkChecks } from '../../lib/benchmark-local-compare';
+  import { mountPrivateBenchmarkHistory } from '../../lib/benchmark-private-history-browser';
   import type { parseLocalBenchmarkResult } from '../../lib/benchmark-local-result';
   import {
     LOCAL_BENCHMARK_STORAGE_KEY,
@@ -349,6 +374,16 @@ const stateClass = (state: string) =>
   if (input && clear && keep && openSaved && forget && compare && status && view && compareView) {
     let request = 0;
     let current: LocalResult | null = null;
+    const privateHistory = mountPrivateBenchmarkHistory(
+      () => current,
+      result => {
+        request++;
+        input.value = '';
+        compare.disabled = false;
+        show(result, 'Owner-imported result opened in this tab.');
+        status.scrollIntoView({ block: 'center' });
+      },
+    );
 
     const savedKeyExists = () => {
       try { return window.localStorage.getItem(LOCAL_BENCHMARK_STORAGE_KEY) !== null; }
@@ -361,6 +396,7 @@ const stateClass = (state: string) =>
       forget.hidden = !saved;
       keep.textContent = saved ? 'Replace saved result' : 'Keep in this browser';
       compare.hidden = !(current !== null && saved);
+      privateHistory?.refreshControls();
     };
 
     const show = (result: LocalResult, message: string) => {
