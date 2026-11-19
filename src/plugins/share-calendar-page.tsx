@@ -1601,7 +1601,6 @@ function ShareCalendar({ search }: { search: string }) {
   const visibleItems = classified
     .filter(({ filters }) => filters.includes(listFilter))
     .map(({ item }) => item);
-  const agendaDays = calendarView === "agenda" ? shareCalendarAgenda(visibleItems) : [];
   const listCounts: Record<ShareListFilter, number> = {
     all: classified.length,
     drafts: classified.filter(({ filters }) => filters.includes("drafts"))
@@ -3536,10 +3535,7 @@ function ShareCalendar({ search }: { search: string }) {
               !agendaDays.length && (
                 <div className="sc-empty sc-empty-list">
                   <h3>No intended dates in this view</h3>
-                  <p>
-                    The items in this filter are drafts without an intended
-                    date. No dates are shown in the agenda.
-                  </p>
+                  <p>Open List to see undated items in this view.</p>
                 </div>
               )}
             {calendarView === "agenda" ? (
