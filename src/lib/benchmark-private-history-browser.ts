@@ -55,7 +55,9 @@ export function mountPrivateBenchmarkHistory(
   async function loadRuns(selectedId?: string) {
     runs!.replaceChildren();
     if (!workspace!.value) {
-      status!.textContent = 'You do not have an owned workspace for private runs.';
+      status!.textContent = workspace!.options.length
+        ? 'Choose an owned workspace to continue.'
+        : 'You do not have an owned workspace for private runs.';
       return;
     }
     const data = await request<{ runs: PrivateBenchmarkRunSummary[] }>({ workspace: workspace!.value });
@@ -73,8 +75,12 @@ export function mountPrivateBenchmarkHistory(
   open.addEventListener('click', () => void operate(async () => {
     panel.hidden = true;
     status.textContent = 'Loading your owned workspaces…';
+    const previous = workspace.value;
     const data = await request<{ workspaces: PrivateBenchmarkWorkspace[] }>();
-    workspace.replaceChildren(...data.workspaces.map(({ id, name }) => new Option(name, id)));
+    const choices = data.workspaces.map(({ id, name }) => new Option(name, id));
+    if (choices.length > 1) choices.unshift(new Option('Choose a workspace', ''));
+    workspace.replaceChildren(...choices);
+    if (previous && data.workspaces.some(({ id }) => id === previous)) workspace.value = previous;
     await loadRuns();
     panel.hidden = false;
   }));
