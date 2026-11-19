@@ -4,7 +4,7 @@ App Composer is an open-source platform for creating, shipping and running proje
 
 The supported application path starts on Cloudflare. Prepare an agent, describe the app, or compose independent apps into a working stack. Each app keeps its own source, records, media and release. EmDash provides the creator interface. Read the [product direction](PRODUCT.md#product-purpose) for the full lifecycle and the [public guide](https://composer.loftwah.com/guide#direction) for how today’s tools fit into it.
 
-[Open App Composer](https://composer.loftwah.com/) · [Explore the working tools](https://composer.loftwah.com/discover) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn) · [Read the build story](https://composer.loftwah.com/building)
+[Open App Composer](https://composer.loftwah.com/) · [Explore the working tools](https://composer.loftwah.com/discover) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn) · [Why I built it](https://composer.loftwah.com/story) · [Read the build story](https://composer.loftwah.com/building)
 
 Follow the [Creator Hub walkthrough](https://composer.loftwah.com/creator-hub) to see a working profile and moderated guestbook, then open the sample draft and adapt it to your own project.
 
