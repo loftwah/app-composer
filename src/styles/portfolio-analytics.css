@@ -295,3 +295,13 @@
   .portfolio-spark { display: none; }
   .portfolio-overview-measure .portfolio-overview-state { font-size: .8rem; }
 }
+
+.portfolio-studio-outcome { margin-top: 20px; border-top: 1px solid var(--pf-line); }
+.portfolio-studio-outcome > summary { min-height: 44px; padding: 10px 0; font-weight: 650; cursor: pointer; }
+.studio-outcome-import { max-width: 740px; padding-bottom: 18px; overflow-wrap: anywhere; }
+.studio-outcome-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.studio-outcome-controls :is(input, button) { min-height: 44px; max-width: 100%; }
+.studio-outcome-status { color: var(--pf-muted); }
+.studio-outcome-metrics { padding: 0; margin: 12px 0 0; list-style: none; }
+.studio-outcome-metrics > li { padding: 10px 0; border-top: 1px solid var(--pf-line); }
+.studio-outcome-metrics > li > p { margin: 4px 0 0; }

@@ -140,12 +140,30 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
             {project.id === "media-studio" && <div>
               <p class="small">Sign in to Studio, choose your project and open <strong>Library → Saved outcomes</strong> to view the private report.</p>
               <a class="portfolio-project-link" href="/media-studio/studio">Inspect saved outcomes in Studio <ArrowUpRight size={17} aria-hidden="true"/></a>
+
             </div>}
           </div>
           {cover ? <div class="portfolio-art-panel"><img class="portfolio-cover" src={cover} alt="" fetchpriority="high" width="1000" height="565"/></div> : (
             <div class="portfolio-type-art" aria-hidden="true"><span>{project.name}</span></div>
           )}
         </section>
+
+        {project.id === "media-studio" && (
+          <details class="portfolio-studio-outcome">
+            <summary>Preview a saved Studio outcome report</summary>
+            <section id="studio-outcome-import" class="studio-outcome-import" aria-label="Local Studio report preview">
+
+              <p class="small">Choose the JSON from Studio Library → Saved outcomes. The preview stays in this tab.</p>
+              <div class="studio-outcome-controls">
+                <label for="studio-outcome-file">Report file (JSON)</label>
+                <input type="file" id="studio-outcome-file" accept="application/json,.json" disabled/>
+                <button type="button" id="studio-outcome-clear" disabled>Clear</button>
+              </div>
+              <p id="studio-outcome-status" class="studio-outcome-status" role="status" aria-live="polite"></p>
+              <div id="studio-outcome-report" class="studio-outcome-report"></div>
+            </section>
+          </details>
+        )}
 
         {report?.metrics.length ? (
           <section class="portfolio-analysis" aria-labelledby="portfolio-trend-title" data-activity>
@@ -233,4 +251,6 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
 <script>
   import "../../../browser/activity";
   import "../../../browser/insight-share";
+  import { mountStudioOutcomeReport } from "../../../lib/studio-outcome-report-browser";
+  mountStudioOutcomeReport();
 </script>
