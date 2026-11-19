@@ -23,6 +23,9 @@ const packs = Object.entries(modules)
     spec: spec as any,
     summary: assertBenchmarkSuite(spec, { results: latest }) as any,
   }));
+const knownChecks = packs.flatMap(({ summary }) =>
+  summary.checks.map(({ module, id }: { module: string; id: string }) => [module, id]),
+);
 const suiteCommand = (pack: (typeof packs)[number]) => {
   const suites = pack.inCloudflareDirectory ? ' --suites benchmarks/cloudflare-composition' : '';
   const id = pack.summary.id;
@@ -83,6 +86,7 @@ const stateClass = (state: string) =>
       <a class="button" href="/benchmarks/compare">Open the blind comparison</a>
       <a class="button secondary" href="/benchmarks">See the sandbox checks</a>
       <a class="button secondary" href="#self-rebuild">Self-rebuild challenge</a>
+      <a class="button secondary" href="#suite-definition">Inspect a suite definition</a>
       <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
     </div>
   </div>
@@ -248,6 +252,28 @@ const stateClass = (state: string) =>
     <div id="local-result-compare-view" tabindex="-1"></div>
   </section>
 
+  <section class="packs-section" id="suite-definition" aria-labelledby="suite-definition-title">
+    <h2 id="suite-definition-title">Inspect a suite definition</h2>
+    <p>
+      Open a versioned JSON suite to check its format and see which references appear in the current catalogue.
+      The file stays in this tab.
+    </p>
+    <div class="packs-actions">
+      <label for="suite-definition-file">Suite definition (JSON, up to 1 MB)</label>
+      <input
+        id="suite-definition-file"
+        type="file"
+        accept="application/json,.json"
+        data-known-checks={JSON.stringify(knownChecks)}
+        disabled
+      />
+      <button id="suite-definition-clear" class="button secondary" type="button" disabled>Clear definition</button>
+    </div>
+    <noscript>Enable JavaScript to inspect a suite definition on this device.</noscript>
+    <p id="suite-definition-status" role="status"></p>
+    <div id="suite-definition-view"></div>
+  </section>
+
   <section class="packs-section" id="private-history" aria-labelledby="private-history-title">
     <h2 id="private-history-title">Private run history</h2>
     <p>Signed-in workspace owners can save a report here to reopen on another device.</p>
@@ -287,6 +313,7 @@ const stateClass = (state: string) =>
 <script>
   import { compareLocalBenchmarkChecks } from '../../lib/benchmark-local-compare';
   import { mountPrivateBenchmarkHistory } from '../../lib/benchmark-private-history-browser';
+  import { mountBenchmarkSuiteFile } from '../../lib/benchmark-suite-file-browser';
   import type { parseLocalBenchmarkResult } from '../../lib/benchmark-local-result';
   import {
     LOCAL_BENCHMARK_STORAGE_KEY,
@@ -317,6 +344,8 @@ const stateClass = (state: string) =>
       if (selected?.dataset.command) command.textContent = selected.dataset.command;
     });
   }
+
+  mountBenchmarkSuiteFile();
 
   const node = (tag: string, text?: string) => {
     const element = document.createElement(tag);
@@ -585,6 +614,8 @@ const stateClass = (state: string) =>
   pre{white-space:pre-wrap;overflow-wrap:anywhere}
   #local-result-file{max-width:100%}
   #local-result-view{overflow-wrap:anywhere}
+  #suite-definition-file{max-width:100%}
+  #suite-definition-view{overflow-wrap:anywhere}
   .local-command{margin-top:16px}
   .local-command label{display:block;font-size:12px;color:var(--color-muted);margin-bottom:6px}
   .local-command select{max-width:100%;font:inherit;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:inherit}
