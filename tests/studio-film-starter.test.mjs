@@ -3,11 +3,14 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { GET } from '../src/pages/widgets/take-it-with-you-v1.html.ts';
+import { GET as getRecipe } from '../src/pages/widgets/take-it-with-you-v1.json.ts';
 import {
   captionText,
   captionTrackUrl,
   filmCaptionSrc,
   filmEmbedFragment,
+  filmRecipe,
+  filmRecipeJson,
   filmTitle,
   posterUrl,
   starterFilename,
@@ -108,4 +111,21 @@ test('the preview captions are the committed English VTT served from this origin
   assert.equal(filmCaptionSrc, '/brand/campaign/take-it-with-you-20261118.vtt');
   assert.equal(captionText, committed, 'the preview track and the inlined starter captions are the same cues');
   assert.ok(!filmCaptionSrc.startsWith('data:'), 'the live preview needs no data: media source');
+});
+
+test('the native film recipe carries the exact published source and install fragment', async () => {
+  const response = await getRecipe();
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(response.headers.get('content-disposition'), 'attachment; filename="take-it-with-you-v1.json"');
+  const body = await response.text();
+  assert.equal(body, filmRecipeJson);
+  const recipe = JSON.parse(body);
+  assert.equal(recipe.schema, 'app-composer/widget-film');
+  assert.equal(recipe.version, 1);
+  assert.equal(recipe.installation.embedHtml, filmEmbedFragment);
+  assert.deepEqual(recipe.source.video, { url: videoUrl, mime: 'video/mp4', sha256: videoSha256 });
+  assert.deepEqual(recipe.installation.contentSecurityPolicy, {
+    'img-src': [posterUrl], 'media-src': [videoUrl, 'data:'],
+  });
+  assert.equal(filmRecipe.source.captions.sha256, createHash('sha256').update(captionText).digest('hex'));
 });
