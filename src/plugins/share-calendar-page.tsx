@@ -59,6 +59,7 @@ import {
   sharePackageJson,
   sharePackageMarkdown,
   sharePackagePlainText,
+  sharePackagePublishedReceipt,
   type ShareApprovalPackage,
 } from "../lib/share-package";
 import {
@@ -3498,6 +3499,7 @@ function ShareCalendar({ search }: { search: string }) {
                   item,
                 );
                 const published = hasPublishedBlueskyRevision(item, approval, delivery);
+                const publishedReceipt = sharePackagePublishedReceipt(item, approval, delivery);
                 const hasBluesky = hasBlueskyDraft(item);
                 const portfolio = item.catalogue;
                 const stackId = item.stack;
@@ -3520,6 +3522,20 @@ function ShareCalendar({ search }: { search: string }) {
                         <span className="sc-when">
                           {published && "Intended time · "}
                           {labels.melbourne} · {labels.utc}
+                        </span>
+                      )}
+                      {publishedReceipt && (
+                        <span className="sc-when">
+                          Published on Bluesky ·{" "}
+                          {publishedReceiptLabel(publishedReceipt)} ·{" "}
+                          <a
+                            className="sc-text-link"
+                            href={publishedReceipt.permalink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Open Bluesky post
+                          </a>
                         </span>
                       )}
                     </div>

@@ -2,6 +2,7 @@
 // actions. Data only: nothing here fetches, executes or writes anything.
 import {
   builderUrl,
+  installKitPath as stationInstallKitPath,
   stationOrigin,
   recipeUrl,
   starterPath as stationStarterPath,
@@ -9,6 +10,7 @@ import {
 } from './widget-recipe.ts';
 import {
   filmTitle,
+  installKitPath as filmInstallKitPath,
   reactComponentPath,
   recipeV2Path,
   starterPath as filmStarterPath,
@@ -47,6 +49,7 @@ export const widgetRecipeIndex = {
         { kind: 'recipe', label: 'Download recipe (JSON)', url: recipeUrl },
         { kind: 'html', label: 'Download HTML starter', url: `${composerOrigin}${stationStarterPath}` },
         { kind: 'agent-task', label: 'Download agent task (Markdown)', url: `${composerOrigin}${stationAgentTaskPath}` },
+        { kind: 'install-kit', label: 'Download install kit (ZIP)', url: `${composerOrigin}${stationInstallKitPath}` },
         { kind: 'builder', label: 'LoftwahFM’s public widget builder', url: builderUrl },
       ],
     },
@@ -85,6 +88,7 @@ export const widgetRecipeIndex = {
         { kind: 'recipe', label: 'Download film recipe (JSON)', url: `${composerOrigin}${recipeV2Path}` },
         { kind: 'html', label: 'Download film HTML starter', url: `${composerOrigin}${filmStarterPath}` },
         { kind: 'tsx', label: 'Download React + TS component', url: `${composerOrigin}${reactComponentPath}` },
+        { kind: 'install-kit', label: 'Download install kit (ZIP)', url: `${composerOrigin}${filmInstallKitPath}` },
       ],
     },
   ],

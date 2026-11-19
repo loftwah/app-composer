@@ -110,6 +110,10 @@ export const filmRecipeJson = JSON.stringify(filmRecipe, null, 2);
 export const reactComponentFilename = 'TakeItWithYouFilm.tsx';
 export const reactComponentPath = `/widgets/${reactComponentFilename}`;
 
+// The ZIP writer only accepts lowercase entry names, so the kit uses a safe
+// filename for the exact same component source.
+export const reactComponentKitFilename = 'take-it-with-you-film.tsx';
+
 export const filmComponentSource = `// MIT. Portable, typed React + TypeScript component for the published Media Studio film.
 // Drop this file into any React project. React is the only dependency.
 // The video, poster, English captions and credit are the exact approved release.
@@ -192,6 +196,11 @@ export const filmRecipeV2 = {
 } as const;
 
 export const filmRecipeV2Json = JSON.stringify(filmRecipeV2, null, 2);
+
+// Signed-out install kit: the exact native recipe, HTML, agent task and React
+// component in one ZIP. Reuses the v2 recipe id/version naming.
+export const installKitFilename = `${filmRecipe.id}-v${filmRecipeV2.version}-install-kit.zip`;
+export const installKitPath = `/widgets/${installKitFilename}`;
 
 export const filmAgentTask = `# Install ${filmTitle}
 
