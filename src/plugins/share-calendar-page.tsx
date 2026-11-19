@@ -43,6 +43,7 @@ import {
   type ShareListFilter,
   type ShareQueuePresetsReply,
 } from "../lib/share-calendar";
+import { shareCalendarAgenda } from "../lib/share-calendar-agenda";
 import {
   catalogueSearchReplySchema,
   sameCatalogueAsset,
@@ -1573,6 +1574,9 @@ function ShareCalendar({ search }: { search: string }) {
   const [blueskySending, setBlueskySending] = useState(false);
   const [blueskyNow, setBlueskyNow] = useState(() => new Date());
   const [listFilter, setListFilter] = useState<ShareListFilter>("all");
+  // The full, actionable list is the default. Agenda is a read-only grouping of
+  // the same filtered items by intended date; it adds no state of its own.
+  const [calendarView, setCalendarView] = useState<"list" | "agenda">("list");
   // Owner-only, read-only Queue Next preview state. It never writes and is
   // cleared when the weekday or time changes so a stale slot is not shown.
   const [queueWeekday, setQueueWeekday] = useState(1);
@@ -1597,6 +1601,7 @@ function ShareCalendar({ search }: { search: string }) {
   const visibleItems = classified
     .filter(({ filters }) => filters.includes(listFilter))
     .map(({ item }) => item);
+  const agendaDays = calendarView === "agenda" ? shareCalendarAgenda(visibleItems) : [];
   const listCounts: Record<ShareListFilter, number> = {
     all: classified.length,
     drafts: classified.filter(({ filters }) => filters.includes("drafts"))
@@ -1608,6 +1613,23 @@ function ShareCalendar({ search }: { search: string }) {
     attention: classified.filter(({ filters }) => filters.includes("attention"))
       .length,
   };
+  // The agenda is derived from the same filtered items; it owns no state and
+  // only shows intended dates, never a new action or permission.
+  const agendaDays =
+    calendarView === "agenda" ? shareCalendarAgenda(visibleItems) : [];
+  // "Open in list" only switches back to the full list and moves focus to the
+  // same item. Nothing is saved, approved or sent, and no new permission is
+  // introduced for the read-only agenda.
+  const openInListId = useRef<string | null>(null);
+  useEffect(() => {
+    if (calendarView !== "list" || !openInListId.current) return;
+    const id = openInListId.current;
+    openInListId.current = null;
+    const row = document.getElementById(`sc-item-${id}`);
+    if (!row) return;
+    row.scrollIntoView({ block: "center" });
+    row.focus({ preventScroll: true });
+  }, [calendarView, snapshot]);
   const alive = useRef(true);
   const pending = useRef(false);
   const selection = useRef<string | undefined>(undefined);
@@ -3358,7 +3380,7 @@ function ShareCalendar({ search }: { search: string }) {
                     snapshot.items.filter((item) => item.state === "shared")
                       .length
                   }{" "}
-                  shared locally. Published deliveries keep their dates here.
+                  shared locally. Published deliveries keep their intended dates here.
                 </p>
               </div>
               <div
@@ -3384,6 +3406,26 @@ function ShareCalendar({ search }: { search: string }) {
                     {label} ({listCounts[value]})
                   </button>
                 ))}
+              </div>
+              <div
+                className="sc-list-filter sc-view-toggle"
+                role="group"
+                aria-label="Calendar view"
+              >
+                <button
+                  type="button"
+                  aria-pressed={calendarView === "list"}
+                  onClick={() => setCalendarView("list")}
+                >
+                  List
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={calendarView === "agenda"}
+                  onClick={() => setCalendarView("agenda")}
+                >
+                  Agenda
+                </button>
               </div>
               <button
                 type="button"
@@ -3489,7 +3531,90 @@ function ShareCalendar({ search }: { search: string }) {
                 <p>{emptyShareList[listFilter]}</p>
               </div>
             )}
-            <ol className="sc-items">
+            {calendarView === "agenda" &&
+              Boolean(visibleItems.length) &&
+              !agendaDays.length && (
+                <div className="sc-empty sc-empty-list">
+                  <h3>No intended dates in this view</h3>
+                  <p>
+                    The items in this filter are drafts without an intended
+                    date. No dates are shown in the agenda.
+                  </p>
+                </div>
+              )}
+            {calendarView === "agenda" ? (
+              <div
+                className="sc-agenda"
+                aria-label="Agenda by intended Melbourne date"
+              >
+                {agendaDays.map((group) => (
+                  <section
+                    className="sc-agenda-group"
+                    key={group.date}
+                    aria-label={`Intended date ${group.date}`}
+                  >
+                    <h3 className="sc-agenda-date">
+                      Intended date · {group.date}
+                    </h3>
+                    <ol className="sc-agenda-items">
+                      {group.items.map((item) => {
+                        const labels = item.scheduledAt
+                          ? scheduleLabels(item.scheduledAt)
+                          : null;
+                        const { approval, delivery } = itemApprovalAndDelivery(
+                          snapshot,
+                          item,
+                        );
+                        const published = hasPublishedBlueskyRevision(
+                          item,
+                          approval,
+                          delivery,
+                        );
+                        return (
+                          <li key={item.id} className="sc-agenda-item">
+                            <div className="sc-item-top">
+                              <span
+                                className={`sc-badge sc-badge-${published ? "published" : item.state}`}
+                              >
+                                {published
+                                  ? "Published"
+                                  : SHARE_STATE_LABELS[item.state]}
+                              </span>
+                              <span className="sc-channel">
+                                {SHARE_CHANNEL_LABELS[item.channel]}
+                              </span>
+                              {labels && (
+                                <span className="sc-when">
+                                  Intended time · {labels.melbourne} ·{" "}
+                                  {labels.utc}
+                                </span>
+                              )}
+                            </div>
+                            <p className="sc-source-line">
+                              <strong>{item.stackName}</strong>
+                            </p>
+                            <p className={`sc-caption sc-caption-${item.state}`}>
+                              {item.caption}
+                            </p>
+                            <button
+                              type="button"
+                              className="sc-agenda-open"
+                              onClick={() => {
+                                openInListId.current = item.id;
+                                setCalendarView("list");
+                              }}
+                            >
+                              Open in list
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </section>
+                ))}
+              </div>
+            ) : null}
+            {calendarView === "list" && <ol className="sc-items">
               {visibleItems.map((item) => {
                 const labels = item.scheduledAt
                   ? scheduleLabels(item.scheduledAt)
@@ -3509,6 +3634,8 @@ function ShareCalendar({ search }: { search: string }) {
                 return (
                   <li
                     key={item.id}
+                    id={`sc-item-${item.id}`}
+                    tabIndex={-1}
                     className={`sc-item sc-state-${item.state}`}
                   >
                     <div className="sc-item-top">
@@ -3872,7 +3999,7 @@ function ShareCalendar({ search }: { search: string }) {
                   </li>
                 );
               })}
-            </ol>
+            </ol>}
             <div className="sc-export-note">
               <h3>Calendar export</h3>
               <p>
