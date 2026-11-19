@@ -3854,6 +3854,19 @@ function ShareCalendar({ search }: { search: string }) {
                         />
                         <p className="sc-hint">
                           Alt: {portfolio.alt} · credit: {portfolio.credit} ·{" "}
+                          {item.sourceCurrent && (
+                            <>
+                              <a
+                                className="sc-text-link"
+                                href={`/share/artwork/${encodeURIComponent(portfolio.assetId)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                View current artwork in Share
+                              </a>
+                              {" · "}
+                            </>
+                          )}
                           <a
                             className="sc-text-link"
                             href={portfolio.projectUrl}
