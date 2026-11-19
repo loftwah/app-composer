@@ -5,6 +5,7 @@
 // module records a provider receipt only after an explicit send of an exact
 // approval; this contract stores no credential or token.
 import { z } from "zod";
+import { shareCalendarEntry } from "./share-calendar-entry.ts";
 import { isBlueskyDid, normalizeBlueskyHandle } from "./bluesky-account.ts";
 
 export const SHARE_CHANNELS = [
@@ -137,9 +138,12 @@ export const shareCalendarState = z.enum(["draft", "scheduled", "shared"]);
 
 const workspaceId = z.string().regex(/^[a-z0-9-]{6,64}$/);
 const stackId = workspaceId;
-const itemId = z
-  .string()
-  .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+// The private item link carries the same bounded saved-row ID the read and
+// write schemas accept. Keeping one pattern prevents a link from widening the
+// identifier space or carrying a caption, secret or other record field.
+const SHARE_CALENDAR_ITEM_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const itemId = z.string().regex(SHARE_CALENDAR_ITEM_ID_PATTERN);
 const revision = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const isoInstant = z
   .string()
@@ -942,6 +946,43 @@ export function shareListItemFilters(
   const deliveryFilter = shareListFilterForItem(snapshot, item);
   if (deliveryFilter) filters.push(deliveryFilter);
   return filters;
+}
+
+export const SHARE_ITEM_LINK_PARAM = "item";
+export const SHARE_ITEM_LINK_RECOVERY =
+  "This item link is unavailable. Choose an item from this calendar.";
+
+export type ShareItemLinkSelection =
+  | { state: "absent" }
+  | { state: "invalid" }
+  | { state: "requested"; itemId: string };
+
+// The private admin link is read from the same TanStack route search as the
+// workspace scope. A malformed or repeated row ID is refused before any read.
+// A well-formed ID is still only opened when it appears in the loaded,
+// server-confirmed workspace snapshot; it never becomes a lookup elsewhere.
+export function shareItemLinkSelection(search: string): ShareItemLinkSelection {
+  const params = new URLSearchParams(search);
+  const values = params.getAll(SHARE_ITEM_LINK_PARAM);
+  if (values.length === 0) return { state: "absent" };
+  const workspaces = params.getAll("workspace");
+  if (values.length !== 1 || values[0].length !== 36 || !itemId.safeParse(values[0]).success ||
+      workspaces.length !== 1 || !workspaceId.safeParse(workspaces[0]).success)
+    return { state: "invalid" };
+  return { state: "requested", itemId: values[0] };
+}
+
+// A clean private link: only the exact workspace and saved row travel. Caption,
+// account details, draft state and artwork handoff stay on the page itself.
+export function shareItemLink(
+  origin: string,
+  workspace: string,
+  id: string,
+): string {
+  const url = new URL(shareCalendarEntry(true), origin);
+  url.searchParams.set("workspace", workspace);
+  url.searchParams.set(SHARE_ITEM_LINK_PARAM, id);
+  return url.href;
 }
 
 export interface ShareCalendarIcsItem {
