@@ -614,6 +614,7 @@ p.gallery-piece-section a {
   padding: 0.35rem 0.6rem;
 }
 [data-gallery-copy-status]:empty,
+[data-gallery-package-status]:empty,
 [data-gallery-alt-status]:empty,
 [data-review-status]:empty {
   display: none;

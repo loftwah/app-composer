@@ -1,5 +1,5 @@
 ---
-import { ArrowUpRight, Copy, Download, Maximize2, Share2 } from '@lucide/astro';
+import { ArrowUpRight, Copy, Download, Maximize2, Package, Share2 } from '@lucide/astro';
 import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
 import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
@@ -23,6 +23,19 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
 const postTextFile = `${postText}\n\nImage alt text\n\n${artwork.alt}`;
 const postTextDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(postTextFile.toWellFormed())}`;
 const postTextFileName = `${artwork.assetId}-post-text.txt`;
+const primaryExtension = new URL(primary, canonical).pathname.split('.').at(-1)?.toLowerCase() || 'png';
+const packageData = JSON.stringify({
+  assetId: artwork.assetId,
+  revision,
+  title: artwork.title,
+  credit: artwork.credit,
+  sourceUrl: artwork.sourceUrl,
+  canonical,
+  extension: primaryExtension,
+  download: download(0),
+  postTextFile,
+  alt: artwork.alt,
+});
 ---
 
 <article class="gallery-piece" data-gallery-piece>
@@ -37,12 +50,14 @@ const postTextFileName = `${artwork.assetId}-post-text.txt`;
     {artwork.description && <p class="gallery-description">{artwork.description}</p>}
     <div class="gallery-piece-actions">
       <a class="button gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {primaryDownloadLabel}</a>
+      <button class="secondary" type="button" data-gallery-package={packageData} hidden><Package size={16} aria-hidden="true" /> Download post package (ZIP)</button>
       <a class="button secondary" href={path + '/palette'}>Pick colours</a>
       <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
       <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
       <button class="secondary" type="button" data-gallery-copy-post hidden><Copy size={16} aria-hidden="true" /> Copy post text</button>
     </div>
     <p role="status" data-gallery-copy-status></p>
+    <p role="status" data-gallery-package-status></p>
     <input data-gallery-copy-fallback aria-label="Artwork link" readonly hidden />
     <textarea data-gallery-post-field aria-label="Post text to copy manually" rows="6" readonly hidden>{postText}</textarea>
     {files.length > 1 && (
