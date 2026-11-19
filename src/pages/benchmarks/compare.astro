@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import BenchmarksNav from '../../components/BenchmarksNav.astro';
 import {
   blindView,
   DEFAULT_REVIEWER_LABEL,
@@ -34,6 +35,7 @@ const recordedAt = view?.recordedAt
         <p class="eyebrow">Benchmarks Studio · comparison</p>
         <h1>That run is not recorded here.</h1>
         <p>The comparison is opened from a committed run record. The address may be incomplete, or the run was never committed.</p>
+        <BenchmarksNav current="compare" />
         <p><a class="button" href="/benchmarks/compare">Open the current blind comparison</a></p>
         <p><a href="/benchmarks">See the sandbox checks</a> · <a href="/benchmarks/comparisons">Read the Studio job receipts</a></p>
       </section>
@@ -65,6 +67,8 @@ const recordedAt = view?.recordedAt
             model leaderboard, a provider invoice, a deployment claim or proof of the owner's judgement.
           </p>
         </div>
+
+        <BenchmarksNav current="compare" />
 
         <section class="cmp-section" aria-labelledby="how-title">
           <h2 id="how-title">How the blind reveal works</h2>

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import BenchmarksNav from '../../components/BenchmarksNav.astro';
 import latest from '../../../benchmarks/results/latest.json';
 import { assertBenchmarkSuite } from '../../lib/benchmark-suite.mjs';
 
@@ -71,6 +72,8 @@ const stateClass = (state: string) =>
       <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
     </div>
   </div>
+
+  <BenchmarksNav current="suites" />
 
   <section class="packs-section" aria-labelledby="packs-title">
     <h2 id="packs-title">The committed packs</h2>

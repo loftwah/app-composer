@@ -1,0 +1,56 @@
+---
+interface Props {
+  current: 'recorded' | 'suites' | 'compare';
+}
+const { current } = Astro.props;
+const sections = [
+  { key: 'recorded', label: 'Recorded checks', href: '/benchmarks' },
+  { key: 'suites', label: 'Test suites', href: '/benchmarks/suites' },
+  { key: 'compare', label: 'Compare runs', href: '/benchmarks/compare' },
+] as const;
+---
+
+<nav class="bench-nav" aria-label="Benchmarks sections">
+  {
+    sections.map((section) => (
+      <a href={section.href} aria-current={current === section.key ? 'page' : undefined}>{section.label}</a>
+    ))
+  }
+</nav>
+
+<style>
+  .bench-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 24px;
+    margin: 0 0 28px;
+    padding: 10px 0;
+    border-block: 1px solid var(--color-border);
+  }
+  .bench-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 2px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-muted);
+    text-decoration: none;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
+  }
+  .bench-nav a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-border);
+  }
+  .bench-nav a[aria-current='page'] {
+    color: var(--color-foreground);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+  }
+  .bench-nav a:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+</style>
