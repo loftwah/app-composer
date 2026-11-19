@@ -11,7 +11,7 @@ import { portfolioCaption, portfolioDateRange, portfolioQualityLabel, portfolioT
 import { portfolioCardFormats } from "../../../lib/portfolio-card-formats";
 import { portfolioArt, portfolioProjects } from "../../../lib/portfolio-projects";
 import {
-  comparePortfolioMetric, formatPortfolioValue, liferaftDownloads, liferaftReleases,
+  comparePortfolioMetric, dailyValuesCsv, formatPortfolioValue, liferaftDownloads, liferaftReleases,
   parsePortfolioPeriod, previousPeriod, readProjectReport, recentPeriod, REPORT_PATH,
   reportAddress, sourceAddress,
 } from "../../../lib/portfolio-report";
@@ -53,6 +53,14 @@ const imagePath = project && period && metric && hasValue
   ? reportAddress(project.id, period, metric.key, `${REPORT_PATH}/card.png`)
   : undefined;
 const kitPath = imagePath ? reportAddress(project!.id, period!, metric!.key, `${REPORT_PATH}/social-kit.zip`) : undefined;
+// A bounded data link over the values already on the page: no new route, no
+// extra fetch and no owner data. Only validated identifiers name the file.
+const csvHref = metric && period
+  ? `data:text/csv;charset=utf-8,${encodeURIComponent(dailyValuesCsv(metric.days))}`
+  : undefined;
+const csvFilename = project && metric && period
+  ? `${project.id}-${metric.key}-${period.from}-${period.to}.csv`
+  : undefined;
 const title = project ? `${project.name} · Portfolio analytics` : "Portfolio analytics";
 const shareTitle = metric && hasValue ? `${project?.name} · ${metric.label}` : title;
 const caption = metric && hasValue
@@ -145,7 +153,12 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
               <>
                 <div class="portfolio-trend-heading">
                   <h3 id="portfolio-trend-title">{metric.label} by day</h3>
-                  {hasValue && <a class="button secondary" href="#share-portfolio"><Share2 size={17} aria-hidden="true"/> Share this view</a>}
+                  <div class="portfolio-trend-actions">
+                    {csvHref && <a class="button secondary" href={csvHref} download={csvFilename}>
+                      <ArrowDownToLine size={17} aria-hidden="true"/> Download daily values (CSV)
+                    </a>}
+                    {hasValue && <a class="button secondary" href="#share-portfolio"><Share2 size={17} aria-hidden="true"/> Share this view</a>}
+                  </div>
                 </div>
                 <AnalyticsTrend metric={metric.key} label={metric.label} definition={metric.definition}
                   unit={metric.unit === "seconds" ? "seconds" : "recorded"} value={metric.value}
