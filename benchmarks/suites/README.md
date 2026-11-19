@@ -76,3 +76,11 @@ The runner loads the JSON spec, resolves the named modules, runs only the named
 checks and prints the same result shape as a normal run. The existing `.mjs`
 suite discovery is unchanged: `node benchmarks/runner.mjs` still runs every
 suite.
+
+## Cloudflare creation campaign
+
+[CF-COMPOSE](../cloudflare-composition/README.md) defines six creator journeys
+and a local foundation pack for the Cloudflare wishlist. Its optional pack uses
+this runner with `--suites benchmarks/cloudflare-composition --suite CF-COMPOSE-01`.
+Local helper results and full browser/provider qualification are reported
+separately; this campaign does not add a routine release gate.
