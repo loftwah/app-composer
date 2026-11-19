@@ -18,7 +18,10 @@ import {
   primaryCaptionProblem,
   queueNextPreviewReplySchema,
   scheduleLabels,
+  SHARE_ITEM_LINK_RECOVERY,
   shareCalendarSnapshot,
+  shareItemLink,
+  shareItemLinkSelection,
   shareListItemFilters,
   shareQueuePresetsReplySchema,
   SHARE_CAPTION_LOCAL_CHARACTERS,
@@ -1564,11 +1567,17 @@ function readArtworkHandoff(search: string) {
 
 function ShareCalendar({ search }: { search: string }) {
   const artworkHandoff = useMemo(() => readArtworkHandoff(search), [search]);
+  const itemLink = useMemo(() => shareItemLinkSelection(search), [search]);
   const [snapshot, setSnapshot] = useState<ShareCalendarSnapshot>();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  // A refused item link gets a neutral explanation, never a hint about which
+  // workspace or record the ID might belong to.
+  const [itemLinkNotice, setItemLinkNotice] = useState("");
+  const itemLinkOpened = useRef(false);
+  const [manualItemLink, setManualItemLink] = useState<{ item: string; href: string }>();
   const [sourceId, setSourceId] = useState("");
   const [sourceKind, setSourceKind] = useState<"stack" | "catalogue">("stack");
   const [assetId, setAssetId] = useState("");
@@ -1896,6 +1905,17 @@ function ShareCalendar({ search }: { search: string }) {
       } else if (!editing && !sourceId && result.workspace.role === "owner") {
         setSourceKind("catalogue");
         setChannel("bluesky");
+      }
+      if (!itemLinkOpened.current && itemLink.state !== "absent") {
+        itemLinkOpened.current = true;
+        if (itemLink.state === "requested" && result.items.some((entry) => entry.id === itemLink.itemId)) {
+          setCalendarView("list");
+          setListFilter("all");
+          setCalendarQuery("");
+          openInListId.current = itemLink.itemId;
+        } else {
+          setItemLinkNotice(SHARE_ITEM_LINK_RECOVERY);
+        }
       }
     } catch (cause) {
       if (alive.current)
@@ -2614,6 +2634,20 @@ function ShareCalendar({ search }: { search: string }) {
       );
   }
 
+  async function copyItemLink(item: ShareCalendarItem) {
+    if (!snapshot) return;
+    setManualItemLink(undefined);
+    const link = shareItemLink(
+      window.location.origin,
+      snapshot.workspace.id,
+      item.id,
+    );
+    const copied = await copyText(link, () => alive.current).catch(() => false);
+    if (!alive.current) return;
+    setNotice(copied ? "Private item link copied." : "Clipboard blocked. Copy the link from the browser address after opening it.");
+    if (!copied) setManualItemLink({ item: item.id, href: link });
+  }
+
   async function copyItem(item: ShareCalendarItem) {
     if (!item.sourceCurrent) return;
     const copied = await copyText(captionAndLink(item));
@@ -2800,6 +2834,11 @@ function ShareCalendar({ search }: { search: string }) {
       <p role="status" aria-live="polite" className="sc-notice">
         {notice}
       </p>
+      {itemLinkNotice && (
+        <p role="status" className="sc-hint">
+          {itemLinkNotice}
+        </p>
+      )}
       {error && (
         <div role="alert" className="sc-error">
           <p>{error}</p>
@@ -3933,6 +3972,17 @@ function ShareCalendar({ search }: { search: string }) {
                       </p>
                     )}
                     <div className="sc-actions">
+                      <button
+                        type="button"
+                        onClick={() => void copyItemLink(item)}
+                      >
+                        Copy item link
+                      </button>
+                      {manualItemLink?.item === item.id && (
+                        <a className="sc-text-link" href={manualItemLink.href} target="_blank" rel="noopener noreferrer">
+                          Open private item link
+                        </a>
+                      )}
                       {exportEvent && (
                         <button type="button" onClick={() => downloadCalendar(exportEvent)}>
                           Download this event (.ics)

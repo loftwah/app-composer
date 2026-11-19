@@ -26,6 +26,8 @@ import {
   shareCalendarCommand,
   shareCalendarReadInput,
   shareCalendarSnapshot,
+  shareItemLink,
+  shareItemLinkSelection,
   shareQueuePresetsReplySchema,
   shareListFilterForItem,
   shareListItemFilters,
@@ -2026,4 +2028,23 @@ test("queue presets follow the configured account switch and refuse a stale expe
   } finally {
     db.cleanup();
   }
+});
+
+test("private Calendar links require one scoped saved item and carry no other row fields", () => {
+  const origin = "https://composer.loftwah.com";
+  const workspace = "fictional-workspace";
+  const itemId = "0e3f0c4a-2b3d-4f5a-9a1b-7c8d9e0f1a2b";
+  const url = new URL(shareItemLink(origin, workspace, itemId));
+
+  assert.equal(url.pathname, "/_emdash/admin/plugins/composer-stacks/share-calendar");
+  assert.deepEqual([...url.searchParams], [["workspace", workspace], ["item", itemId]]);
+  assert.deepEqual(shareItemLinkSelection(url.search), { state: "requested", itemId });
+  assert.deepEqual(shareItemLinkSelection(`?workspace=${workspace}`), { state: "absent" });
+  for (const search of [
+    `?item=${itemId}`,
+    `?workspace=${workspace}&item=${itemId}&item=${itemId}`,
+    `?workspace=${workspace}&workspace=another-workspace&item=${itemId}`,
+    `?workspace=${workspace}&item=${itemId}%0A`,
+    `?workspace=${workspace}&item=not-an-item`,
+  ]) assert.deepEqual(shareItemLinkSelection(search), { state: "invalid" });
 });
