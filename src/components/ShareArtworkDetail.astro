@@ -3,7 +3,7 @@ import { ArrowUpRight, Copy, Download, Maximize2, Package, Share2 } from '@lucid
 import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
 import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
-import { artworkPostText } from '../lib/share-artwork-post.ts';
+import { artworkPostBrief, artworkPostText } from '../lib/share-artwork-post.ts';
 import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
 import '../styles/share-gallery.css';
 
@@ -23,6 +23,9 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
 const postTextFile = `${postText}\n\nImage alt text\n\n${artwork.alt}`;
 const postTextDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(postTextFile.toWellFormed())}`;
 const postTextFileName = `${artwork.assetId}-post-text.txt`;
+const postBrief = artworkPostBrief(artwork, canonical, new URL(download(0), canonical).href, revision);
+const postBriefDownload = `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(postBrief, null, 2))}`;
+const postBriefFileName = `${artwork.assetId}-post-brief.json`;
 const primaryExtension = new URL(primary, canonical).pathname.split('.').at(-1)?.toLowerCase() || 'png';
 // A reference fragment only: Studio reads the asset ID and revision to offer
 // its own Image Tools handoff. Composer never fetches or uploads anything.
@@ -96,6 +99,7 @@ const packageData = JSON.stringify({
         {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source record <ArrowUpRight size={14} /></a>}
         <button class="secondary" type="button" data-gallery-copy-alt hidden><Copy size={16} aria-hidden="true" /> Copy image alt text</button>
         <a class="button secondary" href={postTextDownload} download={postTextFileName}><Download size={16} aria-hidden="true" /> Download post text (TXT)</a>
+        <a class="button secondary" href={postBriefDownload} download={postBriefFileName}><Download size={16} aria-hidden="true" /> Download post brief (JSON)</a>
       </div>
       <p role="status" data-gallery-alt-status></p>
       <input data-gallery-alt-field aria-label="Image alt text to copy manually" value={artwork.alt} readonly hidden />
