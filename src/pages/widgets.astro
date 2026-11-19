@@ -19,8 +19,11 @@ import {
 import {
   filmCaptionSrc,
   filmEmbedFragment,
+  filmReactInstallSnippet,
   filmTitle,
   posterUrl,
+  reactComponentFilename as filmReactFilename,
+  reactComponentPath as filmReactPath,
   recipeFilename as filmRecipeFilename,
   recipePath as filmRecipePath,
   starterFilename as filmStarterFilename,
@@ -159,6 +162,7 @@ const bubblesCards = [
     <div class="card-downloads">
       <a class="button secondary" href={filmRecipePath} download={filmRecipeFilename}>Download film recipe (JSON)</a>
       <a class="button secondary" href={filmStarterPath} download={filmStarterFilename}>Download film HTML starter</a>
+      <a class="button secondary" href={filmReactPath} download={filmReactFilename}>Download React + TS component</a>
       <a class="button secondary" href={watchUrl}>Watch on Media Studio</a>
     </div>
     <section aria-labelledby="film-preview-heading" data-enhanced hidden>
@@ -195,6 +199,11 @@ const bubblesCards = [
         </div>
       </details>
     </section>
+    <details class="react-version">
+      <summary>React and TypeScript setup</summary>
+      <p>Save the downloaded component alongside your page and import it as shown. Allow the same poster, video and caption sources in your content security policy.</p>
+      <pre class="widget-code film-code" tabindex="0"><code>{filmReactInstallSnippet}</code></pre>
+    </details>
   </article>
 
   <p class="widget-foot">For other stations, releases, playlists and sizes, use <a href={builderUrl}>LoftwahFM’s builder</a>. For games, see <a href={`${stationOrigin}/game-music/`}>LoftwahFM’s audio SDK</a>.</p>

@@ -99,3 +99,67 @@ export const filmRecipe = {
 } as const;
 
 export const filmRecipeJson = JSON.stringify(filmRecipe, null, 2);
+
+// Portable React + TypeScript adoption of the same approved film. This file is
+// generated from the exact constants above so the component cannot drift from
+// the published video, poster, English captions and credit.
+export const reactComponentFilename = 'TakeItWithYouFilm.tsx';
+export const reactComponentPath = `/widgets/${reactComponentFilename}`;
+
+export const filmComponentSource = `// MIT. Portable, typed React + TypeScript component for the published Media Studio film.
+// Drop this file into any React project. React is the only dependency.
+// The video, poster, English captions and credit are the exact approved release.
+// Published media SHA-256: ${videoSha256}
+import * as React from 'react';
+
+export const filmTitle = ${JSON.stringify(filmTitle)};
+const watchUrl = ${JSON.stringify(watchUrl)};
+const videoUrl = ${JSON.stringify(videoUrl)};
+const posterUrl = ${JSON.stringify(posterUrl)};
+const captionTrackUrl = ${JSON.stringify(captionTrackUrl)};
+
+export interface TakeItWithYouFilmProps {
+  className?: string;
+  style?: React.CSSProperties;
+  label?: string;
+}
+
+// Plain render function: no effects, no browser globals, so it is identical on
+// the server and in the browser. Native controls play the source on request.
+export function TakeItWithYouFilm({
+  className,
+  style,
+  label = filmTitle + ', an App Composer commercial',
+}: TakeItWithYouFilmProps = {}): React.ReactElement {
+  return (
+    <figure className={className} style={{ margin: 0, ...style }}>
+      <video
+        controls
+        playsInline
+        preload="none"
+        width={1280}
+        height={720}
+        poster={posterUrl}
+        aria-label={label}
+        style={{ display: 'block', maxWidth: '100%', height: 'auto', background: '#000' }}
+      >
+        <source src={videoUrl} type="video/mp4" />
+        <track kind="captions" src={captionTrackUrl} srcLang="en" label="English captions" default />
+        Your browser does not support HTML video. <a href={watchUrl}>Watch {filmTitle} on Media Studio</a>.
+      </video>
+      <figcaption>
+        Produced in ElevenCreative from App Composer and Woodhouse references.{' '}
+        <a href={watchUrl}>Watch the published film on Media Studio</a>.
+      </figcaption>
+    </figure>
+  );
+}
+
+export default TakeItWithYouFilm;
+`;
+
+export const filmReactInstallSnippet = `import TakeItWithYouFilm from './TakeItWithYouFilm';
+
+export default function Page() {
+  return <TakeItWithYouFilm />;
+}`;
