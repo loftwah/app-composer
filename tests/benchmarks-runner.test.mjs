@@ -136,7 +136,7 @@ test("discovery runs the real suites in order and skips helpers", async () => {
 
   assert.deepEqual(
     suites.map((suite) => suite.id),
-    ["appearance-skin", "blueprint-roundtrip", "live-demo", "sandbox-save-reopen"],
+    ["appearance-skin", "blueprint-roundtrip", "live-demo", "obs-01", "sandbox-save-reopen"],
   );
   assert.ok(suites.every((suite) => typeof suite.run === "function"));
 });

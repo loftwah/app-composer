@@ -1,0 +1,39 @@
+{
+  "schema": "benchmark-suite/v1",
+  "id": "OBS-01",
+  "name": "Offline observability fixture",
+  "description": "Check the relationship between a failed request, its spans and a log. The fictional fixture includes a later recovery, an independent control and missing, duplicate and unsupported signals.",
+  "kind": "deterministic",
+  "providerFree": true,
+  "requirements": {
+    "network": false,
+    "credentials": [],
+    "spendMicro": 0
+  },
+  "checks": [
+    {
+      "module": "obs-01",
+      "id": "observed-correlated-failure"
+    },
+    {
+      "module": "obs-01",
+      "id": "observed-independent-recovery"
+    },
+    {
+      "module": "obs-01",
+      "id": "duplicate-or-missing-unproven"
+    },
+    {
+      "module": "obs-01",
+      "id": "unsupported-signal-unproven"
+    }
+  ],
+  "evidence": {
+    "status": "not-run",
+    "note": "The catalogue has no committed run receipt. Run the offline fixture and open its JSON result below."
+  },
+  "limits": [
+    "These are fictional request, log and trace records. Their timings come from the fixture timestamps.",
+    "The checks run locally with zero provider use or spend. Live telemetry delivery, incident diagnosis and remediation require separate evidence."
+  ]
+}
