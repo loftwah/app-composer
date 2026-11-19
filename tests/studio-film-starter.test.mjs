@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { GET } from '../src/pages/widgets/take-it-with-you-v1.html.ts';
 import { GET as getRecipe } from '../src/pages/widgets/take-it-with-you-v1.json.ts';
+import { GET as getRecipeV2 } from '../src/pages/widgets/take-it-with-you-v2.json.ts';
 import { GET as getReact } from '../src/pages/widgets/TakeItWithYouFilm.tsx.ts';
 import {
   captionText,
@@ -14,10 +15,14 @@ import {
   filmReactInstallSnippet,
   filmRecipe,
   filmRecipeJson,
+  filmRecipeV2,
+  filmRecipeV2Json,
   filmTitle,
   posterUrl,
   reactComponentFilename,
   reactComponentPath,
+  recipeV2Filename,
+  recipeV2Path,
   starterFilename,
   starterHtml,
   starterPath,
@@ -165,4 +170,24 @@ test('the v1 HTML and JSON artifacts stay byte-for-byte unchanged', async () => 
   const recipe = await getRecipe();
   assert.equal(await recipe.text(), filmRecipeJson);
   assert.equal(createHash('sha256').update(filmRecipeJson).digest('hex'), 'fea371f24cb5d360f6ae80692e1b414b4c0e5c01ee1c51d46f3cde94f4174346');
+});
+
+test('the v2 attachment adds a React install to the existing film recipe', async () => {
+  const response = await getRecipeV2();
+  assert.equal(recipeV2Path, '/widgets/take-it-with-you-v2.json');
+  assert.equal(response.headers.get('content-disposition'), `attachment; filename="${recipeV2Filename}"`);
+  assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8');
+  assert.equal(await response.text(), filmRecipeV2Json);
+
+  const { html, react, ...htmlInstallation } = filmRecipeV2.installation;
+  assert.deepEqual({ ...filmRecipeV2, version: 1, installation: htmlInstallation }, filmRecipe);
+  assert.equal(filmRecipeV2.version, 2);
+  assert.equal(html.scriptsRequired, false);
+  assert.ok(starterHtml.includes(`content="${html.contentSecurityPolicy}"`));
+  assert.equal(react.component, `https://composer.loftwah.com${reactComponentPath}`);
+  assert.equal(react.filename, reactComponentFilename);
+  assert.equal(react.importSnippet, filmReactInstallSnippet);
+  assert.deepEqual(react.build, { jsx: 'tsx', dependencies: ['react'] });
+  assert.equal(react.browserScriptsRequiredForPlayback, false);
+  assert.deepEqual(react.contentSecurityPolicy, filmRecipe.installation.contentSecurityPolicy);
 });
