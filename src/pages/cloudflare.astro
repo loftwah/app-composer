@@ -10,6 +10,18 @@ const baselime =
 const workersPricing =
   "https://developers.cloudflare.com/workers/platform/pricing/";
 const d1Pricing = "https://developers.cloudflare.com/d1/platform/pricing/";
+const inferencePricing = "https://developers.cloudflare.com/workers-ai/platform/pricing/";
+const modelDocs = "https://developers.cloudflare.com/workers-ai/models";
+const inferenceWorkload = { attempts: 1_000, inputTokens: 2_000, outputTokens: 500 };
+const models = [
+  { label: "GLM-5.3 Flash", id: "@cf/zai-org/glm-5.3-flash", docs: "glm-5.3-flash", input: 0.15, output: 0.50 },
+  { label: "DeepSeek V4.1 Flash 1017", id: "@cf/deepseek-ai/deepseek-v4.1-flash-1017", docs: "deepseek-v4.1-flash-1017", input: 0.30, output: 1.20 },
+];
+const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+const count = new Intl.NumberFormat("en-US");
+const inferenceEstimate = (input: number, output: number) =>
+  inferenceWorkload.attempts * (inferenceWorkload.inputTokens * input + inferenceWorkload.outputTokens * output) / 1_000_000;
+
 const accessDocs =
   "https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/";
 ---
@@ -46,6 +58,7 @@ const accessDocs =
     <a href="#baselime">The Baselime precedent</a>
     <a href="#reference">Our measured reference</a>
     <a href="#growth">What changes with scale</a>
+    <a href="#workers-ai">Workers AI cost guide</a>
     <a href="#operations">What you stop operating</a>
     <a href="#limits">Limits and claims</a>
   </nav>
@@ -223,6 +236,58 @@ const accessDocs =
       <a href={workersPricing}>Workers pricing</a> and
       <a href={d1Pricing}>D1 pricing</a>, reviewed 12 November 2026.
     </p>
+  </section>
+
+  <section class="cost-section" id="workers-ai" aria-labelledby="workers-ai-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Model inference</p>
+        <h2 id="workers-ai-title">Estimate a text task on Workers AI</h2>
+      </div>
+      <span class="evidence-label">Published rates · 19 Nov 2026</span>
+    </div>
+    <p class="lede">
+      Suppose your app extracts structured records from text. This estimate prices
+      {count.format(inferenceWorkload.attempts)} attempts, each with
+      {count.format(inferenceWorkload.inputTokens)} uncached input tokens and
+      {count.format(inferenceWorkload.outputTokens)} billed output tokens.
+      Both model versions require Workers Paid or prepaid AI Gateway credits.
+    </p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Workers AI estimates">
+      <table>
+        <caption>Estimated inference at published rates (USD)</caption>
+        <thead><tr>
+          <th scope="col">Workers AI model</th>
+          <th scope="col">Input per million tokens</th>
+          <th scope="col">Output per million tokens</th>
+          <th scope="col">Estimated total</th>
+        </tr></thead>
+        <tbody>
+          {models.map(model => (
+            <tr>
+              <th scope="row"><a href={`${modelDocs}/${model.docs}/`}>{model.label}</a><br /><code>{model.id}</code></th>
+              <td>{usd.format(model.input)}</td>
+              <td>{usd.format(model.output)}</td>
+              <td><strong>{usd.format(inferenceEstimate(model.input, model.output))}</strong></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Multiply billed input and output by their respective per-million rates and add the two amounts.
+      Cloudflare hosts and meters these calls. Your coding agent uses its own provider or local runtime.
+      AI Gateway can also route to external providers, with billing determined by the route and account setup.
+    </p>
+    <p class="small">
+      This is a list-price estimate before any allowance. It covers the stated attempts and excludes
+      additional retries, plan fees, hosting, storage and tax. Quality, latency and cost per
+      successful record need an actual run. See <a href={inferencePricing}>Cloudflare’s current Workers AI pricing</a>.
+    </p>
+    <div class="actions">
+      <a class="button secondary" href="/media-studio#made">See real Workers AI artwork in Studio</a>
+      <a class="button secondary" href="/benchmarks">Open Benchmarks Studio</a>
+    </div>
   </section>
 
   <section class="cost-section" id="operations">
