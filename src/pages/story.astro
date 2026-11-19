@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+
+const title = 'Why I built App Composer';
+const description = 'From Navy systems and music storefronts to DevOps, reusable software and AI agents: the real story behind App Composer.';
+---
+
+<Base title={title} description={description} canonical="https://composer.loftwah.com/story" ogType="article">
+  <article class="founder-story" aria-labelledby="story-title">
+    <header class="story-opening">
+      <p class="story-kicker">The origin of App Composer</p>
+      <h1 id="story-title">I kept finding ways to make things without building every piece myself.</h1>
+      <p class="story-lede">I didn't start with a grand plan to build a software platform. I had things I wanted to make, and a habit of finding the right tools before writing my own.</p>
+      <p>That habit followed me through the Navy, IT, music, online stores, DevOps and eventually AI agents. App Composer is my attempt to make it useful to someone else.</p>
+    </header>
+
+    <section class="story-section" aria-labelledby="story-background">
+      <p class="story-chapter">01 / The long way round</p>
+      <h2 id="story-background">Music got me building for people.</h2>
+      <p>I served in the <strong>Royal Australian Navy from 2004 to 2010</strong>, then spent the better part of the next decade working with desktops, networks and systems. I moved into DevOps in 2019.</p>
+      <p>Around the same time, the music I was involved in started reaching more people. That meant websites, releases, merchandise and stores needed looking after. I learnt WordPress and WooCommerce, built stores for <strong>Shake Down Records</strong> and <strong>Grind Mode Cypher</strong>, and helped with the social side too.</p>
+      <p>Somehow, between music and keeping the technology running, I ended up making software.</p>
+    </section>
+
+    <section class="story-section" aria-labelledby="story-method">
+      <p class="story-chapter">02 / The method</p>
+      <h2 id="story-method">My first trick was remembering what was good.</h2>
+      <p>When I was working with WordPress, my approach was a pretty practical three-tier system:</p>
+      <ol class="story-tiers">
+        <li><span class="story-tier-index">01</span><div><h3>Reuse what works</h3><p>Find a good plugin or component. If it was something I'd need again, a lifetime licence often made sense.</p></div></li>
+        <li><span class="story-tier-index">02</span><div><h3>Pay for the specialist part</h3><p>For an occasional need or a feature I couldn't reasonably build, use the right paid tool rather than pretending I could do everything.</p></div></li>
+        <li><span class="story-tier-index">03</span><div><h3>Build what's missing</h3><p>Write the custom part when the available pieces couldn't do the job. Eventually that meant learning to code properly.</p></div></li>
+      </ol>
+      <p>I did much the same thing with GitHub repositories. Sometimes knowing which project already solved a problem made me look considerably cleverer than I was.</p>
+      <p>But finding the right thing, understanding whether it fits and knowing what still needs building <em>is</em> useful work.</p>
+    </section>
+
+    <section class="story-section" aria-labelledby="story-devops">
+      <p class="story-chapter">03 / Bigger systems, same principle</p>
+      <h2 id="story-devops">The pieces got bigger.</h2>
+      <p>As my work moved deeper into DevOps, I worked with Ruby on Rails, AWS and infrastructure migrations, including moving applications away from Heroku. The problems changed, but the instinct didn't: reuse the good parts, connect the systems carefully and automate the work you shouldn't have to repeat.</p>
+      <p>AI agents changed how much I could attempt. I could describe an outcome, show examples, ask agents to investigate and implement it, then review the result. The important parts didn't disappear: judgement, taste, permissions, testing and knowing whether something actually works.</p>
+    </section>
+
+    <section class="story-section story-outcome" aria-labelledby="story-composer">
+      <p class="story-chapter">04 / Why App Composer exists</p>
+      <h2 id="story-composer">What if everyone had that workshop?</h2>
+      <p>I wanted the things I'd spent years figuring out to be available to anyone with an idea: discover useful building blocks, explain what you want, bring your own agent, make the missing pieces and end up with something you can actually keep.</p>
+      <p>Not just an installer for software that already exists. A place to start with something that <em>doesn't</em> exist yet — an app, a game, a creative project or a workflow — and work towards building, running and improving it.</p>
+      <p>That's the direction of App Composer. The current product has working tools and examples alongside features still being built; it isn't a promise that every idea can already be made and deployed in one click.</p>
+      <p class="story-line"><strong>Find what works. Make what doesn't exist. Keep what you build.</strong></p>
+      <div class="story-actions" aria-label="Continue exploring App Composer">
+        <a class="button" href="/discover">Explore the working tools</a>
+        <a class="button secondary" href="/building">See a real build</a>
+        <a class="story-text-link" href="/learn">Start with an agent</a>
+      </div>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .founder-story { max-width: 980px; margin: 0 auto; padding-bottom: 3rem; }
+  .story-opening { padding: clamp(1rem, 3.5vw, 3rem) 0 clamp(2.5rem, 6vw, 5rem); }
+  .story-kicker, .story-chapter { color: var(--color-accent); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .story-opening h1 { max-width: 19ch; font-size: clamp(2.5rem, 6vw, 5.4rem); line-height: 1.07; text-wrap: balance; }
+  .story-opening > p:not(.story-kicker), .story-section > p:not(.story-chapter) { max-width: 69ch; }
+  .story-lede { font-size: clamp(1.2rem, 2.2vw, 1.55rem); line-height: 1.48; color: var(--color-foreground); }
+  .story-section { padding: clamp(2.4rem, 5vw, 4.2rem) 0; border-top: 1px solid var(--color-border); }
+  .story-section h2 { max-width: 24ch; font-size: clamp(2rem, 4vw, 3.4rem); text-wrap: balance; }
+  .story-section p { line-height: 1.75; }
+  .story-tiers { list-style: none; max-width: none; margin: 2rem 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .story-tiers li { display: flex; flex-direction: column; gap: .8rem; min-width: 0; margin: 0; padding: clamp(1rem, 2.5vw, 1.6rem); border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); }
+  .story-tier-index { color: var(--color-accent); font-size: .85rem; font-weight: 800; }
+  .story-tiers h3 { font-size: 1.35rem; margin: 0 0 .8rem; }
+  .story-tiers p { margin: 0; font-size: .95rem; color: var(--color-muted); line-height: 1.55; }
+  .story-outcome { border-bottom: 1px solid var(--color-border); }
+  .story-line { margin: 2.2rem 0; font-size: clamp(1.3rem, 3vw, 1.9rem); line-height: 1.3 !important; max-width: 28ch !important; }
+  .story-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+  .story-actions a { min-height: 48px; }
+  .story-text-link { color: var(--color-accent); display: inline-flex; align-items: center; padding: .65rem .3rem; }
+  @media (max-width: 700px) {
+    .story-tiers { grid-template-columns: 1fr; }
+    .story-tiers li { flex-direction: row; gap: 1rem; }
+    .story-opening h1 { font-size: clamp(2.6rem, 9vw, 3.5rem); }
+    .story-actions { align-items: stretch; flex-direction: column; }
+    .story-actions a { width: 100%; justify-content: center; text-align: center; }
+  }
+</style>
