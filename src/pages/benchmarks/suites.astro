@@ -4,10 +4,13 @@ import BenchmarksNav from '../../components/BenchmarksNav.astro';
 import latest from '../../../benchmarks/results/latest.json';
 import { assertBenchmarkSuite } from '../../lib/benchmark-suite.mjs';
 
-const modules = import.meta.glob('../../../benchmarks/suites/*.json', {
-  eager: true,
-  import: 'default',
-});
+const modules = import.meta.glob(
+  [
+    '../../../benchmarks/suites/*.json',
+    '../../../benchmarks/cloudflare-composition/cf-compose-01.json',
+  ],
+  { eager: true, import: 'default' },
+);
 const packs = Object.entries(modules)
   .sort(([left], [right]) => left.localeCompare(right))
   .map(([file, spec]) => ({
@@ -154,6 +157,8 @@ const stateClass = (state: string) =>
     <h2 id="run-title">Run one pack</h2>
     <p>From a checkout of this repository, run only the checks the pack names:</p>
     <pre>node benchmarks/runner.mjs --suite FLOW-01</pre>
+    <p>The optional CF-COMPOSE-01 pack lives in a separate directory, so name it explicitly:</p>
+    <pre>node benchmarks/runner.mjs --suites benchmarks/cloudflare-composition --suite CF-COMPOSE-01</pre>
     <p class="small">
       The runner validates the pack, resolves the named modules, runs only those checks and prints the same result shape
       as a full run. Without <code>--suite</code>, the existing <code>.mjs</code> suite discovery is unchanged.
