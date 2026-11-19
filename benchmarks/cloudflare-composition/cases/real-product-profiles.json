@@ -1,0 +1,1125 @@
+{
+  "schema": "cloudflare-outcome-profiles/v1",
+  "id": "CF-COMPOSE-REAL-WORLD",
+  "version": 1,
+  "createdOn": "2026/11/19",
+  "status": "definitions-only; all profiles not-run",
+  "parentCampaign": "benchmarks/cloudflare-composition/cases/scenarios.json",
+  "evaluationOwner": "https://github.com/loftwah/app-composer/issues/601",
+  "foundationIssue": "https://github.com/loftwah/app-composer/issues/930",
+  "sourceDocs": [
+    "What Would Be My Ultimate Wishlist If I Could Control Cloudflare?",
+    "If Cloudflare Gave Me the Keys: What I'd Actually Build"
+  ],
+  "purpose": "Extend the existing six-journey Cloudflare creator-outcome campaign with specific production/application/media/game/agent/enterprise proof profiles. Profiles share its runner/report/evidence contract; they are not another benchmark engine, forced release gate, provider claim or automatic green result.",
+  "resultPolicy": "Every profile is not-run until real version-pinned user/provider evidence exists. A blocked prerequisite is blocked, a missing observation is inconclusive. Never convert fixtures or local green checks into user outcome, cost, cloud, phone, media or residency proof. Existing six-required-journey denominator remains unchanged; profile denominator/status is reported separately. Fail closed on rights, secrets, cross-tenant writes, fabricated source identity or unapproved spend.",
+  "runLayers": [
+    "source-review",
+    "local-deterministic",
+    "real-browser",
+    "authorised-isolated-provider",
+    "human-observation",
+    "independent-account",
+    "verified-production"
+  ],
+  "capabilityCatalogue": [
+    {
+      "id": "MCP-01",
+      "theme": "application/service dependency graph"
+    },
+    {
+      "id": "MCP-02",
+      "theme": "reviewable infrastructure plans"
+    },
+    {
+      "id": "MCP-03",
+      "theme": "Artifact-to-preview-to-production"
+    },
+    {
+      "id": "MCP-04",
+      "theme": "local/remote Artifacts parity"
+    },
+    {
+      "id": "MCP-05",
+      "theme": "durable job identity/status"
+    },
+    {
+      "id": "MCP-06",
+      "theme": "scoped agent grants"
+    },
+    {
+      "id": "MCP-07",
+      "theme": "actual live version proof"
+    },
+    {
+      "id": "MCP-08",
+      "theme": "cross-service incident diagnosis"
+    },
+    {
+      "id": "MCP-09",
+      "theme": "real browser/audiovisual proof"
+    },
+    {
+      "id": "MCP-10",
+      "theme": "per-operation costs"
+    },
+    {
+      "id": "MCP-11",
+      "theme": "agent-facing capability discovery"
+    },
+    {
+      "id": "MCP-12",
+      "theme": "typed operational recipes"
+    },
+    {
+      "id": "MCP-13",
+      "theme": "application MCP interoperability"
+    },
+    {
+      "id": "PLATFORM-01",
+      "theme": "application-aware control plane"
+    },
+    {
+      "id": "PLATFORM-02",
+      "theme": "isolated preview environments"
+    },
+    {
+      "id": "PLATFORM-03",
+      "theme": "multi-tenancy"
+    },
+    {
+      "id": "PLATFORM-04",
+      "theme": "full release/recovery lifecycle"
+    },
+    {
+      "id": "PLATFORM-05",
+      "theme": "persistent agent workspaces"
+    },
+    {
+      "id": "PLATFORM-06",
+      "theme": "media/compute jobs"
+    },
+    {
+      "id": "PLATFORM-07",
+      "theme": "real-device/visual testing"
+    },
+    {
+      "id": "PLATFORM-08",
+      "theme": "game infrastructure"
+    },
+    {
+      "id": "PLATFORM-09",
+      "theme": "data/migration safety"
+    },
+    {
+      "id": "PLATFORM-10",
+      "theme": "R2 media and provenance"
+    },
+    {
+      "id": "PLATFORM-11",
+      "theme": "model choice and evaluations"
+    },
+    {
+      "id": "PLATFORM-12",
+      "theme": "reusable LEGO catalogue"
+    },
+    {
+      "id": "PLATFORM-13",
+      "theme": "IAM and delegation"
+    },
+    {
+      "id": "PLATFORM-14",
+      "theme": "cost allocation and budgets"
+    },
+    {
+      "id": "PLATFORM-15",
+      "theme": "new creator onboarding"
+    },
+    {
+      "id": "PLATFORM-16",
+      "theme": "source/data portability"
+    },
+    {
+      "id": "PLATFORM-17",
+      "theme": "Australian residency options"
+    },
+    {
+      "id": "PLATFORM-18",
+      "theme": "developer feedback to product pipeline"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "CF-R01",
+      "name": "New creator to useful owned application",
+      "priority": "first",
+      "relatedJourneys": [
+        "CF-J01",
+        "CF-J02",
+        "CF-J06"
+      ],
+      "wishlistRefs": [
+        "MCP-01",
+        "MCP-02",
+        "MCP-11",
+        "MCP-12",
+        "PLATFORM-01",
+        "PLATFORM-02",
+        "PLATFORM-15"
+      ],
+      "product": "App Composer · Get Ready/Init/EmDash",
+      "outcome": "A person without existing Cloudflare/Wrangler knowledge creates a useful multi-resource app, reopens it, makes a second change and owns the result.",
+      "baseline": "Record the same frozen task through the currently supported manual Get Ready/Init + ordinary Git/Cloudflare setup before comparing an improved provider-assisted path.",
+      "prerequisites": [
+        "Consent from a real novice or explicitly label an agent-only exercise; fixed brief and selected references",
+        "Authorised disposable Cloudflare target or local-only evaluation marked blocked for provider steps",
+        "Predeclare resource graph, cost ceiling, permissions, recovery and cleanup owner"
+      ],
+      "steps": [
+        "Start from a clean creator state and measure real comprehension and time to first meaningful preview",
+        "Inspect proposed application graph, typed plan, resource reuse, costs and missing/unknown bindings",
+        "Produce the real running app and verify expected routes, content/form state, auth and save/reopen",
+        "Reopen as owner, request a useful second change, verify changed source and live identity",
+        "Export owned source/config/supported data with independent source-of-truth and unknowns disclosed"
+      ],
+      "positiveControl": "A permitted creator completes the configured app and verifies the real saved follow-up change.",
+      "negativeCases": [
+        {
+          "id": "missing-resource",
+          "scenario": "Withhold a necessary declared binding",
+          "expected": "Plan refuses/flags the gap; no fabricated complete graph"
+        },
+        {
+          "id": "stale-plan",
+          "scenario": "Change a disposable resource after plan approval",
+          "expected": "Execution rechecks, refuses or reprices the changed target"
+        },
+        {
+          "id": "first-time-offline",
+          "scenario": "No connected agent, account or permission",
+          "expected": "Useful local/onboarding path remains available; provider operation stays blocked"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "creator_task_completion",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "time_to_first_useful_preview",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "time_to_verified_own_app",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "manual_setup_actions",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "comprehension_seq",
+          "unit": "1-7",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "resources_created_and_reused",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "observed_incremental_cost",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Pinned brief, journey and accepted references",
+        "Starting account/agent capability inventory and proposed resource graph",
+        "Real preview/live state and output/source/version record",
+        "Novice observation, assist steps, cost report and source/data export"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/425",
+        "https://github.com/loftwah/app-composer/issues/590",
+        "https://github.com/loftwah/app-composer/issues/21",
+        "https://github.com/loftwah/app-composer/issues/16",
+        "https://github.com/loftwah/app-composer/issues/623"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R02",
+      "name": "Phone-only supervised agent change to verified live release",
+      "priority": "first",
+      "relatedJourneys": [
+        "CF-J02",
+        "CF-J03",
+        "CF-J05"
+      ],
+      "wishlistRefs": [
+        "MCP-03",
+        "MCP-05",
+        "MCP-07",
+        "MCP-09",
+        "PLATFORM-04",
+        "PLATFORM-05"
+      ],
+      "product": "App Composer mobile release desk · Guestbook/Linkarooie pilot",
+      "outcome": "An authorised phone user supervises a real agent change, preview, review, guarded release and independent live verification while their laptop is unavailable.",
+      "baseline": "Run the same bounded change with existing ordinary Git and local repository release commands; distinguish task runtime from supervisory time.",
+      "prerequisites": [
+        "Explicitly selected source revision, disposable preview and authorized owner release path",
+        "Approved remote executor/agent integration; no assumption a browser/phone itself can host builds",
+        "Document runner sleep/offline behaviour, timeouts, approval policy, expected live source identity"
+      ],
+      "steps": [
+        "With local laptop unavailable, start from phone and read active repo, Worker version, work state and permissions",
+        "Delegate one small source change, observe real job identity/status/logs and exact diff",
+        "Start an isolated working preview; verify target identity and one real user interaction",
+        "Approve according to existing rules, pass independent review/guards and release only the approved SHA",
+        "Re-read live Worker identity, actual served origin and user journey, preserving failure/unknown status when identity differs",
+        "Disconnect/reopen phone between stages and reconcile in-flight status without duplicate effects"
+      ],
+      "positiveControl": "One real authorised change is verified live and remains operable after the phone disconnects.",
+      "negativeCases": [
+        {
+          "id": "runner-sleeps",
+          "scenario": "Suspend disposable runner during a bounded long task",
+          "expected": "State reports sleep/interruption accurately, not successful background execution"
+        },
+        {
+          "id": "wrong-build",
+          "scenario": "Preview or production reports a mismatched source/Worker revision",
+          "expected": "Release/verification refuses success"
+        },
+        {
+          "id": "unknown-outcome",
+          "scenario": "Lose one provider acknowledgement after an operation",
+          "expected": "Reconcile by durable ID before retrying; no duplicate effect"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "task_wall_time",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "human_supervision_time",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "manual_interventions",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "disconnect_reconciliations",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "duplicate_effects",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "live_revision_matches",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "observed_runner_cost",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Mobile session journey and actual runner/service identity",
+        "Task/PR/review/release receipts and exact commits",
+        "Preview capture and independent production browser/result evidence",
+        "Interruption/reconciliation and measured time/cost ledger"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/772",
+        "https://github.com/loftwah/app-composer/issues/597",
+        "https://github.com/loftwah/app-composer/issues/319",
+        "https://github.com/loftwah/app-composer/issues/11",
+        "https://github.com/loftwah/app-composer/issues/445"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R03",
+      "name": "Parallel agent alternatives with Git/Artifacts portability",
+      "priority": "first",
+      "relatedJourneys": [
+        "CF-J02",
+        "CF-J06"
+      ],
+      "wishlistRefs": [
+        "MCP-03",
+        "MCP-04",
+        "MCP-06",
+        "PLATFORM-02",
+        "PLATFORM-05",
+        "PLATFORM-16"
+      ],
+      "product": "App Composer workspace-provider adapter · optional Artifacts",
+      "outcome": "Two independent agents create competing improvements from an identical immutable base, review the actual alternatives, retain all candidates and export the selected result to normal Git/GitHub.",
+      "baseline": "Use conventional git branches/worktrees/bundles; compare friction only if a qualified Artifacts backend is available.",
+      "prerequisites": [
+        "Pinned synthetic source fixture, two isolated workspaces and separate task permissions",
+        "GitHub remains authoritative for accepted source; Artifacts optional and version/capability checked",
+        "Cloudflare local simulator does not certify push-triggered cloud behaviour"
+      ],
+      "steps": [
+        "Fork/branch the pinned fixture into two independent task workspaces",
+        "Have two selected permitted agents make intentionally different changes and capture complete diff/review receipts",
+        "Test conflict/rebase and ensure neither branch changes the other or production",
+        "Export selected and unselected work as standard Git, restore in clean non-Artifacts checkout",
+        "Compare measured setup/export/cleanup time with ordinary Git; refuse unsupported local push-event parity claims",
+        "Revoke grants and clean up only owned workspaces while retaining accepted source and proof"
+      ],
+      "positiveControl": "Both alternatives and one accepted Git round trip are recoverable without Artifacts.",
+      "negativeCases": [
+        {
+          "id": "cross-branch-write",
+          "scenario": "Attempt one task grant against the other task repository",
+          "expected": "Denied with zero cross-task writes"
+        },
+        {
+          "id": "conflicting-changes",
+          "scenario": "Both tasks change the same tracked base",
+          "expected": "Conflict is observable and handled; no silent overwrite"
+        },
+        {
+          "id": "local-push-event",
+          "scenario": "Expect remote push-triggered build from the local simulator",
+          "expected": "Mark unsupported or separately qualify remote; no fake event"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "workspace_start_time",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "agent_attempts",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "candidate_diff_count",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "unintended_cross_writes",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "git_export_roundtrip",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "cost_by_backend",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "cleanup_leftovers",
+          "unit": "count",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Base/candidate SHA and diff evidence",
+        "Per-task permissions and denied-operation receipts",
+        "Ordinary Git export and source-verified clean restore",
+        "Qualified backend/version, local-vs-remote limitations and comparison ledger"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/717",
+        "https://github.com/loftwah/app-composer/issues/600",
+        "https://github.com/loftwah/app-composer/issues/311",
+        "https://github.com/loftwah/woodhouse-new/issues/281"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R04",
+      "name": "Original song to finished editable music video",
+      "priority": "follow-on",
+      "relatedJourneys": [
+        "CF-J04",
+        "CF-J05"
+      ],
+      "wishlistRefs": [
+        "MCP-05",
+        "MCP-09",
+        "MCP-10",
+        "PLATFORM-06",
+        "PLATFORM-10",
+        "PLATFORM-11"
+      ],
+      "product": "Media Studio · LoftwahFM",
+      "outcome": "A rights-cleared original song becomes a complete coherent music video with revision-linked scene plan, approved takes, audio sync, real render, saved originals and usable export.",
+      "baseline": "Use Studio's existing supported production/assembly actions; any model/GPU runner qualification is a distinct optional comparison.",
+      "prerequisites": [
+        "Owned/licensed song and visual references; source fingerprints, project version and rights",
+        "Declare expected duration, scene plan, output profile, provider eligibility, CPU/GPU and codec requirements",
+        "Set bounded processing allowance and supported human art review; no invented model entitlement"
+      ],
+      "steps": [
+        "Ingest original audio and preserve provenance, preference/reference approvals and editable plan",
+        "Prepare and revise scene directions; compare at least two legitimate creative alternatives when supported",
+        "Produce/choose actual takes and retained revisions; edit in/out points, captions and soundtrack alignment",
+        "Render complete playable output using an authorised supported engine; preserve inputs, hashes and failed attempts",
+        "Seek/play real video and sound, reopen/edit one shot and re-render; verify correct changed version",
+        "Have a person assess actual musical/story quality separately from valid-file and technical correctness"
+      ],
+      "positiveControl": "A finished version-pinned MP4 with corresponding editable project and approval can be reopened and revised.",
+      "negativeCases": [
+        {
+          "id": "render-interrupted",
+          "scenario": "Interrupt a bounded render, transfer or status response",
+          "expected": "Durable job identity or honest unsupported resume; no fake finished film"
+        },
+        {
+          "id": "timing-drift",
+          "scenario": "Provide an intentionally wrong cut/caption/audio offset",
+          "expected": "Detect mismatch rather than judging any decodable MP4 as successful"
+        },
+        {
+          "id": "rights-mismatch",
+          "scenario": "Use withdrawn/unapproved source media in public export",
+          "expected": "Publication prevented, originals retained appropriately"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "complete_video_duration",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "human_creative_preference",
+          "unit": "comparison",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "revision_roundtrip",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "audio_timing_offset",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "render_wall_time",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "provider_attempts",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "cost_estimated",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "cost_observed",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Original song hash/rights and saved editable project",
+        "Shot/caption/audio timing map, take and version lineage",
+        "Playable final export plus browser/decoder observation",
+        "Creative review and real provider cost/cancellation receipts"
+      ],
+      "owners": [
+        "https://github.com/loftwah/composer-media-studio/issues/14",
+        "https://github.com/loftwah/composer-media-studio/issues/150",
+        "https://github.com/loftwah/composer-media-studio/issues/222",
+        "https://github.com/loftwah/composer-media-studio/issues/11",
+        "https://github.com/loftwah/composer-media-studio/issues/445"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R05",
+      "name": "Real game and music player experience on mobile",
+      "priority": "follow-on",
+      "relatedJourneys": [
+        "CF-J05"
+      ],
+      "wishlistRefs": [
+        "MCP-09",
+        "PLATFORM-07",
+        "PLATFORM-08",
+        "PLATFORM-10"
+      ],
+      "product": "Fighter · Bubbles · SHOALSHOT · Protocol 11 · LoftwahFM",
+      "outcome": "A real browser/player completes a meaningful first-five-minute game or start/navigate/seek audio task with actual canvas, sound and performance evidence tied to its source version.",
+      "baseline": "Use each owning game's deterministic replay and Playwright/browser suite; do not replace native tests with a generic score.",
+      "prerequisites": [
+        "Pin game build, save seed/replay and exact device/viewport/audio expectations",
+        "Explicitly distinguish Chromium emulation, WebKit and physical iOS testing; do not claim unavailable hardware coverage",
+        "Select a recording method that captures relevant canvas/WebGL pixels and audio if needed"
+      ],
+      "steps": [
+        "Start new or restored session and verify real playable/reachable menu controls",
+        "Perform a fixed interaction (combat move, bubble placement, catch or multiplayer turn) and inspect authoritative state",
+        "Record actual rendered pixels, audio continuity, frame-time distribution and error/network evidence",
+        "Restart/reopen to verify correct progress; check reduced motion, touch targets, keyboard where relevant",
+        "For LoftwahFM start, navigate and seek without unintended pause; verify real audible output",
+        "Have a human rate comprehension and enjoyment/usefulness separately from deterministic checks"
+      ],
+      "positiveControl": "Complete the required interaction with real state evidence, playable capture and source/build identity.",
+      "negativeCases": [
+        {
+          "id": "dom-replay-only",
+          "scenario": "Give a DOM recording with omitted canvas/audio",
+          "expected": "The omitted visual/audio parts remain unqualified"
+        },
+        {
+          "id": "wrong-revision",
+          "scenario": "Attach a recording from an older build",
+          "expected": "Reject as current release evidence"
+        },
+        {
+          "id": "save-corruption",
+          "scenario": "Damage a disposable save snapshot",
+          "expected": "Report incompatibility or safe recovery; don't silently erase saved play"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "first_meaningful_interaction_time",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "task_errors",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "frame_time_p95_observed",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "audio_dropouts",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "save_roundtrip",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "human_task_seq",
+          "unit": "1-7",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "real_device_coverage",
+          "unit": "count",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Gameplay/seek recording with actual pixels and audio",
+        "Game state/replay/save receipt, build/source hash",
+        "Frame sample count and trace plus browser vs device limitations",
+        "Attributed human judgement and linked project issue/release"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/659",
+        "https://github.com/loftwah/app-composer/issues/623",
+        "https://github.com/loftwah/app-composer/issues/445"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R06",
+      "name": "Two-tenant governed operations, costs and region",
+      "priority": "follow-on",
+      "relatedJourneys": [
+        "CF-J02",
+        "CF-J06"
+      ],
+      "wishlistRefs": [
+        "MCP-02",
+        "MCP-06",
+        "MCP-10",
+        "MCP-13",
+        "PLATFORM-03",
+        "PLATFORM-13",
+        "PLATFORM-14",
+        "PLATFORM-17"
+      ],
+      "product": "App Composer · independent two-workspace enterprise fixture",
+      "outcome": "Two distinct creator/tenant identities can use permitted apps and scoped agent actions, while cross-tenant access, unauthorised spending and unsupported residency claims are blocked.",
+      "baseline": "Compare the same permission test to current Composer grants plus provider-side scoped tokens; don't assume Cloudflare account ownership equals app membership.",
+      "prerequisites": [
+        "Create only owned disposable tenant/project fixtures; no real customer data",
+        "Declare role/resource/action matrix, lease durations, revocation and residency needs",
+        "Set independent spend/request ceilings and document advisory vs enforceable budgets"
+      ],
+      "steps": [
+        "Create two isolated project contexts with separate accounts/grants and named resource bindings",
+        "Verify valid read, preview and scoped write actions with the least privileged role",
+        "Attempt cross-tenant read/write and production permission escalation; verify provider boundary",
+        "Revoke one grant and observe subsequent/in-flight work within bounded attempts",
+        "Report observed per-project/provider costs, forecast assumptions and spend uncertainty separately",
+        "Evaluate Australian residency requirement against actual product/account configuration; if not available report blocker not compliance"
+      ],
+      "positiveControl": "Authorised operations work while prohibited cross-tenant effects do not occur.",
+      "negativeCases": [
+        {
+          "id": "cross-tenant-access",
+          "scenario": "Use tenant A grant for tenant B resource",
+          "expected": "Deny, audit and verify no side effect"
+        },
+        {
+          "id": "unapproved-spend",
+          "scenario": "Propose a task above declared allowance",
+          "expected": "Require approval or refuse; do not treat budget alerts as hard caps"
+        },
+        {
+          "id": "residency-unknown",
+          "scenario": "Omit jurisdiction evidence for a region-sensitive project",
+          "expected": "Do not assert data residency compliance"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "authorised_successes",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "cross_tenant_effects",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "grant_revocation_latency",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "observed_cost_by_tenant",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "unattributed_usage",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "residency_evidence_present",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Signed-off role/action/tenant fixture and resource mapping",
+        "Permitted and denied operation traces with secrets redacted",
+        "Revocation/budget observations and provider bills where actually available",
+        "Actual region/jurisdiction facts, limitations and residual risk"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/113",
+        "https://github.com/loftwah/app-composer/issues/216",
+        "https://github.com/loftwah/app-composer/issues/291",
+        "https://github.com/loftwah/app-composer/issues/599",
+        "https://github.com/loftwah/app-composer/issues/597"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R07",
+      "name": "App-wide incident investigation and independently verified recovery",
+      "priority": "follow-on",
+      "relatedJourneys": [
+        "CF-J03",
+        "CF-J06"
+      ],
+      "wishlistRefs": [
+        "MCP-01",
+        "MCP-07",
+        "MCP-08",
+        "PLATFORM-04",
+        "PLATFORM-09",
+        "PLATFORM-10",
+        "PLATFORM-16"
+      ],
+      "product": "App Composer · controlled Guestbook/EmDash/R2/D1 fixture",
+      "outcome": "An authorised operator diagnoses a controlled multi-resource regression, proposes proportionate repair and proves usable application recovery without losing protected state.",
+      "baseline": "Use existing app-specific guarded release and D1/R2 export/restore scripts as comparator; no assumption a Worker rollback restores state.",
+      "prerequisites": [
+        "Isolated deployment with preapproved fault injection, backups and independently testable restore",
+        "Resource dependency inventory including unread/unknown service settings",
+        "Recovery objective for code, D1 schema/records, R2 and grants kept separate"
+      ],
+      "steps": [
+        "Establish a working app and capture source/Worker/config/data/media baseline",
+        "Introduce one bounded fault on disposable resources; correlate real traces and user-visible failure",
+        "Identify likely cause and list unknown dependencies; present repair and impact plan",
+        "Apply an approved compatible correction or coordinated restore with distinct code/data/media steps",
+        "Reopen real user journey, compare retained records, deletion/privacy state and original/active versions",
+        "Record recovery elapsed time, missing observations, rollback limits and measured resource use"
+      ],
+      "positiveControl": "Useful app recovers in the isolated environment with protected source/data/media/rights state intact.",
+      "negativeCases": [
+        {
+          "id": "code-only-rollback",
+          "scenario": "Restore Worker code while D1 schema or R2 state differs",
+          "expected": "Do not claim full application recovery until checked"
+        },
+        {
+          "id": "stale-binding-graph",
+          "scenario": "Hide one critical dependency",
+          "expected": "Expose uncertainty; prevent destructive cleanup from incomplete graph"
+        },
+        {
+          "id": "deleted-record-resurrection",
+          "scenario": "Restore older backup that contains withdrawn/deleted test media",
+          "expected": "Tombstone/visibility policy remains enforced or test fails"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "time_to_detect",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "time_to_useful_recovery",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "records_preserved",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "unverified_dependencies",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "unauthorised_publications",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "recovery_coverage",
+          "unit": "percent",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "observed_cost",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Fault declaration and initial healthy user result",
+        "Actual source/config/deployment/data/media identities",
+        "Detection/hypothesis/recovery steps with independent recheck",
+        "Backup/restore readouts and explicit unsupported aspects"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/215",
+        "https://github.com/loftwah/app-composer/issues/445",
+        "https://github.com/loftwah/app-composer/issues/118",
+        "https://github.com/loftwah/app-composer/issues/9"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R08",
+      "name": "App Composer recursively rebuilds and evolves itself",
+      "priority": "flagship",
+      "relatedJourneys": [
+        "CF-J01",
+        "CF-J06"
+      ],
+      "wishlistRefs": [
+        "MCP-03",
+        "MCP-12",
+        "MCP-13",
+        "PLATFORM-12",
+        "PLATFORM-15",
+        "PLATFORM-16"
+      ],
+      "product": "App Composer · portable LEGO blueprints and second Cloudflare account",
+      "outcome": "An independently owned App Composer installation can be constructed through Composer's documented method, reproduce supported modules and then use the new instance to create and evolve a real third app.",
+      "baseline": "Compare with manually deploying the same pinned Composer release and equivalent dependency/secret-free fixture.",
+      "prerequisites": [
+        "Exact source versions, reusable block manifests, compatibility and licence/rights checks",
+        "Isolated independent Cloudflare account/credentials explicitly authorised by that owner",
+        "Freeze functional parity assertions, exclusions and cost limits before any attempt"
+      ],
+      "steps": [
+        "Enumerate the actual canonical components, app manifests, source, content/media provenance and deployment dependencies",
+        "Export a versioned blueprint/recipe and install in a clean second account without original owner credentials",
+        "Verify deployed Composer identity, privacy, content models, reusable blocks and independent management",
+        "Use reconstructed Composer to create one new useful app; then perform a separate follow-up change",
+        "Attempt a documented repeat reconstruction from the new instance if supported; otherwise mark blocked, not self-rebuilt",
+        "Compare observed behaviour against the agreed parity matrix, with missing modules and manual interventions exposed"
+      ],
+      "positiveControl": "Second installation proves supported independent operation and a genuine create/change workflow.",
+      "negativeCases": [
+        {
+          "id": "original-owner-secret",
+          "scenario": "Remove Loftwah-only API keys and account access",
+          "expected": "Reconstruction uses re-bound independent credentials or explicitly blocks"
+        },
+        {
+          "id": "false-parity",
+          "scenario": "Drop a required supported component or substitute a screenshot",
+          "expected": "Parity/functional acceptance fails"
+        },
+        {
+          "id": "private-asset-import",
+          "scenario": "Include private or unlicensed media in transferable blueprint",
+          "expected": "Importer refuses publication/transfer"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "independent_coverage",
+          "unit": "percent",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "missing_capabilities",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "manual_interventions",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "time_to_independent_install",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "new_app_followup_success",
+          "unit": "boolean",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "recursion_depth_verified",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "observed_cost",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Source/manifest/rights ledger and frozen parity checklist",
+        "Independent account deployment and auth/secret boundaries",
+        "Actual app/new-project user journeys and versioned proofs",
+        "Original vs rebuilt comparison, unsupported modules and retained alternatives"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/931",
+        "https://github.com/loftwah/app-composer/issues/600",
+        "https://github.com/loftwah/app-composer/issues/476",
+        "https://github.com/loftwah/app-composer/issues/603",
+        "https://github.com/loftwah/app-composer/issues/425"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    },
+    {
+      "id": "CF-R09",
+      "name": "Evidence-led portfolio telemetry and actionable Cloudflare feedback",
+      "priority": "follow-on",
+      "relatedJourneys": [
+        "CF-J02",
+        "CF-J03",
+        "CF-J04",
+        "CF-J05"
+      ],
+      "wishlistRefs": [
+        "MCP-01",
+        "MCP-07",
+        "MCP-10",
+        "PLATFORM-01",
+        "PLATFORM-14",
+        "PLATFORM-17",
+        "PLATFORM-18"
+      ],
+      "product": "App Composer Benchmarks Studio/Share · Woodhouse public observatory",
+      "outcome": "An operator sees which exact versions are live and which tasks actually completed across multiple independent projects, then publishes one rights-approved source-linked benchmark and one reproducible upstream improvement request.",
+      "baseline": "Compare disconnected manual inspection of GitHub, Cloudflare and project-native release reports to the supported project-aware interface.",
+      "prerequisites": [
+        "Select publicly safe test projects or authorised redacted projections",
+        "Define freshness and sample-count policy, user approval for any publication",
+        "Preserve GitHub, Cloudflare, Studio and portfolio project authorities separately"
+      ],
+      "steps": [
+        "Resolve at least two independent projects from source to active provider identity and actual origin checks",
+        "Join authorised work/issue/release/health facts without guessing unobserved dependencies",
+        "Display provenance, time/freshness, unknown cost and private/public scope",
+        "Retain a benchmark run with pinned inputs, measured limitations, human interpretation and negative case",
+        "Create an approved public derivative/shareable excluding private issues, prompts, media and credentials",
+        "Write one Cloudflare feedback report: observed provider limitation vs local app bug, workaround, measured cost and smallest falsifiable ask"
+      ],
+      "positiveControl": "A public-safe reviewed report links to actual observations and upstream feedback without exposing private project data.",
+      "negativeCases": [
+        {
+          "id": "stale-version",
+          "scenario": "Supply a green report for a no-longer-active deployment",
+          "expected": "Mark stale, not live"
+        },
+        {
+          "id": "fake-free",
+          "scenario": "Omit provider usage/cost",
+          "expected": "Report unknown coverage, not zero spend"
+        },
+        {
+          "id": "private-source",
+          "scenario": "Attempt to publish an unapproved private repo issue/body",
+          "expected": "Publication denied or redacted with no leak"
+        }
+      ],
+      "metrics": [
+        {
+          "id": "live_identity_match_rate",
+          "unit": "percent",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "observations_with_provenance",
+          "unit": "percent",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "freshness_lag",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "unattributed_cost",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "manual_lookup_steps",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "public_leaks",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "measured_workaround_cost",
+          "unit": "requests-or-ms",
+          "missing": "null-with-reason"
+        }
+      ],
+      "evidence": [
+        "Source- and environment-pinned multi-project observations",
+        "Redacted benchmark run and provenance chain",
+        "Publication consent and reviewed public derivative",
+        "Cloudflare feedback note with reproduction steps, evidence and owner classification"
+      ],
+      "owners": [
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/app-composer/issues/613",
+        "https://github.com/loftwah/app-composer/issues/118",
+        "https://github.com/loftwah/woodhouse-new/issues/18"
+      ],
+      "status": "not-run",
+      "required": false,
+      "evidenceRecorded": [],
+      "limits": [
+        "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+      ]
+    }
+  ]
+}
