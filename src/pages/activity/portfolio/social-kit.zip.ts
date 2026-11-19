@@ -7,7 +7,7 @@ import { portfolioCaption, portfolioDateRange, portfolioTotal } from "../../../l
 import { portfolioCard } from "../../../lib/portfolio-card";
 import { portfolioProjects } from "../../../lib/portfolio-projects";
 import {
-  parsePortfolioPeriod, readProjectReport, reportAddress, sourceAddress, REPORT_PATH,
+  dailyValuesCsv, parsePortfolioPeriod, readProjectReport, reportAddress, sourceAddress, REPORT_PATH,
 } from "../../../lib/portfolio-report";
 
 const FORMATS = ["landscape", "square", "portrait"] as const;
@@ -39,6 +39,7 @@ export const GET: APIRoute = async ({ url, request }) => {
   const attachment = { ...headers, "Content-Type": "application/zip", "Content-Disposition": `attachment; filename="${name}"` };
   if (request.method === "HEAD") return new Response(null, { headers: attachment });
 
+  const capturedAt = new Date().toISOString();
   const encoder = new TextEncoder();
   const files = new Map<string, Uint8Array>();
 
@@ -65,8 +66,15 @@ export const GET: APIRoute = async ({ url, request }) => {
     canonical,
     source,
     ...(report.revision ? { revision: report.revision } : {}),
+    daily: metric.days.map(({ date, value, partial, current, capped }) =>
+      ({ date, value, partial, current, capped })),
+    coverage: { comparableFrom: report.comparableFrom, limitations: report.limitations },
+    capturedAt,
+    composerBuildRevision: build.commit,
+    canonicalLinkState: "live",
   };
   files.set("post-text.txt", encoder.encode(`${caption}\n${source}\n`));
+  files.set("daily-values.csv", encoder.encode(dailyValuesCsv(metric.days)));
   files.set("report.json", encoder.encode(`${JSON.stringify(manifest, null, 2)}\n`));
 
   try {
