@@ -58,6 +58,8 @@ export const embedHtml = [
 
 export const starterFilename = `${widgetRecipe.id}-v${widgetRecipe.version}.html`;
 export const starterPath = `/widgets/${starterFilename}`;
+export const stationAgentTaskFilename = `${widgetRecipe.id}-v${widgetRecipe.version}-agent-task.md`;
+export const stationAgentTaskPath = `/widgets/${stationAgentTaskFilename}`;
 
 export const starterHtml = `<!doctype html>
 <html lang="en">

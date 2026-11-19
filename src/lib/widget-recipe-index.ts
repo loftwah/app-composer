@@ -5,6 +5,7 @@ import {
   stationOrigin,
   recipeUrl,
   starterPath as stationStarterPath,
+  stationAgentTaskPath,
 } from './widget-recipe.ts';
 import {
   filmTitle,
@@ -45,6 +46,7 @@ export const widgetRecipeIndex = {
       actions: [
         { kind: 'recipe', label: 'Download recipe (JSON)', url: recipeUrl },
         { kind: 'html', label: 'Download HTML starter', url: `${composerOrigin}${stationStarterPath}` },
+        { kind: 'agent-task', label: 'Download agent task (Markdown)', url: `${composerOrigin}${stationAgentTaskPath}` },
         { kind: 'builder', label: 'LoftwahFM’s public widget builder', url: builderUrl },
       ],
     },

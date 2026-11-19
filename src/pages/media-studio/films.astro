@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ShareFilmFeedback from '../../components/ShareFilmFeedback.astro';
 import ShareFilmVotes from '../../components/ShareFilmVotes.astro';
 import { loadStudioShowcase, shareFilms, studioFilmPath, studioPublicationOrigin } from '../../lib/share-films.ts';
+import { filmWidgetHref } from '../../lib/studio-film-starter.ts';
 
 const [socialKit, studioTeaser, ...films] = shareFilms;
 const teaser = '/media-studio/watch/media-studio-teaser-recut';
@@ -70,6 +71,7 @@ const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
         <li id={film.id}>
           <a href={film.href}>{film.title}</a>
           <p>{film.detail}</p>
+          {film.id === "take-it-with-you" && <p><a href={filmWidgetHref}>Get the captioned film widget</a></p>}
           {canReview && <ShareFilmVotes film={film} />}
         </li>
       ))}
