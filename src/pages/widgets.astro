@@ -31,14 +31,12 @@ import {
   videoUrl,
   watchUrl,
 } from '../lib/studio-film-starter';
-
-const bubblesReport = `${stationOrigin}/analytics/?source=games&game=bubbles&days=30`;
-const topTracksReport = `${stationOrigin}/analytics?view=music&days=30&report=tracks`;
-const bubblesCards = [
-  { format: 'landscape', label: 'Landscape', dimensions: '1200 × 630' },
-  { format: 'square', label: 'Square', dimensions: '1200 × 1200' },
-  { format: 'portrait', label: 'Portrait', dimensions: '1080 × 1920' },
-];
+import {
+  bubblesCards,
+  bubblesReport,
+  topTracksReport,
+  widgetIndexPath,
+} from '../lib/widget-recipe-index';
 ---
 <Base title="Widget library" description="Embed a LoftwahFM player, share listening cards or host a captioned Media Studio film.">
   <script type="application/json" id="loftwahfm-widget-recipe" set:html={widgetRecipeJson}></script>
@@ -55,6 +53,7 @@ const bubblesCards = [
       <li><a href="#take-it-with-you-film">Take it with you film</a></li>
     </ul>
   </nav>
+  <p><a href={widgetIndexPath} type="application/json">Widget recipes (JSON)</a></p>
 
   <article class="widget-entry" id="loftwahfm-station">
     <h2>LoftwahFM station player</h2>
@@ -136,8 +135,8 @@ const bubblesCards = [
     <section aria-labelledby="bubbles-card-downloads">
       <h3 id="bubbles-card-downloads">Download the current card</h3>
       <ul class="card-downloads">
-        {bubblesCards.map(({ format, label, dimensions }) => (
-          <li><a class="button secondary" href={`${stationOrigin}/api/analytics/games-card.png?game=bubbles&days=30&format=${format}&download=1`}>
+        {bubblesCards.map(({ label, dimensions, url }) => (
+          <li><a class="button secondary" href={url}>
             {label} <span>{dimensions} PNG</span>
           </a></li>
         ))}
