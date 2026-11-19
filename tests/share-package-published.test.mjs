@@ -183,6 +183,7 @@ test("the exact published revision adds a public receipt in JSON, Markdown and c
   const json = sharePackageJson(value);
   const decoded = JSON.parse(json);
   assert.deepEqual(decoded.bluesky.published, { publishedAt, permalink });
+  assert.ok(json.includes(publishedAt), "machine JSON keeps the raw canonical instant");
   assert.equal(decoded.bluesky.approval.notSent, false);
   assert.equal(decoded.bluesky.approval.label, SHARE_PACKAGE_PUBLISHED_LABEL);
   for (const internal of [
@@ -196,22 +197,49 @@ test("the exact published revision adds a public receipt in JSON, Markdown and c
   assert.ok(!json.includes("at://"), "no AT URI in export");
 
   const markdown = sharePackageMarkdown(value);
-  assert.match(markdown, /\*\*Published:\*\*/);
-  assert.ok(markdown.includes(publishedAt));
+  assert.match(markdown, /\*\*Published on Bluesky \(actual\):\*\*/);
+  assert.ok(markdown.includes("2026/11/19 12:02 AEDT"), "Melbourne local time");
+  assert.ok(markdown.includes("2026/11/19 01:02 UTC"), "UTC time");
   assert.ok(markdown.includes(permalink));
+  assert.ok(!markdown.includes(publishedAt), "human copy uses formatted labels, not the raw instant");
   assert.doesNotMatch(markdown, /not sent/i);
   assert.doesNotMatch(markdown, /Send:.*unavailable/);
 
   const plain = sharePackagePlainText(value);
-  assert.match(plain, /^Published: /m);
-  assert.ok(plain.includes(publishedAt));
+  assert.match(plain, /^Published on Bluesky \(actual\): /m);
+  assert.ok(plain.includes("2026/11/19 12:02 AEDT"), "Melbourne local time");
+  assert.ok(plain.includes("2026/11/19 01:02 UTC"), "UTC time");
   assert.ok(plain.includes(permalink));
+  assert.ok(!plain.includes(publishedAt), "human copy uses formatted labels, not the raw instant");
   assert.doesNotMatch(plain, /not sent/i);
   assert.doesNotMatch(plain, /Send: unavailable/);
   assert.ok(
     plain.includes("This approval package does not post"),
     "the package still performs no action",
   );
+});
+
+test("a published receipt with no recorded instant keeps null in JSON and says not recorded in human copy", () => {
+  const value = approvalPackageForItem(
+    snapshot([delivery({ publishedAt: null })]),
+    item,
+    blueskyPackage(),
+  );
+
+  const decoded = JSON.parse(sharePackageJson(value));
+  assert.deepEqual(decoded.bluesky.published, { publishedAt: null, permalink });
+  assert.equal(decoded.bluesky.send.code, "already_published");
+  assert.equal(decoded.bluesky.approval.state, "approved");
+  assert.equal(decoded.link, item.link);
+  assert.equal(decoded.bluesky.send.available, false);
+
+  for (const output of [
+    sharePackageMarkdown(value),
+    sharePackagePlainText(value),
+  ]) {
+    assert.match(output, /Published on Bluesky \(actual\):(?:\*\*)? not recorded/);
+    assert.ok(output.includes(permalink));
+  }
 });
 
 test("older, failed and mismatched deliveries keep notSent true and no receipt", () => {
@@ -239,6 +267,8 @@ test("older, failed and mismatched deliveries keep notSent true and no receipt",
       assert.match(output, /not sent/i, label);
       assert.ok(!output.includes(permalink), label);
       assert.ok(!output.includes(publishedAt), label);
+      assert.ok(!output.includes("2026/11/19 12:02 AEDT"), label);
+      assert.ok(!output.includes("2026/11/19 01:02 UTC"), label);
     }
     assert.match(sharePackageMarkdown(value), /Send:.*unavailable/, label);
     assert.match(sharePackagePlainText(value), /Send: unavailable/, label);
