@@ -1,6 +1,6 @@
 # Why App Composer exists — founder-story source and editorial rules
 
-**Owner-approved public narrative, 2026/11/19 (Australia/Melbourne, UTC+11; 2026/11/18–19 UTC).**
+**Owner-approved public narrative, 2026/11/19 (Australia/Melbourne, UTC+11; 2026/11/19 UTC).**
 Public destination: [Why I built App Composer](https://composer.loftwah.com/story) (`src/pages/story.astro`).
 Existing content owner: [#29](https://github.com/loftwah/app-composer/issues/29). Cross-surface discoverability: [#360](https://github.com/loftwah/app-composer/issues/360). Product capability and proof remain governed by [PRODUCT.md](../PRODUCT.md) and [#590](https://github.com/loftwah/app-composer/issues/590).
 
