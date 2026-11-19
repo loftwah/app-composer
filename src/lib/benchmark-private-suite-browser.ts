@@ -3,6 +3,8 @@ import type {
   PrivateBenchmarkSuiteScope,
   PrivateBenchmarkSuiteSummary,
 } from './benchmark-private-suites';
+import type { SuiteAuthorBase } from './benchmark-suite-author';
+import { projectSuiteLocalTask } from './benchmark-suite-local-task';
 
 type Scope = Pick<PrivateBenchmarkSuiteScope, 'workspaceId' | 'projectId'>;
 type Workspace = { id: string; name: string };
@@ -55,6 +57,16 @@ export function mountPrivateBenchmarkSuites(): (definition: unknown | null) => v
   const save = find<HTMLButtonElement>('#private-suite-save');
   const list = find<HTMLElement>('#private-suite-list');
   if (!access || !workspace || !project || !status || !summary || !save || !list) return () => {};
+
+  // The author form already embeds the exact catalogue; the page pins the build
+  // revision on this section. Both are read once, not refetched on each action.
+  let catalogue: SuiteAuthorBase[] = [];
+  try {
+    catalogue = JSON.parse(document.querySelector<HTMLElement>('#suite-author')?.dataset.catalogue ?? '[]');
+  } catch {
+    catalogue = [];
+  }
+  const revision = root?.dataset.buildRevision ?? '';
 
   let current: unknown | null = null;
   let requestId = 0;
@@ -135,16 +147,22 @@ export function mountPrivateBenchmarkSuites(): (definition: unknown | null) => v
       openButton.type = 'button';
       openButton.textContent = 'Download JSON';
       openButton.className = 'button secondary';
+      const taskButton = document.createElement('button');
+      taskButton.type = 'button';
+      taskButton.textContent = 'Download run task (Markdown)';
+      taskButton.className = 'button secondary';
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
       removeButton.textContent = 'Remove';
       removeButton.className = 'button secondary';
       openButton.addEventListener('click', () => void operate((token, scope) =>
         openSavedSuite(suite.id, token, scope)));
+      taskButton.addEventListener('click', () => void operate((token, scope) =>
+        downloadRunTask(suite.id, token, scope)));
       removeButton.addEventListener('click', () => void operate((token, scope) =>
         removeSavedSuite(suite.id, token, scope)));
       row.className = 'packs-actions';
-      row.append(label, openButton, removeButton);
+      row.append(label, openButton, taskButton, removeButton);
       return row;
     });
     list!.replaceChildren(...rows);
@@ -183,6 +201,27 @@ export function mountPrivateBenchmarkSuites(): (definition: unknown | null) => v
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
     say('Saved suite JSON downloaded.');
+  }
+
+  async function downloadRunTask(id: string, token: number, scope: Scope) {
+    say('Preparing the native run task from the saved definition…');
+    const { suite } = await request<{ suite: PrivateBenchmarkSuiteFull }>({
+      workspace: scope.workspaceId,
+      project: scope.projectId,
+      id,
+    });
+    if (!isCurrent(token, scope)) return;
+    // A definition that is not a single supported pack throws here; operate()
+    // surfaces the helper's message instead of downloading a partial task.
+    const { filename, markdown } = projectSuiteLocalTask(suite.definition, catalogue, revision);
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    say(`Run task downloaded. Pair it with ${id}'s suite JSON from Download JSON.`);
   }
 
   async function removeSavedSuite(id: string, token: number, scope: Scope) {
