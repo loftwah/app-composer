@@ -31,6 +31,15 @@ export const captionTrackUrl = `data:text/vtt;charset=utf-8,${encodeURIComponent
 export const starterFilename = 'take-it-with-you-v1.html';
 export const starterPath = `/widgets/${starterFilename}`;
 
+const filmMarkup = `    <video controls playsinline preload="none" width="1280" height="720" poster="${posterUrl}" aria-label="${filmTitle}, an App Composer commercial">
+      <source src="${videoUrl}" type="video/mp4">
+      <track kind="captions" src="${captionTrackUrl}" srclang="en" label="English captions" default>
+      Your browser does not support HTML video. <a href="${watchUrl}">Watch ${filmTitle} on Media Studio</a>.
+    </video>
+    <p class="credit">Produced in ElevenCreative from App Composer and Woodhouse references. <a href="${watchUrl}">Watch the published film on Media Studio</a>.</p>`;
+
+export const filmEmbedFragment = filmMarkup.trimStart().replace('<video ', '<video style="display:block;max-width:100%;height:auto" ');
+
 export const starterHtml = `<!doctype html>
 <html lang="en">
 <head>
@@ -51,12 +60,7 @@ export const starterHtml = `<!doctype html>
 <body>
   <main>
     <h1>${filmTitle}</h1>
-    <video controls playsinline preload="none" width="1280" height="720" poster="${posterUrl}" aria-label="${filmTitle}, an App Composer commercial">
-      <source src="${videoUrl}" type="video/mp4">
-      <track kind="captions" src="${captionTrackUrl}" srclang="en" label="English captions" default>
-      Your browser does not support HTML video. <a href="${watchUrl}">Watch ${filmTitle} on Media Studio</a>.
-    </video>
-    <p class="credit">Produced in ElevenCreative from App Composer and Woodhouse references. <a href="${watchUrl}">Watch the published film on Media Studio</a>.</p>
+${filmMarkup}
   </main>
 </body>
 </html>
