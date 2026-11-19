@@ -1,6 +1,7 @@
 // MIT. Portable HTML starter for the published Media Studio film.
 
 export const filmTitle = 'Take it with you';
+export const filmWidgetHref = '/widgets#take-it-with-you-film';
 const studioOrigin = 'https://media.loftwah.com';
 export const watchUrl = `${studioOrigin}/p/PbvQYtyGG-YlF0Dh`;
 export const videoUrl = `${watchUrl}/media`;
