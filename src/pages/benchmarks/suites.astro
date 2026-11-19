@@ -218,7 +218,7 @@ const stateClass = (state: string) =>
 
   <section class="packs-section" id="local-result" aria-labelledby="local-result-title">
     <h2 id="local-result-title">Inspect a local run result</h2>
-    <p>Save a runner result as JSON and open it here. The report stays in this tab.</p>
+    <p>Open a runner result here to inspect it in this tab.</p>
     <div class="local-command">
       <label for="local-result-suite">Benchmark suite</label>
       <select id="local-result-suite" disabled>
@@ -233,7 +233,13 @@ const stateClass = (state: string) =>
       <label for="local-result-file">Benchmark result (JSON, up to 1 MB)</label>
       <input id="local-result-file" type="file" accept="application/json,.json" disabled />
       <button id="local-result-clear" class="button secondary" type="button" disabled>Clear result</button>
+      <button id="local-result-keep" class="button secondary" type="button" disabled>Keep in this browser</button>
+      <button id="local-result-open-saved" class="button secondary" type="button" hidden>Open saved result</button>
+      <button id="local-result-forget" class="button secondary" type="button" hidden>Forget saved result</button>
     </div>
+    <p class="small">
+      Keep one result in this browser if you want to reopen it later. Anyone using this browser profile can open it.
+    </p>
     <noscript>Enable JavaScript to open a result on this device.</noscript>
     <p id="local-result-status" role="status"></p>
     <div id="local-result-view"></div>
@@ -252,9 +258,20 @@ const stateClass = (state: string) =>
 
 <script>
   import type { parseLocalBenchmarkResult } from '../../lib/benchmark-local-result';
+  import {
+    LOCAL_BENCHMARK_STORAGE_KEY,
+    MAX_LOCAL_BENCHMARK_BYTES,
+    readSavedLocalBenchmark,
+    saveLocalBenchmark,
+  } from '../../lib/benchmark-local-retention';
+
+  type LocalResult = ReturnType<typeof parseLocalBenchmarkResult>;
 
   const input = document.querySelector<HTMLInputElement>('#local-result-file');
   const clear = document.querySelector<HTMLButtonElement>('#local-result-clear');
+  const keep = document.querySelector<HTMLButtonElement>('#local-result-keep');
+  const openSaved = document.querySelector<HTMLButtonElement>('#local-result-open-saved');
+  const forget = document.querySelector<HTMLButtonElement>('#local-result-forget');
   const status = document.getElementById('local-result-status');
   const view = document.getElementById('local-result-view');
   const suiteSelect = document.querySelector<HTMLSelectElement>('#local-result-suite');
@@ -274,7 +291,7 @@ const stateClass = (state: string) =>
     return element;
   };
 
-  function render(result: ReturnType<typeof parseLocalBenchmarkResult>) {
+  function render(result: LocalResult) {
     const title = node('h3', result.packId ? `Local result · ${result.packId}` : 'Local result');
     const source = node('p', `Source ${result.source} · Generated ${result.generatedAt}`);
     const { checks, pass, fail, blocked } = result.totals;
@@ -295,40 +312,104 @@ const stateClass = (state: string) =>
     return [title, source, summary, ...groups];
   }
 
-  if (input && clear && status && view) {
+  if (input && clear && keep && openSaved && forget && status && view) {
     let request = 0;
+    let current: LocalResult | null = null;
+
+    const refreshSavedControls = () => {
+      let saved = false;
+      try { saved = window.localStorage.getItem(LOCAL_BENCHMARK_STORAGE_KEY) !== null; }
+      catch { /* File inspection still works if this browser blocks storage. */ }
+      openSaved.hidden = !saved;
+      forget.hidden = !saved;
+      keep.textContent = saved ? 'Replace saved result' : 'Keep in this browser';
+    };
+
+    const show = (result: LocalResult, message: string) => {
+      current = result;
+      view.replaceChildren(...render(result));
+      clear.disabled = false;
+      keep.disabled = false;
+      status.textContent = message;
+    };
+
     input.disabled = false;
     input.addEventListener('change', async () => {
       const file = input.files?.[0];
       if (!file) return;
       const selected = ++request;
       clear.disabled = false;
-      if (file.size > 1024 * 1024) {
-        status.textContent = 'Choose a JSON result under 1 MB.';
+      if (file.size > MAX_LOCAL_BENCHMARK_BYTES) {
+        status.textContent = 'Choose a JSON result up to 1 MB.';
         return;
       }
       status.textContent = 'Reading benchmark result…';
       try {
         const { parseLocalBenchmarkResult: parse } = await import('../../lib/benchmark-local-result');
         const result = parse(JSON.parse(await file.text()));
-        if (selected !== request) return;
-        view.replaceChildren(...render(result));
-        status.textContent = 'Benchmark result opened in this tab.';
+        if (selected === request) show(result, 'Benchmark result opened in this tab.');
       } catch {
-        if (selected === request) status.textContent = view.childElementCount
+        if (selected === request) status.textContent = current
           ? 'This file is not a supported benchmark result. The previous result is still open.'
           : 'Choose a JSON file produced by the benchmark runner.';
       }
     });
 
+    keep.addEventListener('click', () => {
+      if (!current) return;
+      try {
+        saveLocalBenchmark(window.localStorage, current);
+        refreshSavedControls();
+        status.textContent = 'Result kept in this browser profile.';
+      } catch {
+        status.textContent = 'Could not keep this result. You can reopen its JSON file.';
+      }
+    });
+
+    openSaved.addEventListener('click', async () => {
+      const selected = ++request;
+      try {
+        const saved = await readSavedLocalBenchmark(window.localStorage);
+        if (selected !== request) return;
+        if (!saved) {
+          refreshSavedControls();
+          status.textContent = 'No saved result is available in this browser.';
+          return;
+        }
+        input.value = '';
+        show(saved, 'Saved result reopened in this tab.');
+      } catch {
+        if (selected === request) status.textContent = 'Could not open the saved result. You can open its original JSON instead.';
+      }
+    });
+
+    forget.addEventListener('click', () => {
+      request++;
+      try {
+        window.localStorage.removeItem(LOCAL_BENCHMARK_STORAGE_KEY);
+        refreshSavedControls();
+        status.textContent = 'Saved result removed from this browser profile.';
+      } catch {
+        status.textContent = 'Could not remove the saved result from this browser.';
+      }
+    });
+
+    window.addEventListener('storage', event => {
+      if (event.key === LOCAL_BENCHMARK_STORAGE_KEY || event.key === null) refreshSavedControls();
+    });
+
     clear.addEventListener('click', () => {
       request++;
       input.value = '';
+      current = null;
       status.textContent = '';
       view.replaceChildren();
       clear.disabled = true;
+      keep.disabled = true;
       input.focus();
     });
+
+    refreshSavedControls();
   }
 </script>
 
