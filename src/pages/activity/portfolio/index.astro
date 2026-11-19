@@ -137,6 +137,10 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
               }</p>
             )}
             {project.site && <a class="portfolio-project-link" href={project.site}>Open {project.name} <ArrowUpRight size={17} aria-hidden="true"/></a>}
+            {project.id === "media-studio" && <div>
+              <p class="small">Sign in to Studio, choose your project and open <strong>Library → Saved outcomes</strong> to view the private report.</p>
+              <a class="portfolio-project-link" href="/media-studio/studio">Inspect saved outcomes in Studio <ArrowUpRight size={17} aria-hidden="true"/></a>
+            </div>}
           </div>
           {cover ? <div class="portfolio-art-panel"><img class="portfolio-cover" src={cover} alt="" fetchpriority="high" width="1000" height="565"/></div> : (
             <div class="portfolio-type-art" aria-hidden="true"><span>{project.name}</span></div>
