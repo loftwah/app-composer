@@ -1,0 +1,184 @@
+{
+  "schema": "obs-01-fixture/v1",
+  "id": "OBS-01",
+  "description": "Fictional, deterministic observed-telemetry fixture: one correlated failure on a selected app path, an independently correlated later recovery, an unaffected control on a separate healthy path, plus one missing record, one duplicate retry, one unsupported-but-acknowledged signal and one shallow health probe. No provider, network, credential, spend, D1, remote data, live claim or reset action.",
+  "scope": {
+    "app": "fictional-caption-lab",
+    "environment": "isolated-fixture",
+    "path": "/api/captions/export",
+    "controlPath": "/api/guestbook/entries"
+  },
+  "records": [
+    {
+      "id": "obs01-req-fail-0001",
+      "classification": "observed",
+      "phase": "failure",
+      "path": "/api/captions/export",
+      "status": 500,
+      "traceId": "obs01-trace-fail-0001",
+      "rootSpanId": "obs01-span-fail-root",
+      "emittedAt": "2026-11-19T10:01:00.000Z",
+      "queryableAt": "2026-11-19T10:01:04.000Z"
+    },
+    {
+      "id": "obs01-req-fail-0001",
+      "classification": "duplicate",
+      "phase": "failure",
+      "path": "/api/captions/export",
+      "status": 500,
+      "traceId": "obs01-trace-fail-0001",
+      "rootSpanId": "obs01-span-fail-root",
+      "emittedAt": "2026-11-19T10:01:05.000Z",
+      "queryableAt": "2026-11-19T10:01:09.000Z"
+    },
+    {
+      "id": "obs01-req-recover-0002",
+      "classification": "observed",
+      "phase": "recovery",
+      "path": "/api/captions/export",
+      "status": 200,
+      "traceId": "obs01-trace-recover-0002",
+      "rootSpanId": "obs01-span-recover-root",
+      "emittedAt": "2026-11-19T10:05:00.000Z",
+      "queryableAt": "2026-11-19T10:05:03.000Z"
+    },
+    {
+      "id": "obs01-req-control-0003",
+      "classification": "observed",
+      "phase": "control",
+      "path": "/api/guestbook/entries",
+      "status": 200,
+      "traceId": "obs01-trace-control-0003",
+      "rootSpanId": "obs01-span-control-root",
+      "emittedAt": "2026-11-19T10:06:00.000Z",
+      "queryableAt": "2026-11-19T10:06:02.000Z"
+    },
+    {
+      "id": "obs01-signal-unsupported-0006",
+      "classification": "unsupported",
+      "phase": "unsupported",
+      "path": "/api/agents/unsupported-signal",
+      "status": 200,
+      "traceId": null,
+      "rootSpanId": null,
+      "emittedAt": "2026-11-19T10:02:00.000Z",
+      "queryableAt": "2026-11-19T10:02:01.000Z"
+    },
+    {
+      "id": "obs01-probe-health-0004",
+      "classification": "shallow-health",
+      "phase": "probe",
+      "path": "/health",
+      "status": 200,
+      "traceId": null,
+      "rootSpanId": null,
+      "emittedAt": "2026-11-19T10:03:00.000Z",
+      "queryableAt": "2026-11-19T10:03:00.000Z"
+    }
+  ],
+  "traces": [
+    {
+      "traceId": "obs01-trace-fail-0001",
+      "spanId": "obs01-span-fail-root",
+      "parentSpanId": null,
+      "childSpanIds": ["obs01-span-fail-store", "obs01-span-fail-render"],
+      "name": "POST /api/captions/export",
+      "status": "error"
+    },
+    {
+      "traceId": "obs01-trace-fail-0001",
+      "spanId": "obs01-span-fail-store",
+      "parentSpanId": "obs01-span-fail-root",
+      "childSpanIds": [],
+      "name": "caption store read",
+      "status": "error"
+    },
+    {
+      "traceId": "obs01-trace-fail-0001",
+      "spanId": "obs01-span-fail-render",
+      "parentSpanId": "obs01-span-fail-root",
+      "childSpanIds": [],
+      "name": "render export",
+      "status": "error"
+    },
+    {
+      "traceId": "obs01-trace-recover-0002",
+      "spanId": "obs01-span-recover-root",
+      "parentSpanId": null,
+      "childSpanIds": ["obs01-span-recover-store", "obs01-span-recover-render"],
+      "name": "GET /api/captions/export",
+      "status": "ok"
+    },
+    {
+      "traceId": "obs01-trace-recover-0002",
+      "spanId": "obs01-span-recover-store",
+      "parentSpanId": "obs01-span-recover-root",
+      "childSpanIds": [],
+      "name": "caption store read",
+      "status": "ok"
+    },
+    {
+      "traceId": "obs01-trace-recover-0002",
+      "spanId": "obs01-span-recover-render",
+      "parentSpanId": "obs01-span-recover-root",
+      "childSpanIds": [],
+      "name": "render export",
+      "status": "ok"
+    },
+    {
+      "traceId": "obs01-trace-control-0003",
+      "spanId": "obs01-span-control-root",
+      "parentSpanId": null,
+      "childSpanIds": ["obs01-span-control-read"],
+      "name": "GET /api/guestbook/entries",
+      "status": "ok"
+    },
+    {
+      "traceId": "obs01-trace-control-0003",
+      "spanId": "obs01-span-control-read",
+      "parentSpanId": "obs01-span-control-root",
+      "childSpanIds": [],
+      "name": "list entries",
+      "status": "ok"
+    }
+  ],
+  "logs": [
+    {
+      "id": "obs01-log-fail-0001",
+      "traceId": "obs01-trace-fail-0001",
+      "spanId": "obs01-span-fail-store",
+      "message": "caption store read failed (fictional fixture)"
+    },
+    {
+      "id": "obs01-log-recover-0001",
+      "traceId": "obs01-trace-recover-0002",
+      "spanId": "obs01-span-recover-store",
+      "message": "caption store read succeeded (fictional fixture)"
+    },
+    {
+      "id": "obs01-log-control-0001",
+      "traceId": "obs01-trace-control-0003",
+      "spanId": "obs01-span-control-read",
+      "message": "guestbook entries read (fictional fixture)"
+    }
+  ],
+  "expected": {
+    "generated": 6,
+    "observed": 3,
+    "observedIds": [
+      "obs01-req-fail-0001",
+      "obs01-req-recover-0002",
+      "obs01-req-control-0003"
+    ],
+    "missingIds": ["obs01-req-missing-0005"],
+    "duplicateIds": ["obs01-req-fail-0001"],
+    "duplicateRecords": 1,
+    "unsupportedIds": ["obs01-signal-unsupported-0006"],
+    "shallowHealthIds": ["obs01-probe-health-0004"],
+    "failureId": "obs01-req-fail-0001",
+    "recoveryId": "obs01-req-recover-0002",
+    "controlId": "obs01-req-control-0003",
+    "lossClaim": "unproven",
+    "overallStatus": "unproven"
+  }
+}
