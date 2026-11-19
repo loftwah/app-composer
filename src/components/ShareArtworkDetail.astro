@@ -5,6 +5,7 @@ import { publicPageCanonical } from '../lib/public-pages.mjs';
 import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
 import { artworkPostBrief, artworkPostText } from '../lib/share-artwork-post.ts';
 import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
+import { shareCalendarEntry } from '../lib/share-calendar-entry';
 import '../styles/share-gallery.css';
 
 interface Props { artwork: CatalogueArtwork; signedIn: boolean; tags: string[]; }
@@ -30,10 +31,7 @@ const primaryExtension = new URL(primary, canonical).pathname.split('.').at(-1)?
 // A reference fragment only: Studio reads the asset ID and revision to offer
 // its own Image Tools handoff. Composer never fetches or uploads anything.
 const studioToolsUrl = `https://media.loftwah.com/tools/images#${new URLSearchParams({'composer-artwork': artwork.assetId, revision})}`;
-// Fixed relative reference to the native Share calendar with this exact public
-// artwork and revision. The resolver needs a project/source record to identify
-// the source, so this is only offered when one is available. Nothing is mutated.
-const shareCalendarTarget = `/_emdash/admin/plugins/composer-stacks/share-calendar?${new URLSearchParams({artwork: artwork.assetId, revision})}`;
+const shareCalendarHref = shareCalendarEntry(signedIn, { assetId: artwork.assetId, revision });
 const packageData = JSON.stringify({
   assetId: artwork.assetId,
   revision,
@@ -101,9 +99,9 @@ const packageData = JSON.stringify({
         <a href={artwork.shareUrl}>Project share kit <ArrowUpRight size={14} /></a>
         {artwork.kitUrl && <a href={artwork.kitUrl}>Open social kit <ArrowUpRight size={14} /></a>}
         {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source record <ArrowUpRight size={14} /></a>}
-        {(artwork.projectUrl && artwork.sourceUrl) && (signedIn
-          ? <a href={shareCalendarTarget}>Prepare in Share calendar <ArrowUpRight size={14} aria-hidden="true" /></a>
-          : <a href={`/_emdash/admin/login?${new URLSearchParams({redirect: shareCalendarTarget})}`}>Sign in to prepare in Share calendar <ArrowUpRight size={14} aria-hidden="true" /></a>)}
+        {artwork.projectUrl && artwork.sourceUrl && (
+          <a href={shareCalendarHref}>{signedIn ? 'Prepare in Share calendar' : 'Sign in to prepare in Share calendar'} <ArrowUpRight size={14} aria-hidden="true" /></a>
+        )}
         <button class="secondary" type="button" data-gallery-copy-alt hidden><Copy size={16} aria-hidden="true" /> Copy image alt text</button>
         <a class="button secondary" href={postTextDownload} download={postTextFileName}><Download size={16} aria-hidden="true" /> Download post text (TXT)</a>
         <a class="button secondary" href={postBriefDownload} download={postBriefFileName}><Download size={16} aria-hidden="true" /> Download post brief (JSON)</a>
