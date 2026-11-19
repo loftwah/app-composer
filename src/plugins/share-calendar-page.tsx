@@ -1884,8 +1884,9 @@ function ShareCalendar({ search }: { search: string }) {
 
   // Export-only X draft save. The exact authenticated workspace from the route
   // search and the exact item/revision on screen are sent to the isolated
-  // xVariant write; it changes only that item's saved X caption. The approval
-  // package stays open so the owner can keep preparing the manual export.
+  // xVariant write; it changes only that item's saved X caption. The row's X
+  // export disclosure stays open so the owner can keep preparing the manual
+  // export.
   async function saveXArtwork(
     id: string,
     expectedRevision: number,
@@ -3755,38 +3756,39 @@ function ShareCalendar({ search }: { search: string }) {
                         </button>
                       )}
                     </div>
-                    {packageFor === item.id && packageValue && (
-                      <>
-                        <ApprovalPackageView
-                          id={`sc-package-${item.id}`}
-                          value={packageValue}
-                          busy={busy}
-                          onCopy={() => void copyPackage(item)}
-                          onDownload={(format) =>
-                            void downloadPackage(item, format)
+                    {isOwner && portfolio && (
+                      <details className="sc-x-export">
+                        <summary>X artwork export</summary>
+                        <ArtworkXExport
+                          key={`${snapshot.workspace.id}:${item.id}:${item.revision}`}
+                          asset={portfolio}
+                          caption={item.caption}
+                          savedCaption={item.variants.find(
+                            (variant) => variant.channel === SHARE_X_CHANNEL,
+                          )?.caption}
+                          workspace={snapshot.workspace.id}
+                          onSave={(value) =>
+                            saveXArtwork(
+                              item.id,
+                              item.revision,
+                              item.variants.find(isXVariant)?.caption ?? null,
+                              value,
+                            )
                           }
+                          busy={busy}
                         />
-                        {isOwner && portfolio && (
-                          <ArtworkXExport
-                            key={`${snapshot.workspace.id}:${item.id}:${item.revision}`}
-                            asset={portfolio}
-                            caption={item.caption}
-                            savedCaption={item.variants.find(
-                              (variant) => variant.channel === SHARE_X_CHANNEL,
-                            )?.caption}
-                            workspace={snapshot.workspace.id}
-                            onSave={(value) =>
-                              saveXArtwork(
-                                item.id,
-                                item.revision,
-                                item.variants.find(isXVariant)?.caption ?? null,
-                                value,
-                              )
-                            }
-                            busy={busy}
-                          />
-                        )}
-                      </>
+                      </details>
+                    )}
+                    {packageFor === item.id && packageValue && (
+                      <ApprovalPackageView
+                        id={`sc-package-${item.id}`}
+                        value={packageValue}
+                        busy={busy}
+                        onCopy={() => void copyPackage(item)}
+                        onDownload={(format) =>
+                          void downloadPackage(item, format)
+                        }
+                      />
                     )}
                     {hasBluesky && (
                       <BlueskyPanel
