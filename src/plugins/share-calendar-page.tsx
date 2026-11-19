@@ -54,6 +54,7 @@ import {
 } from "../lib/share-catalogue-asset";
 import {
   approvalPackageForItem,
+  publishedReceiptLabel,
   sharePackageFilename,
   sharePackageJson,
   sharePackageMarkdown,
@@ -871,8 +872,8 @@ function ApprovalPackageView({
           </p>
           {value.bluesky.published ? (
             <p className="sc-hint">
-              Published on Bluesky at{" "}
-              {value.bluesky.published.publishedAt ?? "not recorded"} ·{" "}
+              Published on Bluesky (actual):{" "}
+              {publishedReceiptLabel(value.bluesky.published)} ·{" "}
               <a
                 href={value.bluesky.published.permalink}
                 target="_blank"

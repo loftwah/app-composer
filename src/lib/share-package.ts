@@ -362,6 +362,19 @@ export function sharePackageJson(value: ShareApprovalPackage): string {
   return JSON.stringify(value, null, 2) + "\n";
 }
 
+// Human-facing label for the persisted publication instant. It reuses the
+// calendar's scheduleLabels helper so the actual published time reads in the
+// same Australia/Melbourne + UTC format as the intended schedule, with its own
+// distinct label. The raw canonical `publishedAt` (or null) stays untouched in
+// the machine JSON; only human copy uses this rendering.
+export function publishedReceiptLabel(
+  receipt: SharePackagePublishedReceipt,
+): string {
+  if (!receipt.publishedAt) return SHARE_PACKAGE_NOT_RECORDED;
+  const labels = scheduleLabels(receipt.publishedAt);
+  return labels ? `${labels.melbourne} · ${labels.utc}` : "Unreadable date";
+}
+
 function fenced(value: string): string {
   const runs = value.match(/`+/g) ?? [];
   const fence = "`".repeat(Math.max(3, ...runs.map((run) => run.length + 1)));
@@ -397,7 +410,7 @@ function blueskyMarkdown(value: SharePackageBluesky): string[] {
     `- **Approval:** ${value.approval.label} · revision ${value.approval.approvalRevision ?? "none"}${value.approval.expiresAt ? ` · expires \`${value.approval.expiresAt}\`` : ""}${value.approval.reasons.length ? ` · reasons: ${value.approval.reasons.join(", ")}` : ""}`,
     ...(value.published
       ? [
-          `- **Published:** ${value.published.publishedAt ?? SHARE_PACKAGE_NOT_RECORDED} · ${value.published.permalink}`,
+          `- **Published on Bluesky (actual):** ${publishedReceiptLabel(value.published)} · ${value.published.permalink}`,
         ]
       : []),
     `- **Source and rights:** ${value.source.rightsNote}`,
@@ -487,7 +500,7 @@ function blueskyPlainText(value: SharePackageBluesky): string {
     }${value.published ? "" : " · not sent"}`,
     ...(value.published
       ? [
-          `Published: ${value.published.publishedAt ?? SHARE_PACKAGE_NOT_RECORDED} · ${value.published.permalink}`,
+          `Published on Bluesky (actual): ${publishedReceiptLabel(value.published)} · ${value.published.permalink}`,
         ]
       : []),
     `Source and rights: ${value.source.rightsNote}`,
