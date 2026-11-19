@@ -163,6 +163,9 @@ test("plain-language aliases rank the intended job first", () => {
   for (const query of ["portfolio analytics", "portfolio report kits", "report share kit"]) {
     assert.equal(ranked(query)[0], "Portfolio report kits", `${query} must open the public portfolio reports`);
   }
+  for (const query of ["caption a video", "subtitle a clip", "srt", "webvtt"]) {
+    assert.equal(ranked(query)[0], "Clip and caption a video", `${query} must open the local clip editor`);
+  }
   assert.equal(ranked("launch kit")[0], "Prepare launch artwork");
   assert.equal(ranked("nothing-matches-xyz").length, 0);
 });
