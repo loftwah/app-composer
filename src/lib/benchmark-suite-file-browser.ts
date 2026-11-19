@@ -10,7 +10,7 @@ function element(tag: string, text?: string) {
   return node;
 }
 
-export function mountBenchmarkSuiteFile() {
+export function mountBenchmarkSuiteFile(useInProject: (definition: unknown) => void) {
   const input = document.querySelector<HTMLInputElement>('#suite-definition-file');
   const status = document.getElementById('suite-definition-status');
   const view = document.getElementById('suite-definition-view');
@@ -43,7 +43,8 @@ export function mountBenchmarkSuiteFile() {
     try {
       const raw = await file.text();
       if (selected !== request) return;
-      const { ok, issues, summary } = validateBenchmarkSuite(JSON.parse(raw));
+      const definition: unknown = JSON.parse(raw);
+      const { ok, issues, summary } = validateBenchmarkSuite(definition);
       const list = element('ul');
       if (!ok || !summary) {
         for (const issue of issues.slice(0, MAX_DETAILS)) list.append(element('li', issue.detail.slice(0, 200)));
@@ -69,6 +70,14 @@ export function mountBenchmarkSuiteFile() {
       );
       if (summary.checks.length > MAX_VISIBLE_CHECKS)
         view.append(element('p', `Showing the first ${MAX_VISIBLE_CHECKS} references.`));
+      if (summary.checks.length <= MAX_VISIBLE_CHECKS && knownCount === summary.checks.length && file.size <= 32_768) {
+        const action = document.createElement('button');
+        action.type = 'button';
+        action.className = 'button secondary';
+        action.textContent = 'Use in project suites';
+        action.addEventListener('click', () => useInProject(definition));
+        view.append(action);
+      }
       status.textContent = `Valid definition. ${knownCount} of ${summary.checks.length} checks appear in this catalogue.`;
     } catch {
       if (selected === request) status.textContent = 'Choose a readable JSON suite definition.';
