@@ -49,6 +49,7 @@
     "intelligence:models": "node scripts/models-intelligence.mjs",
     "init:launch-kit": "node scripts/init-launch-kit.mjs",
     "init:site": "node scripts/init-site.mjs",
+    "init:website": "node scripts/init-astro-website.mjs",
     "check:publication": "node scripts/check-publication.mjs",
     "seo:pilot": "node scripts/seo-pilot.mjs",
     "source:write": "node scripts/content-source.mjs --write && node scripts/creator-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write && node scripts/enquiry-assets.mjs --write",

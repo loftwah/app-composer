@@ -1,0 +1,30 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import SiteLayout from "../../../layouts/SiteLayout.astro";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+}
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.date.localeCompare(a.data.date),
+  );
+
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const date = post.data.date;
+---
+
+<SiteLayout title={post.data.title} description={post.data.description}>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p class="post-meta"><time datetime={date}>{date}</time></p>
+    <p class="lede">{post.data.description}</p>
+    <div class="post-body"><Content /></div>
+    <p><a href="/posts/">← All posts</a></p>
+  </article>
+</SiteLayout>

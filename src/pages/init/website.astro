@@ -1,0 +1,226 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Start a new website from a local spec" description="Describe a small Astro and Markdown website, save a versioned spec on this device and prepare a bounded local scaffold request for your agent.">
+<a href="/init">← Init</a>
+<h1>Try a new website</h1>
+<p class="lede">Describe a small site and write its first post. Your coding agent can turn this brief into an Astro website you can preview locally.</p>
+
+<form id="website-form">
+ <fieldset disabled>
+  <legend>Site</legend>
+  <label>Site title<input name="title" required maxlength="120" value="Notes from the studio"/></label>
+  <label>Short description<textarea name="description" maxlength="300" rows="2">A small place for working notes and recent writing.</textarea></label>
+  <label>About this site<textarea name="about" maxlength="4000" rows="4">A short introduction for the about page. Say who is writing and what readers will find here.</textarea></label>
+ </fieldset>
+ <fieldset disabled>
+  <legend>First post</legend>
+  <label>Post title<input name="postTitle" required maxlength="160" value="A first note"/></label>
+  <label>Post description<textarea name="postDescription" required maxlength="300" rows="2">A one-line summary for the post index.</textarea></label>
+  <label>Post date<input name="postDate" type="date" required value="2026-11-20"/></label>
+  <label>Post body<textarea name="postBody" required maxlength="20000" rows="8">Here is the first update from the studio.</textarea></label>
+  <p class="small">Use plain text for the starter post. You can edit the generated Markdown files in your own project.</p>
+ </fieldset>
+ <div class="actions">
+  <button type="submit" id="website-save" disabled>Save on this device</button>
+  <button type="button" class="secondary" id="website-reopen" disabled>Reopen saved spec</button>
+ </div>
+</form>
+
+
+<p id="website-status" class="message" role="status" aria-live="polite">Save a draft to reopen it in this browser.</p>
+
+<section class="website-export">
+ <h2>Build it with your agent</h2>
+ <p>Download the JSON brief and give it to your agent with the request below. The starter opens in its own folder for local review before you connect GitHub or Cloudflare.</p>
+ <div class="actions">
+  <button type="button" id="website-download" class="secondary">Download spec</button>
+  <button type="button" id="website-copy" disabled>Copy agent request</button>
+ </div>
+ <p id="website-copy-status" class="small" role="status" aria-live="polite" aria-atomic="true"></p>
+ <textarea id="website-manual" readonly hidden rows="14" aria-label="Agent request for manual copy"></textarea>
+ <details>
+  <summary>Inspect the specification and request</summary>
+  <pre id="website-spec"></pre>
+  <pre id="website-prompt"></pre>
+ </details>
+</section>
+
+<noscript><p>This local editor needs JavaScript to save, reopen, download and copy. The fields above still show exactly what the specification contains.</p></noscript>
+
+<script>
+import { astroWebsiteSchema, normalizeAstroWebsiteSpec, astroWebsiteAgentTask } from '../../lib/astro-website-spec.mjs';
+
+const storageKey = 'app-composer:astro-website:v1';
+const form = document.querySelector<HTMLFormElement>('#website-form')!;
+const status = document.querySelector<HTMLElement>('#website-status')!;
+const specOut = document.querySelector<HTMLElement>('#website-spec')!;
+const promptOut = document.querySelector<HTMLElement>('#website-prompt')!;
+const manual = document.querySelector<HTMLTextAreaElement>('#website-manual')!;
+const copyStatus = document.querySelector<HTMLElement>('#website-copy-status')!;
+let copyVersion = 0;
+function resetCopy() {
+  copyVersion++;
+  manual.hidden = true;
+  manual.value = '';
+  copyStatus.textContent = '';
+}
+form.addEventListener('input', resetCopy);
+
+const field = (name: string) => form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`)!;
+const title = field('title');
+const description = field('description');
+const about = field('about');
+const postTitle = field('postTitle');
+const postDescription = field('postDescription');
+const postDate = field('postDate');
+const postBody = field('postBody');
+
+type WebsiteSpec = ReturnType<typeof normalizeAstroWebsiteSpec>;
+
+function read(): WebsiteSpec {
+  return normalizeAstroWebsiteSpec({
+    schema: astroWebsiteSchema,
+    title: title.value,
+    description: description.value,
+    about: about.value,
+    firstPost: {
+      title: postTitle.value,
+      description: postDescription.value,
+      date: postDate.value,
+      body: postBody.value,
+    },
+  });
+}
+
+function show(spec: WebsiteSpec): string {
+  const json = JSON.stringify(spec, null, 2);
+  specOut.textContent = json;
+  promptOut.textContent = astroWebsiteAgentTask(spec);
+  return json;
+}
+
+function report(message: string, error = false) {
+  status.textContent = message;
+  status.dataset.state = error ? 'error' : 'success';
+}
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  try {
+    const json = show(read());
+    localStorage.setItem(storageKey, json);
+    report('Spec saved in this browser. Download it to keep a portable copy.');
+  } catch (error) {
+    report(error instanceof Error ? error.message : 'Check the fields before saving.', true);
+  }
+});
+
+document.querySelector<HTMLButtonElement>('#website-reopen')!.addEventListener('click', () => {
+  let stored: string | null;
+  try {
+    stored = localStorage.getItem(storageKey);
+  } catch {
+    report('This browser cannot read local storage. Your current fields are unchanged.', true);
+    return;
+  }
+  if (!stored) {
+    report('No saved spec on this device yet. Save the current fields first.', true);
+    return;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(stored);
+  } catch {
+    report('The saved spec could not be read. Your current fields are unchanged.', true);
+    return;
+  }
+  try {
+    const spec = normalizeAstroWebsiteSpec(parsed);
+    resetCopy();
+    title.value = spec.title;
+    description.value = spec.description;
+    about.value = spec.about;
+    postTitle.value = spec.firstPost.title;
+    postDescription.value = spec.firstPost.description;
+    postDate.value = spec.firstPost.date;
+    postBody.value = spec.firstPost.body;
+    show(spec);
+    report('Saved spec reopened.');
+  } catch (error) {
+    report('The saved spec is not a supported version. Current fields are unchanged. ' + (error instanceof Error ? error.message : ''), true);
+  }
+});
+
+document.querySelector<HTMLButtonElement>('#website-download')!.addEventListener('click', () => {
+  try {
+    const json = show(read()) + '\n';
+    const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'astro-website.json';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    report('Downloaded astro-website.json.');
+  } catch (error) {
+    report(error instanceof Error ? error.message : 'Check the fields before downloading.', true);
+  }
+});
+
+document.querySelector<HTMLButtonElement>('#website-copy')!.addEventListener('click', async () => {
+  let task: string;
+  try {
+    task = astroWebsiteAgentTask(read());
+  } catch (error) {
+    report(error instanceof Error ? error.message : 'Check the fields before copying.', true);
+    return;
+  }
+  resetCopy();
+  const request = copyVersion;
+  promptOut.textContent = task;
+  try {
+    await navigator.clipboard.writeText(task);
+    if (request !== copyVersion) return;
+    manual.hidden = true;
+    manual.value = '';
+    copyStatus.textContent = 'Request copied. Paste it into your coding agent.';
+    copyStatus.dataset.state = 'copied';
+  } catch {
+    if (request !== copyVersion) return;
+    manual.value = task;
+    manual.hidden = false;
+    manual.focus();
+    manual.select();
+    copyStatus.textContent = 'Clipboard access is unavailable. Select and copy the request below.';
+    copyStatus.dataset.state = 'manual';
+  }
+});
+
+for (const control of document.querySelectorAll<HTMLFieldSetElement | HTMLButtonElement>(
+  '#website-form fieldset, #website-save, #website-reopen, #website-download, #website-copy',
+)) control.disabled = false;
+try {
+  show(read());
+  if (localStorage.getItem(storageKey)) report('A saved spec is available on this device.');
+} catch {
+  // Invalid drafts leave the previews empty until the fields are corrected.
+}
+</script>
+</Base>
+<style>
+ #website-form{max-width:680px}
+ #website-form label{margin-block:16px}
+ #website-form textarea{min-height:72px}
+ #website-status:empty{margin:0}
+ #website-status[data-state=error]{color:var(--color-error, #e06c75)}
+ #website-manual{width:100%;margin-top:12px}
+ .website-export,.website-scope{border-top:1px solid var(--color-border);margin-top:40px;padding-top:28px}
+ .website-export h2,.website-scope h2{font-size:1.6rem;overflow-wrap:break-word}
+ .website-export p{max-width:78ch}
+ .website-export pre{white-space:pre-wrap;overflow-wrap:anywhere}
+ .website-export .actions{gap:12px}
+ .website-export [data-state=copied]{color:var(--color-success)}
+ .website-export [data-state=manual]{font-weight:600}
+</style>

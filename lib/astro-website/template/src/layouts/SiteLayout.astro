@@ -1,0 +1,278 @@
+---
+import site from "../site.json";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const pageTitle = title === site.title ? site.title : `${title} · ${site.title}`;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {
+      Astro.site && (
+        <link rel="canonical" href={new URL(path, Astro.site).href} />
+      )
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="site-title" href="/">{site.title}</a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="/" aria-current={isCurrent("/") ? "page" : undefined}>Home</a></li>
+          <li><a href="/about/" aria-current={isCurrent("/about/") ? "page" : undefined}>About</a></li>
+          <li><a href="/posts/" aria-current={isCurrent("/posts/") ? "page" : undefined}>Posts</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>{site.title} · A fictional starter made with Astro and Markdown.</p>
+    </footer>
+
+    <style is:global>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --fg: #1b1b1b;
+        --muted: #575757;
+        --accent: #1d4ed8;
+        --rule: #d7d7d7;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101214;
+          --fg: #f2f3f5;
+          --muted: #b9bcc2;
+          --accent: #8fb7ff;
+          --rule: #34383e;
+        }
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        font-size: 1.0625rem;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        text-wrap: balance;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        margin: 0 0 0.5em;
+      }
+
+      h2 {
+        font-size: clamp(1.4rem, 3vw, 1.75rem);
+        margin: 2em 0 0.5em;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+        margin: 1.5em 0 0.5em;
+      }
+
+      p,
+      ul,
+      ol {
+        margin: 0 0 1.25em;
+      }
+
+      a {
+        color: var(--accent);
+        text-underline-offset: 0.18em;
+      }
+
+      a:hover {
+        text-decoration-thickness: 2px;
+      }
+
+      :focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 2px;
+      }
+
+      img,
+      video {
+        max-width: 100%;
+        height: auto;
+      }
+
+      time {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: 0.5rem;
+        top: -4rem;
+        z-index: 10;
+        padding: 0.5rem 0.75rem;
+        background: var(--fg);
+        color: var(--bg);
+        border-radius: 4px;
+        transition: top 0.15s ease;
+      }
+
+      .skip-link:focus {
+        top: 0.5rem;
+      }
+
+      .site-header,
+      main,
+      .site-footer {
+        max-width: 68ch;
+        margin-inline: auto;
+        padding-inline: 1.25rem;
+      }
+
+      .site-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        align-items: center;
+        justify-content: space-between;
+        padding-block: 1.25rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .site-title {
+        color: var(--fg);
+        font-weight: 700;
+        text-decoration: none;
+        font-size: 1.15rem;
+      }
+
+      .site-header nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .site-header nav a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .site-header nav a[aria-current="page"] {
+        color: var(--fg);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 0.3em;
+      }
+
+      main {
+        padding-block: 2.5rem 4rem;
+      }
+
+      .lede {
+        font-size: 1.2rem;
+        color: var(--muted);
+        max-width: 55ch;
+      }
+
+      .post-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .post-list li {
+        padding-block: 1rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .post-list li > :last-child {
+        margin-bottom: 0;
+      }
+
+      .post-list a {
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .post-list a:hover {
+        text-decoration: underline;
+      }
+
+      .post-meta {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .post-body {
+        max-width: 65ch;
+      }
+
+      .post-body code {
+        font-size: 0.95em;
+        padding: 0.1em 0.3em;
+        background: color-mix(in srgb, var(--fg) 8%, transparent);
+        border-radius: 3px;
+      }
+
+      .post-body pre {
+        overflow-x: auto;
+        padding: 1rem;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--fg) 8%, transparent);
+      }
+
+      .post-body pre code {
+        padding: 0;
+        background: none;
+      }
+
+      .post-body img {
+        border-radius: 6px;
+      }
+
+      .site-footer {
+        padding-block: 1.5rem 2.5rem;
+        border-top: 1px solid var(--rule);
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+    </style>
+  </body>
+</html>
