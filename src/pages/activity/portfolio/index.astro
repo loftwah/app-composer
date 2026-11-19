@@ -5,8 +5,9 @@ import { ArrowDownToLine, ArrowUpRight, Share2 } from "@lucide/astro";
 import Base from "../../../layouts/Base.astro";
 import AnalyticsTrend from "../../../components/AnalyticsTrend.astro";
 import PortfolioOverview from "../../../components/PortfolioOverview.astro";
-import { count, dateLabel } from "../../../lib/activity-view";
+import { count } from "../../../lib/activity-view";
 import build from "../../../lib/build.json";
+import { portfolioCaption, portfolioDateRange, portfolioQualityLabel, portfolioTotal } from "../../../lib/portfolio-caption";
 import { portfolioCardFormats } from "../../../lib/portfolio-card-formats";
 import { portfolioArt, portfolioProjects } from "../../../lib/portfolio-projects";
 import {
@@ -41,10 +42,8 @@ const priorValue = metric && previous && prior
   : null;
 const format = (value: number) => formatPortfolioValue(value, metric?.unit ?? "count");
 const hasValue = metric?.value != null;
-const capped = metric?.days.some((day) => day.capped) ?? false;
-const total = metric?.value != null ? format(metric.value) + (capped ? "+" : "") : "—";
-const dateRange = period ? `${dateLabel(period.from)} – ${dateLabel(period.to, true)} UTC` : "";
-const qualityLabel = { exact: "Recorded", partial: "Partial coverage", bounded: "Bounded count", sampled: "Sampled", unavailable: "Unavailable" };
+const total = metric?.value != null ? portfolioTotal(metric) : "—";
+const dateRange = period ? portfolioDateRange(period) : "";
 const source = project && period ? sourceAddress(project, period) : undefined;
 const cover = project ? portfolioArt(project) : undefined;
 const canonicalPath = period && (all || project) ? reportAddress(requestedProject, period, metric?.key) : REPORT_PATH;
@@ -53,10 +52,11 @@ const indexCanonical = query.size === 0 ? new URL(REPORT_PATH, canonical).href :
 const imagePath = project && period && metric && hasValue
   ? reportAddress(project.id, period, metric.key, `${REPORT_PATH}/card.png`)
   : undefined;
+const kitPath = imagePath ? reportAddress(project!.id, period!, metric!.key, `${REPORT_PATH}/social-kit.zip`) : undefined;
 const title = project ? `${project.name} · Portfolio analytics` : "Portfolio analytics";
 const shareTitle = metric && hasValue ? `${project?.name} · ${metric.label}` : title;
 const caption = metric && hasValue
-  ? `${project?.name} · ${total} · ${metric.label}\n${dateRange} · ${qualityLabel[metric.quality]}\n${canonical}`
+  ? portfolioCaption({ name: project?.name ?? "", total, label: metric.label, dateRange, quality: metric.quality, canonical })
   : "";
 const payload = JSON.stringify({ url: canonical, title: shareTitle, text: caption }).replaceAll("<", "\\u003c");
 const change = priorValue !== null && metric?.value != null ? metric.value - priorValue : null;
@@ -151,7 +151,7 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
                   unit={metric.unit === "seconds" ? "seconds" : "recorded"} value={metric.value}
                   quality={metric.quality} days={metric.days} from={period.from} to={period.to}
                   surface={project.name} windowDays={period.days} selectedDay={query.get("day")}
-                  showTotal={false} caption={`${availableDays} of ${period.days} days available · ${qualityLabel[metric.quality]}`}/>
+                  showTotal={false} caption={`${availableDays} of ${period.days} days available · ${portfolioQualityLabel[metric.quality]}`}/>
               </>
             ) : (
               <p id="portfolio-trend-title">That measure is unavailable for this project. Choose one above.</p>
@@ -194,6 +194,9 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
                   </a>
                 ))}
               </div>
+              {project && period && metric && <a class="button secondary" href={reportAddress(project.id, period, metric.key, `${REPORT_PATH}/social-kit.zip`)} download>
+                <ArrowDownToLine size={17} aria-hidden="true"/> Download share kit
+              </a>}
               <button type="button" data-insight-copy="link" hidden>Copy link</button>
               <button type="button" data-insight-copy="caption" hidden>Copy caption</button>
               <p class="portfolio-share-status" data-insight-status role="status"></p>
