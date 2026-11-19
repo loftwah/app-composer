@@ -210,6 +210,20 @@ const stateClass = (state: string) =>
     </p>
   </section>
 
+  <section class="packs-section" id="local-result" aria-labelledby="local-result-title">
+    <h2 id="local-result-title">Inspect a local run result</h2>
+    <p>Save a runner result as JSON and open it here. The report stays in this tab.</p>
+    <pre>node benchmarks/runner.mjs --suites benchmarks/cloudflare-composition --suite CF-COMPOSE-01 &gt; cf-compose-01.json</pre>
+    <div class="packs-actions">
+      <label for="local-result-file">Benchmark result (JSON, up to 1 MB)</label>
+      <input id="local-result-file" type="file" accept="application/json,.json" disabled />
+      <button id="local-result-clear" class="button secondary" type="button" disabled>Clear result</button>
+    </div>
+    <noscript>Enable JavaScript to open a result on this device.</noscript>
+    <p id="local-result-status" role="status"></p>
+    <div id="local-result-view"></div>
+  </section>
+
   <section class="packs-section" aria-labelledby="limits-title">
     <h2 id="limits-title">What a pack does not prove</h2>
     <ul class="packs-limits">
@@ -220,6 +234,78 @@ const stateClass = (state: string) =>
     </ul>
   </section>
 </Base>
+
+<script>
+  import type { parseLocalBenchmarkResult } from '../../lib/benchmark-local-result';
+
+  const input = document.querySelector<HTMLInputElement>('#local-result-file');
+  const clear = document.querySelector<HTMLButtonElement>('#local-result-clear');
+  const status = document.getElementById('local-result-status');
+  const view = document.getElementById('local-result-view');
+
+  const node = (tag: string, text?: string) => {
+    const element = document.createElement(tag);
+    if (text !== undefined) element.textContent = text;
+    return element;
+  };
+
+  function render(result: ReturnType<typeof parseLocalBenchmarkResult>) {
+    const title = node('h3', result.packId ? `Local result · ${result.packId}` : 'Local result');
+    const source = node('p', `Source ${result.source} · Generated ${result.generatedAt}`);
+    const { checks, pass, fail, blocked } = result.totals;
+    const summary = node('p', `${checks} checks · ${pass} passed · ${fail} failed · ${blocked} blocked`);
+    const groups = result.suites.map(suite => {
+      const group = node('details');
+      group.append(node('summary', `${suite.name} · ${suite.checks.length} checks`));
+      const list = node('ul');
+      for (const item of suite.checks) {
+        const row = node('li');
+        row.append(node('strong', `${item.status} · ${item.name}`));
+        if (item.detail) row.append(node('p', item.detail));
+        list.append(row);
+      }
+      group.append(list);
+      return group;
+    });
+    return [title, source, summary, ...groups];
+  }
+
+  if (input && clear && status && view) {
+    let request = 0;
+    input.disabled = false;
+    input.addEventListener('change', async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const selected = ++request;
+      clear.disabled = false;
+      if (file.size > 1024 * 1024) {
+        status.textContent = 'Choose a JSON result under 1 MB.';
+        return;
+      }
+      status.textContent = 'Reading benchmark result…';
+      try {
+        const { parseLocalBenchmarkResult: parse } = await import('../../lib/benchmark-local-result');
+        const result = parse(JSON.parse(await file.text()));
+        if (selected !== request) return;
+        view.replaceChildren(...render(result));
+        status.textContent = 'Benchmark result opened in this tab.';
+      } catch {
+        if (selected === request) status.textContent = view.childElementCount
+          ? 'This file is not a supported benchmark result. The previous result is still open.'
+          : 'Choose a JSON file produced by the benchmark runner.';
+      }
+    });
+
+    clear.addEventListener('click', () => {
+      request++;
+      input.value = '';
+      status.textContent = '';
+      view.replaceChildren();
+      clear.disabled = true;
+      input.focus();
+    });
+  }
+</script>
 
 <style>
   .packs-heading{max-width:880px}
@@ -260,6 +346,8 @@ const stateClass = (state: string) =>
   .packs-limits{max-width:74ch;line-height:1.8}
   .packs-limits li{margin:10px 0}
   pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  #local-result-file{max-width:100%}
+  #local-result-view{overflow-wrap:anywhere}
   #self-rebuild h3{font-size:1.05rem;margin:24px 0 8px}
   .self-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:18px 0;padding:14px;background:var(--color-surface);border-radius:8px}
   .self-facts dt{font-size:12px;color:var(--color-muted)}
