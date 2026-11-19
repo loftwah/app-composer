@@ -12,9 +12,10 @@ const workersPricing =
 const d1Pricing = "https://developers.cloudflare.com/d1/platform/pricing/";
 const inferencePricing = "https://developers.cloudflare.com/workers-ai/platform/pricing/";
 const modelDocs = "https://developers.cloudflare.com/workers-ai/models";
+const modelRetirements = "https://developers.cloudflare.com/changelog/post/2026-11-05-planned-model-deprecations/";
 const inferenceWorkload = { attempts: 1_000, inputTokens: 2_000, outputTokens: 500 };
 const models = [
-  { label: "GLM-5.3 Flash", id: "@cf/zai-org/glm-5.3-flash", docs: "glm-5.3-flash", input: 0.15, output: 0.50 },
+  { label: "GLM-5.3", id: "@cf/zai-org/glm-5.3", docs: "glm-5.3", input: 1.40, output: 4.40 },
   { label: "DeepSeek V4.1 Flash 1017", id: "@cf/deepseek-ai/deepseek-v4.1-flash-1017", docs: "deepseek-v4.1-flash-1017", input: 0.30, output: 1.20 },
 ];
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -283,6 +284,11 @@ const accessDocs =
       This is a list-price estimate before any allowance. It covers the stated attempts and excludes
       additional retries, plan fees, hosting, storage and tax. Quality, latency and cost per
       successful record need an actual run. See <a href={inferencePricing}>Cloudflare’s current Workers AI pricing</a>.
+    </p>
+    <p class="small">
+      Cloudflare lists GLM-5.3 Flash for retirement on 20 November 2026 and points to GLM-5.3 for
+      frontier workloads. Check the <a href={modelRetirements}>Cloudflare model retirement notice</a>
+      before choosing an endpoint.
     </p>
     <div class="actions">
       <a class="button secondary" href="/media-studio#made">See real Workers AI artwork in Studio</a>
