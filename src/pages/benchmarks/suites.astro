@@ -4,6 +4,7 @@ import BenchmarksNav from '../../components/BenchmarksNav.astro';
 import latest from '../../../benchmarks/results/latest.json';
 import { benchmarkSuiteCatalogue } from '../../lib/benchmark-suite-catalogue';
 import selfRebuildProfiles from '../../../benchmarks/cloudflare-composition/cases/real-product-profiles.json';
+import build from '../../lib/build.json';
 
 const selfRebuild = selfRebuildProfiles.profiles.find((profile) => profile.id === 'CF-R08');
 if (!selfRebuild) throw new Error('Missing CF-R08 self-rebuild profile');
@@ -309,9 +310,12 @@ const stateClass = (state: string) =>
     </details>
   </section>
 
-  <section class="packs-section" id="private-suites" aria-labelledby="private-suites-title">
+  <section class="packs-section" id="private-suites" aria-labelledby="private-suites-title" data-build-revision={build.commit}>
     <h2 id="private-suites-title" tabindex="-1">Project suites</h2>
     <p>Choose an owner workspace and a project to keep a definition. Saved definitions are private to the owner who saved them.</p>
+    <p class="small">
+      Keep the suite JSON and its Markdown run task together when you hand the check to your coding agent.
+    </p>
     <button id="private-suite-access" class="button secondary" type="button" disabled>Open project suites</button>
     <p id="private-suite-status" role="status"></p>
     <div class="suite-author-fields">
