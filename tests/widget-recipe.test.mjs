@@ -15,6 +15,10 @@ import {
   widgetRecipe,
   widgetRecipeJson,
 } from '../src/lib/widget-recipe.ts';
+import {
+  topTracksReport,
+  widgetRecipeIndexJson,
+} from '../src/lib/widget-recipe-index.ts';
 
 // The widget recipe is publishable data. These checks keep the one shared
 // definition honest: the v1 Night Signal contract stays exact, the served
@@ -109,4 +113,18 @@ test('the widget page consumes the shared definition and the CSP swap stays exac
   const middleware = await readFile('src/middleware.ts', 'utf8');
   assert.ok(middleware.includes('context.url.pathname === "/widgets"'), 'the CSP swap stays scoped to /widgets');
   assert.ok(middleware.includes('"frame-src https://fm.loftwah.com"'), 'the selective frame-src swap is preserved');
+});
+
+test('the Top Tracks discovery entry names the HTML report and the path to the JSON recipe', () => {
+  const index = JSON.parse(widgetRecipeIndexJson);
+  const actionsFor = id => index.widgets.find(widget => widget.id === id).actions;
+  assert.equal(index.version, 1);
+  assert.deepEqual(actionsFor('top-tracks-share-card'), [{
+    kind: 'generated-recipe',
+    label: 'Open Top Tracks report (HTML)',
+    url: topTracksReport,
+    instruction: 'Choose a shape, then select Download Top Tracks recipe (JSON) on the LoftwahFM page.',
+  }]);
+  assert.equal(actionsFor('loftwahfm-station')[0].kind, 'recipe');
+  assert.equal(actionsFor('take-it-with-you-film')[0].kind, 'recipe');
 });
