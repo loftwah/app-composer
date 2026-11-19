@@ -28,6 +28,10 @@ Take it with you.
 
 export const captionTrackUrl = `data:text/vtt;charset=utf-8,${encodeURIComponent(captionText)}`;
 
+// The in-page preview uses the committed VTT from this same origin: the same
+// four English cues as captionText, with no data: source needed in the page CSP.
+export const filmCaptionSrc = '/brand/campaign/take-it-with-you-20261118.vtt';
+
 export const starterFilename = 'take-it-with-you-v1.html';
 export const starterPath = `/widgets/${starterFilename}`;
 
