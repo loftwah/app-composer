@@ -31,7 +31,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 <Base title="Share artwork" description="Browse public artwork from our projects and share a piece with its credit intact."
   noindex={noindexFor(Astro.url.hostname, Boolean(catalogue) && params.size === 0)}>
   <div class="share-artwork-library">
-    <ShareArtwork catalogue={catalogue} filters={filters} />
+    <ShareArtwork catalogue={catalogue} filters={filters} signedIn={Boolean(Astro.locals.user)} />
   </div>
 </Base>
 

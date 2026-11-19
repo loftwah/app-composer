@@ -2,13 +2,16 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Maximize2, Search, Shuffle, SlidersHorizontal, X } from '@lucide/astro';
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkOrientations, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
+import { shareCalendarEntry } from '../lib/share-calendar-entry';
 import '../styles/share-gallery.css';
 
 interface Props {
   catalogue: ReturnType<typeof galleryPage> | null;
   filters: ArtworkFilters;
+  signedIn: boolean;
 }
-const { catalogue, filters } = Astro.props;
+const { catalogue, filters, signedIn } = Astro.props;
+const shareCalendarHref = shareCalendarEntry(signedIn);
 const { query, project, sort, category, orientation, tag, after, legacy } = filters;
 const href = (updates: Partial<ArtworkFilters> = {}) => galleryHref(filters, { after: '', ...updates });
 const browse = new URL(href({ after }), 'https://composer.loftwah.com').search;
@@ -93,6 +96,8 @@ const options = {
       {facets.length > 1 && <a href={href({ query: '', project: '', category: '', orientation: 'any', tag: '' })}>Clear filters</a>}
     </div>
     <nav class="gallery-related" aria-label="More to explore">
+      <a href={shareCalendarHref}>Share calendar <ArrowUpRight size={13} aria-hidden="true" /></a>
+      <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/media-studio/films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
