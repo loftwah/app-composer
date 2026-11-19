@@ -1,6 +1,9 @@
 import type { ShareFeedback } from "../lib/share-feedback.ts";
+import { buildArtworkPackage, readArtworkPackageBytes, type ArtworkPackageInput } from "../lib/share-artwork-package.ts";
 
 const feedbackApi = "/api/share-feedback";
+
+type PackageData = Omit<ArtworkPackageInput, "bytes"> & { download: string };
 
 export function mountArtworkActions(piece: HTMLElement) {
   const copyStatus = piece.querySelector<HTMLElement>("[data-gallery-copy-status]");
@@ -78,6 +81,62 @@ export function mountArtworkActions(piece: HTMLElement) {
         "Copy the selected image alt text.",
         altStatus,
       ));
+  }
+
+  const packageButton = piece.querySelector<HTMLButtonElement>("[data-gallery-package]");
+  const packageStatus = piece.querySelector<HTMLElement>("[data-gallery-package-status]");
+  if (packageButton && packageStatus) {
+    let packageInfo: PackageData | null = null;
+    try {
+      packageInfo = JSON.parse(packageButton.dataset.galleryPackage ?? "") as PackageData;
+    } catch {
+      // Leave the enhanced control hidden if its public metadata is damaged.
+    }
+    if (packageInfo) {
+      const info = packageInfo;
+      let objectUrl: string | null = null;
+      packageButton.hidden = false;
+      packageButton.addEventListener("click", async () => {
+        if (packageButton.getAttribute("aria-busy") === "true") return;
+        packageButton.setAttribute("aria-busy", "true");
+        packageStatus.textContent = "Preparing package…";
+        try {
+          const response = await fetch(info.download, {
+            cache: "no-store",
+            credentials: "omit",
+            redirect: "error",
+            signal: AbortSignal.timeout(30_000),
+          });
+          if (!response.ok)
+            throw Error(
+              response.status === 409
+                ? "The artwork changed. Reopen this page and try again."
+                : response.status === 404
+                  ? "This artwork is no longer public."
+                  : "The artwork could not be downloaded. Use the direct download instead.",
+            );
+          const built = await buildArtworkPackage({ ...info, bytes: await readArtworkPackageBytes(response) });
+          if (objectUrl) URL.revokeObjectURL(objectUrl);
+          objectUrl = URL.createObjectURL(
+            new Blob([new Uint8Array(built.archive)], { type: "application/zip" }),
+          );
+          const link = document.createElement("a");
+          link.href = objectUrl;
+          link.download = built.name;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          packageStatus.textContent = `Package ready — ${built.name}. Image SHA-256 ${built.provenance.artworkSha256.slice(0, 12)}…`;
+        } catch (error) {
+          packageStatus.textContent =
+            error instanceof Error
+              ? error.message
+              : "Couldn’t prepare the package. Try again.";
+        } finally {
+          packageButton.removeAttribute("aria-busy");
+        }
+      });
+    }
   }
 
   const copyId = piece.querySelector<HTMLButtonElement>("[data-copy-studio-id]");
