@@ -17,6 +17,7 @@ async function request<T>(query = {}, options?: RequestInit): Promise<T> {
 export function mountPrivateBenchmarkHistory(
   getCurrent: () => LocalResult | null,
   openViewer: (result: LocalResult) => void,
+  compareViewer: (baseline: LocalResult, current: LocalResult) => boolean,
 ) {
   const open = document.querySelector<HTMLButtonElement>('#private-history-open');
   const panel = document.getElementById('private-history-controls');
@@ -24,10 +25,11 @@ export function mountPrivateBenchmarkHistory(
   const runs = document.querySelector<HTMLSelectElement>('#private-history-run');
   const save = document.querySelector<HTMLButtonElement>('#private-history-save');
   const reopen = document.querySelector<HTMLButtonElement>('#private-history-reopen');
+  const compare = document.querySelector<HTMLButtonElement>('#private-history-compare');
   const download = document.querySelector<HTMLButtonElement>('#private-history-download');
   const remove = document.querySelector<HTMLButtonElement>('#private-history-remove');
   const status = document.getElementById('private-history-status');
-  if (!open || !panel || !workspace || !runs || !save || !reopen || !download || !remove || !status) return;
+  if (!open || !panel || !workspace || !runs || !save || !reopen || !compare || !download || !remove || !status) return;
 
   let busy = false;
   function refreshControls() {
@@ -36,6 +38,7 @@ export function mountPrivateBenchmarkHistory(
     runs!.disabled = busy || runs!.options.length === 0;
     save!.disabled = busy || !workspace!.value || !getCurrent();
     reopen!.disabled = download!.disabled = remove!.disabled = busy || !runs!.value;
+    compare!.disabled = busy || !runs!.value || !getCurrent();
   }
 
   async function operate(action: () => Promise<void>) {
@@ -106,6 +109,20 @@ export function mountPrivateBenchmarkHistory(
     const { parseLocalBenchmarkResult: parse } = await import('./benchmark-local-result');
     openViewer(parse(run.report));
     status.textContent = 'Saved owner-imported result opened.';
+  }));
+
+  compare.addEventListener('click', () => void operate(async () => {
+    const current = getCurrent();
+    if (!current) return;
+    const { run } = await currentRun();
+    const { parseLocalBenchmarkResult: parse } = await import('./benchmark-local-result');
+    if (getCurrent() !== current) {
+      status.textContent = 'The open report changed. Choose Compare again.';
+      return;
+    }
+    status.textContent = compareViewer(parse(run.report), current)
+      ? 'Compared the private baseline with the open report.'
+      : 'Choose a run with the same suite and checks.';
   }));
 
   download.addEventListener('click', () => void operate(async () => {

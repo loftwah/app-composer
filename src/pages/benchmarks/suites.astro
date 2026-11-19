@@ -237,6 +237,7 @@ const stateClass = (state: string) =>
       <button id="local-result-open-saved" class="button secondary" type="button" hidden>Open saved result</button>
       <button id="local-result-forget" class="button secondary" type="button" hidden>Forget saved result</button>
       <button id="local-result-compare" class="button secondary" type="button" hidden>Compare with saved result</button>
+      <a class="button secondary" href="#private-history">Private run history</a>
     </div>
     <p class="small">
       Keep one result in this browser if you want to reopen it later. Anyone using this browser profile can open it.
@@ -244,10 +245,10 @@ const stateClass = (state: string) =>
     <noscript>Enable JavaScript to open a result on this device.</noscript>
     <p id="local-result-status" role="status"></p>
     <div id="local-result-view"></div>
-    <div id="local-result-compare-view"></div>
+    <div id="local-result-compare-view" tabindex="-1"></div>
   </section>
 
-  <section class="packs-section" aria-labelledby="private-history-title">
+  <section class="packs-section" id="private-history" aria-labelledby="private-history-title">
     <h2 id="private-history-title">Private run history</h2>
     <p>Signed-in workspace owners can save a report here to reopen on another device.</p>
     <button type="button" class="button secondary" id="private-history-open" disabled>Open private history</button>
@@ -266,6 +267,7 @@ const stateClass = (state: string) =>
       <div class="packs-actions">
         <button type="button" class="button secondary" id="private-history-reopen">Open saved run</button>
         <button type="button" class="button secondary" id="private-history-download">Download run JSON</button>
+        <button type="button" class="button secondary" id="private-history-compare">Compare saved run with open report</button>
         <button type="button" class="button secondary" id="private-history-remove">Delete saved run</button>
       </div>
     </div>
@@ -346,8 +348,8 @@ const stateClass = (state: string) =>
   const reference = (label: string, result: LocalResult) =>
     node('p', `${label} · source ${result.source} · generated ${result.generatedAt}`);
 
-  function renderComparison(changes: Changes, baseline: LocalResult, currentResult: LocalResult) {
-    const title = node('h3', 'Comparison with saved result');
+  function renderComparison(changes: Changes, baseline: LocalResult, currentResult: LocalResult, titleText: string) {
+    const title = node('h3', titleText);
     const sources = [reference('Baseline', baseline), reference('Current', currentResult)];
     const count = node('p', `${changes.length} changed ${changes.length === 1 ? 'check' : 'checks'}`);
     if (changes.length === 0) {
@@ -371,6 +373,14 @@ const stateClass = (state: string) =>
     ];
   }
 
+  /** The one comparison path: both the local and private baselines use this check math and rendering. */
+  function applyComparison(baseline: LocalResult, currentResult: LocalResult, message: string) {
+    const changes = compareLocalBenchmarkChecks(baseline, currentResult);
+    compareView.replaceChildren(...(changes ? renderComparison(changes, baseline, currentResult) : renderScopeMismatch()));
+    status.textContent = changes ? message : 'The results cover different suite or check identities.';
+    return changes !== null;
+  }
+
   if (input && clear && keep && openSaved && forget && compare && status && view && compareView) {
     let request = 0;
     let current: LocalResult | null = null;
@@ -383,7 +393,21 @@ const stateClass = (state: string) =>
         show(result, 'Owner-imported result opened in this tab.');
         status.scrollIntoView({ block: 'center' });
       },
+      (baseline, currentResult) => {
+        const comparable = applyComparison(baseline, currentResult, 'Comparison with the saved private run is shown below.');
+        compareView.scrollIntoView({ block: 'nearest' });
+        return comparable;
+      },
     );
+
+    function showComparison(baseline: LocalResult, openReport: LocalResult, title: string) {
+      const changes = compareLocalBenchmarkChecks(baseline, openReport);
+      compareView!.replaceChildren(...(changes ? renderComparison(changes, baseline, openReport, title) : renderScopeMismatch()));
+      status!.textContent = changes
+        ? 'Comparison with the saved result is shown below.'
+        : 'The results cover different suite or check identities.';
+      return changes !== null;
+    }
 
     const savedKeyExists = () => {
       try { return window.localStorage.getItem(LOCAL_BENCHMARK_STORAGE_KEY) !== null; }
@@ -396,6 +420,7 @@ const stateClass = (state: string) =>
       forget.hidden = !saved;
       keep.textContent = saved ? 'Replace saved result' : 'Keep in this browser';
       compare.hidden = !(current !== null && saved);
+      if (privateCompare) privateCompare.disabled = current === null;
       privateHistory?.refreshControls();
     };
 
@@ -482,11 +507,7 @@ const stateClass = (state: string) =>
           status.textContent = 'No saved result is available to compare.';
           return;
         }
-        const changes = compareLocalBenchmarkChecks(saved, currentResult);
-        compareView.replaceChildren(...(changes ? renderComparison(changes, saved, currentResult) : renderScopeMismatch()));
-        status.textContent = changes
-          ? 'Comparison with the saved result is shown below.'
-          : 'The results cover different suite or check identities.';
+        applyComparison(saved, currentResult, 'Comparison with the saved result is shown below.');
       } catch {
         if (selected === request) status.textContent = 'Could not read the saved result for comparison.';
       } finally {
