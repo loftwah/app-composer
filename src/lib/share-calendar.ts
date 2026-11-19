@@ -861,7 +861,7 @@ export const shareCalendarSnapshot = z
 // A published receipt must match the approval revision the card displays;
 // local exports and scheduled/draft items are never provider deliveries.
 export function itemApprovalAndDelivery(
-  snapshot: ShareCalendarSnapshot,
+  snapshot: Pick<ShareCalendarSnapshot, "approvals" | "deliveries">,
   item: ShareCalendarItem,
 ): {
   approval: BlueskyApprovalRecord | null;
@@ -945,13 +945,14 @@ export interface ShareCalendarIcsItem {
   link: string;
   scheduledAt: string;
   stackName: string;
+  published?: true;
 }
 
-// The page and any future exporter use the same filter: only a current,
-// scheduled item becomes a calendar event. Drafts, locally shared items and
-// items whose source changed stay out.
+// Only current scheduled items become events. The exact published Bluesky
+// revision retains its date as a historical record.
 export function calendarExportItems(
   items: ShareCalendarItem[],
+  snapshot?: Pick<ShareCalendarSnapshot, "approvals" | "deliveries">,
 ): ShareCalendarIcsItem[] {
   return items
     .filter(
@@ -960,16 +961,24 @@ export function calendarExportItems(
         item.sourceCurrent &&
         item.scheduledAt !== null,
     )
-    .map((item) => ({
-      id: item.id,
-      revision: item.revision,
-      channel: item.channel,
-      destination: item.destination,
-      caption: item.caption,
-      link: item.link,
-      scheduledAt: item.scheduledAt as string,
-      stackName: item.stackName,
-    }));
+    .map((item) => {
+      const receipt = snapshot && item.channel === "bluesky"
+        ? itemApprovalAndDelivery(snapshot, item)
+        : null;
+      return {
+        id: item.id,
+        revision: item.revision,
+        channel: item.channel,
+        destination: item.destination,
+        caption: item.caption,
+        link: item.link,
+        scheduledAt: item.scheduledAt as string,
+        stackName: item.stackName,
+        ...(receipt && hasPublishedBlueskyRevision(item, receipt.approval, receipt.delivery)
+          ? { published: true as const }
+          : {}),
+      };
+    });
 }
 
 export interface ShareCalendarIcsOptions {
@@ -1370,8 +1379,7 @@ export function icsUtcTimestamp(value: string | Date): string {
   );
 }
 
-// Valid VCALENDAR 2.0 with CRLF line endings. Only scheduled items are
-// included. The description says plainly that the owner performs the share.
+// Valid VCALENDAR 2.0 with CRLF line endings.
 export function buildShareCalendarIcs(
   items: ShareCalendarIcsItem[],
   options: ShareCalendarIcsOptions = {},
@@ -1409,7 +1417,9 @@ export function buildShareCalendarIcs(
       item.caption,
       "Exact destination: " + (destination || "not recorded"),
       item.link ? "Link: " + item.link : "",
-      "Prepared in App Composer. You copy, download or export this item and share it yourself, unless an explicit Bluesky send is recorded. This calendar event does not enable automatic delivery.",
+      item.published
+        ? "Published on Bluesky through App Composer. This event records the confirmed post. No sharing action is needed."
+        : "Prepared in App Composer. You copy, download or export this item and share it yourself, unless an explicit Bluesky send is recorded. This calendar event does not enable automatic delivery.",
     ]
       .filter(Boolean)
       .join("\n\n");

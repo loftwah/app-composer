@@ -1427,6 +1427,57 @@ test("the .ics round-trips one event per scheduled item with CRLF, folding and U
   );
 });
 
+test("calendar export retains dates and marks only the exact published Bluesky revision", () => {
+  const scheduledAt = "2026-11-23T09:00:00.000Z";
+  const link = "https://composer.loftwah.com/s/calendar-example";
+  const exact = calendarItem({
+    id: "aaaaaaaa-1111-4111-8111-111111111111",
+    state: "scheduled",
+    channel: "bluesky",
+    revision: 2,
+    scheduledAt,
+    link,
+  });
+  const older = { ...exact, id: "bbbbbbbb-2222-4222-8222-222222222222" };
+  const sibling = {
+    ...exact,
+    id: "cccccccc-3333-4333-8333-333333333333",
+    channel: "linkedin",
+    variants: [{ channel: "bluesky", destination: "", caption: "A separate draft" }],
+  };
+  const items = [exact, older, sibling];
+  const snapshot = {
+    approvals: items.map(item => ({
+      itemId: item.id,
+      approvalRevision: 4,
+      draftRevision: item === older ? 1 : item.revision,
+    })),
+    deliveries: items.map(item => ({
+      itemId: item.id,
+      approvalRevision: 4,
+      state: "published",
+      permalink: "https://bsky.app/profile/example.test/post/receipt",
+    })),
+  };
+
+  const exportItems = calendarExportItems(items, snapshot);
+  assert.deepEqual(exportItems.map(item => item.published), [true, undefined, undefined]);
+  assert.deepEqual(calendarExportItems(items).map(item => item.published), [undefined, undefined, undefined]);
+
+  const { events } = parseCalendar(buildShareCalendarIcs(exportItems));
+  assert.equal(events.length, 3);
+  const byUid = new Map(events.map(event => [eventProperty(event, "UID").value, event]));
+  const eventFor = item => byUid.get(item.id + "@composer.loftwah.com");
+  const description = item => unescapeText(eventProperty(eventFor(item), "DESCRIPTION").value);
+  assert.equal(eventProperty(eventFor(exact), "DTSTART").value, "20261123T090000Z");
+  assert.equal(eventProperty(eventFor(exact), "SEQUENCE").value, "1");
+  assert.equal(eventProperty(eventFor(exact), "URL").value, link);
+  assert.match(description(exact), /Published on Bluesky through App Composer/);
+  assert.doesNotMatch(description(exact), /share it yourself/);
+  assert.match(description(older), /share it yourself/);
+  assert.match(description(sibling), /share it yourself/);
+});
+
 test("the .ics builder refuses a link that could inject calendar properties", () => {
   const item = {
     id: "aaaaaaaa-1111-4111-8111-111111111111",
