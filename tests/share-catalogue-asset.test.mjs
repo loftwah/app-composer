@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import {
+  artworkRevision,
   browseShareArtwork,
   publicShareArtwork,
   resolveShareCatalogueAsset,
@@ -57,6 +58,31 @@ test("resolve pins the selected rendition bytes and the public provenance", asyn
     }),
     false,
   );
+});
+
+test("a public artwork link pins the same catalogue response before reading its image", async () => {
+  const artwork = {
+    ...asset,
+    project: "workshop",
+    thumbnailUrl: asset.previewUrl,
+    shareUrl: `${SHARE_CATALOGUE_ORIGIN}/share/workshop/`,
+  };
+  const body = () => Response.json({ version: 1, asset: artwork });
+  const publicRecord = await publicShareArtwork(id, { fetch: async () => body() });
+  assert.equal(publicRecord.status, 200);
+  const revision = await artworkRevision(publicRecord.artwork);
+  const calls = [];
+  const fetch = async (url) => {
+    calls.push(url);
+    if (url === endpoint) return body();
+    return new Response(Uint8Array.of(0xff, 0xd8, 0xff, 0xd9), { headers: { "Content-Type": "image/jpeg" } });
+  };
+  const stale = await resolveShareCatalogueAsset(id, { fetch, expectedArtworkRevision: "0".repeat(64) });
+  assert.equal(stale.code, "artwork_stale");
+  assert.deepEqual(calls.splice(0), [endpoint]);
+  const exact = await resolveShareCatalogueAsset(id, { fetch, expectedArtworkRevision: revision });
+  assert.equal(exact.ok, true);
+  assert.deepEqual(calls, [endpoint, asset.previewUrl]);
 });
 
 test("unpublished, substituted and off-origin previews are refused before image fetch", async () => {
