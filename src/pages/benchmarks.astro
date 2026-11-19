@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import results from '../../benchmarks/results/latest.json';
+import cloudflareCampaign from '../../benchmarks/cloudflare-composition/cases/scenarios.json';
+import cloudflareProfiles from '../../benchmarks/cloudflare-composition/cases/real-product-profiles.json';
 import { ArrowRight, CheckCircle2, CircleSlash, XCircle } from '@lucide/astro';
 const source = typeof results.source === 'string' ? results.source : 'unknown';
 const short = source === 'unknown' ? 'unknown' : source.slice(0, 7);
@@ -59,6 +61,36 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   })}
  </section>
 
+ <section class="bench-section" aria-labelledby="cloudflare-campaign-title">
+  <h2 id="cloudflare-campaign-title">Cloudflare creation and operations</h2>
+  <p>Can someone go from an idea to a working, owned application, supervise real changes, recover from problems and keep improving it? The <a href="https://github.com/loftwah/app-composer/tree/main/benchmarks/cloudflare-composition">CF-COMPOSE campaign</a> defines six required end-to-end creator journeys and nine additional real-product profiles. These are evaluation definitions, <strong>not claims that Cloudflare or App Composer has passed the journeys.</strong></p>
+  <p class="small"><strong>Required journey status:</strong> {cloudflareCampaign.cases.filter((item) => item.evidenceStatus === 'not-run').length} of {cloudflareCampaign.cases.length} not run. <strong>Real-product profile status:</strong> {cloudflareProfiles.profiles.filter((item) => item.status === 'not-run').length} of {cloudflareProfiles.profiles.length} not run. The original local foundation's checks are not full-journey results.</p>
+  <ul class="bench-cf-grid" aria-label="Cloudflare creator journeys">
+   {cloudflareCampaign.cases.map((journey) => (
+    <li>
+     <p class="small bench-cf-id"><code>{journey.id}</code> · {journey.evidenceStatus}</p>
+     <strong>{journey.name}</strong>
+     <p class="small">{journey.expectedOutcome}</p>
+    </li>
+   ))}
+  </ul>
+  <details class="bench-cf-profiles">
+   <summary>Show nine additional real-project evaluations</summary>
+   <ul class="bench-cf-grid" aria-label="Additional Cloudflare real-product evaluation profiles">
+    {cloudflareProfiles.profiles.map((profile) => (
+     <li>
+      <p class="small bench-cf-id"><code>{profile.id}</code> · {profile.status}</p>
+      <strong>{profile.name}</strong>
+      <p class="small">{profile.outcome}</p>
+     </li>
+    ))}
+   </ul>
+  </details>
+  <p>They cover the first-time creator, phone-only agent releases, parallel Artifacts/Git workspaces, an original music video, real gameplay and listening, multi-tenant IAM and costs, full-app recovery, independent Composer self-rebuild, and public-safe portfolio proof. Each profile has a positive control, designed failures, measurable outcomes and specified source evidence.</p>
+  <pre>node benchmarks/runner.mjs --suites benchmarks/cloudflare-composition --suite CF-COMPOSE-01</pre>
+  <p class="small">This command runs only the provider-free local foundation. Complete journey and profile runs require separately authorised browser/provider/human evidence and are not made green by a CLI exit. <a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/cloudflare-composition/README.md">Read the full protocol and test scenarios</a> · <a href="https://github.com/loftwah/app-composer/issues/601">Evaluation owner #601</a>.</p>
+ </section>
+
  <section class="bench-section" aria-labelledby="limits-title">
   <h2 id="limits-title">What this run does not prove</h2>
   <ul>
@@ -86,6 +118,14 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
  </section>
 </Base>
 <style>
+ .bench-cf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,275px),1fr));gap:12px;list-style:none;padding:0;margin:18px 0 20px;max-width:none}
+ .bench-cf-grid li{padding:15px;border:1px solid var(--color-border);border-radius:10px;margin:0;min-width:0}
+ .bench-cf-grid strong{display:block;margin:6px 0;font-size:14px;max-width:none}
+ .bench-cf-grid p{margin:4px 0;max-width:none}
+ .bench-cf-id{color:var(--color-muted);text-transform:uppercase;letter-spacing:.02em}
+ .bench-cf-profiles{margin:12px 0 20px}
+ .bench-cf-profiles summary{cursor:pointer;font-weight:600;padding:8px 0}
+ .bench-cf-profiles summary:focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
  .bench-heading{max-width:820px}
  .bench-heading h1{font-size:clamp(2.6rem,5vw,4.4rem);max-width:16ch;margin:10px 0 20px}
  .bench-heading .lede{max-width:58ch}
