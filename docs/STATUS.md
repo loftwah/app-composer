@@ -1,32 +1,14 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 18 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026 and updated 19 November 2026 AEDT. [Issue #11](https://github.com/loftwah/app-composer/issues/11) records exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record.
 
-## Composer and Media Studio after the 18 November recovery
+## Live release snapshot from 19 November 2026 AEDT
 
-- [Composer's build endpoint](https://composer.loftwah.com/build.json) serves
-  `8e746e97d137f269f46015ddc7d12134ad625578`. The merged
-  [Studio sign-in return fix](https://github.com/loftwah/app-composer/pull/803)
-  and [continuous Share wall](https://github.com/loftwah/app-composer/pull/805)
-  await the production dependency audit. [#804](https://github.com/loftwah/app-composer/issues/804)
-  records the affected dependency paths and the conditions for the normal guard.
-- [Studio's build endpoint](https://media.loftwah.com/build.json) serves
-  `4088200678e1eb7809242fdc87b2958bb09f3bdb`. The existing Studio has a
-  [first release and replay brief](https://composer.loftwah.com/projects?example=creative-handoff)
-  on Projects. Its [current Image Tools update](https://github.com/loftwah/composer-media-studio/issues/183#issuecomment-6961801146)
-  keeps the native contact-sheet PNG, layout JSON and ZIP after refusing a
-  corrupt input. After the release, the existing Composer owner returned to
-  the same saved After Hours storyboard at revision 5 and read the same scene
-  diagnosis without a model or provider call.
-- [Launch Kit's build endpoint](https://composer-launch-kit.loftwah.workers.dev/build.json)
-  serves `49e189732206da454f2310d82d3326f90237d3b7`. In a
-  [verified Studio palette handoff](https://github.com/loftwah/app-composer-launch-kit/issues/13#issuecomment-6961840420),
-  the native ZIP included the chosen accent and edited title even when the
-  starter artwork arrived late.
-- The [independent owner replay](https://github.com/loftwah/app-composer/issues/425)
-  stays open. EmDash 1.5 is live in Composer, with
-  [production co-editing and the Woodhouse preview upgrade](https://github.com/loftwah/app-composer/issues/679)
-  tracked separately.
+- Composer serves `996c87eb7e679690c125757b9d7bea72bbd513ae`. The artwork page now opens the matching Studio draft-to-social-kit workflow. The earlier Studio sign-in return fix and continuous Share wall are included in the guarded source. [Build identity](https://composer.loftwah.com/build.json), [#927](https://github.com/loftwah/app-composer/pull/927), [#803](https://github.com/loftwah/app-composer/pull/803), [#805](https://github.com/loftwah/app-composer/pull/805).
+- The 18 November dependency audit originally stopped the Composer guard before upload. The ordinary audit recovered after the advisory was withdrawn and currently reports zero findings. Astro's dependencies still resolve to backported picomatch `2.3.2` through unstorage and anymatch, and `4.0.7` through Astro, Vite and tinyglobby. #804 tracks a verified upstream fix or compatible replacement for both paths. The Guestbook and Showcase promotion holds remain open. [Original failure and recovery](https://github.com/loftwah/app-composer/issues/804), [ordinary audit receipt](https://github.com/loftwah/app-composer/issues/804#issuecomment-6991604533).
+- Media Studio serves `51d20e4ea517ab9e77948bf88d55dfe72586e580`. The existing owner used the official Chrome route to inspect the private seven- and thirty-day Saved outcomes report. The existing first release and replay brief remains available on Projects. [Build identity](https://media.loftwah.com/build.json), [#451](https://github.com/loftwah/composer-media-studio/pull/451), [Projects brief](https://composer.loftwah.com/projects?example=creative-handoff), [earlier Image Tools proof](https://github.com/loftwah/composer-media-studio/issues/183#issuecomment-6961801146).
+- Launch Kit reports `e1bdefd199a90479bcf3c587cab80004e7b3aad7` in the `sha` field. Its earlier palette handoff receipt records the chosen accent and edited title in the native ZIP. [Build identity](https://composer-launch-kit.loftwah.workers.dev/build.json), [palette handoff](https://github.com/loftwah/app-composer-launch-kit/issues/13#issuecomment-6961840420).
+- Composer's native Share Calendar still reaches Cloudflare Access in the official signed-in Chrome route. Independent ownership, collaborator and physical-device acceptance remain open. EmDash co-editing and the Woodhouse preview upgrade are tracked separately. [Owner access evidence](https://github.com/loftwah/app-composer/issues/11#issuecomment-7001115235), [independent owner replay](https://github.com/loftwah/app-composer/issues/425), [EmDash #679](https://github.com/loftwah/app-composer/issues/679).
 
 ## Shareable films, honest provenance and a replayable journey — 16 November 2026
 
