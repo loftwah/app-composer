@@ -373,14 +373,6 @@ const stateClass = (state: string) =>
     ];
   }
 
-  /** The one comparison path: both the local and private baselines use this check math and rendering. */
-  function applyComparison(baseline: LocalResult, currentResult: LocalResult, message: string) {
-    const changes = compareLocalBenchmarkChecks(baseline, currentResult);
-    compareView.replaceChildren(...(changes ? renderComparison(changes, baseline, currentResult) : renderScopeMismatch()));
-    status.textContent = changes ? message : 'The results cover different suite or check identities.';
-    return changes !== null;
-  }
-
   if (input && clear && keep && openSaved && forget && compare && status && view && compareView) {
     let request = 0;
     let current: LocalResult | null = null;
@@ -394,8 +386,8 @@ const stateClass = (state: string) =>
         status.scrollIntoView({ block: 'center' });
       },
       (baseline, currentResult) => {
-        const comparable = applyComparison(baseline, currentResult, 'Comparison with the saved private run is shown below.');
-        compareView.scrollIntoView({ block: 'nearest' });
+        const comparable = showComparison(baseline, currentResult, 'Comparison with private run');
+        compareView.focus();
         return comparable;
       },
     );
@@ -420,7 +412,6 @@ const stateClass = (state: string) =>
       forget.hidden = !saved;
       keep.textContent = saved ? 'Replace saved result' : 'Keep in this browser';
       compare.hidden = !(current !== null && saved);
-      if (privateCompare) privateCompare.disabled = current === null;
       privateHistory?.refreshControls();
     };
 
@@ -507,7 +498,7 @@ const stateClass = (state: string) =>
           status.textContent = 'No saved result is available to compare.';
           return;
         }
-        applyComparison(saved, currentResult, 'Comparison with the saved result is shown below.');
+        showComparison(saved, currentResult, 'Comparison with saved result');
       } catch {
         if (selected === request) status.textContent = 'Could not read the saved result for comparison.';
       } finally {
