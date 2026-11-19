@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import BenchmarksNav from '../components/BenchmarksNav.astro';
 import results from '../../benchmarks/results/latest.json';
 import cloudflareCampaign from '../../benchmarks/cloudflare-composition/cases/scenarios.json';
 import cloudflareProfiles from '../../benchmarks/cloudflare-composition/cases/real-product-profiles.json';
@@ -17,6 +18,8 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   <h1>Show the run, not the promise.</h1>
   <p class="lede">These are the checks that keep the public sandbox honest: a change really saves and reopens, a broken save is caught, approval reaches the public view, and the exported blueprint carries what you chose. The file behind this page is a real run, not a template.</p>
  </div>
+
+ <BenchmarksNav current="recorded" />
 
  <dl class="bench-meta">
   <div><dt>Source</dt><dd>{source === 'unknown' ? 'unknown' : <a href={`https://github.com/loftwah/app-composer/commit/${source}`}><code>{short}</code></a>}</dd></div>
