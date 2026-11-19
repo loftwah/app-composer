@@ -24,8 +24,8 @@ import {
   posterUrl,
   reactComponentFilename as filmReactFilename,
   reactComponentPath as filmReactPath,
-  recipeFilename as filmRecipeFilename,
-  recipePath as filmRecipePath,
+  recipeV2Filename as filmRecipeV2Filename,
+  recipeV2Path as filmRecipeV2Path,
   starterFilename as filmStarterFilename,
   starterPath as filmStarterPath,
   videoUrl,
@@ -161,7 +161,7 @@ const bubblesCards = [
     <h2>{filmTitle}</h2>
     <p class="entry-summary">Host this 10.5-second App Composer film on your site with English captions. Paste the fragment below into an existing page, or download the complete starter.</p>
     <div class="card-downloads">
-      <a class="button secondary" href={filmRecipePath} download={filmRecipeFilename}>Download film recipe (JSON)</a>
+      <a class="button secondary" href={filmRecipeV2Path} download={filmRecipeV2Filename}>Download film recipe (JSON)</a>
       <a class="button secondary" href={filmStarterPath} download={filmStarterFilename}>Download film HTML starter</a>
       <a class="button secondary" href={filmReactPath} download={filmReactFilename}>Download React + TS component</a>
       <a class="button secondary" href={watchUrl}>Watch on Media Studio</a>

@@ -37,6 +37,10 @@ export const filmCaptionSrc = '/brand/campaign/take-it-with-you-20261118.vtt';
 export const starterFilename = 'take-it-with-you-v1.html';
 export const starterPath = `/widgets/${starterFilename}`;
 
+// Exact CSP shipped by the standalone starter. Shared with the v2 recipe so the
+// documented policy and the HTML meta tag cannot drift.
+const starterCsp = `default-src 'none'; img-src ${studioOrigin}; media-src ${studioOrigin} data:; style-src 'unsafe-inline'; base-uri 'none'`;
+
 const filmMarkup = `    <video controls playsinline preload="none" width="1280" height="720" poster="${posterUrl}" aria-label="${filmTitle}, an App Composer commercial">
       <source src="${videoUrl}" type="video/mp4">
       <track kind="captions" src="${captionTrackUrl}" srclang="en" label="English captions" default>
@@ -50,7 +54,7 @@ export const starterHtml = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${studioOrigin}; media-src ${studioOrigin} data:; style-src 'unsafe-inline'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="${starterCsp}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${filmTitle} · App Composer</title>
   <!-- Published media SHA-256: ${videoSha256} -->
@@ -163,3 +167,28 @@ export const filmReactInstallSnippet = `import TakeItWithYouFilm from './TakeItW
 export default function Page() {
   return <TakeItWithYouFilm />;
 }`;
+
+export const recipeV2Filename = 'take-it-with-you-v2.json';
+export const recipeV2Path = `/widgets/${recipeV2Filename}`;
+
+export const filmRecipeV2 = {
+  ...filmRecipe,
+  version: 2,
+  installation: {
+    ...filmRecipe.installation,
+    html: {
+      scriptsRequired: false,
+      contentSecurityPolicy: starterCsp,
+    },
+    react: {
+      component: composerOrigin + reactComponentPath,
+      filename: reactComponentFilename,
+      importSnippet: filmReactInstallSnippet,
+      build: { jsx: 'tsx', dependencies: ['react'] },
+      browserScriptsRequiredForPlayback: false,
+      contentSecurityPolicy: filmRecipe.installation.contentSecurityPolicy,
+    },
+  },
+} as const;
+
+export const filmRecipeV2Json = JSON.stringify(filmRecipeV2, null, 2);
