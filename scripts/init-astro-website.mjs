@@ -3,16 +3,17 @@
 import { resolve, dirname, basename } from 'node:path';
 import { createAstroWebsite } from '../lib/astro-website/create.mjs';
 import { selectedFile } from '../lib/get-ready/project-files.mjs';
+import { astroWebsiteWidget } from '../src/lib/astro-website-spec.mjs';
 
 const args = process.argv.slice(2), flags = new Map();
 try {
   if (args.length === 1 && args[0] === '--help') {
-    console.log('Create a new independent Astro + Markdown website: pnpm init:website --spec FILE --destination ABSOLUTE_ABSENT_DIRECTORY [--worker-name NAME]. An optional lowercase DNS-safe Worker name (max 63, no leading/trailing hyphen) writes a local wrangler.jsonc with static-assets routing only. Existing projects are never updated. This installs nothing, contacts no provider and does not deploy.');
+    console.log(`Create a new independent Astro + Markdown website: pnpm init:website --spec FILE --destination ABSOLUTE_ABSENT_DIRECTORY [--worker-name NAME] [--widget ${astroWebsiteWidget}]. An optional lowercase DNS-safe Worker name (max 63, no leading/trailing hyphen) writes a local wrangler.jsonc with static-assets routing only. The only supported --widget value is ${astroWebsiteWidget}; it adds public/radio/index.html with the exact Night Signal starter, opened at /radio/ in the local site. Existing projects are never updated. This installs nothing, contacts no provider and does not deploy.`);
   } else {
     for (let i = 0; i < args.length; i++) {
-      if (!['--spec', '--destination', '--worker-name'].includes(args[i]) || flags.has(args[i]) ||
+      if (!['--spec', '--destination', '--worker-name', '--widget'].includes(args[i]) || flags.has(args[i]) ||
           !args[i + 1] || args[i + 1].startsWith('--'))
-        throw Error('Use --spec FILE, --destination ABSOLUTE_ABSENT_DIRECTORY and an optional --worker-name NAME.');
+        throw Error('Use --spec FILE, --destination ABSOLUTE_ABSENT_DIRECTORY, an optional --worker-name NAME and an optional --widget ' + astroWebsiteWidget + '.');
       flags.set(args[i], args[++i]);
     }
     if (!flags.has('--spec') || !flags.has('--destination'))
@@ -25,11 +26,12 @@ try {
       spec: JSON.parse(file.data.toString('utf8')),
       destination: flags.get('--destination'),
       workerName: flags.get('--worker-name'),
+      widget: flags.get('--widget'),
     });
     console.log(JSON.stringify(result, null, 2));
   }
 } catch (error) {
-  if (error instanceof Error && error.code === 'invalid_worker_name')
+  if (error instanceof Error && (error.code === 'invalid_worker_name' || error.code === 'invalid_widget'))
     process.stderr.write(error.message + '\n');
   else process.stderr.write('Astro website creation did not finish. Use a supported spec, an absent absolute destination and an existing unlinked parent. Existing/partial files are preserved; inspect them before a separate retry. No dependency installation, provider call, Git action or deployment was attempted.\n');
   process.exitCode = 1;

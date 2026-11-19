@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { createAstroWebsite, astroWebsiteFiles } from '../lib/astro-website/create.mjs';
 import { createAstroWebsiteWorkerConfig } from '../lib/astro-website/worker-config.mjs';
+import { starterHtml } from '../src/lib/widget-recipe.ts';
 
 const schema = 'app-composer/astro-website/v1';
 const templateRoot = resolve('lib/astro-website/template');
@@ -235,6 +236,45 @@ test('invalid or occupied Worker-name requests fail before any write and preserv
     assert.equal(run(file, occupied, ['--worker-name', 'valid-name']).status, 1);
     assert.equal(fs.readFileSync(join(occupied, 'owner.txt'), 'utf8'), 'Fictional owner content');
     assert.equal(fs.existsSync(join(occupied, 'wrangler.jsonc')), false);
+  } finally {
+    fs.rmSync(root, { recursive: true });
+  }
+});
+
+test('the optional Night Signal widget emits the exact starter; default and unknown values stay bounded', () => {
+  const root = fixture();
+  try {
+    const file = write(root, spec());
+    const widget = 'loftwahfm-night-signal-v1';
+
+    // Supported flag: byte-for-byte the maintained .ts starter, on its own page.
+    const destination = join(root, 'widget-site');
+    const result = run(file, destination, ['--widget', widget]);
+    assert.equal(result.status, 0, result.stderr);
+    const radio = fs.readFileSync(join(destination, 'public/radio/index.html'));
+    assert.equal(radio.toString('utf8'), starterHtml);
+
+    // It composes with --worker-name without changing either artifact.
+    const both = join(root, 'both-site');
+    const bothResult = run(file, both, ['--worker-name', 'night-signal-971', '--widget', widget]);
+    assert.equal(bothResult.status, 0, bothResult.stderr);
+    assert.ok(fs.existsSync(join(both, 'wrangler.jsonc')));
+    assert.equal(hash(fs.readFileSync(join(both, 'public/radio/index.html'))), hash(Buffer.from(starterHtml)));
+
+    // The default scaffold has no radio page.
+    const plain = join(root, 'plain-site');
+    assert.equal(run(file, plain).status, 0);
+    assert.equal(fs.existsSync(join(plain, 'public/radio/index.html')), false);
+    for (const [name, bytes] of Object.entries(astroWebsiteFiles(spec()).files))
+      assert.equal(hash(fs.readFileSync(join(plain, name))), hash(bytes), name);
+
+    // Unknown flags fail before any write, including near misses.
+    for (const [index, value] of [widget + '2', widget + '.json', 'Night-Signal', ''].entries()) {
+      const target = join(root, 'bad-widget-' + index);
+      assert.equal(run(file, target, ['--widget', value]).status, 1, value);
+      assert.equal(fs.existsSync(target), false, value);
+    }
+    assert.throws(() => astroWebsiteFiles(spec(), undefined, widget + '2'));
   } finally {
     fs.rmSync(root, { recursive: true });
   }
