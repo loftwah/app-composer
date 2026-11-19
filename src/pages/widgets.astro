@@ -17,6 +17,9 @@ import {
   widgetUrl,
 } from '../lib/widget-recipe';
 import {
+  filmAgentTask,
+  filmAgentTaskDownload,
+  filmAgentTaskFilename,
   filmCaptionSrc,
   filmEmbedFragment,
   filmReactInstallSnippet,
@@ -204,6 +207,19 @@ import {
       <p>Save the downloaded component alongside your page and import it as shown. Allow the same poster, video and caption sources in your content security policy.</p>
       <pre class="widget-code film-code" tabindex="0"><code>{filmReactInstallSnippet}</code></pre>
     </details>
+    <details class="react-version">
+      <summary>Install with your coding agent</summary>
+      <p>Give your coding agent the install links and playback checks.</p>
+      <pre class="widget-code film-code" tabindex="0" data-film-agent-task>{filmAgentTask}</pre>
+      <div class="copy-actions" data-enhanced hidden>
+        <button type="button" data-copy-film-agent>Copy agent task</button>
+      </div>
+      <p class="copy-status" role="status" data-film-agent-status></p>
+      <div data-film-agent-manual hidden>
+        <label for="film-agent-manual">Copy this task manually<textarea id="film-agent-manual" readonly rows="16"></textarea></label>
+      </div>
+      <a href={filmAgentTaskDownload} download={filmAgentTaskFilename}>Download task (Markdown)</a>
+    </details>
   </article>
 
   <p class="widget-foot">For other stations, releases, playlists and sizes, use <a href={builderUrl}>LoftwahFM’s builder</a>. For games, see <a href={`${stationOrigin}/game-music/`}>LoftwahFM’s audio SDK</a>.</p>
@@ -250,7 +266,7 @@ import {
   let copyRequest = 0;
   async function copy(text: string, message: string, status: HTMLElement, manual: HTMLElement) {
     const request = ++copyRequest;
-    for (const field of document.querySelectorAll<HTMLElement>('[data-manual], [data-agent-manual]')) field.hidden = true;
+    for (const field of document.querySelectorAll<HTMLElement>('[data-manual], [data-agent-manual], [data-film-manual], [data-film-agent-manual]')) field.hidden = true;
     status.textContent = '';
     try {
       await navigator.clipboard.writeText(text);
@@ -290,6 +306,13 @@ import {
   const filmManual = document.querySelector<HTMLElement>('#take-it-with-you-film [data-manual]')!;
   document.querySelector<HTMLButtonElement>('[data-copy-film]')!.addEventListener('click', () => {
     void copy(filmEmbedText, 'Fragment copied. Paste it into your page.', filmStatus, filmManual);
+  });
+
+  const filmAgentText = document.querySelector<HTMLElement>('[data-film-agent-task]')!.textContent ?? '';
+  const filmAgentStatus = document.querySelector<HTMLElement>('[data-film-agent-status]')!;
+  const filmAgentManual = document.querySelector<HTMLElement>('[data-film-agent-manual]')!;
+  document.querySelector<HTMLButtonElement>('[data-copy-film-agent]')!.addEventListener('click', () => {
+    void copy(filmAgentText, 'Agent task copied. Paste it into your coding agent to begin.', filmAgentStatus, filmAgentManual);
   });
 
   const filmPreview = document.querySelector<HTMLElement>('[data-film-preview]')!;
