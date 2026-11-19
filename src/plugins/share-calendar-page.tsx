@@ -37,6 +37,7 @@ import {
   type QueueNextPreview,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
+  type ShareCalendarIcsItem,
   type ShareCalendarSource,
   type ShareCalendarVariant,
   type ShareChannel,
@@ -1709,6 +1710,10 @@ function ShareCalendar({ search }: { search: string }) {
     () => calendarExportItems(snapshot?.items ?? [], snapshot),
     [snapshot],
   );
+  const scheduledById = useMemo(
+    () => new Map(scheduled.map(event => [event.id, event])),
+    [scheduled],
+  );
 
   function fillFromSource(id: string, current?: ShareCalendarItem) {
     setSourceId(id);
@@ -2603,14 +2608,15 @@ function ShareCalendar({ search }: { search: string }) {
     await shared(item, "Caption and link copied.");
   }
 
-  function downloadCalendar() {
+  function downloadCalendar(event?: ShareCalendarIcsItem) {
     if (!snapshot) return;
-    if (!scheduled.length) {
+    const entries = event ? [event] : scheduled;
+    if (!entries.length) {
       setNotice("Add a scheduled share before downloading the calendar.");
       return;
     }
     try {
-      const ics = buildShareCalendarIcs(scheduled, {
+      const ics = buildShareCalendarIcs(entries, {
         now: new Date(),
         calendarName: "Share calendar · " + snapshot.workspace.name,
       });
@@ -2619,13 +2625,17 @@ function ShareCalendar({ search }: { search: string }) {
       );
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = calendarFilename(snapshot.workspace.name);
+      anchor.download = calendarFilename(
+        event ? event.id.slice(0, 8) + " " + event.stackName : snapshot.workspace.name,
+      );
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setNotice(
-        `Downloaded ${scheduled.length} scheduled share${scheduled.length === 1 ? "" : "s"} as an .ics calendar. The file uses UTC.`,
+        event
+          ? "Downloaded this event as an .ics calendar. The file uses UTC."
+          : `Downloaded ${entries.length} scheduled share${entries.length === 1 ? "" : "s"} as an .ics calendar. The file uses UTC.`,
       );
     } catch (cause) {
       setError(
@@ -3462,7 +3472,7 @@ function ShareCalendar({ search }: { search: string }) {
               </div>
               <button
                 type="button"
-                onClick={downloadCalendar}
+                onClick={() => downloadCalendar()}
                 disabled={busy || !scheduled.length}
               >
                 Download .ics
@@ -3646,6 +3656,7 @@ function ShareCalendar({ search }: { search: string }) {
             ) : null}
             {calendarView === "list" && <ol className="sc-items">
               {visibleItems.map((item) => {
+                const exportEvent = scheduledById.get(item.id);
                 const labels = item.scheduledAt
                   ? scheduleLabels(item.scheduledAt)
                   : null;
@@ -3814,6 +3825,11 @@ function ShareCalendar({ search }: { search: string }) {
                       </p>
                     )}
                     <div className="sc-actions">
+                      {exportEvent && (
+                        <button type="button" onClick={() => downloadCalendar(exportEvent)}>
+                          Download this event (.ics)
+                        </button>
+                      )}
                       <button
                         type="button"
                         aria-expanded={packageFor === item.id}
@@ -4042,7 +4058,7 @@ function ShareCalendar({ search }: { search: string }) {
               </p>
               <button
                 type="button"
-                onClick={downloadCalendar}
+                onClick={() => downloadCalendar()}
                 disabled={busy || !scheduled.length}
               >
                 Download calendar (.ics)
