@@ -39,6 +39,58 @@ own applicability and result; omitting it never removes a required ownership
 journey from the denominator. These are task hypotheses, not claims that a
 Cloudflare product lacks a feature.
 
+## Real-product outcome profiles — follow-on coverage (2026/11/19)
+
+[The nine real-product profiles](cases/real-product-profiles.json) translate the
+Cloudflare wishlist and its companion *what I would actually build* brief into
+specific, falsifiable portfolio demonstrations. They extend **this same
+CF-COMPOSE campaign**, not a second benchmark engine. The original six required
+journeys, comparison basis, schemas and result denominator above remain intact.
+Each profile is a separately declared, **not-run** scenario until the required
+independent source/browser/provider/human evidence exists. A local helper result
+cannot qualify a complete profile. No unapproved provider spend, agent access or
+production operation is authorised by a benchmark definition.
+
+| Profile | What the owner must actually demonstrate | Home |
+| --- | --- | --- |
+| **CF-R01** First creator | From no infrastructure knowledge to an owned, multi-resource app, return, second change, portable source and independently verified state | Composer Get Ready / Init, #425 / #590 |
+| **CF-R02** Phone-first release | Phone controls a real remote agent preview/review/release while laptop is unavailable; exact code and live Worker result verified | #772 / #597 / #319 |
+| **CF-R03** Parallel alternatives | Two isolated agent proposals with actual diffs, conflict/permissions tests, chosen result round-trips through ordinary Git | #717; Woodhouse #281 |
+| **CF-R04** Finished original film | One owned LoftwahFM song becomes a versioned, editable, synchronised, genuinely playable video with real cost/rights and human craft assessment | Media Studio #14 / #150 / #222 |
+| **CF-R05** Real game/music experience | Prove first-five-minute Phaser gameplay or navigation-and-seek audio with real pixels, sound, frame pacing, save state and device limitations | Game owners / LoftwahFM, #659 / #623 |
+| **CF-R06** Governed tenants | Two separately scoped tenants, least-privilege agent actions, audited denial/revocation, honest cost and actual region evidence | #113 / #216 / #291 |
+| **CF-R07** Full-app recovery | Diagnose and recover a bounded multi-resource incident; compare code, data, media, privacy and schema state rather than claim Worker rollback is full recovery | #215 / #445 / #9 |
+| **CF-R08** Recursive rebuild | Rebuild App Composer as a second independently owned installation, run a new app and useful follow-up through it, test repeatable reconstruction and declared parity | #931 / #600 / #476 / #603 |
+| **CF-R09** Portfolio proof/feedback | Join actual GitHub/Cloudflare/Studio identities across projects, retain private evidence and publish one approved benchmark plus one falsifiable Cloudflare improvement request | #601 / #613 / Woodhouse #18 |
+
+The profile file explicitly maps **all 13 MCP wishlist themes and all 18 wider
+platform themes** to at least one concrete outcome. The mapping is **coverage of
+questions to evaluate**, not provider availability or technical certification.
+Each profile names its baseline (usually the existing supported local/ordinary
+Git or app-specific workflow), prerequisites, ordered actions, positive control,
+negative cases, metrics, required receipts, owners and status. Real-world features
+such as Artifacts event parity, cross-account rebuild, Australian data location,
+actual device availability and media GPU execution remain unverified until their
+own permitted qualification; missing capabilities are blocked/not-applicable with
+reasons rather than fabricated provider defects.
+
+**Execution order:** run the existing CF-J01–CF-J03 positive/negative cases first,
+then attach CF-R01 to a real beginner, CF-R02 to an approved mobile release
+pilot and CF-R03 to a synthetic two-agent Git round-trip. Follow with the media,
+game, tenant, recovery, recursive and observability profiles as their owning
+projects become ready. Never silently drop the other six required journeys from
+reporting. Run the same baseline and improved workflow with frozen inputs and
+record every attempt, intervention, useful result, failure, observed/estimated
+cost and measured change. At least three fresh attempts per configuration are a
+preliminary comparison, not a claim of statistical significance.
+
+**Public Benchmarks Studio:** [the existing /benchmarks hub](https://composer.loftwah.com/benchmarks)
+should expose this campaign with its actual evidence status. Approved public
+shareables and analytics remain owned by [#613](https://github.com/loftwah/app-composer/issues/613).
+Do not create another dashboard or publish raw customer, repository or security
+data. Own application implementation and repairs in the linked projects, and
+track evaluation in [#601](https://github.com/loftwah/app-composer/issues/601).
+
 ## Run the local foundation
 
 From the repository root, use the repository's supported Node version. The
