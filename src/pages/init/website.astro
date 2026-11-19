@@ -33,6 +33,10 @@ import Base from '../../layouts/Base.astro';
 <section class="website-export">
  <h2>Build it with your agent</h2>
  <p>Download the JSON brief and give it to your agent with the request below. The starter opens in its own folder for local review before you connect GitHub or Cloudflare.</p>
+ <details>
+  <summary>Preview the built site with Wrangler</summary>
+  <p>When you have chosen a Worker name, ask your agent to add <code>--worker-name NAME</code>. This creates a local <code>wrangler.jsonc</code>. Build the site, then run <code>wrangler dev --local</code> in the new folder using an installed Wrangler.</p>
+ </details>
  <div class="actions">
   <button type="button" id="website-download" class="secondary">Download spec</button>
   <button type="button" id="website-copy" disabled>Copy agent request</button>

@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { createAstroWebsite, astroWebsiteFiles } from '../lib/astro-website/create.mjs';
+import { createAstroWebsiteWorkerConfig } from '../lib/astro-website/worker-config.mjs';
 
 const schema = 'app-composer/astro-website/v1';
 const templateRoot = resolve('lib/astro-website/template');
@@ -165,6 +166,76 @@ test('an interrupted write keeps partial output and never auto-replaces it', () 
   } finally {
     child.spawnSync = original;
     syncBuiltinESMExports();
+    fs.rmSync(root, { recursive: true });
+  }
+});
+
+test('an explicit Worker name writes only a bounded local wrangler.jsonc; the default scaffold is unchanged', () => {
+  const root = fixture();
+  try {
+    const file = write(root, spec()), destination = join(root, 'named-site');
+    const result = run(file, destination, ['--worker-name', 'field-notes-971']);
+    assert.equal(result.status, 0, result.stderr);
+    const config = JSON.parse(fs.readFileSync(join(destination, 'wrangler.jsonc'), 'utf8'));
+    assert.deepEqual(config, createAstroWebsiteWorkerConfig('field-notes-971'));
+    assert.deepEqual(config, {
+      name: 'field-notes-971',
+      compatibility_date: '2026-10-20',
+      assets: {
+        directory: './dist',
+        not_found_handling: '404-page',
+        html_handling: 'auto-trailing-slash',
+      },
+    });
+    for (const forbidden of ['account_id', 'routes', 'vars', 'main', 'd1_databases',
+      'r2_buckets', 'kv_namespaces', 'services', 'secrets', 'workers_dev'])
+      assert.equal(Object.hasOwn(config, forbidden), false, forbidden);
+    assert.equal(Object.hasOwn(config.assets, 'binding'), false);
+
+    // The pure builder returns fresh, equal data and rejects invalid names.
+    const first = createAstroWebsiteWorkerConfig('field-notes-971');
+    const second = createAstroWebsiteWorkerConfig('field-notes-971');
+    assert.deepEqual(first, second);
+    assert.notEqual(first, second);
+    assert.throws(() => createAstroWebsiteWorkerConfig('Field-Notes'));
+
+    // No --worker-name: default scaffold, no wrangler.jsonc.
+    const plain = join(root, 'plain-site');
+    assert.equal(run(file, plain).status, 0);
+    assert.equal(fs.existsSync(join(plain, 'wrangler.jsonc')), false);
+    for (const [name, bytes] of Object.entries(astroWebsiteFiles(spec()).files))
+      assert.equal(hash(fs.readFileSync(join(plain, name))), hash(bytes), name);
+  } finally {
+    fs.rmSync(root, { recursive: true });
+  }
+});
+
+test('invalid or occupied Worker-name requests fail before any write and preserve an occupied destination', () => {
+  const root = fixture();
+  try {
+    const file = write(root, spec());
+    const invalid = [
+      'Field-Notes',
+      '-leading',
+      'trailing-',
+      'has_underscore',
+      'has space',
+      'trailing-newline\n',
+      'a'.repeat(64),
+      '',
+    ];
+    for (const [index, name] of invalid.entries()) {
+      const destination = join(root, 'bad-' + index);
+      assert.equal(run(file, destination, ['--worker-name', name]).status, 1, name);
+      assert.equal(fs.existsSync(destination), false, name);
+    }
+    const occupied = join(root, 'occupied-named');
+    fs.mkdirSync(occupied);
+    fs.writeFileSync(join(occupied, 'owner.txt'), 'Fictional owner content');
+    assert.equal(run(file, occupied, ['--worker-name', 'valid-name']).status, 1);
+    assert.equal(fs.readFileSync(join(occupied, 'owner.txt'), 'utf8'), 'Fictional owner content');
+    assert.equal(fs.existsSync(join(occupied, 'wrangler.jsonc')), false);
+  } finally {
     fs.rmSync(root, { recursive: true });
   }
 });
