@@ -49,6 +49,23 @@ pnpm build    # static site in dist/ (also validates post frontmatter)
 pnpm preview  # serve the built site
 ```
 
+## Local Wrangler preview (optional)
+
+With `--worker-name NAME`, the scaffold writes a `wrangler.jsonc` for the
+built files in `dist/`. Choose a name for this new Worker using lowercase
+letters, digits and hyphens. Start and finish with a letter or digit and use
+at most 63 characters.
+
+After `pnpm build`, use an installed Wrangler to preview the built site.
+
+```sh
+wrangler dev --local
+```
+
+Choose the GitHub repository, preview access and Cloudflare account when you
+are ready to connect the project.
+[Workers Static Assets guide](https://developers.cloudflare.com/workers/static-assets/routing/static-site-generation/)
+
 ## Edit the site
 
 - Change `title`, `description` and `about` in `src/site.json`.
