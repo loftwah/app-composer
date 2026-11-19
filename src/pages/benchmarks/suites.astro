@@ -26,6 +26,17 @@ const packs = Object.entries(modules)
 const knownChecks = packs.flatMap(({ summary }) =>
   summary.checks.map(({ module, id }: { module: string; id: string }) => [module, id]),
 );
+const suiteAuthorCatalogue = packs.map((pack) => ({
+  id: pack.summary.id,
+  name: pack.summary.name,
+  directory: pack.inCloudflareDirectory
+    ? 'benchmarks/cloudflare-composition'
+    : 'benchmarks/suites',
+  checks: pack.summary.checks.map((check: { module: string; id: string }) => ({
+    module: check.module,
+    id: check.id,
+  })),
+}));
 const suiteCommand = (pack: (typeof packs)[number]) => {
   const suites = pack.inCloudflareDirectory ? ' --suites benchmarks/cloudflare-composition' : '';
   const id = pack.summary.id;
@@ -272,6 +283,42 @@ const stateClass = (state: string) =>
     <noscript>Enable JavaScript to inspect a suite definition on this device.</noscript>
     <p id="suite-definition-status" role="status"></p>
     <div id="suite-definition-view"></div>
+
+    <details class="suite-author">
+      <summary>Create a suite definition</summary>
+      <p class="small">
+        Choose existing checks from one catalogue pack and download a definition for your local checkout.
+      </p>
+      <form id="suite-author" data-catalogue={JSON.stringify(suiteAuthorCatalogue)}>
+        <div class="suite-author-fields">
+          <div class="local-command">
+            <label for="suite-author-id">Suite ID</label>
+            <input id="suite-author-id" name="id" type="text" maxlength="32" placeholder="FLOW-02" required />
+          </div>
+          <div class="local-command">
+            <label for="suite-author-name">Name</label>
+            <input id="suite-author-name" name="name" type="text" maxlength="80" required />
+          </div>
+        </div>
+        <div class="local-command">
+          <label for="suite-author-description">Description (20–400 characters)</label>
+          <textarea id="suite-author-description" name="description" rows="3" minlength="20" maxlength="400" required></textarea>
+        </div>
+        <div class="local-command">
+          <label for="suite-author-base">Base catalogue pack</label>
+          <select id="suite-author-base" name="base" disabled></select>
+        </div>
+        <fieldset id="suite-author-checks">
+          <legend>Provider-free checks</legend>
+        </fieldset>
+        <div class="packs-actions">
+          <button id="suite-author-download" class="button" type="submit" disabled>Download suite JSON</button>
+        </div>
+        <noscript>Enable JavaScript to create a suite definition on this device.</noscript>
+        <p id="suite-author-status" role="status" class="small"></p>
+        <pre id="suite-author-command" class="small"></pre>
+      </form>
+    </details>
   </section>
 
   <section class="packs-section" id="private-history" aria-labelledby="private-history-title">
@@ -314,6 +361,7 @@ const stateClass = (state: string) =>
   import { compareLocalBenchmarkChecks } from '../../lib/benchmark-local-compare';
   import { mountPrivateBenchmarkHistory } from '../../lib/benchmark-private-history-browser';
   import { mountBenchmarkSuiteFile } from '../../lib/benchmark-suite-file-browser';
+  import { mountSuiteAuthor } from '../../lib/benchmark-suite-author-browser';
   import type { parseLocalBenchmarkResult } from '../../lib/benchmark-local-result';
   import {
     LOCAL_BENCHMARK_STORAGE_KEY,
@@ -346,6 +394,7 @@ const stateClass = (state: string) =>
   }
 
   mountBenchmarkSuiteFile();
+  mountSuiteAuthor();
 
   const node = (tag: string, text?: string) => {
     const element = document.createElement(tag);
@@ -616,6 +665,16 @@ const stateClass = (state: string) =>
   #local-result-view{overflow-wrap:anywhere}
   #suite-definition-file{max-width:100%}
   #suite-definition-view{overflow-wrap:anywhere}
+  .suite-author{margin-top:18px;border:1px solid var(--color-border);border-radius:8px;padding:12px 14px}
+  .suite-author>summary{cursor:pointer;font-size:13px;font-weight:600}
+  .suite-author form{margin-top:12px;display:grid;gap:12px}
+  .suite-author-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .suite-author input[type=text],.suite-author textarea,.suite-author select{max-width:100%;width:100%;font:inherit;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:inherit}
+  .suite-author textarea{resize:vertical}
+  .suite-author fieldset{min-width:0;margin:0;padding:12px;border:1px solid var(--color-border);border-radius:8px}
+  .suite-author fieldset label{display:flex;align-items:flex-start;gap:8px;margin:6px 0;overflow-wrap:anywhere}
+  .suite-author legend{font-size:12px;color:var(--color-muted);padding:0 4px}
+  .suite-author pre{margin:0;max-height:220px;overflow:auto;font-size:12px}
   .local-command{margin-top:16px}
   .local-command label{display:block;font-size:12px;color:var(--color-muted);margin-bottom:6px}
   .local-command select{max-width:100%;font:inherit;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:inherit}
