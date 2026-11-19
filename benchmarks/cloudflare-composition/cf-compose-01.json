@@ -1,0 +1,42 @@
+{
+  "schema": "benchmark-suite/v1",
+  "id": "CF-COMPOSE-01",
+  "name": "Cloudflare composition: local evidence foundation",
+  "description": "Reuses all eleven sandbox save/reopen and blueprint round-trip checks, then exercises the real read-only provider operations view with fictional scope, coverage, dependency and cost observations. It establishes local contracts, not live Cloudflare capability.",
+  "kind": "deterministic",
+  "providerFree": true,
+  "requirements": {
+    "network": false,
+    "credentials": [],
+    "spendMicro": 0
+  },
+  "checks": [
+    { "module": "foundation", "id": "sandbox-save-reopen-edit-survives-reopen" },
+    { "module": "foundation", "id": "sandbox-save-reopen-fake-save-detected" },
+    { "module": "foundation", "id": "sandbox-save-reopen-tampered-save-rejected" },
+    { "module": "foundation", "id": "sandbox-save-reopen-approve-makes-public" },
+    { "module": "foundation", "id": "sandbox-save-reopen-hide-removes-publicly" },
+    { "module": "foundation", "id": "sandbox-save-reopen-restore-keeps-moderation" },
+    { "module": "foundation", "id": "sandbox-save-reopen-export-still-reads-restored-state" },
+    { "module": "foundation", "id": "blueprint-roundtrip-export-succeeds" },
+    { "module": "foundation", "id": "blueprint-roundtrip-fields-survive" },
+    { "module": "foundation", "id": "blueprint-roundtrip-preview-only-reported" },
+    { "module": "foundation", "id": "blueprint-roundtrip-invalid-refused" },
+    { "module": "foundation", "id": "provider-scope-mismatch-refused" },
+    { "module": "foundation", "id": "provider-incomplete-observations-stay-unknown" },
+    { "module": "foundation", "id": "provider-explicit-dependencies-preserved" },
+    { "module": "foundation", "id": "provider-unknown-cost-no-retirement-authority" }
+  ],
+  "evidence": {
+    "status": "not-run",
+    "note": "No committed baseline is attached to this pack. Retain each source-pinned local output separately; fixture results do not establish completed Cloudflare journeys."
+  },
+  "limits": [
+    "A local pass covers the named source functions and fictional observations only; it is not a browser, deployed application or live Cloudflare check.",
+    "Provider operations are derived from supplied observations. No account is contacted, and no actual resource permissions, provisioning or preview isolation are established.",
+    "Only observed service/D1/R2/KV bindings are represented. Queues, Workflows, external clients and unread Worker settings remain outside the known dependency graph.",
+    "This pack does not measure model quality, production latency, upload throughput, provider charges, data restoration or completion of the Cloudflare wishlist.",
+    "The zero-spend requirement prohibits provider execution here; it does not turn unknown cloud resource charges into zero costs or grant retirement authority.",
+    "Run this optional pack explicitly through the existing runner; its separate directory does not add a blanket check to routine releases."
+  ]
+}

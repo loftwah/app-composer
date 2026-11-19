@@ -1,0 +1,864 @@
+{
+  "schema": "cloudflare-creation/v1",
+  "id": "CF-COMPOSE",
+  "version": 1,
+  "name": "Cloudflare creation benchmark",
+  "kind": "qualification-campaign-definition",
+  "evidenceStatus": "not-run",
+  "ownerIssueRefs": [
+    "https://github.com/loftwah/app-composer/issues/930",
+    "https://github.com/loftwah/app-composer/issues/601"
+  ],
+  "purpose": "Six real user journeys map the twelve wishlist themes to observable outcomes. This file defines work; reading it runs nothing. No full journey, cloud result, baseline score or agent comparison has been recorded here.",
+  "wishlist": "https://gist.github.com/loftwah/c4e5cb0e90eb00bfce704b06a2624288",
+  "foundation": {
+    "packId": "CF-COMPOSE-01",
+    "schema": "benchmark-suite/v1",
+    "layer": "local-helper",
+    "rule": "Only named source-function checks are runnable through the foundation. A pass does not qualify browser persistence, IAM, Cloudflare execution, billing, audiovisual proof or any complete journey.",
+    "sourceReferenceRule": "sourceCheckProvenance names original source checks, not runnable selectors. The foundation module emits prefixed check IDs; use its actual results for selection and evidence."
+  },
+  "coveragePolicy": {
+    "requiredCaseIds": [
+      "CF-J01",
+      "CF-J02",
+      "CF-J03",
+      "CF-J04",
+      "CF-J05",
+      "CF-J06"
+    ],
+    "firstPilotCaseIds": [
+      "CF-J01",
+      "CF-J02",
+      "CF-J03"
+    ],
+    "optionalProfileIds": [
+      "CF-J06-ARTIFACTS"
+    ],
+    "themeRule": "Theme tags describe relevance, not certification. CF-05 has a separate optional Artifacts profile; all other themes map to required journeys.",
+    "denominatorRule": "Always show all six required journeys. An optional profile cannot satisfy, remove or reduce required coverage. Declare variants before running and retain missing variants.",
+    "layerRule": "Keep local-helper, actual-browser, controlled-provider, isolated-cloud and actual-agent evidence separate. Simulation cannot establish provider behaviour."
+  },
+  "runPrerequisites": [
+    "Pin campaign/case definitions, source and deployment revisions, fixtures, independent expected states, dependencies and runner versions.",
+    "Declare target account/project/environment, allowed effects, task allowance, timeout/retry/fallback policy and cleanup ownership.",
+    "Use synthetic or rights-cleared inputs and disposable resources. Cloud access, paid calls and publication require their actual supported scope and authorisation.",
+    "Inject faults only in owned disposable targets. A production-labelled negative case uses a disposable sentinel or non-executing plan fixture. Inspect actual production bindings read-only and stop if a real production target appears; never route a test mutation there.",
+    "Bound revocation, lost-acknowledgement and allowance experiments by explicit requests, duration and independent resource/spend ceilings. Use no-charge fixtures where possible; never test uncontrolled overspend.",
+    "Missing runners, accounts or capabilities remain blocked/not-run. No silent account, provider, modality or paid fallback.",
+    "Use existing #601 runner/results ownership. This campaign adds no dashboard, scheduler or blanket release gate."
+  ],
+  "resultPolicy": {
+    "taskStatuses": [
+      "pass",
+      "fail",
+      "blocked",
+      "not-run",
+      "inconclusive",
+      "not-applicable"
+    ],
+    "comparisonStatuses": [
+      "comparable",
+      "not-comparable",
+      "unverified"
+    ],
+    "passRule": "The legitimate user outcome completes, required invariants pass, independent evidence matches the actual target and cleanup is accounted for.",
+    "hardFailures": [
+      "Unauthorised project/tenant effect",
+      "Unintended production mutation",
+      "Private-data or credential leak",
+      "Undeclared spend",
+      "Duplicated completed effect",
+      "Lost protected state or unauthorised republication",
+      "Fabricated or mismatched completion evidence"
+    ],
+    "stopRule": "Stop and report the affected trial on a hard failure; other successes cannot average it away.",
+    "positiveControlRule": "A valid corresponding action must succeed; denying everything cannot satisfy the journey.",
+    "uncertaintyRule": "Safe uncertainty handling can pass an invariant while the user task remains blocked. Unknown is not success, zero cost or proof of no effect.",
+    "reportRule": "Show task status, invariant results, evidence layer and observed metrics separately. Preserve all attempts and denominators; no universal 100-point score or helper-check count presented as completed journeys."
+  },
+  "measurementPolicy": {
+    "missingHandling": {
+      "null-with-reason": "Keep the value null and explain the missing observation. Never substitute zero, an estimate, a simulated amount or a successful-only sample."
+    },
+    "costRule": "Currency metrics require a currency code, amount basis and source. Separate observed charges, estimates, reservations and simulations; subscription entitlement is not API credit.",
+    "comparisonRule": "Use at least three fresh repeats per compared configuration with frozen inputs, expected states, permissions, budget and toolchain. Preserve failures and reset owned state between attempts.",
+    "agentRule": "When used, record actual model/provider, resolved route, harness, prompt/skills, tools and grants. An API model is not credited with a separate harness’s actions.",
+    "timingRule": "Record setup and complete task time separately, actual device/viewport/location, cache state and network conditions. Australian latency needs corresponding measurements.",
+    "statisticsRule": "Retain raw values; with small samples show count, median and range rather than stable-tail or superiority claims.",
+    "humanRule": "Keep attributed, append-only human observations separate from deterministic correctness. Blind paired reviews when appropriate; no generated approval."
+  },
+  "requiredEvidenceForEveryRun": [
+    "Source/deployment and fixture/expected-state hashes",
+    "Runner/profile, target identity and effective grants without secrets",
+    "Expected versus observed authoritative state",
+    "Trace/receipts with failure and uncertainty details",
+    "Measured values with units and missing reasons",
+    "Run-owned resource cleanup result"
+  ],
+  "findingClassification": {
+    "categories": [
+      "app-implementation",
+      "documentation-discovery",
+      "platform-behaviour-or-limit",
+      "environment-or-access",
+      "future-aspiration",
+      "unverified"
+    ],
+    "rule": "Allow multiple contributors. Platform feedback needs the exact operation/version/plan and a reproduction or explicit documented constraint. Existing functionality we misuse belongs to our implementation; misleading discovery belongs to docs. Missing access is not a missing platform feature.",
+    "exportRule": "Send measured workaround burden and the smallest supported request. Keep general aspirations outside strict repo findings and sanitise evidence before sharing."
+  },
+  "cases": [
+    {
+      "id": "CF-J01",
+      "version": 1,
+      "name": "Create an app and reopen the result",
+      "priority": "v1-first-three",
+      "required": true,
+      "cfIds": [
+        "CF-01",
+        "CF-09",
+        "CF-11"
+      ],
+      "evidenceStatus": "not-run",
+      "qualificationProfile": "actual-browser",
+      "expectedOutcome": "A creator makes a useful app for a declared task, saves and reopens it, makes a second useful change and retains owned source plus the supported saved state with truthful receipts.",
+      "prerequisites": [
+        "Choose a real app/blueprint and freeze its supported field contract.",
+        "Use a clean disposable workspace and an independent expected-state fixture.",
+        "Define the useful task and first/second expected changes before running; choose a supported source-export path."
+      ],
+      "input": "Fixed name, description, layout/theme and link edits plus one supported persisted interaction.",
+      "orderedProcedure": [
+        "Record clean state, the intended user task and setup time.",
+        "Inspect the intended changes and required authority.",
+        "Create the useful app and apply the fixed first edits through the actual interface; save.",
+        "Close/reopen and compare authoritative stored fields and the supported interaction with expected state.",
+        "Make a second useful change through the reopened interface; save, reopen and independently verify it.",
+        "Export owned source and supported saved state; re-import supported fields and inspect omissions, source identity and both changes."
+      ],
+      "positiveControl": {
+        "action": "Complete the declared app task, save and reopen, then make the second useful change.",
+        "expected": "Both intended changes persist, the interaction works, and the creator retains usable source and the supported export."
+      },
+      "negativeCases": [
+        {
+          "id": "fake-save",
+          "inject": "Display success while retaining initial state.",
+          "expected": "Independent state comparison fails."
+        },
+        {
+          "id": "invalid-import",
+          "inject": "Use an unsupported version/field or publication state.",
+          "expected": "Refuse or explicitly bound the import without partial corruption."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "setup_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "task_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "manual_interventions",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "supported_fields_preserved",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        }
+      ],
+      "evidenceRequired": [
+        "Actual interface trace",
+        "Before/after authoritative state",
+        "Export/re-import output and omissions",
+        "Second-change before/after state",
+        "Retained owned source and declared usable scope"
+      ],
+      "currentFoundationSupport": {
+        "packId": "CF-COMPOSE-01",
+        "layer": "local-helper",
+        "coverage": "partial",
+        "establishes": "Launchpad and blueprint function behaviour.",
+        "doesNotEstablish": [
+          "Actual browser storage",
+          "Usability",
+          "Cloud execution",
+          "Full ownership transfer",
+          "Useful app task completion",
+          "Actual source ownership/export"
+        ],
+        "qualifiesJourney": false,
+        "sourceCheckProvenance": [
+          "sandbox-save-reopen::edit-survives-reopen",
+          "sandbox-save-reopen::fake-save-detected",
+          "blueprint-roundtrip::export-succeeds",
+          "blueprint-roundtrip::fields-survive",
+          "blueprint-roundtrip::preview-only-reported",
+          "blueprint-roundtrip::invalid-refused"
+        ]
+      },
+      "ownerIssueRefs": [
+        "https://github.com/loftwah/app-composer/issues/930",
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/app-composer/issues/623",
+        "https://github.com/loftwah/app-composer/issues/600"
+      ]
+    },
+    {
+      "id": "CF-J02",
+      "version": 1,
+      "name": "Preview a change with bounded delegated access",
+      "priority": "v1-first-three",
+      "required": true,
+      "cfIds": [
+        "CF-01",
+        "CF-02",
+        "CF-04"
+      ],
+      "evidenceStatus": "not-run",
+      "qualificationProfile": "isolated-cloud",
+      "expectedOutcome": "A colleague or agent creates and uses a correctly isolated preview within its grant; unrelated resources stay protected and revocation is observable.",
+      "prerequisites": [
+        "Two owned disposable projects with distinct test identities/grants, including a disposable production-labelled sentinel or non-executing production plan fixture.",
+        "Declare every dependency target, required isolation and cleanup ownership.",
+        "Declare revocation semantics for new requests, sessions and running work."
+      ],
+      "input": "A bounded colleague preview grant and fixed change; the second disposable project and production-labelled sentinel remain outside its scope. Actual production is never a mutation target.",
+      "orderedProcedure": [
+        "Inspect the plan, permissions and complete declared dependency inventory; inspect live bindings read-only and stop on any actual production mapping.",
+        "Block paths whose required isolation cannot be established.",
+        "Complete the valid preview task and inspect its effect.",
+        "Attempt the equivalent action only against the prohibited disposable test project or production-labelled sentinel; use a non-executing plan fixture if no safe sentinel exists.",
+        "Revoke only the disposable test grant; test subsequent access and declared in-flight behaviour within the fixed allowance.",
+        "Remove only the run’s owned resources."
+      ],
+      "positiveControl": {
+        "action": "Run the valid action with correctly isolated targets and a valid grant.",
+        "expected": "The intended preview works; a deny-all implementation cannot pass."
+      },
+      "negativeCases": [
+        {
+          "id": "scope-mismatch",
+          "inject": "Target the second owned disposable test project/environment outside the test grant.",
+          "expected": "Deny the action and leave the protected target unchanged."
+        },
+        {
+          "id": "unknown-dependency",
+          "inject": "Withhold required binding visibility.",
+          "expected": "Expose incomplete coverage and block the isolation-dependent path."
+        },
+        {
+          "id": "production-target",
+          "inject": "Declare a disposable sentinel labelled production in the plan, or supply a non-executing production-target fixture; never address actual production.",
+          "expected": "Reject it before execution."
+        },
+        {
+          "id": "revoked-grant",
+          "inject": "Reuse the disposable test grant after the declared revocation boundary against owned test resources only.",
+          "expected": "Deny further work according to the documented coverage; old receipts confer no authority."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "preview_task_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "manual_scope_steps",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "unauthorised_effects",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "unresolved_targets",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "revocation_observation_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        }
+      ],
+      "evidenceRequired": [
+        "Plan and binding inventory",
+        "Redacted role/provider-scope mapping",
+        "Valid and denied operation receipts",
+        "Protected-target before/after state",
+        "Revocation timeline and limits"
+      ],
+      "currentFoundationSupport": {
+        "packId": "CF-COMPOSE-01",
+        "layer": "local-helper",
+        "coverage": "partial",
+        "establishes": "Provider helper classification only.",
+        "doesNotEstablish": [
+          "Real IAM",
+          "Cloud preview isolation",
+          "Revocation"
+        ],
+        "qualifiesJourney": false,
+        "relatedProviderFixtureAreas": [
+          "Scope/identity mismatch",
+          "Partial dependency visibility"
+        ],
+        "sourceCheckProvenance": []
+      },
+      "ownerIssueRefs": [
+        "https://github.com/loftwah/app-composer/issues/930",
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/app-composer/issues/597",
+        "https://github.com/loftwah/app-composer/issues/445"
+      ]
+    },
+    {
+      "id": "CF-J03",
+      "version": 1,
+      "name": "Recover an interrupted stateful change",
+      "priority": "v1-first-three",
+      "required": true,
+      "cfIds": [
+        "CF-01",
+        "CF-03",
+        "CF-07",
+        "CF-08",
+        "CF-09"
+      ],
+      "evidenceStatus": "not-run",
+      "qualificationProfile": "isolated-cloud",
+      "expectedOutcome": "A stale observation or lost acknowledgement does not cause an unexpected overwrite or duplicate effect; recovery restores its declared scope while retaining current restrictions.",
+      "prerequisites": [
+        "A disposable stateful app with an explicit recovery boundary.",
+        "Freeze expected source/data versions, fault points and moderation states.",
+        "Declare conditional-write, idempotency and reconciliation support for the exact operation.",
+        "Fault injection and the second actor operate only on disposable owned resources with bounded attempts; no real customer jobs or external recipients."
+      ],
+      "input": "A saved content revision, later content edit and newer hidden/pending states; a separately controlled actor and acknowledgement-loss point.",
+      "orderedProcedure": [
+        "Observe state, then change the guarded version with the second test actor.",
+        "Attempt the original change and inspect the conflict or documented alternative.",
+        "In a reset variant, complete one effect and lose its acknowledgement.",
+        "Resume with the same operation identity and reconcile before retrying.",
+        "Rehearse the declared code/data recovery on disposable resources.",
+        "Reopen and compare restored content, current moderation and effect counts."
+      ],
+      "positiveControl": {
+        "action": "Apply and recover the valid supported change without injected faults.",
+        "expected": "The intended content is restored and protected records remain hidden/pending."
+      },
+      "negativeCases": [
+        {
+          "id": "stale-state",
+          "inject": "Modify state between observation and mutation.",
+          "expected": "Do not silently overwrite the unexpected version or call a snapshot atomic."
+        },
+        {
+          "id": "lost-ack",
+          "inject": "Complete an effect but lose its response.",
+          "expected": "Reconcile before retry; unresolved completion stays explicitly unresolved."
+        },
+        {
+          "id": "corrupt-save",
+          "inject": "Supply incompatible saved state.",
+          "expected": "Reject or recover within the declared contract without half-applying."
+        },
+        {
+          "id": "old-public-state",
+          "inject": "Restore a snapshot predating a moderation restriction.",
+          "expected": "Do not silently republish currently restricted material."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "recovery_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "reconciliation_requests",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "duplicate_effects",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "unexpected_public_records",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "unresolved_recovery_steps",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        }
+      ],
+      "evidenceRequired": [
+        "Fault schedule and initial versions",
+        "Conflict/reconciliation trace",
+        "Recovery manifest distinguishing code/data/compensation",
+        "Authoritative final state and effect counts"
+      ],
+      "currentFoundationSupport": {
+        "packId": "CF-COMPOSE-01",
+        "layer": "local-helper",
+        "coverage": "partial",
+        "establishes": "Limited launchpad restoration and moderation behaviour.",
+        "doesNotEstablish": [
+          "Worker rollback",
+          "Cloud data recovery",
+          "Provider idempotency",
+          "Actual concurrency enforcement"
+        ],
+        "qualifiesJourney": false,
+        "relatedProviderFixtureAreas": [
+          "Stale provider snapshots"
+        ],
+        "sourceCheckProvenance": [
+          "sandbox-save-reopen::tampered-save-rejected",
+          "sandbox-save-reopen::approve-makes-public",
+          "sandbox-save-reopen::hide-removes-publicly",
+          "sandbox-save-reopen::restore-keeps-moderation",
+          "sandbox-save-reopen::export-still-reads-restored-state"
+        ]
+      },
+      "ownerIssueRefs": [
+        "https://github.com/loftwah/app-composer/issues/930",
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/app-composer/issues/476",
+        "https://github.com/loftwah/app-composer/issues/445"
+      ]
+    },
+    {
+      "id": "CF-J04",
+      "version": 1,
+      "name": "Finish a budgeted media job and reuse its output",
+      "priority": "v1-follow-on",
+      "required": true,
+      "cfIds": [
+        "CF-08",
+        "CF-09",
+        "CF-10",
+        "CF-11",
+        "CF-12"
+      ],
+      "evidenceStatus": "not-run",
+      "qualificationProfile": "actual-media-workflow",
+      "expectedOutcome": "An approved original survives transfer interruption, runs on a compatible processor and exports with intact lineage, permitted visibility and truthful cost attribution.",
+      "prerequisites": [
+        "Pin rights-cleared original bytes, processing recipe and expected output.",
+        "Declare runtime/native dependencies, duration/memory, persistence/network/location needs.",
+        "Use installed deterministic processing first; paid generation is not required.",
+        "Fix the allowance, concurrency, currency/resource units and permitted overshoot before execution.",
+        "Use a disposable test project and independent request/resource ceiling for unknown-cost and concurrency variants; if a safe bound is unavailable, mark blocked before execution."
+      ],
+      "input": "A fixed original, supported transform and export recipe; interruption point and explicit cost/allowance policy.",
+      "orderedProcedure": [
+        "Check runtime eligibility and record the estimate and its scope.",
+        "Interrupt the actual upload; resume if supported, otherwise report the limitation.",
+        "Verify accepted bytes and project/asset identity.",
+        "Run the fixed transform; qualify and attribute any fallback.",
+        "Exercise the fixed concurrency/allowance within the independent ceiling; stop at the bound and reconcile any ambiguous job result.",
+        "Validate output and reopen its exported source/variant pack.",
+        "Record observed charges separately from estimates, reservations and unknowns."
+      ],
+      "positiveControl": {
+        "action": "Transfer/process/export the supported original with valid authority.",
+        "expected": "Validated output retains its source relationships and stays within the declared allowance contract."
+      },
+      "negativeCases": [
+        {
+          "id": "wrong-bytes",
+          "inject": "Mismatch source hash or size.",
+          "expected": "Do not accept it as the intended revision."
+        },
+        {
+          "id": "interrupted-transfer",
+          "inject": "Stop at a fixed upload boundary.",
+          "expected": "Preserve identity through supported resumption or report blocked; no false completion."
+        },
+        {
+          "id": "unknown-cost",
+          "inject": "Delay or omit charge information in the controlled test observation; use a no-charge fixture or independently bounded authorised job.",
+          "expected": "Keep cost unknown, not zero; apply the declared allowance policy."
+        },
+        {
+          "id": "incompatible-runtime",
+          "inject": "Remove a required runtime capability.",
+          "expected": "Block or use an independently qualified, disclosed fallback."
+        },
+        {
+          "id": "missing-lineage",
+          "inject": "Drop an expected source/variant link.",
+          "expected": "Export verification detects the loss."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "transfer_bytes",
+          "unit": "bytes",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "task_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "duplicate_assets_or_effects",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "observed_charge",
+          "unit": "currency",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "estimated_charge",
+          "unit": "currency",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "allowance_overshoot",
+          "unit": "declared-unit",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "lineage_links_preserved",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        }
+      ],
+      "evidenceRequired": [
+        "Original/output hashes and rights",
+        "Transfer/job receipts",
+        "Runtime/fallback and recipe record",
+        "Cost provenance and allowance",
+        "Output validation and export comparison"
+      ],
+      "currentFoundationSupport": {
+        "packId": "CF-COMPOSE-01",
+        "layer": "local-helper",
+        "coverage": "partial",
+        "establishes": "Provider-helper handling of unknown cost only.",
+        "doesNotEstablish": [
+          "Actual upload or processing",
+          "Budget enforcement",
+          "Provider charge",
+          "Asset lineage"
+        ],
+        "qualifiesJourney": false,
+        "relatedProviderFixtureAreas": [
+          "Unknown provider cost"
+        ],
+        "sourceCheckProvenance": []
+      },
+      "ownerIssueRefs": [
+        "https://github.com/loftwah/app-composer/issues/930",
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/composer-media-studio/issues/150",
+        "https://github.com/loftwah/composer-media-studio/issues/151"
+      ]
+    },
+    {
+      "id": "CF-J05",
+      "version": 1,
+      "name": "Prove the real game or listening experience",
+      "priority": "v1-follow-on",
+      "required": true,
+      "cfIds": [
+        "CF-06",
+        "CF-09"
+      ],
+      "evidenceStatus": "not-run",
+      "qualificationProfile": "actual-browser-media",
+      "expectedOutcome": "A meaningful game or listening interaction has version-linked visual/audio evidence and independently verified state, with capture limits disclosed.",
+      "prerequisites": [
+        "Declare game/audio variants and required tracks before running.",
+        "Pin actual app/version, approved content, browser/device, viewport and location.",
+        "Choose capture capable of the required pixels and sound; DOM replay alone is insufficient for omitted content.",
+        "Assign a human reviewer for a separately attributed assessment of the actual result; do not substitute a model claim of human experience."
+      ],
+      "input": "A fixed game interaction or start/navigate/seek playback journey on a real owned product, with an independent expected state.",
+      "orderedProcedure": [
+        "Verify target version and capture capability.",
+        "Perform the fixed interaction and record authoritative state changes.",
+        "Inspect the rendered scene, relevant sound and required timing.",
+        "Detect missing tracks or wrong-build evidence.",
+        "Attach the actual environment and a separately attributed human assessment of the real experience; retain subjective observations separately from objective assertions.",
+        "Export only approved redacted evidence and close owned capture resources."
+      ],
+      "positiveControl": {
+        "action": "Capture known supported content while completing the valid interaction.",
+        "expected": "Required pixels/sound are present and actual app state confirms the interaction."
+      },
+      "negativeCases": [
+        {
+          "id": "dom-only",
+          "inject": "Supply replay missing required canvas/WebGL or media content.",
+          "expected": "Audiovisual evidence stays unqualified."
+        },
+        {
+          "id": "static-mock",
+          "inject": "Substitute an attractive static or unrelated prerecorded result.",
+          "expected": "Independent interaction/state verification fails."
+        },
+        {
+          "id": "wrong-version",
+          "inject": "Attach another build’s recording.",
+          "expected": "Reject the identity mismatch."
+        },
+        {
+          "id": "missing-audio",
+          "inject": "Omit required sound or break specified playback continuity.",
+          "expected": "Report failure; a video container alone is not proof."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "task_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "usable_capture_duration",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "required_tracks_present",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "audio_interruptions",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "interaction_response",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "frame_times",
+          "unit": "ms-array",
+          "missingHandling": "null-with-reason"
+        }
+      ],
+      "evidenceRequired": [
+        "Playable capture with required tracks",
+        "Source/content/deployment identity",
+        "Interaction/state trace",
+        "Actual device/location and capture limits",
+        "Separate human assessment of the real result, with reviewer identity/role disclosed only as authorised"
+      ],
+      "currentFoundationSupport": {
+        "packId": "CF-COMPOSE-01",
+        "layer": "local-helper",
+        "coverage": "none",
+        "establishes": "No audiovisual qualification.",
+        "doesNotEstablish": [
+          "Browser/canvas/audio fidelity",
+          "Gameplay",
+          "Frame pacing",
+          "Australian latency",
+          "Human enjoyment"
+        ],
+        "qualifiesJourney": false,
+        "sourceCheckProvenance": []
+      },
+      "ownerIssueRefs": [
+        "https://github.com/loftwah/app-composer/issues/930",
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/app-composer/issues/623",
+        "https://github.com/loftwah/app-composer/issues/445"
+      ]
+    },
+    {
+      "id": "CF-J06",
+      "version": 1,
+      "name": "Continue the project as an independent owner",
+      "priority": "v1-follow-on",
+      "required": true,
+      "cfIds": [
+        "CF-07",
+        "CF-11",
+        "CF-12"
+      ],
+      "evidenceStatus": "not-run",
+      "qualificationProfile": "independent-owner-environment",
+      "expectedOutcome": "An independent owner deploys the permitted source, supported state and assets in their own authorised account, rebinds credentials, completes the original task and makes a second useful change without hidden dependence on the original owner.",
+      "prerequisites": [
+        "A supported export/reconstruction path and a separate destination account controlled by an independent owner, with explicit authority to deploy and rebind credentials. Missing access means blocked, not optional.",
+        "Pin the supported-field/resource manifest, original useful task, required second change and expected destination behaviour.",
+        "Keep the original available throughout destination validation. A different provider is not required; distinct authorised ownership and actual destination deployment are required."
+      ],
+      "input": "An owned app/project pack with source/data/asset manifests, declared omissions and a destination without Loftwah-only credentials.",
+      "orderedProcedure": [
+        "Export permitted source, supported state and assets; inspect unsupported scope.",
+        "Reconstruct and deploy in the independent owner's authorised destination account with credentials rebound through its owning connection mechanism.",
+        "Verify supported records, relationships and permissions, then complete the original useful task against the actual destination deployment.",
+        "Make a second useful change as the destination owner; save, reopen or redeploy as required, and independently verify the resulting state.",
+        "Demonstrate that declared functionality does not use the original owner's credentials; remove only disposable test access, never the original owner's live grants.",
+        "Clean up only explicitly selected run-owned disposable resources after validation; retain the original creator work."
+      ],
+      "positiveControl": {
+        "action": "Deploy and operate the supported pack under the independent destination owner, then make the required second useful change.",
+        "expected": "The actual destination completes both tasks, preserves supported data relationships and uses only its authorised credentials."
+      },
+      "negativeCases": [
+        {
+          "id": "original-credential-dependency",
+          "inject": "Withhold original-owner credentials from the disposable destination; revoke only run-owned test grants, never live owner grants.",
+          "expected": "Declared independent functionality still works or its unmet dependency is exposed."
+        },
+        {
+          "id": "unsupported-migration",
+          "inject": "Request an unsupported resource/state transfer.",
+          "expected": "State the gap; do not claim a complete backup or migration."
+        },
+        {
+          "id": "invalid-import",
+          "inject": "Supply incompatible or unauthorised publication state.",
+          "expected": "Refuse or bound it without corrupting the destination."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "setup_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "task_time",
+          "unit": "ms",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "manual_rebind_steps",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "supported_fields_preserved",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        },
+        {
+          "id": "unresolved_dependencies",
+          "unit": "count",
+          "missingHandling": "null-with-reason"
+        }
+      ],
+      "evidenceRequired": [
+        "Export/reconstruction manifests and omissions",
+        "Source/destination scope without secrets",
+        "Rebinding record",
+        "Actual destination state and reopened edit",
+        "Dependency/cleanup results",
+        "Actual independent deployment receipt and target version",
+        "Original task and second useful change observed at the destination"
+      ],
+      "currentFoundationSupport": {
+        "packId": "CF-COMPOSE-01",
+        "layer": "local-helper",
+        "coverage": "partial",
+        "establishes": "Supported launchpad blueprint fields and disclosed omissions.",
+        "doesNotEstablish": [
+          "Cross-account resources",
+          "Credential rebinding",
+          "Complete media/data recovery",
+          "Independent cloud deployment"
+        ],
+        "qualifiesJourney": false,
+        "sourceCheckProvenance": [
+          "blueprint-roundtrip::export-succeeds",
+          "blueprint-roundtrip::fields-survive",
+          "blueprint-roundtrip::preview-only-reported",
+          "blueprint-roundtrip::invalid-refused"
+        ]
+      },
+      "ownerIssueRefs": [
+        "https://github.com/loftwah/app-composer/issues/930",
+        "https://github.com/loftwah/app-composer/issues/601",
+        "https://github.com/loftwah/app-composer/issues/600",
+        "https://github.com/loftwah/app-composer/issues/425"
+      ],
+      "optionalProfiles": [
+        {
+          "id": "CF-J06-ARTIFACTS",
+          "name": "Optional Artifacts local event qualification",
+          "cfIds": [
+            "CF-05"
+          ],
+          "selectedByDefault": false,
+          "evidenceStatus": "not-run",
+          "applicability": "undetermined",
+          "scope": "Only when Artifacts is actually selected for an experimental workspace. GitHub or another supported source can remain authoritative.",
+          "prerequisites": [
+            "Pin simulator/tool versions and the relevant event contract.",
+            "Use disposable local repos/workflows; remote comparison needs a separate authorised target."
+          ],
+          "orderedProcedure": [
+            "Create/fork, edit and push the fixed repository fixture.",
+            "Observe actual events and build/preview workflow transitions.",
+            "Inject a delivery failure and inspect supported recovery.",
+            "Compare with the declared remote contract only if independently authorised and run."
+          ],
+          "positiveControl": "A supported local operation produces its expected observable event/state.",
+          "negativeCases": [
+            "Missing local events remain unsupported/unverified, not fabricated.",
+            "A failed delivery cannot be called a completed workflow."
+          ],
+          "metrics": [
+            {
+              "id": "expected_events_observed",
+              "unit": "count",
+              "missingHandling": "null-with-reason"
+            },
+            {
+              "id": "unsupported_required_events",
+              "unit": "count",
+              "missingHandling": "null-with-reason"
+            },
+            {
+              "id": "extra_remote_operations",
+              "unit": "count",
+              "missingHandling": "null-with-reason"
+            }
+          ],
+          "evidenceRequired": [
+            "Pinned event expectations",
+            "Observed events/workflow states",
+            "Failure/recovery trace",
+            "Local/remote parity limits"
+          ],
+          "notApplicableRule": "May be marked not-applicable only when this adapter is excluded by the declared scope. Keep that status visible separately; it cannot reduce the six-case denominator or qualify CF-05.",
+          "ownerIssueRefs": [
+            "https://github.com/loftwah/app-composer/issues/930",
+            "https://github.com/loftwah/app-composer/issues/601",
+            "https://github.com/loftwah/app-composer/issues/600",
+            "https://github.com/loftwah/app-composer/issues/717"
+          ]
+        }
+      ]
+    }
+  ]
+}
