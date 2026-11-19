@@ -15,6 +15,7 @@ interface DirectingLesson {
   artworkCredit?: string;
   studioNote?: string;
   localTool?: { href: string; label: string; detail: string };
+  storyStill?: { href: string; label: string; detail: string };
   // Alternate words a visitor may search for that the title/outcome do not already contain.
   terms?: string;
 }
@@ -112,6 +113,12 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
         href: "https://media.loftwah.com/p/1qjHzSyIrIAQ4Zuk",
         source:
           "This 768 × 960 Studio result is 4:5, not 9:16. Check dimensions before calling a version vertical 9:16.",
+        storyStill: {
+          href: "/share/artwork/atlas-04-composer-family",
+          label: "Try a real 1080 × 1920 Story still",
+          detail:
+            "On the artwork, expand Use in Media Studio and choose Open in Studio Image Tools. Load the image, choose Make 4 social sizes, then download the 9:16 story.",
+        },
         localTool: {
           href: "https://media.loftwah.com/tools/video-clip",
           label: "Clip and frame a video",
@@ -256,6 +263,11 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
             </p>
             {lesson.artworkCredit && (
               <p class="director-example"><a href={lesson.artworkCredit}>See the original artwork and credit →</a></p>
+            )}
+            {lesson.storyStill && (
+              <p class="director-example">
+                <a href={lesson.storyStill.href}>{lesson.storyStill.label} →</a><br/><span>{lesson.storyStill.detail}</span>
+              </p>
             )}
             {lesson.localTool && (
               <p class="director-example">
