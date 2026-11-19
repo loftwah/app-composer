@@ -347,6 +347,42 @@
 .sc-caption-shared {
   opacity: 0.86;
 }
+/* Read-only dated Agenda (#663). It groups the same filtered items by their
+   intended date and reuses the list's badge, channel and time display. Only
+   "Open in list" is actionable; it never saves, approves or sends. */
+.sc-view-toggle {
+  margin-left: auto;
+}
+.sc-agenda {
+  display: grid;
+  gap: 18px;
+}
+.sc-agenda-group {
+  min-width: 0;
+}
+.sc-agenda-date {
+  margin: 0 0 8px !important;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--sc-line);
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+}
+.sc-agenda-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sc-agenda-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sc-line);
+  overflow-wrap: anywhere;
+}
+.sc-agenda-item:last-child {
+  border-bottom: 0;
+}
+.sc-agenda-open {
+  margin-top: 4px;
+}
 .sc-item-link {
   margin: 0 0 8px !important;
   font-size: 0.88rem;
