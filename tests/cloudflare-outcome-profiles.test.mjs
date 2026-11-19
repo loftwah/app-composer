@@ -26,7 +26,7 @@ test("Cloudflare real-product profiles extend the existing six-journey benchmark
   const existing = new Set(campaign.cases.map(({ id }) => id));
   const profileIds = new Set();
   for (const profile of extension.profiles) {
-    assert.match(profile.id, /^CF-R\\d{2}$/);
+    assert.match(profile.id, /^CF-R\d{2}$/);
     assert.ok(!profileIds.has(profile.id), "profile ids must be unique");
     profileIds.add(profile.id);
     assert.equal(profile.required, false, "follow-on profiles do not silently alter the six-journey denominator");
@@ -63,8 +63,8 @@ test("Cloudflare campaign is discoverable from the existing Benchmarks Studio an
   const landing = await readFile(new URL("../src/pages/benchmarks.astro", import.meta.url), "utf8");
   assert.match(landing, /import cloudflareCampaign from/);
   assert.match(landing, /import cloudflareProfiles from/);
-  assert.match(landing, /cloudflareCampaign\\.cases\\.map/);
-  assert.match(landing, /cloudflareProfiles\\.profiles\\.map/);
+  assert.match(landing, /cloudflareCampaign\.cases\.map/);
+  assert.match(landing, /cloudflareProfiles\.profiles\.map/);
   assert.match(landing, /not claims that Cloudflare or App Composer has passed the journeys/);
   assert.match(landing, /CF-COMPOSE-01/);
 });
