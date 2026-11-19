@@ -1594,6 +1594,8 @@ function ShareCalendar({ search }: { search: string }) {
   const [blueskySending, setBlueskySending] = useState(false);
   const [blueskyNow, setBlueskyNow] = useState(() => new Date());
   const [listFilter, setListFilter] = useState<ShareListFilter>("all");
+  const [calendarQuery, setCalendarQuery] = useState("");
+  const calendarSearchRef = useRef<HTMLInputElement>(null);
   // The full, actionable list is the default. Agenda is a read-only grouping of
   // the same filtered items by intended date; it adds no state of its own.
   const [calendarView, setCalendarView] = useState<"list" | "agenda">("list");
@@ -1618,9 +1620,25 @@ function ShareCalendar({ search }: { search: string }) {
         filters: shareListItemFilters(snapshot, item),
       }))
     : [];
-  const visibleItems = classified
+  const searchTerm = calendarQuery.trim().toLowerCase();
+  const statusItems = classified
     .filter(({ filters }) => filters.includes(listFilter))
     .map(({ item }) => item);
+  const visibleItems = searchTerm && snapshot
+    ? statusItems.filter((item) => {
+        const { approval } = itemApprovalAndDelivery(snapshot, item);
+        const account = approval?.accountHandle ??
+          (item.catalogue ? snapshot.bluesky.configuredHandle : null);
+        const values = [
+          item.stackName,
+          item.caption,
+          item.destination,
+          SHARE_CHANNEL_LABELS[item.channel],
+          account ? `@${account}` : null,
+        ];
+        return values.some((value) => value?.toLowerCase().includes(searchTerm));
+      })
+    : statusItems;
   const listCounts: Record<ShareListFilter, number> = {
     all: classified.length,
     drafts: classified.filter(({ filters }) => filters.includes("drafts"))
@@ -3509,6 +3527,36 @@ function ShareCalendar({ search }: { search: string }) {
                   Agenda
                 </button>
               </div>
+              {Boolean(snapshot.items.length) && (
+                <div className="sc-history-search">
+                  <label className="sc-field">
+                    Search calendar
+                    <input
+                      ref={calendarSearchRef}
+                      type="search"
+                      maxLength={200}
+                      value={calendarQuery}
+                      onChange={(event) => setCalendarQuery(event.target.value)}
+                    />
+                  </label>
+                  {calendarQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCalendarQuery("");
+                        calendarSearchRef.current?.focus();
+                      }}
+                    >
+                      Clear search
+                    </button>
+                  )}
+                  <p role="status" className="sc-hint">
+                    {searchTerm
+                      ? `${visibleItems.length} of ${statusItems.length} items in this view`
+                      : null}
+                  </p>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => downloadCalendar()}
@@ -3609,8 +3657,16 @@ function ShareCalendar({ search }: { search: string }) {
             )}
             {Boolean(snapshot.items.length) && !visibleItems.length && (
               <div className="sc-empty sc-empty-list">
-                <h3>No items in this view</h3>
-                <p>{emptyShareList[listFilter]}</p>
+                <h3>
+                  {searchTerm && statusItems.length
+                    ? "No matching calendar items"
+                    : "No items in this view"}
+                </h3>
+                <p>
+                  {searchTerm && statusItems.length
+                    ? "Try a different caption, project, channel or account."
+                    : emptyShareList[listFilter]}
+                </p>
               </div>
             )}
             {calendarView === "agenda" &&
