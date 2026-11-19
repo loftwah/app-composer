@@ -2,7 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
-import { readReport, reportValueLabel, reportStoryLabel, reportSurfaceLabel, reportCaption, reportImagePath, reportUrl, reportPeriodLabel, reportFormats } from "../../lib/public-report";
+import { readReport, reportValueLabel, reportStoryLabel, reportSurfaceLabel, reportCaption, reportImagePath, reportKitPath, reportUrl, reportPeriodLabel, reportFormats } from "../../lib/public-report";
 import { apps } from "../../lib/apps";
 import { ArrowUpRight, Download, Share2 } from "@lucide/astro";
 import "../../styles/reports.css";
@@ -107,7 +107,8 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
       <section class="frozen-report-downloads" aria-labelledby="report-downloads-title">
         <div class="frozen-report-section-heading">
           <h2 id="report-downloads-title">Take the story with you</h2>
-          <p>Download different formats of the same frozen values.</p>
+          <p>Save all three cards with the caption and frozen measurement, or choose a single format.</p>
+          <a class="button secondary" href={reportKitPath(report.id)} download><Download size={16} aria-hidden="true"/> Download report kit</a>
         </div>
         <div class="report-format-grid">
           {Object.entries(reportFormats).map(([format, value]) => (
