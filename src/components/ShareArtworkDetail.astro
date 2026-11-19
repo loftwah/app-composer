@@ -24,6 +24,9 @@ const postTextFile = `${postText}\n\nImage alt text\n\n${artwork.alt}`;
 const postTextDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(postTextFile.toWellFormed())}`;
 const postTextFileName = `${artwork.assetId}-post-text.txt`;
 const primaryExtension = new URL(primary, canonical).pathname.split('.').at(-1)?.toLowerCase() || 'png';
+// A reference fragment only: Studio reads the asset ID and revision to offer
+// its own Image Tools handoff. Composer never fetches or uploads anything.
+const studioToolsUrl = `https://media.loftwah.com/tools/images#${new URLSearchParams({'composer-artwork': artwork.assetId, revision})}`;
 const packageData = JSON.stringify({
   assetId: artwork.assetId,
   revision,
@@ -100,6 +103,9 @@ const packageData = JSON.stringify({
     <details class="gallery-piece-section">
       <summary>Use in Media Studio</summary>
       <p>Make a social kit on this device.</p>
+      <p><a class="button gallery-file-action" href={studioToolsUrl}>Open in Studio Image Tools <ArrowUpRight size={16} aria-hidden="true" /></a></p>
+      <p>In Studio, choose <strong>Load Composer artwork</strong>, then <strong>Make 4 social sizes</strong>.</p>
+      <p>You can also work from a downloaded file.</p>
       <ol>
         <li><a href={download(0)} download>{primaryDownloadLabel}</a> to your device.</li>
         <li>In <a href="https://media.loftwah.com/tools/images">Image Tools</a>, add the file and choose <strong>Make 4 social sizes</strong>, then download the ZIP.</li>

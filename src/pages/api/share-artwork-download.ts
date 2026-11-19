@@ -12,6 +12,22 @@ const mimeTypes: Record<string, string> = {
   png: "image/png",
   webp: "image/webp",
 };
+
+// The only origin allowed to read this public download in the browser. It is
+// never reflected from the request, and no credentials are involved.
+const STUDIO_ORIGIN = "https://media.loftwah.com";
+
+function withStudioCors(response: Response, origin: string | null): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Vary", "Origin");
+  if (origin === STUDIO_ORIGIN) headers.set("Access-Control-Allow-Origin", STUDIO_ORIGIN);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 const error = (status: number, message: string) =>
   new Response(message, {
     status,
@@ -21,7 +37,7 @@ const error = (status: number, message: string) =>
     },
   });
 
-export const GET: APIRoute = async ({ url }) => {
+const handle: APIRoute = async ({ url }) => {
   const id = url.searchParams.get("id") ?? "";
   const index = url.searchParams.get("file") ?? "";
   const revision = url.searchParams.get("revision") ?? "";
@@ -89,4 +105,10 @@ export const GET: APIRoute = async ({ url }) => {
   } catch {
     return error(502, "The artwork file could not be reached. Try again.");
   }
+};
+
+export const GET: APIRoute = async (context) => {
+  const response = await handle(context);
+  if (context.url.searchParams.get("file") !== "0") return response;
+  return withStudioCors(response, context.request?.headers.get("origin") ?? null);
 };
