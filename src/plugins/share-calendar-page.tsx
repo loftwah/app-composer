@@ -834,7 +834,8 @@ function ApprovalPackageView({
           </h4>
           <p className="sc-hint">
             Public identity {value.bluesky.account.publicIdentity} · public
-            identity only · approval {value.bluesky.approval.label} · not sent
+            identity only · approval {value.bluesky.approval.label}
+            {value.bluesky.published ? null : " · not sent"}
           </p>
           <p className="sc-hint">
             {value.bluesky.account.did
@@ -868,6 +869,19 @@ function ApprovalPackageView({
             {value.bluesky.schedule.utc ?? "not recorded"} · media descriptor
             hash <code>{value.bluesky.mediaHash.slice(0, 16)}…</code>
           </p>
+          {value.bluesky.published ? (
+            <p className="sc-hint">
+              Published on Bluesky at{" "}
+              {value.bluesky.published.publishedAt ?? "not recorded"} ·{" "}
+              <a
+                href={value.bluesky.published.permalink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View published Bluesky post
+              </a>
+            </p>
+          ) : null}
           {value.bluesky.approval.reasons.length ? (
             <p className="sc-hint">
               Invalidation:{" "}
@@ -876,7 +890,9 @@ function ApprovalPackageView({
                 .join("; ")}
             </p>
           ) : null}
-          <p className="sc-hint">{value.bluesky.send.message}</p>
+          {value.bluesky.published ? null : (
+            <p className="sc-hint">{value.bluesky.send.message}</p>
+          )}
         </div>
       )}
       <p className="sc-package-posting">{value.posting.statement}</p>
