@@ -19,7 +19,7 @@ const tags = artwork ? [...new Set([...artwork.tags, ...(edits.find(item => item
 const title = artwork?.title ?? (result.status === 404 ? 'Artwork unavailable' : 'Artwork temporarily unavailable');
 const canonical = artwork ? publicPageCanonical(`/share/artwork/${artwork.assetId}`).href : undefined;
 const filters = new URLSearchParams();
-for (const key of ['art', 'project', 'category', 'tag', 'sort', 'seed', 'after']) {
+for (const key of ['art', 'project', 'category', 'orientation', 'tag', 'sort', 'seed', 'after']) {
   const value = Astro.url.searchParams.get(key);
   if (value) filters.set(key, value.slice(0, 128));
 }
