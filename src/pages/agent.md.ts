@@ -34,6 +34,7 @@ ${request}
 - https://composer.loftwah.com/setup — one complete project setup guide
 - https://composer.loftwah.com/prompts — maintained jobs, prerequisites and copyable requests
 - https://composer.loftwah.com/capabilities — verified app operations as a machine-readable catalogue
+- https://composer.loftwah.com/widgets/recipes.json — public machine-readable index of widget recipes, starters and downloads
 - https://composer.loftwah.com/roles — six bounded agent role packs
 - https://composer.loftwah.com/resources — change, incident, pipeline and hook runbooks
 - https://composer.loftwah.com/ready — local tools, source and Cloudflare readiness

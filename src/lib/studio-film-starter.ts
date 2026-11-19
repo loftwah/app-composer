@@ -192,3 +192,20 @@ export const filmRecipeV2 = {
 } as const;
 
 export const filmRecipeV2Json = JSON.stringify(filmRecipeV2, null, 2);
+
+export const filmAgentTask = `# Install ${filmTitle}
+
+Use the [version 2 recipe](${composerOrigin}${recipeV2Path}) to add the published App Composer film to this project. Inspect the current project first and choose the supported format for its host.
+
+- [Script-free HTML starter](${composerOrigin}${starterPath})
+- [React and TypeScript component](${composerOrigin}${reactComponentPath})
+
+Keep the publisher credit, the English captions and the exact media sources in the recipe. Use the browser’s native video controls and leave autoplay off.
+
+Try the result on a separate test origin at 390px and a desktop width. Confirm that keyboard Play starts playback, Pause stops it, the English cues are visible when enabled and the page has no horizontal overflow.
+
+Follow the project’s existing review and deployment instructions. Tell the owner which format you used, what you checked and any remaining steps.
+`;
+
+export const filmAgentTaskFilename = 'take-it-with-you-agent-task.md';
+export const filmAgentTaskDownload = `data:text/markdown;charset=utf-8,${encodeURIComponent(filmAgentTask)}`;
