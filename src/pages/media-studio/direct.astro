@@ -16,7 +16,7 @@ interface DirectingLesson {
   studioNote?: string;
   localTool?: { href: string; label: string; detail: string };
   storyStill?: { href: string; label: string; detail: string };
-  filmClip?: { href: string; label: string; detail: string };
+  filmClip?: { href: string; label: string; detail: string; reopen?: string };
   // Alternate words a visitor may search for that the title/outcome do not already contain.
   terms?: string;
 }
@@ -131,6 +131,8 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
           label: "Practise with Take it with you",
           detail:
             "On the Watch page, choose Clip this video, then Load published video. Set Start to 1 second, End to 4 seconds and Frame to 9:16. Choose Make MP4, then Save MP4.",
+          reopen:
+            "To revise the cut later, open Clip receipt, choose Prepare receipt, then Save receipt JSON. On your next visit, load the same published video and choose Open clip receipt (JSON). Change End to 3.5 seconds, then make and save the new MP4.",
         },
       },
       {
@@ -289,9 +291,10 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
               </p>
             )}
             {lesson.filmClip && (
-              <p class="director-example">
+              <div class="director-example">
                 <a href={lesson.filmClip.href}>{lesson.filmClip.label} →</a><br/><span>{lesson.filmClip.detail}</span>
-              </p>
+                {lesson.filmClip.reopen && <p>{lesson.filmClip.reopen}</p>}
+              </div>
             )}
             {lesson.localTool && (
               <p class="director-example">
