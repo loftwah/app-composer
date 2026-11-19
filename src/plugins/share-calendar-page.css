@@ -839,6 +839,21 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+.sc-history-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  max-width: 440px;
+}
+.sc-history-search .sc-field {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.sc-history-search [role="status"] {
+  flex-basis: 100%;
+  margin: 0;
+}
 .sc-source-switch button[aria-pressed="true"],
 .sc-list-filter button[aria-pressed="true"] {
   border-color: var(--sc-accent);
