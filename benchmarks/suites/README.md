@@ -84,3 +84,11 @@ and a local foundation pack for the Cloudflare wishlist. Its optional pack uses
 this runner with `--suites benchmarks/cloudflare-composition --suite CF-COMPOSE-01`.
 Local helper results and full browser/provider qualification are reported
 separately; this campaign does not add a routine release gate.
+
+Its [nine real-product outcome profiles](../cloudflare-composition/cases/real-product-profiles.json)
+cover the concrete App Composer, phone release, Artifacts/Git, Media Studio,
+game, IAM, recovery, self-rebuild and portfolio demonstrations from the Cloudflare
+wishlist. All are **not-run** until independently qualified. The existing
+[/benchmarks](https://composer.loftwah.com/benchmarks) overview links this
+campaign; these definitions are not another JSON pack and do not acquire a
+automatic provider execution or a passing evidence status.
