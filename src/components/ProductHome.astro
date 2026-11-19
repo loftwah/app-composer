@@ -11,7 +11,7 @@ const projects = portfolioProjects.filter(project => project.site && project.id 
 const resources = [
   {title: "Learn and create", links: [["First app", "/learn"], ["Project sandbox", "/demo"], ["Illustrated workshop", "/demo/workshop"], ["Studio films", "/media-studio/films"], ["Screening room", "/demo/screening-room"], ["Prompt library", "/prompts"], ["Diagrams", "/diagrams"]]},
   {title: "Run your apps", links: [["Manage apps", "/manage"], ["Platform console", "/platform"], ["Console demo", "/platform/demo"], ["Analytics and reports", "/activity"], ["Creator stacks", "/studio"], ["Cloudflare costs", "/cloudflare"], ["Release evidence", "/release"]]},
-  {title: "Explore Composer", links: [["Build story", "/building"], ["Find a tool by task", "/discover"], ["Project setup", "/setup"], ["Connect an agent", "/agent"], ["Service guide", "/guide"], ["Operator resources", "/resources"], ["PHP2Shell briefing", "/php2shell"]]},
+  {title: "Explore Composer", links: [["Why I built this", "/story"], ["Build story", "/building"], ["Find a tool by task", "/discover"], ["Project setup", "/setup"], ["Connect an agent", "/agent"], ["Service guide", "/guide"], ["Operator resources", "/resources"], ["PHP2Shell briefing", "/php2shell"]]},
 ];
 const steps = [
   { title: "Shape the idea", detail: "Bring a goal and references. Use Init to turn them into a brief your agent can build from.", href: "/init", link: "Write a brief in Init" },
@@ -86,6 +86,13 @@ const siteSchema = {
             <p>Creator Hub shows how an agent connected two apps, released them to Cloudflare and changed the live site later.</p>
           </div>
           <a class="home-text-link" href="/creator-hub">Follow the Creator Hub build <ArrowUpRight size={17} aria-hidden="true" /></a>
+        </div>
+        <div class="home-case" id="origin">
+          <div>
+            <h3>Why this workshop exists</h3>
+            <p>It began with systems work, music storefronts and a simple habit: reuse what works, pay for the specialist parts and build what's missing.</p>
+          </div>
+          <a class="home-text-link" href="/story">Read the founder story <ArrowUpRight size={17} aria-hidden="true" /></a>
         </div>
       </div>
     </section>
