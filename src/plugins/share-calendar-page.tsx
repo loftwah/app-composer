@@ -405,6 +405,9 @@ function QueuePresets({
 type CataloguePreview = {
   asset: CatalogueResolvedAsset;
   assetHash: string;
+  // Optional source text returned with a linked exact preview (#477/#663).
+  // It is read defensively and never fills the form on its own.
+  suggestedCaption?: string;
 };
 
 // The browser supplies only a strict asset ID. The server builds the fixed
@@ -1651,6 +1654,7 @@ function ShareCalendar({ search }: { search: string }) {
   const selection = useRef<string | undefined>(undefined);
   const invalidScope = useRef(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const captionInputRef = useRef<HTMLTextAreaElement>(null);
 
   // The send window opens at the intended time and closes when the approval
   // expires. A page left open across that boundary used to keep the original
@@ -2724,6 +2728,29 @@ function ShareCalendar({ search }: { search: string }) {
       : "";
   const catalogueUsage = previewAsset ? blueskyUsage(catalogueBody) : null;
   const catalogueCaptionOnly = blueskyUsage(caption.trim());
+  // A linked exact preview may supply source text. It is offered only while the
+  // Caption is empty and unsaved. Stale, manual and edited captions are left
+  // exactly as they are; nothing is inserted without an explicit choice.
+  const linkedSuggestedCaption =
+    !editing &&
+    artworkHandoff.state === "linked" &&
+    assetId.trim() === artworkHandoff.assetId &&
+    previewAsset?.assetId === artworkHandoff.assetId
+      ? cataloguePreview?.suggestedCaption?.trim() || undefined
+      : undefined;
+  const canOfferArtworkText =
+    catalogueMode &&
+    Boolean(linkedSuggestedCaption) &&
+    !caption.trim() &&
+    !busy &&
+    canWrite;
+
+  function useArtworkText() {
+    if (!canOfferArtworkText || !linkedSuggestedCaption) return;
+    setCaption(linkedSuggestedCaption);
+    setNotice("Artwork text added to the caption. Review it before saving.");
+    captionInputRef.current?.focus();
+  }
 
   return (
     <section className="composer-share-calendar">
@@ -3138,6 +3165,7 @@ function ShareCalendar({ search }: { search: string }) {
                   ? "Caption for Bluesky"
                   : `Main caption for ${SHARE_CHANNEL_LABELS[channel]}`}
                 <textarea
+                  ref={captionInputRef}
                   value={caption}
                   onChange={(event) => setCaption(event.target.value)}
                   maxLength={SHARE_CAPTION_LOCAL_CHARACTERS}
@@ -3152,6 +3180,17 @@ function ShareCalendar({ search }: { search: string }) {
                   required
                 />
               </label>
+              {canOfferArtworkText && (
+                <div className="sc-actions">
+                  <button
+                    type="button"
+                    onClick={useArtworkText}
+                    disabled={busy || !canWrite}
+                  >
+                    Use artwork text
+                  </button>
+                </div>
+              )}
               {catalogueMode ? (
                 <>
                   {catalogueUsage && (

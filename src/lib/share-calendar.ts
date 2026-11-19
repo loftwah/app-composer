@@ -247,6 +247,7 @@ export const cataloguePreviewReplySchema = z
     ok: z.literal(true),
     asset: catalogueAssetSchema,
     assetHash: catalogueDigest,
+    suggestedCaption: z.string().min(1).max(SHARE_CAPTION_LOCAL_CHARACTERS).optional(),
   })
   .strict();
 

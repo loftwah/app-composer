@@ -49,7 +49,7 @@ export function shareAssetApiUrl(assetId: string): string | null {
 }
 
 export type CatalogueResolveResult =
-  | { ok: true; asset: CatalogueResolvedAsset }
+  | { ok: true; asset: CatalogueResolvedAsset; sourceDescription?: string }
   | { ok: false; code: string; message: string };
 
 const failed = (code: string, message: string): CatalogueResolveResult => ({
@@ -258,6 +258,7 @@ export async function resolveShareCatalogueAsset(
     // already in hand, before any rendition fetch. No second catalogue record
     // is read and the supplied token is never trusted as an authority: the
     // current revision is always derived locally from the live payload.
+    let sourceDescription: string | undefined;
     if (options.expectedArtworkRevision !== undefined) {
       const linked = catalogueArtwork(catalogueObject(payload)?.asset);
       const current = linked ? await artworkRevision(linked) : null;
@@ -271,6 +272,7 @@ export async function resolveShareCatalogueAsset(
           "artwork_stale",
           "The linked public artwork revision changed. Return to the artwork page and use its current Calendar link.",
         );
+      sourceDescription = linked?.description || undefined;
     }
     const imageResult = await fetchBlueskyImage(asset.renditionUrl, {
       fetch: doFetch,
@@ -290,7 +292,7 @@ export async function resolveShareCatalogueAsset(
       bytesSha256,
       mimeType: imageResult.image.mimeType,
     };
-    return { ok: true, asset: catalogueAssetSchema.parse(exact) };
+    return { ok: true, asset: catalogueAssetSchema.parse(exact), ...(sourceDescription ? { sourceDescription } : {}) };
   } catch (error) {
     return failed(
       "unavailable",

@@ -64,6 +64,7 @@ test("a public artwork link pins the same catalogue response before reading its 
   const artwork = {
     ...asset,
     project: "workshop",
+    description: "The exact short artwork description.",
     thumbnailUrl: asset.previewUrl,
     shareUrl: `${SHARE_CATALOGUE_ORIGIN}/share/workshop/`,
   };
@@ -82,6 +83,8 @@ test("a public artwork link pins the same catalogue response before reading its 
   assert.deepEqual(calls.splice(0), [endpoint]);
   const exact = await resolveShareCatalogueAsset(id, { fetch, expectedArtworkRevision: revision });
   assert.equal(exact.ok, true);
+  assert.equal(exact.sourceDescription, artwork.description);
+  assert.equal(Object.hasOwn(exact.asset, "description"), false);
   assert.deepEqual(calls, [endpoint, asset.previewUrl]);
 });
 

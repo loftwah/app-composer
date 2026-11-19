@@ -26,6 +26,7 @@ import {
   sqliteInstant,
   variantSort,
   SHARE_QUEUE_PRESET_MAX,
+  SHARE_CAPTION_LOCAL_CHARACTERS,
   SHARE_VARIANT_MAX,
   SHARE_X_CHANNEL,
   type BlueskyApprovalRecord,
@@ -638,7 +639,7 @@ async function resolveCatalogue(
     expectedArtworkRevision,
   });
   if (!resolved.ok) throw new StackError("SOURCE_STALE", resolved.message, 409);
-  return resolved.asset;
+  return resolved;
 }
 
 async function sourceForBluesky(
@@ -649,7 +650,7 @@ async function sourceForBluesky(
   runtime: ShareCalendarRuntime,
 ) {
   if (item.catalogue) {
-    const current = await resolveCatalogue(item.catalogue.assetId, runtime);
+    const { asset: current } = await resolveCatalogue(item.catalogue.assetId, runtime);
     if (!sameCatalogueAsset(item.catalogue, current))
       throw new StackError(
         "SOURCE_STALE",
@@ -1176,15 +1177,21 @@ export async function manageShareCalendar(
             "FORBIDDEN",
             "The workspace owner can confirm reuse of Woodhouse artwork.",
           );
-        const asset = await resolveCatalogue(
+        const { asset, sourceDescription } = await resolveCatalogue(
           parsedRead.data.assetId,
           runtime,
           parsedRead.data.artworkRevision,
         );
+        const suggestedCaption = parsedRead.data.artworkRevision
+          ? [sourceDescription, asset.title].find(text => text &&
+            text.length <= SHARE_CAPTION_LOCAL_CHARACTERS &&
+            blueskyUsage(portfolioBlueskyText(text, asset)).withinLimit)
+          : undefined;
         return {
           ok: true as const,
           asset,
           assetHash: await cataloguePreviewHash(asset),
+          ...(suggestedCaption ? { suggestedCaption } : {}),
         };
       }
       if (parsedRead.data.action === "catalogueSearch") {
@@ -1362,7 +1369,7 @@ export async function manageShareCalendar(
           "FORBIDDEN",
           "The workspace owner can confirm reuse of Woodhouse artwork.",
         );
-      const asset = await resolveCatalogue(command.assetId, runtime);
+      const { asset } = await resolveCatalogue(command.assetId, runtime);
       if ((await cataloguePreviewHash(asset)) !== command.assetHash)
         return fail(
           "SOURCE_STALE",
