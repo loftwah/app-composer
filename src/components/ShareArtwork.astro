@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Maximize2, Search, Sh
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkOrientations, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
+import BriefingShareKit from './BriefingShareKit.astro';
 import '../styles/share-gallery.css';
 
 interface Props {
@@ -96,6 +97,7 @@ const options = {
       {facets.length > 1 && <a href={href({ query: '', project: '', category: '', orientation: 'any', tag: '' })}>Clear filters</a>}
     </div>
     <nav class="gallery-related" aria-label="More to explore">
+      <a href="/share#briefing-cards">App Composer share kit <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href={shareCalendarHref}>Share calendar <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/media-studio/films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
@@ -103,6 +105,8 @@ const options = {
       <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
     </nav>
   </div>
+
+  {!browse && <BriefingShareKit />}
 
   {!catalogue ? (
     <div class="gallery-empty"><h2>Artwork is temporarily unavailable</h2><a href={href()}>Try again</a></div>

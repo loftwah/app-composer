@@ -1,0 +1,55 @@
+---
+import Base from '../../../layouts/Base.astro';
+import BriefingRecording from '../../../components/BriefingRecording.astro';
+import recordings from '../../../editorial/notebooklm/recordings.json';
+
+const [film] = recordings;
+const canonical = 'https://composer.loftwah.com/pitch/briefing/film';
+const durationSeconds = 401;
+const timestamp = Astro.url.searchParams.get('t');
+const seconds = timestamp !== null && /^\d{1,3}$/.test(timestamp) ? Number(timestamp) : NaN;
+const startAt = seconds >= 0 && seconds < durationSeconds ? seconds : undefined;
+const description = 'A captioned App Composer explainer about going from an idea to a working project you can own, operate and come back to improve.';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: film.title,
+  description,
+  thumbnailUrl: 'https://composer.loftwah.com/downloads/app-composer/notebooklm-20261120/video-poster.jpg',
+  uploadDate: '2026-11-20T20:44:00+11:00',
+  duration: 'PT6M41S',
+  contentUrl: 'https://composer.loftwah.com/media-studio/watch/notebooklm-idea-to-operation-20261120.mp4',
+  url: canonical,
+  inLanguage: 'en',
+  hasPart: film.chapters.map(({ start, title }, index) => ({
+    '@type': 'Clip',
+    name: title,
+    startOffset: Math.floor(start),
+    endOffset: Math.floor(film.chapters[index + 1]?.start ?? durationSeconds),
+    url: `${canonical}?t=${Math.floor(start)}`,
+  })),
+};
+---
+
+<Base title="From Idea to Operation — App Composer" description={description}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <article class="watch-page">
+    <a href="/pitch/briefing">← Film, discussions and slides</a>
+    <h1 id="idea-to-operation-title">From Idea to Operation</h1>
+    <p class="film-credit">A NotebookLM film based on the App Composer product vision.</p>
+    <BriefingRecording recording={film} startAt={startAt} chapterPage="/pitch/briefing/film" titleIsPageHeading />
+    <nav aria-label="Continue after the film">
+      <a href="/pitch/briefing#listen">Hear the full discussions</a>
+      <a href="/creator-hub">Explore a working example</a>
+      <a href="/share#briefing-cards">Get the share kit</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .watch-page { max-width: 1120px; margin-inline: auto; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); margin-block: .45rem .35rem; line-height: 1.04; }
+  .film-credit { color: var(--color-muted); margin-block: 0 1rem; }
+  nav { display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+  nav a { display: inline-flex; align-items: center; min-height: 44px; }
+</style>

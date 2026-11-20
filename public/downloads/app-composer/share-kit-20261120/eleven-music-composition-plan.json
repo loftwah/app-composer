@@ -1,0 +1,25 @@
+{
+  "chunks": [
+    {
+      "text": "[Intro]\n{Instrumental opening with one dry rim click, then the bass arrives}",
+      "duration_ms": 3000,
+      "positive_styles": ["102 BPM", "dusty breakbeat", "dark electric piano", "warm mono sub bass", "dry rim click", "sparse soundtrack", "intimate independent radio"],
+      "negative_styles": ["singing", "spoken words", "corporate pop", "cinematic riser"],
+      "context_adherence": "high"
+    },
+    {
+      "text": "[Verse]\n{Instrumental bed, keep the middle clear for separate narration}",
+      "duration_ms": 9000,
+      "positive_styles": ["minimal percussion", "room for narration", "low electric piano chords", "gentle bass pulse"],
+      "negative_styles": ["voice", "lead melody", "drum fill"],
+      "context_adherence": "high"
+    },
+    {
+      "text": "[Outro]\n{One low note and a clean stop}",
+      "duration_ms": 3000,
+      "positive_styles": ["restrained final accent", "one low note", "hard stop", "short dry tail"],
+      "negative_styles": ["voice", "long reverb", "fadeout"],
+      "context_adherence": "high"
+    }
+  ]
+}

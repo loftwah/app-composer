@@ -2,6 +2,9 @@
 import { ArrowDownToLine } from '@lucide/astro';
 
 interface Props {
+  startAt?: number;
+  titleIsPageHeading?: boolean;
+  chapterPage?: string;
   recording: {
     id: string;
     title: string;
@@ -12,26 +15,27 @@ interface Props {
   };
 }
 
-const { recording } = Astro.props;
+const { recording, startAt, titleIsPageHeading = false, chapterPage } = Astro.props;
 const { id, title, description, length, extension, chapters } = recording;
 const video = extension === 'mp4';
 const Heading = video ? 'h2' : 'h3';
 const assets = '/downloads/app-composer/notebooklm-20261120';
 const media = `/media-studio/watch/notebooklm-${id}-20261120.${extension}`;
 const player = `player-${id}`;
-const chapterLink = (start: number) => `${media}#t=${start}`;
+const videoSource = startAt === undefined ? media : `${media}#t=${startAt}`;
+const chapterLink = (start: number) => chapterPage ? `${chapterPage}?t=${Math.floor(start)}` : `${media}#t=${start}`;
 ---
 
 <article class="recording" id={id} aria-labelledby={`${id}-title`}>
   <div class="recording-heading">
-    <Heading id={`${id}-title`}>{title}</Heading>
+    {!titleIsPageHeading && <Heading id={`${id}-title`}>{title}</Heading>}
     <p>{description} <span class="runtime">{length}</span></p>
   </div>
   <div class="screening">
     <div class="player">
       {video ? (
         <video id={player} controls playsinline preload="none" poster={`${assets}/video-poster.jpg`} width="1280" height="720" aria-labelledby={`${id}-title`}>
-          <source src={media} type="video/mp4" />
+          <source src={videoSource} type="video/mp4" />
           <track kind="captions" src={`${assets}/${id}.vtt`} srclang="en" label="English" />
           <a href={media}>Open the video file</a>
         </video>

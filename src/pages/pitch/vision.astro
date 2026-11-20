@@ -4,7 +4,23 @@ import Base from '../../layouts/Base.astro';
 import VisionDownloads from '../../components/VisionDownloads.astro';
 import { Content as ShortVersions, getHeadings as shortHeadings } from '../../editorial/completed-vision/short-versions.md';
 import { Content as Chapters, getHeadings as chapterHeadings } from '../../editorial/completed-vision/chapters.md';
-import { buildingShareArtwork } from '../../lib/site-share-artwork.mjs';
+import { visionShareArtwork } from '../../lib/site-share-artwork.mjs';
+
+const title = 'App Composer — The completed product vision';
+const description = 'Explore how App Composer connects owned apps, AI agents, Media Studio and Cloudflare. Read the completed product vision or try the live Creator Hub.';
+const canonical = 'https://composer.loftwah.com/pitch/vision';
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'App Composer and the Loftwah project portfolio',
+  description,
+  image: new URL(visionShareArtwork.path, canonical).href,
+  datePublished: '2026-11-20',
+  inLanguage: 'en-AU',
+  author: { '@type': 'Person', name: 'Dean Lofts' },
+  publisher: { '@type': 'Organization', name: 'App Composer' },
+  mainEntityOfPage: canonical,
+};
 
 const chapters = [...shortHeadings(), ...chapterHeadings()].filter(({ depth }) => depth === 2);
 const feedback = new URL('https://github.com/loftwah/app-composer/issues/new');
@@ -13,12 +29,12 @@ feedback.searchParams.set('body', 'What is one small thing you would build?\n\nW
 ---
 
 <Base
-  title="App Composer — The completed product vision"
-  description="Explore the Apps, Media Studio, games and engineering behind App Composer’s completed product vision. Read online, download the full document or try Creator Hub today."
+  title={title}
+  description={description}
   ogType="article"
-  shareImage={buildingShareArtwork.path}
-  shareAlt={buildingShareArtwork.alt}
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(article)} />
+  <meta slot="head" property="article:published_time" content="2026-11-20" />
   <article class="vision" aria-labelledby="vision-title">
     <header class="vision-opening">
       <a href="/pitch">App Composer pitch</a>
