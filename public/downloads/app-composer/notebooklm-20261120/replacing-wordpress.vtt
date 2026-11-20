@@ -1,0 +1,962 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:12.700
+Welcome to the debate. You know, when you
+buy an old historic house, there is this
+undeniable charm to it. You love the fact
+that everything is under one roof, the way
+the rooms naturally flow into one another.
+
+00:00:13.040 --> 00:00:14.520
+Oh, for sure. Right?
+
+00:00:14.520 --> 00:00:15.060
+It's character.
+
+00:00:15.360 --> 00:00:19.080
+Right. It feels incredibly cohesive, like a
+single unified entity.
+
+00:00:19.280 --> 00:00:19.960
+Yeah, it's comfortable.
+
+00:00:19.960 --> 00:00:28.760
+Exactly. Well, until you try to upgrade the
+plumbing in the kitchen. And you suddenly
+realize that moving one pipe somehow breaks
+the heating system in the upstairs better.
+
+00:00:28.880 --> 00:00:29.200
+Right.
+
+00:00:29.580 --> 00:00:33.180
+Because the systems are fundamentally
+structurally entangled.
+
+00:00:33.540 --> 00:00:36.640
+And that is the exact moment you realize you
+don't just own a house,
+
+00:00:36.780 --> 00:00:42.620
+you own a highly fragile ecosystem where
+every wall you open holds a new potentially
+disastrous surprise.
+
+00:00:42.620 --> 00:00:46.380
+And that surprise usually happens on a
+Friday afternoon when you have a business to
+run.
+
+00:00:46.580 --> 00:00:48.720
+Always. Friday at 4 p.m., right?
+
+00:00:49.300 --> 00:00:54.260
+And, I mean, for well over two decades, that
+is exactly how we have built and maintained
+things on the web.
+
+00:00:54.660 --> 00:00:57.680
+We've all been living in that historic
+house, and it's called WordPress.
+
+00:00:58.240 --> 00:00:58.680
+We have.
+
+00:00:58.680 --> 00:01:02.300
+But today, we are looking at a radical
+blueprint for the future of the web.
+
+00:01:02.760 --> 00:01:05.580
+It's a recently published vision for a
+platform called App Composer.
+
+00:01:06.020 --> 00:01:14.020
+And it proposes tearing down that monolithic
+house and replacing it with a completely
+decentralized federated architecture using
+tools like M-CMS and Cloudflare.
+
+00:01:14.020 --> 00:01:16.160
+Which is a massive paradigm shift.
+
+00:01:16.320 --> 00:01:16.420
+Right.
+
+00:01:16.660 --> 00:01:18.980
+And it really forces us to ask a central
+question today.
+
+00:01:19.660 --> 00:01:27.820
+Why would an organization actually choose to
+endure the pain of migrating to App
+Composer, EmDash, and Cloudflare over just
+maintaining their traditional WordPress
+site?
+
+00:01:28.180 --> 00:01:28.340
+Right.
+
+00:01:28.340 --> 00:01:36.900
+Does this new federated architecture
+actually solve WordPress's structural flaws,
+or does it just introduce a mountain of
+unnecessary complexity for website owners?
+
+00:01:37.200 --> 00:01:38.280
+Yeah, it's a huge question.
+
+00:01:38.820 --> 00:01:42.700
+To ground this, we're looking directly at
+the App Composer, the Completed Product
+Vision document.
+
+00:01:42.920 --> 00:01:44.840
+This is dated November 20, 2026.
+
+00:01:45.280 --> 00:01:51.600
+And we're specifically focusing on the
+chapter regarding the WordPress migration
+path and what they call the EmDash
+opportunity.
+
+00:01:51.920 --> 00:01:52.120
+Right.
+
+00:01:52.120 --> 00:01:54.000
+So my position is basically this.
+
+00:01:54.000 --> 00:02:01.680
+I argue that App Composer and EmDash
+represent a necessary secure evolution in
+web architecture through federated services
+and sandbox plugins.
+
+00:02:02.220 --> 00:02:09.480
+And my stance is that the cognitive load of
+a federated system, plus the loss of
+WordPress's mature, deeply integrated plugin
+ecosystem,
+
+00:02:09.980 --> 00:02:13.840
+makes the App Composer stack an impractical
+choice for many business owners.
+
+00:02:14.420 --> 00:02:17.120
+Okay, so to really understand why this shift
+is even being proposed,
+
+00:02:17.400 --> 00:02:21.940
+I think we have to look honestly at how
+traditional WordPress is structurally
+compromised.
+
+00:02:22.300 --> 00:02:23.640
+Compromise is a strong word.
+
+00:02:24.000 --> 00:02:31.280
+Well, it was built in an era where an
+application was just a bunch of PHP files
+sitting on top of a single MySQL database,
+all in a single server.
+
+00:02:31.540 --> 00:02:32.700
+It's entirely monolithic.
+
+00:02:33.160 --> 00:02:35.040
+Which is how most of the web still works.
+
+00:02:35.280 --> 00:02:37.380
+True, but it's an unisolated execution
+model.
+
+00:02:37.960 --> 00:02:39.200
+App Composer flips that.
+
+00:02:39.380 --> 00:02:42.820
+It doesn't try to be the database, the
+server, and the file system all at once.
+
+00:02:43.120 --> 00:02:45.100
+It acts as what they call a control plane.
+
+00:02:45.280 --> 00:02:45.500
+Right.
+
+00:02:45.500 --> 00:02:47.920
+It connects explicit, specialized services.
+
+00:02:48.420 --> 00:02:51.180
+So you have GitHub acting as the
+authoritative source for your code.
+
+00:02:51.180 --> 00:02:56.920
+You have EmDash, which is built on Astro, a
+lightning-fast web framework, handling the
+content workflows.
+
+00:02:57.340 --> 00:03:02.660
+And then you have Cloudflare D1 managing
+structured records, and Cloudflare R2
+handling all the heavy media storage.
+
+00:03:03.100 --> 00:03:10.200
+It's modular, it's clean, and specifically
+it uses a sandbox plugin format for EmDash
+that enforces declared capability
+boundaries.
+
+00:03:10.900 --> 00:03:14.940
+WordPress plugins completely fail to do
+that, which just leads to security and
+operational bloat.
+
+00:03:14.940 --> 00:03:17.040
+Well, I come at it from a very different
+angle.
+
+00:03:17.040 --> 00:03:22.280
+That monolithic nature of WordPress, the
+very thing you are calling a structural
+compromise,
+
+00:03:22.660 --> 00:03:27.680
+that is exactly why it remains so incredibly
+successful for actual business functions.
+
+00:03:28.120 --> 00:03:30.040
+I mean, it's successful, but at what cost?
+
+00:03:30.480 --> 00:03:31.460
+At the cost of simplicity.
+
+00:03:32.140 --> 00:03:37.000
+You are calling Composer a control plane,
+but what I see is severe fragmentation.
+
+00:03:37.660 --> 00:03:39.000
+Look at the source material itself.
+
+00:03:39.440 --> 00:03:43.460
+The architects admit that migration requires
+translating custom shortcodes,
+
+00:03:43.460 --> 00:03:48.600
+complex page builders, and intricate
+commerce workflows into MDux's completely
+different model.
+
+00:03:48.940 --> 00:03:50.540
+Right. It's a translation process.
+
+00:03:50.780 --> 00:03:54.000
+A translation process that they admit often
+lacks functional parity.
+
+00:03:54.640 --> 00:03:58.600
+For a business owner who literally states
+they do not want to maintain underlying
+machinery,
+
+00:03:59.040 --> 00:03:59.860
+this is a nightmare.
+
+00:04:00.660 --> 00:04:05.280
+Managing the relationships within Cloudflare
+workers, message queues, R2 object storage,
+
+00:04:05.360 --> 00:04:09.400
+and D1 databases, that is vastly more
+complex than a single WordPress instance.
+
+00:04:09.400 --> 00:04:18.900
+Okay, I want to push back on that because I
+look at that exact same distributed
+architecture and I see a massive security
+and stability upgrade, especially when we
+talk about plugins.
+
+00:04:19.420 --> 00:04:20.340
+The lifeblood of WordPress.
+
+00:04:20.960 --> 00:04:26.320
+Exactly. The plugin dilemma. Let's get into
+it because this is the most tangible
+difference for real users.
+
+00:04:26.920 --> 00:04:31.260
+In WordPress, every single native plugin
+shares the exact same execution boundary.
+
+00:04:31.660 --> 00:04:33.560
+Meaning they all run in the same memory
+space.
+
+00:04:33.560 --> 00:04:45.560
+Right. So if I install a simple, seemingly
+harmless calendar plugin in WordPress, under
+the hood, the PHP engine is loading that
+plugin with the exact same permissions as
+the core user authentication system.
+
+00:04:45.900 --> 00:04:46.100
+Sure.
+
+00:04:46.540 --> 00:04:56.840
+A single badly coded or maliciously
+compromised calendar plugin can bring down
+the entire site. It can read all the user
+passwords, rewrite core files, it
+compromises the whole site.
+
+00:04:57.580 --> 00:05:03.400
+EmDash shifts entirely away from this by
+using strictly sandbox plugins and
+Cloudflare's managed execution.
+
+00:05:03.560 --> 00:05:11.100
+But, and this is a big but, that shared
+boundary in WordPress is precisely what
+allows for the deep, seamless integrations
+that users rely on.
+
+00:05:11.480 --> 00:05:14.840
+See, I'd argue that deep integration is a
+bug disguised as a feature.
+
+00:05:15.460 --> 00:05:16.620
+Let me give you an analogy here.
+
+00:05:16.940 --> 00:05:20.460
+If WordPress is a house where every guest
+gets a master key to every single room,
+
+00:05:20.820 --> 00:05:21.080
+Okay.
+
+00:05:21.440 --> 00:05:26.420
+then EmDash is a modern hotel where key
+cards are strictly scoped to declared
+capability boundaries.
+
+00:05:27.040 --> 00:05:28.800
+A guest can open their specific room, right?
+
+00:05:28.880 --> 00:05:32.480
+But they mathematically cannot wander into
+the security office or the hotel kitchen.
+
+00:05:32.900 --> 00:05:33.960
+That sounds great in theory.
+
+00:05:34.360 --> 00:05:35.160
+It works in practice.
+
+00:05:35.700 --> 00:05:38.440
+If an EmDash plugin needs to format a date
+on the front end,
+
+00:05:38.520 --> 00:05:41.720
+it doesn't also secretly gain the ability to
+read the backend database.
+
+00:05:41.720 --> 00:05:47.500
+I hear you, but I just don't buy that the
+strict sandboxing doesn't completely cripple
+the platform.
+
+00:05:48.140 --> 00:05:53.120
+That strict isolation inherently limits the
+deep integrations that make WordPress
+powerful.
+
+00:05:53.580 --> 00:05:54.060
+How so?
+
+00:05:54.520 --> 00:05:56.160
+Think about something like WooCommerce.
+
+00:05:56.580 --> 00:05:59.020
+It doesn't just slap a shopping cart on a
+page.
+
+00:05:59.020 --> 00:06:06.020
+It embeds itself so deeply into the
+WordPress core that it transforms a simple
+blog into a massive e-commerce engine.
+
+00:06:06.480 --> 00:06:11.060
+It modifies user roles, intercepts the mail
+system, alters URL routing.
+
+00:06:11.340 --> 00:06:14.240
+You absolutely cannot do that in a strict
+sandbox.
+
+00:06:14.740 --> 00:06:16.900
+Because doing that makes the system
+incredibly fragile.
+
+00:06:17.380 --> 00:06:19.400
+Fragile maybe, but highly functional.
+
+00:06:19.920 --> 00:06:22.340
+And the Composer Vision document explicitly
+admits this.
+
+00:06:22.340 --> 00:06:27.680
+it notes that if you have a, quote, complex
+commerce workflow, you might need to just
+retain
+
+00:06:27.680 --> 00:06:32.940
+your external checkout only. Why? Because
+EmDash cannot easily replicate that deep
+functional
+
+00:06:32.940 --> 00:06:37.740
+parity natively. Well, yes, it forces you to
+use dedicated commerce tools instead of
+hacking a
+
+00:06:37.740 --> 00:06:43.100
+blog to do it. But you are sacrificing the
+very utility that makes the web platform
+useful for
+
+00:06:43.100 --> 00:06:49.060
+small businesses just to achieve some
+theoretical architectural purity. It is not
+just theoretical
+
+00:06:49.060 --> 00:06:53.620
+purity, though, it is about explicit service
+boundaries and what it actually means to
+operate
+
+00:06:53.620 --> 00:06:58.800
+a platform reliably, which leads directly to
+this broader concept in the document, the
+idea of
+
+00:06:58.800 --> 00:07:06.200
+federated ownership. Ah, yes, federated
+ownership. Right. Under App Composer,
+connected systems retain
+
+00:07:06.200 --> 00:07:11.800
+authority over the work they are best at
+managing. EmDash handles the content
+lifecycle. Cloudflare
+
+00:07:11.800 --> 00:07:17.220
+reports the infrastructure state. GitHub
+tracks the code history. It creates crystal
+clear boundaries
+
+00:07:17.220 --> 00:07:22.820
+of responsibility. But this so-called
+federated ownership is exactly what creates
+an operational
+
+00:07:22.820 --> 00:07:27.580
+headache for the average user. Really? I
+think it clarifies things. Let's look at
+what ownership
+
+00:07:27.580 --> 00:07:33.420
+actually means to a normal, non-developer
+person. In the WordPress world, ownership is
+delightfully
+
+00:07:33.420 --> 00:07:39.780
+simple. You have a database dump file and a
+zip file of your wp content folder. That's
+it. You
+
+00:07:39.780 --> 00:07:44.380
+hold those two files and you have your
+entire digital business in your hands. Sure,
+it's two
+
+00:07:44.380 --> 00:07:51.120
+files. Right, but App Composer splits your
+project across GitHub for source, D1 for
+SQLite records,
+
+00:07:51.360 --> 00:07:57.300
+R2 for object storage, Media Studio. It
+scatters your business. If a deployment
+fails, recovery
+
+00:07:57.300 --> 00:08:02.080
+means you have to wrangle code,
+configuration, structured records, and
+objects separately.
+
+00:08:02.520 --> 00:08:07.760
+But they are purpose-built tools. They are,
+but a WordPress backup is often a single
+cohesive
+
+00:08:07.760 --> 00:08:12.540
+snapshot. If something breaks on Thursday,
+you click restore, and the whole thing rolls
+back
+
+00:08:12.540 --> 00:08:13.740
+to Tuesday at 2 p.m.
+
+00:08:14.360 --> 00:08:16.420
+Federated ownership turns a simple restore
+
+00:08:16.420 --> 00:08:18.220
+into an engineering investigation.
+
+00:08:18.880 --> 00:08:20.120
+Okay, wait, I have to ask you,
+
+00:08:20.360 --> 00:08:23.600
+isn't the simplicity of a monolithic
+WordPress backup
+
+00:08:23.600 --> 00:08:25.340
+actually a really dangerous illusion?
+
+00:08:26.060 --> 00:08:26.960
+How is it dangerous?
+
+00:08:27.460 --> 00:08:29.120
+It saves businesses every single day.
+
+00:08:29.540 --> 00:08:31.560
+Because of what you destroy when you use it.
+
+00:08:31.920 --> 00:08:33.080
+Think about your exact scenario.
+
+00:08:33.460 --> 00:08:35.580
+You roll back the entire monolithic site
+
+00:08:35.580 --> 00:08:37.840
+to Tuesday at 2 p.m. to fix a broken code
+update
+
+00:08:37.840 --> 00:08:39.040
+you pushed on Thursday morning.
+
+00:08:39.600 --> 00:08:41.100
+What happens to all the user content
+
+00:08:41.100 --> 00:08:42.300
+generated since that snapshot?
+
+00:08:42.540 --> 00:08:44.820
+Well, yeah, you lose the Wednesday data.
+
+00:08:45.200 --> 00:08:53.620
+Exactly. Rolling back code inherently means
+losing all user content, comments, orders,
+editorial drafts generated since that
+snapshot.
+
+00:08:54.260 --> 00:08:58.800
+In Composer, separating these life cycles
+prevents catastrophic data loss during
+rollbacks.
+
+00:08:59.380 --> 00:09:00.100
+Okay, fair.
+
+00:09:00.720 --> 00:09:03.600
+A code rollback in Composer just restores
+the GitHub code version.
+
+00:09:03.600 --> 00:09:09.980
+It does not automatically revert your D1
+database changes, and it doesn't delete the
+media your team uploaded to R2 yesterday.
+
+00:09:10.520 --> 00:09:14.000
+That is a very compelling point about data
+loss,
+
+00:09:14.140 --> 00:09:18.000
+but have you considered the cognitive load
+required to actually build and maintain that
+separation?
+
+00:09:18.620 --> 00:09:20.180
+The framework handles a lot of it.
+
+00:09:20.700 --> 00:09:21.100
+Does it?
+
+00:09:21.480 --> 00:09:23.680
+Let's look at how these federated systems
+communicate.
+
+00:09:24.340 --> 00:09:28.640
+The Composer document talks about Cloudflare
+queues providing at least once delivery.
+
+00:09:29.100 --> 00:09:29.520
+Right.
+
+00:09:29.920 --> 00:09:32.840
+Which means a task won't just get dropped if
+the server restarts.
+
+00:09:33.280 --> 00:09:35.440
+But at least once doesn't mean exactly once.
+
+00:09:35.440 --> 00:09:37.780
+It means your applications require item
+potency,
+
+00:09:37.780 --> 00:09:41.140
+which is a fancy way of saying you have to
+manually handle duplicate requests.
+
+00:09:41.520 --> 00:09:41.920
+Well, yeah.
+
+00:09:42.360 --> 00:09:46.620
+If a queue sends a command to process a
+heavy video and there's a network hiccup,
+
+00:09:46.900 --> 00:09:48.400
+it might retry and send it again.
+
+00:09:48.900 --> 00:09:50.220
+Now you have two identical commands.
+
+00:09:50.800 --> 00:09:55.480
+In a monolithic system, the relational
+database transaction just rolls that back
+cleanly.
+
+00:09:55.920 --> 00:09:59.380
+But here, the developer has to engineer the
+app to constantly check,
+
+00:09:59.460 --> 00:10:01.280
+wait, did I already process this?
+
+00:10:01.620 --> 00:10:03.040
+Did I already charge this card?
+
+00:10:03.140 --> 00:10:07.740
+You are shifting a massive burden of data
+consistency right onto the website owner.
+
+00:10:07.780 --> 00:10:23.980
+I see what you're saying. But you're
+assuming the developer is just building this
+from scratch with raw cues. App Composer
+provides typed composition. The explicit
+contracts manage those boundaries. And
+frankly, this strict, explicit separation of
+logic and data is exactly why Composer is
+uniquely designed for AI agents.
+
+00:10:24.340 --> 00:10:26.460
+Oh, I knew we'd get to the AI integration
+eventually.
+
+00:10:27.000 --> 00:10:27.560
+We have to.
+
+00:10:27.560 --> 00:10:44.360
+It's a huge part of the vision document. We
+are moving into a world where AI agents
+aren't just writing chat snippets. They will
+execute routine workflows in production.
+Because capabilities are strictly typed and
+EmDash uses a scoped MCP server, that's
+model context protocol, agents can safely
+interact with the system.
+
+00:10:45.200 --> 00:10:51.060
+But giving an autonomous AI agent access to
+a live, complex business site is inherently
+risky.
+
+00:10:51.700 --> 00:10:53.680
+Not if the architecture enforces strict
+boundaries.
+
+00:10:54.260 --> 00:10:55.040
+Think about WordPress.
+
+00:10:55.400 --> 00:10:58.160
+If you give an AI assistant plugin access to
+draft posts,
+
+00:10:58.360 --> 00:11:01.260
+it implicitly gains access to the shared
+execution environment.
+
+00:11:01.660 --> 00:11:03.300
+It could theoretically rewrite the database.
+
+00:11:03.780 --> 00:11:05.280
+Due to the shared memory space.
+
+00:11:05.280 --> 00:11:05.800
+Yes.
+
+00:11:06.420 --> 00:11:10.300
+But with EmDash and MCP, an agent can be
+given permission to draft content
+
+00:11:10.300 --> 00:11:12.360
+without secretly gaining permission to
+publish it
+
+00:11:12.360 --> 00:11:14.620
+or spend API credits or rewrite the
+database.
+
+00:11:15.020 --> 00:11:17.200
+The contracts are mathematically enforced.
+
+00:11:17.780 --> 00:11:21.720
+Okay, let's talk about the practicality of
+those AI agents then.
+
+00:11:22.080 --> 00:11:25.640
+The document introduces this
+idea-to-operation benchmark, right?
+
+00:11:26.060 --> 00:11:26.380
+Yes.
+
+00:11:26.720 --> 00:11:30.260
+It's meant to prove an AI can take a brief
+and deploy a working app.
+
+00:11:30.640 --> 00:11:33.760
+But the benchmark requires zero manual
+intervention. Zero.
+
+00:11:34.400 --> 00:11:40.160
+Yet we both know that migrating from a
+legacy WordPress site almost always requires
+heavy human judgment.
+
+00:11:40.700 --> 00:11:43.080
+Well, migrating is different than generating
+a new app.
+
+00:11:43.080 --> 00:11:44.600
+But that's exactly the problem.
+
+00:11:45.020 --> 00:11:52.400
+Transforming a tangled WordPress site with
+legacy URLs, custom fields, and private
+content behavior into EmDash's astro-based
+model?
+
+00:11:52.840 --> 00:11:56.760
+AI cannot safely untangle that without
+significant, costly human oversight.
+
+00:11:57.060 --> 00:11:59.660
+It's essentially a total rebuild, not a
+migration.
+
+00:12:00.260 --> 00:12:03.740
+It is a rebuild of the front end, yes, but
+Composer doesn't leave you stranded.
+
+00:12:03.740 --> 00:12:06.160
+The vision details the migration map.
+
+00:12:06.400 --> 00:12:12.860
+It specifically handles the scary stuff,
+reconciling URLs locally and producing
+verified Cloudflare redirects before
+anything goes live.
+
+00:12:12.860 --> 00:12:15.420
+But the source text literally states, quote,
+
+00:12:15.520 --> 00:12:18.920
+a successful import alone does not establish
+full functional parity.
+
+00:12:19.380 --> 00:12:21.680
+You still have to manually rebuild complex
+behaviors.
+
+00:12:22.220 --> 00:12:24.940
+For many business owners, that friction is
+economically unviable.
+
+00:12:25.340 --> 00:12:27.340
+They don't want to rebuild. They just want
+their site to work.
+
+00:12:27.780 --> 00:12:28.660
+I get that it's friction.
+
+00:12:28.760 --> 00:12:31.240
+But this controlled cutover provides a
+cleaner, faster,
+
+00:12:31.420 --> 00:12:34.060
+and infinitely more scalable site on
+Cloudflare Workers.
+
+00:12:34.620 --> 00:12:37.980
+You are freeing the owner from perpetual,
+stressful server patching.
+
+00:12:38.180 --> 00:12:41.380
+No more waking up wondering if a slider
+plugin just got your database hacked.
+
+00:12:41.800 --> 00:12:46.200
+You're just trading the stress of server
+patching for the stress of managing
+distributed cloud relationships.
+
+00:12:46.800 --> 00:12:52.160
+If you don't want to maintain machinery,
+managing workers, D1, R2, and Qs is a lot of
+machinery.
+
+00:12:52.600 --> 00:12:54.760
+But you don't manage the physical servers.
+
+00:12:55.180 --> 00:12:56.920
+That's the point of serverless edge
+computing.
+
+00:12:57.460 --> 00:13:00.500
+And the open source core of Composer means
+you truly own it.
+
+00:13:00.500 --> 00:13:03.960
+You can detach Composer and just run your
+code on your own Cloudflare account.
+
+00:13:04.520 --> 00:13:08.380
+Which still ties you deeply to Cloudflare's
+specific proprietary infrastructure.
+
+00:13:08.380 --> 00:13:12.620
+It ties you to edge computing, yes, but the
+code in GitHub is yours.
+
+00:13:13.280 --> 00:13:16.420
+The D1 SQLite database can be exported as a
+simple file.
+
+00:13:16.760 --> 00:13:17.900
+It is true ownership.
+
+00:13:18.680 --> 00:13:22.860
+I just think for an owner who, quote, does
+not want to maintain underlying machinery,
+
+00:13:23.380 --> 00:13:25.740
+WordPress shared hosting is still far
+simpler.
+
+00:13:26.240 --> 00:13:29.460
+Well, we are coming up on time, so let's
+summarize where we both stand on this.
+
+00:13:29.760 --> 00:13:30.000
+Sure.
+
+00:13:30.260 --> 00:13:34.720
+I'll reiterate that App Composer and EmDash
+provide a totally necessary architectural
+leap.
+
+00:13:34.720 --> 00:13:44.920
+They offer true federated ownership, sandbox
+security that prevents those cascading
+plugin failures, and explicit AI contracts
+on Cloudflare that prepare sites for the
+next decade of the web.
+
+00:13:45.460 --> 00:13:49.440
+And I will reiterate that the unified
+utility of WordPress is incredibly hard to
+beat.
+
+00:13:49.820 --> 00:14:01.460
+The federated complexity of the Composer
+stack, managing multiple distinct cloud
+services, may severely alienate owners who
+simply want their business functions to work
+without having to rebuild their entire
+functional parity from scratch.
+
+00:14:01.460 --> 00:14:04.840
+I think, though, we can both acknowledge a
+point of convergence here.
+
+00:14:05.160 --> 00:14:09.520
+We both agree on the importance of
+separating infrastructure management from
+content creation.
+
+00:14:09.940 --> 00:14:10.500
+Oh, absolutely.
+
+00:14:11.280 --> 00:14:16.700
+And I'll concede that for brand new
+projects, you know, Greenfield apps without
+legacy WordPress baggage,
+
+00:14:17.240 --> 00:14:21.220
+the Composer stack offers a really pristine,
+impressive starting point.
+
+00:14:21.760 --> 00:14:23.260
+Yeah, it's a fascinating architecture.
+
+00:14:23.840 --> 00:14:28.080
+And for our listeners, I highly suggest
+reflecting on the value of looking closely
+
+00:14:28.080 --> 00:14:30.800
+at how your current web platforms manage
+capability boundaries.
+
+00:14:31.320 --> 00:14:31.640
+Definitely.
+
+00:14:32.140 --> 00:14:36.320
+You should explore the source materials
+decision explorer and the EmDash porting
+guides,
+
+00:14:36.780 --> 00:14:39.920
+just to see how your specific plugins would
+fare in a system like this.
+
+00:14:40.100 --> 00:14:42.060
+It's an eye-opening exercise for sure.
+
+00:14:42.440 --> 00:14:43.160
+It really is.
+
+00:14:43.740 --> 00:14:47.260
+So, do you stick with the charming but
+entangled historic house?
+
+00:14:47.760 --> 00:14:51.200
+Or do you move to the highly secure,
+strictly zoned modern hotel?
+
+00:14:51.760 --> 00:14:54.180
+That is the architectural choice we all have
+to make.
+
+00:14:54.680 --> 00:14:56.380
+Thanks for joining us on The Debate.

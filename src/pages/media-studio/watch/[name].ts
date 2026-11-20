@@ -10,6 +10,11 @@ type StoredObject = {
 type Bucket = { get(key: string, options?: { range?: { offset: number; length: number } }): Promise<StoredObject | null>; head(key: string): Promise<{ size: number } | null> };
 
 const files: Record<string, { type: string; key: string }> = {
+  // NotebookLM originals stay outside Git. The briefing exposes these exact four objects.
+  "notebooklm-idea-to-operation-20261120.mp4": { type: "video/mp4", key: "notebooklm/20261120/From_Idea_to_Operation.mp4" },
+  "notebooklm-prompts-to-production-20261120.m4a": { type: "audio/mp4", key: "notebooklm/20261120/From_AI_Prompts_to_Production_Software.m4a" },
+  "notebooklm-replacing-wordpress-20261120.m4a": { type: "audio/mp4", key: "notebooklm/20261120/Replacing_WordPress_with_App_Composer.m4a" },
+  "notebooklm-overview-20261120.pdf": { type: "application/pdf", key: "notebooklm/20261120/App_Composer_Overview.pdf" },
   "overview.mp4": { type: "video/mp4", key: "media-studio/films/overview.mp4" },
   "walkthrough.mp4": { type: "video/mp4", key: "media-studio/films/walkthrough.mp4" },
   "overview.vtt": { type: "text/vtt; charset=utf-8", key: "media-studio/films/overview.vtt" },

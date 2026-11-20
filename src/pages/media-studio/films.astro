@@ -67,6 +67,7 @@ const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
     <h2 id="library-title">More films and demos</h2>
     <ul role="list">
       <li><a href="/creator-hub#film">See the Creator Hub build</a><p>34 seconds · Two independent apps built from one brief</p></li>
+      <li><a href="/pitch/briefing#watch">From Idea to Operation</a><p>6 min 41 sec · A NotebookLM explainer on the App Composer vision</p></li>
       {films.map((film) => (
         <li id={film.id}>
           <a href={film.href}>{film.title}</a>
