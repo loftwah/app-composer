@@ -24,8 +24,8 @@ https://composer.loftwah.com/share#briefing-cards
 
 BLUESKY / START WITH THIS
 
-The first build is only half the demo. Can you come back next week, change the same app and keep the source and data yours? That's what we're building with App Composer. Here's the short film, two discussions and slides.
-https://composer.loftwah.com/pitch/briefing
+Come back next week. Change the same app. Keep the code and data. That’s the App Composer vision.
+https://composer.loftwah.com/pitch/vision?utm_id=cmp_acv_f7r3k9&utm_source=bluesky&utm_medium=social&utm_campaign=app_composer_completed_vision&utm_content=short_post_a
 
 LINKEDIN / FOUNDER POST
 
@@ -33,19 +33,17 @@ I keep coming back to one test for AI-built software. Open the same project next
 
 Can you find the source? Does the data stay yours? Can you ship the change without rebuilding the whole thing or losing the work around it?
 
-That's the App Composer pitch. We put the full product vision online, then used it as the source for a short NotebookLM film, two discussions and a slide deck. One of the discussions takes the WordPress migration trade-offs seriously. The briefing includes transcripts and chapter links.
+That's the App Composer pitch. We put the full product vision online, then used it as the source for a short NotebookLM film, two discussions and a slide deck. One of the discussions takes the WordPress migration trade-offs seriously. The full vision links to the briefing, including transcripts and chapter links.
 
-https://composer.loftwah.com/pitch/briefing
+https://composer.loftwah.com/pitch/vision?utm_id=cmp_acv_f7r3k9&utm_source=linkedin&utm_medium=social&utm_campaign=app_composer_completed_vision&utm_content=founder_post_a
 
 If you'd rather see something running, try Creator Hub. It connects an independently owned profile and a moderated guestbook.
 https://composer.loftwah.com/creator-hub
 
 X / SHORT POST
 
-If an AI-built app works on day one, come back on day two. Change something real. Keep the source and the data. That’s the App Composer pitch.
-
-Film, conversations, slides and transcripts:
-https://composer.loftwah.com/pitch/briefing
+If an AI-built app works on day one, come back on day two. Change something real. Keep the code and data. Read the App Composer vision.
+https://composer.loftwah.com/pitch/vision?utm_id=cmp_acv_f7r3k9&utm_source=x&utm_medium=social&utm_campaign=app_composer_completed_vision&utm_content=short_post_a
 
 ALT TEXT / BRIEFING COVER
 
