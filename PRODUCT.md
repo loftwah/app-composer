@@ -14,6 +14,12 @@ Creators, developers and teams who want to make and run something they own. Begi
 ## Product Purpose
 App Composer is an open-source, AI-native creation and operations platform. Its purpose is to let people express an outcome and shape it to their taste while agents coordinate the tools and work needed to bring it to life. The person directs the outcome, approves consequential actions and retains control of their work, source, data and accounts.
 
+### Delivery target and roadmap
+
+**Build it. Keep it running.** The first flagship is an independent newcomer launching a useful app on their own accounts, managing it and returning for a meaningful functional change while retaining their source, data and control. The owned Astro starter is the first bounded release; the native EmDash Creator Hub proves the fuller application journey.
+
+The [living roadmap](docs/roadmap.md) sets the ordered outcome gates, acceptance criteria, recommended decisions and pilot/adoption targets. Creators come first, agencies next, with broader games, media, reusable capabilities and bounded operations earned through working projects. Those targets are planning goals; [release evidence #11](https://github.com/loftwah/app-composer/issues/11) and the owning issues establish actual delivery.
+
 ### What we are building towards
 
 - **A continuous project lifecycle.** Understand the goal and references, design, build, provision, test the actual experience, deploy, operate and improve the same project. Production evidence should show what works and inform what to change next.
