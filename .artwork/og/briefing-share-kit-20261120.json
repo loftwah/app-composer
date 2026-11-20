@@ -1,0 +1,28 @@
+{
+  "generatedWith": "Codex ImageGen",
+  "generatedOn": "2026-11-20",
+  "reference": [
+    "/pitch/briefing",
+    "docs/visual-direction.md",
+    "/brand/campaign/building-og-20261117.jpg"
+  ],
+  "export": "Centred crop and resize to 1200x630. JPEG quality 88, 4:4:4, metadata stripped. Composition and copy are from the same render.",
+  "artworks": [
+    {
+      "page": "/pitch/briefing",
+      "direction": "Physical slide projector lighting up three acetate diagrams, with the line From idea to operation.",
+      "master": "exec-0c8e8816-c449-4f8d-b512-3347a4c1cba9.png",
+      "masterSha256": "eb32130d7be06b59a5d57e33ca4a0681b9394243eba32812f3898b6afd577583",
+      "path": "/brand/campaign/briefing-og-20261120.jpg",
+      "sha256": "1be4e2a9fc470c676111f877b38a10502dca789a502cfced97316765ee7e84f5"
+    },
+    {
+      "page": "/pitch/vision",
+      "direction": "Open industrial project case with owned plans, storage module and brass key, with the line Build it. Keep it running.",
+      "master": "exec-5011d3c4-0b99-46ed-83be-6527ab1ed715.png",
+      "masterSha256": "04703534dac301f8cfaa597497a653b5eb6697640bd975b8a5be30ec08928906",
+      "path": "/brand/campaign/vision-og-20261120.jpg",
+      "sha256": "2eacac298b196896466f3d98a1d03c24ede4e9eee9b46c2e0a6eb310ffc95ee1"
+    }
+  ]
+}

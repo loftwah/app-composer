@@ -1,0 +1,56 @@
+APP COMPOSER / LINKS TO KEEP
+
+Start here
+https://composer.loftwah.com/pitch/briefing
+The NotebookLM film, two discussions, slides and transcripts.
+
+Send just the film
+https://composer.loftwah.com/pitch/briefing/film
+Jump to the part about coming back to change it
+https://composer.loftwah.com/pitch/briefing/film?t=191
+
+Send the full argument
+https://composer.loftwah.com/pitch/vision
+Send the technical deck and current product pitch
+https://composer.loftwah.com/pitch
+Send the working example
+https://composer.loftwah.com/creator-hub
+Send the design and architecture drawings
+https://composer.loftwah.com/diagrams
+Send the studio build and its evidence
+https://composer.loftwah.com/media-studio
+Send the artwork and prompt kit
+https://composer.loftwah.com/share#briefing-cards
+
+BLUESKY / START WITH THIS
+
+The first build is only half the demo. Can you come back next week, change the same app and keep the source and data yours? That's what we're building with App Composer. Here's the short film, two discussions and slides.
+https://composer.loftwah.com/pitch/briefing
+
+LINKEDIN / FOUNDER POST
+
+I keep coming back to one test for AI-built software. Open the same project next week and make a change that matters.
+
+Can you find the source? Does the data stay yours? Can you ship the change without rebuilding the whole thing or losing the work around it?
+
+That's the App Composer pitch. We put the full product vision online, then used it as the source for a short NotebookLM film, two discussions and a slide deck. One of the discussions takes the WordPress migration trade-offs seriously. The briefing includes transcripts and chapter links.
+
+https://composer.loftwah.com/pitch/briefing
+
+If you'd rather see something running, try Creator Hub. It connects an independently owned profile and a moderated guestbook.
+https://composer.loftwah.com/creator-hub
+
+X / SHORT POST
+
+If an AI-built app works on day one, come back on day two. Change something real. Keep the source and the data. That’s the App Composer pitch.
+
+Film, conversations, slides and transcripts:
+https://composer.loftwah.com/pitch/briefing
+
+ALT TEXT / BRIEFING COVER
+
+App Composer. From idea to operation. Film, audio and slides. A projector lights up layers of workshop diagrams.
+
+ALT TEXT / PRODUCT VISION COVER
+
+App Composer. Build it. Keep it running. The completed product vision. An open workshop case holds plans, a storage module and a key.

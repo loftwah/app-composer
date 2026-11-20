@@ -18,7 +18,17 @@ export const mediaStudioShareArtwork = campaignCard('media-studio',
 export const buildingShareArtwork = campaignCard('building',
   'App Composer. Build it. Keep it running. A paper sketch feeds into a warm-lit row of workshop modules.');
 
+export const briefingShareArtwork = campaignCard('briefing',
+  'App Composer. From idea to operation. Film, audio and slides. A projector lights up layers of workshop diagrams.', '20261120');
+
+export const visionShareArtwork = campaignCard('vision',
+  'App Composer. Build it. Keep it running. The completed product vision. An open workshop case holds plans, a storage module and a key.', '20261120');
+
 const cards = new Map([
+  ['/pitch', buildingShareArtwork],
+  ['/pitch/vision', visionShareArtwork],
+  ['/pitch/briefing', briefingShareArtwork],
+  ['/pitch/briefing/film', briefingShareArtwork],
   ['/ready', ready],
   ['/ready/guide', ready],
   ['/init', init],
