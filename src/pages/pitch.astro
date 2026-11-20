@@ -1,6 +1,7 @@
 ---
 import { ArrowRight, Download } from '@lucide/astro';
 import Base from '../layouts/Base.astro';
+import VisionDownloads from '../components/VisionDownloads.astro';
 
 const downloads = [
   { format: 'PDF', size: '441 kB', extension: 'pdf' },
@@ -9,8 +10,8 @@ const downloads = [
 ---
 
 <Base
-  title="App Composer Technical Pitch"
-  description="See how App Composer helps you create, own and improve a project with your chosen agent. Try the Creator Hub example or download the technical pitch."
+  title="App Composer — Vision and Technical Pitch"
+  description="See how App Composer helps you create, own and improve a project with your chosen agent. Read the completed product vision, try Creator Hub or download the technical deck."
 >
   <div class="pitch-opening">
     <section aria-labelledby="pitch-title">
@@ -38,6 +39,18 @@ const downloads = [
       </ul>
     </section>
   </div>
+
+  <section class="section pitch-detail split" aria-labelledby="pitch-vision">
+    <div>
+      <h2 id="pitch-vision">The completed product vision</h2>
+      <p>Explore how the apps, Media Studio, games and engineering fit together once the accepted backlogs are delivered to a high standard.</p>
+      <a class="button" href="/pitch/vision">Read the complete vision <ArrowRight size={18} aria-hidden="true" /></a>
+    </div>
+    <div>
+      <p>45 pages · Edition 2026/11/20 Melbourne (AEDT, UTC+11) / 2026/11/20 UTC</p>
+      <VisionDownloads />
+    </div>
+  </section>
 
   <section class="section pitch-detail" aria-labelledby="pitch-scope">
     <h2 id="pitch-scope">What you can do today</h2>
