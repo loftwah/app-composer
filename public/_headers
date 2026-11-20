@@ -7,3 +7,11 @@
   X-Content-Type-Options: nosniff
 /brand/campaign/take-it-with-you-20261118.txt
   Content-Type: text/plain; charset=utf-8
+/downloads/app-composer/technical-pitch-20261120.pdf
+  Content-Type: application/pdf
+  Content-Disposition: attachment; filename="App-Composer-Technical-Pitch-v1.pdf"
+  X-Content-Type-Options: nosniff
+/downloads/app-composer/technical-pitch-20261120.pptx
+  Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation
+  Content-Disposition: attachment; filename="App-Composer-Technical-Pitch-v1.pptx"
+  X-Content-Type-Options: nosniff

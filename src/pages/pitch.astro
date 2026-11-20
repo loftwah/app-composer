@@ -1,0 +1,129 @@
+---
+import { ArrowRight, Download } from '@lucide/astro';
+import Base from '../layouts/Base.astro';
+
+const downloads = [
+  { format: 'PDF', size: '441 kB', extension: 'pdf' },
+  { format: 'Editable PowerPoint (PPTX)', size: '289 kB', extension: 'pptx' },
+];
+---
+
+<Base
+  title="App Composer Technical Pitch"
+  description="See how App Composer helps you create, own and improve a project with your chosen agent. Try the Creator Hub example or download the technical pitch."
+>
+  <div class="pitch-opening">
+    <section aria-labelledby="pitch-title">
+      <h1 id="pitch-title">Build it.<br /> <span>Keep it running.</span></h1>
+      <p class="lede">App Composer helps creators and small teams make useful projects with a coding agent, run them in their own Cloudflare account and keep improving them.</p>
+      <p>We’re building App Composer to connect your idea, chosen agent, source, deployment and next change, starting on Cloudflare.</p>
+      <div class="actions">
+        <a class="button" href="/creator-hub">See the Creator Hub example <ArrowRight size={18} aria-hidden="true" /></a>
+        <a class="button secondary" href="/learn">Start with the Learn guide</a>
+      </div>
+    </section>
+
+    <section class="pitch-downloads" aria-labelledby="pitch-deck">
+      <h2 id="pitch-deck">Technical pitch deck</h2>
+      <p>Version 1 · 20 November 2026 · 18 slides</p>
+      <ul role="list">
+        {downloads.map(({ format, size, extension }) => (
+          <li>
+            <a href={`/downloads/app-composer/technical-pitch-20261120.${extension}`} download={`App-Composer-Technical-Pitch-v1.${extension}`}>
+              <Download size={20} aria-hidden="true" />
+              <span>Download {format} <small>{size}</small></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+
+  <section class="section pitch-detail" aria-labelledby="pitch-scope">
+    <h2 id="pitch-scope">What you can do today</h2>
+    <div class="split">
+      <div>
+        <p>Creator Hub shows a working profile and moderated guestbook. The apps have their own source, data and releases, with native EmDash tools for managing content. You can browse the example and guide without an account.</p>
+        <p>To publish your own project, you need a supported coding agent on an available computer and authorised access to your chosen GitHub and Cloudflare accounts. You keep control of your source, data and deployment.</p>
+      </div>
+      <div>
+        <p>Cloudflare Workers run the apps. Workers AI is available from Cloudflare for tasks that need it. Our goal is for people to keep running useful projects on Workers and return to Workers AI for work that benefits from it.</p>
+        <p>Composer’s native agent connection accepts proposals. Publishing requires separate authorisation. Optional remote execution remains on hold.</p>
+        <p><a href="https://github.com/loftwah/app-composer/blob/main/docs/roadmap.md">Read the product roadmap</a></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pitch-opening {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 6rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  h1 {
+    font-size: clamp(2.75rem, 6vw, 5.5rem);
+  }
+
+  h1 span {
+    color: var(--color-accent);
+  }
+
+  .pitch-opening .actions {
+    margin-bottom: 0;
+  }
+
+  .pitch-downloads {
+    border-block: 1px solid var(--color-border);
+    padding-block: 1.5rem 0;
+  }
+
+  .pitch-downloads h2,
+  .pitch-detail h2 {
+    font-size: clamp(1.65rem, 3vw, 2.25rem);
+    margin-bottom: .5rem;
+  }
+
+  .pitch-downloads p {
+    color: var(--color-muted);
+  }
+
+  .pitch-downloads ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+  }
+
+  .pitch-downloads li {
+    margin: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .pitch-downloads a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-height: 3rem;
+    padding-block: .65rem;
+  }
+
+  .pitch-downloads small {
+    display: block;
+    color: var(--color-muted);
+    font-size: .875rem;
+    font-weight: 400;
+  }
+
+  .pitch-detail .split {
+    gap: 0 3rem;
+  }
+
+  @media (max-width: 800px) {
+    .pitch-opening {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
