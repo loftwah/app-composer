@@ -92,3 +92,11 @@ wishlist. All are **not-run** until independently qualified. The existing
 [/benchmarks](https://composer.loftwah.com/benchmarks) overview links this
 campaign; these definitions are not another JSON pack and do not acquire a
 automatic provider execution or a passing evidence status.
+
+The companion [WordPress Studio/Spacefast comparison](../cloudflare-composition/wordpress-studio-spacefast.md)
+adds nine separately tracked workflow procedures to the same campaign without
+changing the six required journeys or nine existing profiles. These comparison
+cases are all **not-run**; the protocol is not an executable JSON suite pack or
+recorded evidence. [#1008](https://github.com/loftwah/app-composer/issues/1008)
+owns the crosswalk and [#935](https://github.com/loftwah/app-composer/issues/935)
+owns execution.
