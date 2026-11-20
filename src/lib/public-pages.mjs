@@ -8,7 +8,7 @@ export const publicPagePaths = Object.freeze([
   '/explore', '/demo', '/demo/screening-room', '/demo/connected-apps', '/benchmarks', '/blueprints', '/projects', '/docs', '/docs/how-it-works', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
   '/extension', '/state', '/php2shell', '/studio', '/studio/published', '/share', '/demo/examples', '/demo/examples/signal-and-type', '/demo/examples/print-shop', '/demo/examples/creator-hub', '/manage', '/building', '/effect',
-  '/creator-hub', '/cloudflare',
+  '/creator-hub', '/cloudflare', '/pitch',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
   '/media-studio', '/media-studio/films', '/media-studio/tutorial', '/media-studio/direct', '/launcher',
   '/widgets',
