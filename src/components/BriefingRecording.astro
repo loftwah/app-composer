@@ -1,0 +1,121 @@
+---
+import { ArrowDownToLine } from '@lucide/astro';
+
+interface Props {
+  recording: {
+    id: string;
+    title: string;
+    description: string;
+    length: string;
+    extension: string;
+    chapters: { start: number; time: string; title: string; paragraphs: string[] }[];
+  };
+}
+
+const { recording } = Astro.props;
+const { id, title, description, length, extension, chapters } = recording;
+const video = extension === 'mp4';
+const Heading = video ? 'h2' : 'h3';
+const assets = '/downloads/app-composer/notebooklm-20261120';
+const media = `/media-studio/watch/notebooklm-${id}-20261120.${extension}`;
+const player = `player-${id}`;
+const chapterLink = (start: number) => `${media}#t=${start}`;
+---
+
+<article class="recording" id={id} aria-labelledby={`${id}-title`}>
+  <div class="recording-heading">
+    <Heading id={`${id}-title`}>{title}</Heading>
+    <p>{description} <span class="runtime">{length}</span></p>
+  </div>
+  <div class="screening">
+    <div class="player">
+      {video ? (
+        <video id={player} controls playsinline preload="none" poster={`${assets}/video-poster.jpg`} width="1280" height="720" aria-labelledby={`${id}-title`}>
+          <source src={media} type="video/mp4" />
+          <track kind="captions" src={`${assets}/${id}.vtt`} srclang="en" label="English" />
+          <a href={media}>Open the video file</a>
+        </video>
+      ) : (
+        <audio id={player} controls preload="none" aria-labelledby={`${id}-title`}>
+          <source src={media} type="audio/mp4" />
+          <a href={media}>Open the audio file</a>
+        </audio>
+      )}
+      <div class="files">
+        <a href={media} download={`${id}.${extension}`}><ArrowDownToLine size={16} aria-hidden="true" /> Download {video ? 'MP4' : 'M4A'}</a>
+        <a href={`${assets}/${id}.txt`} download aria-label={`Download the transcript for ${title}`}>Transcript TXT</a>
+        <a href={`${assets}/${id}.vtt`} download aria-label={`Download timed captions in WebVTT for ${title}`}>VTT</a>
+        <a href={`${assets}/${id}.srt`} download aria-label={`Download timed captions in SRT for ${title}`}>SRT</a>
+      </div>
+    </div>
+    <nav class="chapters" aria-label={`Chapters for ${title}`}>
+      <ol role="list">
+        {chapters.map(({ start, time, title: chapter }) => (
+          <li>
+            <a href={chapterLink(start)} data-player={player} data-start={start}>
+              <span class="timestamp">{time}</span><span>{chapter}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </div>
+  <details class="transcript">
+    <summary>Read the full transcript</summary>
+    <div class="transcript-copy">
+      <p class="note">Automatic transcription with product names corrected.</p>
+      {chapters.map(({ start, time, title: chapter, paragraphs }) => (
+        <section>
+          <h4><a href={chapterLink(start)} data-player={player} data-start={start}>{time} <span>{chapter}</span></a></h4>
+          {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </section>
+      ))}
+    </div>
+  </details>
+</article>
+
+<script>
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('.recording a[data-player][data-start]')) {
+    link.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const player = document.getElementById(link.dataset.player ?? '');
+      const seconds = Number(link.dataset.start);
+      if (!(player instanceof HTMLMediaElement) || !Number.isFinite(seconds)) return;
+      event.preventDefault();
+      player.currentTime = seconds;
+      player.focus({ preventScroll: true });
+      player.scrollIntoView({ block: 'nearest' });
+      player.play().catch(() => {
+        // Native controls remain available if playback needs a second gesture.
+      });
+    });
+  }
+</script>
+
+<style>
+  .recording { border-block-start: 1px solid var(--color-border); padding-block: 1.45rem 1.7rem; scroll-margin-block-start: 6rem; }
+  .recording-heading :is(h2, h3) { font-size: clamp(1.25rem, 2.8vw, 2.1rem); line-height: 1.16; margin: 0 0 .4rem; }
+  .recording-heading p { max-width: 68ch; color: var(--color-muted); margin: 0 0 1.15rem; }
+  .runtime { display: inline-block; margin-inline-start: .3rem; white-space: nowrap; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .screening { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2rem); align-items: start; }
+  .player video, .player audio { display: block; width: 100%; }
+  .player video { height: auto; aspect-ratio: 16 / 9; border-radius: .55rem; background: #17181b; }
+  .player audio { height: 3.5rem; }
+  .files { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+  .files a { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; font-size: .89rem; font-weight: 650; }
+  .chapters ol { margin: 0; padding: 0; list-style: none; max-width: none; }
+  .chapters li + li { border-block-start: 1px solid var(--color-border); }
+  .chapters a { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); align-items: center; gap: .35rem; min-height: 44px; padding: .4rem .3rem; color: var(--color-foreground); line-height: 1.25; font-size: .92rem; }
+  .chapters a:hover, .chapters a:focus-visible { background: var(--color-surface); color: var(--color-accent); }
+  .timestamp { color: var(--color-muted); font-variant-numeric: tabular-nums; }
+  .transcript { margin-block-start: .55rem; border-block: 1px solid var(--color-border); }
+  .transcript summary { min-height: 44px; padding-block: .65rem; font-weight: 650; cursor: pointer; }
+  .transcript-copy { padding-block: .35rem 1rem; max-width: 70ch; }
+  .transcript-copy .note { color: var(--color-muted); }
+  .transcript-copy h4 { font-size: 1.05rem; }
+  .transcript-copy h4 span { margin-inline-start: .3rem; }
+  @media (max-width: 800px) {
+    .screening { grid-template-columns: minmax(0, 1fr); gap: .65rem; }
+    .chapters { border-block-start: 1px solid var(--color-border); }
+  }
+</style>

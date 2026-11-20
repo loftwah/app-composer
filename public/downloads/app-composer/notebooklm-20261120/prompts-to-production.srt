@@ -1,0 +1,2153 @@
+1
+00:00:00,000 --> 00:00:05,540
+You know the exact feeling, right? You're, I
+don't know, in the shower or maybe you're
+stuck in traffic and boom, it hits you.
+
+2
+00:00:05,540 --> 00:00:06,960
+The million dollar idea.
+
+3
+00:00:06,960 --> 00:00:15,440
+Exactly. The brilliant idea for an app or a
+game or like maybe a tool that would finally
+organize your chaotic neighborhood community
+board.
+
+4
+00:00:15,440 --> 00:00:16,640
+Oh yeah. We've all been there.
+
+5
+00:00:16,640 --> 00:00:25,400
+Right. So you get this surge of adrenaline,
+you sit down at your laptop, you open up one
+of those AI code generators and you just
+type in your prompt.
+
+6
+00:00:25,600 --> 00:00:28,560
+And for a few glorious minutes, it actually
+works.
+
+7
+00:00:28,560 --> 00:00:33,680
+It does. You get this slick little demo
+right there on your screen and you feel like
+an absolute genius.
+
+8
+00:00:34,000 --> 00:00:34,880
+Until you don't.
+
+9
+00:00:35,180 --> 00:00:38,660
+Exactly. Because then you want to actually
+launch it.
+
+10
+00:00:38,820 --> 00:00:43,840
+You know, you want to add user
+authentication, design a real logo, set up a
+custom domain.
+
+11
+00:00:44,360 --> 00:00:45,420
+Host it somewhere secure.
+
+12
+00:00:45,680 --> 00:00:47,560
+Right. And maintain a living database.
+
+13
+00:00:48,260 --> 00:00:51,700
+And suddenly you just hit this massive brick
+wall.
+
+14
+00:00:52,040 --> 00:00:53,200
+The whole illusion shatters.
+
+15
+00:00:53,680 --> 00:00:56,160
+You realize you don't just need a clever
+snippet of code.
+
+16
+00:00:56,160 --> 00:01:09,760
+No, you need an entire software company. And
+that harsh reality is exactly why we are
+doing this deep dive today. We've got this
+really comprehensive stack of product vision
+documents and technical pitch decks for a
+platform called App Composer.
+
+17
+00:01:10,060 --> 00:01:11,820
+It's a fascinating stack of documents,
+honestly.
+
+18
+00:01:11,960 --> 00:01:24,540
+It really is. And we have a very specific
+mission for this deep dive. We are going to
+pitch and sell App Composer to you as if it
+were our own project and like our very
+livelihoods depended on you adopting it for
+your next big idea.
+
+19
+00:01:24,540 --> 00:01:28,360
+I love that framing because it is a
+fascinating proposition to explore.
+
+20
+00:01:29,240 --> 00:01:32,680
+App Composer is explicitly engineered to be
+that missing link you just talked about.
+
+21
+00:01:33,160 --> 00:01:37,580
+The core problem it targets is really the
+modern creator's trap.
+
+22
+00:01:38,480 --> 00:01:41,860
+Producing the raw software code, that's only
+a fraction of the actual work.
+
+23
+00:01:41,960 --> 00:01:44,860
+Yeah, getting an idea out into the wild
+requires so much more.
+
+24
+00:01:45,020 --> 00:01:45,300
+It does.
+
+25
+00:01:45,680 --> 00:01:53,880
+You need design, deployment infrastructure,
+content management, weedy assets, and a
+rigorous plan for ongoing operations.
+
+26
+00:01:53,880 --> 00:02:00,160
+Relying solely on a standard chat window to
+build software is essentially trying to
+build a house by only ordering bricks.
+
+27
+00:02:00,340 --> 00:02:02,140
+Yes. You have no mortar.
+
+28
+00:02:02,740 --> 00:02:03,120
+No plumbing.
+
+29
+00:02:03,480 --> 00:02:04,820
+And absolutely no foundation.
+
+30
+00:02:06,020 --> 00:02:10,760
+App Composer is designed to carry a single
+project through all those really painful
+handoffs.
+
+31
+00:02:11,360 --> 00:02:14,280
+From the initial spark of an idea all the
+way to launch.
+
+32
+00:02:14,460 --> 00:02:21,780
+Exactly. Through visual design, the coding,
+the deployment, and the final public launch,
+all without losing your original intent
+along the way.
+
+33
+00:02:21,780 --> 00:02:29,480
+Okay, let's unpack this because to really
+understand why this pitch works, we have to
+trace the pain point back to the origin
+story of the founder.
+
+34
+00:02:29,940 --> 00:02:30,580
+Right, Dean Loft.
+
+35
+00:02:30,860 --> 00:02:38,140
+Yeah, when you examine his professional
+background in these source docs, it's an
+incredibly unique cocktail of experiences.
+
+36
+00:02:38,500 --> 00:02:42,040
+It really is. It's not your typical Silicon
+Valley resume.
+
+37
+00:02:42,280 --> 00:02:50,860
+Not at all. He spent time in the Royal
+Australian Navy doing communications, then
+transitioned into complex systems, networks,
+and DevOps infrastructure.
+
+38
+00:02:50,860 --> 00:02:56,620
+But simultaneously, and this is the kicker,
+he was heavily involved in music production.
+
+39
+00:02:56,720 --> 00:02:56,960
+Right.
+
+40
+00:02:57,100 --> 00:03:00,220
+Working around labels like Shakedown Records
+and Grind Mode Cipher.
+
+41
+00:03:00,500 --> 00:03:04,620
+And that specific intersection, underground
+music production and high-level DevOps,
+
+42
+00:03:05,160 --> 00:03:08,660
+that's where the architectural philosophy
+for App Composer was forged.
+
+43
+00:03:08,820 --> 00:03:09,340
+How so?
+
+44
+00:03:09,840 --> 00:03:11,380
+Like, how do those two connect?
+
+45
+00:03:11,560 --> 00:03:13,600
+Well, think about the music industry.
+
+46
+00:03:13,940 --> 00:03:17,520
+Having a finished audio track sitting on
+your hard drive does not constitute a
+release.
+
+47
+00:03:17,760 --> 00:03:18,320
+Oh, I see.
+
+48
+00:03:18,740 --> 00:03:20,020
+The track is just the raw material.
+
+49
+00:03:20,020 --> 00:03:29,620
+Exactly. It's just the core asset. To
+actually reach a listener's ears and
+generate revenue, you need album artwork,
+the digital store page, a promotional
+website.
+
+50
+00:03:29,980 --> 00:03:32,740
+Social media posts, distribution contracts.
+
+51
+00:03:33,120 --> 00:03:39,180
+All of it. And all those secondary elements
+are deeply interconnected. You can't simply
+upload an MP3 and walk away.
+
+52
+00:03:39,520 --> 00:03:43,660
+You need the entire presentation and
+distribution mechanism functioning
+seamlessly.
+
+53
+00:03:44,080 --> 00:03:48,620
+And in his DevOps career, he was dealing
+with the exact same reality, just translated
+into software.
+
+54
+00:03:48,620 --> 00:03:53,640
+Spot on. He was constantly managing what
+happens after a developer finishes writing
+an app.
+
+55
+00:03:53,860 --> 00:03:58,720
+Right. The permissions, the live
+deployments, server automation, disaster
+recovery.
+
+56
+00:03:59,100 --> 00:04:07,700
+All the invisible stuff. His realization was
+that an independent creator shouldn't have
+to learn how to operate a sprawling internet
+company just to publish a useful utility
+app.
+
+57
+00:04:08,060 --> 00:04:15,820
+Makes total sense. And from that friction,
+the sources say Lofts developed this strict
+three-tier operational philosophy for App
+Composer.
+
+58
+00:04:15,820 --> 00:04:26,760
+Yeah, it's brilliant in its simplicity.
+First, reuse what works. Second, pay for
+specialists when the quality demands it. And
+third, only build custom code for what is
+completely missing.
+
+59
+00:04:27,040 --> 00:04:29,340
+That's incredibly pragmatic for solo
+developers.
+
+60
+00:04:29,740 --> 00:04:36,640
+It is. I mean, if a component or library
+already exists and functions perfectly, just
+reuse it. Do not reinvent the wheel.
+
+61
+00:04:36,640 --> 00:04:46,420
+Right. And if a specific task requires a
+paid, specialized tool because, say, the
+enterprise-grade quality justifies the
+monthly cost, you integrate it.
+
+62
+00:04:46,680 --> 00:04:54,940
+Exactly. But if the capability simply does
+not exist in the market, that is the only
+time you should authorize the system to
+write custom code from scratch.
+
+63
+00:04:55,300 --> 00:05:00,260
+So App Composer essentially turns that
+methodology into an automated platform.
+
+64
+00:05:00,260 --> 00:05:11,300
+Yes. It provides reusable building blocks,
+seamlessly connects to specialist tools via
+APIs, and utilizes AI agents to write the
+bespoke code that bridges gaps between them.
+
+65
+00:05:11,900 --> 00:05:19,460
+So to go back to my earlier point, relying
+on those standard AI code generators is like
+a factory handing you a beautiful,
+state-of-the-art car engine.
+
+66
+00:05:19,640 --> 00:05:21,280
+It's a marvel of engineering, sure.
+
+67
+00:05:21,460 --> 00:05:27,940
+Right, but it's just an engine. You still
+need wheels and a chassis and registration
+to actually drive it off the lot.
+
+68
+00:05:28,140 --> 00:05:28,400
+Right.
+
+69
+00:05:28,400 --> 00:05:31,820
+App Composer pitches itself as the entire
+assembly line.
+
+70
+00:05:32,140 --> 00:05:34,780
+And they don't just hand you the finished
+car and lock the hood.
+
+71
+00:05:35,060 --> 00:05:37,480
+They hand you the keys to the factory
+itself.
+
+72
+00:05:37,980 --> 00:05:41,180
+Which brings us to what is arguably their
+ultimate selling point.
+
+73
+00:05:41,900 --> 00:05:42,580
+True ownership.
+
+74
+00:05:43,020 --> 00:05:44,220
+True ownership.
+
+75
+00:05:44,620 --> 00:05:50,880
+The platform radically differentiates itself
+from the closed wall gardens that dominate
+the current AI landscape.
+
+76
+00:05:51,260 --> 00:05:56,280
+Yeah, because most AI application builders,
+they host your project on their proprietary
+servers, right?
+
+77
+00:05:56,600 --> 00:05:57,180
+Exactly.
+
+78
+00:05:57,180 --> 00:06:05,760
+And if you decide you want to migrate away
+from their service, you might be able to
+download a messy zip file of your raw
+front-end code.
+
+79
+00:06:05,980 --> 00:06:06,960
+But you lose everything else.
+
+80
+00:06:07,260 --> 00:06:07,520
+Everything.
+
+81
+00:06:08,120 --> 00:06:13,380
+You lose the backend database, the hosting
+environment, user authentication system.
+
+82
+00:06:14,320 --> 00:06:16,480
+App Composer functions entirely differently.
+
+83
+00:06:16,820 --> 00:06:18,440
+It acts purely as a control plane.
+
+84
+00:06:18,940 --> 00:06:22,560
+Okay, when you say control plane, my mind
+immediately goes to network architecture.
+
+85
+00:06:22,560 --> 00:06:28,720
+You know, acting as the dispatcher that
+routes the traffic and coordinates the work
+rather than the server actually holding the
+data.
+
+86
+00:06:28,860 --> 00:06:30,120
+Is that what's happening here?
+
+87
+00:06:30,360 --> 00:06:31,620
+That is the perfect analogy.
+
+88
+00:06:32,400 --> 00:06:38,880
+App Composer coordinates all the heavy
+lifting, but it doesn't trap your
+application inside its own proprietary
+runtime environment.
+
+89
+00:06:39,240 --> 00:06:40,040
+So where does it live?
+
+90
+00:06:40,300 --> 00:06:43,820
+It deploys your project directly to your
+personal Cloudflare account.
+
+91
+00:06:44,300 --> 00:06:44,800
+Oh, wow.
+
+92
+00:06:45,120 --> 00:06:45,300
+Yeah.
+
+93
+00:06:45,380 --> 00:06:45,600
+Okay.
+
+94
+00:06:45,860 --> 00:06:48,120
+It leverages the modern edge computing
+ecosystem.
+
+95
+00:06:48,120 --> 00:06:52,760
+It uses Cloudflare Workers to execute your
+code mere milliseconds away from your users.
+
+96
+00:06:53,300 --> 00:06:54,080
+And what about the data?
+
+97
+00:06:54,420 --> 00:06:59,560
+It uses D1 for your structured SQL
+databases, R2 for your massive media
+storage,
+
+98
+00:06:59,820 --> 00:07:03,520
+and durable objects to coordinate live,
+real-time user sessions.
+
+99
+00:07:03,720 --> 00:07:05,200
+I find this structure fascinating.
+
+100
+00:07:05,640 --> 00:07:08,820
+If you think about it, workers are like the
+nervous system,
+
+101
+00:07:09,060 --> 00:07:11,240
+firing off rapid commands at the edge of the
+network.
+
+102
+00:07:11,700 --> 00:07:12,960
+Yeah, that's a good way to picture it.
+
+103
+00:07:12,960 --> 00:07:17,200
+Well, D1 is the long-term memory storing the
+structured facts.
+
+104
+00:07:18,120 --> 00:07:21,880
+R2 is the warehouse for the bulky items like
+user uploads and videos.
+
+105
+00:07:22,120 --> 00:07:22,440
+Exactly.
+
+106
+00:07:23,040 --> 00:07:24,020
+And the durable objects?
+
+107
+00:07:24,340 --> 00:07:30,600
+Well, we'll get into those later, but they
+are essentially like a designated meeting
+room, keeping everyone in sync live.
+
+108
+00:07:30,800 --> 00:07:33,740
+It's really adopting that old server pilot
+philosophy.
+
+109
+00:07:34,180 --> 00:07:35,000
+Oh, yeah.
+
+110
+00:07:35,380 --> 00:07:36,020
+Server pilot.
+
+111
+00:07:36,020 --> 00:07:42,940
+For anyone who remembers when setting up
+HTTPS, SSL certificates, and web hosting was
+an absolute nightmare.
+
+112
+00:07:43,560 --> 00:07:47,000
+Tools like Server Pilot came along and just
+abstracted all that painful setup away.
+
+113
+00:07:47,200 --> 00:07:49,080
+leaving you to focus purely on your website.
+
+114
+00:07:49,320 --> 00:07:54,300
+Right. App Composer is doing that for
+autonomous AI agents and Cloudflare
+infrastructure.
+
+115
+00:07:54,780 --> 00:07:58,940
+But I am going to push back on this true
+ownership claim for a second.
+
+116
+00:07:59,200 --> 00:08:00,100
+Okay, let's hear it.
+
+117
+00:08:00,300 --> 00:08:02,240
+I hear the pitch, but let's be real.
+
+118
+00:08:02,840 --> 00:08:07,020
+If App Composer generates a bunch of
+proprietary, unreadable spaghetti code
+
+119
+00:08:07,020 --> 00:08:10,240
+that relies entirely on hidden internal
+M-libraries...
+
+120
+00:08:11,000 --> 00:08:12,160
+Right, the vendor lock-in problem.
+
+121
+00:08:12,320 --> 00:08:16,480
+Yeah, having the source code sitting on my
+GitHub is completely useless if they go out
+of business.
+
+122
+00:08:16,480 --> 00:08:20,180
+How are they preventing vendor lock-in at
+the fundamental code level?
+
+123
+00:08:20,660 --> 00:08:26,020
+Well, if we connect this to the bigger
+picture, that is the critical vulnerability
+for most automated code generators.
+
+124
+00:08:26,600 --> 00:08:31,640
+But App Composer sidesteps it by strictly
+adhering to web standards and standard
+CloudFlare primitives.
+
+125
+00:08:32,000 --> 00:08:33,620
+So it's not proprietary code?
+
+126
+00:08:33,820 --> 00:08:39,820
+No. The code the AI agents write is standard
+TypeScript, React, or whatever modern
+framework you specify.
+
+127
+00:08:40,220 --> 00:08:43,200
+Okay, that's reassuring. What about the CMS,
+though?
+
+128
+00:08:44,000 --> 00:08:47,040
+The M-CMS they provide isn't a locked black
+box either.
+
+129
+00:08:47,540 --> 00:08:51,300
+It is an open architecture designed to
+manage the content within your D1 databases.
+
+130
+00:08:52,040 --> 00:08:57,280
+So if App Composer's corporate entity just
+went bankrupt and vanished tomorrow...
+
+131
+00:08:57,280 --> 00:08:59,100
+Your application simply would not notice.
+
+132
+00:08:59,440 --> 00:08:59,740
+Seriously.
+
+133
+00:09:00,060 --> 00:09:00,460
+Seriously.
+
+134
+00:09:00,460 --> 00:09:05,080
+You hold the authoritative readable source
+code in your own GitHub repository.
+
+135
+00:09:05,660 --> 00:09:09,780
+The operational infrastructure is running on
+your separate CloudFlare billing account.
+
+136
+00:09:10,020 --> 00:09:12,380
+And the data lives in my D1 databases.
+
+137
+00:09:12,520 --> 00:09:12,840
+Exactly.
+
+138
+00:09:13,200 --> 00:09:15,420
+You retain total operational independence.
+
+139
+00:09:15,920 --> 00:09:18,860
+You own the factory, the blueprints, and the
+finished product.
+
+140
+00:09:19,200 --> 00:09:23,980
+Okay, so the architecture keeps my app from
+disappearing, and it actively avoids vendor
+lock-in.
+
+141
+00:09:24,360 --> 00:09:27,960
+But true ownership usually implies a massive
+technical burden.
+
+142
+00:09:28,440 --> 00:09:29,200
+It does, usually.
+
+143
+00:09:29,200 --> 00:09:34,180
+Right. Like, if I own the factory, doesn't
+that mean I have to build the whole assembly
+line myself?
+
+144
+00:09:34,460 --> 00:09:40,260
+How does a non-coder actually initiate this
+process without getting completely
+overwhelmed by infrastructure settings?
+
+145
+00:09:40,420 --> 00:09:40,920
+Good question.
+
+146
+00:09:40,920 --> 00:09:45,180
+The process actually starts with a
+deliberate step they call init.
+
+147
+00:09:45,660 --> 00:09:46,840
+Init, like initialize.
+
+148
+00:09:47,040 --> 00:09:47,220
+Right.
+
+149
+00:09:47,720 --> 00:09:51,940
+You don't just start chatting aimlessly with
+an AI hoping it guesses what you want.
+
+150
+00:09:52,200 --> 00:09:54,760
+You are required to provide a structured
+brief.
+
+151
+00:09:54,900 --> 00:09:56,520
+So no generic prompts.
+
+152
+00:09:56,660 --> 00:09:56,840
+None.
+
+153
+00:09:57,160 --> 00:10:07,660
+You explicitly define the target audience,
+the specific tasks the application must
+perform, the desired user experience, and
+you even provide visual references to
+establish your specific taste.
+
+154
+00:10:07,860 --> 00:10:08,720
+Oh, that's smart.
+
+155
+00:10:08,720 --> 00:10:14,480
+The system rigidly records all of this
+context, so your original intent isn't
+diluted over multiple iterations.
+
+156
+00:10:14,880 --> 00:10:20,700
+And then from the docs, it looks like before
+it even attempts to write a single line of
+code, it executes a phase called Get Ready.
+
+157
+00:10:20,980 --> 00:10:25,140
+Yes, Get Ready, which is just a brilliant
+piece of engineering discipline.
+
+158
+00:10:25,500 --> 00:10:30,060
+It doesn't blindly assume your setup works
+and then crash halfway through the build,
+right?
+
+159
+00:10:30,060 --> 00:10:35,740
+Exactly. It actively verifies your
+environment. It pings your GitHub to assure
+repository access.
+
+160
+00:10:35,740 --> 00:10:38,140
+It authenticates your Cloudflare
+credentials.
+
+161
+00:10:38,840 --> 00:10:41,580
+It tests your chosen AI agent, API keys.
+
+162
+00:10:42,260 --> 00:10:46,580
+So it definitively proves the foundation is
+solid before it attempts to build the house.
+
+163
+00:10:46,820 --> 00:10:51,560
+That verification prevents the cascading
+failures that plague so many AI development
+tools.
+
+164
+00:10:52,100 --> 00:10:53,700
+Okay, so the foundation is verified.
+
+165
+00:10:54,260 --> 00:10:56,820
+The agent builds a functional preview of
+your app.
+
+166
+00:10:57,240 --> 00:10:57,960
+Then what?
+
+167
+00:10:58,440 --> 00:11:03,080
+Well, once you have that preview, you
+interact with the interface in a
+fundamentally different way.
+
+168
+00:11:03,760 --> 00:11:04,160
+How so?
+
+169
+00:11:04,720 --> 00:11:06,060
+Think about a standard setup.
+
+170
+00:11:06,500 --> 00:11:11,960
+If the AI makes a visual mistake, you have
+to go back to the chat box and try to
+articulate the problem textually.
+
+171
+00:11:12,520 --> 00:11:13,000
+Yes.
+
+172
+00:11:13,320 --> 00:11:18,780
+You type something like, the submit button
+on the top left of the user profile card is
+too big.
+
+173
+00:11:19,340 --> 00:11:19,760
+Exactly.
+
+174
+00:11:20,000 --> 00:11:27,020
+And often the AI misinterprets the text,
+decides to rewrite the entire page
+architecture, and breaks your navigation bar
+in the process.
+
+175
+00:11:27,160 --> 00:11:30,160
+I have lived that specific nightmare more
+times than I can count.
+
+176
+00:11:30,260 --> 00:11:33,260
+You ask for a font change and suddenly your
+database connection drops.
+
+177
+00:11:33,260 --> 00:11:34,420
+It's maddening.
+
+178
+00:11:35,100 --> 00:11:38,940
+App Composer eliminates that entirely by
+introducing a visual workbench.
+
+179
+00:11:39,400 --> 00:11:40,420
+A visual workbench?
+
+180
+00:11:40,620 --> 00:11:40,840
+Mm-hmm.
+
+181
+00:11:41,280 --> 00:11:42,380
+So how does that work?
+
+182
+00:11:42,620 --> 00:11:45,420
+You look at the actual rendered preview of
+your app,
+
+183
+00:11:45,600 --> 00:11:49,220
+and you interact directly with the document
+object model or the DOM.
+
+184
+00:11:49,460 --> 00:11:52,660
+So I'm clicking on the actual app, not
+typing in a chat.
+
+185
+00:11:52,860 --> 00:11:53,200
+Exactly.
+
+186
+00:11:53,840 --> 00:11:56,440
+You point your cursor directly at an element
+on the screen,
+
+187
+00:11:57,100 --> 00:11:58,520
+select the specific card,
+
+188
+00:11:58,900 --> 00:12:02,220
+and tell the system, make this card smaller
+on mobile screens.
+
+189
+00:12:02,900 --> 00:12:03,260
+Oh, wow.
+
+190
+00:12:03,580 --> 00:12:07,100
+The system retains the exact hierarchical
+context of that specific element.
+
+191
+00:12:07,660 --> 00:12:12,040
+It surgically targets the CSS or the
+component logic for that one card
+
+192
+00:12:12,040 --> 00:12:15,460
+without casually overwriting all the
+functioning code surrounding it.
+
+193
+00:12:15,680 --> 00:12:16,600
+That is huge.
+
+194
+00:12:16,940 --> 00:12:20,220
+It's like having a seasoned project manager,
+a graphic designer,
+
+195
+00:12:20,220 --> 00:12:23,900
+and a senior developer all looking at the
+exact same physical whiteboard.
+
+196
+00:12:24,180 --> 00:12:25,180
+That's a great way to look at it.
+
+197
+00:12:25,360 --> 00:12:27,620
+You are pointing right at the issue with
+your finger
+
+198
+00:12:27,620 --> 00:12:30,960
+rather than playing a terrible game of
+corporate telephone through a text prompt.
+
+199
+00:12:30,960 --> 00:12:33,900
+And the platform's polish doesn't stop at
+the raw code.
+
+200
+00:12:34,260 --> 00:12:37,980
+They have an entire integrated suite
+dedicated to the final presentation.
+
+201
+00:12:38,440 --> 00:12:43,040
+Presentation is treated as a first-class
+citizen here, which is really rare for
+developer tools.
+
+202
+00:12:43,300 --> 00:12:43,780
+Very rare.
+
+203
+00:12:44,300 --> 00:12:48,920
+The suite includes Brand Studio, which
+systemizes and preserves your visual
+identity,
+
+204
+00:12:49,320 --> 00:12:54,340
+ensuring your typography, color palettes,
+and brand voice remain consistent across the
+entire application.
+
+205
+00:12:54,640 --> 00:12:54,920
+Nice.
+
+206
+00:12:54,920 --> 00:13:02,900
+Then you have Media Studio, which provides
+tools for the creation and manipulation of
+artwork, audio, and video assets directly
+within the workflow.
+
+207
+00:13:03,500 --> 00:13:07,980
+And finally, you have LaunchKit, which
+honestly, LaunchKit is the unsung hero here.
+
+208
+00:13:08,000 --> 00:13:08,560
+It really is.
+
+209
+00:13:08,700 --> 00:13:14,480
+Because what good is a perfectly functioning
+app if the link looks like an absolute scam
+when you text it to a friend?
+
+210
+00:13:14,640 --> 00:13:15,400
+Nobody's going to click that.
+
+211
+00:13:15,600 --> 00:13:15,980
+Exactly.
+
+212
+00:13:16,720 --> 00:13:19,900
+LaunchKit automatically packages your app
+icons for different devices,
+
+213
+00:13:20,620 --> 00:13:22,780
+generates your progressive web app
+manifests,
+
+214
+00:13:22,920 --> 00:13:26,500
+and creates those perfectly cropped open
+graph social media sharing images.
+
+215
+00:13:26,500 --> 00:13:28,820
+It handles all the tedious marketing
+plumbing.
+
+216
+00:13:29,840 --> 00:13:33,820
+So we have discussed the theoretical
+workflow and the architecture,
+
+217
+00:13:34,180 --> 00:13:38,460
+but to truly validate this pitch, we need to
+look at what they've actually built.
+
+218
+00:13:38,660 --> 00:13:41,160
+Because talk is incredibly cheap in the tech
+industry.
+
+219
+00:13:41,420 --> 00:13:41,940
+Very cheap.
+
+220
+00:13:41,940 --> 00:13:50,600
+So App Composer uses its portfolio of
+operational applications to prove its agents
+can handle rigorous real-world workloads.
+
+221
+00:13:50,780 --> 00:13:54,240
+Right. And they categorize some of these as
+utility mini-apps.
+
+222
+00:13:54,380 --> 00:13:55,820
+Which serve a dual purpose, right?
+
+223
+00:13:55,940 --> 00:13:56,140
+Right.
+
+224
+00:13:56,460 --> 00:14:01,560
+They are standalone products, but they're
+also reusable building blocks for much
+larger applications.
+
+225
+00:14:01,760 --> 00:14:06,260
+Exactly. Take paperwork, for example. It is
+a browser local PDF filler.
+
+226
+00:14:06,260 --> 00:14:15,280
+And the key feature there is privacy. You
+can fill out fields, draw signatures, and
+modify local files without your sensitive
+documents ever being uploaded to a remote
+server.
+
+227
+00:14:15,840 --> 00:14:20,100
+The entire process utilizes browser APIs to
+keep the data strictly on your machine.
+
+228
+00:14:20,360 --> 00:14:20,620
+Brilliant.
+
+229
+00:14:21,420 --> 00:14:27,180
+Then there's LDraw, which is an editable
+diagramming workspace built on top of the
+Excalibraw engine.
+
+230
+00:14:27,780 --> 00:14:31,880
+The technical achievement with LDraw is how
+the platform handles state.
+
+231
+00:14:32,400 --> 00:14:34,880
+What do you mean by state in this context?
+
+232
+00:14:35,440 --> 00:14:40,300
+Both human users and autonomous AI agents
+can edit the exact same native scene.
+
+233
+00:14:40,960 --> 00:14:45,560
+Typically, when an AI generates a diagram,
+it just exports a flattened PNG image.
+
+234
+00:14:45,840 --> 00:14:48,240
+Right. And if you need to change one word in
+a box,
+
+235
+00:14:48,240 --> 00:14:53,020
+you have to regenerate the entire image and
+pray the AI draws it exactly the same way.
+
+236
+00:14:53,300 --> 00:14:54,080
+Which it rarely does.
+
+237
+00:14:54,660 --> 00:14:58,760
+But in LDraw, the AI manipulates the native
+vector objects.
+
+238
+00:14:59,180 --> 00:15:00,120
+Oh, that's wild.
+
+239
+00:15:00,480 --> 00:15:02,780
+Yeah. If the AI drafts a complex flowchart,
+
+240
+00:15:02,780 --> 00:15:07,260
+A human can simply click on a specific box
+and drag it across the screen.
+
+241
+00:15:07,560 --> 00:15:10,400
+The elements remain distinct, editable
+objects.
+
+242
+00:15:10,820 --> 00:15:12,420
+That's a massive workflow improvement.
+
+243
+00:15:12,860 --> 00:15:16,600
+They also feature applications like
+Linkarooie and HereThere, right?
+
+244
+00:15:16,700 --> 00:15:20,380
+Yes. Linkarooie operates as a personalized
+profile page,
+
+245
+00:15:20,600 --> 00:15:24,780
+and HereThere is a moderated digital
+guestbook where visitors can submit
+photographs.
+
+246
+00:15:25,160 --> 00:15:28,620
+And the interaction between those two apps
+is what proves the platform's
+
+247
+00:15:28,620 --> 00:15:31,580
+maturity regarding data security, according
+to the docs.
+
+248
+00:15:31,580 --> 00:15:37,740
+Exactly. The Linkarooi profile page can
+automatically pull approved photos from the
+here-there guestbook.
+
+249
+00:15:38,080 --> 00:15:40,520
+But they don't just mash the databases
+together.
+
+250
+00:15:40,780 --> 00:15:47,140
+No, they share data through a strictly
+defined API contract, maintaining entirely
+separate ownership and moderation states.
+
+251
+00:15:47,620 --> 00:15:52,540
+So the guestbook retains ultimate authority
+over the original photos and the moderation
+decisions.
+
+252
+00:15:52,740 --> 00:15:59,720
+Right. If an administrator revokes a photo's
+approval in the guestbook, it instantly and
+automatically disappears from the profile
+page.
+
+253
+00:16:00,660 --> 00:16:05,600
+It proves the platform intrinsically
+understands secure data boundaries between
+separate microapplications.
+
+254
+00:16:05,780 --> 00:16:06,300
+It really does.
+
+255
+00:16:06,460 --> 00:16:13,280
+But while the utility apps demonstrate
+security and privacy, if we really want to
+stress test this system's capabilities...
+
+256
+00:16:13,280 --> 00:16:14,500
+We have to talk about the games.
+
+257
+00:16:14,520 --> 00:16:15,960
+We must look at the games.
+
+258
+00:16:16,080 --> 00:16:17,760
+Games are notoriously demanding.
+
+259
+00:16:17,920 --> 00:16:23,940
+The portfolio includes Loftwah Fighter,
+which is a local first real-time squad
+battler.
+
+260
+00:16:24,320 --> 00:16:27,820
+And that requires precise charge timing and
+combo move execution.
+
+261
+00:16:27,820 --> 00:16:36,460
+They also built SHOALSHOT, a tide pool
+target game where players must track moving
+shoals of fish and play shots with
+touchscreen precision.
+
+262
+00:16:37,140 --> 00:16:39,660
+And most notably, they developed Protocol
+11.
+
+263
+00:16:40,060 --> 00:16:40,920
+Protocol 11.
+
+264
+00:16:41,120 --> 00:16:41,420
+Yes.
+
+265
+00:16:41,960 --> 00:16:46,820
+It's a multiplayer card game that relies on
+those Cloudflare durable objects we
+mentioned earlier.
+
+266
+00:16:46,960 --> 00:16:50,500
+Right, to manage live online rooms and
+reconnectable user sessions.
+
+267
+00:16:51,220 --> 00:16:54,000
+But wait, why are games the ultimate
+benchmark here?
+
+268
+00:16:54,000 --> 00:16:59,880
+I mean, why wouldn't they showcase like a
+complex enterprise accounting software to
+prove their worth?
+
+269
+00:17:00,820 --> 00:17:10,720
+What's fascinating here is that a
+conventional business application, say a
+form that submits text to a database, that
+can hide a multitude of architectural flaws.
+
+270
+00:17:11,360 --> 00:17:15,320
+True. If a submit button takes an extra half
+second to load, no one really cares.
+
+271
+00:17:15,320 --> 00:17:19,480
+Or if a database query is slightly
+inefficient, the end user rarely notices.
+
+272
+00:17:20,100 --> 00:17:24,200
+But games. Games expose performance defects
+instantly.
+
+273
+00:17:24,460 --> 00:17:29,360
+Oh, absolutely. If the frame rate stutters
+during a combo move in Loftwah Fighter, it's
+over.
+
+274
+00:17:29,600 --> 00:17:35,020
+Or if the touchscreen input latency is
+clumsy on a mobile phone and it's SHOALSHOT,
+the game is fundamentally unplayable.
+
+275
+00:17:35,400 --> 00:17:36,900
+It fails the user test instantly.
+
+276
+00:17:37,180 --> 00:17:40,580
+And Protocol 11 takes that stress test to
+the network level.
+
+277
+00:17:40,580 --> 00:17:45,200
+A multiplayer card game requires a
+continuous synchronized state between
+multiple players.
+
+278
+00:17:45,320 --> 00:17:50,220
+Right. If someone's connection drops on a
+mobile network, the game can't just crash
+for everyone else.
+
+279
+00:17:50,340 --> 00:17:52,780
+And that's where those Cloudflare durable
+objects come in.
+
+280
+00:17:53,060 --> 00:17:58,300
+Yes. The durable object acts as a single,
+persistent point of truth on the edge
+network.
+
+281
+00:17:58,820 --> 00:18:00,820
+It holds the current state of the card
+table.
+
+282
+00:18:00,920 --> 00:18:05,140
+So if a player reconnects, the durable
+object simply updates them on what they
+missed.
+
+283
+00:18:05,640 --> 00:18:14,820
+Exactly. If App Composer's autonomous agents
+can successfully architect, deploy, and
+manage the real-time state of a complex,
+multiplayer game like Protocol 11...
+
+284
+00:18:14,820 --> 00:18:20,340
+Then it can absolutely handle the
+performance, latency, and timing
+requirements of your local small business
+website.
+
+285
+00:18:20,840 --> 00:18:21,700
+Without breaking a sweat.
+
+286
+00:18:22,600 --> 00:18:22,840
+Okay.
+
+287
+00:18:23,060 --> 00:18:30,440
+I am completely tracking with the
+performance capabilities, but, and this is a
+big but, this raises a massive red flag for
+me.
+
+288
+00:18:30,680 --> 00:18:31,160
+Let's hear it.
+
+289
+00:18:31,980 --> 00:18:41,160
+If we have AI agents powerful enough to
+autonomously architect real-time multiplayer
+games, and those agents are hooked directly
+into our live Cloudflare databases.
+
+290
+00:18:42,220 --> 00:18:43,200
+And where are you going with this?
+
+291
+00:18:43,200 --> 00:18:49,460
+How do we keep the AI from hallucinating on
+a random Tuesday and accidentally dropping
+the entire production database?
+
+292
+00:18:49,880 --> 00:18:53,480
+AI needs a leash, a very short, very strong
+leash.
+
+293
+00:18:53,900 --> 00:18:54,680
+It's a valid concern.
+
+294
+00:18:55,360 --> 00:18:59,960
+And the platform addresses this through
+strictly enforced agent boundaries and
+role-based access control.
+
+295
+00:19:00,400 --> 00:19:01,540
+Okay, how does that work in practice?
+
+296
+00:19:01,940 --> 00:19:08,000
+The system's architecture deeply understands
+the critical differences between permission
+to read data,
+
+297
+00:19:08,560 --> 00:19:10,140
+permission to edit a draft,
+
+298
+00:19:10,940 --> 00:19:13,140
+permission to deploy code to a staging
+environment,
+
+299
+00:19:13,200 --> 00:19:16,000
+and permission to publish directly to
+production.
+
+300
+00:19:16,820 --> 00:19:17,860
+So it's very granular.
+
+301
+00:19:18,320 --> 00:19:18,540
+Very.
+
+302
+00:19:19,140 --> 00:19:22,660
+For instance, you might grant an AI agent a
+tightly scoped permission
+
+303
+00:19:22,660 --> 00:19:26,280
+to draft a change to a promotional video
+within Media Studio.
+
+304
+00:19:26,520 --> 00:19:26,760
+Okay.
+
+305
+00:19:27,160 --> 00:19:30,880
+The agent can edit the timeline, apply
+filters, and suggest a new cut.
+
+306
+00:19:31,460 --> 00:19:35,400
+But it physically cannot publish that video
+to your live social media channels
+
+307
+00:19:35,400 --> 00:19:40,060
+without an explicit cryptographic
+authorization from the human owner.
+
+308
+00:19:40,540 --> 00:19:42,620
+Here's where it gets really interesting.
+
+309
+00:19:43,200 --> 00:19:48,300
+I think of the AI as a brilliant, incredibly
+fast, but overly eager intern.
+
+310
+00:19:48,540 --> 00:19:49,800
+That is the perfect analogy.
+
+311
+00:19:50,100 --> 00:19:55,920
+You give that intern a very specific,
+limited-access keycard that only opens the
+door to the design room.
+
+312
+00:19:55,920 --> 00:20:01,920
+You absolutely do not give them the master
+key to the subterranean vault where your
+production user data is stored.
+
+313
+00:20:02,200 --> 00:20:06,420
+Exactly. And that boundary enforcement
+applies to your custom code tweaks as well.
+
+314
+00:20:06,900 --> 00:20:07,420
+What do you mean?
+
+315
+00:20:08,300 --> 00:20:12,520
+Well, let's say you manually access the code
+base and write some custom CSS
+
+316
+00:20:12,520 --> 00:20:15,460
+to make a drop shadow look exactly the way
+you want it.
+
+317
+00:20:15,660 --> 00:20:15,920
+Okay.
+
+318
+00:20:16,500 --> 00:20:20,820
+If you later ask the AI agent to add a new
+navigation button to that exact same page,
+
+319
+00:20:21,160 --> 00:20:27,140
+App Composer's architecture ensures the
+agent operates strictly within the bounded
+context of the new button component.
+
+320
+00:20:27,640 --> 00:20:29,620
+Oh, so it can't touch the rest of the page.
+
+321
+00:20:29,620 --> 00:20:30,020
+Right.
+
+322
+00:20:30,460 --> 00:20:34,320
+It is structurally prevented from casually
+overriding the global style sheet
+
+323
+00:20:34,320 --> 00:20:37,320
+and destroying the custom CSS you labored
+over yesterday.
+
+324
+00:20:37,420 --> 00:20:39,340
+That is a massive relief.
+
+325
+00:20:39,760 --> 00:20:41,980
+Okay, so the underlying tech is robust.
+
+326
+00:20:42,220 --> 00:20:45,880
+The workflow actively prevents the typical
+AI hallucinations.
+
+327
+00:20:46,200 --> 00:20:48,880
+And the gaming portfolio proves it can
+handle latency.
+
+328
+00:20:49,240 --> 00:20:50,080
+It checks a lot of boxes.
+
+329
+00:20:50,240 --> 00:20:50,600
+It does.
+
+330
+00:20:50,780 --> 00:20:55,820
+But for our final pitch to you, the
+listener, we have to talk about your wallet
+and your standards of quality.
+
+331
+00:20:56,040 --> 00:20:57,380
+Always comes down to the money, right?
+
+332
+00:20:57,520 --> 00:20:57,960
+Always.
+
+333
+00:20:58,460 --> 00:21:02,320
+How much does the sprawling infrastructure
+cost to run on a daily basis?
+
+334
+00:21:02,320 --> 00:21:07,020
+And how do we objectively measure if an app
+composer project is actually a success?
+
+335
+00:21:07,420 --> 00:21:11,260
+The economic philosophy baked into the
+platform is vital for long-term viability.
+
+336
+00:21:11,980 --> 00:21:17,380
+App Composer explicitly utilizes the
+smallest appropriate AI model for any given
+task.
+
+337
+00:21:17,380 --> 00:21:20,980
+Okay, so it's not just spamming GPT-4 for
+everything.
+
+338
+00:21:21,460 --> 00:21:26,680
+Definitely not. You do not need to call a
+massive, computationally expensive frontier
+language model
+
+339
+00:21:26,680 --> 00:21:31,000
+just a crop of social media image or
+validate a zip code in a form field.
+
+340
+00:21:31,200 --> 00:21:33,000
+Right, or package an app icon.
+
+341
+00:21:33,380 --> 00:21:39,920
+The platform utilizes compact, deterministic
+tools and smaller, highly efficient models
+for those routine data transformations.
+
+342
+00:21:40,140 --> 00:21:41,120
+Which is a huge relief.
+
+343
+00:21:41,460 --> 00:21:48,880
+Because if every single time a user clicks a
+button on your app, it triggers an API call
+to a massive model that costs you five cents
+in compute fees.
+
+344
+00:21:48,880 --> 00:21:52,240
+Your app will literally bankrupt you the
+moment it goes viral on social media.
+
+345
+00:21:52,640 --> 00:21:54,380
+You would be punished for your own success.
+
+346
+00:21:54,600 --> 00:21:54,940
+Precisely.
+
+347
+00:21:54,940 --> 00:22:03,160
+The system only invokes the heavy, expensive
+reasoning models for ambiguous project
+planning, complex cogeneration, or nuanced
+creative judgment.
+
+348
+00:22:03,820 --> 00:22:11,820
+And this strict economic discipline is what
+makes running the finished application
+genuinely affordable long-term on
+Cloudflare's serverless infrastructure.
+
+349
+00:22:12,040 --> 00:22:15,240
+Right. But affordable doesn't mean anything
+if the output is garbage.
+
+350
+00:22:15,580 --> 00:22:19,080
+Exactly. And to make sure you actually get
+what you pay for from these agents,
+
+351
+00:22:19,080 --> 00:22:26,300
+They have instituted this brutal,
+uncompromising gauntlet that every single
+project has to pass to be considered a
+success.
+
+352
+00:22:26,580 --> 00:22:27,820
+The six-gate benchmark.
+
+353
+00:22:28,180 --> 00:22:28,320
+Yeah.
+
+354
+00:22:29,100 --> 00:22:29,480
+Gate one.
+
+355
+00:22:30,040 --> 00:22:34,240
+It has to be a useful application that
+actually completes the requested task.
+
+356
+00:22:34,500 --> 00:22:35,640
+Seems basic, but essential.
+
+357
+00:22:35,860 --> 00:22:36,000
+Right.
+
+358
+00:22:36,420 --> 00:22:38,280
+Gate two, finished presentation.
+
+359
+00:22:38,840 --> 00:22:40,320
+Yeah, the presentation gate is critical.
+
+360
+00:22:40,900 --> 00:22:45,520
+The user interface, the written copy, and
+the visual media all have to work together
+cohesively.
+
+361
+00:22:45,640 --> 00:22:47,440
+It cannot look like a disjointed wireframe.
+
+362
+00:22:47,440 --> 00:22:52,880
+Right, because we've all seen those ugly AI
+apps that technically function but look like
+they were built in 1995.
+
+363
+00:22:53,200 --> 00:22:53,640
+Oh, absolutely.
+
+364
+00:22:54,580 --> 00:22:57,020
+Gate 3, an accurate launch package.
+
+365
+00:22:57,420 --> 00:23:02,960
+The marketing materials generated must
+perfectly match the actual reality and
+feature set of the app.
+
+366
+00:23:03,420 --> 00:23:05,040
+Gate 4, real distribution.
+
+367
+00:23:05,380 --> 00:23:08,960
+It has to successfully publish to the
+authorized channels without throwing
+deployment errors.
+
+368
+00:23:09,440 --> 00:23:11,720
+Gate 5, continued operation.
+
+369
+00:23:11,720 --> 00:23:17,420
+The app must survive routine maintenance and
+subsequent feature additions without the
+whole architecture collapsing.
+
+370
+00:23:18,040 --> 00:23:19,220
+And the final gate, gate six.
+
+371
+00:23:19,740 --> 00:23:20,400
+Proud to share.
+
+372
+00:23:20,700 --> 00:23:20,860
+Yeah.
+
+373
+00:23:21,140 --> 00:23:24,980
+The human owner must accept the final result
+and be willing to put their name on it.
+
+374
+00:23:25,320 --> 00:23:31,700
+But you know, the most important aspect of
+this benchmark is how they track failures
+through what they call intervention
+accounting.
+
+375
+00:23:32,780 --> 00:23:35,320
+Okay, wait, let me make sure I understand
+how strict this is.
+
+376
+00:23:35,680 --> 00:23:41,660
+If I use this platform, the AI builds the
+entire app, but there's a tiny typo in the
+database schema.
+
+377
+00:23:41,900 --> 00:23:42,140
+Okay.
+
+378
+00:23:42,140 --> 00:23:46,040
+It takes me five minutes to open the code,
+manually fix the typo, and deploy it.
+
+379
+00:23:46,040 --> 00:23:48,220
+Does that count as a failure for the
+platform?
+
+380
+00:23:48,580 --> 00:23:50,440
+Yes, that is a total failure.
+
+381
+00:23:50,580 --> 00:23:50,720
+Wow.
+
+382
+00:23:51,440 --> 00:23:57,660
+The platform's benchmark defines any human
+debugging, manual code editing, or tasks
+chasing as an intervention.
+
+383
+00:23:58,120 --> 00:24:04,520
+If you have to step in and fix the code to
+make it function as requested, the platform
+failed the autonomous test.
+
+384
+00:24:05,040 --> 00:24:05,800
+That's intense.
+
+385
+00:24:06,360 --> 00:24:15,100
+The tech industry is notorious for hiding
+behind flashy, heavily edited video demos
+that were secretly repaired by a team of
+human engineers behind the scenes.
+
+386
+00:24:15,100 --> 00:24:15,980
+We see it all the time.
+
+387
+00:24:16,920 --> 00:24:20,360
+App Composer's intervention accounting
+forces radical honesty.
+
+388
+00:24:21,120 --> 00:24:27,800
+It only claims a project is a success if the
+AI agent delivered the result completely
+autonomously through all six gates.
+
+389
+00:24:28,500 --> 00:24:32,200
+That is an incredibly high bar for any
+software company, let alone an AI platform.
+
+390
+00:24:32,280 --> 00:24:32,800
+It really is.
+
+391
+00:24:33,200 --> 00:24:37,760
+So to bring this entire pitch home, think
+about what you want to build right now.
+
+392
+00:24:38,100 --> 00:24:38,760
+Your big idea.
+
+393
+00:24:39,020 --> 00:24:43,300
+Yeah. Maybe it's a bespoke internal tool to
+impress your boss at the next corporate
+meeting.
+
+394
+00:24:43,840 --> 00:24:45,600
+Maybe it's a community hub for your
+neighborhood,
+
+395
+00:24:45,600 --> 00:24:48,940
+or maybe it's that indie game you've been
+sketching out in notebooks for years.
+
+396
+00:24:49,820 --> 00:24:54,260
+App Composer is pitching itself as the only
+ecosystem that respects your time
+
+397
+00:24:54,260 --> 00:24:56,440
+by not making you repeat your prompts.
+
+398
+00:24:56,940 --> 00:24:59,900
+It preserves your personal taste through its
+integrated design studios.
+
+399
+00:25:00,260 --> 00:25:03,860
+And most importantly, it hands you the
+actual keys to the castle.
+
+400
+00:25:04,560 --> 00:25:08,700
+The native source code and the independent
+infrastructure right at the very end of the
+process.
+
+401
+00:25:09,160 --> 00:25:11,660
+It is a highly compelling promise for the
+modern creator.
+
+402
+00:25:11,660 --> 00:25:17,900
+pairing the raw speed of AI generation with
+the rigorous discipline of traditional
+software engineering.
+
+403
+00:25:18,160 --> 00:25:20,860
+All while guaranteeing true operational
+independence.
+
+404
+00:25:21,520 --> 00:25:24,520
+It really is the holy grail if they can
+consistently deliver on it.
+
+405
+00:25:24,580 --> 00:25:25,660
+If they can, yeah.
+
+406
+00:25:26,300 --> 00:25:29,420
+And before we wrap up, I want to leave you
+with a final thought to Molliver.
+
+407
+00:25:29,580 --> 00:25:30,260
+Ooh, okay.
+
+408
+00:25:31,120 --> 00:25:36,280
+Because buried deep in the technical source
+documents is a brief mention of a
+specialized pathway
+
+409
+00:25:36,280 --> 00:25:42,200
+for migrating aging WordPress sites into the
+App Composer ecosystem using their EmDash
+CMS.
+
+410
+00:25:42,640 --> 00:25:43,020
+Oh, wow.
+
+411
+00:25:43,360 --> 00:25:44,020
+Consider this.
+
+412
+00:25:44,560 --> 00:25:48,140
+There are hundreds of millions of clunky,
+outdated WordPress sites
+
+413
+00:25:48,140 --> 00:25:52,440
+currently holding the internet together with
+digital duct tape and vulnerable plugins.
+
+414
+00:25:52,680 --> 00:25:53,360
+A lot of duct tape.
+
+415
+00:25:53,680 --> 00:26:00,500
+What happens to the entire web ecosystem
+when an autonomous AI agent can not only
+read those old sites,
+
+416
+00:26:00,500 --> 00:26:02,400
+but autonomously consume their data,
+
+417
+00:26:02,860 --> 00:26:05,640
+upgrade them into blazing-fast edge-deployed
+
+418
+00:26:05,640 --> 00:26:07,920
+app composer projects running on Cloudflare,
+
+419
+00:26:08,160 --> 00:26:09,740
+and hand the keys back to the owner.
+
+420
+00:26:10,280 --> 00:26:13,840
+That is, I mean, the implications of that
+capability are staggering.
+
+421
+00:26:14,420 --> 00:26:18,100
+Is this the beginning of a massive,
+automated internet renovation?
+
+422
+00:26:18,680 --> 00:26:20,780
+If the technical and financial barrier
+
+423
+00:26:20,780 --> 00:26:23,860
+to modernizing legacy infrastructure drops
+to near zero,
+
+424
+00:26:24,480 --> 00:26:25,920
+the entire landscape of the internet
+
+425
+00:26:25,920 --> 00:26:28,020
+could shift dramatically in a matter of
+years.
+
+426
+00:26:28,020 --> 00:26:34,400
+From hitting a brick wall with a simple
+shower idea to potentially renovating the
+fundamental fabric of the internet.
+
+427
+00:26:34,680 --> 00:26:35,060
+What a jump.
+
+428
+00:26:35,580 --> 00:26:39,280
+Thank you so much for joining us on this
+deep dive into the App Composer pitch decks.
+
+429
+00:26:39,840 --> 00:26:46,600
+Keep exploring, stay curious, and maybe it's
+finally time to take that brilliant idea out
+of the shower and launch it into the real
+world.

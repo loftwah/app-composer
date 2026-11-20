@@ -24,3 +24,6 @@ src/lib/get-ready-mcp-package.json
 # request identities, the authored marks, the share-card HTML and each app's own
 # copy of its master are committed.
 .artwork/**/*.png
+
+# Local NotebookLM exports. Publish selected media through the existing media bucket.
+/notebooklm/
