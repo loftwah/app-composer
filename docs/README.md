@@ -6,6 +6,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 
 ## Create and operate
 
+- [Product roadmap](roadmap.md): the target, ordered delivery gates, acceptance criteria, recommended choices and the next execution wave.
 - [Detailed operator reference](operator-reference.md): setup, Get Ready, account/target selection, Init, composition, native administration, independent packages and deployment commands.
 - [Agent role packs](role-packs.md): six versioned job contracts, the shared fictional bundle, refusal rules and the local runner.
 - [Agent proposals](agent-proposals.md): local-first briefings, versioned findings, human review, approval digests and the separate handoff boundary.
