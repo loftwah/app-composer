@@ -4,6 +4,7 @@ import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkOrientations, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
 import BriefingShareKit from './BriefingShareKit.astro';
+import EngineeringArtwork from './EngineeringArtwork.astro';
 import '../styles/share-gallery.css';
 
 interface Props {
@@ -106,7 +107,10 @@ const options = {
     </nav>
   </div>
 
-  {!browse && <BriefingShareKit />}
+  {!browse && <>
+    <BriefingShareKit />
+    <EngineeringArtwork />
+  </>}
 
   {!catalogue ? (
     <div class="gallery-empty"><h2>Artwork is temporarily unavailable</h2><a href={href()}>Try again</a></div>

@@ -1,5 +1,5 @@
 ---
-import { ArrowDownToLine } from '@lucide/astro';
+import { ArrowDownToLine, Copy } from '@lucide/astro';
 
 interface Props {
   startAt?: number;
@@ -59,9 +59,21 @@ const chapterLink = (start: number) => chapterPage ? `${chapterPage}?t=${Math.fl
             <a href={chapterLink(start)} data-player={player} data-start={start}>
               <span class="timestamp">{time}</span><span>{chapter}</span>
             </a>
+            {chapterPage && (
+              <button type="button" class="secondary chapter-copy" hidden data-chapter-copy={chapterLink(start)} data-chapter-time={time}
+                aria-label={`Copy chapter link at ${time}: ${chapter}`}>
+                <Copy size={14} aria-hidden="true" /><span class="copy-label">Copy</span><span class="copied-label">Copied</span>
+              </button>
+            )}
           </li>
         ))}
       </ol>
+      {chapterPage && (
+        <>
+          <p class="copy-status" role="status" data-chapter-status></p>
+          <input class="copy-fallback" type="url" readonly hidden aria-label="Chapter link" data-chapter-fallback />
+        </>
+      )}
     </nav>
   </div>
   <details class="transcript">
@@ -79,6 +91,33 @@ const chapterLink = (start: number) => chapterPage ? `${chapterPage}?t=${Math.fl
 </article>
 
 <script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-chapter-copy]')) {
+    const chapters = button.closest('.chapters');
+    const status = chapters?.querySelector<HTMLElement>('[data-chapter-status]');
+    const fallback = chapters?.querySelector<HTMLInputElement>('[data-chapter-fallback]');
+    const path = button.dataset.chapterCopy;
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href;
+    if (!status || !fallback || !path || !canonical) continue;
+
+    const url = new URL(path, canonical);
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      chapters.querySelector('[data-copied]')?.removeAttribute('data-copied');
+      try {
+        await navigator.clipboard.writeText(url.href);
+        fallback.hidden = true;
+        button.setAttribute('data-copied', '');
+        status.textContent = `Chapter link copied at ${button.dataset.chapterTime}.`;
+      } catch {
+        fallback.value = url.href;
+        fallback.hidden = false;
+        fallback.focus();
+        fallback.select();
+        status.textContent = 'Copy the selected chapter link.';
+      }
+    });
+  }
+
   for (const link of document.querySelectorAll<HTMLAnchorElement>('.recording a[data-player][data-start]')) {
     link.addEventListener('click', (event) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -108,9 +147,16 @@ const chapterLink = (start: number) => chapterPage ? `${chapterPage}?t=${Math.fl
   .files { display: flex; flex-wrap: wrap; gap: 0 1rem; }
   .files a { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; font-size: .89rem; font-weight: 650; }
   .chapters ol { margin: 0; padding: 0; list-style: none; max-width: none; }
+  .chapters li:has(.chapter-copy:not([hidden])) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .25rem; }
   .chapters li + li { border-block-start: 1px solid var(--color-border); }
   .chapters a { display: grid; grid-template-columns: 3.25rem minmax(0, 1fr); align-items: center; gap: .35rem; min-height: 44px; padding: .4rem .3rem; color: var(--color-foreground); line-height: 1.25; font-size: .92rem; }
   .chapters a:hover, .chapters a:focus-visible { background: var(--color-surface); color: var(--color-accent); }
+  .chapter-copy:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; gap: .25rem; min-height: 44px; padding-inline: .55rem; font-size: .82rem; }
+  .chapter-copy .copied-label, .chapter-copy[data-copied] .copy-label { display: none; }
+  .chapter-copy[data-copied] .copied-label { display: inline; }
+  .copy-status { color: var(--color-muted); font-size: .88rem; margin: .35rem 0 0; }
+  .copy-status:empty { margin: 0; }
+  .copy-fallback { width: 100%; max-width: 100%; margin-block: .35rem; }
   .timestamp { color: var(--color-muted); font-variant-numeric: tabular-nums; }
   .transcript { margin-block-start: .55rem; border-block: 1px solid var(--color-border); }
   .transcript summary { min-height: 44px; padding-block: .65rem; font-weight: 650; cursor: pointer; }
