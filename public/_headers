@@ -15,3 +15,11 @@
   Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation
   Content-Disposition: attachment; filename="App-Composer-Technical-Pitch-v1.pptx"
   X-Content-Type-Options: nosniff
+/downloads/app-composer/completed-vision-20261120.pdf
+  Content-Type: application/pdf
+  Content-Disposition: attachment; filename="App-Composer-Completed-Vision-20261120.pdf"
+  X-Content-Type-Options: nosniff
+/downloads/app-composer/completed-vision-20261120.docx
+  Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+  Content-Disposition: attachment; filename="App-Composer-Completed-Vision-20261120.docx"
+  X-Content-Type-Options: nosniff
