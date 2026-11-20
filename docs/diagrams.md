@@ -1,9 +1,20 @@
 # Diagram atlas
 
-Reviewed 25 October 2026. The public atlas is `/diagrams`. These diagrams are
-native LDraw scenes rendered through LDraw's existing Excalidraw renderer; the
-site does not embed a second editor, renderer, diagram database or live MCP
-service.
+The public atlas is [Diagrams](https://composer.loftwah.com/diagrams). It
+includes 79 editable scenes and five AI-generated illustrations linked to
+their source diagrams. The diagrams are native LDraw scenes rendered through
+LDraw’s Excalidraw renderer.
+
+| Collection | Source |
+| --- | --- |
+| App Composer and project architecture (31) | The published [17 November engineering pack](../public/diagrams/engineering/app-composer-diagrams-20261117.zip). Individual scene, SVG and PNG downloads match the archive. |
+| Loftwah Factory Atlas (32) | The 14 November factory atlas export. The gallery preserves the editable scenes, SVGs and 1920×1080 PNGs. Original project artwork was sourced from the public portfolio. Includes [Tabler Icons under MIT](../public/diagrams/factory-20261114/Tabler-MIT.txt). |
+| Workshop boards (12) | The 17 November App Composer campaign source kit. The boards include released workflows, storyboards and integration concepts, with their original labels. |
+| Artwork (5) | Three published engineering illustrations and two studio campaign illustrations generated with Codex ImageGen from LDraw references. The artwork links back to the editable boards. |
+| Reference (4) | The published diagrams below, including their written walkthroughs. |
+
+Gallery WebP previews are downscaled from the corresponding PNGs. The full PNG,
+SVG and Excalidraw links remain available on each editable drawing.
 
 ## Source and outputs
 
