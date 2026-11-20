@@ -91,6 +91,26 @@ Do not create another dashboard or publish raw customer, repository or security
 data. Own application implementation and repairs in the linked projects, and
 track evaluation in [#601](https://github.com/loftwah/app-composer/issues/601).
 
+
+## WordPress Studio and Spacefast comparison
+
+[WPSF-01: create, refine, publish and return](wordpress-studio-spacefast.md)
+compares documented Studio/Spacefast workflows with App Composer and native
+EmDash. It separates static sites, editable CMS sites and dynamic applications,
+and covers chosen-agent handoff, design continuity, targeted preview feedback,
+editorial work, publishing, reconciliation and recovery. Migration and useful
+Workers AI are separately reported optional expansions.
+
+This is a companion protocol under [#1008](https://github.com/loftwah/app-composer/issues/1008),
+with [#1009](https://github.com/loftwah/app-composer/issues/1009) owning the first
+live-preview feedback consumer. All nine comparative cases are **not-run**.
+It reuses existing CF-J/CF-R receipts and preserves the six required journeys
+and nine profile denominators. Existing [#935](https://github.com/loftwah/app-composer/issues/935)
+owns live execution and [#933](https://github.com/loftwah/app-composer/issues/933)
+owns in-product discovery. There is no new runner, schema, provider bill or
+automatic pass. The protocol records the separately executed local foundation
+and its precise limits.
+
 ## Run the local foundation
 
 From the repository root, use the repository's supported Node version. The
