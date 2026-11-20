@@ -1,58 +1,127 @@
 ---
 import Base from '../layouts/Base.astro';
+import DiagramCollection from '../components/DiagramCollection.astro';
 import DiagramFigure from '../components/DiagramFigure.astro';
-import { ArrowRight } from '@lucide/astro';
+import { ArrowDownToLine, ArrowUpRight } from '@lucide/astro';
 import { diagramAtlas, engineeringDiagrams } from '../lib/diagram-atlas';
+import collections from '../lib/diagram-collections.json';
+import { engineeringAtlasArchive, engineeringArtwork } from '../lib/engineering-artwork.mjs';
 
-import { engineeringAtlasArchive } from '../lib/engineering-artwork.mjs';
+const composerDiagrams = collections.composer.map((entry) => {
+  const original = engineeringDiagrams.find((item) => item.name === entry.name);
+  return {
+    ...entry,
+    caption: original?.caption ?? entry.caption,
+    alt: original?.alt,
+    steps: original?.steps,
+  };
+});
 
-const diagrams = [...engineeringDiagrams, ...diagramAtlas];
+const artwork = [
+  ...engineeringArtwork.map((piece) => ({ ...piece, diagram: piece.id, width: 1200, height: 630 })),
+  {
+    id: 'artwork-to-post',
+    title: 'From the artwork to the post',
+    image: '/diagrams/workshop-20261117/01-from-artwork-to-bluesky.jpg',
+    alt: 'An orange-lit printing machine feeds a coastal photo. The headline reads From the artwork to the post.',
+    diagram: '01-from-artwork-to-bluesky',
+    width: 1200,
+    height: 630,
+  },
+  {
+    id: 'oyster-fungi-workbench',
+    title: 'Oyster and Fungi integration concept',
+    image: '/diagrams/workshop-20261117/06-oyster-fungi-workbench.jpg',
+    alt: 'Three black devices sit on an amber and green workbench under the headline A workbench for real work.',
+    diagram: '10-oyster-fungi',
+    width: 1080,
+    height: 1350,
+  },
+];
 ---
 
 <Base
-  title="Diagram atlas — editable views of the real system"
-  description="Editable LDraw diagrams show what App Composer is for, how it works and who stays in control. Download the editable scene, SVG or PNG."
+  title="Diagrams — App Composer"
+  description="Browse App Composer’s editable Excalidraw diagrams, the Loftwah Factory Atlas, workshop storyboards and AI-generated artwork."
 >
   <article class="atlas">
-    <div class="atlas-heading">
-      <p class="eyebrow">Diagram atlas</p>
-      <h1>Explore and edit the system diagrams</h1>
-      <p class="lede">These diagrams explain the lifecycle, human approval, contribution visibility and environment isolation. Each is a native LDraw scene you can reopen and revise.</p>
-    </div>
+    <header class="atlas-heading">
+      <h1>Diagrams</h1>
+      <p class="lede">Browse our system diagrams, workshop boards and AI artwork. Open a full-size drawing or download the editable scene and make it your own.</p>
+      <div class="atlas-actions">
+        <a href={engineeringAtlasArchive} download><ArrowDownToLine size={18} aria-hidden="true" /> Download the 31-diagram pack</a>
+        <a href="https://ldraw.loftwah.com">Open LDraw <ArrowUpRight size={16} aria-hidden="true" /></a>
+      </div>
+    </header>
 
-    <section class="atlas-intro" aria-labelledby="atlas-use-heading">
-      <h2 id="atlas-use-heading">What these are for</h2>
-      <p>The text, arrows and boxes remain editable. The SVG and PNG are rendered from the same scene you can download.</p>
-      <p><a href={engineeringAtlasArchive} download>Download all 31 engineering diagrams</a> · <a href="/share#diagram-artwork">Share the illustrated artwork</a></p>
-      <p class="small">Rendered with <code>@excalidraw/excalidraw@0.18.1</code> through LDraw’s existing renderer. The source scene, SVG and PNG are committed together; the page does not call a live diagram service.</p>
+    <nav class="atlas-index" aria-label="Diagram collections">
+      <a href="#engineering">App Composer</a>
+      <a href="#projects">Project architecture</a>
+      <a href="#factory">Factory Atlas</a>
+      <a href="#workshop">Workshop boards</a>
+      <a href="#illustrations">AI-generated artwork</a>
+      <a href="#reference">Reference diagrams</a>
+    </nav>
+
+    <DiagramCollection id="engineering" title="App Composer" directory="engineering" entries={composerDiagrams} featureFirst />
+    <DiagramCollection id="projects" title="Project architecture" directory="project-architecture" entries={collections.projects} />
+    <DiagramCollection id="factory" title="Loftwah Factory Atlas" directory="factory-20261114" entries={collections.factory}
+      description="The portfolio, delivery loop and infrastructure as drawn on 14 November 2026." />
+    <DiagramCollection id="project-plates" title="Project profiles" directory="factory-20261114" entries={collections.plates} />
+    <DiagramCollection id="system-deep-dives" title="System deep dives" directory="factory-20261114" entries={collections.deepDives} />
+    <DiagramCollection id="workshop" title="Workshop boards" directory="workshop-20261117" entries={collections.workshop}
+      description="Editable workflows, storyboards and design concepts from the App Composer and Media Studio campaign." />
+
+    <section class="atlas-artwork" id="illustrations" aria-labelledby="illustrations-heading">
+      <h2 id="illustrations-heading">AI-generated artwork</h2>
+      <p>Illustrations made from the editable drawings. Each piece links back to the board that inspired it.</p>
+      <ul>
+        {artwork.map((piece) => (
+          <li>
+            <figure>
+              <a href={piece.image} aria-label={`View full-size artwork: ${piece.title}`}>
+                <img src={piece.image} alt={piece.alt} width={piece.width} height={piece.height} loading="lazy" decoding="async" />
+              </a>
+              <figcaption>
+                <h3>{piece.title}</h3>
+                <a href={`#diagram-${piece.diagram}`}>View source diagram</a>
+                <a href={piece.image} download aria-label={`Download artwork: ${piece.title}`}>Download JPG</a>
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+      <a href="/share#diagram-artwork">Explore the Share gallery <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
-    <section class="atlas-list" aria-label="Diagrams">
-      {diagrams.map((diagram) => <DiagramFigure {...diagram} />)}
-    </section>
-
-    <section class="atlas-make" aria-labelledby="atlas-make-heading">
-      <h2 id="atlas-make-heading">Revise one without starting again</h2>
-      <ol>
-        <li>Download the <code>.excalidraw</code> scene.</li>
-        <li>Open it in <a href="https://ldraw.loftwah.com">LDraw</a>. The drawing keeps its element IDs, text and connections.</li>
-        <li>Edit the source, export SVG and PNG, and replace all three files together.</li>
-        <li>Inspect the result at phone and desktop widths before publishing. Automated tests cannot certify that a diagram is clear or technically true.</li>
-      </ol>
-      <p><a href="/architecture">Read the full architecture <ArrowRight size={17} aria-hidden="true" /></a> · <a href="/agent">Point your agent at Composer <ArrowRight size={17} aria-hidden="true" /></a></p>
+    <section class="atlas-reference" id="reference" aria-labelledby="reference-heading">
+      <h2 id="reference-heading">Reference diagrams</h2>
+      <p>Follow the lifecycle, review and publishing boundaries with a written walkthrough for each diagram.</p>
+      {diagramAtlas.map((diagram) => <DiagramFigure {...diagram} />)}
     </section>
   </article>
 </Base>
 
 <style>
-  .atlas { max-width: 1120px; }
-  .atlas-heading { max-width: 860px; margin-bottom: 32px; }
-  .atlas-heading h1 { font-size: clamp(2.8rem, 5.6vw, 4.8rem); max-width: 20ch; }
-  .atlas-heading .lede { max-width: 64ch; }
-  .atlas-intro, .atlas-make { border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 40px; }
-  .atlas-intro h2, .atlas-make h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); }
-  .atlas-intro p { max-width: 76ch; }
-  .atlas-list { margin-top: 36px; }
-  .atlas-make ol { max-width: 78ch; }
-  .atlas-make code { white-space: nowrap; }
+  .atlas { max-width: 1120px; margin-inline: auto; }
+  .atlas-heading h1 { font-size: clamp(2.85rem, 7vw, 5rem); line-height: 1.05; margin-block-end: .5rem; letter-spacing: -.035em; }
+  .atlas-heading .lede { max-width: 62ch; margin-block: 0 .5rem; }
+  .atlas-actions, .atlas-index { display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+  .atlas-actions a, .atlas-index a, .atlas-artwork a:not(:has(img)) {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-height: 44px;
+    font-weight: 650;
+  }
+  .atlas-index { margin-block-start: 1rem; border-block: 1px solid var(--color-border); }
+  .atlas-artwork, .atlas-reference { margin-block: 3rem; scroll-margin-top: 6rem; }
+  .atlas-artwork > p, .atlas-reference > p { color: var(--color-muted); max-width: 68ch; }
+  .atlas-artwork ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 1rem; padding: 0; list-style: none; max-width: none; }
+  .atlas-artwork figure { margin: 0; }
+  .atlas-artwork img { display: block; width: 100%; height: auto; border-radius: .5rem; }
+  .atlas-artwork h3 { margin: .65rem 0 0; font-size: 1.05rem; line-height: 1.25; }
+  .atlas-artwork figcaption a { margin-inline-end: .85rem; font-size: .875rem; }
+  @media (max-width: 820px) { .atlas-artwork ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 500px) { .atlas-artwork ul { grid-template-columns: minmax(0, 1fr); } }
 </style>

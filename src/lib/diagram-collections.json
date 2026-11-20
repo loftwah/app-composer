@@ -1,0 +1,539 @@
+{
+  "composer": [
+    {
+      "name": "composer-purpose",
+      "title": "What App Composer is for",
+      "caption": "Why Composer exists, who stays in control, and what the platform aims to make possible.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-agent-and-owner",
+      "title": "Agent and owner authority",
+      "caption": "How interest becomes a bounded proposal and how a person retains approval and execution authority.",
+      "width": 1932,
+      "height": 1191
+    },
+    {
+      "name": "composer-capability-reuse",
+      "title": "Reusable capability contracts",
+      "caption": "How a reusable building block becomes part of a project without absorbing its ownership.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-release-and-runtime",
+      "title": "Runtime, release and recovery",
+      "caption": "The Composer control plane, independent deployments and the checks that support a production claim.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-creative-pipeline",
+      "title": "Creative production and reuse",
+      "caption": "How owner references become editable media and approved public work.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-media-studio-runtime",
+      "title": "Media Studio runtime and handoffs",
+      "caption": "The studio keeps its own projects and media, exposes a scoped handoff, and publishes selected outputs.",
+      "width": 1932,
+      "height": 1191
+    },
+    {
+      "name": "composer-public-page-map",
+      "title": "Composer public page map",
+      "caption": "Find apps, try a demo, build, and browse published work.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-build-and-compose",
+      "title": "Build and compose",
+      "caption": "From an idea to a validated brief, editable model and working application.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-publish-and-operate",
+      "title": "Publish and operate",
+      "caption": "Draft, publish, review and maintain the same owned application.",
+      "width": 2408,
+      "height": 1191
+    },
+    {
+      "name": "composer-creative-tools",
+      "title": "Creative tools and outputs",
+      "caption": "Which tool owns the work and where to find finished public examples.",
+      "width": 1932,
+      "height": 1191
+    },
+    {
+      "name": "composer-learning-and-reference",
+      "title": "Guides and agent handoffs",
+      "caption": "Where to learn, pick a prompt, or inspect the maintained reference.",
+      "width": 1932,
+      "height": 1191
+    },
+    {
+      "name": "composer-independent-apps",
+      "title": "Independent apps and handoffs",
+      "caption": "Where the independent Composer apps fit and how a real pair works together.",
+      "width": 1932,
+      "height": 1191
+    },
+    {
+      "name": "composer-public-page-decision",
+      "title": "Does this need its own page?",
+      "caption": "A public page review flowchart for spotting duplicate jobs and putting new pages under the right parent.",
+      "width": 2328,
+      "height": 901
+    }
+  ],
+  "projects": [
+    {
+      "name": "composer-architecture",
+      "title": "App Composer",
+      "caption": "Owner intent, agent proposal and independent delivery stay separate.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "ldraw-architecture",
+      "title": "LDraw",
+      "caption": "A local portfolio editor with real artwork, editable architecture and a presentation view.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "paperwork-architecture",
+      "title": "Paperwork",
+      "caption": "PDF fields, ink, signatures and printing never leave the browser.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "herethere-architecture",
+      "title": "Here / there",
+      "caption": "Visitor photographs and postcards pass an explicit owner review.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "linkarooie-architecture",
+      "title": "Linkarooie",
+      "caption": "One public profile, app-owned records and approved Guestbook media.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "linkcheck-architecture",
+      "title": "Link Check",
+      "caption": "A bounded public-page inspection, not a crawler or trusted proxy.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "carry-architecture",
+      "title": "Carry / forward",
+      "caption": "A fictional memory vault that moves as an encrypted local file.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "hello-architecture",
+      "title": "Hello World",
+      "caption": "The smallest real release: one page, one origin, no hidden backend.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "launchkit-architecture",
+      "title": "Launch Kit",
+      "caption": "Local artwork becomes checked icons, install assets and share images.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "assethunter-architecture",
+      "title": "Asset Hunter",
+      "caption": "A rights-aware catalogue of possibilities, not a pile of unlicensed files.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "max-architecture",
+      "title": "MAX",
+      "caption": "A software prototype and device boundary that does not claim a finished walker.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "protocol11-architecture",
+      "title": "Protocol 11",
+      "caption": "A local card table with optional rooms, invitations and persistent platform records.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "bubbles-architecture",
+      "title": "Bubbles",
+      "caption": "A static game with local saves, authored worlds and no account barrier.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "shoalshot-architecture",
+      "title": "SHOALSHOT",
+      "caption": "A local-first dive with authored specimens, launchers and a local share card.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "fighter-architecture",
+      "title": "LOFTWAH FIGHTER",
+      "caption": "Local battles, a generated roster and a small platform around suggestions.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "pirates-architecture",
+      "title": "Pirates",
+      "caption": "A source-first reconstruction. The original game is the authority, not a new style.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "loftwahfm-architecture",
+      "title": "LoftwahFM",
+      "caption": "A music catalogue, continuous player and shared game-radio service.",
+      "width": 2336,
+      "height": 1396
+    },
+    {
+      "name": "woodhouse-architecture",
+      "title": "Woodhouse",
+      "caption": "Independent projects become a reviewed, dated public record.",
+      "width": 2336,
+      "height": 1396
+    }
+  ],
+  "factory": [
+    {
+      "name": "00-factory-atlas",
+      "title": "One owner. Many releases.",
+      "caption": "Portfolio atlas",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "01-release-loop",
+      "title": "Idea to live, without losing the receipt.",
+      "caption": "Delivery loop",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "02-local-first",
+      "title": "The data stays where the work happens.",
+      "caption": "Local-first boundary",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "03-edge-stack",
+      "title": "Small stack. Sharp edges.",
+      "caption": "Platform primitives",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "04-composer-family",
+      "title": "One platform. Independent apps.",
+      "caption": "Composer family",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "plates": [
+    {
+      "name": "plate-01-composer",
+      "title": "App Composer · Make software. Keep it yours.",
+      "caption": "Development tools · agent-operated studio",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-02-ldraw",
+      "title": "LDraw · Draw and explain anything.",
+      "caption": "Creative tools · local-first diagrams",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-03-paperwork",
+      "title": "Paperwork · Fill it. Sign it. Get on with your day.",
+      "caption": "Document tools · browser-local",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-04-herethere",
+      "title": "Here / there · A wall of places and people.",
+      "caption": "Social · moderated participation",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-05-linkarooie",
+      "title": "Linkarooie · Keep the good stuff together.",
+      "caption": "Personal publishing · owned profile",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-06-linkcheck",
+      "title": "Link Check · Trace the bad connector.",
+      "caption": "Diagnostics · bounded inspection",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-07-carry",
+      "title": "Carry / forward · Memory that moves with you.",
+      "caption": "Private tools · portable memory",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-08-hello",
+      "title": "Hello World · First signal past the towers.",
+      "caption": "Starter · smallest real release",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-09-launchkit",
+      "title": "Launch Kit · Icons, PWA assets and share art.",
+      "caption": "Design tools · local asset pipeline",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-10-assethunter",
+      "title": "Asset Hunter · Find the forty useful ideas.",
+      "caption": "Reference tools · rights-aware",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-11-max",
+      "title": "MAX · Your walker, made smarter.",
+      "caption": "Assistive tech · software + hardware",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-12-protocol11",
+      "title": "Protocol 11 · One more hand at the table.",
+      "caption": "Game · responsive table play",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-13-bubbles",
+      "title": "Bubbles · One more round.",
+      "caption": "Game · deterministic arcade",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-14-shoalshot",
+      "title": "SHOALSHOT · Read the tide. Place the shot.",
+      "caption": "Game · phone-first arcade",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-15-fighter",
+      "title": "LOFTWAH FIGHTER · Charge the strip. Commit the move.",
+      "caption": "Game · collectible squad battler",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-16-pirates",
+      "title": "Pirates · The source is the authority.",
+      "caption": "Game reconstruction · source archaeology",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-17-loftwahfm",
+      "title": "LoftwahFM · Music, radio, original shows.",
+      "caption": "Music platform · shared radio",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-18-plans",
+      "title": "Plans With You · Plans cancelled. Time kept.",
+      "caption": "Membership · planned cancellation",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-19-liferaft",
+      "title": "Liferaft · Find your way back into an archive.",
+      "caption": "Desktop tool · archive recovery",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-20-foilbury",
+      "title": "Foilbury · A cabinet of collectible cards.",
+      "caption": "Collectible cards · public showcase",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "plate-21-woodhouse",
+      "title": "Woodhouse · A window into the work.",
+      "caption": "Publishing · evidence-led record",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "deepDives": [
+    {
+      "name": "05-system-composer",
+      "title": "One Worker. Three environments. Many owned apps.",
+      "caption": "App Composer system",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "06-system-ldraw",
+      "title": "The editor is the renderer.",
+      "caption": "LDraw pipeline",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "07-system-woodhouse",
+      "title": "Publish the work, not the private repo.",
+      "caption": "Woodhouse pipeline",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "08-system-protocol11",
+      "title": "Four seats. One deterministic table.",
+      "caption": "Protocol 11 table",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "09-system-loftwahfm",
+      "title": "One catalogue. Many listeners.",
+      "caption": "LoftwahFM radio graph",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "10-system-max",
+      "title": "Software you can hold. Hardware you cannot claim yet.",
+      "caption": "MAX device boundary",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "workshop": [
+    {
+      "name": "01-from-artwork-to-bluesky",
+      "title": "From artwork to Bluesky",
+      "caption": "The released owner workflow",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "02-make-now-post-later",
+      "title": "Make it now. Post it later.",
+      "caption": "Launch teaser storyboard",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "03-exact-approval",
+      "title": "The exact approval",
+      "caption": "What a scheduled Bluesky post carries",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "04-one-asset-three-crops",
+      "title": "One story, three crops",
+      "caption": "A crop and copy brief for the share kit",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "05-asset-wall",
+      "title": "A wall worth exploring",
+      "caption": "Current Woodhouse foundation and Composer design target",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "06-inside-media-studio",
+      "title": "Inside Media Studio",
+      "caption": "An editable map of the creative work",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "07-show-the-edit",
+      "title": "Show the edit, then the result",
+      "caption": "Capture storyboard for a genuine Studio feature",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "08-loftwahfm-widget",
+      "title": "Portable by design",
+      "caption": "LoftwahFM widget reuse proof to capture",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "09-studio-viewer-widget",
+      "title": "Let the artwork travel",
+      "caption": "Studio viewer widget concept",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "10-oyster-fungi",
+      "title": "Oyster and Fungi at the workbench",
+      "caption": "Integration design target and capability boundaries",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "11-source-and-versions",
+      "title": "One source, traceable versions",
+      "caption": "A map for the Share asset viewer",
+      "width": 2576,
+      "height": 1476
+    },
+    {
+      "name": "12-the-creative-workshop",
+      "title": "The creative workshop",
+      "caption": "A campaign map for App Composer and Media Studio",
+      "width": 2576,
+      "height": 1476
+    }
+  ]
+}
