@@ -15,15 +15,16 @@ interface Props {
 const { recording } = Astro.props;
 const { id, title, description, length, extension, chapters } = recording;
 const video = extension === 'mp4';
+const Heading = video ? 'h2' : 'h3';
 const assets = '/downloads/app-composer/notebooklm-20261120';
 const media = `/media-studio/watch/notebooklm-${id}-20261120.${extension}`;
 const player = `player-${id}`;
 const chapterLink = (start: number) => `${media}#t=${start}`;
 ---
 
-<article class:list={['recording', { 'recording-film': video }]} id={id} aria-labelledby={`${id}-title`}>
+<article class="recording" id={id} aria-labelledby={`${id}-title`}>
   <div class="recording-heading">
-    <h3 id={`${id}-title`}>{title}</h3>
+    <Heading id={`${id}-title`}>{title}</Heading>
     <p>{description} <span class="runtime">{length}</span></p>
   </div>
   <div class="screening">
@@ -93,7 +94,7 @@ const chapterLink = (start: number) => `${media}#t=${start}`;
 
 <style>
   .recording { border-block-start: 1px solid var(--color-border); padding-block: 1.45rem 1.7rem; scroll-margin-block-start: 6rem; }
-  .recording-heading h3 { font-size: clamp(1.25rem, 2.8vw, 2.1rem); line-height: 1.16; margin: 0 0 .4rem; }
+  .recording-heading :is(h2, h3) { font-size: clamp(1.25rem, 2.8vw, 2.1rem); line-height: 1.16; margin: 0 0 .4rem; }
   .recording-heading p { max-width: 68ch; color: var(--color-muted); margin: 0 0 1.15rem; }
   .runtime { display: inline-block; margin-inline-start: .3rem; white-space: nowrap; font-size: .9rem; font-variant-numeric: tabular-nums; }
   .screening { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2rem); align-items: start; }
