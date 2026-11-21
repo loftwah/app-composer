@@ -1,0 +1,1691 @@
+{
+  "status": "review-drafts",
+  "scheduled": false,
+  "placements": [
+    {
+      "assetId": "composer-internet-01-patch-notes",
+      "conceptNumber": 37,
+      "title": "App Composer patch notes",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/patch-notes-v1.jpg",
+      "imageSha256": "f88ec1eeb53e819a41f18a1186914456f9c86a9a843adc407766ec72d80f1bde",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-01-patch-notes",
+      "link": "https://composer.loftwah.com/release",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Proof, please. The release record should say what changed, name the revision and let someone do the task on the live site. That’s how we work on App Composer.",
+      "alt": "Workshop photo and bold App Composer type ask for source, release and live check. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Show the real diff, the exact released revision and the affected action in a single short.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/patch-notes-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/patch-notes-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-02-pick-door",
+      "conceptNumber": 29,
+      "title": "Pick a door",
+      "platform": "TikTok",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-v1.jpg",
+      "imageSha256": "aaad3649ae5b0f7268c9561ec79e2805c9d5618aa7fc9cd8f2f007858e9fe3a4",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-02-pick-door",
+      "link": "https://composer.loftwah.com/share/experiences/pick-a-door",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "Pick a door. The office one looks trustworthy, which feels like a warning. Ten endings, and you can write your own.",
+      "alt": "Three strange doors in a violet corridor ask which entrance to choose. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Show three physical doors. Cut to a real played ending without spoiling the other two rooms.",
+      "status": "Playable",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      },
+      "verticalMotionPoster": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-motion-v1.mp4"
+    },
+    {
+      "assetId": "composer-internet-03-after-midnight",
+      "conceptNumber": 39,
+      "title": "LoftwahFM after midnight",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/after-midnight-v1.jpg",
+      "imageSha256": "05f6196028616022d17f94a4f60d4eca749ccbaedf19e011e41c0018e5b9c787",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-03-after-midnight",
+      "link": "https://fm.loftwah.com/",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "LoftwahFM after midnight. Here’s the sleeve I’d leave next to a late-night mix. What’s the first sound you hear when you see it?",
+      "alt": "A stripped speaker and copper coils sit under an orange slash of light on the LoftwahFM sleeve. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Use an approved LoftwahFM track or a new original ident. Keep the sleeve first and the audio credit clear.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/after-midnight-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/after-midnight-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-04-hot-take-bingo",
+      "conceptNumber": 32,
+      "title": "Tech hot-take bingo",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-take-bingo-v1.jpg",
+      "imageSha256": "f48f28b0bd5255518fc0be8ed3355e4412e2d11407d3d4f764f40fc4edf4ddd6",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-04-hot-take-bingo",
+      "link": "https://composer.loftwah.com/share/experiences/tech-bingo",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "I heard “clear the cache” before breakfast. Mark the tech takes you’ve heard today, then send the board to whoever said them.",
+      "alt": "A punk gig flyer turns nine familiar tech takes into a bingo board. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Capture five taps in the actual app. Let the bingo reveal play and finish by showing the owner’s editable board.",
+      "status": "Playable",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-take-bingo-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-take-bingo-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-05-the-small-build",
+      "conceptNumber": 41,
+      "title": "App Composer field manual",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/the-small-build-v1.jpg",
+      "imageSha256": "690e881a6e7dffc3da88a8af7d998a76282f3c9a37d43d58b36190f96bc3ebb0",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-05-the-small-build",
+      "link": "https://composer.loftwah.com/creator-hub",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Keep the source. Leave a way back in. App Composer is an open-source workshop for getting something useful live and returning to it.",
+      "alt": "A small workshop and wall hook sit under App Composer field-manual lettering. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Start with the key on the hook and cross-cut to a real second edit in Creator Hub.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/the-small-build-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/the-small-build-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-06-pull-another",
+      "conceptNumber": 40,
+      "title": "Pull another",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pull-another-v1.jpg",
+      "imageSha256": "6b278813fcf67b922814e3db0b8ff8bdf0286e62ab2226f820a37cc12433fff8",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-06-pull-another",
+      "link": "https://foilbury.loftwah.com/",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "There’s a particular second before the foil catches the light. That’s the feeling we’re chasing in Foilbury. Here’s an original collector’s print.",
+      "alt": "An original gold collector’s card emerges from a burnt-orange foil pack. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Use a real rights-cleared Foilbury pack opening alongside the art. Capture the actual foil reveal.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pull-another-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pull-another-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-07-paperwork-press",
+      "conceptNumber": 38,
+      "title": "Forms with the door shut",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/paperwork-press-v1.jpg",
+      "imageSha256": "9a053d75cd3398515e3ebe4303cc4d93d7cdc815ed05a9d13bcf32d08ccdccaa",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-07-paperwork-press",
+      "link": "https://composer.loftwah.com/paperwork",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "A PDF you can fill in your browser. Paperwork keeps the edit local. Try the fictional lab form and download the finished file.",
+      "alt": "A press and orange shutter illustrate Paperwork’s local PDF editing. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Capture one form field, a mark and the local export of the actual fictional sample.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/paperwork-press-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/paperwork-press-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-08-top-nine",
+      "conceptNumber": 4,
+      "title": "Nine games that made me",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/top-nine-v1.jpg",
+      "imageSha256": "4c8b3886448819d573dbfe1acb307aa1b1c96370a7adc7e66f4992b2732d4e40",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-08-top-nine",
+      "link": "https://composer.loftwah.com/share/experiences/top-nine",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "Nine games that made me. I want the embarrassing one in the middle. Make your own exhibition and post it with no explanation.",
+      "alt": "Nine illustrated game exhibits in a violet museum. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Reveal the nine objects in rhythm, then open the actual Top Nine editor and fill one square.",
+      "status": "Playable",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/top-nine-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/top-nine-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-09-pocket-atlas",
+      "conceptNumber": 42,
+      "title": "Build things you can take apart",
+      "platform": "Reddit",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pocket-atlas-v1.jpg",
+      "imageSha256": "d976f1ff40d21f1f84e0ff61bff729f12f48591fac391bfe024ff94e5cb0fe30",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-09-pocket-atlas",
+      "link": "https://composer.loftwah.com/diagrams",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "A diagram earns its keep if someone can take it apart, change it and show what moved. That’s why we publish editable LDraw source with the App Composer atlas.",
+      "alt": "An exploded physical brick machine illustrates the App Composer LDraw atlas. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Record an actual editable LDraw scene coming apart, then replace one module and save.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pocket-atlas-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pocket-atlas-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-10-open-web",
+      "conceptNumber": 36,
+      "title": "Leave more doors open",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/open-web-v1.jpg",
+      "imageSha256": "22b512370696a2b94cbdfb5e00f968df3fbd572c7766000987692b35c0963a71",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-10-open-web",
+      "link": "https://www.youtube.com/watch?v=x3Fz1V3LZtw",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Remembering Aaron Swartz. A healthier web makes it easier for someone else to read, learn, publish and build. Leave one more useful door open.",
+      "alt": "A public book drop at dusk with a quiet dedication to Aaron Swartz. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Let the artwork sit still. Pair it with the Internet Archive memorial as its own post.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/open-web-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/open-web-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-11-arcade-wars",
+      "conceptNumber": 1,
+      "title": "Pick a side",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/arcade-wars-v1.jpg",
+      "imageSha256": "a97fa071487a82fc0e0ead5b9241977b5632364c378bac14a8ee829bfff81a87",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-11-arcade-wars",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-11-arcade-wars",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "Ruby or Python. One choice and one sentence to defend it. I’ll accept “the thing I can still maintain on Monday.”",
+      "alt": "Orange arcade scorecard pits Ruby against Python. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Open on the two silhouettes. Hit the VS on a coin-clink. Hold the two choices long enough to read.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/arcade-wars-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/arcade-wars-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-12-choose-fighter",
+      "conceptNumber": 2,
+      "title": "Choose your main",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/choose-fighter-v1.jpg",
+      "imageSha256": "30e20ecbec3413645183445087099a7159faff4039f74cf1cf019fb410dc2e2e",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-12-choose-fighter",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-12-choose-fighter",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "The Legacy Monolith enters the arena. Special move: still works. Name your main and the bug you’d never send them to fix.",
+      "alt": "Pixel-art computer cabinet fighter called The Legacy Monolith. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Scan the fighter like a loading screen, then hold on Still works as the soundtrack cuts.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/choose-fighter-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/choose-fighter-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-13-which-cloudflare",
+      "conceptNumber": 3,
+      "title": "I’m a Durable Object",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/which-cloudflare-v1.jpg",
+      "imageSha256": "d44b5249db54f87b344ab95959aa0595b76a551730c29dc9ed0fdea2fbab245e",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-13-which-cloudflare",
+      "link": "https://developers.cloudflare.com/durable-objects/",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "I’m a Durable Object, apparently. For a group game, one named object can coordinate shared state. What would your infrastructure card say?",
+      "alt": "An orbital library on a fictional Cloudflare Durable Object collectible. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Glide through the rings and land on the educational fact. Read without sound.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/which-cloudflare-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/which-cloudflare-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-14-tier-list",
+      "conceptNumber": 5,
+      "title": "Defend your rankings",
+      "platform": "Reddit",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tier-list-v1.jpg",
+      "imageSha256": "0fa16c9ccf99a2662e49027665993fb94b51b57dfc726d42892cc3cb8759fbc6",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-14-tier-list",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-14-tier-list",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Which tool is S tier for you, and what’s it actually good at? The duck will hear arguments for production, weekends and everything in between.",
+      "alt": "A panel of Roman judges ranks a rubber duck in an arena. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Slow zoom on the duck. Stamp an S on a separate title frame. Leave time for a reply.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tier-list-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tier-list-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-15-cursed-choices",
+      "conceptNumber": 6,
+      "title": "Pick your curse",
+      "platform": "X",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-v1.jpg",
+      "imageSha256": "e33b7daa327a2b414aaeb9126da7b691161c7388e9daacea33563a741b92328c",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-15-cursed-choices",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-15-cursed-choices",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Unlimited tokens without internet, or unlimited internet without AI. Pick one. Explain what you’d build with the one you kept.",
+      "alt": "Split game-show poster sets a library against a wall of modems. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Both sides appear at once. Use a one-second blackout between two replies, never flash rapidly.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-16-alignment",
+      "conceptNumber": 7,
+      "title": "The nine realms of dev",
+      "platform": "Discord",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/alignment-v1.jpg",
+      "imageSha256": "057423657c673723c3f438b5e97e32aadf10952507273c0bc6a3ee45f0d92be7",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-16-alignment",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-16-alignment",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Chaotic good is fixing prod before anyone notices. True neutral leaves a line in the runbook so the next person can do it too. What’s your class?",
+      "alt": "A woodcut deploy engineer holds a chaotic-good scroll. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Reveal the character class, then cut to a quiet close-up of a marked-up runbook.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/alignment-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/alignment-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-17-internet-specimen",
+      "conceptNumber": 8,
+      "title": "A very specific internet person",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-specimen-v1.jpg",
+      "imageSha256": "259cf1f9162a596cf4a5cbb50f50843bc365d80ef778100e8571fe9348876aef",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-17-internet-specimen",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-17-internet-specimen",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "Local-first night owl. Identifying marks include a README, seven terminal tabs and a mistrust of silent sync. Name a specimen you know.",
+      "alt": "An owl made of keyboard feathers, preserved in amber like a museum specimen. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Use a field guide page turn. End on the name and habitat, without rarity statistics.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-specimen-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-specimen-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-18-stack-forge",
+      "conceptNumber": 9,
+      "title": "You ship tomorrow",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/stack-forge-v1.jpg",
+      "imageSha256": "d8b85e3b754eeaa05ec489993d480f7b787bc8652147581b4465ce741b301bba",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-18-stack-forge",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-18-stack-forge",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "You have to ship tomorrow. Give me your agent, app, data and runtime choices. Then tell me who owns the account and comes back for the second edit.",
+      "alt": "An exploded orbital workshop with separate agent, app, data and runtime modules. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Assemble four modules, then pause on the owner question. Use a second slide for the technical detail.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/stack-forge-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/stack-forge-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-19-budget-survivor",
+      "conceptNumber": 10,
+      "title": "The budget is twenty bucks",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/budget-survivor-v1.jpg",
+      "imageSha256": "037b6a46b07727ff49a0d1f8e7aef489364921fd30e578d13766a58007d06217",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-19-budget-survivor",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-19-budget-survivor",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Your fictional hosting budget is $20 a month. What do you keep, what can wait and which line item will ruin the receipt?",
+      "alt": "Thermal receipt on a retro shopping show asking what to keep within a $20 scenario. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Cash register sound into a frozen receipt. Add the scenario label before the number appears.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/budget-survivor-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/budget-survivor-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-20-red-flag-court",
+      "conceptNumber": 11,
+      "title": "Red flag or green flag?",
+      "platform": "TikTok",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/red-flag-court-v1.jpg",
+      "imageSha256": "86c78554e1ffc154d67b18d96921764848d9e3d6228161eddca6a001fa161221",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-20-red-flag-court",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-20-red-flag-court",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "Forty-seven tabs. Red flag, green flag, or a perfectly respectable search strategy? The court will take evidence.",
+      "alt": "A lurid tabloid courtroom asks for a ruling on 47 browser tabs. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Two beats of evidence, one gavel, then leave viewers room to explain their ruling.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/red-flag-court-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/red-flag-court-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      },
+      "verticalMotionPoster": "https://composer.loftwah.com/campaign/internet-workshop-20261122/red-flag-court-motion-v1.mp4"
+    },
+    {
+      "assetId": "composer-internet-21-first-token",
+      "conceptNumber": 12,
+      "title": "Love at first token",
+      "platform": "TikTok",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/first-token-v1.jpg",
+      "imageSha256": "7759d33963e0a17a5b850bd2f9aeb27b35f52a61160ff72376857d66c365d458",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-21-first-token",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-21-first-token",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "My type is low latency and easy to leave. What actually matters when you choose an agent: speed, its tools, or the way it handles a long project?",
+      "alt": "Two chrome terminals on stools in a 1970s dating-show poster. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Slow pan between terminals. Cut to the real question as a wordless applause cue lands.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/first-token-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/first-token-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-22-builder-bestiary",
+      "conceptNumber": 13,
+      "title": "The Legacy Necromancer",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/builder-bestiary-v1.jpg",
+      "imageSha256": "89f6b0e5ec5ce7551800bcd102a43d42f089d07c01088aac4f124161402eacda",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-22-builder-bestiary",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-22-builder-bestiary",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "The Legacy Necromancer has a very particular skill: opening a project everyone forgot and getting it running. Tag the person you’d trust with the keys.",
+      "alt": "A wizard revives a steam-powered server on a midnight railway platform. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Display as an animated card reveal with a tiny fluorescent status light, then hold on the class name.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/builder-bestiary-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/builder-bestiary-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-23-blind-taste",
+      "conceptNumber": 14,
+      "title": "Guess the model",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/blind-taste-v1.jpg",
+      "imageSha256": "ccde7e310a4bfab1f6a60c4ee56daf5af3c8f79ac8225eb6ffc4480f79a0a0ce",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-23-blind-taste",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-23-blind-taste",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Try reading three outputs before you see who made them. What would make one worth using in your project? Mark your answer before the reveal.",
+      "alt": "An intelligence dossier with three anonymous output sheets. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Publish an actual blind sample only after saving exact prompts, model records and comparable settings. The art teaser needs no score.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/blind-taste-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/blind-taste-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-24-design-crime",
+      "conceptNumber": 15,
+      "title": "Design crime scene",
+      "platform": "Reddit",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/design-crime-v1.jpg",
+      "imageSha256": "6e01e55b5c124db37b060150599f01eb2cbec27bcac35f3d81f03e85230580aa",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-24-design-crime",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-24-design-crime",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "The button has entered a witness protection programme. Before you blame the user, give them a visible action and try your flow on a phone.",
+      "alt": "A design test lab investigates an almost invisible button. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Freeze the bad contrast example. Reveal a deliberate corrected button and verbalise what changed.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/design-crime-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/design-crime-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-25-one-must-go",
+      "conceptNumber": 16,
+      "title": "One must go",
+      "platform": "X",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/one-must-go-v1.jpg",
+      "imageSha256": "b67e93d22141b2fce05cd74485555950c1f56220a3107d37cd391a4a1b6245d7",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-25-one-must-go",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-25-one-must-go",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Music, games, code, the web. One has to go. I’m mostly interested in the terrible argument you make afterwards.",
+      "alt": "Four personal technology objects under dark awards-show spotlights. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Show the four choices, pause, dim one light. Invite replies with what they would sacrifice.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/one-must-go-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/one-must-go-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-26-digital-archaeology",
+      "conceptNumber": 17,
+      "title": "You can hear this picture",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/digital-archaeology-v1.jpg",
+      "imageSha256": "75f9abe9fdf6ae5670e358fc7c6fb799a12d811b414f41b41abde9dcd02d3f53",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-26-digital-archaeology",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-26-digital-archaeology",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "You can hear this image. What sound would you put in a museum of the early internet?",
+      "alt": "Ivory CRT and dial-up modem on a dusty late-night desktop. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Make an original modem-like synth riff and caption it. Let the viewer guess before naming it.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/digital-archaeology-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/digital-archaeology-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-27-guess-year",
+      "conceptNumber": 18,
+      "title": "What year did the web go public?",
+      "platform": "YouTube",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/guess-year-v1.jpg",
+      "imageSha256": "a152f7614c82a09d57ed937fe66a52e562f6bdc2474409942cecddb66ce07cd2",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-27-guess-year",
+      "link": "https://home.cern/science/computing/the-birth-of-the-web/licensing-web/",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "When did CERN put the World Wide Web software into the public domain? Guess before opening the link.",
+      "alt": "Retro vertical TV quiz card asks when the web went public. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Three-second hold on the question, then reveal 30 April 1993 and credit CERN on frame.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/guess-year-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/guess-year-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      },
+      "verticalMotionPoster": "https://composer.loftwah.com/campaign/internet-workshop-20261122/guess-year-motion-v1.mp4"
+    },
+    {
+      "assetId": "composer-internet-28-internet-age",
+      "conceptNumber": 19,
+      "title": "Which internet raised you?",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-age-v1.jpg",
+      "imageSha256": "40701b706c754b229a9ac71ca702e81cadbe1c82f25ceed799d2504b51ee5c77",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-28-internet-age",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-28-internet-age",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "Which internet raised you? Forums, feeds, or group chats? Give me one thing from that era we should bring into the next one.",
+      "alt": "A hand finds old internet mementos in a peach time capsule. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Hold the archive still, then cut between three eras with actual sound design. No fake archive footage.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-age-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-age-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-29-dev-confessions",
+      "conceptNumber": 20,
+      "title": "Developer confessions",
+      "platform": "Discord",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/dev-confessions-v1.jpg",
+      "imageSha256": "345628a2da377ab9220818aa9304e86f34daddd1290b75adc07af720b38f2a14",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-29-dev-confessions",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-29-dev-confessions",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "I wrote the TODO in 2018. It’s still load-bearing. Give us a confession with the company and names left out.",
+      "alt": "A punk print has a developer whispering at a CRT confessional. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Start with a still whisper. Read the one-line confession and cut before it becomes a lecture.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/dev-confessions-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/dev-confessions-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-30-hot-takes",
+      "conceptNumber": 21,
+      "title": "Hot take factory",
+      "platform": "X",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-takes-v1.jpg",
+      "imageSha256": "ec02f9a949cdb0563e7470c55e1540fd32afc986f03e8bf9a9144444dff89831",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-30-hot-takes",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-30-hot-takes",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Some meetings should be README files. Which meeting would you replace with one clear decision and something you can run?",
+      "alt": "Industrial stamping machine prints a hot take about meetings and README files. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Show a blank page turning into one plain record: owner, decision, next move.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-takes-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-takes-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-31-tech-tournament",
+      "conceptNumber": 22,
+      "title": "Internet World Cup",
+      "platform": "Discord",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-v1.jpg",
+      "imageSha256": "b11a0984f25b1788ad38357a3099866f502fa6e039ffd1c081b3d55634073b44",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-31-tech-tournament",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-31-tech-tournament",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Terminal or GUI. The final match is “restore the thing at 2 am.” Back your champion and name the job.",
+      "alt": "A cable-connector trophy presides over Terminal versus GUI. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Set sound to a muted crowd swell, hold on both names, end with a practical final-round job.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-32-million-question",
+      "conceptNumber": 23,
+      "title": "The million-dollar question",
+      "platform": "TikTok",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/million-question-v1.jpg",
+      "imageSha256": "4e6b2d6c835d3364275d0ccd6e56be36d9d37a3c8480d818c11a424b39b172d7",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-32-million-question",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-32-million-question",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "A year of free time or a million dollars. What would be the first project you actually started?",
+      "alt": "A TV game show offers a free year against a million dollars as a hypothetical. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Use two quiet spotlight reveals and end on the first-project question.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/million-question-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/million-question-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-33-villain-origin",
+      "conceptNumber": 24,
+      "title": "Software villain origin story",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/villain-origin-v1.jpg",
+      "imageSha256": "a55e8d652e1ad17d107819abc0835322991c555e9e2a420990365b97a9bbffe7",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-33-villain-origin",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-33-villain-origin",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "The Cache Warden was told to clear it one last time. Every maintainer has a villain origin story. What’s yours?",
+      "alt": "A violet noir comic cover features a fictional keeper of the cache. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Single panel reveal, then a joke in one frame of comic lettering.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/villain-origin-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/villain-origin-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-34-edge-legends",
+      "conceptNumber": 25,
+      "title": "Assemble your edge squad",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/edge-legends-v1.jpg",
+      "imageSha256": "bd9948d9da6b4d3eb7999797ddcda20ccce984fe86dcc61e9ae404da4a178ab4",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-34-edge-legends",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-34-edge-legends",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "You get three powers for a tiny multiplayer project: run code, hold state, store media. Which one do you design around first?",
+      "alt": "An original comic team personifies compute, state and storage. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Reveal each of the three characters, then cut to a real source-linked architecture slide.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/edge-legends-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/edge-legends-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-35-five-minute-startup",
+      "conceptNumber": 26,
+      "title": "This should not exist",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/five-minute-startup-v1.jpg",
+      "imageSha256": "383f57c595bd53fde343e3f44acb17b9f8641a12570fd899af9dfec4a087644a",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-35-five-minute-startup",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-35-five-minute-startup",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "The Cancellation Club. A club for people who wanted to stay home. The first question in the brief is “who’s doing this by hand now?”",
+      "alt": "A fake 1980s magazine pitch for a cancellation service. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Show the imaginary pitch as a prop, then turn it over to a real one-page build brief.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/five-minute-startup-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/five-minute-startup-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-36-agent-squad",
+      "conceptNumber": 27,
+      "title": "Draft your agent squad",
+      "platform": "LinkedIn",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/agent-squad-v1.jpg",
+      "imageSha256": "065038ca364d3b9f43abee893c680d7af010123167d50c186677faf31b5a5af9",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-36-agent-squad",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-36-agent-squad",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Your squad gets five slots. I’m taking a researcher, designer, builder, reviewer and releaser. Who keeps the brief with the project?",
+      "alt": "An original crew manifest with five software-work roles. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Introduce roles with five distinct silhouettes. Finish with a real example of a handoff and its review.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/agent-squad-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/agent-squad-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-37-wrong-answers",
+      "conceptNumber": 28,
+      "title": "Wrong answers only",
+      "platform": "X",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/wrong-answers-v1.jpg",
+      "imageSha256": "71c2237b0c729dabd4159501688ee060ace62977d7740404c4f096856fcb9db5",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-37-wrong-answers",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-37-wrong-answers",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "What happens inside a database? Wrong answers only. I think someone puts the rows back in order after we go home.",
+      "alt": "An old textbook cover imagines tiny furniture and a kettle inside a database cabinet. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Use mock classroom narration over the art. Put Wrong Answers Only on the first shot.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/wrong-answers-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/wrong-answers-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-38-website-roast",
+      "conceptNumber": 30,
+      "title": "The website is on trial",
+      "platform": "Reddit",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/website-roast-v1.jpg",
+      "imageSha256": "0fae54a38cc611e18847a0fde704812dce1efe7f5acee0d04ee0c361762b413b",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-38-website-roast",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-38-website-roast",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "The fictional website is on trial. The charge is hiding its main button. Show me an example you own and the one thing you want visitors to do.",
+      "alt": "Courtroom sketch puts a fictional website’s missing button on trial. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Use a clearly labeled fictional layout, then show a real actionable before/after with the owner’s permission.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/website-roast-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/website-roast-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-39-internet-wrapped",
+      "conceptNumber": 31,
+      "title": "My year online",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-wrapped-v1.jpg",
+      "imageSha256": "4fa88083ae87afdd8591fc9372da5d5286a890b237cf41823113005233160b60",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-39-internet-wrapped",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-39-internet-wrapped",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "Three things about your year online: the discovery, the obsession, the thing you’re finally going to build. Put those in your recap.",
+      "alt": "A cream and orange collage arranges old cassette and recording hardware around a year-in-review prompt. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Treat each of the three answers as its own title movement. Use volunteered answers and original audio.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-wrapped-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/internet-wrapped-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-40-fake-album",
+      "conceptNumber": 33,
+      "title": "Ghosts in the dependency tree",
+      "platform": "Instagram",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/fake-album-v1.jpg",
+      "imageSha256": "3b3bf714cbf38a88a776e2740f73e0db343129a7509edcf001a5c4d85e7feaea",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-40-fake-album",
+      "link": "https://composer.loftwah.com/media-studio",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "My build’s fictional record is Ghosts in the Dependency Tree. Name yours and pick the genre. I want the liner notes too.",
+      "alt": "Album art with entangled wires and frosted audio gear under an original title. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Make an eight-second station ident with an original sound and a slow start-to-finish sleeve turn.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/fake-album-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/fake-album-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-41-what-build",
+      "conceptNumber": 34,
+      "title": "What would you build?",
+      "platform": "YouTube",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/what-build-v1.jpg",
+      "imageSha256": "6e7d52a61aa4ccd6052008f33e31a36d17e9dca712eaa35dd383f25a28ef1064",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-41-what-build",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-41-what-build",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "What would you build if building software was the easy part? Tell me who it helps and what they’d do with it. That’s a better brief than a feature list.",
+      "alt": "A maker with a notebook looks over a canyon of imaginary inventions. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Open on a real problem in the maker’s voice. Reveal the poster at the end and ask for one concrete idea.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/what-build-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/what-build-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      },
+      "verticalMotionPoster": "https://composer.loftwah.com/campaign/internet-workshop-20261122/what-build-motion-v1.mp4"
+    },
+    {
+      "assetId": "composer-internet-42-public-inventions",
+      "conceptNumber": 35,
+      "title": "The internet needs this",
+      "platform": "Reddit",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/public-inventions-v1.jpg",
+      "imageSha256": "acb5adb044e6a2b8a1f0de301a072db1aeacda6fba9c088edc79afd2ea4b2a5f",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-42-public-inventions",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-42-public-inventions",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "The internet needs this. Name one little thing you still fix manually, preferably the one nobody thinks is worth building.",
+      "alt": "A World’s Fair patent poster shows a machine assembling a project archive. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Present three fictional micro-inventions like a public science fair. End on one live implementation when it exists.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/public-inventions-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/public-inventions-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-01-patch-notes",
+      "conceptNumber": 37,
+      "title": "App Composer patch notes",
+      "platform": "Bluesky",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/patch-notes-v1.jpg",
+      "imageSha256": "f88ec1eeb53e819a41f18a1186914456f9c86a9a843adc407766ec72d80f1bde",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-01-patch-notes",
+      "link": "https://composer.loftwah.com/release",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Show the change, name the revision, do the thing on the live site. The App Composer release receipt.",
+      "alt": "Workshop photo and bold App Composer type ask for source, release and live check. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Show the real diff, the exact released revision and the affected action in a single short.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/patch-notes-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/patch-notes-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-02-pick-door",
+      "conceptNumber": 29,
+      "title": "Pick a door",
+      "platform": "Bluesky",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-v1.jpg",
+      "imageSha256": "aaad3649ae5b0f7268c9561ec79e2805c9d5618aa7fc9cd8f2f007858e9fe3a4",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-02-pick-door",
+      "link": "https://composer.loftwah.com/share/experiences/pick-a-door",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "caption": "Three entrances, ten endings. I took the door that looked like a normal office. That was a mistake.",
+      "alt": "Three strange doors in a violet corridor ask which entrance to choose. App Composer Internet Workshop.",
+      "stillFormat": "story",
+      "shortBrief": "Show three physical doors. Cut to a real played ending without spoiling the other two rooms.",
+      "status": "Playable",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      },
+      "verticalMotionPoster": "https://composer.loftwah.com/campaign/internet-workshop-20261122/pick-door-motion-v1.mp4"
+    },
+    {
+      "assetId": "composer-internet-04-hot-take-bingo",
+      "conceptNumber": 32,
+      "title": "Tech hot-take bingo",
+      "platform": "Bluesky",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-take-bingo-v1.jpg",
+      "imageSha256": "f48f28b0bd5255518fc0be8ed3355e4412e2d11407d3d4f764f40fc4edf4ddd6",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-04-hot-take-bingo",
+      "link": "https://composer.loftwah.com/share/experiences/tech-bingo",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1350
+      ],
+      "caption": "Someone said ‘just rewrite it’ at 8:07. Turn your dev feed into a playable bingo board.",
+      "alt": "A punk gig flyer turns nine familiar tech takes into a bingo board. App Composer Internet Workshop.",
+      "stillFormat": "portrait",
+      "shortBrief": "Capture five taps in the actual app. Let the bingo reveal play and finish by showing the owner’s editable board.",
+      "status": "Playable",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-take-bingo-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/hot-take-bingo-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-07-paperwork-press",
+      "conceptNumber": 38,
+      "title": "Forms with the door shut",
+      "platform": "Bluesky",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/paperwork-press-v1.jpg",
+      "imageSha256": "9a053d75cd3398515e3ebe4303cc4d93d7cdc815ed05a9d13bcf32d08ccdccaa",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-07-paperwork-press",
+      "link": "https://composer.loftwah.com/paperwork",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "Paperwork is a local PDF editor in the browser. Try it with the fictional lab form and take the finished file with you.",
+      "alt": "A press and orange shutter illustrate Paperwork’s local PDF editing. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Capture one form field, a mark and the local export of the actual fictional sample.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/paperwork-press-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/paperwork-press-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-42-public-inventions",
+      "conceptNumber": 35,
+      "title": "The internet needs this",
+      "platform": "Bluesky",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/public-inventions-v1.jpg",
+      "imageSha256": "acb5adb044e6a2b8a1f0de301a072db1aeacda6fba9c088edc79afd2ea4b2a5f",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-42-public-inventions",
+      "link": "https://composer.loftwah.com/share/artwork/composer-internet-42-public-inventions",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1200,
+        630
+      ],
+      "caption": "Tell me the smallest thing you still do by hand that the internet should have a tool for.",
+      "alt": "A World’s Fair patent poster shows a machine assembling a project archive. App Composer Internet Workshop.",
+      "stillFormat": "wide",
+      "shortBrief": "Present three fictional micro-inventions like a public science fair. End on one live implementation when it exists.",
+      "status": "Social prompt or concept",
+      "alternateImages": {
+        "square": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/public-inventions-square-v1.jpg",
+          "label": "Square",
+          "width": 1080,
+          "height": 1080
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/public-inventions-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    },
+    {
+      "assetId": "composer-internet-05-the-small-build",
+      "conceptNumber": 41,
+      "title": "App Composer field manual",
+      "platform": "Bluesky",
+      "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/the-small-build-v1.jpg",
+      "imageSha256": "690e881a6e7dffc3da88a8af7d998a76282f3c9a37d43d58b36190f96bc3ebb0",
+      "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-05-the-small-build",
+      "link": "https://composer.loftwah.com/creator-hub",
+      "placement": "draft",
+      "scheduledAt": null,
+      "dimensions": [
+        1080,
+        1080
+      ],
+      "caption": "What can you still touch after the agent chat closes? Source, ownership and a working release are good places to start.",
+      "alt": "A small workshop and wall hook sit under App Composer field-manual lettering. App Composer Internet Workshop.",
+      "stillFormat": "square",
+      "shortBrief": "Start with the key on the hook and cross-cut to a real second edit in Creator Hub.",
+      "status": "Published work or editorial",
+      "alternateImages": {
+        "wide": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/the-small-build-og-v1.jpg",
+          "label": "Landscape / link preview",
+          "width": 1200,
+          "height": 630
+        },
+        "portrait": {
+          "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/the-small-build-portrait-v1.jpg",
+          "label": "Instagram portrait",
+          "width": 1080,
+          "height": 1350
+        }
+      }
+    }
+  ]
+}
