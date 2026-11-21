@@ -3,8 +3,6 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Maximize2, Search, Sh
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkOrientations, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
-import BriefingShareKit from './BriefingShareKit.astro';
-import EngineeringArtwork from './EngineeringArtwork.astro';
 import '../styles/share-gallery.css';
 
 interface Props {
@@ -17,6 +15,7 @@ const shareCalendarHref = shareCalendarEntry(signedIn);
 const { query, project, sort, category, orientation, tag, after, legacy } = filters;
 const href = (updates: Partial<ArtworkFilters> = {}) => galleryHref(filters, { after: '', ...updates });
 const browse = new URL(href({ after }), 'https://composer.loftwah.com').search;
+const signIn = '/_emdash/admin/login?' + new URLSearchParams({ redirect: href({ after }) });
 const shuffle = href({ sort: 'random', seed: crypto.randomUUID().slice(0, 8) });
 const facets = [
   { key: 'query', label: query },
@@ -35,7 +34,13 @@ const options = {
 <section class="share-gallery" aria-labelledby="artwork-heading" data-share-artwork>
   <header class="gallery-heading">
     <h1 id="artwork-heading">Share<span>.</span></h1>
-    <p>Artwork, sketches and posters from our projects.</p>
+    <div class="gallery-intro">
+      <p>Artwork, sketches and posters from our projects.</p>
+      <p class="gallery-account">
+        <strong>{signedIn ? 'Signed in' : 'Signed out'}</strong>
+        {signedIn ? <span>Open any artwork to give private feedback.</span> : <a href={signIn}>Sign in to give feedback</a>}
+      </p>
+    </div>
     <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a>
   </header>
 
@@ -98,7 +103,6 @@ const options = {
       {facets.length > 1 && <a href={href({ query: '', project: '', category: '', orientation: 'any', tag: '' })}>Clear filters</a>}
     </div>
     <nav class="gallery-related" aria-label="More to explore">
-      <a href="/share#briefing-cards">App Composer share kit <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href={shareCalendarHref}>Share calendar <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/media-studio/films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
@@ -106,11 +110,6 @@ const options = {
       <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
     </nav>
   </div>
-
-  {!browse && <>
-    <BriefingShareKit />
-    <EngineeringArtwork />
-  </>}
 
   {!catalogue ? (
     <div class="gallery-empty"><h2>Artwork is temporarily unavailable</h2><a href={href()}>Try again</a></div>

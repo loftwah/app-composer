@@ -1,0 +1,37 @@
+[
+  {
+    "id": "composer-briefing-cover",
+    "original": "https://composer.loftwah.com/brand/campaign/briefing-og-20261120.jpg",
+    "sha256": "1be4e2a9fc470c676111f877b38a10502dca789a502cfced97316765ee7e84f5",
+    "reference": "https://composer.loftwah.com/pitch/briefing",
+    "kit": "https://composer.loftwah.com/downloads/app-composer/share-kit-20261120/app-composer-share-kit.zip"
+  },
+  {
+    "id": "composer-vision-cover",
+    "original": "https://composer.loftwah.com/brand/campaign/vision-og-20261120.jpg",
+    "sha256": "2eacac298b196896466f3d98a1d03c24ede4e9eee9b46c2e0a6eb310ffc95ee1",
+    "reference": "https://composer.loftwah.com/pitch/vision",
+    "kit": "https://composer.loftwah.com/downloads/app-composer/share-kit-20261120/app-composer-share-kit.zip"
+  },
+  {
+    "id": "composer-purpose-artwork",
+    "original": "https://composer.loftwah.com/brand/campaign/make-it-real-20261117.jpg",
+    "sha256": "2459de6c7032e5e6c1cc9a281f73c5e0c05541bc4aa805caf25fe8b1ca2690e6",
+    "reference": "https://composer.loftwah.com/diagrams#diagram-composer-purpose",
+    "kit": "https://composer.loftwah.com/diagrams/engineering/app-composer-diagrams-20261117.zip"
+  },
+  {
+    "id": "composer-agent-authority-artwork",
+    "original": "https://composer.loftwah.com/brand/campaign/keep-the-keys-20261117.jpg",
+    "sha256": "1366429f3a418b311f7288a94d647624ace427bcba484653458e551bcb8f9571",
+    "reference": "https://composer.loftwah.com/diagrams#diagram-composer-agent-and-owner",
+    "kit": "https://composer.loftwah.com/diagrams/engineering/app-composer-diagrams-20261117.zip"
+  },
+  {
+    "id": "composer-pipeline-artwork",
+    "original": "https://composer.loftwah.com/brand/campaign/make-keep-remix-20261117.jpg",
+    "sha256": "62fbcdf602fe2f6369e1d8e4691aa80114860a0e9cca80843c9ce47fa552382d",
+    "reference": "https://composer.loftwah.com/diagrams#diagram-composer-creative-pipeline",
+    "kit": "https://composer.loftwah.com/diagrams/engineering/app-composer-diagrams-20261117.zip"
+  }
+]

@@ -37,7 +37,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
     <a href={browseHref}><ArrowLeft size={16} aria-hidden="true" /> Browse artwork</a>
   </nav>
   {artwork ? (
-    <ShareArtworkDetail artwork={artwork} signedIn={Boolean(Astro.locals.user)} tags={tags} />
+    <ShareArtworkDetail artwork={artwork} signedIn={Boolean(Astro.locals.user)} tags={tags} browseQuery={filters.toString()} />
   ) : (
     <section class="artwork-state">
       <h1>{title}</h1>

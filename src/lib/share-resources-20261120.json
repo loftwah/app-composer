@@ -1,0 +1,166 @@
+{
+  "briefing-cards": [
+    {
+      "id": "composer-briefing-cover",
+      "project": "app-composer",
+      "title": "From Idea to Operation",
+      "visibility": "public",
+      "reuse": "unconfirmed",
+      "credit": "App Composer",
+      "alt": "App Composer. From idea to operation. A projector lights up layers of workshop diagrams.",
+      "description": "The App Composer briefing, with film, audio, slides and ready-to-post copy.",
+      "caption": "The App Composer briefing, with film, audio, slides and ready-to-post copy.",
+      "tags": [
+        "briefing-cards"
+      ],
+      "use": "social",
+      "stage": "share poster",
+      "reviewedAt": "2026-11-20",
+      "projectUrl": "https://composer.loftwah.com/pitch/briefing",
+      "sourceUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/sources.json",
+      "kitUrl": "https://composer.loftwah.com/downloads/app-composer/share-kit-20261120/app-composer-share-kit.zip",
+      "previewUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/briefing-og-20261120.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/briefing-og-20261120-480.webp",
+      "thumbnailWidth": 480,
+      "thumbnailHeight": 252,
+      "original": {
+        "url": "https://composer.loftwah.com/campaign/share-resources-20261120/briefing-og-20261120.jpg",
+        "label": "Original JPG",
+        "width": 1200,
+        "height": 630,
+        "sha256": "1be4e2a9fc470c676111f877b38a10502dca789a502cfced97316765ee7e84f5",
+        "version": "v1"
+      }
+    },
+    {
+      "id": "composer-vision-cover",
+      "project": "app-composer",
+      "title": "Build it. Keep it running.",
+      "visibility": "public",
+      "reuse": "unconfirmed",
+      "credit": "App Composer",
+      "alt": "App Composer. The completed product vision. An open workshop case holds plans, a storage module and a key.",
+      "description": "A cover for the App Composer product vision and its campaign kit.",
+      "caption": "A cover for the App Composer product vision and its campaign kit.",
+      "tags": [
+        "briefing-cards"
+      ],
+      "use": "social",
+      "stage": "share poster",
+      "reviewedAt": "2026-11-20",
+      "projectUrl": "https://composer.loftwah.com/pitch/vision",
+      "sourceUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/sources.json",
+      "kitUrl": "https://composer.loftwah.com/downloads/app-composer/share-kit-20261120/app-composer-share-kit.zip",
+      "previewUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/vision-og-20261120.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/vision-og-20261120-480.webp",
+      "thumbnailWidth": 480,
+      "thumbnailHeight": 252,
+      "original": {
+        "url": "https://composer.loftwah.com/campaign/share-resources-20261120/vision-og-20261120.jpg",
+        "label": "Original JPG",
+        "width": 1200,
+        "height": 630,
+        "sha256": "2eacac298b196896466f3d98a1d03c24ede4e9eee9b46c2e0a6eb310ffc95ee1",
+        "version": "v1"
+      }
+    }
+  ],
+  "engineering-artwork": [
+    {
+      "id": "composer-purpose-artwork",
+      "project": "app-composer",
+      "title": "What App Composer is for",
+      "visibility": "public",
+      "reuse": "unconfirmed",
+      "credit": "App Composer",
+      "alt": "App Composer. Make it real. A pencil sketch becomes a working orange machine.",
+      "description": "Illustrated companion to the editable App Composer purpose diagram.",
+      "caption": "Illustrated companion to the editable App Composer purpose diagram.",
+      "tags": [
+        "engineering-artwork"
+      ],
+      "use": "social",
+      "stage": "share poster",
+      "reviewedAt": "2026-11-17",
+      "projectUrl": "https://composer.loftwah.com/diagrams#diagram-composer-purpose",
+      "sourceUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/sources.json",
+      "kitUrl": "https://composer.loftwah.com/diagrams/engineering/app-composer-diagrams-20261117.zip",
+      "previewUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/make-it-real-20261117.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/make-it-real-20261117-480.webp",
+      "thumbnailWidth": 480,
+      "thumbnailHeight": 252,
+      "original": {
+        "url": "https://composer.loftwah.com/campaign/share-resources-20261120/make-it-real-20261117.jpg",
+        "label": "Original JPG",
+        "width": 1200,
+        "height": 630,
+        "sha256": "2459de6c7032e5e6c1cc9a281f73c5e0c05541bc4aa805caf25fe8b1ca2690e6",
+        "version": "v1"
+      }
+    },
+    {
+      "id": "composer-agent-authority-artwork",
+      "project": "app-composer",
+      "title": "Agent and owner authority",
+      "visibility": "public",
+      "reuse": "unconfirmed",
+      "credit": "App Composer",
+      "alt": "App Composer. Keep the keys. A hand holds a key beside a dark control panel.",
+      "description": "Illustrated companion to the editable agent and owner authority diagram.",
+      "caption": "Illustrated companion to the editable agent and owner authority diagram.",
+      "tags": [
+        "engineering-artwork"
+      ],
+      "use": "social",
+      "stage": "share poster",
+      "reviewedAt": "2026-11-17",
+      "projectUrl": "https://composer.loftwah.com/diagrams#diagram-composer-agent-and-owner",
+      "sourceUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/sources.json",
+      "kitUrl": "https://composer.loftwah.com/diagrams/engineering/app-composer-diagrams-20261117.zip",
+      "previewUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/keep-the-keys-20261117.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/keep-the-keys-20261117-480.webp",
+      "thumbnailWidth": 480,
+      "thumbnailHeight": 252,
+      "original": {
+        "url": "https://composer.loftwah.com/campaign/share-resources-20261120/keep-the-keys-20261117.jpg",
+        "label": "Original JPG",
+        "width": 1200,
+        "height": 630,
+        "sha256": "1366429f3a418b311f7288a94d647624ace427bcba484653458e551bcb8f9571",
+        "version": "v1"
+      }
+    },
+    {
+      "id": "composer-pipeline-artwork",
+      "project": "app-composer",
+      "title": "Creative production and reuse",
+      "visibility": "public",
+      "reuse": "unconfirmed",
+      "credit": "App Composer",
+      "alt": "App Composer. Make. Keep. Remix. A storyboard, film and artwork surround a print machine.",
+      "description": "Illustrated companion to the editable creative production and reuse diagram.",
+      "caption": "Illustrated companion to the editable creative production and reuse diagram.",
+      "tags": [
+        "engineering-artwork"
+      ],
+      "use": "social",
+      "stage": "share poster",
+      "reviewedAt": "2026-11-17",
+      "projectUrl": "https://composer.loftwah.com/diagrams#diagram-composer-creative-pipeline",
+      "sourceUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/sources.json",
+      "kitUrl": "https://composer.loftwah.com/diagrams/engineering/app-composer-diagrams-20261117.zip",
+      "previewUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/make-keep-remix-20261117.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/share-resources-20261120/make-keep-remix-20261117-480.webp",
+      "thumbnailWidth": 480,
+      "thumbnailHeight": 252,
+      "original": {
+        "url": "https://composer.loftwah.com/campaign/share-resources-20261120/make-keep-remix-20261117.jpg",
+        "label": "Original JPG",
+        "width": 1200,
+        "height": 630,
+        "sha256": "62fbcdf602fe2f6369e1d8e4691aa80114860a0e9cca80843c9ce47fa552382d",
+        "version": "v1"
+      }
+    }
+  ]
+}

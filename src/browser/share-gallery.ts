@@ -270,6 +270,7 @@ export function mountArtworkActions(piece: HTMLElement) {
     void request("save");
   });
   remove.addEventListener("click", () => void request("remove"));
+  if (review.open) void request();
 }
 
 function modified(event: MouseEvent) {

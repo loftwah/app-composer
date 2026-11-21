@@ -4,6 +4,7 @@
 // the catalogue revision and the image bytes without using credentials.
 import { z } from "zod";
 import workshopShare from "./workshop-share-20261122.json" with { type: "json" };
+import shareResources from "./share-resources-20261120.json" with { type: "json" };
 import internetWorkshop from "./internet-workshop-20261122.json" with { type: "json" };
 import {
   catalogueAssetSchema,
@@ -17,9 +18,10 @@ import {
 } from "./bluesky-publisher.ts";
 
 const composerOrigin = "https://composer.loftwah.com";
-const nativeCollections = new Map<string, (typeof workshopShare | typeof internetWorkshop)>([
+const nativeCollections = new Map<string, (typeof workshopShare | typeof internetWorkshop | (typeof shareResources)["briefing-cards"])>([
   ["workshop-series", workshopShare],
   ["internet-workshop", internetWorkshop],
+  ...Object.entries(shareResources),
 ]);
 const nativeRecords = new Map([...nativeCollections].flatMap(([tag, records]) =>
   records.map((record) => [record.id, { tag, record }] as const),
@@ -527,7 +529,7 @@ function catalogueArtwork(raw: unknown, origin = SHARE_CATALOGUE_ORIGIN, collect
         : undefined),
     description: boundedString(asset.description, 2500) ?? "",
     ...(origin === composerOrigin ? { caption: boundedString(asset.caption, 1000) ?? undefined } : {}),
-    kitUrl: publicArtworkUrl(asset.kitUrl, campaignSourcePath, origin),
+    kitUrl: publicArtworkUrl(asset.kitUrl, origin === composerOrigin ? composerKitPath : campaignSourcePath, origin),
     projectUrl: typeof asset.projectUrl === "string" && isSafeShareLink(asset.projectUrl) ? asset.projectUrl : null,
     sourceUrl: publicArtworkUrl(asset.sourceUrl, campaignSourcePath, origin),
     revisionSource: JSON.stringify([source?.sha256 ?? null, source?.version ?? null, original?.url, previewUrl, reviewedAt]),
@@ -535,6 +537,7 @@ function catalogueArtwork(raw: unknown, origin = SHARE_CATALOGUE_ORIGIN, collect
 }
 
 const campaignSourcePath = /^\/campaign\/.+/;
+const composerKitPath = /^(?:\/campaign\/.+|\/downloads\/app-composer\/share-kit-20261120\/app-composer-share-kit\.zip|\/diagrams\/engineering\/app-composer-diagrams-20261117\.zip)$/;
 
 function artworkVersions(value: unknown): ArtworkVersion[] {
   if (!Array.isArray(value)) return [];
