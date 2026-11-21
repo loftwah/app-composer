@@ -2,6 +2,12 @@
 
 App Composer is an open-source platform for creating, shipping and running projects with AI agents. It brings together creative tools, reusable building blocks and production infrastructure so people can direct the work and keep control of what they make.
 
+## Origins: from Woodhouse to App Composer
+
+App Composer grew out of [Woodhouse](https://github.com/loftwah/woodhouse-new), the Loftwah Software Factory's earlier engineering, agent-workflow and portfolio project. Woodhouse established much of the thinking behind project-aware agents, evidence-led delivery and operating software as a connected system. App Composer is its **successor**: the active home for creator workflows, project and portfolio intelligence, agent orchestration, delivery, CI/CD and SRE capabilities. Useful Woodhouse ideas move here selectively when they serve a real need; they are not copied into a second parallel platform.
+
+Woodhouse stays accessible as an independent project, public record and part of the origin story. It is not a required App Composer runtime dependency or the authority for new work. Existing apps and repositories retain their own source, data and release boundaries.
+
 The supported application path starts on Cloudflare. Prepare an agent, describe the app, or compose independent apps into a working stack. Each app keeps its own source, records, media and release. EmDash provides the creator interface. Read the [product direction](PRODUCT.md#product-purpose) for the full lifecycle and the [public guide](https://composer.loftwah.com/guide#direction) for how today’s tools fit into it.
 
 [Open App Composer](https://composer.loftwah.com/) · [Explore the working tools](https://composer.loftwah.com/discover) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn) · [Why I built it](https://composer.loftwah.com/story) · [Read the build story](https://composer.loftwah.com/building)
