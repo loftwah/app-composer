@@ -6,10 +6,14 @@ Reviewed 17 November 2026. Sources include the owner’s creation and operations
 web
 
 ## Stack
-EmDash, Astro, TypeScript, Cloudflare Workers, D1/R2, Access, GitHub and external Codex. Woodhouse operates implementation; customer applications do not depend on it.
+EmDash, Astro, TypeScript, Cloudflare Workers, D1/R2, Access, GitHub and external Codex. App Composer owns current creator, project/portfolio, agent-orchestration and delivery/SRE product direction. Independent applications retain their own runtime and release authority. Woodhouse is a preserved predecessor, not an implementation dependency.
 
 ## Users
 Creators, developers and teams who want to make and run something they own. Beginners should be able to start with an idea and references. Developers and operators should be able to inspect and control the underlying source, services and releases. Agents are also users of the platform’s structured interfaces. The human is MP from the beginning, including before they have an idea.
+
+## Woodhouse lineage and succession
+
+App Composer was born from [Woodhouse](https://github.com/loftwah/woodhouse-new) and has succeeded it as the active product and engineering operations platform. Woodhouse's factory, portfolio and agent-delivery work remains an important reference and public record, but new shared capabilities and necessary migrations belong in App Composer or their independently owned project. Carry forward the smallest useful, tested contracts instead of copying whole systems, maintaining dual authority or requiring Woodhouse for runtime, CI/CD or project management. Woodhouse can remain online without continuing as the coordinating platform.
 
 ## Product Purpose
 App Composer is an open-source, AI-native creation and operations platform. Its purpose is to let people express an outcome and shape it to their taste while agents coordinate the tools and work needed to bring it to life. The person directs the outcome, approves consequential actions and retains control of their work, source, data and accounts.
