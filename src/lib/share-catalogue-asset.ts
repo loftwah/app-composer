@@ -3,6 +3,7 @@
 // can only resolve its own public image origin. Downloads and Calendar bind
 // the catalogue revision and the image bytes without using credentials.
 import { z } from "zod";
+import computerClub from "./computer-club-share-20261122.json" with { type: "json" };
 import workshopShare from "./workshop-share-20261122.json" with { type: "json" };
 import shareResources from "./share-resources-20261120.json" with { type: "json" };
 import internetWorkshop from "./internet-workshop-20261122.json" with { type: "json" };
@@ -18,9 +19,18 @@ import {
 } from "./bluesky-publisher.ts";
 
 const composerOrigin = "https://composer.loftwah.com";
-const nativeCollections = new Map<string, (typeof workshopShare | typeof internetWorkshop | (typeof shareResources)["briefing-cards"])>([
+interface ComposerShareRecord {
+  id: string;
+  title: string;
+  project: string;
+  description: string;
+  tags: string[];
+}
+
+const nativeCollections = new Map<string, readonly ComposerShareRecord[]>([
   ["workshop-series", workshopShare],
   ["internet-workshop", internetWorkshop],
+  ["computer-club", computerClub],
   ...Object.entries(shareResources),
 ]);
 const nativeRecords = new Map([...nativeCollections].flatMap(([tag, records]) =>

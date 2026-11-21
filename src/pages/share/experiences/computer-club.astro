@@ -1,0 +1,83 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { crossword, crosswordNumbers } from '../../../lib/computer-club.ts';
+import '../../../styles/computer-club.css';
+
+const source = '/campaign/computer-club-20261122';
+---
+<Base title="Computer Club" description="A computer trivia round, a tiny crossword and six fuses to guess a word."
+  shareImage={source + '/computer-mini-og.jpg'} shareAlt="The Computer Mini, a computer crossword from App Composer">
+  <article class="computer-club" data-computer-club>
+    <nav aria-label="Computer Club">
+      <a href="/share?tag=computer-club">← App Composer Share</a>
+      <a href="#trivia">Trivia</a>
+      <a href="#crossword">Crossword</a>
+      <a href="#fusebox">Fusebox</a>
+    </nav>
+    <h1>Computer Club</h1>
+
+    <section id="trivia" class="club-section">
+      <h2>Computer trivia</h2>
+      <div data-quiz>
+        <p class="club-progress" data-progress></p>
+        <h3 tabindex="-1" data-question></h3>
+        <div class="club-answers" data-options></div>
+        <p role="status" data-quiz-feedback></p>
+        <a data-quiz-source hidden>Source</a>
+        <div class="club-actions">
+          <button type="button" data-next hidden>Next question</button>
+          <button type="button" class="secondary" data-share-score hidden>Copy score and link</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="crossword" class="club-section">
+      <h2>The Computer Mini</h2>
+      <form class="club-crossword" data-crossword>
+        <div class="club-squares" role="group" aria-label="Crossword grid">
+          {crossword.map((line, row) => [...line].map((cell, col) => (
+            cell === '.' ? <span class="club-block" aria-hidden="true"></span> :
+              <label class="club-cell">
+                {crosswordNumbers[`${row}-${col}`] && <span aria-hidden="true">{crosswordNumbers[`${row}-${col}`]}</span>}
+                <input data-row={row} data-col={col} maxlength="1" pattern="[A-Za-z]" required spellcheck="false"
+                  autocomplete="off" autocapitalize="characters" aria-label={`Row ${row + 1}, column ${col + 1}`} />
+              </label>
+          )))}
+        </div>
+        <div class="club-clues">
+          <h3>Across</h3>
+          <p><strong>3.</strong> Command interpreter. (5)</p>
+          <h3>Down</h3>
+          <p><strong>1.</strong> Part of the internet that translates names into addresses. (3)</p>
+          <p><strong>2.</strong> In-memory data store often used as a cache. (5)</p>
+          <p><strong>4.</strong> Run a checker for suspicious code or style issues. (4)</p>
+        </div>
+        <div class="club-actions">
+          <button type="submit">Check grid</button>
+          <button type="button" class="secondary" data-share-grid hidden>Copy challenge link</button>
+          <p role="status" data-grid-status></p>
+        </div>
+      </form>
+    </section>
+
+    <section id="fusebox" class="club-section">
+      <h2>Fusebox</h2>
+      <p>Guess the word before you blow six fuses.</p>
+      <p data-fuse-hint></p>
+      <div class="club-word" aria-hidden="true" data-fuse-word></div>
+      <div class="club-letters" aria-label="Guess a letter" data-letters></div>
+      <p role="status" data-fuse-status></p>
+      <div class="club-actions">
+        <button type="button" data-next-word hidden>Next word</button>
+        <button type="button" class="secondary" data-share-fuses hidden>Copy result and link</button>
+      </div>
+    </section>
+    <noscript><p>Enable JavaScript to play Computer Club.</p></noscript>
+    <footer><a href="/"><img src="/brand/composer-icon-20261022b-48.png" alt="" width="28" height="28" /> Made with App Composer</a></footer>
+  </article>
+</Base>
+<script>
+  import { mountComputerClub } from '../../../browser/computer-club.ts';
+  const club = document.querySelector<HTMLElement>('[data-computer-club]');
+  if (club) mountComputerClub(club);
+</script>

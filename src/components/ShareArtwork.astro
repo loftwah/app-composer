@@ -103,6 +103,7 @@ const options = {
       {facets.length > 1 && <a href={href({ query: '', project: '', category: '', orientation: 'any', tag: '' })}>Clear filters</a>}
     </div>
     <nav class="gallery-related" aria-label="More to explore">
+      {tag === "computer-club" && <a href="/share/experiences/computer-club">Play Computer Club <ArrowUpRight size={13} aria-hidden="true" /></a>}
       <a href={shareCalendarHref}>Share calendar <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/media-studio/films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
