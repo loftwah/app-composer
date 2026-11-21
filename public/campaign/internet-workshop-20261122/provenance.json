@@ -1,0 +1,299 @@
+{
+  "credits": "App Composer Internet Workshop. The artworks and their lettering were generated with ImageGen. Composer’s exact approved mark and publisher line were added as the publication signature.",
+  "pieces": [
+    {
+      "id": "composer-internet-01-patch-notes",
+      "file": "patch-notes-v1.jpg",
+      "sha256": "f88ec1eeb53e819a41f18a1186914456f9c86a9a843adc407766ec72d80f1bde",
+      "prompt": "Finished 4:5 editorial photo spread for App Composer, probably the key visual. Center-left an old orange repair terminal disassembled on a duralumin bench. Beside it a strip of clearly lettered thermal paper and one person’s fingertip making a real, specific second change with a soldering iron. Macro flash reflection, offset-print edge strokes. Title EXACT “APP COMPOSER” followed by large “PROOF, PLEASE.” Tiny typeset kicker at bottom “Source · Release · Live check”. Make the type and image feel cut from the same print publication. No fabricated receipt text or software screenshots, no other words or logos.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-02-pick-door",
+      "file": "pick-door-v1.jpg",
+      "sha256": "aaad3649ae5b0f7268c9561ec79e2805c9d5618aa7fc9cd8f2f007858e9fe3a4",
+      "prompt": "Cinematic surreal arcade poster, a giant purple-lit orrery hallway with exactly three different doorways: a small ornate welded orange portal, a light fluorescent plain grey office door and a teal arch that opens to a tiny distant sunset. Mark doors exactly “1”, “2”, “3”. Large cream headline “PICK A DOOR.” Footer “No explanations.” No other text or URL. Mind-bending architectural photography, 9:16 safe native vertical composition.",
+      "scope": "Playable"
+    },
+    {
+      "id": "composer-internet-03-after-midnight",
+      "file": "after-midnight-v1.jpg",
+      "sha256": "05f6196028616022d17f94a4f60d4eca749ccbaedf19e011e41c0018e5b9c787",
+      "prompt": "Exact artist lettering on a finished square record sleeve. The giant title is exactly “LOFTWAHFM” (L O F T W A H F M), then “AFTER MIDNIGHT” (A F T E R, M I D N I G H T). All type plain high contrast, strict spelling. Main image is cobalt-black disassembled speaker hardware under a slash of tangerine light; rings of copper wire and real dust. Very bold near-monochrome 1970s independent music photography. No other words, no mark, no logo, no decorative glyphs.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-04-hot-take-bingo",
+      "file": "hot-take-bingo-v1.jpg",
+      "sha256": "f48f28b0bd5255518fc0be8ed3355e4412e2d11407d3d4f764f40fc4edf4ddd6",
+      "prompt": "An exceptional finished 4:5 screenprinted gig flyer for a developer meme game, brutalist pale cream newspaper and rich scarlet and ink. Large exact full heading “TECH HOT-TAKE BINGO”. Make a clean precise 3 by 3 arrangement with nine cells, all centrally typeset exact clear lines. Row 1: “Rewrite it”, “Clear cache”, “Needs a queue”. Row 2: “AI fixes it”, “FREE SPACE”, “Ship today”. Row 3: “Self-host it”, “It’s DNS”, “Works here”. Footer “How many today?” Distinctive typographic composition, no fake votes, no other writing or logos.",
+      "scope": "Playable"
+    },
+    {
+      "id": "composer-internet-05-the-small-build",
+      "file": "the-small-build-v1.jpg",
+      "sha256": "690e881a6e7dffc3da88a8af7d998a76282f3c9a37d43d58b36190f96bc3ebb0",
+      "prompt": "4:5 striking small web zine front cover in warm tabloid paper, precise computer-print typography and 1980s school-workshop stencil. Photograph from open door of a one-person workshop with one strange running machine and a hand returning a set of keys to a wall hook. Flat orange, warm cream and ink. Type leads “APP COMPOSER” in gigantic cut type, “Keep the source. Leave a way back in.” No filler numbers or other type, no real identity mark unless included as exact lettering. Make the art look peer-reviewed by an indie magazine not a product shot.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-06-pull-another",
+      "file": "pull-another-v1.jpg",
+      "sha256": "6b278813fcf67b922814e3db0b8ff8bdf0286e62ab2226f820a37cc12433fff8",
+      "prompt": "Complete 4:5 independent collectible campaign artwork in the spirit of night-market sports-card trading and foil oddities. Gloved hand tips the edge of an original gold etched card out of a burnt-orange packet. Foil reacts only to a physical strip light. Text integrated as archival card type reading exactly “FOILBURY” then “PULL ANOTHER.” Footer “App Composer Internet Workshop”. Artwork original: neither real athletes nor logos; no type on card face itself except requested title, no sales claims.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-07-paperwork-press",
+      "file": "paperwork-press-v1.jpg",
+      "sha256": "9a053d75cd3398515e3ebe4303cc4d93d7cdc815ed05a9d13bcf32d08ccdccaa",
+      "prompt": "Wide 3:2 high fashion visual for an actual browser-local PDF tool. Flat bed of a letterpress in a beautiful off-white studio. Orange physical shutter closes behind one cream sheet with a few simple marks (no text). Brutal shadow. Main headline “YOUR PDF STAYS HERE.” Below “Paperwork by App Composer”. Simple exact wordmark as large honest type. Two colour litho plus realistic material photography, no computer screen, made-up UI, URL or padlock cliche.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-08-top-nine",
+      "file": "top-nine-v1.jpg",
+      "sha256": "4c8b3886448819d573dbfe1acb307aa1b1c96370a7adc7e66f4992b2732d4e40",
+      "prompt": "An original printed personal museum exhibit with a 3 by 3 grid of 9 illustrated fictitious game objects. Much of it is physical museum placards and archival shadows, not app UI. Exact title “NINE GAMES THAT MADE ME” and small footer “A personal internet museum”. Original game props, avoid any real franchises or lettering in the individual panels. Bright royal purple room and hot peach frames, premium editorial.",
+      "scope": "Playable"
+    },
+    {
+      "id": "composer-internet-09-pocket-atlas",
+      "file": "pocket-atlas-v1.jpg",
+      "sha256": "d976f1ff40d21f1f84e0ff61bff729f12f48591fac391bfe024ff94e5cb0fe30",
+      "prompt": "Gorgeous 3:2 orange-on-cream arrangement of disassembled original brick models like a real workshop explainer. Axonometric photograph of a physical tiny machine separated into five recognisable parts, one waiting to slide exactly into its slot. Strong thin engineering arrows, no labels or diagram text beyond the headline “BUILD THINGS YOU CAN TAKE APART.” Lower line “App Composer · LDraw field notes”. Printed original technical magazine spread. No existing toy brand, studs unmarked, no shadowless stock SVG look.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-10-open-web",
+      "file": "open-web-v1.jpg",
+      "sha256": "22b512370696a2b94cbdfb5e00f968df3fbd572c7766000987692b35c0963a71",
+      "prompt": "Quiet, respectful 4:5 print tribute about the open web, a hand placing a physical book into a public book drop at dusk, a solid line of open windows from a glowing shared library, no portrait or product attribution. Massive warm paper serif “LEAVE MORE DOORS OPEN.” Small sharply legible “In memory of Aaron Swartz.” No date, quote, URL or brand. A thoughtful independent open-web editorial, not a promotional badge.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-11-arcade-wars",
+      "file": "arcade-wars-v1.jpg",
+      "sha256": "a97fa071487a82fc0e0ead5b9241977b5632364c378bac14a8ee829bfff81a87",
+      "prompt": "Original coin-op marquee with two rival pixel characters, a ruby red enchanter and a thunder-yellow python hacker rendered as an original snake-like mechanic, facing off in a tight arcade arena. Oversized chunky headline “PICK A SIDE.” Then centered “Ruby  VS  Python”. Footer “One round. Defend your pick.” Dithered cream phosphor, acid green and cobalt. No existing game characters or game interfaces.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-12-choose-fighter",
+      "file": "choose-fighter-v1.jpg",
+      "sha256": "30e20ecbec3413645183445087099a7159faff4039f74cf1cf019fb410dc2e2e",
+      "prompt": "An underground arcade fighter character select poster for a wholly original game. It is one fantastic character, The Legacy Monolith, a slow-tempered humanoid cubical computer cabinet whose old punch-card slot is its cape clasp, in hand-painted high-end pixel art. Extra-wide headline “CHOOSE YOUR MAIN”. Exact footer “THE LEGACY MONOLITH” and “Special move: Still works.” Complete collectible card, no game logos or licensed marks.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-13-which-cloudflare",
+      "file": "which-cloudflare-v1.jpg",
+      "sha256": "d44b5249db54f87b344ab95959aa0595b76a551730c29dc9ed0fdea2fbab245e",
+      "prompt": "Rare collectible card from an astronomical infrastructure deck, antique silver etching on midnight mineral-blue foil. Show a ring-shaped orbital library staging a tiny planet under a telescope. Very clear typography “I’M A DURABLE OBJECT.” Subtitle “I remember where we left off.” Distinct tiny note “Cloudflare service card · Concept”. No vendor marks.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-14-tier-list",
+      "file": "tier-list-v1.jpg",
+      "sha256": "0fa16c9ccf99a2662e49027665993fb94b51b57dfc726d42892cc3cb8759fbc6",
+      "prompt": "A picture of an engraving of four excessively serious judges critiquing a rubber duck in a Roman arena, with a tournament ranking scale engraved into the architecture. Whole poster's exact words “DEFEND YOUR RANKINGS.” and lower line “Which tool is S tier?” Wine red letterpress, white marbled stone, harsh cobalt accents. Dramatic cover typography.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-15-cursed-choices",
+      "file": "cursed-choices-v1.jpg",
+      "sha256": "e33b7daa327a2b414aaeb9126da7b691161c7388e9daacea33563a741b92328c",
+      "prompt": "A 3:2 split poster. Left a quiet library with infinite books and a blacked-out network cable, right an infinite low-lit wall of unlabeled modems with an empty AI chair. Vintage game-show set design in golden green and deep plum. Exact text “PICK YOUR CURSE.” Then split large equal “Unlimited tokens. No internet.” versus “Unlimited internet. No AI.” Strong stark typography; no other text.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-16-alignment",
+      "file": "alignment-v1.jpg",
+      "sha256": "057423657c673723c3f438b5e97e32aadf10952507273c0bc6a3ee45f0d92be7",
+      "prompt": "Original black ink, cobalt and amber medieval print tarot poster. A robed deploy engineer holds a scroll marked “CHAOTIC GOOD” in huge serif and a lantern lighting a real row of servers. Heading exactly “DEVELOPER ALIGNMENT”. Closing line “Fixes prod before anyone finds out.” Sharp fantastic woodcut, no copied fantasy characters or franchise names.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-17-internet-specimen",
+      "file": "internet-specimen-v1.jpg",
+      "sha256": "259cf1f9162a596cf4a5cbb50f50843bc365d80ef778100e8571fe9348876aef",
+      "prompt": "Museum specimen label for a ‘Local-first night owl’, miniature white owl with a distinctive keyboard feather pattern inside a yellow amber resin archive slide. Technological natural history. Exact text “INTERNET SPECIMEN” and “Local-first night owl”. Tiny “Fictional classification”. Antique cream and natural aubergine. No stats, no barcode numbers, no vague text.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-18-stack-forge",
+      "file": "stack-forge-v1.jpg",
+      "sha256": "d8b85e3b754eeaa05ec489993d480f7b787bc8652147581b4465ce741b301bba",
+      "prompt": "Portrait technical cutaway of a wild modular orbital workshop in white, lime and midnight, crisp exploded blueprint. Headline “YOU SHIP TOMORROW.” Under it “Pick your tools.” Selective physical tags “Agent”, “App”, “Data”, “Runtime” next to exactly four distinct connected space modules. Credible industrial assembly. Concept graphic, no real logos.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-19-budget-survivor",
+      "file": "budget-survivor-v1.jpg",
+      "sha256": "037b6a46b07727ff49a0d1f8e7aef489364921fd30e578d13766a58007d06217",
+      "prompt": "1980s television shopping set shot in realistic chrome and acidic red, an enormous thermal receipt erupts from an orange cash register spilling into the foreground. Headline “THE HOSTING BUDGET IS $20.” Giant receipt line “What do you keep?” Tiny “Scenario budget only”. No product pricing, dollar amounts, brands or stock graphs elsewhere. Memorable analog composition.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-20-red-flag-court",
+      "file": "red-flag-court-v1.jpg",
+      "sha256": "86c78554e1ffc154d67b18d96921764848d9e3d6228161eddca6a001fa161221",
+      "prompt": "1980s supermarket tabloid cover with a cartoon court clerk slamming a rubber stamp next to a pile of satirical case dossiers, painted scarlet and green transparent inks. Headline “RED FLAG OR GREEN FLAG?” Giant evidence line “47 browser tabs.” Choice line “Red / Green / It depends”. Truthful exact text. Show one instant laugh, no other tiny copy.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-21-first-token",
+      "file": "first-token-v1.jpg",
+      "sha256": "7759d33963e0a17a5b850bd2f9aeb27b35f52a61160ff72376857d66c365d458",
+      "prompt": "Overproduced 1970s television dating show as a romantic film poster, two fanciful chrome terminals face one another from opposite velour stools, hot pink and saffron ring lighting. Exact enormous title “LOVE AT FIRST TOKEN”. Straight subtitle “My type is low latency.” Keep exaggerated analog show rhythm and no model branding, logos or fake specs.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-22-builder-bestiary",
+      "file": "builder-bestiary-v1.jpg",
+      "sha256": "89f6b0e5ec5ce7551800bcd102a43d42f089d07c01088aac4f124161402eacda",
+      "prompt": "High-end collectible RPG bestiary card portrait of a benevolent itinerant wizard in a wool coat reviving an old red steam-operated server rack on a midnight rail platform using a maintenance log. Original character. Exact typography “THE LEGACY NECROMANCER” and “Revives projects everyone gave up on.” Black shadow, orange red, smoke blue, real book jacket style.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-23-blind-taste",
+      "file": "blind-taste-v1.jpg",
+      "sha256": "ccde7e310a4bfab1f6a60c4ee56daf5af3c8f79ac8225eb6ffc4480f79a0a0ce",
+      "prompt": "A paper intelligence dossier with three anonymised vellum sheets torn across a brushed blue steel table. Large exact headline “GUESS THE MODEL” and two small labels “Read first.” “Reveal later.” Strong bold monospace and printed orange redactions. Absolutely no actual model names, benchmark claims or extra illegible writing.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-24-design-crime",
+      "file": "design-crime-v1.jpg",
+      "sha256": "6e01e55b5c124db37b060150599f01eb2cbec27bcac35f3d81f03e85230580aa",
+      "prompt": "A late 1970s consumer test lab with a hard strobe and caution-yellow evidence tags, on the table one unreadable ghosted white button inside a varnished plastic acrylic sheet. Massive letterpress headline “DESIGN CRIME SCENE” and exact line “Exhibit A: a button nobody can see.” Deadpan real accessibility joke. No startup thumbnails, badges or extra words.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-25-one-must-go",
+      "file": "one-must-go-v1.jpg",
+      "sha256": "b67e93d22141b2fce05cd74485555950c1f56220a3107d37cd391a4a1b6245d7",
+      "prompt": "An overproduced three-dimensional awards ceremony under four spotlights for four unbranded objects representing a dial-up modem, a music player, a text editor and a game console. Noir orange and white relief. Exact lines “ONE MUST GO.” and “Music · Games · Code · The Web”. Strong spacing of all four names; no fake votes and no logos. Wide high-impact poster.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-26-digital-archaeology",
+      "file": "digital-archaeology-v1.jpg",
+      "sha256": "75f9abe9fdf6ae5670e358fc7c6fb799a12d811b414f41b41abde9dcd02d3f53",
+      "prompt": "Grainy macro photograph of a late 1990s beige unbranded CRT next to a small external dial-up modem, power lights, tangled RJ11 cable, dark attic. Type in yellowed sticker capital letters “YOU CAN HEAR THIS PICTURE.” Small “Digital archaeology”. Heavy cinematic shadows with light from a dusty orange desk lamp. No retro brand or screenshot.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-27-guess-year",
+      "file": "guess-year-v1.jpg",
+      "sha256": "a152f7614c82a09d57ed937fe66a52e562f6bdc2474409942cecddb66ce07cd2",
+      "prompt": "Retro educational television card in a handmade 1960s space-age set. A pixel globe made of green CRT scanlines inside a paper orange and lavender concentric spiral. Exact text “GUESS THE YEAR” and “When did the web go public?” No year displayed, no answer, no network logo. Strong 9:16 vertical spacing.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-28-internet-age",
+      "file": "internet-age-v1.jpg",
+      "sha256": "40701b706c754b229a9ac71ca702e81cadbe1c82f25ceed799d2504b51ee5c77",
+      "prompt": "Psychedelic portrait print of a hand rummaging through a time capsule with a burned CD, stack of zines, mylar stickers and unbranded transparent pager on an apricot desk. Large headline “WHICH INTERNET RAISED YOU?” Tiny “Forums / Feeds / Group chats”. Rich tactile collage; no faux app, dates or copyrighted icons.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-29-dev-confessions",
+      "file": "dev-confessions-v1.jpg",
+      "sha256": "345628a2da377ab9220818aa9304e86f34daddd1290b75adc07af720b38f2a14",
+      "prompt": "Original ecclesiastical punk screenprint poster, one anonymous figure whispering into a CRT confessional with lit keycaps, ink-pink woodcut and black. Exact text in large carefully typeset letters “DEVELOPER CONFESSIONS” and “I wrote the TODO in 2018.” Clearly fictional joke copy. No usernames or extra labels.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-30-hot-takes",
+      "file": "hot-takes-v1.jpg",
+      "sha256": "ec02f9a949cdb0563e7470c55e1540fd32afc986f03e8bf9a9144444dff89831",
+      "prompt": "A machine at maximum thermal output stamping molten bronze words onto cold paper, dynamic two-tone cartoon editorial, monumental title “HOT TAKE FACTORY” and big pull quote “Some meetings should be README files.” No other writing. Comedy literally made on an assembly line, punchy 3:2 feed shape.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-31-tech-tournament",
+      "file": "tech-tournament-v1.jpg",
+      "sha256": "b11a0984f25b1788ad38357a3099866f502fa6e039ffd1c081b3d55634073b44",
+      "prompt": "An original screenprinted tournament bracket cover with two names in clear white type “TERMINAL” and “GUI” around a gigantic championship cup shaped like two mirrored cable connectors. Top “INTERNET WORLD CUP”. Bottom “Name your champion.” Late-night esports fanzine with sharp black, sodium orange and off-white, no fake bracket votes or brand logos.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-32-million-question",
+      "file": "million-question-v1.jpg",
+      "sha256": "4e6b2d6c835d3364275d0ccd6e56be36d9d37a3c8480d818c11a424b39b172d7",
+      "prompt": "Vivid game-show billboard with a tired maker sitting at a desk on an enormous lit round stage, cyan lit audience seats empty. A red index card in foreground reading “A year of free time” and opposite one “A million dollars”. Big headline “WHICH DO YOU TAKE?” Small subtitle “The million-dollar question”. Vertical art poster, exact words, no fake prize.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-33-villain-origin",
+      "file": "villain-origin-v1.jpg",
+      "sha256": "a55e8d652e1ad17d107819abc0835322991c555e9e2a420990365b97a9bbffe7",
+      "prompt": "The neon-violet noir comic cover of an original villain called ‘The Cache Warden’, a human silhouette behind a half-removed transparent wall of cache storage drawers. Clear headline “THE CACHE WARDEN” and secondary line “They asked him to clear it one last time.” Tiny “Software villain origin story”. Premium pulp halftone, no imitation trademark.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-34-edge-legends",
+      "file": "edge-legends-v1.jpg",
+      "sha256": "bd9948d9da6b4d3eb7999797ddcda20ccce984fe86dcc61e9ae404da4a178ab4",
+      "prompt": "Bold sci-fi ensemble comic cover, three completely original nonhuman utility characters representing run code, share state and hold media, each silhouette different and useful. Cinematic movement under extreme charcoal, turquoise and orange. Exact headline “ASSEMBLE YOUR EDGE SQUAD” and three labels “Compute / State / Storage”. Small “Infrastructure concept”. No vendor icons.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-35-five-minute-startup",
+      "file": "five-minute-startup-v1.jpg",
+      "sha256": "383f57c595bd53fde343e3f44acb17b9f8641a12570fd899af9dfec4a087644a",
+      "prompt": "A satirical 1980s business-magazine cover about an imaginary service that books cancellations for people desperate to stay home. Realistic fake consumer-prototype photograph of absurd rubber stamps and calendar. Main title “THE CANCELLATION CLUB” and line “A fictional startup pitch.” Then exact question “Would you build it?” Cobalt and hot yellow. No brands or real business claims.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-36-agent-squad",
+      "file": "agent-squad-v1.jpg",
+      "sha256": "065038ca364d3b9f43abee893c680d7af010123167d50c186677faf31b5a5af9",
+      "prompt": "An original tactical RPG crew manifest for a peaceful software makers’ team, five materially different character silhouettes posed like a jazz ensemble. Text “DRAFT YOUR AGENT SQUAD”. Subtitle “Research · Design · Build · Review · Release”. Sharp matte orange and blue foil typography, landscape 3:2. No claims about agent providers and no vendor marks.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-37-wrong-answers",
+      "file": "wrong-answers-v1.jpg",
+      "sha256": "71c2237b0c729dabd4159501688ee060ace62977d7740404c4f096856fcb9db5",
+      "prompt": "Absurd 1950s textbook cover, vintage print of an impeccably serious diagram in which a tiny set of chairs and a kettle live inside a server cabinet. Big text “WHAT HAPPENS INSIDE A DATABASE?” and stamp “WRONG ANSWERS ONLY”. Saffron blueprint ink, carefully typeset even on mobile. No other words, clearly a joke.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-38-website-roast",
+      "file": "website-roast-v1.jpg",
+      "sha256": "0fae54a38cc611e18847a0fde704812dce1efe7f5acee0d04ee0c361762b413b",
+      "prompt": "Illustrated courtroom sketch in graphite, bright tomato stripe and cream paper. An original abstract web page diagram sits on the witness stand, a microscopic outline of a CTA under a massive magnifying glass. Exact headline “THE WEBSITE IS ON TRIAL” and small “Charge: nobody can find the button.” Clearly a fictional example. Legible magazine design.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-39-internet-wrapped",
+      "file": "internet-wrapped-v1.jpg",
+      "sha256": "4fa88083ae87afdd8591fc9372da5d5286a890b237cf41823113005233160b60",
+      "prompt": "Generate a finished portrait indie magazine poster with large exact title “MY YEAR ONLINE” in striking cut-paper orange. A warped physical cassette spool, unbranded game cartridge, paper bookmark and old translucent mic on cream stock. Exactly three short caption lines in clean typographic hierarchy, “The discovery.” “The obsession.” “The thing I’ll build.” Treat as a participation prompt now. No button, call-to-action, other readable words or logos. High-end independent release art.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-40-fake-album",
+      "file": "fake-album-v1.jpg",
+      "sha256": "3b3bf714cbf38a88a776e2740f73e0db343129a7509edcf001a5c4d85e7feaea",
+      "prompt": "Square fully finished original record cover for a fictional electronic album. A computer fan arbor grows through wild frosted VU meters and cables suspended like roots in midnight blue. Silver type exactly “GHOSTS IN THE DEPENDENCY TREE”, smaller “Build After Midnight”. Ghostly monochromatic ink with a pale neon-pink accent. No actual band or label marks, no other writing.",
+      "scope": "Published work or editorial"
+    },
+    {
+      "id": "composer-internet-41-what-build",
+      "file": "what-build-v1.jpg",
+      "sha256": "6e7d52a61aa4ccd6052008f33e31a36d17e9dca712eaa35dd383f25a28ef1064",
+      "prompt": "9:16 stunning science-fiction exhibition poster. A vast canyon full of impossible small working inventions, one person with a notebook seen from behind atop a ridge, architecture inspired by found laboratory objects and lime-white dawn. Huge dark type integrated in clear sky “WHAT WOULD YOU BUILD?” and smaller “If building software was the easy part.” No URL. Human ambition, independent creator energy.",
+      "scope": "Social prompt or concept"
+    },
+    {
+      "id": "composer-internet-42-public-inventions",
+      "file": "public-inventions-v1.jpg",
+      "sha256": "acb5adb044e6a2b8a1f0de301a072db1aeacda6fba9c088edc79afd2ea4b2a5f",
+      "prompt": "Finished 3:2 beautifully absurd 1960s World's Fair patent poster. A compact repurposed mechanical machine stiches old project documents into a persistent archive, seen in exploded diagram with an actual person testing it. Headline exactly “THE INTERNET NEEDS THIS” and subheading “What useful thing is still missing?” Bright cadmium red, oatmeal and warm graphite. No tiny patent labels, synthetic trademarks or URLs.",
+      "scope": "Social prompt or concept"
+    }
+  ]
+}

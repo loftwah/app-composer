@@ -1,0 +1,152 @@
+---
+import "../../styles/share-experiences.css";
+import {
+  developerBingo, doorChoices, doorRooms, exhibitionPrompts,
+  experiencePath, experiences, type ExperienceId,
+} from "../../lib/share-experiences.ts";
+
+interface Props {
+  game: ExperienceId;
+  experience: (typeof experiences)[ExperienceId];
+  art: string;
+}
+const { game, experience, art } = Astro.props;
+const isDoor = game === "pick-a-door";
+const isNine = game === "top-nine";
+const isBingo = game === "tech-bingo";
+const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
+---
+
+<article class:list={["share-experience", `experience-${experience.theme}`]} data-experience={game}
+  data-background={art} data-skin="0">
+  <nav class="experience-crumb" aria-label="Internet Workshop">
+    <a href="/share?tag=internet-workshop">← App Composer Share</a>
+  </nav>
+  <header class="experience-heading">
+    <div>
+      <h1>{experience.title}</h1>
+      <p>{experience.description}</p>
+    </div>
+    <picture>
+      <img src={art.replace(".jpg", "-480.webp")} width="480" height="480" alt={experience.imageDescription} fetchpriority="high" />
+    </picture>
+  </header>
+
+  <noscript><p>Enable JavaScript to play, customise and download your result.</p></noscript>
+
+  {isDoor && <section data-play-panel class="door-stage" aria-label="Choose a door">
+    <div class="door-run" data-root-view>
+      {doorRooms.map(([title], index) => <button type="button" class="door" data-door={index} aria-label={`Open door ${index + 1}`}>
+        <span class="door-number">{index + 1}</span><span class="door-handle" aria-hidden="true"></span>
+        <span class="door-label" aria-hidden="true">{title.split(" ").slice(-1)[0]}</span>
+      </button>)}
+    </div>
+    {doorRooms.map(([title, text], index) => <section hidden class="door-room" data-room={index}>
+      <h2 tabindex="-1">{title}</h2>
+      <p>{text}</p>
+      <div class="room-options">{doorChoices[index].map((choice, number) =>
+        <button type="button" data-ending={number + (index === 0 ? 0 : index === 1 ? 3 : 7)}>{choice}</button>
+      )}</div>
+    </section>)}
+    <section hidden class="door-result" data-result>
+      <h2 tabindex="-1" data-reveal-title></h2>
+      <p data-reveal-copy></p>
+    </section>
+    <button hidden type="button" class="secondary experience-reset" data-restart>Back to the doors</button>
+  </section>}
+
+  {isNine && <section data-play-panel class="exhibition" aria-label="Edit your exhibition">
+    <label for="exhibition-title">Exhibition title</label>
+    <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
+    <div class="exhibition-objects">
+      {Array.from({length: 9}, (_, index) => <label>
+        <span>Exhibit {index + 1}</span>
+        <input type="text" maxlength="54" data-object={index} />
+      </label>)}
+    </div>
+    <div class="exhibition-order">
+      <label for="exhibit-order">Move exhibit</label>
+      <select id="exhibit-order" data-order-index>{Array.from({length: 9}, (_, index) =>
+        <option value={index}>{index + 1}</option>
+      )}</select>
+      <button class="secondary" type="button" data-move="-1">Move earlier</button>
+      <button class="secondary" type="button" data-move="1">Move later</button>
+    </div>
+    <label for="exhibition-theme">Try a title</label>
+    <select id="exhibition-theme" data-nine-preset>
+      <option value="">Choose a prompt</option>
+      {exhibitionPrompts.map((label) => <option>{label}</option>)}
+    </select>
+  </section>}
+
+  {isBingo && <section class="bingo-stage" data-play-panel aria-label="Bingo board">
+    <div class="bingo-packs">
+      <label for="bingo-pack">Play a pack</label>
+      <select id="bingo-pack" data-bingo-pack>
+        <option value="dev">Developer</option>
+        <option value="agents">Agent chaos</option>
+        <option value="internet">Old internet</option>
+      </select>
+      <button type="button" class="secondary" data-clear>Clear marks</button>
+    </div>
+    <p class="bingo-score" role="status" data-score>0 lines</p>
+    <div class="bingo-grid">
+      {cells.map((value, index) => <button type="button" aria-pressed={index === 12 ? "true" : "false"}
+        disabled={index === 12} data-tile={index}>{value}</button>)}
+    </div>
+  </section>}
+
+  <section class="experience-export" aria-label="Personalise and share">
+    <h2>Your share image</h2>
+    <div class="experience-fields">
+      <label>Optional byline<input maxlength="48" data-byline placeholder="Your name or handle" /></label>
+      <label>Artwork style<select data-skin-select>
+        {(isDoor ? ["Midnight cinema", "Newsprint", "Signal green"]
+          : isNine ? ["Gallery", "Record sleeve", "Night exhibition"]
+          : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
+            <option value={index}>{label}</option>
+          )}
+      </select></label>
+      <label>Format<select data-format>
+        <option value="portrait">Portrait · 1080 × 1350</option>
+        <option value="story">Story · 1080 × 1920</option>
+        <option value="square">Square · 1080 × 1080</option>
+        <option value="wide">Landscape · 1200 × 630</option>
+      </select></label>
+    </div>
+    <div class="experience-actions">
+      <button type="button" data-download disabled={isDoor || isNine}>Download result</button>
+      <button type="button" class="secondary" data-copy disabled={isDoor || isNine}>Copy result link</button>
+    </div>
+    <p class="experience-note">A result link includes the result and any byline you enter. Downloads stay on your device.</p>
+    <p class="experience-note" role="status" data-status></p>
+    <input hidden readonly aria-label="Result link" data-manual-copy />
+  </section>
+
+  {!isNine && <details class="experience-custom">
+    <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
+    <form data-custom-form>
+      <label for="experience-custom">
+        {isDoor ? "Ten endings. Write one per line as Title | Story." : "Enter 24 phrases, one per line. The centre stays free."}
+      </label>
+      <textarea id="experience-custom" required rows="9" maxlength={5500} data-custom></textarea>
+      <button type="submit">Use this version</button>
+      <p role="status" data-custom-status></p>
+    </form>
+  </details>}
+
+  <footer class="experience-footer">
+    <a href="/"><img src="/brand/composer-icon-20261022b-48.png" alt="" width="26" height="26" /> Made with App Composer</a>
+    <nav aria-label="More experiences">
+      {Object.entries(experiences).filter(([id]) => id !== game).map(([id, item]) =>
+        <a href={experiencePath(id as ExperienceId)}>{item.title} →</a>
+      )}
+    </nav>
+  </footer>
+</article>
+
+<script>
+  import { mountShareExperience } from "../../browser/share-experiences.ts";
+  const root = document.querySelector<HTMLElement>("[data-experience]");
+  if (root) mountShareExperience(root);
+</script>

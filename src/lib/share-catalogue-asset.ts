@@ -4,6 +4,7 @@
 // the catalogue revision and the image bytes without using credentials.
 import { z } from "zod";
 import workshopShare from "./workshop-share-20261122.json" with { type: "json" };
+import internetWorkshop from "./internet-workshop-20261122.json" with { type: "json" };
 import {
   catalogueAssetSchema,
   catalogueIdentity,
@@ -16,8 +17,13 @@ import {
 } from "./bluesky-publisher.ts";
 
 const composerOrigin = "https://composer.loftwah.com";
-export const COMPOSER_WORKSHOP_TAG = "workshop-series";
-const nativeRecords = new Map(workshopShare.map((record) => [record.id, record]));
+const nativeCollections = new Map<string, (typeof workshopShare | typeof internetWorkshop)>([
+  ["workshop-series", workshopShare],
+  ["internet-workshop", internetWorkshop],
+]);
+const nativeRecords = new Map([...nativeCollections].flatMap(([tag, records]) =>
+  records.map((record) => [record.id, { tag, record }] as const),
+));
 
 export const SHARE_CATALOGUE_ORIGIN = "https://woodhouse.loftwah.com";
 export const SHARE_CATALOGUE_API_BASE = `${SHARE_CATALOGUE_ORIGIN}/api/v1/assets`;
@@ -225,7 +231,7 @@ export async function resolveShareCatalogueAsset(
   try {
     const native = nativeRecords.get(assetId);
     const origin = native ? composerOrigin : SHARE_CATALOGUE_ORIGIN;
-    let payload: unknown = { version: 1, asset: native };
+    let payload: unknown = { version: 1, asset: native?.record };
     if (!native) {
       const response = await Promise.race([
         doFetch(sourceUrl, {
@@ -269,7 +275,7 @@ export async function resolveShareCatalogueAsset(
     // current revision is always derived locally from the live payload.
     let sourceDescription: string | undefined;
     if (options.expectedArtworkRevision !== undefined) {
-      const linked = catalogueArtwork(catalogueObject(payload)?.asset, origin);
+      const linked = catalogueArtwork(catalogueObject(payload)?.asset, origin, native?.tag);
       const current = linked ? await artworkRevision(linked) : null;
       if (!current)
         return failed(
@@ -358,6 +364,7 @@ export async function searchShareCatalogueAssets(
 
   const words = q.toLowerCase().split(/\s+/);
   const local = [...nativeRecords.values()]
+    .map(({ record }) => record)
     .filter(({ title, description, tags }) => {
       const searchable = [title, description, "app composer", ...tags].join(" ").toLowerCase();
       return words.every((word) => searchable.includes(word));
@@ -473,7 +480,7 @@ export function artworkFiles(artwork: CatalogueArtwork) {
 
 const campaignArtworkPath = /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i;
 
-function catalogueArtwork(raw: unknown, origin = SHARE_CATALOGUE_ORIGIN): CatalogueArtwork | null {
+function catalogueArtwork(raw: unknown, origin = SHARE_CATALOGUE_ORIGIN, collection?: string): CatalogueArtwork | null {
   const asset = catalogueObject(raw);
   if (asset?.visibility !== "public") return null;
   const assetId = normalizeShareAssetId(asset.id);
@@ -483,8 +490,8 @@ function catalogueArtwork(raw: unknown, origin = SHARE_CATALOGUE_ORIGIN): Catalo
   const credit = boundedString(asset.credit, SHARE_CATALOGUE_CREDIT_MAX);
   const thumbnailUrl = publicArtworkUrl(asset.thumbnailUrl, campaignArtworkPath, origin);
   const previewUrl = publicArtworkUrl(asset.previewUrl, campaignArtworkPath, origin);
-  const shareUrl = origin === composerOrigin
-    ? `${composerOrigin}/share?tag=${COMPOSER_WORKSHOP_TAG}`
+  const shareUrl = collection
+    ? `${composerOrigin}/share?${new URLSearchParams({ tag: collection })}`
     : publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/, origin);
   if (!(assetId && project && title && alt && credit && thumbnailUrl && previewUrl && shareUrl))
     return null;
@@ -550,7 +557,7 @@ export async function publicShareArtwork(
 ): Promise<{ status: 200; artwork: CatalogueArtwork } | { status: 404 } | { status: 503 }> {
   const native = nativeRecords.get(id);
   if (native) {
-    const artwork = catalogueArtwork(native, composerOrigin);
+    const artwork = catalogueArtwork(native.record, composerOrigin, native.tag);
     return artwork ? { status: 200, artwork } : { status: 404 };
   }
   const endpoint = shareAssetApiUrl(id);
@@ -613,11 +620,16 @@ export async function browseShareArtwork(
   }
 }
 
-export function listComposerShareArtwork(): CatalogueArtwork[] {
-  return workshopShare.flatMap((record) => {
-    const artwork = catalogueArtwork(record, composerOrigin);
+function composerCatalogue(records: Iterable<{ tag: string; record: unknown }>): CatalogueArtwork[] {
+  return Array.from(records).flatMap(({ record, tag }) => {
+    const artwork = catalogueArtwork(record, composerOrigin, tag);
     return artwork ? [artwork] : [];
   });
+}
+
+export function composerShareCollection(tag: string) {
+  const records = nativeCollections.get(tag);
+  return records ? composerCatalogue(records.map((record) => ({ tag, record }))) : null;
 }
 
 // A compact live projection keeps legacy eligibility and global sort order current.
@@ -633,7 +645,7 @@ export async function listShareArtwork(options: CatalogueFetchOptions = {}): Pro
     }
     const envelope = catalogueObject(await readBoundedJson(response, signal, 8_388_608));
     if (envelope?.version !== 1 || !Array.isArray(envelope.assets)) return null;
-    const items = new Map(listComposerShareArtwork().map((artwork) => [artwork.assetId, artwork]));
+    const items = new Map(composerCatalogue(nativeRecords.values()).map((artwork) => [artwork.assetId, artwork]));
     for (const raw of envelope.assets) {
       const artwork = catalogueArtwork(raw);
       if (artwork && !nativeRecords.has(artwork.assetId)) items.set(artwork.assetId, artwork);
