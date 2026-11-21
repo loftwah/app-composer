@@ -1,0 +1,933 @@
+{
+  "schema": "cf-transport-local/v1",
+  "timestamp_utc": "2026-11-21T10:13:06.928792+00:00",
+  "scope": "loopback-only; not Cloudflare; no TLS; no cold starts; no real network charges",
+  "environment": {
+    "python": "3.13.5",
+    "OS": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "grpcio": "1.80.0",
+    "aiohttp": "3.13.3",
+    "websockets": "16.0"
+  },
+  "configuration": {
+    "messages_per_client": 75,
+    "repeats": 5,
+    "clients": [
+      1,
+      10
+    ],
+    "payloads_bytes": [
+      128,
+      4096
+    ],
+    "message_protocol": "same application JSON echo; different transport overhead"
+  },
+  "unauthorized_rejections": {
+    "http_sse": "pass",
+    "websocket": "pass",
+    "grpc": "pass"
+  },
+  "scenarios": [
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 1,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 16.336,
+      "throughput_messages_per_second": 4591.0,
+      "latency_ms": {
+        "p50": 0.1781,
+        "p95": 0.2598,
+        "p99": 0.4584
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 2,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 14.3,
+      "throughput_messages_per_second": 5244.6,
+      "latency_ms": {
+        "p50": 0.1539,
+        "p95": 0.2632,
+        "p99": 0.3439
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 3,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 14.546,
+      "throughput_messages_per_second": 5156.0,
+      "latency_ms": {
+        "p50": 0.1541,
+        "p95": 0.2589,
+        "p99": 0.4829
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 4,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 14.267,
+      "throughput_messages_per_second": 5256.7,
+      "latency_ms": {
+        "p50": 0.1535,
+        "p95": 0.24,
+        "p99": 0.3338
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 5,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 21.537,
+      "throughput_messages_per_second": 3482.4,
+      "latency_ms": {
+        "p50": 0.1605,
+        "p95": 0.578,
+        "p99": 2.3214
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 1,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 6.852,
+      "throughput_messages_per_second": 10946.2,
+      "latency_ms": {
+        "p50": 0.0504,
+        "p95": 0.107,
+        "p99": 0.2161
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 2,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 5.092,
+      "throughput_messages_per_second": 14730.2,
+      "latency_ms": {
+        "p50": 0.0474,
+        "p95": 0.0776,
+        "p99": 0.1141
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 3,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 4.818,
+      "throughput_messages_per_second": 15566.0,
+      "latency_ms": {
+        "p50": 0.0449,
+        "p95": 0.0734,
+        "p99": 0.122
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 4,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 4.981,
+      "throughput_messages_per_second": 15057.9,
+      "latency_ms": {
+        "p50": 0.0462,
+        "p95": 0.0709,
+        "p99": 0.1133
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 5,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 5.129,
+      "throughput_messages_per_second": 14623.8,
+      "latency_ms": {
+        "p50": 0.0474,
+        "p95": 0.0861,
+        "p99": 0.1101
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 1,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 17.44,
+      "throughput_messages_per_second": 4300.6,
+      "latency_ms": {
+        "p50": 0.152,
+        "p95": 0.2105,
+        "p99": 1.2999
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 2,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 13.98,
+      "throughput_messages_per_second": 5365.0,
+      "latency_ms": {
+        "p50": 0.1565,
+        "p95": 0.2045,
+        "p99": 0.4091
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 3,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 14.266,
+      "throughput_messages_per_second": 5257.3,
+      "latency_ms": {
+        "p50": 0.1598,
+        "p95": 0.2158,
+        "p99": 0.4378
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 4,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 15.442,
+      "throughput_messages_per_second": 4857.0,
+      "latency_ms": {
+        "p50": 0.1809,
+        "p95": 0.2465,
+        "p99": 0.521
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 128,
+      "repetition": 5,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 14.4,
+      "throughput_messages_per_second": 5208.5,
+      "latency_ms": {
+        "p50": 0.1592,
+        "p95": 0.2078,
+        "p99": 0.4615
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 1,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 21.334,
+      "throughput_messages_per_second": 3515.4,
+      "latency_ms": {
+        "p50": 0.1834,
+        "p95": 0.2624,
+        "p99": 1.4064
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 2,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 16.151,
+      "throughput_messages_per_second": 4643.5,
+      "latency_ms": {
+        "p50": 0.174,
+        "p95": 0.2575,
+        "p99": 0.3555
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 3,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 15.831,
+      "throughput_messages_per_second": 4737.6,
+      "latency_ms": {
+        "p50": 0.1727,
+        "p95": 0.2321,
+        "p99": 0.3335
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 4,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 16.338,
+      "throughput_messages_per_second": 4590.6,
+      "latency_ms": {
+        "p50": 0.1751,
+        "p95": 0.295,
+        "p99": 0.3338
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 5,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 16.1,
+      "throughput_messages_per_second": 4658.2,
+      "latency_ms": {
+        "p50": 0.1727,
+        "p95": 0.2585,
+        "p99": 0.3369
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 1,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 9.536,
+      "throughput_messages_per_second": 7864.6,
+      "latency_ms": {
+        "p50": 0.0929,
+        "p95": 0.1444,
+        "p99": 0.1741
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 2,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 9.447,
+      "throughput_messages_per_second": 7938.7,
+      "latency_ms": {
+        "p50": 0.0944,
+        "p95": 0.1493,
+        "p99": 0.1738
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 3,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 9.016,
+      "throughput_messages_per_second": 8318.5,
+      "latency_ms": {
+        "p50": 0.0907,
+        "p95": 0.1421,
+        "p99": 0.1628
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 4,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 9.237,
+      "throughput_messages_per_second": 8119.7,
+      "latency_ms": {
+        "p50": 0.0926,
+        "p95": 0.1384,
+        "p99": 0.156
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 5,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 9.29,
+      "throughput_messages_per_second": 8073.4,
+      "latency_ms": {
+        "p50": 0.0922,
+        "p95": 0.1532,
+        "p99": 0.1839
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 1,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 18.442,
+      "throughput_messages_per_second": 4066.8,
+      "latency_ms": {
+        "p50": 0.186,
+        "p95": 0.2935,
+        "p99": 0.8085
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 2,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 16.854,
+      "throughput_messages_per_second": 4449.9,
+      "latency_ms": {
+        "p50": 0.1673,
+        "p95": 0.2368,
+        "p99": 0.5951
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 3,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 17.388,
+      "throughput_messages_per_second": 4313.3,
+      "latency_ms": {
+        "p50": 0.1658,
+        "p95": 0.2221,
+        "p99": 0.8458
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 4,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 16.859,
+      "throughput_messages_per_second": 4448.6,
+      "latency_ms": {
+        "p50": 0.1689,
+        "p95": 0.2395,
+        "p99": 0.7768
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 1,
+      "payload_bytes": 4096,
+      "repetition": 5,
+      "samples": 75,
+      "correct": true,
+      "duration_ms": 21.778,
+      "throughput_messages_per_second": 3443.9,
+      "latency_ms": {
+        "p50": 0.1692,
+        "p95": 0.2879,
+        "p99": 2.1595
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 1,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 95.951,
+      "throughput_messages_per_second": 7816.5,
+      "latency_ms": {
+        "p50": 1.1574,
+        "p95": 1.3374,
+        "p99": 2.6081
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 2,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 95.493,
+      "throughput_messages_per_second": 7854.0,
+      "latency_ms": {
+        "p50": 1.1724,
+        "p95": 1.392,
+        "p99": 2.3153
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 3,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 97.884,
+      "throughput_messages_per_second": 7662.1,
+      "latency_ms": {
+        "p50": 1.1796,
+        "p95": 1.4846,
+        "p99": 2.8184
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 4,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 94.898,
+      "throughput_messages_per_second": 7903.3,
+      "latency_ms": {
+        "p50": 1.155,
+        "p95": 1.4961,
+        "p99": 2.2609
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 5,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 94.101,
+      "throughput_messages_per_second": 7970.2,
+      "latency_ms": {
+        "p50": 1.1588,
+        "p95": 1.3831,
+        "p99": 2.4461
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 1,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 42.817,
+      "throughput_messages_per_second": 17516.4,
+      "latency_ms": {
+        "p50": 0.451,
+        "p95": 0.6509,
+        "p99": 0.9861
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 2,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 40.053,
+      "throughput_messages_per_second": 18725.1,
+      "latency_ms": {
+        "p50": 0.4406,
+        "p95": 0.589,
+        "p99": 0.6656
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 3,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 42.038,
+      "throughput_messages_per_second": 17841.1,
+      "latency_ms": {
+        "p50": 0.4469,
+        "p95": 0.5814,
+        "p99": 1.1162
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 4,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 40.768,
+      "throughput_messages_per_second": 18396.8,
+      "latency_ms": {
+        "p50": 0.4444,
+        "p95": 0.6819,
+        "p99": 0.8711
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 5,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 42.666,
+      "throughput_messages_per_second": 17578.3,
+      "latency_ms": {
+        "p50": 0.4514,
+        "p95": 0.6605,
+        "p99": 1.3604
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 1,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 86.074,
+      "throughput_messages_per_second": 8713.4,
+      "latency_ms": {
+        "p50": 0.9659,
+        "p95": 1.5612,
+        "p99": 3.8189
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 2,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 89.822,
+      "throughput_messages_per_second": 8349.9,
+      "latency_ms": {
+        "p50": 1.0409,
+        "p95": 1.6263,
+        "p99": 2.6206
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 3,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 92.232,
+      "throughput_messages_per_second": 8131.7,
+      "latency_ms": {
+        "p50": 1.0539,
+        "p95": 1.613,
+        "p99": 2.7882
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 4,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 84.854,
+      "throughput_messages_per_second": 8838.7,
+      "latency_ms": {
+        "p50": 1.0356,
+        "p95": 1.4794,
+        "p99": 2.5056
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 128,
+      "repetition": 5,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 66.648,
+      "throughput_messages_per_second": 11253.1,
+      "latency_ms": {
+        "p50": 0.7203,
+        "p95": 1.4285,
+        "p99": 2.8798
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 1,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 130.098,
+      "throughput_messages_per_second": 5764.9,
+      "latency_ms": {
+        "p50": 1.5785,
+        "p95": 2.0311,
+        "p99": 3.2877
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 2,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 128.221,
+      "throughput_messages_per_second": 5849.3,
+      "latency_ms": {
+        "p50": 1.5598,
+        "p95": 2.2383,
+        "p99": 3.0668
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 3,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 128.406,
+      "throughput_messages_per_second": 5840.8,
+      "latency_ms": {
+        "p50": 1.5708,
+        "p95": 2.146,
+        "p99": 3.2698
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 4,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 129.491,
+      "throughput_messages_per_second": 5791.9,
+      "latency_ms": {
+        "p50": 1.5341,
+        "p95": 2.3601,
+        "p99": 4.8739
+      }
+    },
+    {
+      "transport": "http+sse",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 5,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 123.867,
+      "throughput_messages_per_second": 6054.9,
+      "latency_ms": {
+        "p50": 1.4163,
+        "p95": 3.228,
+        "p99": 3.6238
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 1,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 87.86,
+      "throughput_messages_per_second": 8536.3,
+      "latency_ms": {
+        "p50": 1.0429,
+        "p95": 1.5045,
+        "p99": 2.0364
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 2,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 83.678,
+      "throughput_messages_per_second": 8962.9,
+      "latency_ms": {
+        "p50": 0.9755,
+        "p95": 1.3947,
+        "p99": 1.6001
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 3,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 84.032,
+      "throughput_messages_per_second": 8925.2,
+      "latency_ms": {
+        "p50": 0.9642,
+        "p95": 1.2428,
+        "p99": 1.5232
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 4,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 85.916,
+      "throughput_messages_per_second": 8729.5,
+      "latency_ms": {
+        "p50": 1.0019,
+        "p95": 1.4197,
+        "p99": 1.6046
+      }
+    },
+    {
+      "transport": "websocket",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 5,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 81.944,
+      "throughput_messages_per_second": 9152.6,
+      "latency_ms": {
+        "p50": 0.9635,
+        "p95": 1.2955,
+        "p99": 1.5247
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 1,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 71.323,
+      "throughput_messages_per_second": 10515.6,
+      "latency_ms": {
+        "p50": 0.7643,
+        "p95": 1.4309,
+        "p99": 2.5419
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 2,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 72.835,
+      "throughput_messages_per_second": 10297.2,
+      "latency_ms": {
+        "p50": 0.7871,
+        "p95": 1.364,
+        "p99": 2.3265
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 3,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 75.337,
+      "throughput_messages_per_second": 9955.3,
+      "latency_ms": {
+        "p50": 0.8396,
+        "p95": 1.4292,
+        "p99": 2.3709
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 4,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 104.641,
+      "throughput_messages_per_second": 7167.3,
+      "latency_ms": {
+        "p50": 1.288,
+        "p95": 1.7564,
+        "p99": 2.7158
+      }
+    },
+    {
+      "transport": "grpc",
+      "clients": 10,
+      "payload_bytes": 4096,
+      "repetition": 5,
+      "samples": 750,
+      "correct": true,
+      "duration_ms": 98.566,
+      "throughput_messages_per_second": 7609.1,
+      "latency_ms": {
+        "p50": 1.2733,
+        "p95": 1.8846,
+        "p99": 2.7237
+      }
+    }
+  ],
+  "decision": "not-qualified-for-cloudflare-adoption; requires isolated Cloudflare deployment and paired live samples"
+}
