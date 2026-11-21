@@ -26,12 +26,38 @@
   color: var(--color-accent);
 }
 
-.gallery-heading p {
+.gallery-intro {
   grid-area: description;
+}
+
+.gallery-heading p {
   margin: 0;
   color: var(--color-muted);
   font-size: clamp(0.875rem, 1.4vw, 1.1rem);
   line-height: 1.4;
+}
+
+.gallery-account {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.65rem;
+  font-size: 0.9rem;
+}
+
+.gallery-heading .gallery-account {
+  margin-block-start: 0.3rem;
+}
+
+.gallery-account a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 650;
+}
+
+.gallery-feedback {
+  margin-block: 0.75rem 1.1rem;
 }
 
 .button.gallery-shuffle {

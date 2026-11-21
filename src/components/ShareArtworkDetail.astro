@@ -8,9 +8,10 @@ import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
 import '../styles/share-gallery.css';
 
-interface Props { artwork: CatalogueArtwork; signedIn: boolean; tags: string[]; }
-const { artwork, signedIn, tags } = Astro.props;
+interface Props { artwork: CatalogueArtwork; signedIn: boolean; tags: string[]; browseQuery: string; }
+const { artwork, signedIn, tags, browseQuery } = Astro.props;
 const path = `/share/artwork/${artwork.assetId}`;
+const feedbackSignIn = '/_emdash/admin/login?' + new URLSearchParams({ redirect: browseQuery ? path + '?' + browseQuery : path });
 const canonical = publicPageCanonical(path).href;
 const [revision, shareUrl] = await Promise.all([
   artworkRevision(artwork),
@@ -56,6 +57,29 @@ const packageData = JSON.stringify({
     <h1>{artwork.title}</h1>
     <p class="gallery-credit">{artwork.credit}</p>
     {artwork.description && <p class="gallery-description">{artwork.description}</p>}
+    {signedIn ? (
+      <details class="gallery-piece-section gallery-feedback" data-artwork-review open>
+        <summary>Private feedback</summary>
+        <form data-review-form data-asset-id={artwork.assetId} data-revision={revision}>
+          <p>Signed in. Only you can see your vote and note.</p>
+          <fieldset disabled>
+            <legend>Your vote</legend>
+            <label><input type="radio" name="vote" value="up" required /> <span>Thumbs up</span></label>
+            <label><input type="radio" name="vote" value="down" /> <span>Thumbs down</span></label>
+          </fieldset>
+          <label for={`note-${artwork.assetId}`}>Note <span>(optional)</span></label>
+          <textarea id={`note-${artwork.assetId}`} name="note" maxlength="1000" rows="3" disabled></textarea>
+          <div class="gallery-piece-actions">
+            <button type="submit" disabled>Save feedback</button>
+            <button type="button" class="secondary" data-review-remove hidden>Remove</button>
+            <button type="button" class="secondary" data-review-retry hidden>Try again</button>
+          </div>
+          <p data-review-status role="status"></p>
+        </form>
+      </details>
+    ) : (
+      <div class="gallery-account gallery-feedback"><strong>Signed out</strong><a href={feedbackSignIn}>Sign in to give feedback</a></div>
+    )}
     <div class="gallery-piece-actions">
       <a class="button gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {primaryDownloadLabel}</a>
       <button class="secondary" type="button" data-gallery-package={packageData} hidden><Package size={16} aria-hidden="true" /> Download post package (ZIP)</button>
@@ -134,28 +158,6 @@ const packageData = JSON.stringify({
       <span role="status" data-studio-id-status></span>
       <a href="/media-studio/studio">Open Media Studio <ArrowUpRight size={14} /></a>
     </details>
-    {signedIn ? (
-      <details class="gallery-piece-section" data-artwork-review>
-        <summary>Private feedback</summary>
-        <form data-review-form data-asset-id={artwork.assetId} data-revision={revision}>
-          <p>Only you can see your vote and note.</p>
-          <fieldset disabled>
-            <legend>Your vote</legend>
-            <label><input type="radio" name="vote" value="up" required /> <span>Thumbs up</span></label>
-            <label><input type="radio" name="vote" value="down" /> <span>Thumbs down</span></label>
-          </fieldset>
-          <label for={`note-${artwork.assetId}`}>Note <span>(optional)</span></label>
-          <textarea id={`note-${artwork.assetId}`} name="note" maxlength="1000" rows="3" disabled></textarea>
-          <div class="gallery-piece-actions">
-            <button type="submit" disabled>Save feedback</button>
-            <button type="button" class="secondary" data-review-remove hidden>Remove</button>
-            <button type="button" class="secondary" data-review-retry hidden>Try again</button>
-          </div>
-          <p data-review-status role="status"></p>
-        </form>
-      </details>
-    ) : (
-      <p class="gallery-piece-section"><a href={`/_emdash/admin/login?${new URLSearchParams({redirect: path})}`}>Sign in to give private feedback</a></p>
-    )}
+
   </div>
 </article>
