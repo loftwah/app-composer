@@ -221,3 +221,34 @@ test("artwork detail requires the matching public record and distinguishes missi
     })).status, status);
   }
 });
+
+test("Composer artwork is available by its public ID and exact revision without the legacy catalogue", async () => {
+  const id = "composer-workshop-08-weird";
+  const calls = [];
+  const fetch = async (url) => {
+    calls.push(url);
+    return new Response(Uint8Array.of(0xff, 0xd8, 0xff, 0xd9), {
+      headers: { "content-type": "image/jpeg" },
+    });
+  };
+  const detail = await publicShareArtwork(id, { fetch });
+  assert.equal(detail.status, 200);
+  assert.ok(detail.artwork.tags.includes("workshop-series"));
+  assert.deepEqual(calls, []);
+
+  const stale = await resolveShareCatalogueAsset(id, {
+    fetch,
+    expectedArtworkRevision: "0".repeat(64),
+  });
+  assert.equal(stale.code, "artwork_stale");
+  assert.deepEqual(calls, []);
+
+  const exact = await resolveShareCatalogueAsset(id, {
+    fetch,
+    expectedArtworkRevision: await artworkRevision(detail.artwork),
+  });
+  assert.equal(exact.ok, true);
+  assert.equal(exact.sourceDescription, detail.artwork.caption);
+  assert.deepEqual(calls, [detail.artwork.previewUrl]);
+  assert.match(calls[0], /^https:\/\/composer\.loftwah\.com\/campaign\//);
+});

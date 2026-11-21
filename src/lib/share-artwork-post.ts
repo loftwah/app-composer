@@ -1,12 +1,12 @@
 import type { CatalogueArtwork } from "./share-catalogue-asset.ts";
 
 export function artworkPostText(
-  artwork: Pick<CatalogueArtwork, "title" | "description" | "credit" | "sourceUrl">,
+  artwork: Pick<CatalogueArtwork, "title" | "description" | "caption" | "credit" | "sourceUrl">,
   canonical: string,
 ): string {
   return [
     artwork.title,
-    artwork.description,
+    artwork.caption || artwork.description,
     artwork.credit,
     artwork.sourceUrl,
     canonical,
@@ -16,7 +16,7 @@ export function artworkPostText(
 }
 
 export function artworkPostBrief(
-  artwork: Pick<CatalogueArtwork, "assetId" | "title" | "description" | "credit" | "sourceUrl" | "alt">,
+  artwork: Pick<CatalogueArtwork, "assetId" | "title" | "description" | "caption" | "credit" | "sourceUrl" | "alt">,
   canonicalUrl: string,
   downloadUrl: string,
   revision: string,

@@ -2,7 +2,7 @@
 import { ArrowUpRight, Copy, Download, Maximize2, Package, Share2 } from '@lucide/astro';
 import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
-import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
+import { artworkFiles, artworkRevision, SHARE_CATALOGUE_ORIGIN, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
 import { artworkPostBrief, artworkPostText } from '../lib/share-artwork-post.ts';
 import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
@@ -122,8 +122,14 @@ const packageData = JSON.stringify({
         <li>Keep the <a href={postTextDownload} download={postTextFileName}>credited post text (TXT)</a> with your crops. It includes the artwork link and image alt text.</li>
       </ol>
       <p>Image Tools also resizes, crops and converts files in your browser. Check the source record before reusing the artwork.</p>
-      <p>In your Studio project, choose <strong>Library → Import from Woodhouse Share</strong>, enter this asset ID and confirm you have permission to reuse the original.</p>
-      <label>Share asset ID<input type="text" value={artwork.assetId} readonly data-studio-asset-id /></label>
+      {new URL(artwork.previewUrl).origin === SHARE_CATALOGUE_ORIGIN ? (
+        <>
+          <p>In your Studio project, choose <strong>Library → Import from Woodhouse Share</strong>, enter this asset ID and confirm you have permission to reuse the original.</p>
+          <label>Share asset ID<input type="text" value={artwork.assetId} readonly data-studio-asset-id /></label>
+        </>
+      ) : (
+        <p>To use this image in a Studio project, download it and upload the file through the project’s Library.</p>
+      )}
       <button type="button" class="secondary" data-copy-studio-id hidden><Copy size={16} aria-hidden="true" /> Copy asset ID</button>
       <span role="status" data-studio-id-status></span>
       <a href="/media-studio/studio">Open Media Studio <ArrowUpRight size={14} /></a>

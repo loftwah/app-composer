@@ -1,0 +1,205 @@
+{
+  "method": "Built-in ImageGen generated the illustrations, type and layouts together. Exported JPEGs and thumbnails preserve the complete composition.",
+  "pieces": [
+    {
+      "id": "composer-workshop-01-manifesto",
+      "file": "01-manifesto-v1.jpg",
+      "sha256": "c6564804dcee3f6cbf7a66c77e09511947234da85c63207d96fcd143e4a7e2db",
+      "prompt": "Design the FINISHED hero key art for App Composer in portrait 4:5. Photoreal industrial portrait: huge tangerine cable winding wheel and a glowing taut copper conductor traveling to a small calm bright orange terminal. Graphite shadows with one soft amber search light. The line visually links build to operation. Ambitious mass and deliberate asymmetric cropping. Dominant two-line Swiss grotesk copy exactly “Build it.” and “Keep it running.” Typography integrated into the art above and alongside the tensioned conductor, legible in cream. Beneath only “Idea → Build → Publish → Operate → Improve”. Footer “App Composer” in bare cream typography, and “composer.loftwah.com”. No emblems or logos. Make this a print-quality cult technology launch poster.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-02-relay",
+      "file": "02-relay-v1.jpg",
+      "sha256": "063203eb03225dded6f03cb6f70e47ab88b3049b0ddcf92d05053ffa1825b1c1",
+      "prompt": "Finished single portrait campaign poster for indie software, 4:5. Monumental orange circular service aperture in a brutalist turbine corridor, entirely camera-real. Shot low, near pure black foreground, copper-orange ring as tracked eye path with orange utility cable escaping down concrete floor, ivory title at bottom. Exact headline “The work goes live.” Single subtitle “Preview → Release → Operate”. Small “App Composer” in bare typography, no symbol or logo. Tense high-fashion architecture spread with a crisp editorial grid and giant type. Excellent mobile hierarchy.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-03-catalogue",
+      "file": "03-catalogue-v1.jpg",
+      "sha256": "721b1ac2058d0400bb961354135a9b94995309adecfe85720b1180983384e305",
+      "prompt": "Finished 4:5 social media magazine graphic. Huge black type on saffron says exactly “What can you make?” Flat-lay photography on saturated warm violet, with actual tactile physical objects: arcade handheld, thick photo postcard, portable audio recorder, translucent camera accessories, orange circuit kit, bound folded mini book. At bottom integrate bold legible oversized cream typography on flat violet in two clean rows exactly “Apps · Websites · Media · Game assets” and “Automations · Shareables · Mini-tools · Creative kits”. Lower small “App Composer” set as pure text. Strong artistic rhythm in the arrangement of physical objects, flash highlights, no logos, no generated writing on objects, all typography intentionally readable.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-04-print",
+      "file": "04-print-v1.jpg",
+      "sha256": "05dd9069030d0e26b4f2f9cf0a6c68f9cf2cbfa241248c69d51f0fcf1dd0ae9d",
+      "prompt": "A complete, professionally art-directed 4:5 typography-first print poster ready for a social media feed. Three stacked centered HUGE lines of flawless creme-colored bold block typography taking up top 60%, these exact words: “THE” then “SECOND” then “EDIT MATTERS.” A bold vermilion paper field and black registration marks. Bottom third has a dramatic black and orange halftone photo cropping a pair of hands aligning two slightly offset prints on a print bed. Small normal black sans serif beneath photo “App Composer”. No other lettering. Confident spacing, extreme graphic quality. Absolutely spell SECOND accurately, S E C O N D.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-05-continuity",
+      "file": "05-continuity-v1.jpg",
+      "sha256": "a2347cbfca2c31481aee5616dc5ccd422bc725ab4f93e1588b8bf174cb66f454",
+      "prompt": "3:2 editorial magazine graphic, huge ivory serif headline exactly “Keep the project in reach.” in left column on dark olive field. Right column high-contrast photo of an open industrial archival drawer cradling a blank file folder, tape reel, small copper electronics enclosure and notebook. Across bottom four clearly written terms “Source   Data   Releases   Notes”. Discreet “App Composer”. Designed as one polished magazine opener, warm uncoated paper, exact typography.",
+      "format": "1536×1024",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-06-creators",
+      "file": "06-creators-v1.jpg",
+      "sha256": "f026aa81297809dc320a3abcd2afdc021f2e9062f00f113a8b37a5c10a3c3005",
+      "prompt": "4:5 editorial design annual magazine cover. Large elegant off-white serif headline “Who’s in the workshop?” in a plum masthead. Overhead flash photo: four hands around one tool bench with a folded zine, solderable circuit, arcade button, orange film frame. In large neat sans on a custard lower edge print “Creators · Developers · Tinkerers · Small teams”. Footer “App Composer”. No decorative small labels. Precise typography and genuine analogue printed feel.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-07-social",
+      "file": "07-social-v1.jpg",
+      "sha256": "cd5a868e4247e5a2e8a1583f761df36e16c76429cebcae12ccd8541a4b27b3c3",
+      "prompt": "Complete viral 4:5 post. Large headline across the very top in three highly legible white lines, EXACTLY “Make it” then “worth” then “sending.” Use dead-straight letters, no distortion or overlap. Beneath the headline a wild direct-flash fisheye photo of a lime plastic sticker vending machine spewing ruby playing cards and stickers onto ultramarine. A footer in white says “Top 9 · Quizzes · Creator cards · Release kits” then “App Composer”. This is strange and extremely high style, keep carefully spelled typography, no letters on any object.",
+      "format": "1122×1402",
+      "scope": "Concept or reference"
+    },
+    {
+      "id": "composer-workshop-08-weird",
+      "file": "08-weird-v1.jpg",
+      "sha256": "a1669461a62d8901748a09ac4598488c4dc20d8dec11a85315613952018ebe87",
+      "prompt": "4:5 underground newspaper comic as finished social post. A pale orange, deeply anxious mud crab on long thin actual crab legs struggles with an enormous grounded power plug by a wall socket, back foot on the patch cable. Flat orange/ink/teal printed comic, deliberate weirdness and purposeful gesture. Big black text “THE UNPLUG TEST” above. Integrated speech bubble precisely “Could you pick up the project tomorrow?” Bottom reads exactly “Source. Release. Next step.” and small “App Composer”. A visually outstanding original finished comic poster.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-09-scope",
+      "file": "09-scope-v1.jpg",
+      "sha256": "61b9fa80240c6666d2a493f14f1aafb96bbb7bdce92173ca9344598a7d6dae99",
+      "prompt": "4:5 surreal lithographic poster, cream stock. A huge illustrated burnt orange interlocked mechanical switch pitches forward into foreshortening. Type boldly integrated, headline “Who says ship?” and smaller well spaced “Preview the change.” “Review the scope.” “Verify the target.” Small “App Composer” bottom. Orange matte enamel, firm black ink and paper grain. Magazine infographics craft.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-10-handoff",
+      "file": "10-handoff-v1.jpg",
+      "sha256": "02f7299f32d732d7d03ddb7d702ea6898ead9bbce258b4a3e7ddd74f74e2e092",
+      "prompt": "4:5 design annual campaign artwork. Colourful translucent orange acetate, blueprint-blue vellum and drafting paper hover in a smoky graphite room, joined through the same point by a taut materially realistic orange thread. Giant clear “Carry the evidence.” in bone white type. Three well spaced terms “Reference / Revision / Check”. Tiny “App Composer”. Sharp lighting and composition, style of award-grade print typography.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-11-feedback",
+      "file": "11-feedback-v1.jpg",
+      "sha256": "d0795cfb7e6e40eb0a0344f8beef74b9853b3f02f75392199b7e85aefbf89324",
+      "prompt": "Finished mid-century printing studio poster with an audacious diagonal. LARGE uniform light cream type reads exactly “Send the signal back.” Rhythmic red-orange paper ribbon physically winds around two cobalt rollers, one giant return loop in perspective, pure black background with cranberry shadows. The visual is photo-real with hard direct flash. Under the headline put exactly “Share → Listen → Revise”. Put “App Composer” in bare text in the lower right corner; only the two words in plain type, no symbol, no emblem, no badge, no icon, no logo, no other words. No URL. Clear 4:5 social-safe composition.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-12-workshop",
+      "file": "12-workshop-v1.jpg",
+      "sha256": "2b858f3fa8d1f284d1806687d3170a628d615c7921fed352b716bd5a2d0eb8e0",
+      "prompt": "4:5 screenprint Australian indie workshop key visual. An eccentric weatherboard shed with roller door open, showing the glowing orange machine inside at dawn. Big type directly in buttery sky reading exactly “A workshop for what doesn’t exist yet.” restrain to 3 lines. At bottom “App Composer” and “composer.loftwah.com”. Deep blue large shadows, orange equipment, refined handmade graphic work. Finished campaign print.",
+      "format": "1122×1402",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-13-byoa",
+      "file": "13-byoa-v1.jpg",
+      "sha256": "3f9b58af7e97b1cfaf8bc157f80a6f21a1f0f0c18766491bbcd8c20e6653b7d3",
+      "prompt": "3:2 premium architecture diagram on off-white, top headline “Bring your own agent”. Subheading “App Composer · Supported setups”. Three distinct columns in visual order with clean unambiguous arrows going LEFT to RIGHT. Left column heading “Choose your tools”, with exactly four separate small text entries “ChatGPT”, “Codex”, “Claude”, “Local tools”. Arrows from this group converge on the one center box “App Composer” with two subordinate lines “Project context” and “Human review”. From center split arrows to right two boxes “Cloudflare Workers” with subtitle “Supported app release”, and “Public Share” with subtitle “Eligible artwork”. Jet black type, construction drawings thin ocean-blue connectors and urgent orange central apparatus. Extremely clean visual paths. Max readable engineering type and no extra wording.",
+      "format": "1536×1024",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-14-runtime",
+      "file": "14-runtime-v1.jpg",
+      "sha256": "ab0dbe07441a87a04197622c501b4e5d33fda7c3b94855803829d757ffb88f37",
+      "prompt": "3:2 technical print diagram titled exactly “Where AI runs. Where apps run.” Navy blue field, large pale ice typography. Two tracks stacked, with clean arrows between each box. Top lane labelled “Build time” showing “Agent tools” → “Model provider” with tiny “if needed” beneath arrow. Bottom lane labelled “Run time” showing “Users” → “Cloudflare Workers app” → “Inference provider” with “if needed” beneath final arrow. No arrows between lanes. Top arrows warm orange and bottom icy blue. Footer “App Composer · Cloudflare-first”. Premium clear system map. All exact legible words, no stray axis markings.",
+      "format": "1536×1024",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-15-loop",
+      "file": "15-loop-v1.jpg",
+      "sha256": "871efb9328fdafba7164570fbcec97bbfc5d859d8eb62687269ac7eb54b0d128",
+      "prompt": "4:5 graphic design poster, boldly titled “The project loop” with “App Composer” tiny. Clear circle route with a single clockwise direction, nine numbered stations placed clockwise and large labels exactly “01 Idea”, “02 References”, “03 Create”, “04 Preview”, “05 Publish”, “06 Share”, “07 Feedback”, “08 Improve”, “09 Reuse”. Line returns to Idea. Creative transit map with cropped orange and magenta rings on ivory. Open clean negative space and elegant subway wayfinding type. No extraneous text.",
+      "format": "1122×1402",
+      "scope": "Concept or reference"
+    },
+    {
+      "id": "composer-workshop-16-control",
+      "file": "16-control-v1.jpg",
+      "sha256": "69b3347d5b69fb5d49336535f67c4da2016d6b5dec2c224f9d7abffc7bb874d3",
+      "prompt": "4:5 sci-fi OS lithograph. Headline “Workshop control plane” and marked “APP COMPOSER / CONCEPT MAP”. Deep cool black with archival amber and pale mint phosphor, one striking vertical spine connecting the real architecture. Three stacked labeled tiers linked by arrows: “Creator” with notes “Intent” and “Chosen agent”; “Composer workbench” with notes “Context”, “Review”, “Reusable blocks”; “Independent projects” with notes “Source”, “Data”, “Release”, “Operations”. A side output from the workbench labelled “Public Share”. Footer “Cloudflare is the preferred runtime.” Sophisticated physical mission control wall poster, no fake metrics, high legibility.",
+      "format": "1122×1402",
+      "scope": "Concept or reference"
+    },
+    {
+      "id": "composer-workshop-17-timeline",
+      "file": "17-timeline-v1.jpg",
+      "sha256": "096002de6f93ae703609e7caa2c1ba3246a66c01340b8207916ec722c56bf2a4",
+      "prompt": "3:2 art director’s storyboard titled “From idea to owned app”. Eight numbered cells with a tiny playful meaningful glyph and these exact captions: first row “01 Idea”, “02 Examples”, “03 Agent work”, “04 Preview”. second row “05 Revise”, “06 Publish”, “07 Share”, “08 Return”. The numbering is precise and makes order unambiguous. Black typography and orange woodblock figures on cream newsprint. Poster-quality spacing and negative space. “App Composer” as small source label. No extra text.",
+      "format": "1536×1024",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-18-stack",
+      "file": "18-stack-v1.jpg",
+      "sha256": "e60967fe3a0b488c9cab2b7544a976d70bb93dda51fcf69577cde75d8c257b60",
+      "prompt": "Finished landscape 3:2 technology editorial infographic ready for social, generous exact type, white paper and two-colour persimmon/red. Headline “Cloudflare building blocks”. Subtitle “App Composer · Reference stack”. Bottom central anchor “Workers” / “Serve the app”. Above it three group tiles presented like an exploded mechanical print, each with a monochrome physical diagram and correctly spelled clear textual list. First “Data” with “D1”, “R2”, “Durable Objects”. Second “Jobs” with “Queues”, “Workflows”. Third “Inference” with “Workers AI”, “AI Gateway”. Fine unambiguous conductors connect center Workers to each group. Footer “Choose services to fit the project.” No logo, no logomark, no cloud symbol, no badges. Clean authoritative layout on slightly textured drafting paper.",
+      "format": "1536×1024",
+      "scope": "Concept or reference"
+    },
+    {
+      "id": "composer-workshop-19-comparison",
+      "file": "19-comparison-v1.jpg",
+      "sha256": "d3409bbec3822929b31b6cf7cd4ae68295e7cdec4a1980fa99c87fda1e9988de",
+      "prompt": "3:2 editorial positioning chart “Two briefs for an AI build”. Two distinct columns with even rows. Left heading “Prototype brief” then exactly “Test an idea”, “Share a demo”, “Record what you learned”. Right heading “Ongoing project brief” and exactly “Keep the source”, “Ship a reviewed version”, “Name an owner and next change”. Tiny footer “App Composer”. Show each framing as useful; no competitor claims. Electric blue contrast to saffron, beautifully typeset paper, design magazine layout, no placeholder type.",
+      "format": "1536×1024",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-20-keys",
+      "file": "20-keys-v1.jpg",
+      "sha256": "2197eff3111ac28299e06d4464d060e1248be369eb535a2996709000add86c74",
+      "prompt": "Square typographic broadside, vivid flat App Composer orange with very large white bold grotesk type fitting nearly edge to edge: “Keep the keys.” Lay cut-paper forms of a functional key silhouette through the negative space between letters. Footer in clear white text “Source / Deployment / Account” and small “App Composer”. Precise premium simple original print layout, no other lettering.",
+      "format": "1254×1254",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-21-agent",
+      "file": "21-agent-v1.jpg",
+      "sha256": "4e2abd905ec9595d9152dcc0703bd5979a126b16d85cc1aa7fb2157eeab3e945",
+      "prompt": "Square striking typographic street poster. Black and violet duotone letterpress on hot creamy grey. Massive black slab headline “Choose your agent.” A single electric blue zigzag arrow through the composition with two notes “Bring your tools.” and “Keep your context.” Small “App Composer”. Real visually commanding modernist text treatment, no other words.",
+      "format": "1254×1254",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-22-preview",
+      "file": "22-preview-v1.jpg",
+      "sha256": "ab8c791c46883b84a99b2396e1659cda2d44ceaf041f4d9499c4764cf2288d9a",
+      "prompt": "Square black mint orange indie product type poster with headline exactly “Open the preview.” Use perspective optical typography with a precise outlined mint rectangular window and an orange arrow crossing it, keeping the words clear. Footer exactly “Try the intended task.” and tiny “App Composer”. Stylish brutalist reductive accessibility-minded poster, no faux buttons or extra copy.",
+      "format": "1254×1254",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-23-source",
+      "file": "23-source-v1.jpg",
+      "sha256": "ca36c724e20c1649bd03a4d4cc14552181a31a645a9dc5298ad4cad7636fa351",
+      "prompt": "Finished square graphic for a social feed. Ultramarine newsprint with acid-lime graphic label ripped open on a diagonal. Exact giant text taking 65% of the canvas, high contrast: “Save the work, too.” Then plain and fully legible “Brief · Source · Release record”. In the lower right a tiny “App Composer” in bare text only. Graphic tape and the corner of a flat file drawer create a distinctive physical pattern behind the letterpress graphic. No symbols next to the product name, no logos, no URL, no icon marks, no glyphs, no other text.",
+      "format": "1254×1254",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-24-return",
+      "file": "24-return-v1.jpg",
+      "sha256": "f9462a64fd5cf43bf8c9f5b4dd99e05015f3320978335d2eeab2cedd677f3668",
+      "prompt": "Square slow editorial graphic as a last page in a printed magazine. Beautiful air and creamy off-white paper, rust-red huge serif stacked into two lines “Leave a way” and “back in.” One drawn sweeping broad red return arrow below. “Record what shipped and what to do next.” in clearly legible ink. “App Composer.” in tiny type. No other symbols or text.",
+      "format": "1254×1254",
+      "scope": "Product positioning or working practice"
+    },
+    {
+      "id": "composer-workshop-25-readiness",
+      "file": "25-readiness-v1.jpg",
+      "sha256": "5d047253b01170db2bceeec5e7a3ee9038754d771f631c82b280ad738f514d11",
+      "prompt": "3:2 graphic magazine evidence checklist with precise copy. Headline “What counts as ready?” Three big bold stepped bands from cobalt on ice to steel on ivory, exact lines “01 Preview the task”, “02 Identify the released revision”, “03 Repeat the task on the live site”. Footer “App Composer”. Dramatic typographic hierarchy like a premium workshop checklist, high contrast. Large type designed for phone size, strictly no extra copy.",
+      "format": "1536×1024",
+      "scope": "Product positioning or working practice"
+    }
+  ]
+}
