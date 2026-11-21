@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import ShareArtwork from '../components/ShareArtwork.astro';
 import { env } from 'cloudflare:workers';
 import type { D1Database } from '@cloudflare/workers-types';
-import { listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
+import { COMPOSER_WORKSHOP_TAG, listComposerShareArtwork, listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
 import { artworkFilters, galleryPage, readArtworkCuration } from '../lib/share-gallery.ts';
 import { noindexFor } from '../lib/indexing.mjs';
 import { hasShareWallFilters, shareWallQuery } from '../lib/share-wall.ts';
@@ -20,7 +20,7 @@ if (params.get('view') === 'stacks' || hasShareWallFilters(shareWallQuery(params
 }
 const filters = artworkFilters(params);
 const [artwork, curation] = await Promise.all([
-  listShareArtwork(),
+  filters.tag === COMPOSER_WORKSHOP_TAG ? listComposerShareArtwork() : listShareArtwork(),
   readArtworkCuration((env as unknown as {DB?: D1Database}).DB).catch(() => []),
 ]);
 const catalogue = artwork ? galleryPage(artwork, curation, filters) : null;

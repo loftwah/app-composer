@@ -1,9 +1,9 @@
-// Narrow Woodhouse Share catalogue reuse for one Bluesky draft (#477/#604).
-// Composer builds catalogue URLs from a search term or a strict asset ID.
-// It refuses redirects, accepts only a public image
-// rendition from that same origin, and binds the exact bytes it fetched. No
-// user-supplied image URL is ever accepted and no credential is used here.
+// First-party Share artwork comes from the public release manifest. Legacy
+// results come from the fixed Woodhouse catalogue (#477/#604). Each source
+// can only resolve its own public image origin. Downloads and Calendar bind
+// the catalogue revision and the image bytes without using credentials.
 import { z } from "zod";
+import workshopShare from "./workshop-share-20261122.json" with { type: "json" };
 import {
   catalogueAssetSchema,
   catalogueIdentity,
@@ -14,6 +14,10 @@ import {
   fetchBlueskyImage,
   type BlueskyFetchOptions,
 } from "./bluesky-publisher.ts";
+
+const composerOrigin = "https://composer.loftwah.com";
+export const COMPOSER_WORKSHOP_TAG = "workshop-series";
+const nativeRecords = new Map(workshopShare.map((record) => [record.id, record]));
 
 export const SHARE_CATALOGUE_ORIGIN = "https://woodhouse.loftwah.com";
 export const SHARE_CATALOGUE_API_BASE = `${SHARE_CATALOGUE_ORIGIN}/api/v1/assets`;
@@ -131,7 +135,7 @@ function catalogueObject(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>;
 }
 
-function parseAsset(payload: unknown, assetId: string) {
+function parseAsset(payload: unknown, assetId: string, origin = SHARE_CATALOGUE_ORIGIN) {
   const envelope = catalogueObject(payload);
   const asset = catalogueObject(envelope?.asset);
   if (
@@ -161,7 +165,7 @@ function parseAsset(payload: unknown, assetId: string) {
     return null;
   const preview = new URL(renditionUrl);
   if (
-    preview.origin !== SHARE_CATALOGUE_ORIGIN ||
+    preview.origin !== origin ||
     !preview.pathname.startsWith("/campaign/") ||
     !/\.(?:jpe?g|png|webp)$/i.test(preview.pathname) ||
     preview.search ||
@@ -219,36 +223,41 @@ export async function resolveShareCatalogueAsset(
     }, timeoutMs);
   });
   try {
-    const response = await Promise.race([
-      doFetch(sourceUrl, {
-        method: "GET",
-        headers: { Accept: "application/json" },
-        redirect: "manual",
-        signal: controller.signal,
-      }),
-      timedOut,
-    ]);
-    if (response.status >= 300 && response.status < 400)
-      return failed(
-        "catalogue_redirect",
-        "The catalogue asset redirected. Composer did not follow it.",
-      );
-    if (!response.ok)
-      return failed(
-        "catalogue_missing",
-        `The catalogue returned HTTP ${response.status} for this asset. Nothing was selected.`,
-      );
-    const declared = Number(response.headers.get("content-length") ?? "");
-    if (Number.isFinite(declared) && declared > SHARE_CATALOGUE_JSON_MAX_BYTES)
-      return failed(
-        "catalogue_invalid",
-        "The catalogue response is too large.",
-      );
-    const payload = await Promise.race([
-      readBoundedJson(response, controller.signal),
-      timedOut,
-    ]);
-    const asset = parseAsset(payload, assetId);
+    const native = nativeRecords.get(assetId);
+    const origin = native ? composerOrigin : SHARE_CATALOGUE_ORIGIN;
+    let payload: unknown = { version: 1, asset: native };
+    if (!native) {
+      const response = await Promise.race([
+        doFetch(sourceUrl, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          redirect: "manual",
+          signal: controller.signal,
+        }),
+        timedOut,
+      ]);
+      if (response.status >= 300 && response.status < 400)
+        return failed(
+          "catalogue_redirect",
+          "The catalogue asset redirected. Composer did not follow it.",
+        );
+      if (!response.ok)
+        return failed(
+          "catalogue_missing",
+          `The catalogue returned HTTP ${response.status} for this asset. Nothing was selected.`,
+        );
+      const declared = Number(response.headers.get("content-length") ?? "");
+      if (Number.isFinite(declared) && declared > SHARE_CATALOGUE_JSON_MAX_BYTES)
+        return failed(
+          "catalogue_invalid",
+          "The catalogue response is too large.",
+        );
+      payload = await Promise.race([
+        readBoundedJson(response, controller.signal),
+        timedOut,
+      ]);
+    }
+    const asset = parseAsset(payload, assetId, origin);
     if (!asset)
       return failed(
         "catalogue_invalid",
@@ -260,7 +269,7 @@ export async function resolveShareCatalogueAsset(
     // current revision is always derived locally from the live payload.
     let sourceDescription: string | undefined;
     if (options.expectedArtworkRevision !== undefined) {
-      const linked = catalogueArtwork(catalogueObject(payload)?.asset);
+      const linked = catalogueArtwork(catalogueObject(payload)?.asset, origin);
       const current = linked ? await artworkRevision(linked) : null;
       if (!current)
         return failed(
@@ -272,7 +281,7 @@ export async function resolveShareCatalogueAsset(
           "artwork_stale",
           "The linked public artwork revision changed. Return to the artwork page and use its current Calendar link.",
         );
-      sourceDescription = linked?.description || undefined;
+      sourceDescription = linked?.caption || linked?.description || undefined;
     }
     const imageResult = await fetchBlueskyImage(asset.renditionUrl, {
       fetch: doFetch,
@@ -347,13 +356,22 @@ export async function searchShareCatalogueAssets(
       message: "Enter up to 100 characters to search the catalogue.",
     };
 
+  const words = q.toLowerCase().split(/\s+/);
+  const local = [...nativeRecords.values()]
+    .filter(({ title, description, tags }) => {
+      const searchable = [title, description, "app composer", ...tags].join(" ").toLowerCase();
+      return words.every((word) => searchable.includes(word));
+    })
+    .slice(0, SHARE_CATALOGUE_SEARCH_LIMIT)
+    .map(({ id, title, project }) => ({ assetId: id, title, project }));
+  if (local.length === SHARE_CATALOGUE_SEARCH_LIMIT) return { ok: true, items: local };
   const endpoint = new URL(SHARE_CATALOGUE_API_BASE);
   endpoint.searchParams.set("q", q);
   endpoint.searchParams.set("limit", String(SHARE_CATALOGUE_SEARCH_LIMIT));
   const signal = AbortSignal.timeout(
     Math.min(30_000, Math.max(10, options.timeoutMs ?? 8_000)),
   );
-  const unavailable = {
+  const unavailable: CatalogueSearchResult = local.length ? { ok: true, items: local } : {
     ok: false,
     code: "UNAVAILABLE",
     message:
@@ -377,7 +395,7 @@ export async function searchShareCatalogueAssets(
     if (envelope?.version !== 1 || !Array.isArray(envelope.assets))
       return unavailable;
 
-    const items = new Map<string, CatalogueSearchItem>();
+    const items = new Map(local.map((item) => [item.assetId, item]));
     for (const raw of envelope.assets.slice(0, SHARE_CATALOGUE_SEARCH_LIMIT)) {
       const asset = catalogueObject(raw);
       if (asset?.visibility !== "public" || asset.reuse !== "unconfirmed")
@@ -385,7 +403,8 @@ export async function searchShareCatalogueAssets(
       const assetId = normalizeShareAssetId(asset.id);
       const title = boundedString(asset.title, SHARE_CATALOGUE_TITLE_MAX);
       const project = boundedString(asset.project, SHARE_CATALOGUE_PROJECT_MAX);
-      if (assetId && title && project && !items.has(assetId)) {
+      if (items.size >= SHARE_CATALOGUE_SEARCH_LIMIT) break;
+      if (assetId && title && project && !nativeRecords.has(assetId) && !items.has(assetId)) {
         items.set(assetId, { assetId, title, project });
       }
     }
@@ -418,6 +437,7 @@ export interface CatalogueArtwork extends CatalogueSearchItem {
   projectUrl: string | null;
   sourceUrl: string | null;
   description: string;
+  caption?: string;
   reviewedAt: string;
   category: string;
   tags: string[];
@@ -432,9 +452,9 @@ export interface CatalogueArtwork extends CatalogueSearchItem {
 const artworkDimension = (n: unknown) =>
   typeof n === "number" && Number.isInteger(n) && n > 0 && n <= 24_000 ? n : null;
 
-function artworkFile(value: unknown, fallback: string): ArtworkFile | null {
+function artworkFile(value: unknown, fallback: string, origin: string): ArtworkFile | null {
   const record = catalogueObject(value);
-  const url = publicArtworkUrl(record?.url, campaignArtworkPath);
+  const url = publicArtworkUrl(record?.url, campaignArtworkPath, origin);
   if (!url) return null;
   return {
     url,
@@ -453,7 +473,7 @@ export function artworkFiles(artwork: CatalogueArtwork) {
 
 const campaignArtworkPath = /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i;
 
-function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
+function catalogueArtwork(raw: unknown, origin = SHARE_CATALOGUE_ORIGIN): CatalogueArtwork | null {
   const asset = catalogueObject(raw);
   if (asset?.visibility !== "public") return null;
   const assetId = normalizeShareAssetId(asset.id);
@@ -461,15 +481,17 @@ function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
   const title = boundedString(asset.title, SHARE_CATALOGUE_TITLE_MAX);
   const alt = boundedString(asset.alt, SHARE_CATALOGUE_ALT_MAX);
   const credit = boundedString(asset.credit, SHARE_CATALOGUE_CREDIT_MAX);
-  const thumbnailUrl = publicArtworkUrl(asset.thumbnailUrl, campaignArtworkPath);
-  const previewUrl = publicArtworkUrl(asset.previewUrl, campaignArtworkPath);
-  const shareUrl = publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/);
+  const thumbnailUrl = publicArtworkUrl(asset.thumbnailUrl, campaignArtworkPath, origin);
+  const previewUrl = publicArtworkUrl(asset.previewUrl, campaignArtworkPath, origin);
+  const shareUrl = origin === composerOrigin
+    ? `${composerOrigin}/share?tag=${COMPOSER_WORKSHOP_TAG}`
+    : publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/, origin);
   if (!(assetId && project && title && alt && credit && thumbnailUrl && previewUrl && shareUrl))
     return null;
-  const original = artworkFile(asset.original, "Original");
+  const original = artworkFile(asset.original, "Original", origin);
   const formats = Array.isArray(asset.formats)
     ? asset.formats.slice(0, 20).flatMap((raw) => {
-        const file = artworkFile(raw, "Image");
+        const file = artworkFile(raw, "Image", origin);
         return file ? [file] : [];
       })
     : [];
@@ -497,9 +519,10 @@ function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
         ? { url: thumbnailUrl, label: "", width: artworkDimension(asset.thumbnailWidth), height: artworkDimension(asset.thumbnailHeight) }
         : undefined),
     description: boundedString(asset.description, 2500) ?? "",
-    kitUrl: publicArtworkUrl(asset.kitUrl, campaignSourcePath),
+    ...(origin === composerOrigin ? { caption: boundedString(asset.caption, 1000) ?? undefined } : {}),
+    kitUrl: publicArtworkUrl(asset.kitUrl, campaignSourcePath, origin),
     projectUrl: typeof asset.projectUrl === "string" && isSafeShareLink(asset.projectUrl) ? asset.projectUrl : null,
-    sourceUrl: publicArtworkUrl(asset.sourceUrl, campaignSourcePath),
+    sourceUrl: publicArtworkUrl(asset.sourceUrl, campaignSourcePath, origin),
     revisionSource: JSON.stringify([source?.sha256 ?? null, source?.version ?? null, original?.url, previewUrl, reviewedAt]),
   };
 }
@@ -524,7 +547,12 @@ function artworkVersions(value: unknown): ArtworkVersion[] {
 export async function publicShareArtwork(
   id: string,
   options: CatalogueFetchOptions = {},
-): Promise<{ status: 200; artwork: CatalogueArtwork } | { status: 404 | 503 }> {
+): Promise<{ status: 200; artwork: CatalogueArtwork } | { status: 404 } | { status: 503 }> {
+  const native = nativeRecords.get(id);
+  if (native) {
+    const artwork = catalogueArtwork(native, composerOrigin);
+    return artwork ? { status: 200, artwork } : { status: 404 };
+  }
   const endpoint = shareAssetApiUrl(id);
   if (!endpoint) return { status: 404 };
   try {
@@ -536,7 +564,7 @@ export async function publicShareArtwork(
     });
     if (!response.ok) {
       await response.body?.cancel().catch(() => {});
-      return { status: response.status === 404 ? 404 : 503 };
+      return response.status === 404 ? { status: 404 } : { status: 503 };
     }
     const envelope = catalogueObject(await readBoundedJson(response, signal));
     if (envelope?.version !== 1) return { status: 503 };
@@ -585,7 +613,14 @@ export async function browseShareArtwork(
   }
 }
 
-// A compact live projection keeps eligibility and global sort order current.
+export function listComposerShareArtwork(): CatalogueArtwork[] {
+  return workshopShare.flatMap((record) => {
+    const artwork = catalogueArtwork(record, composerOrigin);
+    return artwork ? [artwork] : [];
+  });
+}
+
+// A compact live projection keeps legacy eligibility and global sort order current.
 export async function listShareArtwork(options: CatalogueFetchOptions = {}): Promise<CatalogueArtwork[] | null> {
   const signal = AbortSignal.timeout(options.timeoutMs ?? 6_000);
   try {
@@ -598,10 +633,10 @@ export async function listShareArtwork(options: CatalogueFetchOptions = {}): Pro
     }
     const envelope = catalogueObject(await readBoundedJson(response, signal, 8_388_608));
     if (envelope?.version !== 1 || !Array.isArray(envelope.assets)) return null;
-    const items = new Map<string, CatalogueArtwork>();
+    const items = new Map(listComposerShareArtwork().map((artwork) => [artwork.assetId, artwork]));
     for (const raw of envelope.assets) {
       const artwork = catalogueArtwork(raw);
-      if (artwork) items.set(artwork.assetId, artwork);
+      if (artwork && !nativeRecords.has(artwork.assetId)) items.set(artwork.assetId, artwork);
     }
     return [...items.values()];
   } catch {
@@ -612,11 +647,11 @@ export async function listShareArtwork(options: CatalogueFetchOptions = {}): Pro
 export const artworkRevision = (artwork: CatalogueArtwork) =>
   sha256Bytes(new TextEncoder().encode(JSON.stringify(["artwork", artwork.assetId, artwork.revisionSource])));
 
-function publicArtworkUrl(value: unknown, path: RegExp) {
+function publicArtworkUrl(value: unknown, path: RegExp, origin = SHARE_CATALOGUE_ORIGIN) {
   const href = boundedString(value, 2048);
   const url = href ? URL.parse(href) : null;
   if (
-    url?.origin !== SHARE_CATALOGUE_ORIGIN ||
+    url?.origin !== origin ||
     url.username ||
     url.password ||
     url.search ||
