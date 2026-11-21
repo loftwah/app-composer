@@ -1,0 +1,422 @@
+[
+  {
+    "id": "composer-club-01-friday-release",
+    "title": "Pick your curse · Haunted rollout",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "Two opposite demo-day scenes, a haunted production hallway and a quiet exhibition with a working app. App Composer Computer Club.",
+    "caption": "The demo is perfect and prod is haunted. Or prod is perfect and nobody knows it exists. Pick your curse and show your work.",
+    "description": "Two opposite demo-day scenes, a haunted production hallway and a quiet exhibition with a working app. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "pick-your-curse"
+    ],
+    "projectUrl": "https://composer.loftwah.com/release",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/friday-release-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/friday-release-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/friday-release-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "5b21fdea57f60d5d553e23ad220dba446d20f174f7086b0c6c1c5b82e9d57da2",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/friday-release-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-02-memory-trade",
+    "title": "Pick your curse · The memory trade",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A long receipt scroll and a tiny brass tape stand for two unappealing ways an agent can remember. App Composer Computer Club.",
+    "caption": "Infinite context that forgets tomorrow, or tiny context that remembers forever? Which agent are you bringing back for the second edit?",
+    "description": "A long receipt scroll and a tiny brass tape stand for two unappealing ways an agent can remember. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "pick-your-curse"
+    ],
+    "projectUrl": "https://composer.loftwah.com/ready",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/memory-trade-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/memory-trade-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/memory-trade-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "b6d74d0559358bb8809c39ff1708f98fab0b313ae7a9399639a5f3a3bab90ff9",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/memory-trade-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-03-signal-or-silence",
+    "title": "Pick your curse · Signal or silence",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A vinyl station and a modem room show two ways to lose a favourite thing. App Composer Computer Club.",
+    "caption": "Perfect music with no internet or perfect internet with no music. I want to hear from the people picking silence.",
+    "description": "A vinyl station and a modem room show two ways to lose a favourite thing. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "pick-your-curse"
+    ],
+    "projectUrl": "https://composer.loftwah.com/share/experiences/computer-club",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/signal-or-silence-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/signal-or-silence-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/signal-or-silence-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "3f977affe0671426f60848d7a0bc70d0d2315601cdb3324e6602f3a2d8b5bc19",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/signal-or-silence-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-04-keys-or-cauldron",
+    "title": "Pick your curse · Keep the keys",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "Two relief prints, one of a trapped key and the other of a heavy pager, illustrate a choice about ownership. App Composer Computer Club.",
+    "caption": "One click and you lose the keys, or own it and carry the pager. Which would you choose for something you plan to keep running?",
+    "description": "Two relief prints, one of a trapped key and the other of a heavy pager, illustrate a choice about ownership. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "pick-your-curse"
+    ],
+    "projectUrl": "https://composer.loftwah.com/creator-hub",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/keys-or-cauldron-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/keys-or-cauldron-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/keys-or-cauldron-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "dca25cc4e74ef281c184706586f7cebc046ab04a487a379d5a132bf0f1fccd18",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/keys-or-cauldron-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-05-last-rollback",
+    "title": "Pick your curse · Last rollback",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A dark terminal and an archive cabinet frame a choice between missing logs and an old restore. App Composer Computer Club.",
+    "caption": "Fix prod without logs or restore from a year ago. One move. What’s the first thing you do?",
+    "description": "A dark terminal and an archive cabinet frame a choice between missing logs and an old restore. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "pick-your-curse"
+    ],
+    "projectUrl": "https://composer.loftwah.com/release",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/last-rollback-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/last-rollback-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/last-rollback-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "ced959e3ea4cf5a2a92d433fc28928023145d0e54460979676ec6538e190d619",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/last-rollback-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-06-teapot-status",
+    "title": "Computer trivia · Status code",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A computer trivia card presents four options for HTTP 418. App Composer Computer Club.",
+    "caption": "What is HTTP 418 famously called? Drop your answer, then take the whole App Composer quiz.",
+    "description": "A computer trivia card presents four options for HTTP 418. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "computer-trivia"
+    ],
+    "projectUrl": "https://composer.loftwah.com/share/experiences/computer-club#trivia",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/teapot-status-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/teapot-status-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/teapot-status-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "022251666b1ce5a1c91b330b3b7d63189680497553bb4e63a8e6801af61151d2",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/teapot-status-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-07-git-head",
+    "title": "Computer trivia · Git",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A Git quiz card asks what points to the current branch, with four possible references. App Composer Computer Club.",
+    "caption": "Which reference names the current branch in an attached Git checkout? Reply A, B, C or D, then try the rest of the round.",
+    "description": "A Git quiz card asks what points to the current branch, with four possible references. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "computer-trivia"
+    ],
+    "projectUrl": "https://composer.loftwah.com/share/experiences/computer-club#trivia",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/git-head-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/git-head-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/git-head-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "a7e99d07d0968659327138230ef69d61953e187532273aaa3fa40a8b5ac6929f",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/git-head-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-08-permission-bits",
+    "title": "Computer trivia · Permissions",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A red and cream quiz card asks which permission class can write in Unix mode 0755. App Composer Computer Club.",
+    "caption": "In Unix mode 0755, which permission class has the write bit? Pick an answer before you try the whole round.",
+    "description": "A red and cream quiz card asks which permission class can write in Unix mode 0755. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "computer-trivia"
+    ],
+    "projectUrl": "https://composer.loftwah.com/share/experiences/computer-club#trivia",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/permission-bits-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/permission-bits-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/permission-bits-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "a69f4266793c652d3675dac5d80c6841342fa87d1dbd0201acb57edb2c42cee5",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/permission-bits-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-09-computer-mini",
+    "title": "The Computer Mini",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A microcomputer and a tiny mouse appear on a newspaper crossword cover. App Composer Computer Club.",
+    "caption": "One across, three down. The big clue is “command interpreter”. Solve the grid, then send it to someone who still reads man pages.",
+    "description": "A microcomputer and a tiny mouse appear on a newspaper crossword cover. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "computer-puzzles"
+    ],
+    "projectUrl": "https://composer.loftwah.com/share/experiences/computer-club#crossword",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-mini-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-mini-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-mini-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "3a77646d8c0a4b11be2784c43ca5e1b35d0c2e9f7788e065d3dc90575bbb3fe0",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-mini-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  },
+  {
+    "id": "composer-club-10-hangman-terminal",
+    "title": "Fusebox",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "alt": "A green terminal and six fuses advertise a guess-the-word game. App Composer Computer Club.",
+    "caption": "Six misses, one word. The first clue is “time travel for a release, minus the paradox.” See how many fuses you have left.",
+    "description": "A green terminal and six fuses advertise a guess-the-word game. App Composer Computer Club.",
+    "credit": "App Composer Computer Club · Original AI-generated artwork",
+    "use": "social",
+    "stage": "share poster",
+    "reviewedAt": "2026-11-22",
+    "tags": [
+      "computer-club",
+      "computer-puzzles"
+    ],
+    "projectUrl": "https://composer.loftwah.com/share/experiences/computer-club#fusebox",
+    "shareUrl": "https://composer.loftwah.com/share?tag=computer-club",
+    "sourceUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/provenance.json",
+    "kitUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-club-post-kit.zip",
+    "previewUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/hangman-terminal-v1.jpg",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/computer-club-20261122/hangman-terminal-480.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/computer-club-20261122/hangman-terminal-v1.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "4e8065fb584c4ce2bb950ab21881e043240856b1b5e2d7059b4ecab308800b3a",
+      "version": "v1",
+      "label": "Portrait · 1080 × 1350"
+    },
+    "formats": [
+      {
+        "url": "https://composer.loftwah.com/campaign/computer-club-20261122/hangman-terminal-og.jpg",
+        "width": 1200,
+        "height": 630,
+        "label": "Wide · 1200 × 630"
+      }
+    ]
+  }
+]

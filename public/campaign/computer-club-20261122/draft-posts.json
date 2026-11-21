@@ -1,0 +1,112 @@
+[
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-01-friday-release",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/friday-release-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/friday-release-og.jpg",
+    "alt": "Two opposite demo-day scenes, a haunted production hallway and a quiet exhibition with a working app. App Composer Computer Club.",
+    "caption": "The demo is perfect and prod is haunted. Or prod is perfect and nobody knows it exists. Pick your curse and show your work.",
+    "link": "https://composer.loftwah.com/release",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-01-friday-release"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-02-memory-trade",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/memory-trade-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/memory-trade-og.jpg",
+    "alt": "A long receipt scroll and a tiny brass tape stand for two unappealing ways an agent can remember. App Composer Computer Club.",
+    "caption": "Infinite context that forgets tomorrow, or tiny context that remembers forever? Which agent are you bringing back for the second edit?",
+    "link": "https://composer.loftwah.com/ready",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-02-memory-trade"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-03-signal-or-silence",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/signal-or-silence-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/signal-or-silence-og.jpg",
+    "alt": "A vinyl station and a modem room show two ways to lose a favourite thing. App Composer Computer Club.",
+    "caption": "Perfect music with no internet or perfect internet with no music. I want to hear from the people picking silence.",
+    "link": "https://composer.loftwah.com/share/experiences/computer-club",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-03-signal-or-silence"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-04-keys-or-cauldron",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/keys-or-cauldron-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/keys-or-cauldron-og.jpg",
+    "alt": "Two relief prints, one of a trapped key and the other of a heavy pager, illustrate a choice about ownership. App Composer Computer Club.",
+    "caption": "One click and you lose the keys, or own it and carry the pager. Which would you choose for something you plan to keep running?",
+    "link": "https://composer.loftwah.com/creator-hub",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-04-keys-or-cauldron"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-05-last-rollback",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/last-rollback-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/last-rollback-og.jpg",
+    "alt": "A dark terminal and an archive cabinet frame a choice between missing logs and an old restore. App Composer Computer Club.",
+    "caption": "Fix prod without logs or restore from a year ago. One move. What’s the first thing you do?",
+    "link": "https://composer.loftwah.com/release",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-05-last-rollback"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-06-teapot-status",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/teapot-status-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/teapot-status-og.jpg",
+    "alt": "A computer trivia card presents four options for HTTP 418. App Composer Computer Club.",
+    "caption": "What is HTTP 418 famously called? Drop your answer, then take the whole App Composer quiz.",
+    "link": "https://composer.loftwah.com/share/experiences/computer-club#trivia",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-06-teapot-status"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-07-git-head",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/git-head-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/git-head-og.jpg",
+    "alt": "A Git quiz card asks what points to the current branch, with four possible references. App Composer Computer Club.",
+    "caption": "Which reference names the current branch in an attached Git checkout? Reply A, B, C or D, then try the rest of the round.",
+    "link": "https://composer.loftwah.com/share/experiences/computer-club#trivia",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-07-git-head"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-08-permission-bits",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/permission-bits-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/permission-bits-og.jpg",
+    "alt": "A red and cream quiz card asks which permission class can write in Unix mode 0755. App Composer Computer Club.",
+    "caption": "In Unix mode 0755, which permission class has the write bit? Pick an answer before you try the whole round.",
+    "link": "https://composer.loftwah.com/share/experiences/computer-club#trivia",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-08-permission-bits"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-09-computer-mini",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-mini-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/computer-mini-og.jpg",
+    "alt": "A microcomputer and a tiny mouse appear on a newspaper crossword cover. App Composer Computer Club.",
+    "caption": "One across, three down. The big clue is “command interpreter”. Solve the grid, then send it to someone who still reads man pages.",
+    "link": "https://composer.loftwah.com/share/experiences/computer-club#crossword",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-09-computer-mini"
+  },
+  {
+    "status": "draft",
+    "scheduledAt": null,
+    "assetId": "composer-club-10-hangman-terminal",
+    "artwork": "https://composer.loftwah.com/campaign/computer-club-20261122/hangman-terminal-v1.jpg",
+    "wide": "https://composer.loftwah.com/campaign/computer-club-20261122/hangman-terminal-og.jpg",
+    "alt": "A green terminal and six fuses advertise a guess-the-word game. App Composer Computer Club.",
+    "caption": "Six misses, one word. The first clue is “time travel for a release, minus the paradox.” See how many fuses you have left.",
+    "link": "https://composer.loftwah.com/share/experiences/computer-club#fusebox",
+    "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-club-10-hangman-terminal"
+  }
+]

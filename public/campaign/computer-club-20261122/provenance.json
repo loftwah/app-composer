@@ -1,0 +1,52 @@
+[
+  {
+    "id": "composer-club-01-friday-release",
+    "sha256": "5b21fdea57f60d5d553e23ad220dba446d20f174f7086b0c6c1c5b82e9d57da2",
+    "prompt": "Generate a final social poster. a brilliant 4:5 split cinema promo. Left a flash-lit demo booth looking immaculate while a dark crooked corridor behind it opens into industrial fog. Right a beautiful humming computer in a tiny public exhibition but nobody watching. Red and bone versus dark emerald, bold spacious typography. Softly absurd magazine art, no text beyond required. Precisely write large main headline “PICK YOUR CURSE”. Give exactly two equally clear choice blocks, headed “Perfect demo. Haunted prod.” and “Perfect prod. Nobody knows.”. Bottom line “Pick a problem.”. No logos, no brand or URL, no words beyond these. Layout is thought through with no weird fonts or render errors. This is memorable original poster art."
+  },
+  {
+    "id": "composer-club-02-memory-trade",
+    "sha256": "b6d74d0559358bb8809c39ff1708f98fab0b313ae7a9399639a5f3a3bab90ff9",
+    "prompt": "Generate a final social poster. 4:5 two-panel museum poster. Left endlessly unfolding white receipt coils spill out of a deep blue archive. Right a tiny reliable brass cassette under a bright orange pool of light, kept like a treasured mark. Warm uncoated paper, huge readable text, precision editorial typography. Precisely write large main headline “PICK YOUR CURSE”. Give exactly two equally clear choice blocks, headed “Infinite context. Forgets tomorrow.” and “Tiny context. Remembers forever.”. Bottom line “Which agent would you bring?”. No logos, no brand or URL, no words beyond these. Layout is thought through with no weird fonts or render errors. This is memorable original poster art."
+  },
+  {
+    "id": "composer-club-03-signal-or-silence",
+    "sha256": "3f977affe0671426f60848d7a0bc70d0d2315601cdb3324e6602f3a2d8b5bc19",
+    "prompt": "A finished standalone portrait 4:5 social poster for an independent technology brand. New entry in App Composer’s “Pick your curse” series. underground radio album foldout. Left a hot red vinyl booth and closed roller shutter, right a deep blue station full of modem gear with one empty record sleeve. Excellent contrast, bold readable cream typography, tactile flash photography. The exact lettering on the page is title in upper region “PICK YOUR CURSE”; choice 1 “Perfect music. No internet.”; choice 2 “Perfect internet. No music.”; small clean footer “Pick one.”. Give choices the largest, highest contrast type after headline. Type is integral to the graphic, complete and carefully spelled. Composition should work at a 400-pixel feed thumbnail. No other text, words, slogans, vendor marks, numbers or logos. Original creative imagery, no look-alike characters or artwork."
+  },
+  {
+    "id": "composer-club-04-keys-or-cauldron",
+    "sha256": "dca25cc4e74ef281c184706586f7cebc046ab04a487a379d5a132bf0f1fccd18",
+    "prompt": "A finished standalone portrait 4:5 social poster for an independent technology brand. New entry in App Composer’s “Pick your curse” series. wordless imagery of two sharp clay relief carvings in a surreal medieval workshop, one showing a key inside a vending machine, other a heavy ornate pager on a tool belt. Broad hand-printed borders, orange and plum, exact plain lettering. The exact lettering on the page is title in upper region “PICK YOUR CURSE”; choice 1 “One click. Lose the keys.”; choice 2 “Own it. Carry the pager.”; small clean footer “Choose your curse.”. Give choices the largest, highest contrast type after headline. Type is integral to the graphic, complete and carefully spelled. Composition should work at a 400-pixel feed thumbnail. No other text, words, slogans, vendor marks, numbers or logos. Original creative imagery, no look-alike characters or artwork."
+  },
+  {
+    "id": "composer-club-05-last-rollback",
+    "sha256": "ced959e3ea4cf5a2a92d433fc28928023145d0e54460979676ec6538e190d619",
+    "prompt": "A finished standalone portrait 4:5 social poster for an independent technology brand. New entry in App Composer’s “Pick your curse” series. dark arcade tech-noir poster about two operating challenges: orange terminal sitting face down and frozen filing cabinet across a vivid lavender aisle. Continental film poster with two equally weighted choices. No fake system output or codes. The exact lettering on the page is title in upper region “PICK YOUR CURSE”; choice 1 “Fix prod without logs”; choice 2 “Restore from a year ago”; small clean footer “You have one move.”. Give choices the largest, highest contrast type after headline. Type is integral to the graphic, complete and carefully spelled. Composition should work at a 400-pixel feed thumbnail. No other text, words, slogans, vendor marks, numbers or logos. Original creative imagery, no look-alike characters or artwork."
+  },
+  {
+    "id": "composer-club-06-teapot-status",
+    "sha256": "022251666b1ce5a1c91b330b3b7d63189680497553bb4e63a8e6801af61151d2",
+    "prompt": "Create a finished original 4:5 social post, a lavish, practical-set computer trivia game show graphic. punchy diner-arcade surround with a dramatic enamel teapot in silhouette, subtle kettle steam. Copper and ink with large cream answer text. Do not imitate any existing show graphics. Use this exact large, high-contrast text: title “COMPUTER TRIVIA”, question “What is HTTP 418?”, four equally weighted separate answer lines “A. Loop detected”, “B. I’m a teapot”, “C. Too early”, “D. Gone”. Do not highlight any answer. Keep ample margins. Type should be exactly spelled and legible on a phone. No other text, captions, marks or logos."
+  },
+  {
+    "id": "composer-club-07-git-head",
+    "sha256": "a7e99d07d0968659327138230ef69d61953e187532273aaa3fa40a8b5ac6929f",
+    "prompt": "Create a finished original 4:5 social post, a lavish, practical-set computer trivia game show graphic. physical quiz board in a garage, ultraviolet paper, giant magnetic metal branch junction in background, clear matte chalk answer lines. Do not imitate any existing show graphics. Use this exact large, high-contrast text: title “COMPUTER TRIVIA”, question “What points to the current branch in Git?”, four equally weighted separate answer lines “A. HEAD”, “B. ORIG_HEAD”, “C. FETCH_HEAD”, “D. MERGE_HEAD”. Do not highlight any answer. Keep ample margins. Type should be exactly spelled and legible on a phone. No other text, captions, marks or logos."
+  },
+  {
+    "id": "composer-club-08-permission-bits",
+    "sha256": "a69f4266793c652d3675dac5d80c6841342fa87d1dbd0201acb57edb2c42cee5",
+    "prompt": "Create a finished original 4:5 social post, a lavish, practical-set computer trivia game show graphic. early-electronics quiz show, elegant industrial crimson scoreboard with a single cast-metal key in low relief. Black ink and sharp cream letters. Do not imitate any existing show graphics. Use this exact large, high-contrast text: title “COMPUTER TRIVIA”, question “Who can write a file set to 0755?”, four equally weighted separate answer lines “A. Everyone”, “B. Owner only”, “C. Group only”, “D. Nobody”. Do not highlight any answer. Keep ample margins. Type should be exactly spelled and legible on a phone. No other text, captions, marks or logos."
+  },
+  {
+    "id": "composer-club-09-computer-mini",
+    "sha256": "3a77646d8c0a4b11be2784c43ca5e1b35d0c2e9f7788e065d3dc90575bbb3fe0",
+    "prompt": "Finished absurd independent newsstand crossword cover on cream uncoated paper with a black-and-orange early microcomputer in a stack of newspaper puzzle pages, an actual tiny cartoon mouse making off with a pencil. Mood lively, precise woodcut plus halftone. Large type exactly “THE COMPUTER MINI” and little text “One across. Three down.” then “Can you solve it?” Crossword as a physical prop with empty square markings, no implied playable instructions from the printed picture alone. 4:5 finished and unmistakably deliberate, no added text, no fake logo, watermark or site address, enough margin."
+  },
+  {
+    "id": "composer-club-10-hangman-terminal",
+    "sha256": "4e8065fb584c4ce2bb950ab21881e043240856b1b5e2d7059b4ecab308800b3a",
+    "prompt": "Finished red-and-black tech zine cover, originally shot-looking space filled with an old industrial terminal and six inset orange square fuses. Without using any gallows or characters in danger, tell the visual story that the screen can run out of fuses. Bold exact standalone headline “OUT OF GUESSES?” and one smaller line “Six misses. One word.” Large type against hard contrast vibrant forest-green phosphor, no other writing, no computer brands. 4:5 finished and unmistakably deliberate, no added text, no fake logo, watermark or site address, enough margin."
+  }
+]
