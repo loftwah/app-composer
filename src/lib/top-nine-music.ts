@@ -1,11 +1,10 @@
-export type MusicKind = "album" | "song";
+import {
+  catalogueText, catalogueYear, searchCatalogue,
+  type CataloguePick,
+} from "./itunes-catalogue.ts";
 
-export interface MusicPick {
-  title: string;
-  artist: string;
-  year?: number;
-  href: string;
-}
+export type MusicKind = "album" | "song";
+export type MusicPick = CataloguePick;
 
 const applePath = /^\/([a-z]{2})\/(album|song)\/(?:[^/]+\/)?([1-9]\d{0,11})\/?$/;
 const spotifyPath = /^\/(?:intl-[a-z]{2}\/)?(album|track)\/([a-zA-Z0-9]{22})\/?$/;
@@ -58,10 +57,6 @@ export function normaliseMusicPicks(value: unknown): (string | null)[] {
   );
 }
 
-function catalogueText(value: unknown): string {
-  return typeof value === "string" ? value.trim().replace(/\s+/g, " ").slice(0, 140) : "";
-}
-
 /** Read release metadata. Audio and artwork come from the official player. */
 export async function searchMusic(
   query: string,
@@ -69,40 +64,22 @@ export async function searchMusic(
   country: string,
   signal?: AbortSignal,
 ): Promise<MusicPick[]> {
-  const term = query.trim();
-  const storefront = country.toLowerCase();
-  if (term.length < 2 || term.length > 100 || !/^[a-z]{2}$/.test(storefront)) return [];
-  const limit = 15;
-  const url = new URL("https://itunes.apple.com/search");
-  url.search = new URLSearchParams({ term, media: "music", entity: kind, country: storefront, limit: String(limit) }).toString();
-
-  signal?.throwIfAborted();
-  const timeout = AbortSignal.timeout(6_000);
-  const response = await fetch(url, {
-    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-    credentials: "omit",
-    redirect: "error",
-    referrerPolicy: "no-referrer",
-  });
-  if (!response.ok) throw new Error(`Music catalogue request returned ${response.status}.`);
-  const data: { results?: unknown } = await response.json();
-  if (!Array.isArray(data?.results)) throw new Error("Music catalogue returned an invalid result.");
-  signal?.throwIfAborted();
-
-  const picks = new Map<string, MusicPick>();
   const album = kind === "album";
-  for (const item of data.results.slice(0, limit) as unknown[]) {
-    if (!item || typeof item !== "object") continue;
-    const row = item as Record<string, unknown>;
-    if (!album && row.kind !== "song") continue;
-    const canonical = musicPreview(album ? row.collectionViewUrl : row.trackViewUrl);
-    const title = catalogueText(album ? row.collectionName : row.trackName);
-    const artist = catalogueText(row.artistName);
-    if (canonical?.provider !== "Apple Music" || !title || !artist || picks.has(canonical.href)) continue;
-    const year = typeof row.releaseDate === "string" ? Number(/^\d{4}(?=-)/.exec(row.releaseDate)?.[0]) : NaN;
-    picks.set(canonical.href, { title, artist, href: canonical.href, ...(Number.isInteger(year) ? { year } : {}) });
-  }
-  const normalTerm = term.toLowerCase();
-  const exact = (pick: MusicPick) => Number(pick.title.toLowerCase() === normalTerm);
-  return [...picks.values()].sort((first, second) => exact(second) - exact(first));
+  return searchCatalogue({
+    term: query,
+    country,
+    signal,
+    media: "music",
+    entity: kind,
+    label: "Music",
+    pick: (row) => {
+      if (!album && row.kind !== "song") return null;
+      const canonical = musicPreview(album ? row.collectionViewUrl : row.trackViewUrl);
+      const title = catalogueText(album ? row.collectionName : row.trackName);
+      const artist = catalogueText(row.artistName);
+      if (canonical?.provider !== "Apple Music" || !title || !artist) return null;
+      const year = catalogueYear(row.releaseDate);
+      return { title, artist, href: canonical.href, ...(year !== undefined ? { year } : {}) };
+    },
+  });
 }

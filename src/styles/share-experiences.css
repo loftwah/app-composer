@@ -166,7 +166,7 @@
 .music-linked { list-style: none; padding: 0; margin: .8rem 0 0; display: grid; gap: .3rem; }
 .music-linked li { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding-top: .4rem; border-top: 1px solid var(--color-border); }
 .music-linked span { flex: 1 1 9rem; font-size: .92rem; }
-.share-experience .music-linked button { min-height: 44px; padding: 6px 12px; font-size: .86rem; }
+.share-experience .music-linked button, .share-experience .music-linked .button { min-height: 44px; padding: 6px 12px; font-size: .86rem; }
 .music-preview { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--color-border); }
 .music-preview-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
 .music-preview-head h3 { margin: 0; font-size: 1.05rem; letter-spacing: -.01em; }

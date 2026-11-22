@@ -131,3 +131,25 @@ test('a malformed link list is ignored instead of failing the draft', () => {
   });
   assert.equal(readNineDraft(storage).hrefs, undefined);
 });
+
+const book = 'https://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834';
+
+test('book and music links round-trip together in one draft', () => {
+  const storage = fakeStorage();
+  const hrefs = [album('1'), null, book, ...Array(6).fill(null)];
+  const outcome = writeNineDraft(storage, { title: 'Nine', items: ['Blue', '', 'Earthsea', ...Array(6).fill('x')], hrefs });
+  assert.equal(outcome, 'saved');
+  assert.deepEqual(readNineDraft(storage).hrefs, hrefs);
+  const saved = JSON.parse(storage.data.get(draftKey('top-nine')));
+  assert.deepEqual(saved.hrefs, hrefs);
+});
+
+test('an old music-only draft keeps validating without book links present', () => {
+  const storage = fakeStorage({
+    [draftKey('top-nine')]: payload({
+      version: draftVersion, title: 'Nine', items: ['Kid A', ...Array(8).fill('x')],
+      hrefs: [song('2'), ...Array(8).fill(null)],
+    }),
+  });
+  assert.deepEqual(readNineDraft(storage).hrefs, [song('2'), ...Array(8).fill(null)]);
+});
