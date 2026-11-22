@@ -92,6 +92,9 @@ export async function searchMusic(
     media: "music",
     entity: kind,
     label: "Music",
+    // Albums and songs ask for up to 30 rows so near-identical editions are
+    // still available behind Show more; the panel shows the first 12.
+    limit: 30,
     pick: (row) => {
       if (!album && row.kind !== "song") return null;
       const canonical = musicPreview(album ? row.collectionViewUrl : row.trackViewUrl);
