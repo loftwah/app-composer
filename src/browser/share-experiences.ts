@@ -741,13 +741,31 @@ function mountNine(
   }
 
   function applyDraft(draft: NineDraft) {
+    // Covers are browser-only, so a draft restore has to decide which local
+    // covers still belong to the exhibits it brings back. Compare before the
+    // inputs change: an exact title and canonical source match keeps its cover.
+    const restoredItems = objects.map((_, index) => draft.items[index] ?? "");
+    const restoredHrefs = normaliseSourceLinks(draft.hrefs);
+    // A decode still running for the previous board must not land on this one.
+    coverRun += 1;
+    let cleared = 0;
+    objects.forEach((input, index) => {
+      if (!covers[index]) return;
+      if (input.value === restoredItems[index] && hrefs[index] === restoredHrefs[index]) return;
+      disposeCover(index);
+      cleared += 1;
+    });
+    if (cleared) {
+      renderCovers();
+      coverNote(`Covers cleared from ${cleared} exhibit${cleared === 1 ? "" : "s"} whose title or source changed with the draft.`);
+    }
     title.value = draft.title;
-    objects.forEach((input, index) => { input.value = draft.items[index] ?? ""; });
+    objects.forEach((input, index) => { input.value = restoredItems[index]; });
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
     discardMove();
     closePreview(false);
-    hrefs = normaliseSourceLinks(draft.hrefs);
+    hrefs = restoredHrefs;
     if (hrefs.some(Boolean)) music.panel.open = true;
     const empty = firstEmpty();
     target = empty < 0 ? 0 : empty;
