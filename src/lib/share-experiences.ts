@@ -20,6 +20,15 @@ export const experiences = {
     imageDescription: "A red and black punk print full of familiar tech arguments.",
     theme: "gig",
   },
+  "this-or-that": {
+    title: "This or That",
+    description: "Five friendly either-ors about how you make things. Pick a side, undo if you change your mind.",
+    // The stage reuses the owned Internet Workshop “million-question” billboard,
+    // itself a maker’s either-or; see public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "million-question",
+    imageDescription: "A vivid game-show billboard: a tired maker at a lit desk chooses between a red card reading a year of free time and one reading a million dollars.",
+    theme: "billboard",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;
@@ -84,3 +93,15 @@ export const internetBingo = [
   "That sounds like dial-up", "My friend had that avatar", "The embed broke", "Read the source", "Bring back Winamp",
   "Nobody updates this wiki", "Scroll to the credits", "Make a personal site", "Somebody mirror this",
 ] as const;
+
+/** This or That starter, #1064 early slice: five friendly explicit choices
+ * sharing one motif — the habits of making things with code and craft.
+ * Each entry is the question prompt, then the two choices, always in that order. */
+export const thisOrThatQuestions = [
+  ["A free Saturday lands in your lap.", "Start something brand new", "Finish the nearly-done thing"],
+  ["Your best making hour is…", "Early morning, first coffee", "Late night, headphones on"],
+  ["The build stops cooperating.", "Walk away and come back fresh", "Push through, it’s nearly there"],
+  ["A shiny new tool crosses your feed.", "Try it this weekend", "Stick with the tools I know"],
+  ["It finally works.", "Write it down while it’s fresh", "Show someone right away"],
+] as const;
+export const thisOrThatResultTitle = "Your maker rhythm";

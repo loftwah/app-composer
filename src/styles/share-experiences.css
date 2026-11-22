@@ -8,12 +8,15 @@
 }
 .experience-museum { --stage: #321b59; --stage-ink: #fff1d6; --accent: #ffb696; }
 .experience-gig { --stage: #991e2c; --stage-ink: #fff1d4; --accent: #fecca0; }
+.experience-billboard { --stage: #10333c; --stage-ink: #f3faf3; --accent: #ff6a4d; }
 .experience-cinema[data-skin="1"] { --stage: #e6d9c4; --stage-ink: #291e15; --accent: #92372a; }
 .experience-cinema[data-skin="2"] { --stage: #172c20; --stage-ink: #e0ffd2; --accent: #b0e762; }
 .experience-museum[data-skin="1"] { --stage: #eab36b; --stage-ink: #211610; --accent: #642342; }
 .experience-museum[data-skin="2"] { --stage: #131a26; --stage-ink: #dcedff; --accent: #b0ceff; }
 .experience-gig[data-skin="1"] { --stage: #124c36; --stage-ink: #fff4d7; --accent: #f9d274; }
 .experience-gig[data-skin="2"] { --stage: #e8e2d5; --stage-ink: #261d1b; --accent: #97243c; }
+.experience-billboard[data-skin="1"] { --stage: #e8ddc4; --stage-ink: #1c2a24; --accent: #b3372a; }
+.experience-billboard[data-skin="2"] { --stage: #10161d; --stage-ink: #dff1ff; --accent: #9fd4ff; }
 .share-experience [hidden] { display: none; }
 .experience-crumb { font-size: .94rem; margin-block-end: 1rem; }
 .experience-heading {
@@ -88,6 +91,40 @@
 }
 .door-stage button.secondary { color: var(--stage-ink); border-color: var(--stage-ink); background: transparent; }
 .experience-reset { margin-top: .75rem; }
+.tot-progress { margin: 1.25rem 0 0; font-weight: 700; }
+.tot-question {
+  padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
+  min-height: 13rem; border-top: 1px solid currentColor;
+}
+.tot-question h2 { color: inherit; margin-top: 0; font-size: clamp(1.7rem, 4.3vw, 3.2rem); }
+.tot-options {
+  position: relative;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(.55rem, 3vw, 1.5rem);
+}
+.tot-options::after {
+  content: "or"; position: absolute; inset-block-start: 50%; inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  display: grid; place-items: center;
+  inline-size: 2.3rem; block-size: 2.3rem; border-radius: 50%;
+  background: var(--stage); color: var(--stage-ink);
+  border: 2px solid var(--stage-ink); font-size: .82rem; font-weight: 700;
+}
+.share-experience .tot-options button {
+  min-height: clamp(7.5rem, 24vw, 13rem);
+  padding: .9rem;
+  background: transparent; color: inherit;
+  border: 4px double var(--stage-ink); border-radius: 0;
+  font-size: clamp(1.05rem, 3.2vw, 1.75rem); line-height: 1.15; font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.share-experience .tot-options button:hover { background: color-mix(in srgb, var(--stage-ink) 12%, transparent); }
+.share-experience .tot-options button:focus-visible { outline: 3px dashed currentColor; outline-offset: -7px; }
+.tot-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+.tot-result ol { margin: .4rem 0 0; padding-inline-start: 1.5rem; }
+.tot-result li { margin-block: .5rem; max-width: 46ch; color: inherit; }
+.tot-pick-question { display: block; font-size: .88rem; opacity: .78; margin-block-end: .1rem; }
+.tot-result li strong { font-size: 1.06rem; }
 .exhibition, .bingo-stage, .experience-export, .experience-custom {
   border: 1px solid var(--border, #77757b);
   padding: clamp(.85rem, 3vw, 1.8rem);

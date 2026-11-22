@@ -2,7 +2,7 @@
 import "../../styles/share-experiences.css";
 import {
   developerBingo, doorChoices, doorRooms, exhibitionPrompts,
-  experiencePath, experiences, type ExperienceId,
+  experiencePath, experiences, thisOrThatQuestions, type ExperienceId,
 } from "../../lib/share-experiences.ts";
 
 interface Props {
@@ -14,6 +14,7 @@ const { game, experience, art } = Astro.props;
 const isDoor = game === "pick-a-door";
 const isNine = game === "top-nine";
 const isBingo = game === "tech-bingo";
+const isThis = game === "this-or-that";
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 ---
 
@@ -197,6 +198,26 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <p class="experience-note" id="bingo-hint">Arrow keys move between squares. Enter or Space marks the square.</p>
   </section>}
 
+  {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer five this-or-that choices">
+    <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
+    {thisOrThatQuestions.map(([prompt, left, right], index) => <section hidden={index > 0} class="tot-question" data-question={index}>
+      <h2 tabindex="-1">{prompt}</h2>
+      <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
+        <button type="button" data-choice="0">{left}</button>
+        <button type="button" data-choice="1">{right}</button>
+      </div>
+    </section>)}
+    <div class="tot-controls">
+      <button type="button" class="secondary" data-tot-undo disabled>Undo last choice</button>
+    </div>
+    <section hidden class="door-result tot-result" data-tot-result aria-label="Your five choices">
+      <h2 tabindex="-1" data-reveal-title></h2>
+      <ol class="tot-picks" data-reveal-picks></ol>
+      <p class="experience-note">Every answer is yours — there’s no score and nothing is stored. Download your result or copy the link to hand someone the same five questions.</p>
+    </section>
+    <button hidden type="button" class="secondary experience-reset" data-restart>Play again</button>
+  </section>}
+
   <section class="experience-export" aria-label="Personalise and share">
     <h2>Your share image</h2>
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
@@ -210,6 +231,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <label>Artwork style<select data-skin-select>
         {(isDoor ? ["Midnight cinema", "Newsprint", "Signal green"]
           : isNine ? ["Gallery", "Record sleeve", "Night exhibition"]
+          : isThis ? ["Game show", "Newsprint", "Studio cyan"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
@@ -222,10 +244,10 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       </select></label>
     </div>
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine}>Download result</button>
+      <button type="button" data-download disabled={isDoor || isNine || isThis}>Download result</button>
       {isNine && <button type="button" class="secondary" data-copy-alt disabled aria-describedby="nine-alt-note">Copy image description</button>}
-      <button type="button" class="secondary" data-copy disabled={isDoor || isNine}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine}>Share result</button>
+      <button type="button" class="secondary" data-copy disabled={isDoor || isNine || isThis}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis}>Share result</button>
     </div>
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, an optional byline and your nine exhibit titles in top, middle and bottom rows.</p>}
     <p class="experience-note">{isNine
@@ -236,7 +258,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     {isNine && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && <details class="experience-custom">
+  {!isNine && !isThis && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">
