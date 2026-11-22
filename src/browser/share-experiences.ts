@@ -3,7 +3,8 @@ import {
   type ExperienceId,
 } from "../lib/share-experiences.ts";
 import {
-  renderExperienceResult, resultSizes, type ResultFormat, type ShareExperienceResult,
+  renderExperienceResult, resultSizes,
+  type ResultCover, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
 import {
   cleanText, clearNineDraft, readNineDraft, writeNineDraft,
@@ -13,6 +14,9 @@ import {
   musicPreview, normaliseMusicPicks, searchMusic,
   type MusicKind, type MusicPick,
 } from "../lib/top-nine-music.ts";
+import {
+  coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
+} from "../lib/top-nine-cover.ts";
 
 interface ResultSnapshot {
   title: string;
@@ -22,10 +26,20 @@ interface ResultSnapshot {
   /** Canonical music links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
 }
+
+/** One cover a person picked from their device: session-only, never uploaded. */
+interface CoverSlot {
+  url: string;
+  art: ResultCover;
+  kind: "png" | "jpeg" | "webp";
+}
+
 interface Controller {
   result(): ResultSnapshot | null;
   restore(snapshot: Record<string, unknown>): void;
   resumeDraft?(protectShared: boolean): void;
+  /** Decoded cover art for the downloaded image; never part of a shared result. */
+  exportCovers?(): readonly (ResultCover | null)[] | null;
 }
 
 const entry = cleanText;
@@ -146,11 +160,23 @@ function mountNine(
     previewClose: root.querySelector<HTMLButtonElement>("[data-music-preview-close]")!,
     previewSource: root.querySelector<HTMLAnchorElement>("[data-music-preview-source]")!,
   };
+  const cover = {
+    panel: root.querySelector<HTMLDetailsElement>("[data-cover-panel]")!,
+    target: root.querySelector<HTMLSelectElement>("[data-cover-target-choice]")!,
+    file: root.querySelector<HTMLInputElement>("[data-cover-file]")!,
+    status: root.querySelector<HTMLElement>("[data-cover-status]")!,
+    linked: root.querySelector<HTMLUListElement>("[data-cover-linked]")!,
+  };
+  const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
+  const previewCells = elements<HTMLElement>(root, "[data-nine-preview-cell]");
   const storage: DraftStorage = (() => {
     try { return localStorage; } catch { return blockedStorage; }
   })();
   let hrefs: (string | null)[] = objects.map(() => null);
+  let covers: (CoverSlot | null)[] = objects.map(() => null);
   let target = 0;
+  let coverTarget = 0;
+  let coverRun = 0;
   let kind: MusicKind = "album";
   let searching: AbortController | null = null;
   let searchRun = 0;
@@ -158,10 +184,12 @@ function mountNine(
   let previewOpener: HTMLElement | null = null;
 
   const note = (text: string) => { music.status.textContent = text; };
+  const coverNote = (text: string) => { cover.status.textContent = text; };
   const firstEmpty = () => objects.findIndex((input) => !input.value.trim());
   const storeName = () => music.country.selectedOptions[0]?.textContent?.replace(/\s*\([A-Z]{2}\)\s*$/, "").trim()
     || music.country.value;
   const yearOf = (value: unknown) => Number.isInteger(value) && Number(value) > 1900 && Number(value) < 3000 ? String(value) : "";
+  const kindLabel = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
 
   /** Canonical links for nine exhibits, and never for an exhibit with no title. */
   function trimHrefs(value: unknown) {
@@ -230,6 +258,129 @@ function mountNine(
     hrefs[index] = href;
     if (previewIndex === index) closePreview(false);
     refreshLinks();
+  }
+
+  /** Release one exhibit's cover: revoke its object URL and drop its pixels. */
+  function disposeCover(index: number) {
+    const slot = covers[index];
+    if (!slot) return;
+    URL.revokeObjectURL(slot.url);
+    covers[index] = null;
+  }
+
+  function markCoverTarget() {
+    cover.target.value = String(coverTarget);
+    objects.forEach((input, index) => {
+      input.closest("label")?.toggleAttribute("data-cover-target", cover.panel.open && index === coverTarget);
+    });
+  }
+
+  function renderCovers() {
+    covers.forEach((slot, index) => {
+      const state = root.querySelector<HTMLElement>(`[data-cover-slot-state="${index}"]`);
+      if (!state) return;
+      state.hidden = !slot;
+      state.textContent = slot ? `${kindLabel[slot.kind]} cover` : "";
+    });
+    cover.linked.replaceChildren();
+    covers.forEach((slot, index) => {
+      if (!slot) return;
+      const row = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = `Exhibit ${index + 1} · ${kindLabel[slot.kind]}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "secondary";
+      remove.textContent = "Remove cover";
+      remove.setAttribute("aria-label", `Remove the cover from exhibit ${index + 1}`);
+      remove.addEventListener("click", () => {
+        disposeCover(index);
+        renderCovers();
+        renderPreview();
+        coverNote(`Cover removed from exhibit ${index + 1}. Its title stays.`);
+        cover.panel.querySelector("summary")?.focus({ preventScroll: true });
+      });
+      row.append(label, remove);
+      cover.linked.append(row);
+    });
+    cover.linked.hidden = !cover.linked.childElementCount;
+  }
+
+  /** The in-page grid mirrors what the downloaded image will hang: cover first,
+   * title on top, in the exhibition's own cell colours. */
+  function renderPreview() {
+    previewCells.forEach((cell, index) => {
+      const slot = covers[index];
+      const image = cell.querySelector<HTMLImageElement>("[data-nine-preview-cover]")!;
+      const caption = cell.querySelector<HTMLElement>("[data-nine-preview-caption]")!;
+      caption.textContent = objects[index].value.trim() || "—";
+      cell.toggleAttribute("data-covered", Boolean(slot));
+      if (!slot) {
+        image.hidden = true;
+        image.removeAttribute("src");
+        return;
+      }
+      if (image.getAttribute("src") !== slot.url) image.src = slot.url;
+      image.hidden = false;
+    });
+  }
+
+  /** One device image onto one exhibit: bounded, decoded locally, never uploaded. */
+  async function hangCover(file: File) {
+    const index = coverTarget;
+    const run = ++coverRun;
+    const fail = (text: string) => { if (run === coverRun) coverNote(text); };
+    if (file.size > coverFileLimit) {
+      fail(`That image is ${Math.round(file.size / 1_048_576)} MB. Covers can be up to ${coverFileLimit / 1_048_576} MB.`);
+      return;
+    }
+    const head = new Uint8Array(await file.slice(0, coverHeadLimit).arrayBuffer());
+    if (run !== coverRun) return;
+    const sniffed = sniffCover(head);
+    if (!sniffed) {
+      fail("That file isn’t a readable PNG, JPEG or WebP image. Pick a photo or artwork from your device.");
+      return;
+    }
+    if (sniffed.width * sniffed.height > coverPixelLimit) {
+      fail(`That image is ${sniffed.width.toLocaleString()} × ${sniffed.height.toLocaleString()} pixels. Covers can be up to ${coverPixelLimit / 1_000_000} megapixels.`);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const source = new Image();
+    source.src = url;
+    try {
+      await source.decode();
+    } catch {
+      URL.revokeObjectURL(url);
+      fail("That image couldn’t be decoded. Export it as PNG or JPEG, then pick it again.");
+      return;
+    }
+    if (run !== coverRun) {
+      URL.revokeObjectURL(url);
+      return;
+    }
+    if (source.naturalWidth * source.naturalHeight > coverPixelLimit) {
+      URL.revokeObjectURL(url);
+      fail("That image is too large to hang here. Try a smaller copy.");
+      return;
+    }
+    const scale = Math.min(1, coverWorkingMax / Math.max(source.naturalWidth, source.naturalHeight));
+    const art = document.createElement("canvas");
+    art.width = Math.max(1, Math.round(source.naturalWidth * scale));
+    art.height = Math.max(1, Math.round(source.naturalHeight * scale));
+    const artCtx = art.getContext("2d");
+    if (!artCtx) {
+      URL.revokeObjectURL(url);
+      fail("This browser couldn’t prepare that cover. Try a smaller image.");
+      return;
+    }
+    artCtx.imageSmoothingQuality = "high";
+    artCtx.drawImage(source, 0, 0, art.width, art.height);
+    disposeCover(index);
+    covers[index] = { url, art, kind: sniffed.kind };
+    renderCovers();
+    renderPreview();
+    coverNote(`Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
   }
 
   const previewHeight = { "Apple Music": "450", Spotify: "352" } as const;
@@ -359,11 +510,15 @@ function mountNine(
     target = empty < 0 ? 0 : empty;
     markTarget();
     refreshLinks();
+    renderPreview();
     pickSkin();
     update();
   }
 
-  root.addEventListener("input", update);
+  root.addEventListener("input", () => {
+    renderPreview();
+    update();
+  });
   preset.addEventListener("change", () => {
     if (preset.value) title.value = preset.value;
     if (preset.value === "Nine albums I took everywhere") {
@@ -381,10 +536,25 @@ function mountNine(
       objects[from].value = objects[to].value;
       objects[to].value = first;
       [hrefs[from], hrefs[to]] = [hrefs[to], hrefs[from]];
+      [covers[from], covers[to]] = [covers[to], covers[from]];
       if (previewIndex === from || previewIndex === to) closePreview(false);
       refreshLinks();
+      renderCovers();
+      renderPreview();
       order.value = String(to);
+      update();
     });
+  });
+  cover.target.addEventListener("change", () => {
+    coverTarget = Number(cover.target.value);
+    markCoverTarget();
+  });
+  cover.panel.addEventListener("toggle", markCoverTarget);
+  cover.file.addEventListener("change", () => {
+    const file = cover.file.files?.[0];
+    // Reset the input so picking the same file again after a removal re-fires.
+    cover.file.value = "";
+    if (file) void hangCover(file);
   });
 
   music.form.addEventListener("submit", (event) => {
@@ -457,9 +627,19 @@ function mountNine(
       update();
     });
     input.addEventListener("input", () => {
-      if (!hrefs[index] || input.value.trim()) return;
-      setLink(index, null);
-      note(`Exhibit ${index + 1} is empty, so its music link was removed.`);
+      if (input.value.trim()) return;
+      const hadLink = Boolean(hrefs[index]);
+      const hadCover = Boolean(covers[index]);
+      if (!hadLink && !hadCover) return;
+      if (hadLink) setLink(index, null);
+      if (hadCover) disposeCover(index);
+      if (hadCover) {
+        renderCovers();
+        renderPreview();
+      }
+      note(`Exhibit ${index + 1} is empty, so its ${
+        hadLink && hadCover ? "music link and cover were" : hadLink ? "music link was" : "cover was"
+      } removed.`);
     });
   });
 
@@ -503,6 +683,10 @@ function mountNine(
 
   markTarget();
   refreshLinks();
+  markCoverTarget();
+  renderCovers();
+  renderPreview();
+  if (previewGrid) previewGrid.hidden = false;
 
   return {
     result: () => {
@@ -512,6 +696,7 @@ function mountNine(
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
       return { title: heading, items, ...(links ? { hrefs: links } : {}) };
     },
+    exportCovers: () => (covers.some(Boolean) ? covers.map((slot) => slot?.art ?? null) : null),
     restore(snapshot) {
       const items = snapshot.items;
       const heading = entry(snapshot.title, 72);
@@ -525,6 +710,7 @@ function mountNine(
       target = empty < 0 ? 0 : empty;
       markTarget();
       refreshLinks();
+      renderPreview();
       update();
     },
     resumeDraft(protectShared) {
@@ -719,7 +905,9 @@ export function mountShareExperience(root: HTMLElement) {
       const size = Object.hasOwn(resultSizes, format.value) ? format.value as ResultFormat : "portrait";
       // Links belong to the interactive result and result link; the image stays text-only.
       const { hrefs: _links, ...drawn } = snapshot;
-      const blob = await renderExperienceResult(drawn, size);
+      // Covers are passed beside the snapshot, never inside it, so no link or
+      // draft path can carry a person's photo bytes.
+      const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined);
       const href = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = href;
