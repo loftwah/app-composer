@@ -173,6 +173,7 @@ function mountNine(
     recoveryApple: root.querySelector<HTMLAnchorElement>("[data-music-recovery-apple]")!,
     recoverySpotify: root.querySelector<HTMLAnchorElement>("[data-music-recovery-spotify]")!,
     recoveryWikidata: root.querySelector<HTMLAnchorElement>("[data-music-recovery-wikidata]")!,
+    recoveryAlbums: root.querySelector<HTMLButtonElement>("[data-music-recovery-wikidata-albums]")!,
     storefront: root.querySelector<HTMLElement>("[data-music-storefront]")!,
     coverage: root.querySelector<HTMLElement>("[data-music-coverage]")!,
     pasteForm: root.querySelector<HTMLFormElement>("[data-music-paste-form]")!,
@@ -204,6 +205,8 @@ function mountNine(
   let kind: SourceKind = "album";
   let searching: AbortController | null = null;
   let searchRun = 0;
+  /** True while the shown results came from the explicit Wikidata-album fallback. */
+  let albumWikiSearch = false;
   /** Everything the current search returned, and how much of it is on screen. */
   let resultPicks: SearchPick[] = [];
   let shownResults = 0;
@@ -221,12 +224,16 @@ function mountNine(
   const yearOf = (value: unknown) => Number.isInteger(value) && Number(value) > 1900 && Number(value) < 3000 ? String(value) : "";
   const kindLabel = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
 
-  /** Manual recovery beside the results: ordinary links, no fetch and no new service. */
-  function showRecovery(query: string, country: string, wiki: boolean) {
+  /** Manual recovery beside the results: ordinary links, no fetch and no new service.
+   * For album queries only, one explicit action searches Wikidata albums with
+   * the exact current term; those results stay release details — playback comes
+   * only from an Apple Music or Spotify link. */
+  function showRecovery(query: string, country: string, wiki: boolean, albumAction = false) {
     for (const anchor of [music.recoveryApple, music.recoverySpotify, music.recoveryWikidata]) {
       anchor.hidden = true;
       anchor.removeAttribute("href");
     }
+    music.recoveryAlbums.hidden = !albumAction;
     if (wiki) {
       music.recoveryWikidata.href =
         `https://www.wikidata.org/wiki/Special:Search?search=${encodeURIComponent(query.toWellFormed())}`;
@@ -239,13 +246,15 @@ function mountNine(
       music.recoverySpotify.href = links.spotify;
       music.recoveryApple.hidden = false;
       music.recoverySpotify.hidden = false;
-      music.recoveryNote.textContent =
-        "Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.";
+      music.recoveryNote.textContent = albumAction
+        ? "Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below. Or search Wikidata albums: they list release details only — an Apple Music or Spotify link adds playback."
+        : "Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.";
     }
     music.recovery.hidden = false;
   }
   function hideRecovery() {
     music.recovery.hidden = true;
+    music.recoveryAlbums.hidden = true;
     for (const anchor of [music.recoveryApple, music.recoverySpotify, music.recoveryWikidata]) {
       anchor.hidden = true;
       anchor.removeAttribute("href");
@@ -635,7 +644,9 @@ function mountNine(
     const year = yearOf(pick.year);
     const filled = target + 1;
     // Films and games read as "Dune (2021)"; the description is shown in the
-    // result row, not typed into the exhibit.
+    // result row, not typed into the exhibit. Wikidata album picks get the
+    // same title/year and one metadata-only note: playback needs a real
+    // Apple Music or Spotify link, never an inferred provider ID.
     objects[target].value = entry(source.provider === "Wikidata"
       ? year ? `${name} (${year})` : name
       : artist ? `${name} · ${artist}` : name, 54);
@@ -643,11 +654,18 @@ function mountNine(
     const empty = firstEmpty();
     if (empty >= 0) target = empty;
     markTarget();
-    note(`${name} added to exhibit ${filled}.${empty >= 0 ? ` Next pick fills exhibit ${target + 1}.` : ""}`);
+    note(`${name} added to exhibit ${filled}.${empty >= 0 ? ` Next pick fills exhibit ${target + 1}.` : ""}${
+      albumWikiSearch && source.provider === "Wikidata"
+        ? " The Wikidata link is release details only — paste an Apple Music or Spotify link for playback."
+        : ""}`);
     update();
   }
 
-  async function runSearch() {
+  /** One search of the active kind. The album fallback passes wikiAlbums to
+   * run the exact current term through the same Wikidata catalogue instead —
+   * same two-request shape, same abort and run-token protections, never
+   * automatic. */
+  async function runSearch(wikiAlbums = false) {
     const query = entry(music.query.value, 80);
     if (query.length < 2) {
       note("Enter at least two characters to search.");
@@ -657,37 +675,46 @@ function mountNine(
     const country = music.country.value;
     const store = storeName();
     const requestedKind: SourceKind = kind;
-    const wiki = requestedKind === "film" || requestedKind === "game";
+    const wiki = wikiAlbums || requestedKind === "film" || requestedKind === "game";
     const kindLabel =
       requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
       : requestedKind === "book" ? "books" : requestedKind === "app" ? "apps"
       : requestedKind === "film" ? "films" : "games";
-    // Books, apps, films and games have no music-service fallback; weak, empty
-    // and failed searches keep them straight to the retry message.
+    // Books and apps have no music-service fallback; weak, empty and failed
+    // searches keep them straight to the retry message. Album searches keep
+    // their Apple/Spotify links and the explicit Wikidata-album action.
     const offerRecovery = () => {
-      if (requestedKind !== "book" && requestedKind !== "app") showRecovery(query, country, wiki);
+      if (requestedKind !== "book" && requestedKind !== "app") {
+        showRecovery(query, country, wiki && !wikiAlbums, requestedKind === "album");
+      }
     };
     searching?.abort();
     const controller = new AbortController();
     searching = controller;
     const run = ++searchRun;
+    albumWikiSearch = wikiAlbums;
     music.submit.disabled = true;
     clearResults();
     hideRecovery();
-    note(wiki ? `Searching Wikidata ${kindLabel} for “${query}”…`
+    note(wikiAlbums ? `Searching Wikidata albums for “${query}”…`
+      : wiki ? `Searching Wikidata ${kindLabel} for “${query}”…`
       : `Searching ${store} ${kindLabel} for “${query}”…`);
     try {
       const picks = requestedKind === "book"
         ? await searchBooks(query, country, controller.signal)
         : requestedKind === "app"
         ? await searchApps(query, country, controller.signal)
+        : wikiAlbums
+        ? await searchWikidata(query, "album", controller.signal)
         : requestedKind === "film" || requestedKind === "game"
         ? await searchWikidata(query, requestedKind, controller.signal)
         : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
       const usable = picks.filter((pick) => pick && typeof pick.title === "string" && sourceLink(pick.href));
       if (!usable.length) {
-        note(wiki
+        note(wikiAlbums
+          ? `No albums matched “${query}” on Wikidata. Coverage is partial — search again with a shorter title, or paste an Apple Music, Spotify or Wikidata link.`
+          : wiki
           ? `No ${kindLabel} matched “${query}” on Wikidata. Try a shorter title, switch the type, or paste a Wikidata link.`
           : `No ${kindLabel} matched “${query}” in ${store}. Try a shorter title, switch the type, change storefront, or paste a link.`);
         offerRecovery();
@@ -803,6 +830,14 @@ function mountNine(
     event.preventDefault();
     void runSearch();
   });
+  /** The album-only explicit fallback: the exact current term, one strict
+   * Wikidata album search, never a link, auto-fetch or retry. Editing the
+   * query or switching kind clears the recovery area first, so the action
+   * only runs for the term that offered it. */
+  music.recoveryAlbums.addEventListener("click", () => {
+    if (kind !== "album" || entry(music.query.value, 80).length < 2) return;
+    void runSearch(true);
+  });
   music.more.addEventListener("click", () => {
     if (shownResults >= resultPicks.length) return;
     revealResults(true);
@@ -810,6 +845,7 @@ function mountNine(
   function clearSearch() {
     searching?.abort();
     searchRun += 1;
+    albumWikiSearch = false;
     music.submit.disabled = false;
     clearResults();
     hideRecovery();

@@ -159,6 +159,83 @@ test('games keep the earliest full year, films stay out of the game kind', async
   assert.equal(films[0].year, 2005);
 });
 
+// Modal Soul: live wbsearchentities rows for "Modal Soul" and the batched
+// read, captured 2026-11-22 (trimming untyped claims). Both samples are P31
+// Q482994 album with enwiki sitelinks.
+const modalSoulSearch = { searchinfo: { search: 'Modal Soul' }, search: [
+  searchRow('Q3317763', 'Modal Soul', '2005 album by Nujabes'),
+  searchRow('Q6887999', 'Modal Soul Classics', '2008 compilation album; various artists'),
+  searchRow('Q17143147', 'Modal Soul Classics II – Dedicated to Nujabes',
+    '2010 tribute compilation album; various artists'),
+] };
+const modalSoulEntities = { entities: {
+  Q3317763: {
+    claims: { P31: [claim('Q482994')], P577: [time('+2005-11-11T00:00:00Z', 11)] },
+    sitelinks: { enwiki: { title: 'Modal Soul' } },
+  },
+  Q6887999: {
+    claims: { P31: [claim('Q482994')], P577: [time('+2008-00-00T00:00:00Z', 9)] },
+  },
+  Q17143147: { claims: { P31: [claim('Q482994')] } },
+} };
+
+test('albums come from the same two requests, exact title first', async (t) => {
+  const request = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://www.wikidata.org');
+    assert.equal(init.credentials, 'omit');
+    if (url.searchParams.get('action') === 'wbsearchentities') {
+      assert.equal(url.searchParams.get('search'), 'Modal Soul');
+      return ok(modalSoulSearch)();
+    }
+    assert.equal(url.searchParams.get('ids'), 'Q3317763|Q6887999|Q17143147');
+    return ok(modalSoulEntities)();
+  });
+  const picks = await searchWikidata('Modal Soul', 'album');
+  assert.equal(request.mock.callCount(), 2);
+  assert.deepEqual(picks, [
+    { title: 'Modal Soul', artist: '2005 album by Nujabes', year: 2005,
+      href: 'https://www.wikidata.org/wiki/Q3317763',
+      article: 'https://en.wikipedia.org/wiki/Modal_Soul' },
+    { title: 'Modal Soul Classics', artist: '2008 compilation album; various artists', year: 2008,
+      href: 'https://www.wikidata.org/wiki/Q6887999' },
+    { title: 'Modal Soul Classics II – Dedicated to Nujabes',
+      artist: '2010 tribute compilation album; various artists',
+      href: 'https://www.wikidata.org/wiki/Q17143147' },
+  ]);
+});
+
+test('the album kind accepts exactly Q482994 and studio albums, never films', async (t) => {
+  // Spiritual State is the second spike sample: the album is Q482994, the
+  // Sufi concept shares the label and must not be offered. One item typed
+  // only as Q20853847 studio album is accepted; the film is not.
+  const spiritualSearch = { search: [
+    searchRow('Q3493569', 'Spiritual State', '2011 posthumous studio album by Nujabes'),
+    searchRow('Q3782498', 'Spiritual State', 'spiritual state in Sufi path'),
+    searchRow('Q62443214', 'Spiritual State', 'studio album'),
+    searchRow('Q755523', 'Spiritual State', '2005 film directed by Andrzej Bartkowiak'),
+  ] };
+  const spiritualEntities = { entities: {
+    Q3493569: {
+      claims: { P31: [claim('Q482994')], P577: [time('+2011-12-03T00:00:00Z', 11)] },
+      sitelinks: { enwiki: { title: 'Spiritual State' } },
+    },
+    Q3782498: { claims: { P31: [claim('Q11396486')] } },
+    Q62443214: { claims: { P31: [claim('Q20853847')], P577: [time('+2011-12-03T00:00:00Z', 11)] } },
+    Q755523: { claims: { P31: [claim('Q11424')] } },
+  } };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(spiritualSearch)()
+    : ok(spiritualEntities)());
+  assert.deepEqual(await searchWikidata('Spiritual State', 'album'), [
+    { title: 'Spiritual State', artist: '2011 posthumous studio album by Nujabes', year: 2011,
+      href: 'https://www.wikidata.org/wiki/Q3493569',
+      article: 'https://en.wikipedia.org/wiki/Spiritual_State' },
+    { title: 'Spiritual State', artist: 'studio album', year: 2011,
+      href: 'https://www.wikidata.org/wiki/Q62443214' },
+  ]);
+  assert.equal(fetch.mock.callCount(), 2);
+});
+
 test('a verified anime film type is offered, unknown types are not', async (t) => {
   // Live response: Spirited Away (Q155653) is P31 Q20650540, an anime film.
   const spiritedSearch = { search: [
@@ -249,6 +326,7 @@ test('a failed or cancelled search stays one request with no retries', async (t)
   const controller = new AbortController();
   controller.abort();
   await assert.rejects(searchWikidata('Dune', 'film', controller.signal), { name: 'AbortError' });
+  await assert.rejects(searchWikidata('Modal Soul', 'album', controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
   // A MediaWiki error body reads as a rejected request, not an empty result.
   fetch.mock.mockImplementation(async (url) => url.searchParams.get('action') === 'wbsearchentities'
@@ -258,5 +336,7 @@ test('a failed or cancelled search stays one request with no retries', async (t)
   // Out-of-bounds queries never reach the network.
   assert.deepEqual(await searchWikidata('  ', 'film'), []);
   assert.deepEqual(await searchWikidata('x'.repeat(101), 'film'), []);
+  assert.deepEqual(await searchWikidata('  ', 'album'), []);
+  assert.deepEqual(await searchWikidata('x'.repeat(101), 'album'), []);
   assert.equal(fetch.mock.callCount(), 2);
 });
