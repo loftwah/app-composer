@@ -28,6 +28,7 @@ const inks = {
   "pick-a-door": [["#1c102a", "#f8e9d0", "#ffbc65"], ["#e8d9bf", "#251d14", "#8b392c"], ["#182a21", "#eaffd4", "#a7e679"]],
   "top-nine": [["#361c60", "#fff1d5", "#ffbFA0"], ["#f3be78", "#25202a", "#692642"], ["#141f2c", "#e4f1ff", "#a4ccff"]],
   "tech-bingo": [["#841424", "#ffeed7", "#ffd08a"], ["#164934", "#fff6db", "#fdcb63"], ["#ece3d6", "#251a19", "#982b3d"]],
+  "this-or-that": [["#10333c", "#f3faf3", "#ff6a4d"], ["#e8ddc4", "#1c2a24", "#b3372a"], ["#10161d", "#dff1ff", "#9fd4ff"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -98,7 +99,7 @@ export async function renderExperienceResult(
   ctx.fillStyle = ink;
   drawFit(ctx, result.title, margin, margin + 12, width - 2 * margin, header - 12, wide ? 66 : 105);
   if (result.items) {
-    const cols = result.game === "tech-bingo" ? 5 : 3;
+    const cols = result.game === "tech-bingo" ? 5 : result.game === "this-or-that" ? 1 : 3;
     const rows = Math.ceil(result.items.length / cols);
     const rowY = margin + header + 12;
     const gap = wide ? 6 : 9;
@@ -107,7 +108,7 @@ export async function renderExperienceResult(
     result.items.forEach((caption, index) => {
       const x = margin + (index % cols) * (cellW + gap);
       const y = rowY + Math.floor(index / cols) * (cellH + gap);
-      const marked = result.marked?.includes(index);
+      const marked = result.game === "tech-bingo" && Boolean(result.marked?.includes(index));
       const cover = result.game === "top-nine" ? covers?.[index] : undefined;
       const inset = wide ? 9 : 15;
       ctx.fillStyle = marked ? accent : ink;

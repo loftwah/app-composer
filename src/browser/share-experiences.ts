@@ -1,7 +1,11 @@
 import {
   agentBingo, developerBingo, doorEndings, experiences, internetBingo,
-  type ExperienceId,
+  thisOrThatQuestions, thisOrThatResultTitle, type ExperienceId,
 } from "../lib/share-experiences.ts";
+import {
+  pickThisOrThat, restoreThisOrThatPicks, thisOrThatComplete, thisOrThatProgress,
+  thisOrThatStart, thisOrThatSummary, undoThisOrThat,
+} from "../lib/this-or-that.ts";
 import {
   renderExperienceResult, resultSizes,
   type ResultCover, type ResultFormat, type ShareExperienceResult,
@@ -1103,6 +1107,127 @@ function mountNine(
   };
 }
 
+function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
+  const panels = elements<HTMLElement>(root, "[data-question]");
+  const progress = root.querySelector<HTMLElement>("[data-tot-progress]")!;
+  const undo = root.querySelector<HTMLButtonElement>("[data-tot-undo]")!;
+  const result = root.querySelector<HTMLElement>("[data-tot-result]")!;
+  const revealTitle = result.querySelector<HTMLElement>("[data-reveal-title]")!;
+  const revealPicks = result.querySelector<HTMLElement>("[data-reveal-picks]")!;
+  const restart = root.querySelector<HTMLButtonElement>("[data-restart]")!;
+  let picks: (0 | 1 | null)[] = thisOrThatStart();
+  let heading = thisOrThatResultTitle;
+
+  const answered = () => picks.filter((pick) => pick !== null).length;
+
+  function syncProgress() {
+    const state = thisOrThatProgress(picks);
+    progress.textContent = thisOrThatComplete(picks)
+      ? `All ${state.total} chosen`
+      : `Question ${state.question} of ${state.total}`;
+  }
+
+  /** The reveal lists every exact selection next to its question. */
+  function renderReveal() {
+    revealTitle.textContent = heading;
+    revealPicks.replaceChildren();
+    thisOrThatQuestions.forEach(([prompt, left, right], index) => {
+      const item = document.createElement("li");
+      const ask = document.createElement("span");
+      ask.className = "tot-pick-question";
+      ask.textContent = prompt;
+      const answer = document.createElement("strong");
+      answer.textContent = picks[index] === 0 ? left : right;
+      item.append(ask, answer);
+      revealPicks.append(item);
+    });
+  }
+
+  function showQuestion(index: number, focus = true) {
+    panels.forEach((panel, at) => { panel.hidden = at !== index; });
+    result.hidden = true;
+    restart.hidden = true;
+    syncProgress();
+    undo.disabled = answered() === 0;
+    if (focus) panels[index].querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+  }
+
+  function showReveal(focus: boolean) {
+    panels.forEach((panel) => { panel.hidden = true; });
+    result.hidden = false;
+    restart.hidden = false;
+    syncProgress();
+    undo.disabled = false;
+    renderReveal();
+    if (focus) revealTitle.focus({ preventScroll: true });
+  }
+
+  function advance(focus: boolean) {
+    if (thisOrThatComplete(picks)) showReveal(focus);
+    else showQuestion(thisOrThatProgress(picks).question - 1, focus);
+    update();
+  }
+
+  elements<HTMLButtonElement>(root, "[data-choice]").forEach((button) => {
+    const index = panels.indexOf(button.closest<HTMLElement>("[data-question]")!);
+    const side = button.dataset.choice === "1" ? 1 : 0;
+    button.addEventListener("click", (event) => {
+      if (event.detail > 1) return;
+      const next = pickThisOrThat(picks, index, side);
+      // A stale view or a double tap changes nothing; the current question owns the pick.
+      if (!next) return;
+      picks = next;
+      advance(true);
+    });
+  });
+
+  // Left and right arrows choose a side to focus; Enter or Space picks it.
+  elements<HTMLElement>(root, "[data-tot-options]").forEach((group) => {
+    const options = Array.from(group.querySelectorAll<HTMLButtonElement>("[data-choice]"));
+    group.addEventListener("keydown", (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      options[event.key === "ArrowLeft" ? 0 : 1]?.focus();
+    });
+  });
+
+  undo.addEventListener("click", () => {
+    const next = undoThisOrThat(picks);
+    if (!next) return;
+    picks = next;
+    showQuestion(answered());
+    update();
+  });
+
+  restart.addEventListener("click", () => {
+    picks = thisOrThatStart();
+    heading = thisOrThatResultTitle;
+    showQuestion(0, false);
+    panels[0].querySelector<HTMLButtonElement>("[data-choice]")?.focus({ preventScroll: true });
+    update();
+  });
+
+  showQuestion(0, false);
+
+  return {
+    result: () => {
+      const summary = thisOrThatSummary(picks);
+      // The PNG lists the five exact choices as rows; sides still travel in
+      // `marked` so a shared link restores the same run. Image marking is Bingo-only.
+      return summary ? { title: heading, items: [...summary.items], marked: [...summary.sides] } : null;
+    },
+    restore(snapshot) {
+      const sides = restoreThisOrThatPicks(snapshot.marked);
+      const title = entry(snapshot.title, 72);
+      if (!sides || !title) return;
+      picks = sides;
+      heading = title;
+      showReveal(false);
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -1245,12 +1370,15 @@ export function mountShareExperience(root: HTMLElement) {
     nativeShare.disabled = !canShare || sharing;
     clearAltFallback();
     if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
+    else if (!canShare && game === "this-or-that") status.textContent = "Answer all five questions to share your result.";
     else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
   };
   const pickSkin = () => { root.dataset.skin = chooseSkin.value; };
   controller = game === "pick-a-door" ? mountDoor(root, update)
-    : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin) : mountBingo(root);
+    : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
+    : game === "this-or-that" ? mountThisOrThat(root, update)
+    : mountBingo(root);
   chooseSkin.addEventListener("change", pickSkin);
   const shared = sharedResult(game);
   if (shared.snapshot) {
