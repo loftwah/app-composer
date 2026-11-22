@@ -81,3 +81,53 @@ test('an empty editor cannot overwrite a saved exhibition', () => {
   assert.equal(writeNineDraft(storage, { title: '', items: blank() }), 'empty');
   assert.equal(readNineDraft(storage).title, 'Nine');
 });
+
+const album = (id) => `https://music.apple.com/au/album/${id}`;
+const song = (id) => `https://open.spotify.com/track/${id.padStart(22, 'a')}`;
+
+test('optional per-exhibit links round-trip and keep their exhibit position', () => {
+  const storage = fakeStorage();
+  const hrefs = [album('1'), null, song('2'), ...Array(6).fill(null)];
+  writeNineDraft(storage, { title: 'Nine albums', items: ['Blue', '', 'Kid A', ...Array(6).fill('x')], hrefs });
+  assert.deepEqual(readNineDraft(storage).hrefs, hrefs);
+  const saved = JSON.parse(storage.data.get(draftKey('top-nine')));
+  assert.deepEqual(saved.hrefs, hrefs);
+});
+
+test('an exhibition without music keeps the exact old stored shape', () => {
+  const storage = fakeStorage();
+  writeNineDraft(storage, { title: 'Nine', items: ['One', ...Array(8).fill('x')] });
+  assert.equal(storage.data.get(draftKey('top-nine')).includes('hrefs'), false);
+  assert.deepEqual(readNineDraft(storage), {
+    title: 'Nine', items: ['One', ...Array(8).fill('x')], byline: '', skin: 0,
+  });
+  writeNineDraft(storage, { title: 'Nine', items: blank(), hrefs: Array(9).fill(null) });
+  assert.equal(storage.data.get(draftKey('top-nine')).includes('hrefs'), false);
+  assert.equal('hrefs' in readNineDraft(storage), false);
+});
+
+test('stored links stay bounded, HTTPS-only and nine slots wide', () => {
+  const storage = fakeStorage();
+  writeNineDraft(storage, {
+    title: 'Nine', items: ['One', 'Two', ...Array(7).fill('')],
+    hrefs: [
+      'http://music.apple.com/au/album/blue/1',
+      'javascript:alert(1)',
+      `https://open.spotify.com/track/${'x'.repeat(300)}`,
+      'https://example.com/album',
+      ...Array(8).fill(song('9')),
+    ],
+  });
+  assert.deepEqual(readNineDraft(storage).hrefs, [
+    null, null, null, null, song('9'), song('9'), song('9'), song('9'), song('9'),
+  ]);
+});
+
+test('a malformed link list is ignored instead of failing the draft', () => {
+  const storage = fakeStorage({
+    [draftKey('top-nine')]: payload({
+      version: draftVersion, title: 'Nine', items: ['One', ...Array(8).fill('x')], hrefs: 'https://open.spotify.com/track/1',
+    }),
+  });
+  assert.equal(readNineDraft(storage).hrefs, undefined);
+});

@@ -83,6 +83,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
       );
     }
   }
+  if (context.url.pathname === "/share/experiences/top-nine") {
+    const csp = response.headers.get("content-security-policy");
+    if (csp) {
+      response.headers.set(
+        "content-security-policy",
+        csp
+          .replace("connect-src 'self'", "connect-src 'self' https://itunes.apple.com")
+          .replace("frame-src 'none'", "frame-src https://embed.music.apple.com https://open.spotify.com"),
+      );
+    }
+  }
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-Frame-Options", "DENY");
