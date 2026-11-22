@@ -11,19 +11,26 @@ import {
   type DraftStorage, type NineDraft,
 } from "../lib/share-experience-draft.ts";
 import {
-  musicPreview, normaliseMusicPicks, searchMusic,
-  type MusicKind, type MusicPick,
+  searchBooks,
+} from "../lib/top-nine-books.ts";
+import {
+  musicPreview, searchMusic,
 } from "../lib/top-nine-music.ts";
 import {
   coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
 } from "../lib/top-nine-cover.ts";
+import {
+  normaliseSourceLinks, sourceLink,
+  type SourceKind,
+} from "../lib/top-nine-source.ts";
+import type { CataloguePick } from "../lib/itunes-catalogue.ts";
 
 interface ResultSnapshot {
   title: string;
   subtitle?: string;
   items?: string[];
   marked?: number[];
-  /** Canonical music links per exhibit; present only when at least one exists. */
+  /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
 }
 
@@ -177,7 +184,7 @@ function mountNine(
   let target = 0;
   let coverTarget = 0;
   let coverRun = 0;
-  let kind: MusicKind = "album";
+  let kind: SourceKind = "album";
   let searching: AbortController | null = null;
   let searchRun = 0;
   let previewIndex: number | null = null;
@@ -193,7 +200,7 @@ function mountNine(
 
   /** Canonical links for nine exhibits, and never for an exhibit with no title. */
   function trimHrefs(value: unknown) {
-    const canonical = normaliseMusicPicks(value);
+    const canonical = normaliseSourceLinks(value);
     return objects.map((input, index) => {
       const href = canonical[index] ?? null;
       return href && input.value.trim() ? href : null;
@@ -213,30 +220,39 @@ function mountNine(
   function renderLinked() {
     music.linked.replaceChildren();
     hrefs.forEach((href, index) => {
-      const preview = musicPreview(href);
-      if (!preview) return;
+      const source = sourceLink(href);
+      if (!source) return;
+      const name = entry(objects[index].value, 40) || "untitled";
       const row = document.createElement("li");
       const label = document.createElement("span");
-      label.textContent = `Exhibit ${index + 1} · ${preview.provider}`;
-      const show = document.createElement("button");
-      show.type = "button";
-      show.className = "secondary";
-      show.textContent = "Preview";
-      show.dataset.previewFor = String(index);
-      show.setAttribute("aria-label", `Preview the ${preview.provider} link for exhibit ${index + 1}`);
-      show.addEventListener("click", () => openPreview(index));
+      label.textContent = `Exhibit ${index + 1} · ${name} · ${source.provider}`;
+      const open: HTMLAnchorElement | HTMLButtonElement =
+        source.provider === "Apple Books" ? document.createElement("a") : document.createElement("button");
+      open.className = source.provider === "Apple Books" ? "button secondary" : "secondary";
+      if (source.provider === "Apple Books") {
+        (open as HTMLAnchorElement).href = source.href;
+        (open as HTMLAnchorElement).target = "_blank";
+        (open as HTMLAnchorElement).rel = "noopener noreferrer nofollow";
+        open.textContent = "Open in Apple Books";
+        open.setAttribute("aria-label", `Open the Apple Books link for exhibit ${index + 1} in a new tab`);
+      } else {
+        (open as HTMLButtonElement).type = "button";
+        open.textContent = "Preview";
+        open.addEventListener("click", () => openPreview(index));
+        open.setAttribute("aria-label", `Preview the ${source.provider} link for exhibit ${index + 1}`);
+      }
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "secondary";
       remove.textContent = "Remove link";
-      remove.setAttribute("aria-label", `Remove the ${preview.provider} link from exhibit ${index + 1}`);
+      remove.setAttribute("aria-label", `Remove the ${source.provider} link from exhibit ${index + 1}`);
       remove.addEventListener("click", () => {
         setLink(index, null);
-        note(`Exhibit ${index + 1} keeps its title. The music link was removed.`);
+        note(`Exhibit ${index + 1} keeps its title. The source link was removed.`);
         update();
         music.panel.querySelector("summary")?.focus({ preventScroll: true });
       });
-      row.append(label, show, remove);
+      row.append(label, open, remove);
       music.linked.append(row);
     });
     music.linked.hidden = !music.linked.childElementCount;
@@ -244,12 +260,12 @@ function mountNine(
 
   function refreshLinks() {
     hrefs.forEach((href, index) => {
-      const preview = musicPreview(href);
-      objects[index].closest("label")?.toggleAttribute("data-has-link", Boolean(preview));
+      const source = sourceLink(href);
+      objects[index].closest("label")?.toggleAttribute("data-has-link", Boolean(source));
       const state = root.querySelector<HTMLElement>(`[data-music-slot-state="${index}"]`);
       if (!state) return;
-      state.hidden = !preview;
-      state.textContent = preview ? `${preview.provider} link` : "";
+      state.hidden = !source;
+      state.textContent = source ? `${source.provider} link` : "";
     });
     renderLinked();
   }
@@ -388,7 +404,9 @@ function mountNine(
   function openPreview(index: number) {
     const preview = musicPreview(hrefs[index]);
     if (!preview) {
-      note(`Exhibit ${index + 1} has no playable link.`);
+      note(hrefs[index]
+        ? `Exhibit ${index + 1} has an Apple Books source link. Open it in Apple Books — books have no player here.`
+        : `Exhibit ${index + 1} has no playable link.`);
       return;
     }
     previewIndex = index;
@@ -418,12 +436,12 @@ function mountNine(
     previewOpener = null;
   }
 
-  function renderResults(picks: MusicPick[]) {
+  function renderResults(picks: CataloguePick[]) {
     music.results.replaceChildren();
     picks.slice(0, 12).forEach((pick) => {
-      const preview = musicPreview(pick.href);
+      const source = sourceLink(pick.href);
       const name = entry(pick.title, 80);
-      if (!preview || !name) return;
+      if (!source || !name) return;
       const artist = entry(pick.artist, 60);
       const year = yearOf(pick.year);
       const row = document.createElement("li");
@@ -432,7 +450,8 @@ function mountNine(
       const heading = document.createElement("strong");
       heading.textContent = name;
       const detail = document.createElement("span");
-      detail.textContent = [artist, year].filter(Boolean).join(" · ") || "Artist not listed";
+      detail.textContent = [artist, year, source.provider].filter(Boolean).join(" · ")
+        || `Unlisted · ${source.provider}`;
       button.append(heading, detail);
       button.addEventListener("click", () => fillFromPick(pick));
       row.append(button);
@@ -441,17 +460,17 @@ function mountNine(
     music.results.hidden = !music.results.childElementCount;
   }
 
-  function fillFromPick(pick: MusicPick) {
-    const preview = musicPreview(pick.href);
+  function fillFromPick(pick: CataloguePick) {
+    const source = sourceLink(pick.href);
     const name = entry(pick.title, 54);
-    if (!preview || !name) {
-      note("That result has no usable Apple Music or Spotify link. Try another.");
+    if (!source || !name) {
+      note("That result has no usable Apple Music, Spotify or Apple Books link. Try another.");
       return;
     }
     const artist = entry(pick.artist, 48);
     const filled = target + 1;
     objects[target].value = entry(artist ? `${name} · ${artist}` : name, 54);
-    setLink(target, preview.href);
+    setLink(target, source.href);
     const empty = firstEmpty();
     if (empty >= 0) target = empty;
     markTarget();
@@ -468,7 +487,8 @@ function mountNine(
     }
     const country = music.country.value;
     const store = storeName();
-    const requestedKind = kind;
+    const requestedKind: SourceKind = kind;
+    const kindLabel = requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs" : "books";
     searching?.abort();
     const controller = new AbortController();
     searching = controller;
@@ -476,20 +496,22 @@ function mountNine(
     music.submit.disabled = true;
     music.results.hidden = true;
     music.results.replaceChildren();
-    note(`Searching ${store} ${requestedKind === "album" ? "albums" : "songs"} for “${query}”…`);
+    note(`Searching ${store} ${kindLabel} for “${query}”…`);
     try {
-      const picks = await searchMusic(query, requestedKind, country, controller.signal);
+      const picks = requestedKind === "book"
+        ? await searchBooks(query, country, controller.signal)
+        : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
-      const usable = picks.filter((pick) => pick && typeof pick.title === "string" && musicPreview(pick.href));
+      const usable = picks.filter((pick) => pick && typeof pick.title === "string" && sourceLink(pick.href));
       if (!usable.length) {
-        note(`No ${requestedKind === "album" ? "albums" : "songs"} matched “${query}” in ${store}. Try a shorter title, switch Albums or Songs, change storefront, or paste a link.`);
+        note(`No ${kindLabel} matched “${query}” in ${store}. Try a shorter title, switch the type, change storefront, or paste a link.`);
         return;
       }
       renderResults(usable);
       note(`${usable.length === 1 ? "One result" : `${usable.length} results`}. Choose one to fill exhibit ${target + 1}.`);
     } catch {
       if (run !== searchRun || controller.signal.aborted) return;
-      note("Search didn’t come back. Check your connection and try again, or paste an Apple Music or Spotify link below.");
+      note("Search didn’t come back. Check your connection and try again, or paste an Apple Music, Spotify or Apple Books link below.");
     } finally {
       if (run === searchRun) {
         searching = null;
@@ -504,7 +526,7 @@ function mountNine(
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
     closePreview(false);
-    hrefs = normaliseMusicPicks(draft.hrefs);
+    hrefs = normaliseSourceLinks(draft.hrefs);
     if (hrefs.some(Boolean)) music.panel.open = true;
     const empty = firstEmpty();
     target = empty < 0 ? 0 : empty;
@@ -573,7 +595,8 @@ function mountNine(
   music.country.addEventListener("change", clearSearch);
   music.kind.forEach((button) => {
     button.addEventListener("click", () => {
-      kind = button.dataset.musicKind === "song" ? "song" : "album";
+      const next = button.dataset.musicKind;
+      kind = next === "song" || next === "book" ? next : "album";
       music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
       clearSearch();
     });
@@ -595,35 +618,35 @@ function mountNine(
 
   music.pasteForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    const preview = musicPreview(music.paste.value.trim());
-    if (!preview) {
-      note("That isn’t an Apple Music or Spotify album or track link. Copy the share link from the album or song page.");
+    const source = sourceLink(music.paste.value.trim());
+    if (!source) {
+      note("That isn’t an Apple Music, Spotify or Apple Books link. Copy the share link from its page in the app or store.");
       music.paste.focus();
       music.paste.select();
       return;
     }
     const typed = Boolean(objects[target].value.trim());
     const filled = target + 1;
-    setLink(target, preview.href);
+    setLink(target, source.href);
     music.paste.value = "";
     if (typed) {
       const empty = firstEmpty();
       if (empty >= 0) target = empty;
       markTarget();
     }
-    note(`Exhibit ${filled} has a ${preview.provider} link. ${typed ? "Its title stays as you typed it." : "Add its title."}`);
+    note(`Exhibit ${filled} has a ${source.provider} link. ${typed ? "Its title stays as you typed it." : "Add its title."}`);
     update();
   });
   objects.forEach((input, index) => {
     input.addEventListener("paste", (event) => {
       const text = event.clipboardData?.getData("text")?.trim() ?? "";
-      const preview = musicPreview(text);
-      if (!preview) return;
+      const source = sourceLink(text);
+      if (!source) return;
       event.preventDefault();
       const typed = input.value.trim();
-      setLink(index, preview.href);
+      setLink(index, source.href);
       if (!typed || /^https?:\/\//i.test(typed)) input.value = "";
-      note(`Exhibit ${index + 1} has a ${preview.provider} link. ${input.value.trim() ? "Its title stays as you typed it." : "Type the album or song title."}`);
+      note(`Exhibit ${index + 1} has a ${source.provider} link. ${input.value.trim() ? "Its title stays as you typed it." : "Type its title, or search for it."}`);
       update();
     });
     input.addEventListener("input", () => {
@@ -638,7 +661,7 @@ function mountNine(
         renderPreview();
       }
       note(`Exhibit ${index + 1} is empty, so its ${
-        hadLink && hadCover ? "music link and cover were" : hadLink ? "music link was" : "cover was"
+        hadLink && hadCover ? "source link and cover were" : hadLink ? "source link was" : "cover was"
       } removed.`);
     });
   });

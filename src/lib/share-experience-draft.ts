@@ -2,7 +2,7 @@
 // Keys and payloads are versioned and bounded so an old, foreign or oversized
 // value is ignored instead of replacing what the creator is editing.
 
-import { normaliseMusicPicks } from "./top-nine-music.ts";
+import { normaliseSourceLinks } from "./top-nine-source.ts";
 
 export const draftVersion = 1;
 export const draftLimit = 4_000;
@@ -20,7 +20,7 @@ export interface NineDraft {
   items: string[];
   byline?: string;
   skin?: number;
-  /** One optional canonical music link per exhibit, omitted when there are none. */
+  /** One optional canonical source link per exhibit, omitted when there are none. */
   hrefs?: (string | null)[];
 }
 
@@ -29,7 +29,7 @@ export const cleanText = (value: unknown, max: number) =>
   typeof value === "string" ? value.trim().replace(/\s+/g, " ").slice(0, max) : "";
 
 function cleanHrefs(value: unknown): (string | null)[] | undefined {
-  const hrefs = normaliseMusicPicks(value);
+  const hrefs = normaliseSourceLinks(value);
   return hrefs.some(Boolean) ? hrefs : undefined;
 }
 

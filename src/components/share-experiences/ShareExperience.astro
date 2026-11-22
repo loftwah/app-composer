@@ -59,7 +59,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <label for="exhibition-title">Exhibition title</label>
     <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
     <details class="exhibit-music" data-music-panel>
-      <summary>Find albums and songs</summary>
+      <summary>Find albums, songs and books</summary>
       <form class="music-search" data-music-form>
         <label for="music-target">Fill exhibit
           <select id="music-target" data-music-target-choice>
@@ -69,6 +69,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         <div class="music-kind" role="group" aria-label="Search for">
           <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
           <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
+          <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
         </div>
         <label for="music-country">Storefront
           <select id="music-country" data-music-country>
@@ -88,21 +89,21 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
             <option value="ZA">South Africa (ZA)</option>
           </select>
         </label>
-        <label for="music-query" class="music-query">Album or song
+        <label for="music-query" class="music-query">Album, song or book
           <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
         </label>
         <button type="submit" data-music-submit>Search</button>
       </form>
       <p class="experience-note" role="status" data-music-status></p>
-      <ul class="music-results" aria-label="Music search results" hidden data-music-results></ul>
+      <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
       <form class="music-paste" data-music-paste-form>
-        <label for="music-paste">Or paste an Apple Music or Spotify link</label>
+        <label for="music-paste">Or paste an Apple Music, Spotify or Apple Books link</label>
         <div class="music-paste-row">
           <input id="music-paste" type="url" inputmode="url" autocomplete="off" placeholder="https://music.apple.com/…" data-music-paste />
           <button type="submit" class="secondary">Use link</button>
         </div>
       </form>
-      <ul class="music-linked" aria-label="Exhibits with music links" hidden data-music-linked></ul>
+      <ul class="music-linked" aria-label="Exhibits with source links" hidden data-music-linked></ul>
       <section class="music-preview" aria-label="Music preview" hidden data-music-preview>
         <div class="music-preview-head">
           <h3 tabindex="-1" data-music-preview-title></h3>

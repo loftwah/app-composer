@@ -10,7 +10,7 @@ export interface ShareExperienceResult {
   subtitle?: string;
   items?: string[];
   marked?: number[];
-  /** Canonical music links per exhibit. Interactive only: exports stay text-only. */
+  /** Canonical source links per exhibit. Interactive only: exports stay text-only. */
   hrefs?: (string | null)[];
   byline: string;
   skin: number;
