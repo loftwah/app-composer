@@ -1,0 +1,96 @@
+---
+import { ArrowLeft, ArrowUpRight } from '@lucide/astro';
+import { shareFilms, studioFilmPath } from '../lib/share-films.ts';
+
+const [socialKit, studioTeaser, workshop] = shareFilms;
+const workshopWatch = '/brand/campaign/take-it-with-you-20261118';
+const teaserWatch = '/media-studio/watch/media-studio-teaser-recut';
+const films = [
+  {
+    id: workshop.id,
+    title: workshop.title,
+    detail: workshop.detail,
+    src: workshop.href,
+    poster: workshopWatch + '.webp',
+    captions: workshopWatch + '.vtt',
+    width: 1280,
+    height: 720,
+    portrait: false,
+  },
+  {
+    id: studioTeaser.id,
+    title: studioTeaser.title,
+    detail: '30 seconds · From a brief to a published motion study.',
+    credit: 'Features Low Tide by LoftwahFM.',
+    src: teaserWatch + '.mp4',
+    poster: '/media-studio/teaser-poster-20261117.jpg',
+    captions: teaserWatch + '.vtt',
+    width: 540,
+    height: 960,
+    portrait: true,
+  },
+  {
+    id: socialKit.id,
+    title: socialKit.title,
+    detail: '17 seconds · Image Tools turns one PNG into four sizes and downloads a ZIP.',
+    credit: 'Music by LoftwahFM · Pixel Box Theory',
+    src: socialKit.href,
+    poster: studioFilmPath + '.jpg',
+    captions: studioFilmPath + '.vtt',
+    width: 1080,
+    height: 1920,
+    portrait: true,
+  },
+];
+---
+
+<section class="share-films" aria-labelledby="films-heading" data-share-films>
+  <header class="films-heading">
+    <h1 id="films-heading">Films<span aria-hidden="true">.</span></h1>
+    <div class="films-intro">
+      <p>Watch short films from our projects.</p>
+      <nav class="films-links" aria-label="Share films">
+        <a href="/share"><ArrowLeft size={15} aria-hidden="true" /> Artwork</a>
+        <a href="/media-studio/films#my-feedback">Private feedback <ArrowUpRight size={14} aria-hidden="true" /></a>
+      </nav>
+    </div>
+  </header>
+
+  <ul class="film-list" role="list">
+    {films.map((film) => (
+      <li class="film" id={film.id}>
+        <video controls playsinline preload="none" poster={film.poster} width={film.width} height={film.height}
+          class:list={['film-player', film.portrait && 'film-player-portrait']} aria-labelledby={`${film.id}-title`}>
+          <source src={film.src} type="video/mp4" />
+          <track kind="captions" src={film.captions} srclang="en" label="English captions" default />
+          <a href={film.src}>Open {film.title}</a>
+        </video>
+        <h2 id={`${film.id}-title`}>{film.title}</h2>
+        <p>{film.detail}</p>
+        {film.credit && <p class="film-credit">{film.credit}</p>}
+      </li>
+    ))}
+  </ul>
+
+  <p class="films-detail"><a href="/media-studio/films">Every film, demo and transcript in Media Studio <ArrowUpRight size={14} aria-hidden="true" /></a></p>
+</section>
+
+<style>
+  .share-films { max-width: 104rem; margin-inline: auto; }
+  .films-heading { display: grid; grid-template-columns: minmax(0, 1fr); gap: .55rem; margin-block-end: clamp(1.2rem, 2.8vw, 2.75rem); }
+  .films-heading h1 { margin: 0; font-size: clamp(3rem, 6vw, 5rem); line-height: .94; letter-spacing: -.04em; }
+  .films-heading h1 span { color: var(--color-accent); }
+  .films-intro p { margin: 0; max-width: 62ch; color: var(--color-muted); font-size: clamp(.875rem, 1.4vw, 1.1rem); line-height: 1.4; }
+  .films-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1.25rem; margin-block-start: .5rem; font-weight: 650; }
+  .films-links a, .films-detail a { display: inline-flex; align-items: center; gap: .28rem; min-height: 44px; }
+  .films-links a:hover, .films-detail a:hover { color: var(--color-accent); }
+  .film-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: clamp(1.35rem, 2.7vw, 3rem) clamp(.75rem, 1.7vw, 1.75rem); max-width: none; padding: 0; margin: 0; }
+  .film { border-top: 1px solid var(--color-border); padding-block-start: 1rem; }
+  .film-player { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--color-background); }
+  .film-player-portrait { width: min(100%, 14rem); }
+  .film h2 { margin: .9rem 0 .4rem; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.2; }
+  .film p { margin: 0 0 .35rem; color: var(--color-muted); font-size: .9rem; }
+  .film .film-credit { font-size: .8rem; }
+  .films-detail { margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding-block-start: 1rem; border-top: 1px solid var(--color-border); font-size: .9rem; }
+  .films-detail a { color: var(--color-muted); }
+</style>

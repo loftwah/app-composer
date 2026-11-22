@@ -40,6 +40,7 @@ const options = {
         <strong>{signedIn ? 'Signed in' : 'Signed out'}</strong>
         {signedIn ? <span>Open any artwork to give private feedback.</span> : <a href={signIn}>Sign in to give feedback</a>}
       </p>
+      <p class="gallery-account"><a href="/share?view=films">Watch the films <ArrowUpRight size={13} aria-hidden="true" /></a></p>
     </div>
     <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a>
   </header>
@@ -106,7 +107,7 @@ const options = {
       {tag === "computer-club" && <a href="/share/experiences/computer-club">Play Computer Club <ArrowUpRight size={13} aria-hidden="true" /></a>}
       <a href={shareCalendarHref}>Share calendar <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
-      <a href="/media-studio/films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
+      <a href="/share?view=films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
     </nav>

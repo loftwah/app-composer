@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import ShareArtwork from '../components/ShareArtwork.astro';
+import ShareFilmsView from '../components/ShareFilmsView.astro';
 import { env } from 'cloudflare:workers';
 import type { D1Database } from '@cloudflare/workers-types';
 import { composerShareCollection, listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
@@ -10,8 +11,8 @@ import { noindexFor } from '../lib/indexing.mjs';
 import { hasShareWallFilters, shareWallQuery } from '../lib/share-wall.ts';
 
 const params = Astro.url.searchParams;
-if (params.get('view') === 'films') return Astro.redirect('/media-studio/films', 308);
-if (params.get('view') === 'stacks' || hasShareWallFilters(shareWallQuery(params))) {
+const filmsView = params.get('view') === 'films';
+if (!filmsView && (params.get('view') === 'stacks' || hasShareWallFilters(shareWallQuery(params)))) {
   const filters = new URLSearchParams();
   for (const name of ['q', 'app', 'theme']) {
     const value = params.get(name);
@@ -20,27 +21,31 @@ if (params.get('view') === 'stacks' || hasShareWallFilters(shareWallQuery(params
   return Astro.redirect(filters.size ? `/studio/published?${filters}` : '/studio/published', 308);
 }
 const filters = artworkFilters(params);
-const internetWorkshop = filters.tag === "internet-workshop";
-const [artwork, curation] = await Promise.all([
+const internetWorkshop = !filmsView && filters.tag === "internet-workshop";
+const shareData = filmsView ? null : await Promise.all([
   composerShareCollection(filters.tag) ?? listShareArtwork(),
   readArtworkCuration((env as unknown as {DB?: D1Database}).DB).catch(() => []),
 ]);
-const catalogue = artwork ? galleryPage(artwork, curation, filters) : null;
-if (!catalogue) Astro.response.status = 503;
-Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
+const artwork = shareData?.[0] ?? null;
+const curation = shareData?.[1] ?? [];
+const catalogue = !filmsView && artwork ? galleryPage(artwork, curation, filters) : null;
+if (!filmsView && !catalogue) Astro.response.status = 503;
+if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 ---
 
-<Base title={internetWorkshop ? "Internet Workshop" : "Share artwork"} description="Browse public artwork from our projects and share a piece with its credit intact."
-  noindex={noindexFor(Astro.url.hostname, Boolean(catalogue) && params.size === 0)}>
-  <div class="share-artwork-library">
-    {internetWorkshop && (
-      <nav class="workshop-play" aria-label="Remix an Internet Workshop experience">
-        <strong>Play and remix</strong>
-        {Object.entries(experiences).map(([id, item]) => <a href={experiencePath(id as ExperienceId)}>{item.title} →</a>)}
-      </nav>
-    )}
-    <ShareArtwork catalogue={catalogue} filters={filters} signedIn={Boolean(Astro.locals.user)} />
-  </div>
+<Base title={filmsView ? "Share films" : internetWorkshop ? "Internet Workshop" : "Share artwork"} description={filmsView ? "Watch short films from our projects, with captions and credit intact." : "Browse public artwork from our projects and share a piece with its credit intact."}
+  noindex={noindexFor(Astro.url.hostname, (filmsView && params.size === 1) || (Boolean(catalogue) && params.size === 0))}>
+  {filmsView ? <ShareFilmsView /> : (
+    <div class="share-artwork-library">
+      {internetWorkshop && (
+        <nav class="workshop-play" aria-label="Remix an Internet Workshop experience">
+          <strong>Play and remix</strong>
+          {Object.entries(experiences).map(([id, item]) => <a href={experiencePath(id as ExperienceId)}>{item.title} →</a>)}
+        </nav>
+      )}
+      <ShareArtwork catalogue={catalogue} filters={filters} signedIn={Boolean(Astro.locals.user)} />
+    </div>
+  )}
 </Base>
 
 <script>
@@ -48,7 +53,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
   const moved: Record<string, string> = {
     '#briefing-cards': '/share?tag=briefing-cards',
     '#diagram-artwork': '/share?tag=engineering-artwork',
-    '#films': '/media-studio/films',
+    '#films': '/share?view=films',
     '#my-feedback': '/media-studio/films#my-feedback',
     '#published-stacks': '/studio/published',
   };
@@ -58,7 +63,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 <style>
   .workshop-play { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; border-bottom: 1px solid var(--border, #77757b); margin-bottom: 1.4rem; }
   .workshop-play a { display: flex; align-items: center; min-height: 44px; }
-  :global(main:has(> .share-artwork-library)) {
+  :global(main:has(> :is(.share-artwork-library, .share-films))) {
     max-width: none;
     padding: clamp(1.35rem, 3.7vw, 3.5rem) clamp(1rem, 4vw, 4.5rem) 4rem;
   }
