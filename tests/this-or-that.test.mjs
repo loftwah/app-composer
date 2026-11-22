@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { thisOrThatQuestions, thisOrThatResultTitle } from '../src/lib/share-experiences.ts';
 import {
-  pickThisOrThat, restoreThisOrThatPicks, thisOrThatComplete, thisOrThatCount,
-  thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
+  sweetOrSpicyQuestions, sweetOrSpicyResultTitle, thisOrThatPacks,
+  thisOrThatQuestions, thisOrThatResultTitle,
+} from '../src/lib/share-experiences.ts';
+import {
+  pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
+  thisOrThatComplete, thisOrThatCount, thisOrThatProgress, thisOrThatStart,
+  thisOrThatSummary, undoThisOrThat,
 } from '../src/lib/this-or-that.ts';
 
 // The #1064 early slice: five friendly explicit choices, thumb or keyboard,
@@ -90,4 +94,54 @@ test('a restored run produces the same exact ending as the original', () => {
   const summary = thisOrThatSummary(sides);
   const chosen = thisOrThatQuestions.map(([, left, right], index) => (sides[index] === 0 ? left : right));
   assert.equal(summary.subtitle, chosen.join(' · '));
+});
+
+test('the food starter is five original sweet-or-spicy choices from one point of view', () => {
+  assert.equal(sweetOrSpicyQuestions.length, 5);
+  assert.equal(thisOrThatPacks.food.questions, sweetOrSpicyQuestions);
+  assert.equal(thisOrThatPacks.food.title, sweetOrSpicyResultTitle);
+  const sweet = /cinnamon|honey|caramel|cardamom|sweet|glaz/i;
+  const spicy = /harissa|chilli|paprika|fiery|spicy/i;
+  for (const [prompt, left, right] of sweetOrSpicyQuestions) {
+    assert.match(prompt, /\S/);
+    assert.ok(left.trim() === left && left.length > 0);
+    assert.ok(right.trim() === right && right.length > 0);
+    assert.notEqual(left, right);
+    assert.equal([left, right].filter((text) => sweet.test(text)).length, 1, 'exactly one sweet choice');
+    assert.equal([left, right].filter((text) => spicy.test(text)).length, 1, 'exactly one spicy choice');
+  }
+});
+
+test('a shared starter is explicit and version-safe; old links stay maker', () => {
+  for (const value of [undefined, null, '', 'unknown', 5, {}, ['maker']]) {
+    assert.equal(restoreThisOrThatPack(value), 'maker', 'absent or invalid packs keep the original starter');
+  }
+  assert.equal(restoreThisOrThatPack('maker'), 'maker');
+  assert.equal(restoreThisOrThatPack('food'), 'food');
+  assert.equal(thisOrThatPacks.maker.title, thisOrThatResultTitle);
+});
+
+test('a shared result restores the exact starter and its exact choice texts', () => {
+  for (const pack of ['maker', 'food']) {
+    const selected = thisOrThatPacks[pack];
+    const sides = restoreThisOrThatPicks([0, 1, 0, 1, 0]);
+    const summary = thisOrThatSummary(sides, selected.questions, selected.title);
+    const chosen = selected.questions.map(([, left, right], index) => (sides[index] === 0 ? left : right));
+    assert.equal(summary.title, selected.title, `${pack} keeps its own heading`);
+    assert.deepEqual(summary.items, chosen, `${pack} keeps the exact chosen texts`);
+    assert.equal(summary.subtitle, chosen.join(' · '));
+    assert.ok(summary.subtitle.length <= 240);
+  }
+});
+
+test('the starter survives the exact shared-snapshot encode/decode round trip', () => {
+  // Mirrors resultLink (URLSearchParams + JSON.stringify) and sharedResult
+  // (URLSearchParams.get + JSON.parse) in src/browser/share-experiences.ts.
+  for (const pack of ['maker', 'food']) {
+    const encoded = new URLSearchParams({ result: JSON.stringify({ game: 'this-or-that', pack }) }).toString();
+    const decoded = JSON.parse(new URLSearchParams(encoded).get('result'));
+    assert.equal(decoded.game, 'this-or-that');
+    assert.equal(decoded.pack, pack, `${pack} is not dropped by the link encode/decode`);
+    assert.equal(restoreThisOrThatPack(decoded.pack), pack, `${pack} reopens the same starter`);
+  }
 });

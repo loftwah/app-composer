@@ -1,4 +1,7 @@
-import { thisOrThatQuestions, thisOrThatResultTitle } from "./share-experiences.ts";
+import {
+  thisOrThatPacks, thisOrThatQuestions, thisOrThatResultTitle,
+  type ThisOrThatPack,
+} from "./share-experiences.ts";
 
 /** One This or That run for the #1064 early slice. Picks are always a
  * contiguous prefix: a question is answered only after every earlier one, so
@@ -52,7 +55,11 @@ export function thisOrThatComplete(picks: ThisOrThatPicks): boolean {
 /** The real ending: the exact chosen text of every question, exposed as
  * ordered items for the PNG and side indices for the result link.
  * Null until all five are answered. */
-export function thisOrThatSummary(picks: ThisOrThatPicks): {
+export function thisOrThatSummary(
+  picks: ThisOrThatPicks,
+  questions: readonly (readonly [string, string, string])[] = thisOrThatQuestions,
+  title: string = thisOrThatResultTitle,
+): {
   title: string;
   subtitle: string;
   /** The exact chosen text per question, in question order, for the PNG rows. */
@@ -61,14 +68,22 @@ export function thisOrThatSummary(picks: ThisOrThatPicks): {
   sides: readonly ThisOrThatSide[];
 } | null {
   if (!thisOrThatComplete(picks)) return null;
-  const chosen = thisOrThatQuestions.map(([, left, right], index) =>
+  const chosen = questions.map(([, left, right], index) =>
     picks[index] === 0 ? left : right);
   return {
-    title: thisOrThatResultTitle,
+    title,
     subtitle: chosen.join(" · "),
     items: chosen,
     sides: picks.map((pick) => (pick === 1 ? 1 : 0)),
   };
+}
+
+/** A result link names its starter explicitly. Older maker links have no pack
+ * at all and keep reopening the original five questions and their exact texts. */
+export function restoreThisOrThatPack(value: unknown): ThisOrThatPack {
+  return typeof value === "string" && Object.hasOwn(thisOrThatPacks, value)
+    ? value as ThisOrThatPack
+    : "maker";
 }
 
 /** A shared result restores only with one explicit pick for every question;

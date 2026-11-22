@@ -1,10 +1,10 @@
 import {
   agentBingo, developerBingo, doorEndings, experiences, internetBingo,
-  thisOrThatQuestions, thisOrThatResultTitle, type ExperienceId,
+  thisOrThatPacks, type ExperienceId, type ThisOrThatPack,
 } from "../lib/share-experiences.ts";
 import {
-  pickThisOrThat, restoreThisOrThatPicks, thisOrThatComplete, thisOrThatProgress,
-  thisOrThatStart, thisOrThatSummary, undoThisOrThat,
+  pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
+  thisOrThatComplete, thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
 } from "../lib/this-or-that.ts";
 import {
   renderExperienceResult, resultSizes,
@@ -45,6 +45,8 @@ interface ResultSnapshot {
   subtitle?: string;
   items?: string[];
   marked?: number[];
+  /** Which This or That starter a shared link reopens; absent means maker. */
+  pack?: ThisOrThatPack;
   /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
 }
@@ -1119,13 +1121,36 @@ function mountNine(
 function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const panels = elements<HTMLElement>(root, "[data-question]");
   const progress = root.querySelector<HTMLElement>("[data-tot-progress]")!;
+  const packSelect = root.querySelector<HTMLSelectElement>("[data-tot-pack]")!;
+  const description = root.querySelector<HTMLElement>("[data-tot-description]");
   const undo = root.querySelector<HTMLButtonElement>("[data-tot-undo]")!;
   const result = root.querySelector<HTMLElement>("[data-tot-result]")!;
   const revealTitle = result.querySelector<HTMLElement>("[data-reveal-title]")!;
   const revealPicks = result.querySelector<HTMLElement>("[data-reveal-picks]")!;
   const restart = root.querySelector<HTMLButtonElement>("[data-restart]")!;
   let picks: (0 | 1 | null)[] = thisOrThatStart();
-  let heading = thisOrThatResultTitle;
+  let pack: ThisOrThatPack = "maker";
+  let heading: string = thisOrThatPacks.maker.title;
+
+  /** Swapping starters only retexts the same five panels: one controller, the
+   * same choice, undo, focus and replay behaviour, no second quiz. */
+  function applyPack(next: ThisOrThatPack) {
+    pack = next;
+    const selected = thisOrThatPacks[pack];
+    packSelect.value = pack;
+    if (description) description.textContent = selected.description;
+    panels.forEach((panel, index) => {
+      const [prompt, left, right] = selected.questions[index];
+      panel.querySelector("h2")!.textContent = prompt;
+      // The group's accessible name is authored from the maker prompt; keep it
+      // in step with the h2 so a swapped starter is announced by its real question.
+      panel.querySelector<HTMLElement>("[data-tot-options]")?.setAttribute("aria-label", prompt);
+      const buttons = panel.querySelectorAll<HTMLButtonElement>("[data-choice]");
+      buttons[0].textContent = left;
+      buttons[1].textContent = right;
+    });
+    heading = selected.title;
+  }
 
   const answered = () => picks.filter((pick) => pick !== null).length;
 
@@ -1140,7 +1165,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   function renderReveal() {
     revealTitle.textContent = heading;
     revealPicks.replaceChildren();
-    thisOrThatQuestions.forEach(([prompt, left, right], index) => {
+    thisOrThatPacks[pack].questions.forEach(([prompt, left, right], index) => {
       const item = document.createElement("li");
       const ask = document.createElement("span");
       ask.className = "tot-pick-question";
@@ -1190,6 +1215,15 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     });
   });
 
+  // One native selector swaps the five prompts in place. It never changes the
+  // starter on first load, and replay keeps whichever starter is on screen.
+  packSelect.addEventListener("change", () => {
+    picks = thisOrThatStart();
+    applyPack(restoreThisOrThatPack(packSelect.value));
+    showQuestion(0, false);
+    update();
+  });
+
   // Left and right arrows choose a side to focus; Enter or Space picks it.
   elements<HTMLElement>(root, "[data-tot-options]").forEach((group) => {
     const options = Array.from(group.querySelectorAll<HTMLButtonElement>("[data-choice]"));
@@ -1211,25 +1245,30 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
 
   restart.addEventListener("click", () => {
     picks = thisOrThatStart();
-    heading = thisOrThatResultTitle;
+    heading = thisOrThatPacks[pack].title;
     showQuestion(0, false);
     panels[0].querySelector<HTMLButtonElement>("[data-choice]")?.focus({ preventScroll: true });
     update();
   });
 
+  applyPack(restoreThisOrThatPack(packSelect.value));
   showQuestion(0, false);
 
   return {
     result: () => {
-      const summary = thisOrThatSummary(picks);
-      // The PNG lists the five exact choices as rows; sides still travel in
-      // `marked` so a shared link restores the same run. Image marking is Bingo-only.
-      return summary ? { title: heading, items: [...summary.items], marked: [...summary.sides] } : null;
+      const selected = thisOrThatPacks[pack];
+      const summary = thisOrThatSummary(picks, selected.questions, selected.title);
+      // The PNG lists the five exact choices as rows; sides and the starter
+      // travel in the link so it reopens the same run. Image marking is Bingo-only.
+      return summary
+        ? { title: heading, items: [...summary.items], marked: [...summary.sides], pack }
+        : null;
     },
     restore(snapshot) {
       const sides = restoreThisOrThatPicks(snapshot.marked);
       const title = entry(snapshot.title, 72);
       if (!sides || !title) return;
+      applyPack(restoreThisOrThatPack(snapshot.pack));
       picks = sides;
       heading = title;
       showReveal(false);
