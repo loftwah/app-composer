@@ -1,12 +1,30 @@
 import { crossword, fuses, trivia } from "../lib/computer-club.ts";
+import { copyPromptText } from "../lib/docs-copy.ts";
 
-async function copy(text: string, status: HTMLElement) {
-  try {
-    await navigator.clipboard.writeText(text);
-    status.textContent = "Copied.";
-  } catch {
-    status.textContent = text;
+function resultCopy(status: HTMLElement, fallback: HTMLTextAreaElement) {
+  let revision = 0;
+  function clear() {
+    revision += 1;
+    fallback.hidden = true;
+    fallback.value = "";
   }
+  async function copy(text: string) {
+    clear();
+    const requested = revision;
+    const clipboard = navigator.clipboard;
+    const outcome = await copyPromptText(text, clipboard?.writeText?.bind(clipboard));
+    if (requested !== revision) return;
+    if (outcome === "copied") {
+      status.textContent = "Copied.";
+      return;
+    }
+    fallback.value = text;
+    fallback.hidden = false;
+    status.textContent = "Copy the selected text.";
+    fallback.focus();
+    fallback.select();
+  }
+  return { clear, copy };
 }
 
 function shareText(text: string, section: string) {
@@ -23,10 +41,12 @@ function mountTrivia(root: HTMLElement) {
   const source = root.querySelector<HTMLAnchorElement>("[data-quiz-source]")!;
   const next = root.querySelector<HTMLButtonElement>("[data-next]")!;
   const share = root.querySelector<HTMLButtonElement>("[data-share-score]")!;
+  const sharing = resultCopy(feedback, root.querySelector<HTMLTextAreaElement>("[data-trivia-fallback]")!);
   let index = 0;
   let score = 0;
 
   function show() {
+    sharing.clear();
     const q = trivia[index];
     if (!q) {
       progress.textContent = "Round complete";
@@ -73,18 +93,23 @@ function mountTrivia(root: HTMLElement) {
     question.focus();
   });
   share.addEventListener("click", () => {
-    void copy(shareText(`I got ${score}/${trivia.length} in App Composer Computer Trivia.`, "trivia"), feedback);
+    void sharing.copy(shareText(`I got ${score}/${trivia.length} in App Composer Computer Trivia.`, "trivia"));
   });
   show();
 }
 
 function mountCrossword(root: HTMLElement) {
   const form = root.querySelector<HTMLFormElement>("[data-crossword]")!;
-  const cells = [...form.querySelectorAll<HTMLInputElement>("input")];
+  const cells = [...form.querySelectorAll<HTMLInputElement>(".club-squares input")];
   const status = root.querySelector<HTMLElement>("[data-grid-status]")!;
   const share = root.querySelector<HTMLButtonElement>("[data-share-grid]")!;
+  const sharing = resultCopy(status, root.querySelector<HTMLTextAreaElement>("[data-grid-fallback]")!);
   for (const cell of cells) {
-    cell.addEventListener("input", () => { share.hidden = true; status.textContent = ""; });
+    cell.addEventListener("input", () => {
+      share.hidden = true;
+      sharing.clear();
+      status.textContent = "";
+    });
     cell.addEventListener("keydown", (event) => {
       const step: Record<string, readonly [number, number]> = {
         ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0],
@@ -103,7 +128,7 @@ function mountCrossword(root: HTMLElement) {
     share.hidden = !solved;
     status.textContent = solved ? "Solved." : "There’s a letter out of place. Try the intersecting clues.";
   });
-  share.addEventListener("click", () => void copy(shareText("I solved App Composer’s Computer Mini.", "crossword"), status));
+  share.addEventListener("click", () => void sharing.copy(shareText("I solved App Composer’s Computer Mini.", "crossword")));
 }
 
 function mountFusebox(root: HTMLElement) {
@@ -113,6 +138,7 @@ function mountFusebox(root: HTMLElement) {
   const status = root.querySelector<HTMLElement>("[data-fuse-status]")!;
   const next = root.querySelector<HTMLButtonElement>("[data-next-word]")!;
   const share = root.querySelector<HTMLButtonElement>("[data-share-fuses]")!;
+  const sharing = resultCopy(status, root.querySelector<HTMLTextAreaElement>("[data-fuse-fallback]")!);
   let index = 0;
   let misses = 0;
   let guessed = new Set<string>();
@@ -159,10 +185,11 @@ function mountFusebox(root: HTMLElement) {
     index = (index + 1) % fuses.length;
     misses = 0;
     guessed = new Set();
+    sharing.clear();
     show();
     buttons[0].focus();
   });
-  share.addEventListener("click", () => void copy(shareText(`I cracked Fusebox with ${6 - misses} fuses left.`, "fusebox"), status));
+  share.addEventListener("click", () => void sharing.copy(shareText(`I cracked Fusebox with ${6 - misses} fuses left.`, "fusebox")));
   show();
 }
 

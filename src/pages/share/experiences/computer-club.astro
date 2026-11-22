@@ -27,6 +27,7 @@ const source = '/campaign/computer-club-20261122';
         <div class="club-actions">
           <button type="button" data-next hidden>Next question</button>
           <button type="button" class="secondary" data-share-score hidden>Copy score and link</button>
+          <textarea class="club-copy-field" rows="2" readonly hidden data-trivia-fallback aria-label="Score and link to copy"></textarea>
         </div>
       </div>
     </section>
@@ -56,6 +57,7 @@ const source = '/campaign/computer-club-20261122';
           <button type="submit">Check grid</button>
           <button type="button" class="secondary" data-share-grid hidden>Copy challenge link</button>
           <p role="status" data-grid-status></p>
+          <textarea class="club-copy-field" rows="2" readonly hidden data-grid-fallback aria-label="Challenge link to copy"></textarea>
         </div>
       </form>
     </section>
@@ -70,6 +72,7 @@ const source = '/campaign/computer-club-20261122';
       <div class="club-actions">
         <button type="button" data-next-word hidden>Next word</button>
         <button type="button" class="secondary" data-share-fuses hidden>Copy result and link</button>
+        <textarea class="club-copy-field" rows="2" readonly hidden data-fuse-fallback aria-label="Result and link to copy"></textarea>
       </div>
     </section>
     <noscript><p>Enable JavaScript to play Computer Club.</p></noscript>
