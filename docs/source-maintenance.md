@@ -234,6 +234,40 @@ compatibility notes, not a fixed browser assumption.
 Read https://github.com/GoogleChrome/modern-web-guidance/blob/64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65/skills/modern-web-guidance/guides/ui-components/dialog.md as a plain GET (no install; `modern-web-guidance retrieve "dialog"` only if the CLI is already installed). Check native semantics, accessible name, initial focus, dismissal and current compatibility notes. Preserve the working controller, its search/Escape behaviour and its fallbacks unless a concrete defect proves a change is needed; if nothing applies, make no runtime edit and say why.
 ```
 
+### Readable comparison table on narrow screens (on demand)
+
+`/learn#compose` keeps one table for the three build approaches
+(`.approach-compare` around `.approach-table` in `src/pages/learn.astro`). At
+320px the 28% label column measured 87px against 185px, so option names wrapped
+into rows 301–372px tall. The same table now stacks each existing approach label
+above its own description inside a component-local CSS container query; the
+desktop table, copy and navigation are unchanged, and there is no scroll wrapper
+or script.
+
+The table keeps real table, row and column-header semantics in Chromium, WebKit
+and Firefox. Changing `display` on table parts drops the implicit table
+semantics in Chromium and Firefox, so the existing `table`/`thead`/`tbody`/`tr`/
+`th`/`td` markup carries the matching explicit roles (`table`, `rowgroup`, `row`,
+`columnheader`, `rowheader`, `cell`) and names itself from its caption. The
+column headers stay in the accessibility tree rather than being hidden.
+
+[Container size queries are Baseline Widely Available](https://web-platform-dx.github.io/web-features-explorer/features/container-queries/)
+as of August 2025. The stacked layout lives inside the `@container` block,
+so older browsers retain the existing table layout.
+
+Optional guide route, pinned to the reviewed release with telemetry disabled:
+
+```sh
+DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 search 'readable responsive table'
+DISABLE_TELEMETRY=1 npx -y modern-web-guidance@1.0.1 retrieve responsive-table
+```
+
+Equivalent change prompt for a similar squashed comparison table:
+
+```text
+On this page's comparison table, stack each existing label above its description in narrow space with a component-local CSS container query. Keep the desktop table, all copy and navigation, and real table, row and column-header semantics for assistive technology in Chromium, WebKit and Firefox. Add no scroll wrapper, script, filler or extra copy, and check the phone and desktop result.
+```
+
 App-specific navigation/header branding, theme storage keys and bootstrap scripts remain separate. New content-site projects are also independent launcher consumers. Their finite copier captures the checked controller source, emission script/config, local distribution/styles, Space font/OFL, Composer return identity and all eight mini-app thumbnails in `composer-project.json`. Their header uses absolute external app destinations and an explicit Composer home. The same controller supplies the task list and keyboard behaviour; no Composer runtime asset fetch is introduced. `pnpm check:types` in each generated project verifies its own checked launcher and output. Existing owner projects are never silently updated.
 
 ## Verification
