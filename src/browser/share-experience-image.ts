@@ -17,6 +17,13 @@ export interface ShareExperienceResult {
   background: string;
 }
 
+/**
+ * Cover art per exhibit, drawn only into the downloaded PNG. It arrives as its
+ * own argument — never inside the result snapshot — so no link, draft or JSON
+ * path can carry a person's photo bytes.
+ */
+export type ResultCover = HTMLCanvasElement;
+
 const inks = {
   "pick-a-door": [["#1c102a", "#f8e9d0", "#ffbc65"], ["#e8d9bf", "#251d14", "#8b392c"], ["#182a21", "#eaffd4", "#a7e679"]],
   "top-nine": [["#361c60", "#fff1d5", "#ffbFA0"], ["#f3be78", "#25202a", "#692642"], ["#141f2c", "#e4f1ff", "#a4ccff"]],
@@ -43,7 +50,8 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
   return lines;
 }
 
-function drawFit(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number, height: number, initial: number) {
+/** The largest bold size at or below `initial` whose wrapped text fits `height`. */
+function fitText(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, initial: number) {
   let size = initial;
   let lines: string[] = [];
   do {
@@ -52,12 +60,21 @@ function drawFit(ctx: CanvasRenderingContext2D, text: string, x: number, y: numb
     if (lines.length * size * 1.14 <= height) break;
     size -= 2;
   } while (size > 12);
+  return { size, lines };
+}
+
+function drawFit(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number, height: number, initial: number) {
+  const { size, lines } = fitText(ctx, text, width, height, initial);
   lines.forEach((line, index) => {
     ctx.fillText(line, x, y + size + index * size * 1.14, width);
   });
 }
 
-export async function renderExperienceResult(result: ShareExperienceResult, format: ResultFormat) {
+export async function renderExperienceResult(
+  result: ShareExperienceResult,
+  format: ResultFormat,
+  covers?: readonly (ResultCover | null)[],
+) {
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -87,11 +104,54 @@ export async function renderExperienceResult(result: ShareExperienceResult, form
       const x = margin + (index % cols) * (cellW + gap);
       const y = rowY + Math.floor(index / cols) * (cellH + gap);
       const marked = result.marked?.includes(index);
+      const cover = result.game === "top-nine" ? covers?.[index] : undefined;
+      const inset = wide ? 9 : 15;
       ctx.fillStyle = marked ? accent : ink;
       ctx.fillRect(x, y, cellW, cellH);
-      ctx.fillStyle = paper;
-      const inset = wide ? 9 : 15;
-      drawFit(ctx, caption || "—", x + inset, y + inset, cellW - inset * 2, cellH - inset * 2, wide ? 24 : cols === 5 ? 28 : 43);
+      if (!cover) {
+        ctx.fillStyle = paper;
+        drawFit(ctx, caption || "—", x + inset, y + inset, cellW - inset * 2, cellH - inset * 2, wide ? 24 : cols === 5 ? 28 : 43);
+      } else if (wide) {
+        // Landscape strips are shallow: contain the art in a matted square and
+        // keep the readable title beside it.
+        const mat = cellH;
+        const scale = Math.min(mat / cover.width, mat / cover.height);
+        const dw = cover.width * scale;
+        const dh = cover.height * scale;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(cover, x + (mat - dw) / 2, y + (mat - dh) / 2, dw, dh);
+        ctx.strokeStyle = paper;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + (mat - dw) / 2, y + (mat - dh) / 2, dw, dh);
+        ctx.fillStyle = paper;
+        drawFit(ctx, caption || "—", x + mat + inset, y + inset, cellW - mat - inset * 2, cellH - inset * 2, 24);
+      } else {
+        // Square-ish cells hang the art edge to edge (cover) and keep the
+        // title readable on a scrim of the same ink the solid cells use.
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, cellW, cellH);
+        ctx.clip();
+        const scale = Math.max(cellW / cover.width, cellH / cover.height);
+        const dw = cover.width * scale;
+        const dh = cover.height * scale;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(cover, x + (cellW - dw) / 2, y + (cellH - dh) / 2, dw, dh);
+        ctx.restore();
+        const fit = fitText(ctx, caption || "—", cellW - inset * 2, cellH * .5, 43);
+        const captionH = fit.lines.length * fit.size * 1.14;
+        const bandTop = y + cellH - captionH - inset * 1.2;
+        ctx.save();
+        ctx.globalAlpha = .84;
+        ctx.fillStyle = ink;
+        ctx.fillRect(x, bandTop, cellW, y + cellH - bandTop);
+        ctx.restore();
+        ctx.fillStyle = paper;
+        const first = y + cellH - inset - captionH;
+        fit.lines.forEach((line, lineIndex) => {
+          ctx.fillText(line, x + inset, first + fit.size + lineIndex * fit.size * 1.14, cellW - inset * 2);
+        });
+      }
       if (marked && index !== 12) {
         ctx.strokeStyle = paper;
         ctx.lineWidth = 3;

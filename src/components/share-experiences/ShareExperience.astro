@@ -112,11 +112,28 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         <p class="experience-note"><a data-music-preview-source target="_blank" rel="noopener noreferrer nofollow">Open in the music app</a></p>
       </section>
     </details>
+    <details class="exhibit-covers" data-cover-panel>
+      <summary>Hang your own cover art</summary>
+      <div class="cover-pick">
+        <label for="cover-target">Cover exhibit
+          <select id="cover-target" data-cover-target-choice>
+            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+          </select>
+        </label>
+        <label for="cover-file" class="cover-file">Image from this device
+          <input id="cover-file" type="file" accept="image/png,image/jpeg,image/webp" data-cover-file />
+        </label>
+      </div>
+      <p class="experience-note" role="status" data-cover-status></p>
+      <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
+      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts.</p>
+    </details>
     <div class="exhibition-objects">
       {Array.from({length: 9}, (_, index) => <label>
         <span>Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
         <input type="text" maxlength="54" data-object={index} aria-label={`Exhibit ${index + 1}`} />
         <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
+        <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
       </label>)}
     </div>
     <div class="exhibition-order">
@@ -137,7 +154,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
       <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
     </div>
-    <p class="experience-note">Drafts stay in this browser.</p>
+    <p class="experience-note">Drafts keep your title, exhibits and music links in this browser. Cover images aren’t saved — download your result image to keep them.</p>
     <p class="experience-note" role="status" data-draft-status></p>
   </section>}
 
@@ -161,6 +178,12 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
 
   <section class="experience-export" aria-label="Personalise and share">
     <h2>Your share image</h2>
+    {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
+      {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
+        <img alt="" hidden data-nine-preview-cover={index} />
+        <span data-nine-preview-caption={index}>—</span>
+      </div>)}
+    </div>}
     <div class="experience-fields">
       <label>Optional byline<input maxlength="48" data-byline placeholder="Your name or handle" /></label>
       <label>Artwork style<select data-skin-select>
@@ -182,7 +205,9 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-copy disabled={isDoor || isNine}>Copy result link</button>
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine}>Share result</button>
     </div>
-    <p class="experience-note">A result link includes the result and any byline you enter. Downloads stay on your device.</p>
+    <p class="experience-note">{isNine
+      ? "A result link carries your title, exhibits, music links and byline. Cover images never go into the link — download the result image to keep them."
+      : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
   </section>

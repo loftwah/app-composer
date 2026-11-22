@@ -90,7 +90,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
         "content-security-policy",
         csp
           .replace("connect-src 'self'", "connect-src 'self' https://itunes.apple.com")
-          .replace("frame-src 'none'", "frame-src https://embed.music.apple.com https://open.spotify.com"),
+          .replace("frame-src 'none'", "frame-src https://embed.music.apple.com https://open.spotify.com")
+          // A cover a person picks from their device renders from a local blob:
+          // URL kept in this document only, never uploaded or fetched remotely.
+          .replace("img-src 'self'", "img-src 'self' blob:"),
       );
     }
   }
