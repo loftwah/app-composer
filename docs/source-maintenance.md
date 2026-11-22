@@ -220,6 +220,20 @@ a compatible adapter, a measured benefit and a rollback path; none is justified
 by this slice. Revisit that decision if a custom interaction grows beyond this
 controller or needs cross-framework composition.
 
+### Official native-behaviour check (on demand)
+
+Before changing a maintained native UI component, a worker may optionally read
+the guide below; it is guidance, not a gate. The launcher already follows native
+semantics (`showModal()`, named dialog, `autofocus`, `::backdrop`, no
+`role="dialog"`/`aria-modal`/focus trap). Keep the coords-based light dismiss
+and the deliberate keydown Escape handler (search inputs can consume Escape)
+unless a concrete defect proves otherwise; follow the guide's current
+compatibility notes, not a fixed browser assumption.
+
+```text
+Read https://github.com/GoogleChrome/modern-web-guidance/blob/64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65/skills/modern-web-guidance/guides/ui-components/dialog.md as a plain GET (no install; `modern-web-guidance retrieve "dialog"` only if the CLI is already installed). Check native semantics, accessible name, initial focus, dismissal and current compatibility notes. Preserve the working controller, its search/Escape behaviour and its fallbacks unless a concrete defect proves a change is needed; if nothing applies, make no runtime edit and say why.
+```
+
 App-specific navigation/header branding, theme storage keys and bootstrap scripts remain separate. New content-site projects are also independent launcher consumers. Their finite copier captures the checked controller source, emission script/config, local distribution/styles, Space font/OFL, Composer return identity and all eight mini-app thumbnails in `composer-project.json`. Their header uses absolute external app destinations and an explicit Composer home. The same controller supplies the task list and keyboard behaviour; no Composer runtime asset fetch is introduced. `pnpm check:types` in each generated project verifies its own checked launcher and output. Existing owner projects are never silently updated.
 
 ## Verification

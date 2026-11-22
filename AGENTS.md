@@ -132,6 +132,15 @@ Loftwah reference creator, 16 October 2026: read docs/creator-stacks/loftwah.md 
 
 Task routing, reviewed 16 October 2026: choose relevant guidance from the actual host skill catalogue and this repository for the task; a checked-in or generated skill is not evidence that the host discovers or has exercised it. Start a defect with the actual failing journey and a small reproduction. For composition/readiness changes, use `node --test tests/readiness-state.test.mjs tests/core.test.mjs tests/readiness-report.test.mjs`; the CLI fixtures exercise both apply modes before provider access and clean up only their owned temporary roots. For an integrated runtime release, use the existing clean pushed main deployment/live verification path: `pnpm deploy` runs the security audit and one production build before remote mutations. Use the smallest check that addresses the changed behaviour while implementing. Before accepting a worker result, compare its base/head and relevant diff with the current revision; rerun affected checks after changes. Record actual commands, source/environment identity, owned-resource cleanup and remaining gates concisely in the existing delivery record. No source pass, report import or new skill file establishes production or physical-device acceptance.
 
+## Modern Web Guidance (on demand) — source verified 22 November 2026
+
+For HTML/CSS and client-side browser JS UI work, a worker may optionally read
+Google's `dialog` guide first. It is task-scoped guidance, not a gate, and does
+not override this repo's product, ownership or release rules.
+
+- Read-only: https://github.com/GoogleChrome/modern-web-guidance/blob/64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65/skills/modern-web-guidance/guides/ui-components/dialog.md — plain GET, no install; if the CLI is installed, `modern-web-guidance retrieve "dialog"` is an optional shortcut.
+- A copied prompt is not proof of reading; note briefly if a rule changed work.
+
 ## Task hygiene and quiet verification — reviewed 14 November 2026
 
 - Make cleanup part of the task, including failure and cancellation. Track the exact resources this run creates and release them before finishing: browser tabs, contexts, automation sessions and test servers; scratch directories, test downloads, temporary logs and disposable build output. Close only resources owned by the run, not MP's or another agent's live work. Report any failed teardown with its exact path or session and next action.
