@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  albumTitleApplies, appleAlbumRef, lookupAppleAlbum, musicPreview, musicSearchLinks,
-  normaliseMusicPicks, searchMusic,
+  albumTitleApplies, appleAlbumRef, lookupAppleAlbum, lookupSpotifyAlbumTitle,
+  musicPreview, musicSearchLinks, normaliseMusicPicks, searchMusic, spotifyAlbumRef,
 } from '../src/lib/top-nine-music.ts';
 
 const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
@@ -181,4 +181,96 @@ test('a late album title only lands on the same link in a still-empty slot', () 
   assert.equal(albumTitleApplies({ href, title: 'Discovery · Daft Punk' }, href), false);
   assert.equal(albumTitleApplies({ href: null, title: '' }, href), false);
   assert.equal(albumTitleApplies({ href: 'https://music.apple.com/au/album/1078914477', title: '' }, href), false);
+});
+
+const spotifyAlbum = 'https://open.spotify.com/intl-au/album/6b08FpNaFFTjc1dJ9DSWfn?si=tracking';
+const spotifyAlbumId = '6b08FpNaFFTjc1dJ9DSWfn';
+const spotifyPayload = {
+  html: '<iframe title="Spotify Embed: Modal Soul"></iframe>',
+  iframe_url: `https://open.spotify.com/embed/album/${spotifyAlbumId}?utm_source=oembed`,
+  width: 456, height: 352, version: '1.0',
+  provider_name: 'Spotify', provider_url: 'https://spotify.com', type: 'rich',
+  title: 'Modal Soul',
+  thumbnail_url: 'https://image-cdn-fa.spotifycdn.com/image/example',
+};
+
+test('reads a pasted Spotify album link as its own canonical album ID', () => {
+  assert.deepEqual(spotifyAlbumRef(spotifyAlbum), { id: spotifyAlbumId });
+  assert.deepEqual(spotifyAlbumRef(`https://open.spotify.com/album/${spotifyAlbumId}`),
+    { id: spotifyAlbumId });
+  // Tracks, playlists, Apple links, shortened links and spoofed hosts never
+  // seed an album lookup.
+  for (const href of [
+    `https://open.spotify.com/track/${spotifyAlbumId}`,
+    'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M',
+    'https://open.spotify.com/album/too-short',
+    'https://spotify.link/abc123',
+    'https://open.spotify.com.example.test/album/6b08FpNaFFTjc1dJ9DSWfn',
+    apple, '', null,
+  ]) {
+    assert.equal(spotifyAlbumRef(href), null);
+  }
+});
+
+test('looks up one exact Spotify album through official oEmbed, never by search', async (t) => {
+  const fetches = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://open.spotify.com');
+    assert.equal(url.pathname, '/oembed');
+    // The request carries the parsed canonical album URL, not the pasted
+    // share or tracking parameters.
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      url: `https://open.spotify.com/album/${spotifyAlbumId}`,
+    });
+    assert.equal(init.credentials, 'omit');
+    assert.equal(init.referrerPolicy, 'no-referrer');
+    assert.equal(init.redirect, 'error');
+    return Response.json(spotifyPayload);
+  });
+  assert.equal(await lookupSpotifyAlbumTitle(spotifyAlbum), 'Modal Soul');
+  assert.equal(fetches.mock.callCount(), 1);
+});
+
+test('accepts only the provider and embed frame for the same pasted album', async (t) => {
+  let payload = spotifyPayload;
+  t.mock.method(globalThis, 'fetch', async () => Response.json(payload));
+  for (const variant of [
+    { ...spotifyPayload, provider_name: 'Example' },
+    { ...spotifyPayload, provider_name: undefined },
+    { ...spotifyPayload, iframe_url: undefined },
+    { ...spotifyPayload, iframe_url: 'https://example.test/embed/album/6b08FpNaFFTjc1dJ9DSWfn' },
+    { ...spotifyPayload, iframe_url: 'https://open.spotify.com/embed/track/6b08FpNaFFTjc1dJ9DSWfn' },
+    { ...spotifyPayload, iframe_url: 'https://open.spotify.com/embed/album/0b08FpNaFFTjc1dJ9DSWfn' },
+    { ...spotifyPayload, iframe_url: `https://open.spotify.com/embed/album/${spotifyAlbumId}?si=tracking` },
+    { ...spotifyPayload, title: '' },
+    { ...spotifyPayload, title: '   ' },
+    { ...spotifyPayload, title: 'x'.repeat(141) },
+    { ...spotifyPayload, title: 42 },
+  ]) {
+    payload = variant;
+    assert.equal(await lookupSpotifyAlbumTitle(spotifyAlbum), null);
+  }
+  // The documented utm_source=oembed marker is the only accepted embed query,
+  // and it must not be required for the exact same album.
+  payload = { ...spotifyPayload, iframe_url: `https://open.spotify.com/embed/album/${spotifyAlbumId}` };
+  assert.equal(await lookupSpotifyAlbumTitle(spotifyAlbum), 'Modal Soul');
+});
+
+test('a pasted-link lookup never fetches for a non-album Spotify link', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('a lookup must not run for this link');
+  });
+  assert.equal(await lookupSpotifyAlbumTitle(`https://open.spotify.com/track/${spotifyAlbumId}`), null);
+  assert.equal(await lookupSpotifyAlbumTitle('https://spotify.link/abc123'), null);
+  assert.equal(await lookupSpotifyAlbumTitle(modalSoul), null);
+  assert.equal(await lookupSpotifyAlbumTitle(''), null);
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('a failed or cancelled Spotify lookup makes one request and is not retried', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', { status: 500 }));
+  await assert.rejects(lookupSpotifyAlbumTitle(spotifyAlbum), /500/);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(lookupSpotifyAlbumTitle(spotifyAlbum, controller.signal), { name: 'AbortError' });
+  assert.equal(fetch.mock.callCount(), 1);
 });
