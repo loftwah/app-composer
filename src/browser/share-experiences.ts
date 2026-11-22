@@ -20,6 +20,9 @@ import {
   musicPreview, musicSearchLinks, searchMusic,
 } from "../lib/top-nine-music.ts";
 import {
+  searchWikidata, type WikidataPick,
+} from "../lib/top-nine-wikidata.ts";
+import {
   coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
 } from "../lib/top-nine-cover.ts";
 import {
@@ -27,6 +30,8 @@ import {
   type SourceKind,
 } from "../lib/top-nine-source.ts";
 import type { CataloguePick } from "../lib/itunes-catalogue.ts";
+
+type SearchPick = CataloguePick | WikidataPick;
 
 interface ResultSnapshot {
   title: string;
@@ -162,8 +167,12 @@ function mountNine(
     status: root.querySelector<HTMLElement>("[data-music-status]")!,
     results: root.querySelector<HTMLUListElement>("[data-music-results]")!,
     recovery: root.querySelector<HTMLElement>("[data-music-recovery]")!,
+    recoveryNote: root.querySelector<HTMLElement>("[data-music-recovery-note]")!,
     recoveryApple: root.querySelector<HTMLAnchorElement>("[data-music-recovery-apple]")!,
     recoverySpotify: root.querySelector<HTMLAnchorElement>("[data-music-recovery-spotify]")!,
+    recoveryWikidata: root.querySelector<HTMLAnchorElement>("[data-music-recovery-wikidata]")!,
+    storefront: root.querySelector<HTMLElement>("[data-music-storefront]")!,
+    coverage: root.querySelector<HTMLElement>("[data-music-coverage]")!,
     pasteForm: root.querySelector<HTMLFormElement>("[data-music-paste-form]")!,
     paste: root.querySelector<HTMLInputElement>("[data-music-paste]")!,
     linked: root.querySelector<HTMLUListElement>("[data-music-linked]")!,
@@ -205,16 +214,34 @@ function mountNine(
   const kindLabel = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
 
   /** Manual recovery beside the results: ordinary links, no fetch and no new service. */
-  function showRecovery(query: string, country: string) {
-    const links = musicSearchLinks(query, country);
-    music.recoveryApple.href = links.apple;
-    music.recoverySpotify.href = links.spotify;
+  function showRecovery(query: string, country: string, wiki: boolean) {
+    for (const anchor of [music.recoveryApple, music.recoverySpotify, music.recoveryWikidata]) {
+      anchor.hidden = true;
+      anchor.removeAttribute("href");
+    }
+    if (wiki) {
+      music.recoveryWikidata.href =
+        `https://www.wikidata.org/wiki/Special:Search?search=${encodeURIComponent(query.toWellFormed())}`;
+      music.recoveryWikidata.hidden = false;
+      music.recoveryNote.textContent =
+        "Wrong match? Search Wikidata, open the exact film or game, copy its link and paste it below.";
+    } else {
+      const links = musicSearchLinks(query, country);
+      music.recoveryApple.href = links.apple;
+      music.recoverySpotify.href = links.spotify;
+      music.recoveryApple.hidden = false;
+      music.recoverySpotify.hidden = false;
+      music.recoveryNote.textContent =
+        "Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.";
+    }
     music.recovery.hidden = false;
   }
   function hideRecovery() {
     music.recovery.hidden = true;
-    music.recoveryApple.removeAttribute("href");
-    music.recoverySpotify.removeAttribute("href");
+    for (const anchor of [music.recoveryApple, music.recoverySpotify, music.recoveryWikidata]) {
+      anchor.hidden = true;
+      anchor.removeAttribute("href");
+    }
   }
 
   /** Canonical links for nine exhibits, and never for an exhibit with no title. */
@@ -246,7 +273,8 @@ function mountNine(
       const label = document.createElement("span");
       label.textContent = `Exhibit ${index + 1} · ${name} · ${source.provider}`;
       const openIn = source.provider === "Apple Books" ? "Open in Apple Books"
-        : source.provider === "App Store" ? "Open in the App Store" : null;
+        : source.provider === "App Store" ? "Open in the App Store"
+        : source.provider === "Wikidata" ? "Open on Wikidata" : null;
       const open: HTMLAnchorElement | HTMLButtonElement =
         openIn ? document.createElement("a") : document.createElement("button");
       open.className = openIn ? "button secondary" : "secondary";
@@ -458,7 +486,7 @@ function mountNine(
     previewOpener = null;
   }
 
-  function renderResults(picks: CataloguePick[]) {
+  function renderResults(picks: SearchPick[]) {
     music.results.replaceChildren();
     picks.slice(0, 12).forEach((pick) => {
       const source = sourceLink(pick.href);
@@ -466,32 +494,50 @@ function mountNine(
       if (!source || !name) return;
       const artist = entry(pick.artist, 60);
       const year = yearOf(pick.year);
+      const article = "article" in pick && typeof pick.article === "string" ? pick.article : null;
+      const platform = "platform" in pick && typeof pick.platform === "string" ? pick.platform : null;
       const row = document.createElement("li");
+      if (article) row.className = "has-article";
       const button = document.createElement("button");
       button.type = "button";
       const heading = document.createElement("strong");
       heading.textContent = name;
       const detail = document.createElement("span");
-      detail.textContent = [artist, year, source.provider].filter(Boolean).join(" · ")
+      detail.textContent = [artist, year, platform, source.provider].filter(Boolean).join(" · ")
         || `Unlisted · ${source.provider}`;
       button.append(heading, detail);
       button.addEventListener("click", () => fillFromPick(pick));
       row.append(button);
+      if (article) {
+        const open = document.createElement("a");
+        open.className = "music-article";
+        open.href = article;
+        open.target = "_blank";
+        open.rel = "noopener noreferrer nofollow";
+        open.textContent = "Article";
+        open.setAttribute("aria-label", `Open the English Wikipedia article about ${name} in a new tab`);
+        row.append(open);
+      }
       music.results.append(row);
     });
     music.results.hidden = !music.results.childElementCount;
   }
 
-  function fillFromPick(pick: CataloguePick) {
+  function fillFromPick(pick: SearchPick) {
     const source = sourceLink(pick.href);
     const name = entry(pick.title, 54);
     if (!source || !name) {
-      note("That result has no usable Apple Music, Spotify, Apple Books or App Store link. Try another.");
+      note("That result has no usable Apple Music, Spotify, Apple Books, App Store or Wikidata link. Try another.");
       return;
     }
     const artist = entry(pick.artist, 48);
+    const year = yearOf(pick.year);
     const filled = target + 1;
-    objects[target].value = entry(artist ? `${name} · ${artist}` : name, 54);
+    // Films and games read as "Dune (2021)"; the description is shown in the
+    // result row, not typed into the exhibit.
+    objects[target].value = entry(source.provider === "Wikidata"
+      ? year ? `${name} (${year})` : name
+      : artist ? `${name} · ${artist}` : name, 54);
     setLink(target, source.href);
     const empty = firstEmpty();
     if (empty >= 0) target = empty;
@@ -510,12 +556,16 @@ function mountNine(
     const country = music.country.value;
     const store = storeName();
     const requestedKind: SourceKind = kind;
+    const wiki = requestedKind === "film" || requestedKind === "game";
     const kindLabel =
       requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
-      : requestedKind === "book" ? "books" : "apps";
-    // Books and apps have no music-service fallback; weak, empty and failed
-    // searches keep them straight to the retry message.
-    const offerRecovery = () => { if (requestedKind !== "book" && requestedKind !== "app") showRecovery(query, country); };
+      : requestedKind === "book" ? "books" : requestedKind === "app" ? "apps"
+      : requestedKind === "film" ? "films" : "games";
+    // Books, apps, films and games have no music-service fallback; weak, empty
+    // and failed searches keep them straight to the retry message.
+    const offerRecovery = () => {
+      if (requestedKind !== "book" && requestedKind !== "app") showRecovery(query, country, wiki);
+    };
     searching?.abort();
     const controller = new AbortController();
     searching = controller;
@@ -524,26 +574,37 @@ function mountNine(
     music.results.hidden = true;
     music.results.replaceChildren();
     hideRecovery();
-    note(`Searching ${store} ${kindLabel} for “${query}”…`);
+    note(wiki ? `Searching Wikidata ${kindLabel} for “${query}”…`
+      : `Searching ${store} ${kindLabel} for “${query}”…`);
     try {
       const picks = requestedKind === "book"
         ? await searchBooks(query, country, controller.signal)
         : requestedKind === "app"
         ? await searchApps(query, country, controller.signal)
+        : requestedKind === "film" || requestedKind === "game"
+        ? await searchWikidata(query, requestedKind, controller.signal)
         : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
       const usable = picks.filter((pick) => pick && typeof pick.title === "string" && sourceLink(pick.href));
       if (!usable.length) {
-        note(`No ${kindLabel} matched “${query}” in ${store}. Try a shorter title, switch the type, change storefront, or paste a link.`);
+        note(wiki
+          ? `No ${kindLabel} matched “${query}” on Wikidata. Try a shorter title, switch the type, or paste a Wikidata link.`
+          : `No ${kindLabel} matched “${query}” in ${store}. Try a shorter title, switch the type, change storefront, or paste a link.`);
         offerRecovery();
         return;
       }
       renderResults(usable);
       offerRecovery();
       note(`${usable.length === 1 ? "One result" : `${usable.length} results`}. Choose one to fill exhibit ${target + 1}.`);
-    } catch {
+    } catch (error) {
       if (run !== searchRun || controller.signal.aborted) return;
-      note("Search didn’t come back. Check your connection and try again, or paste an Apple Music, Spotify, Apple Books or App Store link below.");
+      // A Wikidata rate limit is worth its own words: show it and wait for the
+      // person, never retrying automatically.
+      note(wiki && error instanceof Error && error.message.includes("429")
+        ? "Wikidata is limiting requests right now. Wait a little, then search again."
+        : wiki
+        ? "Search didn’t come back. Check your connection and try again, or paste a Wikidata link below."
+        : "Search didn’t come back. Check your connection and try again, or paste an Apple Music, Spotify, Apple Books, App Store or Wikidata link below.");
       offerRecovery();
     } finally {
       if (run === searchRun) {
@@ -630,8 +691,13 @@ function mountNine(
   music.kind.forEach((button) => {
     button.addEventListener("click", () => {
       const next = button.dataset.musicKind;
-      kind = next === "song" || next === "book" || next === "app" ? next : "album";
+      kind = next === "song" || next === "book" || next === "app"
+        || next === "film" || next === "game" ? next : "album";
       music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
+      // Films and games come from Wikidata, so the storefront does not apply.
+      const wiki = kind === "film" || kind === "game";
+      music.storefront.hidden = wiki;
+      music.coverage.hidden = !wiki;
       clearSearch();
     });
   });
@@ -654,7 +720,7 @@ function mountNine(
     event.preventDefault();
     const source = sourceLink(music.paste.value.trim());
     if (!source) {
-      note("That isn’t an Apple Music, Spotify, Apple Books or App Store link. Copy the share link from its page in the app or store.");
+      note("That isn’t an Apple Music, Spotify, Apple Books, App Store or Wikidata link. Copy the share link from its page in the app, store or on Wikidata.");
       music.paste.focus();
       music.paste.select();
       return;
