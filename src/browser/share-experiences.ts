@@ -203,6 +203,7 @@ function mountNine(
   let searching: AbortController | null = null;
   let searchRun = 0;
   let previewIndex: number | null = null;
+  let previewFromSearch = false;
   let previewOpener: HTMLElement | null = null;
 
   const note = (text: string) => { music.status.textContent = text; };
@@ -450,6 +451,28 @@ function mountNine(
 
   const previewHeight = { "Apple Music": "450", Spotify: "352" } as const;
 
+  /** The one player frame both entry points share: replacing it stops the old
+   * audio, and nothing remote loads until a person asks to preview. */
+  function showPlayer(
+    preview: NonNullable<ReturnType<typeof musicPreview>>,
+    heading: string,
+    frameTitle: string,
+  ) {
+    const frame = document.createElement("iframe");
+    frame.src = preview.embedUrl;
+    frame.title = frameTitle;
+    frame.setAttribute("width", "100%");
+    frame.height = previewHeight[preview.provider];
+    frame.allow = "encrypted-media; fullscreen; picture-in-picture";
+    frame.referrerPolicy = "no-referrer";
+    music.previewFrame.replaceChildren(frame);
+    music.previewTitle.textContent = heading;
+    music.previewSource.textContent = `Open in ${preview.provider}`;
+    music.previewSource.href = preview.href;
+    music.preview.hidden = false;
+    music.previewTitle.focus();
+  }
+
   function openPreview(index: number) {
     const preview = musicPreview(hrefs[index]);
     if (!preview) {
@@ -460,30 +483,46 @@ function mountNine(
       return;
     }
     previewIndex = index;
+    previewFromSearch = false;
     previewOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const frame = document.createElement("iframe");
-    frame.src = preview.embedUrl;
-    frame.title = `${preview.provider} player for exhibit ${index + 1}: ${entry(objects[index].value, 54) || "untitled"}`;
-    frame.setAttribute("width", "100%");
-    frame.height = previewHeight[preview.provider];
-    frame.allow = "encrypted-media; fullscreen; picture-in-picture";
-    frame.referrerPolicy = "no-referrer";
-    music.previewFrame.replaceChildren(frame);
-    music.previewTitle.textContent = `${preview.provider} preview · exhibit ${index + 1}`;
-    music.previewSource.textContent = `Open in ${preview.provider}`;
-    music.previewSource.href = preview.href;
-    music.preview.hidden = false;
-    music.previewTitle.focus();
+    showPlayer(
+      preview,
+      `${preview.provider} preview · exhibit ${index + 1}`,
+      `${preview.provider} player for exhibit ${index + 1}: ${entry(objects[index].value, 54) || "untitled"}`,
+    );
+  }
+
+  /** Audition one search hit without filling a slot or touching its link. */
+  function openSearchPreview(pick: SearchPick) {
+    const preview = musicPreview(pick.href);
+    const name = entry(pick.title, 54);
+    if (!preview || !name) return;
+    previewIndex = null;
+    previewFromSearch = true;
+    previewOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const artist = entry(pick.artist, 48);
+    showPlayer(
+      preview,
+      `${preview.provider} preview · ${name}`,
+      `${preview.provider} player for ${name}${artist ? ` by ${artist}` : ""}`,
+    );
+    note(`Previewing ${name} on ${preview.provider}. Choose a result to add it to exhibit ${target + 1}.`);
   }
 
   /** One preview at a time: closing removes the frame so playback stops too. */
   function closePreview(restoreFocus = true) {
     previewIndex = null;
+    previewFromSearch = false;
     music.previewFrame.replaceChildren();
     music.preview.hidden = true;
     music.previewSource.removeAttribute("href");
     if (restoreFocus && previewOpener?.isConnected) previewOpener.focus({ preventScroll: true });
     previewOpener = null;
+  }
+
+  /** Results that disappear take their player with them; a slot preview stays. */
+  function closeSearchPreview() {
+    if (previewFromSearch) closePreview(false);
   }
 
   function renderResults(picks: SearchPick[]) {
@@ -494,6 +533,7 @@ function mountNine(
       if (!source || !name) return;
       const artist = entry(pick.artist, 60);
       const year = yearOf(pick.year);
+      const playable = musicPreview(pick.href);
       const article = "article" in pick && typeof pick.article === "string" ? pick.article : null;
       const platform = "platform" in pick && typeof pick.platform === "string" ? pick.platform : null;
       const row = document.createElement("li");
@@ -508,6 +548,17 @@ function mountNine(
       button.append(heading, detail);
       button.addEventListener("click", () => fillFromPick(pick));
       row.append(button);
+      if (playable) {
+        row.classList.add("has-preview");
+        const preview = document.createElement("button");
+        preview.type = "button";
+        preview.className = "music-preview-open";
+        preview.textContent = "Preview";
+        preview.setAttribute("aria-label",
+          `Preview ${name}${artist ? ` by ${artist}` : ""} on ${playable.provider} without filling a slot`);
+        preview.addEventListener("click", () => openSearchPreview(pick));
+        row.append(preview);
+      }
       if (article) {
         const open = document.createElement("a");
         open.className = "music-article";
@@ -573,6 +624,7 @@ function mountNine(
     music.submit.disabled = true;
     music.results.hidden = true;
     music.results.replaceChildren();
+    closeSearchPreview();
     hideRecovery();
     note(wiki ? `Searching Wikidata ${kindLabel} for “${query}”…`
       : `Searching ${store} ${kindLabel} for “${query}”…`);
@@ -683,6 +735,7 @@ function mountNine(
     music.submit.disabled = false;
     music.results.hidden = true;
     music.results.replaceChildren();
+    closeSearchPreview();
     hideRecovery();
     note("");
   }

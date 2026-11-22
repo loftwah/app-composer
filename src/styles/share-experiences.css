@@ -162,6 +162,14 @@
 .music-results span { font-size: .88rem; color: var(--color-muted); }
 .music-results li.has-article { display: flex; flex-wrap: wrap; gap: .35rem; align-items: stretch; }
 .music-results li.has-article > button { flex: 1 1 12rem; inline-size: auto; }
+.music-results li.has-preview { display: flex; flex-wrap: wrap; gap: .35rem; align-items: stretch; }
+.music-results li.has-preview > button:first-child { flex: 1 1 12rem; inline-size: auto; }
+.share-experience .music-results button.music-preview-open {
+  flex: 0 0 auto; inline-size: auto; align-self: stretch;
+  min-height: 44px; padding: 8px 14px; font-size: .86rem; font-weight: 600;
+  background: transparent; color: var(--color-accent); border: 1px solid var(--color-control-border);
+}
+.share-experience .music-results button.music-preview-open:hover { background: var(--color-selected); border-color: var(--accent); }
 .music-results a.music-article {
   display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px;
   color: var(--color-accent); font-size: .86rem;
