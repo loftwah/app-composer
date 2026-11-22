@@ -223,10 +223,18 @@ form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEven
  if(!confirm('Discard the current and saved draft on this device?'))return;
  try{localStorage.removeItem(key);}catch{report(new Error('This browser could not remove the saved draft. Your current edits are preserved.'));return;}
  revision++;dismissImport();savedDraftUnreadable=false;form.reset();fillProjectDirection();for(const toggle of form.querySelectorAll<HTMLInputElement>('[data-separate-settings]'))delete toggle.dataset.initialised;decisions={};importedStudioSource=undefined;savedSnapshot=null;document.querySelector('#card-rows')!.replaceChildren();displayedPreset=value('preset');goal.value=displayedPreset;edited();show();previewRecommendation();
-});document.querySelector('#copy')!.addEventListener('click',async()=>{
+});let copyAttempt=0;document.querySelector('#copy')!.addEventListener('click',async()=>{
  let text:string;try{text=assistedHandoff(read(),currentAssistance());}catch(e){handoffStatus.dataset.state='manual';handoffStatus.textContent=(e instanceof Error?e.message:String(e))+' Nothing was copied.';return;}
- try{await navigator.clipboard.writeText(text);handoffStatus.dataset.state='copied';handoffStatus.textContent='Handoff copied. Paste it into your coding agent in the authorised project.';}
- catch{const prompt=document.querySelector<HTMLElement>('#prompt')!;prompt.textContent=text;prompt.closest('details')!.open=true;prompt.focus();const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);handoffStatus.dataset.state='manual';handoffStatus.textContent='Clipboard access failed. The handoff is selected below; copy it using your browser.';}
+ const prompt=document.querySelector<HTMLElement>('#prompt')!;
+ // The visible handoff is the source of truth: what a person can select here is
+ // exactly what this write puts on the clipboard. An edit or a newer copy while
+ // the write is pending retires this result, so an old settlement cannot report
+ // success for a handoff that is no longer shown.
+ prompt.textContent=text;
+ const attemptId=++copyAttempt,startedAt=revision,shown=prompt.textContent;
+ const current=()=>attemptId===copyAttempt&&startedAt===revision&&prompt.textContent===shown;
+ try{await navigator.clipboard.writeText(text);if(!current())return;handoffStatus.dataset.state='copied';handoffStatus.textContent='Handoff copied. Paste it into your coding agent in the authorised project.';}
+ catch{if(!current())return;prompt.closest('details')!.open=true;prompt.focus();const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);handoffStatus.dataset.state='manual';handoffStatus.textContent='Clipboard access failed. The handoff is selected below; copy it using your browser.';}
 });
 document.querySelector('#download')!.addEventListener('click', () => {
  clearHandoffStatus();
