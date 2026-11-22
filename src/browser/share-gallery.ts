@@ -1,11 +1,14 @@
 import type { ShareFeedback } from "../lib/share-feedback.ts";
 import { buildArtworkPackage, readArtworkPackageBytes, type ArtworkPackageInput } from "../lib/share-artwork-package.ts";
 
+import { mountArtworkImageActions } from "./share-artwork-image.ts";
+
 const feedbackApi = "/api/share-feedback";
 
 type PackageData = Omit<ArtworkPackageInput, "bytes"> & { download: string };
 
-export function mountArtworkActions(piece: HTMLElement) {
+export function mountArtworkActions(piece: HTMLElement, signal?: AbortSignal) {
+  mountArtworkImageActions(piece, signal);
   const copyStatus = piece.querySelector<HTMLElement>("[data-gallery-copy-status]");
   const linkFallback = piece.querySelector<HTMLInputElement>(
     "[data-gallery-copy-fallback]",
@@ -506,7 +509,7 @@ export function mountShareGallery(wall: HTMLElement) {
       // Use document-relative public links even while the gallery history
       // entry has the artwork's permanent URL.
       content.replaceChildren(piece);
-      mountArtworkActions(piece);
+      mountArtworkActions(piece, request.signal);
     } catch {
       if (request.signal.aborted) return;
       message.textContent = "Couldn’t load the preview. ";

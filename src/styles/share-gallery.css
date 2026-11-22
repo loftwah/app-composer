@@ -563,6 +563,23 @@ html:has(.gallery-lightbox[open]) {
 .gallery-piece-actions [hidden] {
   display: none;
 }
+.gallery-image-actions {
+  gap: 0.5rem;
+}
+.gallery-image-actions > :is(.button, button):not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding-inline: 0.75rem;
+}
+.gallery-image-status {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+.gallery-image-status:not(:empty) {
+  margin-block-start: 0.5rem;
+}
 .button.gallery-file-action {
   display: inline-flex;
   align-items: center;
