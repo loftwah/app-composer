@@ -31,8 +31,8 @@ const suiteCommand = (pack: (typeof packs)[number]) => {
 };
 const latestSource = typeof latest.source === 'string' ? latest.source : 'unknown';
 const sourceShort = latestSource === 'unknown' ? 'unknown' : latestSource.slice(0, 7);
-const instant = (value: string | null | undefined) => {
-  if (!value) return 'unknown';
+const instant = (value: unknown) => {
+  if (typeof value !== 'string' || !value) return 'unknown';
   const ms = Date.parse(value);
   return Number.isFinite(ms) ? `${new Date(ms).toISOString().slice(0, 16).replace('T', ' ')} UTC` : 'unknown';
 };
@@ -112,10 +112,10 @@ const stateClass = (state: string) =>
           <dl class="pack-facts">
             <div><dt>Provider free</dt><dd>{summary.providerFree ? 'Yes' : 'No'}</dd></div>
             <div><dt>Network</dt><dd>{summary.requirements?.network === false ? 'Not used' : 'Not stated'}</dd></div>
-            <div><dt>Credentials</dt><dd>{summary.requirements?.credentials?.length ? summary.requirements.credentials.join(', ') : 'None'}</dd></div>
+            <div><dt>Credentials</dt><dd>{Array.isArray(summary.requirements?.credentials) && summary.requirements.credentials.length ? summary.requirements.credentials.join(', ') : 'None'}</dd></div>
             <div><dt>Spend</dt><dd>{summary.requirements?.spendMicro === 0 ? '$0' : 'Not stated'}</dd></div>
             <div><dt>Checks</dt><dd>{summary.checks.length} deterministic</dd></div>
-            <div><dt>Evidence</dt><dd>{summary.evidence?.file ?? 'none yet'}</dd></div>
+            <div><dt>Evidence</dt><dd>{typeof summary.evidence?.file === 'string' ? summary.evidence.file : 'none yet'}</dd></div>
           </dl>
           <div class="pack-checks">
             {groupByModule(summary).map(([module, checks]) => (
@@ -144,7 +144,7 @@ const stateClass = (state: string) =>
             ? (
               <p class="pack-note">
                 <strong>Not run.</strong> This pack has no passing evidence in the committed file, so it is not shown as a
-                result. {summary.evidenceNote ?? summary.evidence?.note ?? ''}
+                result. {summary.evidenceNote ?? (typeof summary.evidence?.note === 'string' ? summary.evidence.note : '')}
               </p>
             )
             : summary.evidenceState === 'stale'
@@ -156,7 +156,7 @@ const stateClass = (state: string) =>
               : (
                 <p class="pack-note">
                   Evidence recorded {instant(summary.evidence?.recordedAt)} from source
-                  <code>{summary.evidence?.source ?? 'unknown'}</code>. The pack checks the same ids in the committed file.
+                  <code>{typeof summary.evidence?.source === 'string' ? summary.evidence.source : 'unknown'}</code>. The pack checks the same ids in the committed file.
                 </p>
               )}
           <ul class="pack-limits">
