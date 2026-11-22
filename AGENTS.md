@@ -138,3 +138,8 @@ Task routing, reviewed 16 October 2026: choose relevant guidance from the actual
 - Run automated browser checks headlessly and without stealing desktop focus by default. Use a visible browser only when the actual inspection or MP's request requires it. Keep useful failure output and report failures; quiet testing does not mean hiding them.
 - Once a task is delivered or intentionally abandoned, preserve any required source, unpushed changes, evidence and artwork under the project's existing rules, then remove its inactive task-owned worktree with Git and clean its disposable scratch sessions, traces and snapshots using the owning tool's supported cleanup. Do not purge shared conversation history, credentials, databases, other agents' work or an active session. Never leave a whole temporary checkout or dependency install as routine evidence.
 
+### Branch and worktree lifecycle
+
+GitHub automatically deletes merged App Composer head branches. Use short-lived branches for PRs and document any branch that must stay available to a preview, release or ongoing workflow.
+
+Before removing an old branch, confirm the exact current SHA was integrated. For squash merges, match it to the merged PR's final head and check that the squash commit reached main. Preserve the exact tip in a recoverable ref, and protect active, dirty, unpublished and pinned work. Remove an old worktree only after checking for tracked changes, untracked files and ignored evidence. The integration owner rechecks the branch and worktree immediately before cleanup and leaves changed refs alone.
