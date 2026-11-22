@@ -34,7 +34,7 @@ if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/cam
 ---
 
 <Base title={filmsView ? "Share films" : internetWorkshop ? "Internet Workshop" : "Share artwork"} description={filmsView ? "Watch short films from our projects, with captions and credit intact." : "Browse public artwork from our projects and share a piece with its credit intact."}
-  noindex={noindexFor(Astro.url.hostname, filmsView || (Boolean(catalogue) && params.size === 0))}>
+  noindex={noindexFor(Astro.url.hostname, (filmsView && params.size === 1) || (Boolean(catalogue) && params.size === 0))}>
   {filmsView ? <ShareFilmsView /> : (
     <div class="share-artwork-library">
       {internetWorkshop && (

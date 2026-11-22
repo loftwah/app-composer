@@ -62,7 +62,7 @@ const films = [
         <video controls playsinline preload="none" poster={film.poster} width={film.width} height={film.height}
           class:list={['film-player', film.portrait && 'film-player-portrait']} aria-labelledby={`${film.id}-title`}>
           <source src={film.src} type="video/mp4" />
-          <track kind="captions" src={film.captions} srclang="en" label="English captions" />
+          <track kind="captions" src={film.captions} srclang="en" label="English captions" default />
           <a href={film.src}>Open {film.title}</a>
         </video>
         <h2 id={`${film.id}-title`}>{film.title}</h2>
