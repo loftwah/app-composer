@@ -25,6 +25,7 @@
 .club-answers button { text-align: start; min-height: 48px; }
 .club-answers button[data-correct] { border-color: var(--color-accent); opacity: 1; }
 .club-actions { margin-block-start: .8rem; }
+.club-copy-field { flex: 1 1 100%; min-inline-size: 0; resize: vertical; }
 .club-crossword { display: flex; align-items: start; flex-wrap: wrap; gap: 1rem 1.5rem; }
 .club-squares {
   display: grid; grid-template-columns: repeat(5, clamp(44px, 10vw, 57px));
