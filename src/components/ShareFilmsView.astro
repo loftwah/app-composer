@@ -13,6 +13,7 @@ const films = [
     src: workshop.href,
     poster: workshopWatch + '.webp',
     captions: workshopWatch + '.vtt',
+    transcript: workshopWatch + '.txt',
     width: 1280,
     height: 720,
     portrait: false,
@@ -25,6 +26,7 @@ const films = [
     src: teaserWatch + '.mp4',
     poster: '/media-studio/teaser-poster-20261117.jpg',
     captions: teaserWatch + '.vtt',
+    transcript: teaserWatch + '.txt',
     width: 540,
     height: 960,
     portrait: true,
@@ -68,11 +70,15 @@ const films = [
         <h2 id={`${film.id}-title`}>{film.title}</h2>
         <p>{film.detail}</p>
         {film.credit && <p class="film-credit">{film.credit}</p>}
+        <nav class="film-actions" aria-label={`${film.title} files`}>
+          <a href={film.src} download>Download film</a>
+          {film.transcript && <a href={film.transcript}>Transcript</a>}
+        </nav>
       </li>
     ))}
   </ul>
 
-  <p class="films-detail"><a href="/media-studio/films">Every film, demo and transcript in Media Studio <ArrowUpRight size={14} aria-hidden="true" /></a></p>
+  <p class="films-detail"><a href="/media-studio#watch">Watch the full Studio build <ArrowUpRight size={14} aria-hidden="true" /></a></p>
 </section>
 
 <style>
@@ -91,6 +97,8 @@ const films = [
   .film h2 { margin: .9rem 0 .4rem; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.2; }
   .film p { margin: 0 0 .35rem; color: var(--color-muted); font-size: .9rem; }
   .film .film-credit { font-size: .8rem; }
+  .film-actions { display: flex; flex-wrap: wrap; gap: 0 1rem; margin-block-start: .35rem; font-size: .875rem; font-weight: 650; }
+  .film-actions a { display: inline-flex; align-items: center; min-height: 44px; }
   .films-detail { margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding-block-start: 1rem; border-top: 1px solid var(--color-border); font-size: .9rem; }
   .films-detail a { color: var(--color-muted); }
 </style>
