@@ -160,6 +160,13 @@
 .share-experience .music-results button:hover { background: var(--color-selected); border-color: var(--accent); }
 .music-results strong { font-weight: 700; }
 .music-results span { font-size: .88rem; color: var(--color-muted); }
+.music-results li.has-article { display: flex; flex-wrap: wrap; gap: .35rem; align-items: stretch; }
+.music-results li.has-article > button { flex: 1 1 12rem; inline-size: auto; }
+.music-results a.music-article {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px;
+  color: var(--color-accent); font-size: .86rem;
+  text-decoration: underline; text-underline-offset: .2em;
+}
 .music-recovery { margin-top: .7rem; }
 .music-recovery .experience-note { margin: 0 0 .4rem; color: var(--color-muted); }
 .music-recovery-links { display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; }

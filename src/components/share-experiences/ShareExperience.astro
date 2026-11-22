@@ -59,7 +59,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <label for="exhibition-title">Exhibition title</label>
     <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
     <details class="exhibit-music" data-music-panel>
-      <summary>Find albums, songs, books and apps</summary>
+      <summary>Find albums, songs, books, apps, games and films</summary>
       <form class="music-search" data-music-form>
         <label for="music-target">Fill exhibit
           <select id="music-target" data-music-target-choice>
@@ -71,8 +71,10 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
           <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
           <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
           <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
+          <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
+          <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
         </div>
-        <label for="music-country">Storefront
+        <label for="music-country" data-music-storefront>Storefront
           <select id="music-country" data-music-country>
             <option value="AU">Australia (AU)</option>
             <option value="NZ">New Zealand (NZ)</option>
@@ -90,7 +92,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
             <option value="ZA">South Africa (ZA)</option>
           </select>
         </label>
-        <label for="music-query" class="music-query">Album, song, book or app
+        <label for="music-query" class="music-query">Album, song, book, app, game or film
           <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
         </label>
         <button type="submit" data-music-submit>Search</button>
@@ -98,14 +100,15 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <p class="experience-note" role="status" data-music-status></p>
       <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
       <div class="music-recovery" data-music-recovery hidden>
-        <p class="experience-note">Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.</p>
+        <p class="experience-note" data-music-recovery-note>Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.</p>
         <div class="music-recovery-links">
           <a data-music-recovery-apple target="_blank" rel="noopener noreferrer nofollow">Search this on Apple Music</a>
           <a data-music-recovery-spotify target="_blank" rel="noopener noreferrer nofollow">Search this on Spotify</a>
+          <a data-music-recovery-wikidata target="_blank" rel="noopener noreferrer nofollow" hidden>Search this on Wikidata</a>
         </div>
       </div>
       <form class="music-paste" data-music-paste-form>
-        <label for="music-paste">Or paste an Apple Music, Spotify, Apple Books or App Store link</label>
+        <label for="music-paste">Or paste an Apple Music, Spotify, Apple Books, App Store or Wikidata link</label>
         <div class="music-paste-row">
           <input id="music-paste" type="url" inputmode="url" autocomplete="off" placeholder="https://music.apple.com/…" data-music-paste />
           <button type="submit" class="secondary">Use link</button>
@@ -120,6 +123,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         <div class="music-preview-frame" data-music-preview-frame></div>
         <p class="experience-note"><a data-music-preview-source target="_blank" rel="noopener noreferrer nofollow">Open in the music app</a></p>
       </section>
+      <p class="experience-note" data-music-coverage hidden>Films and games come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
     </details>
     <details class="exhibit-covers" data-cover-panel>
       <summary>Hang your own cover art</summary>
@@ -163,7 +167,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
       <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
     </div>
-    <p class="experience-note">Drafts keep your title, exhibits and music links in this browser. Cover images aren’t saved — download your result image to keep them.</p>
+    <p class="experience-note">Drafts keep your title, exhibits and source links in this browser. Cover images aren’t saved — download your result image to keep them.</p>
     <p class="experience-note" role="status" data-draft-status></p>
   </section>}
 
@@ -215,7 +219,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine}>Share result</button>
     </div>
     <p class="experience-note">{isNine
-      ? "A result link carries your title, exhibits, music links and byline. Cover images never go into the link — download the result image to keep them."
+      ? "A result link carries your title, exhibits, source links and byline. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />

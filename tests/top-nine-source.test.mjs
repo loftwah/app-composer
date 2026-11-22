@@ -7,8 +7,9 @@ const spotify = 'https://open.spotify.com/intl-au/album/6b08FpNaFFTjc1dJ9DSWfn?s
 const book = 'https://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834?uo=4';
 const graphic = 'https://books.apple.com/us/book/a-wizard-of-earthsea-a-graphic-novel/id6526483806?uo=4';
 const app = 'https://apps.apple.com/au/app/obsidian-connected-notes/id1557175442?uo=4';
+const film = 'https://www.wikidata.org/wiki/Q60834962?uselang=en';
 
-test('one resolver types all four supported source providers', () => {
+test('one resolver types all five supported source providers', () => {
   assert.equal(sourceLink(apple)?.provider, 'Apple Music');
   assert.equal(sourceLink(apple)?.href, 'https://music.apple.com/au/album/697194953');
   assert.equal(sourceLink(spotify)?.provider, 'Spotify');
@@ -20,6 +21,8 @@ test('one resolver types all four supported source providers', () => {
     'https://books.apple.com/us/book/a-wizard-of-earthsea-a-graphic-novel/id6526483806');
   assert.equal(sourceLink(app)?.provider, 'App Store');
   assert.equal(sourceLink(app)?.href, 'https://apps.apple.com/au/app/obsidian-connected-notes/id1557175442');
+  assert.equal(sourceLink(film)?.provider, 'Wikidata');
+  assert.equal(sourceLink(film)?.href, 'https://www.wikidata.org/wiki/Q60834962');
 });
 
 test('canonical links round-trip unchanged so save, share and reopen keep them', () => {
@@ -50,6 +53,8 @@ test('unsupported, insecure and spoofed URLs stay rejected across providers', ()
     'https://books.apple.com/us/book/a-wizard-of-earthsea/id0',
     'https://music.apple.com/au/album/697194953?i=1&i=2',
     'https://open.spotify.com/playlist/6b08FpNaFFTjc1dJ9DSWfn',
+    'https://www.wikidata.org/wiki/Special:Search?search=Dune',
+    'https://www.wikipedia.org/wiki/Q60834962',
     'https://example.com/book/a-wizard-of-earthsea/id1602695834',
     'javascript:alert(1)',
     'not a url',
@@ -60,12 +65,13 @@ test('unsupported, insecure and spoofed URLs stay rejected across providers', ()
 });
 
 test('normalised links keep nine positional slots and drop unsupported entries', () => {
-  assert.deepEqual(normaliseSourceLinks([apple, book, 'https://example.test', app]), [
+  assert.deepEqual(normaliseSourceLinks([apple, book, 'https://example.test', app, film]), [
     'https://music.apple.com/au/album/697194953',
     'https://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834',
     null,
     'https://apps.apple.com/au/app/obsidian-connected-notes/id1557175442',
-    null, null, null, null, null,
+    'https://www.wikidata.org/wiki/Q60834962',
+    null, null, null, null,
   ]);
   assert.deepEqual(normaliseSourceLinks('https://music.apple.com/au/album/1'), Array(9).fill(null));
   assert.deepEqual(normaliseSourceLinks([]), Array(9).fill(null));
