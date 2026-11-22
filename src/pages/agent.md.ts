@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { renderPrompt } from '../lib/prompt-library.ts';
 
-export const agentRequestVersion = '2026-10-25';
+export const agentRequestVersion = '2026-11-22';
 
 function markdown() {
   const request = renderPrompt('assess').text;
@@ -39,6 +39,7 @@ ${request}
 - https://composer.loftwah.com/resources — change, incident, pipeline and hook runbooks
 - https://composer.loftwah.com/ready — local tools, source and Cloudflare readiness
 - https://composer.loftwah.com/architecture — product shape and trust boundaries
+- https://composer.loftwah.com/cloudflare — the historical Baselime estimate, the measured Creator Hub reference and what a provider comparison would still have to prove
 - https://composer.loftwah.com/launcher — the maintained launcher interaction recipe with a runnable density study
 
 ## Boundaries

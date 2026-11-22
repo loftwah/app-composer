@@ -200,6 +200,12 @@ and [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/).
 Cloudflare’s published Baselime case study is
 [here](https://blog.cloudflare.com/80-percent-lower-cloud-cost-how-baselime-moved-from-aws-to-cloudflare/).
 
+The case study’s destination figure is Cloudflare’s model, not a billed
+invoice, and the post does not separate provider pricing from the rewrite. The
+dated [comparison evidence brief](../cloudflare-comparison-20261122/README.md)
+records that distinction, the current product-specific billing facts and the
+not-run status of the #1022 comparison.
+
 ## Production captures
 
 Inspected live at 1440 × 1000 and 390 × 844:

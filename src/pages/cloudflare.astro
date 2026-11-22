@@ -25,10 +25,21 @@ const inferenceEstimate = (input: number, output: number) =>
 
 const accessDocs =
   "https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/";
+const spendManagement =
+  "https://developers.cloudflare.com/workers/platform/spend-management/";
+const durableObjectsPricing =
+  "https://developers.cloudflare.com/durable-objects/platform/pricing/";
+const analyticsEnginePricing =
+  "https://developers.cloudflare.com/analytics/analytics-engine/pricing/";
+const analyticsEngineLimits =
+  "https://developers.cloudflare.com/analytics/analytics-engine/limits/";
+const awsLambdaPricing = "https://aws.amazon.com/lambda/pricing/";
+const awsWebFunctions = "https://aws.amazon.com/lambda/lambda-web-functions/";
+const evidenceComparison = `${repository}/blob/main/docs/evidence/cloudflare-comparison-20261122/README.md`;
 ---
 <Base
   title="Build your app, not your infrastructure"
-  description="A Cloudflare-first operating model for App Composer: the resources the Creator Hub reference actually runs, its measured cost at real volume, the operational work it removes and the limits we do not hide."
+  description="A Cloudflare-first operating model for App Composer: the resources the Creator Hub reference actually runs, its measured usage and included allowance, the operational work it removes and the limits we do not hide."
   ogType="article"
 >
   <div class="cost-intro">
@@ -48,8 +59,8 @@ const accessDocs =
     </div>
     <p class="small">
       Observed 12 October–12 November 2026 in the operator’s Cloudflare
-      account. This page separates Cloudflare’s published precedent, our
-      measured reference and illustrative growth assumptions. It is not a
+      account. This page separates a vendor estimate, our measured reference,
+      a not-run comparison and illustrative growth assumptions. It is not a
       Cloudflare partnership, endorsement or official integration.
     </p>
   </div>
@@ -57,6 +68,7 @@ const accessDocs =
   <nav class="platform-index" aria-label="Cost and operations sections">
     <a href="#what-runs">What runs</a>
     <a href="#baselime">The Baselime precedent</a>
+    <a href="#answer">Savings or simplification</a>
     <a href="#reference">Our measured reference</a>
     <a href="#growth">What changes with scale</a>
     <a href="#workers-ai">Workers AI cost guide</a>
@@ -100,22 +112,24 @@ const accessDocs =
     <div class="section-heading">
       <div>
         <p class="eyebrow">Externally sourced precedent</p>
-        <h2>What Cloudflare measured at another company.</h2>
+        <h2>Cloudflare’s historical Baselime migration estimate.</h2>
       </div>
-      <span class="evidence-label">Baselime · Cloudflare estimate</span>
+      <span class="evidence-label">Baselime · vendor estimate, 2024</span>
     </div>
     <p>
-      Cloudflare’s published Baselime case study describes a much larger
-      observability workload moving from AWS to Cloudflare. The numbers below
-      are Cloudflare’s estimate for a comparable paying customer, not an
-      independently audited saving and not an App Composer result. Baselime was
-      acquired by Cloudflare in 2024.
+      Cloudflare’s 2024 Baselime case study describes a much larger
+      observability workload moving from AWS to Cloudflare. The AWS figure is
+      the old daily cost Cloudflare reported for that workload. The
+      destination figure is Cloudflare’s own model for a comparable paying
+      customer on Workers Paid, not a billed invoice. Neither is an
+      independently audited saving, a like-for-like provider benchmark or an App
+      Composer result. Baselime was acquired by Cloudflare in 2024.
     </p>
     <div class="table-wrap">
       <table>
-        <caption>Baselime’s reported daily infrastructure estimate (USD)</caption>
+        <caption>Cloudflare’s 2024 estimate for Baselime’s daily infrastructure cost (USD)</caption>
         <thead>
-          <tr><th scope="col">Workload</th><th scope="col">AWS before</th><th scope="col">Cloudflare estimate</th></tr>
+          <tr><th scope="col">Workload</th><th scope="col">AWS before (reported)</th><th scope="col">Cloudflare after (modelled)</th></tr>
         </thead>
         <tbody>
           <tr><td>Compute</td><td>$650 Lambda</td><td>$25 Workers</td></tr>
@@ -127,11 +141,13 @@ const accessDocs =
       </table>
     </div>
     <p class="attribution">
-      Reported difference: roughly <strong>83% lower estimated infrastructure
-      cost</strong>, about <strong>$589,475 per year</strong> in this case.
+      Difference by subtraction: roughly <strong>83.25% lower</strong>
+      (1 − $325 ÷ $1,940), about <strong>$589,475 per year</strong> on the
+      report’s 365-day annualisation. Cloudflare’s own post rounds this to 83%.
       Source:
       <a href={baselime}>Cloudflare’s Baselime case study</a>, published 31
-      October 2024.
+      October 2024. The post does not isolate provider pricing from the rewrite,
+      and it does not measure an optimised AWS counterfactual.
     </p>
     <p class="small">
       Do not read this as “83% cheaper with App Composer”. Baselime’s workload
@@ -139,6 +155,201 @@ const accessDocs =
       here is the architectural argument: fewer managed services can remove
       real operating work. Our own scenario is measured separately below.
     </p>
+  </section>
+
+  <section class="cost-section" id="answer">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">The overengineering objection</p>
+        <h2>Did Cloudflare save the money, or did the redesign?</h2>
+      </div>
+      <span class="evidence-label">One estimate · contributors not apportioned</span>
+    </div>
+    <p class="lede">
+      The honest answer is that the source does not say. Baselime’s move to
+      Cloudflare changed the provider <em>and</em> rewrote the pipeline: fewer
+      queues, no self-hosted ClickHouse, a different query engine and new
+      service boundaries. A bill can fall for any of those reasons. The post
+      reports a result for the combined change, so no share of the 83.25% can be
+      assigned to Cloudflare’s pricing without a controlled comparison.
+    </p>
+    <div class="answer-grid">
+      <div>
+        <h3>What the source supports</h3>
+        <p>
+          The post reports about $1,940 a day on the AWS pipeline in 2024 and
+          about $325 a day estimated after migrating. Both figures come from
+          Cloudflare’s post, which names the workload and the services involved.
+        </p>
+      </div>
+      <div>
+        <h3>What it cannot show</h3>
+        <p>
+          It cannot show that a simpler AWS design would have cost more, that
+          Cloudflare caused most of the difference, or that a customer gets the
+          same result. It also excludes the total cost of ownership and the
+          migration effort.
+        </p>
+      </div>
+      <div>
+        <h3>What would settle it</h3>
+        <p>
+          Three arms on one frozen workload: the owned baseline, a credible
+          optimised AWS design and a Cloudflare-native design. Equal required
+          behaviour first, then measured cost per successful outcome.
+        </p>
+      </div>
+    </div>
+    <details class="answer-detail">
+      <summary>Read the technical explanation and FAQ</summary>
+      <div class="answer-body">
+        <h3>Why not just optimise AWS?</h3>
+        <p>
+          Optimising AWS is a real alternative, and the 2024 post does not test
+          it. The old pipeline was genuinely expensive for a specific reason:
+          Lambda Event Functions bill duration for the wall-clock time the code
+          runs, and the receptors spent most of that time waiting on network I/O
+          to the next hop. The post reports over 70% of wall time in I/O. A
+          smaller number of hops, a cheaper queue, or AWS’s own newer execution
+          models could reduce that bill without changing provider, and none of
+          that counterfactual appears in the comparison.
+        </p>
+        <p>
+          Current AWS options are not interchangeable. Lambda Event Functions
+          charge for requests plus GB-seconds of allocated memory across the
+          function’s duration. Lambda Web Functions charge for requests, active
+          CPU time, the memory each execution environment consumes for as long
+          as it runs, and data transfer. Workers Standard charges for requests
+          and CPU milliseconds with a $5 monthly account minimum. Durable Objects
+          add wall-clock duration while an object is active or cannot hibernate.
+          The cheapest model depends on whether the workload waits on I/O or
+          burns CPU, so “Cloudflare” and “AWS” are the wrong units of comparison.
+        </p>
+
+        <h3>Is the 2024 example still relevant?</h3>
+        <p>
+          As a lesson about service boundaries, yes. As a current price list, no.
+          It describes one workload in one AWS region (eu-west-1) during a
+          post-acquisition migration, estimated against Workers Paid. Several
+          billing details have moved since: Workers has an account-wide spending
+          limit that can interrupt every Worker, Durable Objects bill duration
+          and storage separately, and Analytics Engine publishes prospective
+          rates it is not currently billing. Re-check the applicable product,
+          account and region before quoting any figure.
+        </p>
+
+        <h3>Is the functionality equivalent?</h3>
+        <p>
+          The post does not establish that. It describes internal changes to
+          Workers Analytics Engine for high dimensionality, and an adaptive
+          resolution scheme that stores data at 100% down to 0.0001% and picks a
+          table per query, trading accuracy for speed. Those are Baselime’s and
+          Cloudflare’s internal arrangements, not a published customer control.
+        </p>
+        <p>
+          Public Analytics Engine documentation is narrower: three months of
+          retention, up to 250 data points per Worker invocation, 16 KB of blobs
+          per data point and a 96-byte index. It does not offer a documented
+          exact-versus-sampled query switch, an accuracy guarantee or a general
+          export path for arbitrary retention. Exactness, tolerance, retention
+          and export have to be qualified per workload before the Baselime
+          design is treated as reproducible.
+        </p>
+
+        <h3>What does the estimate leave out?</h3>
+        <p>
+          The post states its savings “do not include the total cost of
+          ownership”, and that the migration took three engineers under three
+          months. Those are the exclusions it actually names. Support and
+          commitments, dual-running, egress and inter-region traffic, training,
+          the revert path and continuing operations are not broken out, so the
+          post does not say whether each is inside or outside the daily totals.
+          A decision has to price those unknown components itself, not just the
+          destination rate.
+        </p>
+
+        <h3>Which trade-offs decide the answer?</h3>
+        <div class="table-wrap">
+          <table>
+            <caption>Trade-offs that change the outcome, and how to test them</caption>
+            <thead>
+              <tr><th scope="col">Trade-off</th><th scope="col">Why it moves the answer</th><th scope="col">What would test it</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Metering basis</td>
+                <td>I/O-bound work is charged by wall-clock duration on Event Functions and by active CPU elsewhere, so the same traffic can favour either provider.</td>
+                <td>Run one workload on both execution models and record active CPU, wall time and memory per successful request.</td>
+              </tr>
+              <tr>
+                <td>Query exactness</td>
+                <td>Whether a sampled answer is cheaper or faster depends on the billing model and query design; it is not the same product as an exact one.</td>
+                <td>A ground-truth query set with rare events, an agreed tolerance and a check that samples are disclosed.</td>
+              </tr>
+              <tr>
+                <td>Retention and export</td>
+                <td>Storage cost and usefulness both depend on how long data is queryable and whether it can leave.</td>
+                <td>Load the required retention window and perform a full export and restore.</td>
+              </tr>
+              <tr>
+                <td>State and durability</td>
+                <td>Durable Objects bill wall-clock duration while active; a separately managed state store has its own billing and failure modes, so the two are not interchangeable.</td>
+                <td>Inject retries, duplicates, reordering and a restart, then check the accepted result survives.</td>
+              </tr>
+              <tr>
+                <td>Spend guardrails</td>
+                <td>A Workers spending limit stops new invocations across the whole account and excludes other products; a per-invocation CPU cap is a different control.</td>
+                <td>Configure the intended limit and verify what stops, what keeps serving and what still bills.</td>
+              </tr>
+              <tr>
+                <td>Migration and operations</td>
+                <td>A rewrite, dual-running and on-call effort can outweigh a rate difference.</td>
+                <td>Record hours, dual-run duration, training, revert path and continuing maintenance per month.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>When should you stay where you are?</h3>
+        <p>
+          Stay when the current design already meets the requirement and the
+          saving is unproven; simplify inside the current provider when the bill
+          is dominated by avoidable hops, idle capacity or an expensive execution
+          model; go hybrid when one component genuinely needs a different runtime
+          or data location; migrate when a measured, like-for-like comparison
+          clears the migration and continuing-operation cost; and answer
+          “insufficient evidence” when the price, region, parity or usage data is
+          missing. A vendor post, including this one, does not decide it.
+        </p>
+
+        <p class="small">
+          <strong>Status of our own comparison:</strong> the bounded
+          <a href="https://github.com/loftwah/app-composer/issues/1022">#1022
+          CLOUD-COST-01</a> suite compares an owned baseline, an optimised AWS
+          design and a Cloudflare-native design on one frozen workload. It is
+          <strong>not run</strong>: no suite exists yet, so there are no measured
+          arms, no requirement-parity matrix and no savings figure. Until it
+          runs, the Baselime estimate above stays an estimate and the Creator Hub
+          readings stay measurements at small scale, not a Baselime-scale
+          benchmark. Neither 83.25% nor a preferred provider is a benchmark
+          target.
+        </p>
+        <p class="small">
+          Primary sources checked 22 November 2026:
+          <a href={baselime}>Cloudflare’s Baselime case study</a> (31 October
+          2024),
+          <a href={awsLambdaPricing}>AWS Lambda pricing</a>,
+          <a href={awsWebFunctions}>Lambda Web Functions</a>,
+          <a href={workersPricing}>Workers pricing</a>,
+          <a href={spendManagement}>Workers spending limits</a>,
+          <a href={durableObjectsPricing}>Durable Objects pricing</a>,
+          <a href={analyticsEnginePricing}>Analytics Engine pricing</a> and its
+          <a href={analyticsEngineLimits}>limits</a>. The dated table of
+          publishers, publication dates, pricing basis and exclusions is the
+          <a href={evidenceComparison}>comparison evidence brief</a>.
+        </p>
+      </div>
+    </details>
   </section>
 
   <section class="cost-section" id="reference">
@@ -233,9 +444,12 @@ const accessDocs =
       The 1M row is our assumption, not a measured run. The 15M and 100M rows
       reproduce Cloudflare’s published pricing examples. At higher volume, add
       D1 rows and storage, R2 operations and storage, Access seats and any
-      other product you choose. Current sources:
+      other product you choose. A Workers spending limit can stop new
+      invocations across every Worker in the account; it excludes the
+      subscription fee, does not cover other products, and is not the same
+      control as a per-invocation CPU limit. Current sources:
       <a href={workersPricing}>Workers pricing</a> and
-      <a href={d1Pricing}>D1 pricing</a>, reviewed 12 November 2026.
+      <a href={d1Pricing}>D1 pricing</a>, reviewed 22 November 2026.
     </p>
   </section>
 
@@ -529,6 +743,51 @@ const accessDocs =
     max-width: 80ch;
     font-size: 15px;
   }
+  .answer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    margin: 26px 0 24px;
+  }
+  .answer-grid div {
+    background: var(--color-surface);
+    padding: 20px 18px;
+  }
+  .answer-grid h3 {
+    font-size: 1.05rem;
+    margin: 0 0 8px;
+  }
+  .answer-grid p {
+    margin: 0;
+    font-size: 14px;
+    max-width: 40ch;
+    color: var(--color-muted);
+  }
+  .answer-detail {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .answer-detail summary {
+    min-height: 48px;
+    padding: 14px 18px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .answer-detail[open] summary {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .answer-body {
+    padding: 4px 18px 22px;
+  }
+  .answer-body h3 {
+    font-size: 1.15rem;
+    margin: 24px 0 8px;
+  }
+  .answer-body p {
+    max-width: 72ch;
+  }
   .cost-callout {
     display: flex;
     gap: 18px;
@@ -621,6 +880,9 @@ const accessDocs =
     .platform-columns {
       grid-template-columns: 1fr;
       gap: 28px;
+    }
+    .answer-grid {
+      grid-template-columns: 1fr;
     }
     .cost-close {
       grid-template-columns: auto minmax(0, 1fr);
