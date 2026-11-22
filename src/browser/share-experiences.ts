@@ -218,6 +218,7 @@ function mountNine(
 
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
+  const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
   const score = root.querySelector<HTMLElement>("[data-score]")!;
   const pack = root.querySelector<HTMLSelectElement>("[data-bingo-pack]")!;
   const editor = root.querySelector<HTMLTextAreaElement>("[data-custom]")!;
@@ -250,13 +251,37 @@ function mountBingo(root: HTMLElement): Controller {
     marked = new Set([12]);
     sync();
   });
+  const centre = 12;
+  const reachable = (from: number, step: number) => {
+    const horizontal = step === 1 || step === -1;
+    const row = Math.floor(from / 5);
+    for (let next = from + step; next >= 0 && next < tiles.length; next += step) {
+      if (horizontal && Math.floor(next / 5) !== row) return null;
+      if (next !== centre) return next;
+    }
+    return null;
+  };
   tiles.forEach((tile, index) => {
     tile.addEventListener("click", () => {
-      if (index === 12) return;
+      if (index === centre) return;
       if (marked.has(index)) marked.delete(index);
       else marked.add(index);
       sync();
     });
+  });
+  grid.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const step = event.key === "ArrowRight" ? 1
+      : event.key === "ArrowLeft" ? -1
+        : event.key === "ArrowDown" ? 5
+          : event.key === "ArrowUp" ? -5 : 0;
+    if (!step) return;
+    const from = tiles.indexOf(event.target as HTMLButtonElement);
+    if (from < 0) return;
+    event.preventDefault();
+    const next = reachable(from, step);
+    if (next === null) return;
+    tiles[next].focus();
   });
   editor.form?.addEventListener("submit", (event) => {
     event.preventDefault();
