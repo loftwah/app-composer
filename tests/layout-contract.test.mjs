@@ -414,6 +414,30 @@ test("measured /learn stacks its index before the reading column gets narrow", (
   );
 });
 
+test("measured /learn comparison table stacks in a narrow container and keeps table semantics", () => {
+  // #497: the 28% label column measured 87px at 320px. The fix is a
+  // component-local container query, with explicit roles holding the table
+  // relations that a display change drops in Chromium and Firefox, and column
+  // headers left in the accessibility tree.
+  const page = read("src/pages/learn.astro");
+  assert.match(page, /\.approach-compare\{container-type:inline-size\}/);
+  const start = page.indexOf("@container (width <");
+  assert.ok(start > 0, "the comparison table has its own container query");
+  const open = page.indexOf("{", start);
+  const block = page.slice(open + 1, inside(page, open));
+  assert.match(block, /\.approach-table[^{]*\{[^}]*display:\s*block/);
+  assert.match(block, /\.approach-table tbody th\{[^}]*padding:\s*0 0 6px/, "the row header stacks above its description");
+  assert.doesNotMatch(page, /\.approach-table[^{]*\{[^}]*display:\s*none/, "column headers are never hidden");
+  assert.match(
+    page,
+    /<table class="approach-table" role="table" aria-labelledby="approach-table-caption">/,
+    "the table keeps its role and caption name",
+  );
+  assert.equal((page.match(/role="columnheader"/g) ?? []).length, 2);
+  assert.equal((page.match(/role="rowheader"/g) ?? []).length, 3);
+  assert.equal((page.match(/role="cell"/g) ?? []).length, 3);
+});
+
 test("measured 320px header keeps the wordmark clear of the menu control", () => {
   const rules = rulesFor(["src/styles/product-home.css"]);
   const narrow = rules.find(
