@@ -5,6 +5,8 @@ import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {pathToFileURL} from "node:url";
 import {apps} from "../src/lib/apps.ts";
+import {appDeviceSupport} from "../src/lib/app-device-support.ts";
+import {deviceSummary} from "../src/lib/device-support.mjs";
 
 const source = readFileSync(new URL("../src/browser/launcher.ts", import.meta.url), "utf8");
 const read = path => readFileSync(new URL("../" + path, import.meta.url), "utf8");
@@ -183,6 +185,23 @@ test("the first view ranks names above descriptive mentions", () => {
   assert.equal(ranked("moderation")[0], "Here / there");
   const words = searchWords("  Create   SITE ");
   assert.deepEqual(words, ["create", "site"]);
+});
+
+test("app rows carry the shared device-support note before opening", () => {
+  const catalogue = new Map(apps.map(app => [app.id, app]));
+  const appRows = destinations.filter(entry => entry.catalogue);
+  assert.ok(appRows.length >= 8, "app rows remain in the registry");
+  for (const item of appRows) {
+    assert.ok(catalogue.has(item.catalogue), `${item.name} names a catalogue app`);
+    // Same source and wording as the library card and catalogue: confirmed,
+    // limited or not-checked-yet, never a new physical-device claim.
+    assert.equal(item.device, deviceSummary(appDeviceSupport(item.catalogue)), `${item.name} must reuse the shared device note`);
+  }
+  for (const item of destinations.filter(entry => !entry.catalogue))
+    assert.equal(item.device, undefined, `${item.name} is not an app row`);
+  const controller = read("src/browser/launcher.ts");
+  assert.match(controller, /className = "launcher-device"/, "the note is rendered as text");
+  assert.match(controller, /if \(item\.device\)/, "only app rows with a note render one");
 });
 
 test("launcher shell owns one registry and only the server-derived viewer state", () => {
