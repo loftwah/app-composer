@@ -21,7 +21,7 @@ const postText = artworkPostText(artwork, canonical);
 const files = artworkFiles(artwork);
 const primary = files[0].url;
 const primaryDownloadLabel = artwork.original ? 'Download original' : 'Download preview';
-const download = (index: number) => `/api/share-artwork-download?${new URLSearchParams({id: artwork.assetId, file: String(index), revision})}`;
+const download = (index: number | "preview") => `/api/share-artwork-download?${new URLSearchParams({id: artwork.assetId, file: String(index), revision})}`;
 const postTextFile = `${postText}\n\nImage alt text\n\n${artwork.alt}`;
 const postTextDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(postTextFile.toWellFormed())}`;
 const postTextFileName = `${artwork.assetId}-post-text.txt`;
@@ -56,6 +56,12 @@ const packageData = JSON.stringify({
     <p class="gallery-piece-category"><a href={`/share?project=${artwork.project}`}>{artworkLabel(artwork.project)}</a> · <a href={`/share?category=${artwork.category}`}>{artworkCategories[artwork.category]}</a></p>
     <h1>{artwork.title}</h1>
     <p class="gallery-credit">{artwork.credit}</p>
+    <div class="gallery-piece-actions gallery-image-actions" data-gallery-image={download("preview")} data-asset-id={artwork.assetId}>
+      <button class="button gallery-file-action" type="button" data-gallery-copy-image hidden><Copy size={17} aria-hidden="true" /> Copy image</button>
+      <button class="secondary" type="button" data-gallery-share-image hidden><Share2 size={17} aria-hidden="true" /> Share image</button>
+      <a class="button secondary" href={download(0)} download><Download size={17} aria-hidden="true" /> {primaryDownloadLabel}</a>
+    </div>
+    <div class="gallery-image-status" role="status" data-gallery-image-status></div>
     {artwork.description && <p class="gallery-description">{artwork.description}</p>}
     {signedIn ? (
       <details class="gallery-piece-section gallery-feedback" data-artwork-review open>
@@ -81,10 +87,9 @@ const packageData = JSON.stringify({
       <div class="gallery-account gallery-feedback"><strong>Signed out</strong><a href={feedbackSignIn}>Sign in to give feedback</a></div>
     )}
     <div class="gallery-piece-actions">
-      <a class="button gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {primaryDownloadLabel}</a>
       <button class="secondary" type="button" data-gallery-package={packageData} hidden><Package size={16} aria-hidden="true" /> Download post package (ZIP)</button>
       <a class="button secondary" href={path + '/palette'}>Pick colours</a>
-      <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
+      <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share link</button>
       <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
       <button class="secondary" type="button" data-gallery-copy-post hidden><Copy size={16} aria-hidden="true" /> Copy post text</button>
     </div>
