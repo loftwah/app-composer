@@ -14,6 +14,8 @@ The product promise is **Build it. Keep it running.** A person can start with a 
 
 The ServerPilot analogy describes the removal of operational friction. The wider ambition includes creation, agents and creative work: people should reach the interesting part quickly, and sound engineering should support the project as it grows. Existing blocks accelerate the work; a missing block must not prevent an agent implementing a new capability.
 
+**Across every creation type, apply the same outcome-to-excellence loop:** a person describes the result they want; Composer and their chosen agents research relevant domain standards and exemplars, define measurable and taste-based success, assemble capabilities, create, independently evaluate, iterate and hand over an inspectable owned result. The same loop should be demonstrated in an actual working app, an original music/film release and at least one game or community creation, without claiming universal autonomous quality or building a duplicate evaluation runtime. [Product contract](../PRODUCT.md#outcome-intelligence-quality-by-design); existing owners: [#21](https://github.com/loftwah/app-composer/issues/21), [#590](https://github.com/loftwah/app-composer/issues/590), [#601](https://github.com/loftwah/app-composer/issues/601).
+
 ### First flagship
 
 **An independent newcomer launches a useful app on their own accounts, manages it, returns for a meaningful functional change, and can recover and continue without depending on our running installation.**
