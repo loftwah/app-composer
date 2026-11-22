@@ -15,7 +15,7 @@ export interface WikidataPick extends CataloguePick {
   platform?: string;
 }
 
-export type WikidataKind = "film" | "game";
+export type WikidataKind = "film" | "game" | "album";
 
 const api = "https://www.wikidata.org/w/api.php";
 const userAgent = "App Composer/1.0 (https://composer.loftwah.com)";
@@ -34,6 +34,17 @@ const searchLimit = 30;
  */
 const filmTypes = new Set(["Q11424", "Q20650540"]);
 const gameTypes = new Set(["Q7889"]);
+/**
+ * Album fallback, offered only as an explicit action from the music panel's
+ * recovery area for album queries. Accepted types stay narrow: Q482994 album
+ * plus Q20853847 studio album, the one narrower subtype where many album items
+ * are typed directly instead of Q482994 (verified live 2026-11-22: Modal Soul
+ * Q3317763 and Spiritual State Q3493569 are both P31 Q482994). Compilations,
+ * live albums and every other narrower type are not offered; the panel states
+ * that coverage is partial. Results stay metadata-only: the pick is the item's
+ * source link, playback comes only from a pasted Apple Music or Spotify link.
+ */
+const albumTypes = new Set(["Q482994", "Q20853847"]);
 
 /**
  * Platform names, resolved once from each platform item's own English label or
@@ -173,7 +184,9 @@ export async function searchWikidata(
 ): Promise<WikidataPick[]> {
   const text = query.trim();
   if (text.length < 2 || text.length > 100) return [];
-  const accepted = kind === "film" ? filmTypes : gameTypes;
+  const accepted = kind === "film" ? filmTypes
+    : kind === "game" ? gameTypes
+    : albumTypes;
 
   const search = await request(new URLSearchParams({
     action: "wbsearchentities", search: text, language: "en", uselang: "en",
