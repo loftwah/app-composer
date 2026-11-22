@@ -426,6 +426,11 @@ test("measured /learn comparison table stacks in a narrow container and keeps ta
   const open = page.indexOf("{", start);
   const block = page.slice(open + 1, inside(page, open));
   assert.match(block, /\.approach-table[^{]*\{[^}]*display:\s*block/);
+  assert.match(
+    block,
+    /\.approach-table caption\{display:\s*block;width:\s*auto\}/,
+    "the caption fills the narrow container instead of shrinking to table-caption auto width",
+  );
   assert.match(block, /\.approach-table tbody th\{[^}]*padding:\s*0 0 6px/, "the row header stacks above its description");
   assert.doesNotMatch(page, /\.approach-table[^{]*\{[^}]*display:\s*none/, "column headers are never hidden");
   assert.match(
