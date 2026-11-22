@@ -89,9 +89,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
       response.headers.set(
         "content-security-policy",
         csp
-          // Catalogue search (iTunes) and Wikidata film/game metadata are the
-          // only outbound calls on this one route.
-          .replace("connect-src 'self'", "connect-src 'self' https://itunes.apple.com https://www.wikidata.org")
+          // Catalogue search (iTunes), Wikidata film/game metadata and the
+          // official Spotify oEmbed album read are the only outbound calls on
+          // this one route.
+          .replace("connect-src 'self'", "connect-src 'self' https://itunes.apple.com https://www.wikidata.org https://open.spotify.com")
           .replace("frame-src 'none'", "frame-src https://embed.music.apple.com https://open.spotify.com")
           // A cover a person picks from their device renders from a local blob:
           // URL kept in this document only, never uploaded or fetched remotely.
