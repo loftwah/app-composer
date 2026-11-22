@@ -166,6 +166,7 @@ function mountNine(
     submit: root.querySelector<HTMLButtonElement>("[data-music-submit]")!,
     status: root.querySelector<HTMLElement>("[data-music-status]")!,
     results: root.querySelector<HTMLUListElement>("[data-music-results]")!,
+    more: root.querySelector<HTMLButtonElement>("[data-music-more]")!,
     recovery: root.querySelector<HTMLElement>("[data-music-recovery]")!,
     recoveryNote: root.querySelector<HTMLElement>("[data-music-recovery-note]")!,
     recoveryApple: root.querySelector<HTMLAnchorElement>("[data-music-recovery-apple]")!,
@@ -202,6 +203,9 @@ function mountNine(
   let kind: SourceKind = "album";
   let searching: AbortController | null = null;
   let searchRun = 0;
+  /** Everything the current search returned, and how much of it is on screen. */
+  let resultPicks: SearchPick[] = [];
+  let shownResults = 0;
   let previewIndex: number | null = null;
   let previewFromSearch = false;
   let previewOpener: HTMLElement | null = null;
@@ -525,12 +529,24 @@ function mountNine(
     if (previewFromSearch) closePreview(false);
   }
 
-  function renderResults(picks: SearchPick[]) {
-    music.results.replaceChildren();
-    picks.slice(0, 12).forEach((pick) => {
+  const resultPage = 12;
+
+  /** The status line counts what came back, not what fits on screen. */
+  function resultNote() {
+    const total = resultPicks.length;
+    const shown = Math.min(shownResults, total);
+    const counts = total === 1 ? "One result" : `${total} results`;
+    return `${counts}${shown < total ? `. Showing the first ${shown}` : ""}. Choose one to fill exhibit ${target + 1}.`;
+  }
+
+  /** Rows append in pages, so a wider list keeps focus on Show more and leaves
+   * an open inline preview alone instead of rebuilding what is already there. */
+  function appendResultRows(picks: SearchPick[]): HTMLButtonElement | null {
+    let firstChoice: HTMLButtonElement | null = null;
+    for (const pick of picks) {
       const source = sourceLink(pick.href);
       const name = entry(pick.title, 80);
-      if (!source || !name) return;
+      if (!source || !name) continue;
       const artist = entry(pick.artist, 60);
       const year = yearOf(pick.year);
       const playable = musicPreview(pick.href);
@@ -548,6 +564,7 @@ function mountNine(
       button.append(heading, detail);
       button.addEventListener("click", () => fillFromPick(pick));
       row.append(button);
+      if (!firstChoice) firstChoice = button;
       if (playable) {
         row.classList.add("has-preview");
         const preview = document.createElement("button");
@@ -570,8 +587,38 @@ function mountNine(
         row.append(open);
       }
       music.results.append(row);
-    });
+    }
+    return firstChoice;
+  }
+
+  /** Show the next page of the same response; never refetch or re-render.
+   * An explicit reveal focuses the first new choice; the initial render passes
+   * no flag so it never scrolls away from the search. */
+  function revealResults(reveal = false) {
+    const next = resultPicks.slice(shownResults, shownResults + resultPage);
+    shownResults += next.length;
+    const firstChoice = appendResultRows(next);
+    const remaining = shownResults < resultPicks.length;
+    music.more.hidden = !remaining;
     music.results.hidden = !music.results.childElementCount;
+    note(resultNote());
+    if (reveal) firstChoice?.focus({ preventScroll: true });
+  }
+
+  function renderResults(picks: SearchPick[]) {
+    resultPicks = picks;
+    shownResults = 0;
+    music.results.replaceChildren();
+    revealResults();
+  }
+
+  function clearResults() {
+    resultPicks = [];
+    shownResults = 0;
+    music.more.hidden = true;
+    music.results.hidden = true;
+    music.results.replaceChildren();
+    closeSearchPreview();
   }
 
   function fillFromPick(pick: SearchPick) {
@@ -622,9 +669,7 @@ function mountNine(
     searching = controller;
     const run = ++searchRun;
     music.submit.disabled = true;
-    music.results.hidden = true;
-    music.results.replaceChildren();
-    closeSearchPreview();
+    clearResults();
     hideRecovery();
     note(wiki ? `Searching Wikidata ${kindLabel} for “${query}”…`
       : `Searching ${store} ${kindLabel} for “${query}”…`);
@@ -647,7 +692,6 @@ function mountNine(
       }
       renderResults(usable);
       offerRecovery();
-      note(`${usable.length === 1 ? "One result" : `${usable.length} results`}. Choose one to fill exhibit ${target + 1}.`);
     } catch (error) {
       if (run !== searchRun || controller.signal.aborted) return;
       // A Wikidata rate limit is worth its own words: show it and wait for the
@@ -729,13 +773,15 @@ function mountNine(
     event.preventDefault();
     void runSearch();
   });
+  music.more.addEventListener("click", () => {
+    if (shownResults >= resultPicks.length) return;
+    revealResults(true);
+  });
   function clearSearch() {
     searching?.abort();
     searchRun += 1;
     music.submit.disabled = false;
-    music.results.hidden = true;
-    music.results.replaceChildren();
-    closeSearchPreview();
+    clearResults();
     hideRecovery();
     note("");
   }

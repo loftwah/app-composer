@@ -62,7 +62,7 @@ test('uses the requested storefront and keeps only album metadata and exact cano
   t.mock.method(globalThis, 'fetch', async (url, init) => {
     assert.equal(url.origin, 'https://itunes.apple.com');
     assert.deepEqual(Object.fromEntries(url.searchParams), {
-      term: 'Discovery', media: 'music', entity: 'album', country: 'au', limit: '15',
+      term: 'Discovery', media: 'music', entity: 'album', country: 'au', limit: '30',
     });
     assert.equal(init.credentials, 'omit');
     return Response.json({ results: [row, row] });
@@ -70,6 +70,23 @@ test('uses the requested storefront and keeps only album metadata and exact cano
   assert.deepEqual(await searchMusic('Discovery', 'album', 'AU'), [
     { title: 'Discovery', artist: 'Daft Punk', year: 2001, href: 'https://music.apple.com/au/album/697194953' },
   ]);
+});
+
+test('asks for up to thirty song rows on the same single catalogue request', async (t) => {
+  const row = {
+    kind: 'song', trackName: 'Digital Love', artistName: 'Daft Punk', releaseDate: '2001-03-13T08:00:00Z',
+    trackViewUrl: 'https://music.apple.com/au/song/digital-love/697194960?uo=4',
+  };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      term: 'Digital Love', media: 'music', entity: 'song', country: 'au', limit: '30',
+    });
+    return Response.json({ results: [row] });
+  });
+  assert.deepEqual(await searchMusic('Digital Love', 'song', 'AU'), [
+    { title: 'Digital Love', artist: 'Daft Punk', year: 2001, href: 'https://music.apple.com/au/song/697194960' },
+  ]);
+  assert.equal(fetch.mock.callCount(), 1);
 });
 
 test('distinguishes a failed or cancelled search from an empty catalogue result', async (t) => {
