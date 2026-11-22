@@ -18,6 +18,7 @@ import {
 } from "../lib/top-nine-apps.ts";
 import {
   musicPreview, musicSearchLinks, searchMusic,
+  albumTitleApplies, appleAlbumRef, lookupAppleAlbum,
 } from "../lib/top-nine-music.ts";
 import {
   searchWikidata, type WikidataPick,
@@ -216,6 +217,8 @@ function mountNine(
   let previewOpener: HTMLElement | null = null;
   /** One local undo for the most recent move, cleared when a draft or result replaces the exhibits. */
   let lastMove: { from: number; to: number } | null = null;
+  /** Album lookups still in flight for a pasted link, one per exhibit. */
+  const pendingLookups = new Map<number, AbortController>();
 
   const note = (text: string) => { music.status.textContent = text; };
   const coverNote = (text: string) => { cover.status.textContent = text; };
@@ -338,9 +341,21 @@ function mountNine(
   }
 
   function setLink(index: number, href: string | null) {
+    if (hrefs[index] !== href) cancelLookup(index);
     hrefs[index] = href;
     if (previewIndex === index) closePreview(false);
     refreshLinks();
+  }
+
+  /** Stop a pending pasted-link lookup for one exhibit, or every exhibit. */
+  function cancelLookup(index?: number) {
+    if (index === undefined) {
+      for (const controller of pendingLookups.values()) controller.abort();
+      pendingLookups.clear();
+      return;
+    }
+    pendingLookups.get(index)?.abort();
+    pendingLookups.delete(index);
   }
 
   /** Release one exhibit's cover: revoke its object URL and drop its pixels. */
@@ -662,6 +677,50 @@ function mountNine(
     update();
   }
 
+  /** A deliberate paste of an Apple Music album link keeps the canonical link
+   * and its preview immediately, then restores the public title and artist from
+   * that exact storefront and collection ID. A miss or failure leaves the link
+   * and manual title entry alone, and only the same still-empty slot can be
+   * filled — never a typed title, a replaced link, a moved exhibit or a
+   * rebuilt board. */
+  async function fillAlbumTitle(slot: number, href: string) {
+    if (!appleAlbumRef(href)) return;
+    const controller = new AbortController();
+    pendingLookups.get(slot)?.abort();
+    pendingLookups.set(slot, controller);
+    const filled = slot + 1;
+    const untouched = () => albumTitleApplies({ href: hrefs[slot], title: objects[slot].value }, href);
+    const offer = () => {
+      if (untouched()) note(`Exhibit ${filled} keeps its Apple Music link and preview. Type its title, or search for it.`);
+    };
+    try {
+      const found = await lookupAppleAlbum(href, controller.signal);
+      if (pendingLookups.get(slot) !== controller) return;
+      pendingLookups.delete(slot);
+      if (!found) {
+        offer();
+        return;
+      }
+      if (!objects[slot].isConnected || !untouched()) return;
+      objects[slot].value = entry(found.artist ? `${found.title} · ${found.artist}` : found.title, 54);
+      refreshLinks();
+      renderPreview();
+      // Advance like an ordinary catalogue pick, but only while the selector
+      // still points here; a deliberate retarget elsewhere must be preserved.
+      if (target === slot) {
+        const empty = firstEmpty();
+        if (empty >= 0) target = empty;
+        markTarget();
+      }
+      note(`Exhibit ${filled} is ${found.title}${found.artist ? ` · ${found.artist}` : ""}. Its Apple Music link and preview stay.`);
+      update();
+    } catch {
+      if (pendingLookups.get(slot) !== controller) return;
+      pendingLookups.delete(slot);
+      offer();
+    }
+  }
+
   /** One search of the active kind. The album fallback passes wikiAlbums to
    * run the exact current term through the same Wikidata catalogue instead —
    * same two-request shape, same abort and run-token protections, never
@@ -765,6 +824,7 @@ function mountNine(
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
     discardMove();
+    cancelLookup();
     closePreview(false);
     hrefs = restoredHrefs;
     if (hrefs.some(Boolean)) music.panel.open = true;
@@ -792,6 +852,8 @@ function mountNine(
 
   /** One swap keeps an exhibit's title, canonical source link and local cover together. */
   function swapExhibits(from: number, to: number) {
+    cancelLookup(from);
+    cancelLookup(to);
     const first = objects[from].value;
     objects[from].value = objects[to].value;
     objects[to].value = first;
@@ -909,9 +971,10 @@ function mountNine(
       music.paste.select();
       return;
     }
-    const typed = Boolean(objects[target].value.trim());
-    const filled = target + 1;
-    setLink(target, source.href);
+    const slot = target;
+    const typed = Boolean(objects[slot].value.trim());
+    const filled = slot + 1;
+    setLink(slot, source.href);
     music.paste.value = "";
     if (typed) {
       const empty = firstEmpty();
@@ -920,6 +983,9 @@ function mountNine(
     }
     note(`Exhibit ${filled} has a ${source.provider} link. ${typed ? "Its title stays as you typed it." : "Add its title."}`);
     update();
+    // Only an empty exhibit needs a title; one deliberate Apple Music album
+    // paste gets one bounded exact-ID lookup after the link and preview exist.
+    if (!typed) void fillAlbumTitle(slot, source.href);
   });
   objects.forEach((input, index) => {
     input.addEventListener("paste", (event) => {
@@ -1012,6 +1078,7 @@ function mountNine(
       title.value = heading;
       objects.forEach((input, index) => { input.value = entry(items[index], 54); });
       discardMove();
+      cancelLookup();
       closePreview(false);
       hrefs = trimHrefs(snapshot.hrefs);
       if (hrefs.some(Boolean)) music.panel.open = true;
