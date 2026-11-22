@@ -26,7 +26,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
   <header class="experience-heading">
     <div>
       <h1>{experience.title}</h1>
-      <p>{experience.description}</p>
+      <p data-tot-description>{experience.description}</p>
     </div>
     <picture>
       <img src={art.replace(".jpg", "-480.webp")} width="480" height="480" alt={experience.imageDescription} fetchpriority="high" />
@@ -199,6 +199,14 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
   </section>}
 
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer five this-or-that choices">
+    <div class="tot-packs">
+      <label for="tot-pack">Starter
+        <select id="tot-pack" data-tot-pack>
+          <option value="maker">Maker rhythm</option>
+          <option value="food">Sweet or spicy</option>
+        </select>
+      </label>
+    </div>
     <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
     {thisOrThatQuestions.map(([prompt, left, right], index) => <section hidden={index > 0} class="tot-question" data-question={index}>
       <h2 tabindex="-1">{prompt}</h2>

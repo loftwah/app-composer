@@ -105,3 +105,32 @@ export const thisOrThatQuestions = [
   ["It finally works.", "Write it down while it’s fresh", "Show someone right away"],
 ] as const;
 export const thisOrThatResultTitle = "Your maker rhythm";
+
+/** #1064 food starter: five original sweet-or-spicy either-ors, all written
+ * from the point of view of someone making food for people they like. Each
+ * entry is the prompt, then the two exact choice texts, always in that order. */
+export const sweetOrSpicyQuestions = [
+  ["You have one tray left in the oven.", "Sticky cinnamon buns", "Harissa roasted cauliflower"],
+  ["A friend texts: bring a snack.", "Honey shortbread", "Chilli lime cashews"],
+  ["It’s your turn to pick the film food.", "Caramel popcorn", "Chilli salt popcorn"],
+  ["The recipe asks for one bold pinch.", "Cardamom and orange zest", "Smoked paprika and chilli"],
+  ["There’s one bite left on the shared plate.", "The honey-glazed one", "The chilli-dusted one"],
+] as const;
+export const sweetOrSpicyResultTitle = "Your sweet-or-spicy side";
+
+/** Both starters share one controller. The pack key travels in a result link
+ * so a shared result reopens the exact starter; an absent or unknown key keeps
+ * the original maker rhythm, unchanged. */
+export const thisOrThatPacks = {
+  maker: {
+    questions: thisOrThatQuestions,
+    title: thisOrThatResultTitle,
+    description: experiences["this-or-that"].description,
+  },
+  food: {
+    questions: sweetOrSpicyQuestions,
+    title: sweetOrSpicyResultTitle,
+    description: "Five original sweet-or-spicy either-ors from the kitchen. Pick a side, undo if you change your mind.",
+  },
+} as const;
+export type ThisOrThatPack = keyof typeof thisOrThatPacks;

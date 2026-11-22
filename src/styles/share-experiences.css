@@ -91,6 +91,9 @@
 }
 .door-stage button.secondary { color: var(--stage-ink); border-color: var(--stage-ink); background: transparent; }
 .experience-reset { margin-top: .75rem; }
+.tot-packs { display: flex; flex-wrap: wrap; align-items: end; gap: .6rem; margin-top: 1rem; }
+.tot-packs label { font-weight: 700; }
+.tot-packs select { min-height: 44px; margin-block: .3rem 0; }
 .tot-progress { margin: 1.25rem 0 0; font-weight: 700; }
 .tot-question {
   padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
