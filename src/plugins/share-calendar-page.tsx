@@ -71,6 +71,7 @@ import {
 import {
   shareXHandoffFilename,
   shareXHandoffMarkdown,
+  shareXIntentUrl,
 } from "../lib/share-x-handoff";
 import {
   BLUESKY_APPROVAL_REASON_LABELS,
@@ -650,6 +651,7 @@ function ArtworkXExport({
           </label>
           {draft && <p className="sc-package-caption">{draft}</p>}
           <p className="sc-hint">{asset.alt}</p>
+          <p className="sc-hint">Attach the artwork and add its alt text in X, then review and post when ready.</p>
           <p className="sc-hint">
             <a
               href={asset.renditionUrl}
@@ -671,6 +673,16 @@ function ArtworkXExport({
             >
               Copy X draft
             </button>
+            {draft && !checking && (
+              <a
+                className="sc-download"
+                href={shareXIntentUrl(draft)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open draft in X
+              </a>
+            )}
             <button
               type="button"
               disabled={checking}
