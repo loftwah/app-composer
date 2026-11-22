@@ -151,6 +151,7 @@ function mountNine(
   const title = root.querySelector<HTMLInputElement>("[data-exhibition-title]")!;
   const objects = elements<HTMLInputElement>(root, "[data-object]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
+  const undoMove = root.querySelector<HTMLButtonElement>("[data-undo-move]")!;
   const preset = root.querySelector<HTMLSelectElement>("[data-nine-preset]")!;
   const draftStatus = root.querySelector<HTMLElement>("[data-draft-status]")!;
   const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
@@ -209,6 +210,8 @@ function mountNine(
   let previewIndex: number | null = null;
   let previewFromSearch = false;
   let previewOpener: HTMLElement | null = null;
+  /** One local undo for the most recent move, cleared when a draft or result replaces the exhibits. */
+  let lastMove: { from: number; to: number } | null = null;
 
   const note = (text: string) => { music.status.textContent = text; };
   const coverNote = (text: string) => { cover.status.textContent = text; };
@@ -715,6 +718,7 @@ function mountNine(
     objects.forEach((input, index) => { input.value = draft.items[index] ?? ""; });
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
+    discardMove();
     closePreview(false);
     hrefs = normaliseSourceLinks(draft.hrefs);
     if (hrefs.some(Boolean)) music.panel.open = true;
@@ -739,23 +743,49 @@ function mountNine(
     }
     update();
   });
+
+  /** One swap keeps an exhibit's title, canonical source link and local cover together. */
+  function swapExhibits(from: number, to: number) {
+    const first = objects[from].value;
+    objects[from].value = objects[to].value;
+    objects[to].value = first;
+    [hrefs[from], hrefs[to]] = [hrefs[to], hrefs[from]];
+    [covers[from], covers[to]] = [covers[to], covers[from]];
+    if (previewIndex === from || previewIndex === to) closePreview(false);
+    refreshLinks();
+    renderCovers();
+    renderPreview();
+    order.value = String(to);
+    update();
+  }
+
+  function rememberMove(from: number, to: number) {
+    lastMove = { from, to };
+    undoMove.disabled = false;
+  }
+
+  function discardMove() {
+    lastMove = null;
+    undoMove.disabled = true;
+  }
+
   elements<HTMLButtonElement>(root, "[data-move]").forEach((button) => {
     button.addEventListener("click", () => {
       const from = Number(order.value);
       const to = from + Number(button.dataset.move);
-      if (to < 0 || to >= objects.length) return;
-      const first = objects[from].value;
-      objects[from].value = objects[to].value;
-      objects[to].value = first;
-      [hrefs[from], hrefs[to]] = [hrefs[to], hrefs[from]];
-      [covers[from], covers[to]] = [covers[to], covers[from]];
-      if (previewIndex === from || previewIndex === to) closePreview(false);
-      refreshLinks();
-      renderCovers();
-      renderPreview();
-      order.value = String(to);
-      update();
+      if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || from >= objects.length || to < 0 || to >= objects.length) return;
+      swapExhibits(from, to);
+      rememberMove(from, to);
+      draftStatus.textContent = `Exhibit ${from + 1} moved to slot ${to + 1}. Undo last move is in the Move controls.`;
     });
+  });
+  undoMove.addEventListener("click", () => {
+    if (!lastMove) return;
+    const { from, to } = lastMove;
+    swapExhibits(to, from);
+    discardMove();
+    order.focus({ preventScroll: true });
+    draftStatus.textContent = `Move undone. Exhibit ${from + 1} is back in slot ${from + 1}.`;
   });
   cover.target.addEventListener("change", () => {
     coverTarget = Number(cover.target.value);
@@ -900,6 +930,7 @@ function mountNine(
       return;
     }
     openDraft.hidden = true;
+    discardMove();
     draftStatus.textContent = "Saved draft cleared from this device. Your exhibition is still here.";
   });
 
@@ -925,6 +956,7 @@ function mountNine(
       if (!heading || !Array.isArray(items) || items.length !== 9) return;
       title.value = heading;
       objects.forEach((input, index) => { input.value = entry(items[index], 54); });
+      discardMove();
       closePreview(false);
       hrefs = trimHrefs(snapshot.hrefs);
       if (hrefs.some(Boolean)) music.panel.open = true;
