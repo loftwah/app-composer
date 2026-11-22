@@ -125,6 +125,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <div class="experience-actions">
       <button type="button" data-download disabled={isDoor || isNine}>Download result</button>
       <button type="button" class="secondary" data-copy disabled={isDoor || isNine}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine}>Share result</button>
     </div>
     <p class="experience-note">A result link includes the result and any byline you enter. Downloads stay on your device.</p>
     <p class="experience-note" role="status" data-status></p>

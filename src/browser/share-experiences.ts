@@ -334,12 +334,15 @@ export function mountShareExperience(root: HTMLElement) {
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
   const copy = root.querySelector<HTMLButtonElement>("[data-copy]")!;
   const manual = root.querySelector<HTMLInputElement>("[data-manual-copy]")!;
+  const nativeShare = root.querySelector<HTMLButtonElement>("[data-share]")!;
   let busy = false;
+  let sharing = false;
   let controller: Controller;
   const update = () => {
     const canShare = Boolean(controller.result());
     download.disabled = busy || !canShare;
     copy.disabled = !canShare;
+    nativeShare.disabled = !canShare || sharing;
     if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
     else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
@@ -365,6 +368,20 @@ export function mountShareExperience(root: HTMLElement) {
   const result = (): ShareExperienceResult | null => {
     const snapshot = controller.result();
     return snapshot ? { ...snapshot, game, byline: entry(byline.value, 48), skin: Number(chooseSkin.value), background: root.dataset.background ?? "" } : null;
+  };
+
+  const resultLink = (snapshot: ShareExperienceResult) => {
+    const { background: _background, ...data } = snapshot;
+    const url = new URL(location.pathname, location.origin);
+    url.hash = new URLSearchParams({ result: JSON.stringify(data) }).toString();
+    return url.href;
+  };
+
+  const offerManualCopy = (href: string) => {
+    manual.value = href;
+    manual.hidden = false;
+    manual.focus();
+    manual.select();
   };
 
   download.addEventListener("click", async () => {
@@ -395,20 +412,45 @@ export function mountShareExperience(root: HTMLElement) {
   copy.addEventListener("click", async () => {
     const snapshot = result();
     if (!snapshot) return;
-    const { background: _background, ...data } = snapshot;
-    const url = new URL(location.pathname, location.origin);
-    url.hash = new URLSearchParams({ result: JSON.stringify(data) }).toString();
+    const href = resultLink(snapshot);
     manual.hidden = true;
     manual.value = "";
     try {
-      await navigator.clipboard.writeText(url.href);
+      await navigator.clipboard.writeText(href);
       status.textContent = "Result link copied.";
     } catch {
       status.textContent = "Clipboard access was denied. Copy the address from this field.";
-      manual.value = url.href;
-      manual.hidden = false;
-      manual.focus();
-      manual.select();
+      offerManualCopy(href);
     }
   });
+
+  if (typeof navigator.share === "function") {
+    nativeShare.hidden = false;
+    nativeShare.addEventListener("click", async () => {
+      if (sharing) return;
+      const snapshot = result();
+      if (!snapshot) return;
+      const href = resultLink(snapshot);
+      manual.hidden = true;
+      manual.value = "";
+      sharing = true;
+      update();
+      let outcome: string;
+      try {
+        await navigator.share({ title: snapshot.title, url: href });
+        outcome = "Handed to your device’s share sheet.";
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          outcome = "Sharing cancelled.";
+        } else {
+          outcome = "Couldn’t open the share sheet. Copy the result link below.";
+          offerManualCopy(href);
+        }
+      } finally {
+        sharing = false;
+        update();
+      }
+      status.textContent = outcome;
+    });
+  }
 }
