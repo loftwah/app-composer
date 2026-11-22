@@ -102,7 +102,7 @@ const chapterLink = (start: number) => chapterPage ? `${chapterPage}?t=${Math.fl
     const url = new URL(path, canonical);
     button.hidden = false;
     button.addEventListener('click', async () => {
-      chapters.querySelector('[data-copied]')?.removeAttribute('data-copied');
+      chapters?.querySelector('[data-copied]')?.removeAttribute('data-copied');
       try {
         await navigator.clipboard.writeText(url.href);
         fallback.hidden = true;

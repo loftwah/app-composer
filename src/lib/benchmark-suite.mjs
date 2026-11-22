@@ -8,6 +8,29 @@
 // Schema: benchmarks/suites/README.md
 export const BENCHMARK_SUITE_SCHEMA = "benchmark-suite/v1";
 
+/** @typedef {{module: string, id: string}} BenchmarkSuiteCheck */
+
+/** @typedef {{network?: unknown, credentials?: unknown, spendMicro?: unknown}} SuiteRequirements */
+/** @typedef {{status?: unknown, file?: unknown, source?: unknown, recordedAt?: unknown, note?: unknown}} SuiteEvidence */
+
+/**
+ * @typedef {Object} BenchmarkSuiteSummary
+ * @property {string} id
+ * @property {string} name
+ * @property {string} description
+ * @property {string} kind
+ * @property {boolean} providerFree
+ * @property {SuiteRequirements | null} requirements
+ * @property {BenchmarkSuiteCheck[]} checks
+ * @property {SuiteEvidence | null} evidence
+ * @property {string} evidenceState
+ * @property {string | null} evidenceNote
+ * @property {unknown[]} limits
+ */
+
+/** @typedef {{code: string, detail: string}} BenchmarkSuiteIssue */
+/** @typedef {BenchmarkSuiteSummary & {limits: string[]}} ValidBenchmarkSuiteSummary */
+
 const TOP_KEYS = new Set([
   "schema",
   "id",
@@ -55,6 +78,7 @@ function instant(value) {
 /**
  * @param {any} spec
  * @param {{results?: any, now?: number}} [options]
+ * @returns {{ok: boolean, issues: BenchmarkSuiteIssue[], summary: BenchmarkSuiteSummary | null}}
  */
 export function validateBenchmarkSuite(spec, options = {}) {
   /** @type {{code: string, detail: string}[]} */
@@ -85,7 +109,7 @@ export function validateBenchmarkSuite(spec, options = {}) {
   for (const key of unknownKeys(spec, TOP_KEYS))
     add("unknown-field", `${key} is not part of a suite spec`);
 
-  const requirements = object(spec.requirements);
+  const requirements = /** @type {SuiteRequirements | null} */ (object(spec.requirements));
   if (!requirements) add("requirements", "requirements must be an object");
   for (const key of unknownKeys(requirements, REQUIREMENT_KEYS))
     add("requirement-field", `requirements.${key} is not part of this contract`);
@@ -112,7 +136,7 @@ export function validateBenchmarkSuite(spec, options = {}) {
     seen.add(key);
   }
 
-  const evidence = object(spec.evidence);
+  const evidence = /** @type {SuiteEvidence | null} */ (object(spec.evidence));
   if (!evidence) add("evidence", "evidence must be an object");
   for (const key of unknownKeys(evidence, EVIDENCE_KEYS))
     add("evidence-field", `evidence.${key} is not part of this contract`);
@@ -201,6 +225,7 @@ export function validateBenchmarkSuite(spec, options = {}) {
 /**
  * @param {any} spec
  * @param {{results?: any, now?: number}} [options]
+ * @returns {ValidBenchmarkSuiteSummary}
  */
 export function assertBenchmarkSuite(spec, options = {}) {
   const result = validateBenchmarkSuite(spec, options);
@@ -209,5 +234,6 @@ export function assertBenchmarkSuite(spec, options = {}) {
     throw new Error(`Refusing to publish a benchmark suite pack:\n- ${detail}`);
   }
   if (!result.summary) throw new Error("Refusing to publish a benchmark suite pack: no summary");
-  return result.summary;
+  // An accepted suite has a readable string at every limit position.
+  return /** @type {ValidBenchmarkSuiteSummary} */ (result.summary);
 }
