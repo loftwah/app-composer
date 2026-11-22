@@ -5,6 +5,10 @@ import {
 import {
   renderExperienceResult, resultSizes, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
+import {
+  cleanText, clearNineDraft, readNineDraft, writeNineDraft,
+  type DraftStorage, type NineDraft,
+} from "../lib/share-experience-draft.ts";
 
 interface ResultSnapshot {
   title: string;
@@ -15,10 +19,15 @@ interface ResultSnapshot {
 interface Controller {
   result(): ResultSnapshot | null;
   restore(snapshot: Record<string, unknown>): void;
+  resumeDraft?(protectShared: boolean): void;
 }
 
-const entry = (value: unknown, max: number) =>
-  typeof value === "string" ? value.trim().replace(/\s+/g, " ").slice(0, max) : "";
+const entry = cleanText;
+const blockedStorage: DraftStorage = {
+  getItem: () => null,
+  setItem() { throw new Error("Local storage is blocked"); },
+  removeItem() { throw new Error("Local storage is blocked"); },
+};
 const positions = Array.from({ length: 5 }, (_, index) => index);
 const bingoLines = [
   ...positions.map((row) => positions.map((col) => row * 5 + col)),
@@ -97,11 +106,33 @@ function mountDoor(root: HTMLElement, update: () => void): Controller {
   };
 }
 
-function mountNine(root: HTMLElement, update: () => void): Controller {
+function mountNine(
+  root: HTMLElement,
+  update: () => void,
+  byline: HTMLInputElement,
+  chooseSkin: HTMLSelectElement,
+  pickSkin: () => void,
+): Controller {
   const title = root.querySelector<HTMLInputElement>("[data-exhibition-title]")!;
   const objects = elements<HTMLInputElement>(root, "[data-object]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
   const preset = root.querySelector<HTMLSelectElement>("[data-nine-preset]")!;
+  const draftStatus = root.querySelector<HTMLElement>("[data-draft-status]")!;
+  const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
+  const openDraft = root.querySelector<HTMLButtonElement>("[data-draft-open]")!;
+  const clearDraft = root.querySelector<HTMLButtonElement>("[data-draft-clear]")!;
+  const storage: DraftStorage = (() => {
+    try { return localStorage; } catch { return blockedStorage; }
+  })();
+
+  function applyDraft(draft: NineDraft) {
+    title.value = draft.title;
+    objects.forEach((input, index) => { input.value = draft.items[index] ?? ""; });
+    byline.value = draft.byline ?? "";
+    chooseSkin.value = String(draft.skin ?? 0);
+    pickSkin();
+    update();
+  }
 
   root.addEventListener("input", update);
   preset.addEventListener("change", () => {
@@ -120,6 +151,43 @@ function mountNine(root: HTMLElement, update: () => void): Controller {
     });
   });
 
+  saveDraft.addEventListener("click", () => {
+    const outcome = writeNineDraft(storage, {
+      title: title.value,
+      items: objects.map((input) => input.value),
+      byline: byline.value,
+      skin: Number(chooseSkin.value),
+    });
+    if (outcome === "saved") {
+      openDraft.hidden = true;
+      draftStatus.textContent = "Saved on this device. It opens next time you visit in this browser.";
+    } else if (outcome === "empty") {
+      draftStatus.textContent = "Enter a title or an exhibit before saving.";
+    } else if (outcome === "too-large") {
+      draftStatus.textContent = "This draft is too long to save here. Shorten an exhibit, then save again.";
+    } else {
+      draftStatus.textContent = "This browser blocked local storage, so nothing was saved. Keep this tab open to finish.";
+    }
+  });
+  openDraft.addEventListener("click", () => {
+    const draft = readNineDraft(storage);
+    openDraft.hidden = true;
+    if (!draft) {
+      draftStatus.textContent = "That saved draft is no longer on this device.";
+      return;
+    }
+    applyDraft(draft);
+    draftStatus.textContent = "Saved draft opened. The shared result stays in the link you followed.";
+  });
+  clearDraft.addEventListener("click", () => {
+    if (!clearNineDraft(storage)) {
+      draftStatus.textContent = "This browser would not clear the saved draft. Your exhibition is unchanged.";
+      return;
+    }
+    openDraft.hidden = true;
+    draftStatus.textContent = "Saved draft cleared from this device. Your exhibition is still here.";
+  });
+
   return {
     result: () => {
       const items = objects.map((input) => entry(input.value, 54));
@@ -133,6 +201,17 @@ function mountNine(root: HTMLElement, update: () => void): Controller {
         title.value = heading;
         objects.forEach((input, index) => { input.value = entry(items[index], 54); });
       }
+    },
+    resumeDraft(protectShared) {
+      const draft = readNineDraft(storage);
+      if (!draft) return;
+      if (protectShared) {
+        openDraft.hidden = false;
+        draftStatus.textContent = "Open your saved draft to return to your own exhibition.";
+        return;
+      }
+      applyDraft(draft);
+      draftStatus.textContent = "Draft from this device restored. Save again to update it.";
     },
   };
 }
@@ -206,6 +285,20 @@ function mountBingo(root: HTMLElement): Controller {
   };
 }
 
+function sharedResult(game: ExperienceId): { snapshot: Record<string, unknown> | null; invalid: boolean } {
+  if (location.hash.length > 10_000) return { snapshot: null, invalid: false };
+  const shared = new URLSearchParams(location.hash.slice(1)).get("result");
+  if (!shared) return { snapshot: null, invalid: false };
+  try {
+    const snapshot = JSON.parse(shared) as Record<string, unknown> | null;
+    return snapshot && snapshot.game === game
+      ? { snapshot, invalid: false }
+      : { snapshot: null, invalid: false };
+  } catch {
+    return { snapshot: null, invalid: true };
+  }
+}
+
 export function mountShareExperience(root: HTMLElement) {
   const game = root.dataset.experience as ExperienceId;
   if (!Object.hasOwn(experiences, game)) return;
@@ -226,28 +319,22 @@ export function mountShareExperience(root: HTMLElement) {
     else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
   };
-  controller = game === "pick-a-door" ? mountDoor(root, update)
-    : game === "top-nine" ? mountNine(root, update) : mountBingo(root);
-
   const pickSkin = () => { root.dataset.skin = chooseSkin.value; };
+  controller = game === "pick-a-door" ? mountDoor(root, update)
+    : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin) : mountBingo(root);
   chooseSkin.addEventListener("change", pickSkin);
-  if (location.hash.length <= 10_000) {
-    const shared = new URLSearchParams(location.hash.slice(1)).get("result");
-    if (shared) {
-      try {
-        const snapshot = JSON.parse(shared) as Record<string, unknown> | null;
-        if (snapshot && snapshot.game === game) {
-          const skin = snapshot.skin;
-          chooseSkin.value = skin === 1 || skin === 2 ? String(skin) : "0";
-          byline.value = entry(snapshot.byline, 48);
-          controller.restore(snapshot);
-          pickSkin();
-        }
-      } catch {
-        status.textContent = "This result link could not be read. You can still start a new one.";
-      }
-    }
+  const shared = sharedResult(game);
+  if (shared.snapshot) {
+    const snapshot = shared.snapshot;
+    const skin = snapshot.skin;
+    chooseSkin.value = skin === 1 || skin === 2 ? String(skin) : "0";
+    byline.value = entry(snapshot.byline, 48);
+    controller.restore(snapshot);
+    pickSkin();
+  } else if (shared.invalid) {
+    status.textContent = "This result link could not be read. You can still start a new one.";
   }
+  controller.resumeDraft?.(Boolean(shared.snapshot));
   update();
 
   const result = (): ShareExperienceResult | null => {

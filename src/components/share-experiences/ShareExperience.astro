@@ -77,6 +77,13 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <option value="">Choose a prompt</option>
       {exhibitionPrompts.map((label) => <option>{label}</option>)}
     </select>
+    <div class="experience-actions exhibition-draft">
+      <button type="button" data-draft-save>Save draft</button>
+      <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
+      <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
+    </div>
+    <p class="experience-note">Drafts stay in this browser.</p>
+    <p class="experience-note" role="status" data-draft-status></p>
   </section>}
 
   {isBingo && <section class="bingo-stage" data-play-panel aria-label="Bingo board">
