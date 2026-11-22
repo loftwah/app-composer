@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { musicPreview, musicSearchLinks, normaliseMusicPicks, searchMusic } from '../src/lib/top-nine-music.ts';
+import {
+  albumTitleApplies, appleAlbumRef, lookupAppleAlbum, musicPreview, musicSearchLinks,
+  normaliseMusicPicks, searchMusic,
+} from '../src/lib/top-nine-music.ts';
 
 const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
 const spotify = 'https://open.spotify.com/intl-au/album/6b08FpNaFFTjc1dJ9DSWfn?si=tracking';
@@ -96,4 +99,86 @@ test('distinguishes a failed or cancelled search from an empty catalogue result'
   controller.abort();
   await assert.rejects(searchMusic('Discovery', 'album', 'AU', controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
+});
+
+const modalSoul = 'https://music.apple.com/au/album/modal-soul/1078914477?uo=4';
+const modalSoulRow = {
+  wrapperType: 'collection', collectionType: 'Album', collectionId: 1078914477,
+  collectionName: 'Modal Soul', artistName: 'Nujabes',
+  collectionViewUrl: 'https://music.apple.com/au/album/modal-soul/1078914477?uo=4',
+  artworkUrl100: 'https://example.test/art.jpg', previewUrl: 'https://example.test/track.m4a',
+};
+
+test('reads a pasted canonical album link as its own storefront and collection ID', () => {
+  assert.deepEqual(appleAlbumRef(modalSoul), { country: 'au', id: '1078914477' });
+  assert.deepEqual(appleAlbumRef('https://music.apple.com/tw/album/greatest-works/1632190508'),
+    { country: 'tw', id: '1632190508' });
+  // A track inside an album, a song link, Spotify and unknown hosts are not
+  // album choices, so they never seed an album lookup.
+  for (const href of [
+    'https://music.apple.com/au/album/697194953?i=697194960',
+    'https://music.apple.com/au/song/digital-love/697194960',
+    spotify, 'https://example.test/au/album/697194953', '', null,
+  ]) {
+    assert.equal(appleAlbumRef(href), null);
+  }
+});
+
+test('looks up one exact album by link country and collection ID, never by search', async (t) => {
+  const fetches = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://itunes.apple.com');
+    assert.equal(url.pathname, '/lookup');
+    assert.deepEqual(Object.fromEntries(url.searchParams), { id: '1078914477', country: 'au' });
+    assert.equal(init.credentials, 'omit');
+    assert.equal(init.referrerPolicy, 'no-referrer');
+    assert.equal(init.redirect, 'error');
+    return Response.json({ resultCount: 1, results: [modalSoulRow] });
+  });
+  assert.deepEqual(await lookupAppleAlbum(modalSoul), { title: 'Modal Soul', artist: 'Nujabes' });
+  assert.equal(fetches.mock.callCount(), 1);
+});
+
+test('applies only a matching collection ID behind a canonical album source', async (t) => {
+  let row = modalSoulRow;
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ results: [row] }));
+  for (const variant of [
+    { ...modalSoulRow, collectionId: 697194953 },
+    { ...modalSoulRow, collectionViewUrl: 'https://music.apple.com/au/song/modal-soul/1078914477' },
+    { ...modalSoulRow, collectionViewUrl: 'https://example.test/au/album/modal-soul/1078914477' },
+    { ...modalSoulRow, collectionName: '' },
+    { ...modalSoulRow, artistName: '' },
+  ]) {
+    row = variant;
+    assert.equal(await lookupAppleAlbum(modalSoul), null);
+  }
+});
+
+test('a pasted-link lookup never fetches for a non-album link', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('a lookup must not run for this link');
+  });
+  assert.equal(await lookupAppleAlbum('https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn'), null);
+  assert.equal(await lookupAppleAlbum('https://music.apple.com/au/album/697194953?i=697194960'), null);
+  assert.equal(await lookupAppleAlbum(''), null);
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('a failed or cancelled lookup makes one request and is not retried', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', {status: 500}));
+  await assert.rejects(lookupAppleAlbum(modalSoul), /500/);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(lookupAppleAlbum(modalSoul, controller.signal), { name: 'AbortError' });
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('a late album title only lands on the same link in a still-empty slot', () => {
+  const href = 'https://music.apple.com/au/album/697194953';
+  assert.equal(albumTitleApplies({ href, title: '' }, href), true);
+  assert.equal(albumTitleApplies({ href, title: '   ' }, href), true);
+  // An authored title, a replaced link, a moved exhibit or an emptied slot
+  // always wins over the response that arrived after the change.
+  assert.equal(albumTitleApplies({ href, title: 'Discovery · Daft Punk' }, href), false);
+  assert.equal(albumTitleApplies({ href: null, title: '' }, href), false);
+  assert.equal(albumTitleApplies({ href: 'https://music.apple.com/au/album/1078914477', title: '' }, href), false);
 });

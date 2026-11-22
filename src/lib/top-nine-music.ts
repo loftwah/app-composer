@@ -1,5 +1,5 @@
 import {
-  catalogueText, catalogueYear, searchCatalogue,
+  catalogueText, catalogueYear, lookupCatalogue, searchCatalogue,
   type CataloguePick,
 } from "./itunes-catalogue.ts";
 
@@ -105,4 +105,60 @@ export async function searchMusic(
       return { title, artist, href: canonical.href, ...(year !== undefined ? { year } : {}) };
     },
   });
+}
+
+/**
+ * The storefront and album ID carried by one canonical Apple Music album
+ * link. A track-specific `?i=` link is a song choice, not an album, so it
+ * never seeds an album lookup.
+ */
+export function appleAlbumRef(value: unknown): { country: string; id: string } | null {
+  const preview = musicPreview(value);
+  if (preview?.provider !== "Apple Music") return null;
+  const url = new URL(preview.href);
+  if (url.search) return null;
+  const match = applePath.exec(url.pathname);
+  if (!match || match[2] !== "album") return null;
+  return { country: match[1], id: match[3] };
+}
+
+/**
+ * A pasted-link lookup may only fill a slot that is still empty and still
+ * holds the exact canonical link it looked up. A typed title, a replacement
+ * link or a moved exhibit therefore always wins over a late response.
+ */
+export function albumTitleApplies(
+  current: { href: string | null; title: string },
+  expectedHref: string,
+): boolean {
+  return current.href === expectedHref && !current.title.trim();
+}
+
+/**
+ * One bounded public /lookup for the exact album behind a pasted Apple Music
+ * link, in that link's own storefront. Only a row with the same collection ID
+ * and a canonical album URL is used, so a search miss or a different edition
+ * can never rename the exhibit. Artwork and audio previews are never read.
+ */
+export async function lookupAppleAlbum(
+  value: unknown,
+  signal?: AbortSignal,
+): Promise<{ title: string; artist: string } | null> {
+  const album = appleAlbumRef(value);
+  if (!album) return null;
+  const found = await lookupCatalogue({
+    ...album,
+    signal,
+    label: "Music",
+    pick: (row) => {
+      if (String(row.collectionId) !== album.id) return null;
+      const canonical = musicPreview(row.collectionViewUrl);
+      if (canonical?.provider !== "Apple Music") return null;
+      if (appleAlbumRef(canonical.href)?.id !== album.id) return null;
+      const title = catalogueText(row.collectionName);
+      const artist = catalogueText(row.artistName);
+      return title && artist ? { title, artist, href: canonical.href } : null;
+    },
+  });
+  return found ? { title: found.title, artist: found.artist } : null;
 }
