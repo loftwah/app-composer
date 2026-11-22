@@ -25,6 +25,7 @@ import {
 import {
   coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
 } from "../lib/top-nine-cover.ts";
+import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import {
   normaliseSourceLinks, sourceLink,
   type SourceKind,
@@ -1153,15 +1154,29 @@ export function mountShareExperience(root: HTMLElement) {
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
   const copy = root.querySelector<HTMLButtonElement>("[data-copy]")!;
   const manual = root.querySelector<HTMLInputElement>("[data-manual-copy]")!;
+  const alt = root.querySelector<HTMLButtonElement>("[data-copy-alt]");
+  const altManual = root.querySelector<HTMLTextAreaElement>("[data-manual-alt]");
   const nativeShare = root.querySelector<HTMLButtonElement>("[data-share]")!;
   let busy = false;
   let sharing = false;
   let controller: Controller;
+  let altCopyAttempt = 0;
+  /** A description offered after a denied copy belongs to the board it was
+   * made from, so any edit, restore or new copy clears it and invalidates a
+   * clipboard write still in flight. */
+  const clearAltFallback = () => {
+    altCopyAttempt += 1;
+    if (!altManual) return;
+    altManual.hidden = true;
+    altManual.value = "";
+  };
   const update = () => {
     const canShare = Boolean(controller.result());
     download.disabled = busy || !canShare;
     copy.disabled = !canShare;
+    if (alt) alt.disabled = !canShare;
     nativeShare.disabled = !canShare || sharing;
+    clearAltFallback();
     if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
     else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
@@ -1238,12 +1253,46 @@ export function mountShareExperience(root: HTMLElement) {
     const href = resultLink(snapshot);
     manual.hidden = true;
     manual.value = "";
+    clearAltFallback();
     try {
       await navigator.clipboard.writeText(href);
       status.textContent = "Result link copied.";
     } catch {
       status.textContent = "Clipboard access was denied. Copy the address from this field.";
       offerManualCopy(href);
+    }
+  });
+
+  /** The same completed export snapshot the image is drawn from, reduced to
+   * the text it prints: no links, covers or file detail reach the clipboard. */
+  alt?.addEventListener("click", async () => {
+    const snapshot = result();
+    if (!snapshot) return;
+    const text = topNineAltText({
+      title: snapshot.title, byline: snapshot.byline, items: snapshot.items ?? [],
+    });
+    if (!text) {
+      status.textContent = "Enter a title and nine exhibits to describe them for alt text.";
+      return;
+    }
+    manual.hidden = true;
+    manual.value = "";
+    clearAltFallback();
+    const attempt = altCopyAttempt;
+    try {
+      await navigator.clipboard.writeText(text);
+      if (attempt !== altCopyAttempt) return;
+      status.textContent = "Image description copied. Paste it into your image’s alt text.";
+    } catch {
+      if (attempt !== altCopyAttempt) return;
+      status.textContent =
+        "Clipboard access was denied. The image description is selected below — copy it with your device’s copy shortcut.";
+      if (altManual) {
+        altManual.value = text;
+        altManual.hidden = false;
+        altManual.focus();
+        altManual.select();
+      }
     }
   });
 
