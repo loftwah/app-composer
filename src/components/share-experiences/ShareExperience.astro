@@ -223,14 +223,17 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     </div>
     <div class="experience-actions">
       <button type="button" data-download disabled={isDoor || isNine}>Download result</button>
+      {isNine && <button type="button" class="secondary" data-copy-alt disabled aria-describedby="nine-alt-note">Copy image description</button>}
       <button type="button" class="secondary" data-copy disabled={isDoor || isNine}>Copy result link</button>
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine}>Share result</button>
     </div>
+    {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, an optional byline and your nine exhibit titles in top, middle and bottom rows.</p>}
     <p class="experience-note">{isNine
       ? "A result link carries your title, exhibits, source links and byline. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
+    {isNine && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
   {!isNine && <details class="experience-custom">
