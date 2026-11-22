@@ -86,7 +86,11 @@ export async function renderExperienceResult(
   const wide = format === "wide";
   const mark = await picture("/brand/composer-icon-20261022b-96.png");
   const footer = height - margin - 42;
-  const header = wide ? 120 : Math.round(height * .18);
+  // A portrait Top Nine hangs a true square 3×3: the header cedes the frame's
+  // extra height so each cell keeps its own width and square covers are not
+  // cropped to fill 4:5. The square export and other games keep their sizes.
+  const squareNine = format === "portrait" && result.game === "top-nine";
+  const header = wide ? 120 : squareNine ? footer - width + margin - 30 : Math.round(height * .18);
   ctx.fillStyle = paper;
   ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = accent;
