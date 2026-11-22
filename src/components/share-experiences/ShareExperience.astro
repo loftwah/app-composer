@@ -58,10 +58,65 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
   {isNine && <section data-play-panel class="exhibition" aria-label="Edit your exhibition">
     <label for="exhibition-title">Exhibition title</label>
     <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
+    <details class="exhibit-music" data-music-panel>
+      <summary>Find albums and songs</summary>
+      <form class="music-search" data-music-form>
+        <label for="music-target">Fill exhibit
+          <select id="music-target" data-music-target-choice>
+            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+          </select>
+        </label>
+        <div class="music-kind" role="group" aria-label="Search for">
+          <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
+          <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
+        </div>
+        <label for="music-country">Storefront
+          <select id="music-country" data-music-country>
+            <option value="AU">Australia (AU)</option>
+            <option value="NZ">New Zealand (NZ)</option>
+            <option value="US">United States (US)</option>
+            <option value="GB">United Kingdom (GB)</option>
+            <option value="CA">Canada (CA)</option>
+            <option value="IE">Ireland (IE)</option>
+            <option value="DE">Germany (DE)</option>
+            <option value="FR">France (FR)</option>
+            <option value="SE">Sweden (SE)</option>
+            <option value="JP">Japan (JP)</option>
+            <option value="BR">Brazil (BR)</option>
+            <option value="MX">Mexico (MX)</option>
+            <option value="IN">India (IN)</option>
+            <option value="ZA">South Africa (ZA)</option>
+          </select>
+        </label>
+        <label for="music-query" class="music-query">Album or song
+          <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
+        </label>
+        <button type="submit" data-music-submit>Search</button>
+      </form>
+      <p class="experience-note" role="status" data-music-status></p>
+      <ul class="music-results" aria-label="Music search results" hidden data-music-results></ul>
+      <form class="music-paste" data-music-paste-form>
+        <label for="music-paste">Or paste an Apple Music or Spotify link</label>
+        <div class="music-paste-row">
+          <input id="music-paste" type="url" inputmode="url" autocomplete="off" placeholder="https://music.apple.com/…" data-music-paste />
+          <button type="submit" class="secondary">Use link</button>
+        </div>
+      </form>
+      <ul class="music-linked" aria-label="Exhibits with music links" hidden data-music-linked></ul>
+      <section class="music-preview" aria-label="Music preview" hidden data-music-preview>
+        <div class="music-preview-head">
+          <h3 tabindex="-1" data-music-preview-title></h3>
+          <button type="button" class="secondary" data-music-preview-close>Close preview</button>
+        </div>
+        <div class="music-preview-frame" data-music-preview-frame></div>
+        <p class="experience-note"><a data-music-preview-source target="_blank" rel="noopener noreferrer nofollow">Open in the music app</a></p>
+      </section>
+    </details>
     <div class="exhibition-objects">
       {Array.from({length: 9}, (_, index) => <label>
-        <span>Exhibit {index + 1}</span>
-        <input type="text" maxlength="54" data-object={index} />
+        <span>Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
+        <input type="text" maxlength="54" data-object={index} aria-label={`Exhibit ${index + 1}`} />
+        <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
       </label>)}
     </div>
     <div class="exhibition-order">

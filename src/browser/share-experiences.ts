@@ -9,12 +9,18 @@ import {
   cleanText, clearNineDraft, readNineDraft, writeNineDraft,
   type DraftStorage, type NineDraft,
 } from "../lib/share-experience-draft.ts";
+import {
+  musicPreview, normaliseMusicPicks, searchMusic,
+  type MusicKind, type MusicPick,
+} from "../lib/top-nine-music.ts";
 
 interface ResultSnapshot {
   title: string;
   subtitle?: string;
   items?: string[];
   marked?: number[];
+  /** Canonical music links per exhibit; present only when at least one exists. */
+  hrefs?: (string | null)[];
 }
 interface Controller {
   result(): ResultSnapshot | null;
@@ -121,15 +127,238 @@ function mountNine(
   const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
   const openDraft = root.querySelector<HTMLButtonElement>("[data-draft-open]")!;
   const clearDraft = root.querySelector<HTMLButtonElement>("[data-draft-clear]")!;
+  const music = {
+    panel: root.querySelector<HTMLDetailsElement>("[data-music-panel]")!,
+    target: root.querySelector<HTMLSelectElement>("[data-music-target-choice]")!,
+    kind: elements<HTMLButtonElement>(root, "[data-music-kind]"),
+    country: root.querySelector<HTMLSelectElement>("[data-music-country]")!,
+    form: root.querySelector<HTMLFormElement>("[data-music-form]")!,
+    query: root.querySelector<HTMLInputElement>("[data-music-query]")!,
+    submit: root.querySelector<HTMLButtonElement>("[data-music-submit]")!,
+    status: root.querySelector<HTMLElement>("[data-music-status]")!,
+    results: root.querySelector<HTMLUListElement>("[data-music-results]")!,
+    pasteForm: root.querySelector<HTMLFormElement>("[data-music-paste-form]")!,
+    paste: root.querySelector<HTMLInputElement>("[data-music-paste]")!,
+    linked: root.querySelector<HTMLUListElement>("[data-music-linked]")!,
+    preview: root.querySelector<HTMLElement>("[data-music-preview]")!,
+    previewTitle: root.querySelector<HTMLElement>("[data-music-preview-title]")!,
+    previewFrame: root.querySelector<HTMLElement>("[data-music-preview-frame]")!,
+    previewClose: root.querySelector<HTMLButtonElement>("[data-music-preview-close]")!,
+    previewSource: root.querySelector<HTMLAnchorElement>("[data-music-preview-source]")!,
+  };
   const storage: DraftStorage = (() => {
     try { return localStorage; } catch { return blockedStorage; }
   })();
+  let hrefs: (string | null)[] = objects.map(() => null);
+  let target = 0;
+  let kind: MusicKind = "album";
+  let searching: AbortController | null = null;
+  let searchRun = 0;
+  let previewIndex: number | null = null;
+  let previewOpener: HTMLElement | null = null;
+
+  const note = (text: string) => { music.status.textContent = text; };
+  const firstEmpty = () => objects.findIndex((input) => !input.value.trim());
+  const storeName = () => music.country.selectedOptions[0]?.textContent?.replace(/\s*\([A-Z]{2}\)\s*$/, "").trim()
+    || music.country.value;
+  const yearOf = (value: unknown) => Number.isInteger(value) && Number(value) > 1900 && Number(value) < 3000 ? String(value) : "";
+
+  /** Canonical links for nine exhibits, and never for an exhibit with no title. */
+  function trimHrefs(value: unknown) {
+    const canonical = normaliseMusicPicks(value);
+    return objects.map((input, index) => {
+      const href = canonical[index] ?? null;
+      return href && input.value.trim() ? href : null;
+    });
+  }
+
+  function markTarget() {
+    music.target.value = String(target);
+    objects.forEach((input, index) => {
+      const active = music.panel.open && index === target;
+      input.closest("label")?.toggleAttribute("data-music-target", active);
+      const marker = root.querySelector<HTMLElement>(`[data-exhibit-filling="${index}"]`);
+      if (marker) marker.hidden = !active;
+    });
+  }
+
+  function renderLinked() {
+    music.linked.replaceChildren();
+    hrefs.forEach((href, index) => {
+      const preview = musicPreview(href);
+      if (!preview) return;
+      const row = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = `Exhibit ${index + 1} · ${preview.provider}`;
+      const show = document.createElement("button");
+      show.type = "button";
+      show.className = "secondary";
+      show.textContent = "Preview";
+      show.dataset.previewFor = String(index);
+      show.setAttribute("aria-label", `Preview the ${preview.provider} link for exhibit ${index + 1}`);
+      show.addEventListener("click", () => openPreview(index));
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "secondary";
+      remove.textContent = "Remove link";
+      remove.setAttribute("aria-label", `Remove the ${preview.provider} link from exhibit ${index + 1}`);
+      remove.addEventListener("click", () => {
+        setLink(index, null);
+        note(`Exhibit ${index + 1} keeps its title. The music link was removed.`);
+        update();
+        music.panel.querySelector("summary")?.focus({ preventScroll: true });
+      });
+      row.append(label, show, remove);
+      music.linked.append(row);
+    });
+    music.linked.hidden = !music.linked.childElementCount;
+  }
+
+  function refreshLinks() {
+    hrefs.forEach((href, index) => {
+      const preview = musicPreview(href);
+      objects[index].closest("label")?.toggleAttribute("data-has-link", Boolean(preview));
+      const state = root.querySelector<HTMLElement>(`[data-music-slot-state="${index}"]`);
+      if (!state) return;
+      state.hidden = !preview;
+      state.textContent = preview ? `${preview.provider} link` : "";
+    });
+    renderLinked();
+  }
+
+  function setLink(index: number, href: string | null) {
+    hrefs[index] = href;
+    if (previewIndex === index) closePreview(false);
+    refreshLinks();
+  }
+
+  const previewHeight = { "Apple Music": "450", Spotify: "352" } as const;
+
+  function openPreview(index: number) {
+    const preview = musicPreview(hrefs[index]);
+    if (!preview) {
+      note(`Exhibit ${index + 1} has no playable link.`);
+      return;
+    }
+    previewIndex = index;
+    previewOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const frame = document.createElement("iframe");
+    frame.src = preview.embedUrl;
+    frame.title = `${preview.provider} player for exhibit ${index + 1}: ${entry(objects[index].value, 54) || "untitled"}`;
+    frame.setAttribute("width", "100%");
+    frame.height = previewHeight[preview.provider];
+    frame.allow = "encrypted-media; fullscreen; picture-in-picture";
+    frame.referrerPolicy = "no-referrer";
+    music.previewFrame.replaceChildren(frame);
+    music.previewTitle.textContent = `${preview.provider} preview · exhibit ${index + 1}`;
+    music.previewSource.textContent = `Open in ${preview.provider}`;
+    music.previewSource.href = preview.href;
+    music.preview.hidden = false;
+    music.previewTitle.focus();
+  }
+
+  /** One preview at a time: closing removes the frame so playback stops too. */
+  function closePreview(restoreFocus = true) {
+    previewIndex = null;
+    music.previewFrame.replaceChildren();
+    music.preview.hidden = true;
+    music.previewSource.removeAttribute("href");
+    if (restoreFocus && previewOpener?.isConnected) previewOpener.focus({ preventScroll: true });
+    previewOpener = null;
+  }
+
+  function renderResults(picks: MusicPick[]) {
+    music.results.replaceChildren();
+    picks.slice(0, 12).forEach((pick) => {
+      const preview = musicPreview(pick.href);
+      const name = entry(pick.title, 80);
+      if (!preview || !name) return;
+      const artist = entry(pick.artist, 60);
+      const year = yearOf(pick.year);
+      const row = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      const heading = document.createElement("strong");
+      heading.textContent = name;
+      const detail = document.createElement("span");
+      detail.textContent = [artist, year].filter(Boolean).join(" · ") || "Artist not listed";
+      button.append(heading, detail);
+      button.addEventListener("click", () => fillFromPick(pick));
+      row.append(button);
+      music.results.append(row);
+    });
+    music.results.hidden = !music.results.childElementCount;
+  }
+
+  function fillFromPick(pick: MusicPick) {
+    const preview = musicPreview(pick.href);
+    const name = entry(pick.title, 54);
+    if (!preview || !name) {
+      note("That result has no usable Apple Music or Spotify link. Try another.");
+      return;
+    }
+    const artist = entry(pick.artist, 48);
+    const filled = target + 1;
+    objects[target].value = entry(artist ? `${name} · ${artist}` : name, 54);
+    setLink(target, preview.href);
+    const empty = firstEmpty();
+    if (empty >= 0) target = empty;
+    markTarget();
+    note(`${name} added to exhibit ${filled}.${empty >= 0 ? ` Next pick fills exhibit ${target + 1}.` : ""}`);
+    update();
+  }
+
+  async function runSearch() {
+    const query = entry(music.query.value, 80);
+    if (query.length < 2) {
+      note("Enter at least two characters to search.");
+      music.query.focus();
+      return;
+    }
+    const country = music.country.value;
+    const store = storeName();
+    const requestedKind = kind;
+    searching?.abort();
+    const controller = new AbortController();
+    searching = controller;
+    const run = ++searchRun;
+    music.submit.disabled = true;
+    music.results.hidden = true;
+    music.results.replaceChildren();
+    note(`Searching ${store} ${requestedKind === "album" ? "albums" : "songs"} for “${query}”…`);
+    try {
+      const picks = await searchMusic(query, requestedKind, country, controller.signal);
+      if (run !== searchRun || controller.signal.aborted) return;
+      const usable = picks.filter((pick) => pick && typeof pick.title === "string" && musicPreview(pick.href));
+      if (!usable.length) {
+        note(`No ${requestedKind === "album" ? "albums" : "songs"} matched “${query}” in ${store}. Try a shorter title, switch Albums or Songs, change storefront, or paste a link.`);
+        return;
+      }
+      renderResults(usable);
+      note(`${usable.length === 1 ? "One result" : `${usable.length} results`}. Choose one to fill exhibit ${target + 1}.`);
+    } catch {
+      if (run !== searchRun || controller.signal.aborted) return;
+      note("Search didn’t come back. Check your connection and try again, or paste an Apple Music or Spotify link below.");
+    } finally {
+      if (run === searchRun) {
+        searching = null;
+        music.submit.disabled = false;
+      }
+    }
+  }
 
   function applyDraft(draft: NineDraft) {
     title.value = draft.title;
     objects.forEach((input, index) => { input.value = draft.items[index] ?? ""; });
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
+    closePreview(false);
+    hrefs = normaliseMusicPicks(draft.hrefs);
+    if (hrefs.some(Boolean)) music.panel.open = true;
+    const empty = firstEmpty();
+    target = empty < 0 ? 0 : empty;
+    markTarget();
+    refreshLinks();
     pickSkin();
     update();
   }
@@ -137,6 +366,10 @@ function mountNine(
   root.addEventListener("input", update);
   preset.addEventListener("change", () => {
     if (preset.value) title.value = preset.value;
+    if (preset.value === "Nine albums I took everywhere") {
+      music.panel.open = true;
+      music.query.focus();
+    }
     update();
   });
   elements<HTMLButtonElement>(root, "[data-move]").forEach((button) => {
@@ -147,7 +380,86 @@ function mountNine(
       const first = objects[from].value;
       objects[from].value = objects[to].value;
       objects[to].value = first;
+      [hrefs[from], hrefs[to]] = [hrefs[to], hrefs[from]];
+      if (previewIndex === from || previewIndex === to) closePreview(false);
+      refreshLinks();
       order.value = String(to);
+    });
+  });
+
+  music.form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    void runSearch();
+  });
+  function clearSearch() {
+    searching?.abort();
+    searchRun += 1;
+    music.submit.disabled = false;
+    music.results.hidden = true;
+    music.results.replaceChildren();
+    note("");
+  }
+  music.query.addEventListener("input", clearSearch);
+  music.country.addEventListener("change", clearSearch);
+  music.kind.forEach((button) => {
+    button.addEventListener("click", () => {
+      kind = button.dataset.musicKind === "song" ? "song" : "album";
+      music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
+      clearSearch();
+    });
+  });
+  music.target.addEventListener("change", () => {
+    target = Number(music.target.value);
+    markTarget();
+  });
+  music.panel.addEventListener("toggle", () => {
+    if (!music.panel.open) closePreview(false);
+    markTarget();
+  });
+  music.previewClose.addEventListener("click", () => closePreview());
+  music.preview.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || music.preview.hidden) return;
+    event.preventDefault();
+    closePreview();
+  });
+
+  music.pasteForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const preview = musicPreview(music.paste.value.trim());
+    if (!preview) {
+      note("That isn’t an Apple Music or Spotify album or track link. Copy the share link from the album or song page.");
+      music.paste.focus();
+      music.paste.select();
+      return;
+    }
+    const typed = Boolean(objects[target].value.trim());
+    const filled = target + 1;
+    setLink(target, preview.href);
+    music.paste.value = "";
+    if (typed) {
+      const empty = firstEmpty();
+      if (empty >= 0) target = empty;
+      markTarget();
+    }
+    note(`Exhibit ${filled} has a ${preview.provider} link. ${typed ? "Its title stays as you typed it." : "Add its title."}`);
+    update();
+  });
+  objects.forEach((input, index) => {
+    input.addEventListener("paste", (event) => {
+      const text = event.clipboardData?.getData("text")?.trim() ?? "";
+      const preview = musicPreview(text);
+      if (!preview) return;
+      event.preventDefault();
+      const typed = input.value.trim();
+      setLink(index, preview.href);
+      if (!typed || /^https?:\/\//i.test(typed)) input.value = "";
+      note(`Exhibit ${index + 1} has a ${preview.provider} link. ${input.value.trim() ? "Its title stays as you typed it." : "Type the album or song title."}`);
+      update();
+    });
+    input.addEventListener("input", () => {
+      if (!hrefs[index] || input.value.trim()) return;
+      setLink(index, null);
+      note(`Exhibit ${index + 1} is empty, so its music link was removed.`);
     });
   });
 
@@ -157,6 +469,7 @@ function mountNine(
       items: objects.map((input) => input.value),
       byline: byline.value,
       skin: Number(chooseSkin.value),
+      hrefs: hrefs.slice(),
     });
     if (outcome === "saved") {
       openDraft.hidden = true;
@@ -188,19 +501,31 @@ function mountNine(
     draftStatus.textContent = "Saved draft cleared from this device. Your exhibition is still here.";
   });
 
+  markTarget();
+  refreshLinks();
+
   return {
     result: () => {
       const items = objects.map((input) => entry(input.value, 54));
       const heading = entry(title.value, 72);
-      return heading && items.every(Boolean) ? { title: heading, items } : null;
+      if (!heading || !items.every(Boolean)) return null;
+      const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
+      return { title: heading, items, ...(links ? { hrefs: links } : {}) };
     },
     restore(snapshot) {
       const items = snapshot.items;
       const heading = entry(snapshot.title, 72);
-      if (heading && Array.isArray(items) && items.length === 9) {
-        title.value = heading;
-        objects.forEach((input, index) => { input.value = entry(items[index], 54); });
-      }
+      if (!heading || !Array.isArray(items) || items.length !== 9) return;
+      title.value = heading;
+      objects.forEach((input, index) => { input.value = entry(items[index], 54); });
+      closePreview(false);
+      hrefs = trimHrefs(snapshot.hrefs);
+      if (hrefs.some(Boolean)) music.panel.open = true;
+      const empty = firstEmpty();
+      target = empty < 0 ? 0 : empty;
+      markTarget();
+      refreshLinks();
+      update();
     },
     resumeDraft(protectShared) {
       const draft = readNineDraft(storage);
@@ -392,7 +717,9 @@ export function mountShareExperience(root: HTMLElement) {
     status.textContent = "Preparing your image…";
     try {
       const size = Object.hasOwn(resultSizes, format.value) ? format.value as ResultFormat : "portrait";
-      const blob = await renderExperienceResult(snapshot, size);
+      // Links belong to the interactive result and result link; the image stays text-only.
+      const { hrefs: _links, ...drawn } = snapshot;
+      const blob = await renderExperienceResult(drawn, size);
       const href = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = href;
