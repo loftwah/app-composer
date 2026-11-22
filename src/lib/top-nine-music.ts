@@ -57,6 +57,26 @@ export function normaliseMusicPicks(value: unknown): (string | null)[] {
   );
 }
 
+/**
+ * Verified keyless web-player search routes, used only as a manual recovery
+ * path when the catalogue API misses the exact release or is unavailable.
+ * They open the official apps in a new tab; Composer makes no extra request.
+ */
+export function musicSearchLinks(query: string, country: string): {
+  apple: string;
+  spotify: string;
+} {
+  // The UI slices this term to a length, which can cut an emoji's surrogate
+  // pair. Canonicalise lone surrogates to U+FFFD first so encoding never throws
+  // here or in the recovery catch path that calls this helper again.
+  const term = encodeURIComponent(query.toWellFormed());
+  const storefront = /^[a-z]{2}$/i.test(country) ? country.toLowerCase() : "us";
+  return {
+    apple: `https://music.apple.com/${storefront}/search?term=${term}`,
+    spotify: `https://open.spotify.com/search/${term}`,
+  };
+}
+
 /** Read release metadata. Audio and artwork come from the official player. */
 export async function searchMusic(
   query: string,

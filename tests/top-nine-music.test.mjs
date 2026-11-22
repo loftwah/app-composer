@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { musicPreview, normaliseMusicPicks, searchMusic } from '../src/lib/top-nine-music.ts';
+import { musicPreview, musicSearchLinks, normaliseMusicPicks, searchMusic } from '../src/lib/top-nine-music.ts';
 
 const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
 const spotify = 'https://open.spotify.com/intl-au/album/6b08FpNaFFTjc1dJ9DSWfn?si=tracking';
@@ -33,6 +33,25 @@ test('ignores spoofed, credentialed, conflicting and unsupported URLs', () => {
     null, 'https://music.apple.com/au/album/697194953', null, 'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn',
     null, null, null, null, null,
   ]);
+});
+
+test('builds only the verified official search routes for the selected storefront', () => {
+  assert.deepEqual(musicSearchLinks('Nujabes Modal Soul', 'US'), {
+    apple: 'https://music.apple.com/us/search?term=Nujabes%20Modal%20Soul',
+    spotify: 'https://open.spotify.com/search/Nujabes%20Modal%20Soul',
+  });
+  assert.deepEqual(musicSearchLinks('サカナクション', 'JP'), {
+    apple: 'https://music.apple.com/jp/search?term=%E3%82%B5%E3%82%AB%E3%83%8A%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3',
+    spotify: 'https://open.spotify.com/search/%E3%82%B5%E3%82%AB%E3%83%8A%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3',
+  });
+  assert.equal(musicSearchLinks('A & B/C?', 'gb').apple,
+    'https://music.apple.com/gb/search?term=A%20%26%20B%2FC%3F');
+  assert.equal(musicSearchLinks('Modal Soul', '??').apple,
+    'https://music.apple.com/us/search?term=Modal%20Soul');
+  // A UI slice can cut a surrogate pair; encode from a well-formed term so the
+  // recovery catch path never re-throws, while intact terms stay unchanged.
+  assert.equal(musicSearchLinks('Nujabes \uD83C', 'US').apple,
+    'https://music.apple.com/us/search?term=Nujabes%20%EF%BF%BD');
 });
 
 test('uses the requested storefront and keeps only album metadata and exact canonical editions', async (t) => {

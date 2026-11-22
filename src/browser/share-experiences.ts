@@ -14,7 +14,7 @@ import {
   searchBooks,
 } from "../lib/top-nine-books.ts";
 import {
-  musicPreview, searchMusic,
+  musicPreview, musicSearchLinks, searchMusic,
 } from "../lib/top-nine-music.ts";
 import {
   coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
@@ -158,6 +158,9 @@ function mountNine(
     submit: root.querySelector<HTMLButtonElement>("[data-music-submit]")!,
     status: root.querySelector<HTMLElement>("[data-music-status]")!,
     results: root.querySelector<HTMLUListElement>("[data-music-results]")!,
+    recovery: root.querySelector<HTMLElement>("[data-music-recovery]")!,
+    recoveryApple: root.querySelector<HTMLAnchorElement>("[data-music-recovery-apple]")!,
+    recoverySpotify: root.querySelector<HTMLAnchorElement>("[data-music-recovery-spotify]")!,
     pasteForm: root.querySelector<HTMLFormElement>("[data-music-paste-form]")!,
     paste: root.querySelector<HTMLInputElement>("[data-music-paste]")!,
     linked: root.querySelector<HTMLUListElement>("[data-music-linked]")!,
@@ -197,6 +200,19 @@ function mountNine(
     || music.country.value;
   const yearOf = (value: unknown) => Number.isInteger(value) && Number(value) > 1900 && Number(value) < 3000 ? String(value) : "";
   const kindLabel = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
+
+  /** Manual recovery beside the results: ordinary links, no fetch and no new service. */
+  function showRecovery(query: string, country: string) {
+    const links = musicSearchLinks(query, country);
+    music.recoveryApple.href = links.apple;
+    music.recoverySpotify.href = links.spotify;
+    music.recovery.hidden = false;
+  }
+  function hideRecovery() {
+    music.recovery.hidden = true;
+    music.recoveryApple.removeAttribute("href");
+    music.recoverySpotify.removeAttribute("href");
+  }
 
   /** Canonical links for nine exhibits, and never for an exhibit with no title. */
   function trimHrefs(value: unknown) {
@@ -489,6 +505,8 @@ function mountNine(
     const store = storeName();
     const requestedKind: SourceKind = kind;
     const kindLabel = requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs" : "books";
+    // Books have no music-service fallback; weak, empty and failed music searches all keep it.
+    const offerRecovery = () => { if (requestedKind !== "book") showRecovery(query, country); };
     searching?.abort();
     const controller = new AbortController();
     searching = controller;
@@ -496,6 +514,7 @@ function mountNine(
     music.submit.disabled = true;
     music.results.hidden = true;
     music.results.replaceChildren();
+    hideRecovery();
     note(`Searching ${store} ${kindLabel} for “${query}”…`);
     try {
       const picks = requestedKind === "book"
@@ -505,13 +524,16 @@ function mountNine(
       const usable = picks.filter((pick) => pick && typeof pick.title === "string" && sourceLink(pick.href));
       if (!usable.length) {
         note(`No ${kindLabel} matched “${query}” in ${store}. Try a shorter title, switch the type, change storefront, or paste a link.`);
+        offerRecovery();
         return;
       }
       renderResults(usable);
+      offerRecovery();
       note(`${usable.length === 1 ? "One result" : `${usable.length} results`}. Choose one to fill exhibit ${target + 1}.`);
     } catch {
       if (run !== searchRun || controller.signal.aborted) return;
       note("Search didn’t come back. Check your connection and try again, or paste an Apple Music, Spotify or Apple Books link below.");
+      offerRecovery();
     } finally {
       if (run === searchRun) {
         searching = null;
@@ -589,6 +611,7 @@ function mountNine(
     music.submit.disabled = false;
     music.results.hidden = true;
     music.results.replaceChildren();
+    hideRecovery();
     note("");
   }
   music.query.addEventListener("input", clearSearch);

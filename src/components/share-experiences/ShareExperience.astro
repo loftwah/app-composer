@@ -96,6 +96,13 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       </form>
       <p class="experience-note" role="status" data-music-status></p>
       <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
+      <div class="music-recovery" data-music-recovery hidden>
+        <p class="experience-note">Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.</p>
+        <div class="music-recovery-links">
+          <a data-music-recovery-apple target="_blank" rel="noopener noreferrer nofollow">Search this on Apple Music</a>
+          <a data-music-recovery-spotify target="_blank" rel="noopener noreferrer nofollow">Search this on Spotify</a>
+        </div>
+      </div>
       <form class="music-paste" data-music-paste-form>
         <label for="music-paste">Or paste an Apple Music, Spotify or Apple Books link</label>
         <div class="music-paste-row">
