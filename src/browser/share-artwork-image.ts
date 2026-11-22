@@ -35,10 +35,10 @@ export function mountArtworkImageActions(piece: HTMLElement, signal?: AbortSigna
   const name = actions?.dataset.assetId;
   if (!url || !name || !copy || !share || !status) return;
 
-  const canShareImage = Boolean(navigator.share && navigator.canShare?.({
+  const canShareImage = Boolean(typeof navigator.share === "function" && navigator.canShare?.({
     files: [new File([], "artwork.png", { type: "image/png" })],
   }));
-  copy.hidden = !(navigator.clipboard?.write && typeof ClipboardItem === "function");
+  copy.hidden = typeof navigator.clipboard?.write !== "function" || typeof ClipboardItem !== "function";
   share.hidden = !canShareImage;
 
   let pending: Promise<File> | undefined;
