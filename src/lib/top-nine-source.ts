@@ -1,17 +1,20 @@
 // One typed source link per Top Nine exhibit. Apple Music and Spotify links
-// also play in the official embed; Apple Books links are source links only —
-// they never claim playback or a reading preview.
+// also play in the official embed; Apple Books and App Store links are source
+// links only — they never claim playback, a reading preview or provider media.
 
+import { appSource } from "./top-nine-apps.ts";
 import { bookSource } from "./top-nine-books.ts";
 import { musicPreview } from "./top-nine-music.ts";
 
-export type SourceProvider = "Apple Music" | "Spotify" | "Apple Books";
-/** What the Find titles panel searches: the two music kinds, or books. */
-export type SourceKind = "album" | "song" | "book";
+export type SourceProvider = "Apple Music" | "Spotify" | "Apple Books" | "App Store";
+/** What the Find titles panel searches: the two music kinds, or books, or apps. */
+export type SourceKind = "album" | "song" | "book" | "app";
 
 export function sourceLink(value: unknown): { href: string; provider: SourceProvider } | null {
   const music = musicPreview(value);
   if (music) return music;
+  const app = appSource(value);
+  if (app) return { href: app, provider: "App Store" };
   const href = bookSource(value);
   return href ? { href, provider: "Apple Books" } : null;
 }

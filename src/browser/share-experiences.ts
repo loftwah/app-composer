@@ -14,6 +14,9 @@ import {
   searchBooks,
 } from "../lib/top-nine-books.ts";
 import {
+  searchApps,
+} from "../lib/top-nine-apps.ts";
+import {
   musicPreview, musicSearchLinks, searchMusic,
 } from "../lib/top-nine-music.ts";
 import {
@@ -242,15 +245,17 @@ function mountNine(
       const row = document.createElement("li");
       const label = document.createElement("span");
       label.textContent = `Exhibit ${index + 1} · ${name} · ${source.provider}`;
+      const openIn = source.provider === "Apple Books" ? "Open in Apple Books"
+        : source.provider === "App Store" ? "Open in the App Store" : null;
       const open: HTMLAnchorElement | HTMLButtonElement =
-        source.provider === "Apple Books" ? document.createElement("a") : document.createElement("button");
-      open.className = source.provider === "Apple Books" ? "button secondary" : "secondary";
-      if (source.provider === "Apple Books") {
+        openIn ? document.createElement("a") : document.createElement("button");
+      open.className = openIn ? "button secondary" : "secondary";
+      if (openIn) {
         (open as HTMLAnchorElement).href = source.href;
         (open as HTMLAnchorElement).target = "_blank";
         (open as HTMLAnchorElement).rel = "noopener noreferrer nofollow";
-        open.textContent = "Open in Apple Books";
-        open.setAttribute("aria-label", `Open the Apple Books link for exhibit ${index + 1} in a new tab`);
+        open.textContent = openIn;
+        open.setAttribute("aria-label", `Open the ${source.provider} link for exhibit ${index + 1} in a new tab`);
       } else {
         (open as HTMLButtonElement).type = "button";
         open.textContent = "Preview";
@@ -420,8 +425,9 @@ function mountNine(
   function openPreview(index: number) {
     const preview = musicPreview(hrefs[index]);
     if (!preview) {
+      const provider = sourceLink(hrefs[index])?.provider;
       note(hrefs[index]
-        ? `Exhibit ${index + 1} has an Apple Books source link. Open it in Apple Books — books have no player here.`
+        ? `Exhibit ${index + 1} has a ${provider} source link. Open it there — it has no player here.`
         : `Exhibit ${index + 1} has no playable link.`);
       return;
     }
@@ -480,7 +486,7 @@ function mountNine(
     const source = sourceLink(pick.href);
     const name = entry(pick.title, 54);
     if (!source || !name) {
-      note("That result has no usable Apple Music, Spotify or Apple Books link. Try another.");
+      note("That result has no usable Apple Music, Spotify, Apple Books or App Store link. Try another.");
       return;
     }
     const artist = entry(pick.artist, 48);
@@ -504,9 +510,12 @@ function mountNine(
     const country = music.country.value;
     const store = storeName();
     const requestedKind: SourceKind = kind;
-    const kindLabel = requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs" : "books";
-    // Books have no music-service fallback; weak, empty and failed music searches all keep it.
-    const offerRecovery = () => { if (requestedKind !== "book") showRecovery(query, country); };
+    const kindLabel =
+      requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
+      : requestedKind === "book" ? "books" : "apps";
+    // Books and apps have no music-service fallback; weak, empty and failed
+    // searches keep them straight to the retry message.
+    const offerRecovery = () => { if (requestedKind !== "book" && requestedKind !== "app") showRecovery(query, country); };
     searching?.abort();
     const controller = new AbortController();
     searching = controller;
@@ -519,6 +528,8 @@ function mountNine(
     try {
       const picks = requestedKind === "book"
         ? await searchBooks(query, country, controller.signal)
+        : requestedKind === "app"
+        ? await searchApps(query, country, controller.signal)
         : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
       const usable = picks.filter((pick) => pick && typeof pick.title === "string" && sourceLink(pick.href));
@@ -532,7 +543,7 @@ function mountNine(
       note(`${usable.length === 1 ? "One result" : `${usable.length} results`}. Choose one to fill exhibit ${target + 1}.`);
     } catch {
       if (run !== searchRun || controller.signal.aborted) return;
-      note("Search didn’t come back. Check your connection and try again, or paste an Apple Music, Spotify or Apple Books link below.");
+      note("Search didn’t come back. Check your connection and try again, or paste an Apple Music, Spotify, Apple Books or App Store link below.");
       offerRecovery();
     } finally {
       if (run === searchRun) {
@@ -619,7 +630,7 @@ function mountNine(
   music.kind.forEach((button) => {
     button.addEventListener("click", () => {
       const next = button.dataset.musicKind;
-      kind = next === "song" || next === "book" ? next : "album";
+      kind = next === "song" || next === "book" || next === "app" ? next : "album";
       music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
       clearSearch();
     });
@@ -643,7 +654,7 @@ function mountNine(
     event.preventDefault();
     const source = sourceLink(music.paste.value.trim());
     if (!source) {
-      note("That isn’t an Apple Music, Spotify or Apple Books link. Copy the share link from its page in the app or store.");
+      note("That isn’t an Apple Music, Spotify, Apple Books or App Store link. Copy the share link from its page in the app or store.");
       music.paste.focus();
       music.paste.select();
       return;

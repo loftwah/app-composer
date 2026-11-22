@@ -59,7 +59,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <label for="exhibition-title">Exhibition title</label>
     <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
     <details class="exhibit-music" data-music-panel>
-      <summary>Find albums, songs and books</summary>
+      <summary>Find albums, songs, books and apps</summary>
       <form class="music-search" data-music-form>
         <label for="music-target">Fill exhibit
           <select id="music-target" data-music-target-choice>
@@ -70,6 +70,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
           <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
           <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
           <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
+          <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
         </div>
         <label for="music-country">Storefront
           <select id="music-country" data-music-country>
@@ -89,7 +90,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
             <option value="ZA">South Africa (ZA)</option>
           </select>
         </label>
-        <label for="music-query" class="music-query">Album, song or book
+        <label for="music-query" class="music-query">Album, song, book or app
           <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
         </label>
         <button type="submit" data-music-submit>Search</button>
@@ -104,7 +105,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         </div>
       </div>
       <form class="music-paste" data-music-paste-form>
-        <label for="music-paste">Or paste an Apple Music, Spotify or Apple Books link</label>
+        <label for="music-paste">Or paste an Apple Music, Spotify, Apple Books or App Store link</label>
         <div class="music-paste-row">
           <input id="music-paste" type="url" inputmode="url" autocomplete="off" placeholder="https://music.apple.com/…" data-music-paste />
           <button type="submit" class="secondary">Use link</button>

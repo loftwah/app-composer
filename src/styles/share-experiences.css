@@ -143,7 +143,7 @@
 .music-search { display: flex; flex-wrap: wrap; align-items: end; gap: .55rem; margin-top: .8rem; }
 .music-search label, .music-paste label { margin: 0; color: inherit; }
 .music-search input, .music-search select { margin-block: .3rem 0; }
-.music-kind { display: flex; gap: .3rem; }
+.music-kind { display: flex; flex-wrap: wrap; gap: .3rem; }
 .share-experience .music-kind button {
   min-height: 44px; padding: 8px 14px;
   background: transparent; color: inherit; border: 1px solid var(--color-control-border);

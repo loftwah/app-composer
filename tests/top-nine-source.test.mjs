@@ -6,8 +6,9 @@ const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
 const spotify = 'https://open.spotify.com/intl-au/album/6b08FpNaFFTjc1dJ9DSWfn?si=tracking';
 const book = 'https://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834?uo=4';
 const graphic = 'https://books.apple.com/us/book/a-wizard-of-earthsea-a-graphic-novel/id6526483806?uo=4';
+const app = 'https://apps.apple.com/au/app/obsidian-connected-notes/id1557175442?uo=4';
 
-test('one resolver types all three supported source providers', () => {
+test('one resolver types all four supported source providers', () => {
   assert.equal(sourceLink(apple)?.provider, 'Apple Music');
   assert.equal(sourceLink(apple)?.href, 'https://music.apple.com/au/album/697194953');
   assert.equal(sourceLink(spotify)?.provider, 'Spotify');
@@ -17,6 +18,8 @@ test('one resolver types all three supported source providers', () => {
   assert.equal(sourceLink(graphic)?.provider, 'Apple Books');
   assert.equal(sourceLink(graphic)?.href,
     'https://books.apple.com/us/book/a-wizard-of-earthsea-a-graphic-novel/id6526483806');
+  assert.equal(sourceLink(app)?.provider, 'App Store');
+  assert.equal(sourceLink(app)?.href, 'https://apps.apple.com/au/app/obsidian-connected-notes/id1557175442');
 });
 
 test('canonical links round-trip unchanged so save, share and reopen keep them', () => {
@@ -24,6 +27,7 @@ test('canonical links round-trip unchanged so save, share and reopen keep them',
     'https://music.apple.com/au/album/697194953',
     'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn',
     'https://books.apple.com/gb/book/the-lathe-of-heaven/id6443080858',
+    'https://apps.apple.com/gb/app/1password-8-password-manager/id1511601750',
   ]) {
     assert.equal(sourceLink(href)?.href, href);
   }
@@ -35,6 +39,9 @@ test('canonical links round-trip unchanged so save, share and reopen keep them',
 test('unsupported, insecure and spoofed URLs stay rejected across providers', () => {
   for (const href of [
     'https://books.apple.com.example.test/us/book/a-wizard-of-earthsea/id1602695834',
+    'https://apps.apple.com.example.test/au/app/obsidian/id1557175442',
+    'https://apps.apple.com/au/developer/dynalist-inc/id1195392807?uo=4',
+    'https://apps.apple.com/au/app/obsidian',
     'https://user@books.apple.com/us/book/a-wizard-of-earthsea/id1602695834',
     'http://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834',
     'https://books.apple.com:8443/us/book/a-wizard-of-earthsea/id1602695834',
@@ -53,10 +60,12 @@ test('unsupported, insecure and spoofed URLs stay rejected across providers', ()
 });
 
 test('normalised links keep nine positional slots and drop unsupported entries', () => {
-  assert.deepEqual(normaliseSourceLinks([apple, book, 'https://example.test']), [
+  assert.deepEqual(normaliseSourceLinks([apple, book, 'https://example.test', app]), [
     'https://music.apple.com/au/album/697194953',
     'https://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834',
-    null, null, null, null, null, null, null,
+    null,
+    'https://apps.apple.com/au/app/obsidian-connected-notes/id1557175442',
+    null, null, null, null, null,
   ]);
   assert.deepEqual(normaliseSourceLinks('https://music.apple.com/au/album/1'), Array(9).fill(null));
   assert.deepEqual(normaliseSourceLinks([]), Array(9).fill(null));
