@@ -7,6 +7,7 @@ import {
   SHARE_X_HANDOFF_STATEMENT,
   shareXHandoffFilename,
   shareXHandoffMarkdown,
+  shareXIntentUrl,
 } from "../src/lib/share-x-handoff.ts";
 
 const asset = {
@@ -68,4 +69,12 @@ test("filename is a Markdown file named from the asset and version", () => {
     shareXHandoffFilename({ assetId: "plain", assetRevision: "v1 / beta" }),
     "x-handoff-plain-v1-beta.md",
   );
+});
+
+test("X composer receives the exact draft text and no separate media fields", () => {
+  const draft = 'Line one & more\n"quoted" + #hash 🌏\nhttps://composer.loftwah.com/share?q=test%20draft';
+  const url = new URL(shareXIntentUrl(draft));
+  assert.equal(url.origin, "https://x.com");
+  assert.equal(url.pathname, "/intent/post");
+  assert.deepEqual([...url.searchParams], [["text", draft]]);
 });

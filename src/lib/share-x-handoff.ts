@@ -4,6 +4,12 @@ import type { CatalogueAssetDescriptor } from "./share-calendar.ts";
 export const SHARE_X_HANDOFF_STATEMENT =
   "Manual export. Review the prepared copy and artwork before posting in X.";
 
+export function shareXIntentUrl(exportText: string): string {
+  const intent = new URL("https://x.com/intent/post");
+  intent.searchParams.set("text", exportText);
+  return intent.href;
+}
+
 export interface ShareXHandoffInput {
   caption: string;
   exportText: string;
