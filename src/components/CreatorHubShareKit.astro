@@ -1,10 +1,12 @@
 ---
 import { creatorHubMedia } from '../lib/share-examples';
+import { campaignLink } from '../lib/campaign-links';
 import { Copy, Download } from '@lucide/astro';
 
 const story = 'https://composer.loftwah.com/creator-hub';
+const landing = { url: story };
 const { card, clip, poster } = creatorHubMedia;
-const sourceLink = (source: string) => story + '?' + new URLSearchParams({
+const sourceLink = (source: string) => campaignLink(landing, {
   utm_source: source,
   utm_medium: 'social',
   utm_campaign: 'creator_hub',
