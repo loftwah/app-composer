@@ -48,6 +48,44 @@ extra release ceremony. `scripts/deploy.mjs` fails in under a second when the
 launcher selected an unsupported Node line, instead of spending 46s in checks
 before reporting it.
 
+## Cloudflare Oxlint pilot, 22 November 2026
+
+The isolated pilot used Composer source `9a13fef3450e08ff88b46d762948074ce963ea51`
+on arm64 macOS with Node 26.13.1 and TypeScript 6.0.3. The disposable
+installation used pnpm 12.8.1 with install scripts disabled and exact pins
+`@cloudflare/oxlint-config@0.1.0`, `oxlint@1.94.0` and
+`tsrs@0.25.0-ts7.1.0-beta`. The lockfile SHA-256 was
+`fcf51ad538768d816bc0ef6912e69c58152fd81add0758fc8cde01eef1f0b256`.
+[Issue #1041](https://github.com/loftwah/app-composer/issues/1041)
+
+| Check | Three warm runs, wall time and peak RSS | Observed coverage |
+| --- | --- | --- |
+| `pnpm lint` | 1.94–2.06s, 481–517 MiB | Passed the current semantic and generated-source lint scope. |
+| `pnpm exec astro check` | 13.01–14.89s, 2,131–3,423 MiB | Zero errors across 963 files after generating the ignored inputs. |
+| Plain Oxlint | 0.05s, 72 MiB | One unused launcher function in the seven-file comparison. |
+| Cloudflare preset with tsrs lint | 0.26–0.34s, 267–277 MiB | 132 brace-style reports and five legitimate console uses, alongside checked type-boundary findings. |
+| Preset with tsrs `--type-check` | 0.48–0.50s, 534–535 MiB | Two extra compiler diagnostics under the site template excluded by the Composer TypeScript config. |
+
+The sample was `src/worker.ts`, `src/middleware.ts`, `src/pages/api/media-agent.ts`,
+`src/browser/launcher.ts`, `src/plugins/miniapps/share-card.tsx`,
+`scripts/check-fast.mjs` and `src/components/AppLauncher.astro`. The preset
+used `defineConfig({ ...cloudflare })`, the isolated tsrs binary on `PATH`,
+and `oxlint --disable-nested-config -c <isolated-config> <sample>` from the
+checkout root. Add `--type-check` to reproduce the compiler comparison.
+The bundled preset requires the root config for type-aware mode and rejects
+parent-relative file arguments. [Cloudflare preset instructions](https://github.com/cloudflare/oxlint-config#usage)
+
+Temporary fixtures proved the preset detects floating promises, misused async
+callbacks, unsafe `any` and incomplete union handling. Astro caught the seeded
+`.astro` type error, and Oxlint skipped the file. The preset caught an undefined
+JavaScript variable. The unresolved JavaScript import went undetected by the
+evaluated commands.
+
+The full preset and beta compiler gate are deferred. The measured promise,
+unsafe-value and exhaustiveness rules can be evaluated individually under
+`#175` before proposing a rule for Composer or a generated app. The current
+Astro compiler and release commands remain the project gates.
+
 ## Checked source and independent distributions
 
 The content model, calendar rules and generated-site application helpers are
