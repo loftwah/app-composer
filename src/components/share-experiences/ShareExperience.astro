@@ -12,7 +12,7 @@ import {
   personaFor,
 } from "../../lib/persona-packs.ts";
 import {
-  personaDraftOptionLimit, personaDraftPromptLimit, personaDraftTitleLimit,
+  personaDraftOptionLimit, personaDraftOutcomeLimit, personaDraftPromptLimit, personaDraftTitleLimit,
 } from "../../lib/persona-quiz.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineItemLimit, nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
@@ -453,6 +453,19 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <label for="persona-draft-title">Draft title</label>
         <input id="persona-draft-title" type="text" maxlength={personaDraftTitleLimit}
           value={`My ${persona.stageLabel} remix`} data-persona-draft-title />
+        <details class="persona-remix-names" data-persona-draft-names>
+          <summary>Rename results (optional)</summary>
+          <p class="experience-note" id="persona-remix-names-note">Leave a name blank to keep the original. A new name appears only on this private draft result and in the saved draft JSON.</p>
+          <div class="persona-remix-names-list">
+            {persona.outcomes.map((outcome) => <label class="persona-remix-name">
+              <span>{outcome.label}</span>
+              <input type="text" maxlength={personaDraftOutcomeLimit} placeholder={outcome.label}
+                aria-label={`New draft result name for ${outcome.label}`}
+                aria-describedby="persona-remix-names-note"
+                data-persona-draft-outcome={outcome.id} />
+            </label>)}
+          </div>
+        </details>
         {persona.questions.map((question, index) => <fieldset data-persona-draft-question={index}>
           <legend>Question {index + 1}</legend>
           <label>Prompt
