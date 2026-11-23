@@ -8,7 +8,7 @@ import {
 import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
-  twentyOneAnswerLimit, twentyOneAnswered, twentyOneCount, twentyOnePairs,
+  twentyOneAnswerLimit, twentyOneAnswered, twentyOneBlankPath, twentyOneCount, twentyOnePairs,
   twentyOneProgress, twentyOnePromptLimit, twentyOneStart, twentyOneSquareCardSize,
 } from '../src/lib/twenty-one-questions.ts';
 
@@ -127,6 +127,32 @@ test('the browser keeps twenty-one answers local: no link, no stored draft', () 
   assert.match(controller, /linksAllowed: \(\) => false/);
   assert.match(controller, /game === "twenty-one-questions"\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
   assert.doesNotMatch(controller, /draftKey\("twenty-one-questions"\)/, 'no draft storage exists for private answers');
+});
+
+test('the built-in invite is the bare canonical route, with no answers or result', () => {
+  assert.equal(twentyOneBlankPath, '/share/experiences/twenty-one-questions');
+  const url = new URL(twentyOneBlankPath, 'https://composer.example');
+  assert.equal(url.origin, 'https://composer.example', 'the invite is same-origin');
+  assert.equal(url.search, '');
+  assert.equal(url.hash, '');
+  for (const word of ['result', 'answer', 'byline', 'question=', 'draft', 'skin', 'game', 'custom']) {
+    assert.equal(url.href.toLowerCase().includes(word), false, `no ${word} travels with the invite`);
+  }
+
+  const controller = read('src/browser/share-experiences.ts');
+  assert.match(controller, /new URL\(twentyOneBlankPath, location\.origin\)\.href/);
+  assert.match(controller, /if \(view !== "summary"\) return;/, 'only the summary offers the invite');
+  assert.match(controller, /blankManual\.focus\(\);\s*blankManual\.select\(\);/, 'denied clipboard selects the readonly fallback');
+  assert.match(controller, /Your edited questions and answers stay in this tab/, 'an authored set is called out in the status');
+  assert.match(controller, /linksAllowed: \(\) => false/, 'private results still have no result link');
+
+  const markup = read('src/components/share-experiences/ShareExperience.astro');
+  const block = markup.match(/<div class="tot-blank" data-tq-blank>([\s\S]*?)<\/div>/);
+  assert.ok(block, 'one invite block inside the summary');
+  assert.equal([...block[1].matchAll(/data-tq-blank-copy/g)].length, 1, 'one labelled action');
+  assert.match(block[1], /Copy built-in starter link<\/button>/);
+  assert.match(block[1], /readonly aria-label="Built-in starter link" data-tq-blank-manual/);
+  assert.match(block[1], /role="status" data-tq-blank-status/);
 });
 
 test('private cards offer portrait, Story and Square, with portrait first', () => {

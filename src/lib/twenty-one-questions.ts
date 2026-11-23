@@ -1,4 +1,4 @@
-import { twentyOneQuestions } from "./share-experiences.ts";
+import { experiencePath, twentyOneQuestions } from "./share-experiences.ts";
 import { cleanText } from "./share-experience-draft.ts";
 
 /** One #1064 twenty-one-questions run. Answers are plain text held only in
@@ -10,6 +10,10 @@ export type TwentyOneAnswers = readonly string[];
 
 export const twentyOneCount = twentyOneQuestions.length;
 export const twentyOneAnswerLimit = 80;
+/** The invite to the blank built-in game is the bare canonical route on this
+ * origin: no query, fragment, answers, byline, result, authored prompts or
+ * saved state ever travel with it. */
+export const twentyOneBlankPath = experiencePath("twenty-one-questions");
 /** Answers per downloaded 4:5 card, chosen so a full twenty-one answer run
  * stays readable at large type across several cards. */
 export const twentyOneCardSize = 6;

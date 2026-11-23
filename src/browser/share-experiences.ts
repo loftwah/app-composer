@@ -11,8 +11,8 @@ import {
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne,
-  twentyOneAnswered, twentyOneAnswerLimit, twentyOneCount, twentyOnePairs,
-  twentyOnePromptLimit, twentyOneStart,
+  twentyOneAnswered, twentyOneAnswerLimit, twentyOneBlankPath, twentyOneCount,
+  twentyOnePairs, twentyOnePromptLimit, twentyOneStart,
 } from "../lib/twenty-one-questions.ts";
 import {
   renderExperienceCards, renderExperienceResult, resultSizes,
@@ -1458,6 +1458,11 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   const list = summary.querySelector<HTMLElement>("[data-tq-list]")!;
   const empty = summary.querySelector<HTMLElement>("[data-tq-empty]")!;
   const resume = root.querySelector<HTMLButtonElement>("[data-tq-resume]")!;
+  // One invite action for the built-in game, wherever the summary is shown.
+  const blankCopy = root.querySelector<HTMLButtonElement>("[data-tq-blank-copy]")!;
+  const blankManual = root.querySelector<HTMLInputElement>("[data-tq-blank-manual]")!;
+  const blankStatus = root.querySelector<HTMLElement>("[data-tq-blank-status]")!;
+  let blankCopyAttempt = 0;
   const restarts = elements<HTMLButtonElement>(root, "[data-restart]");
   const finishes = elements<HTMLButtonElement>(root, "[data-tq-finish]");
   const customPanel = root.querySelector<HTMLDetailsElement>("[data-tq-custom]")!;
@@ -1474,6 +1479,15 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   /** Whether the active set differs from the built-in starter, for the quiet
    * progress marker. */
   let authored = false;
+
+  /** An invite belongs to one summary view. Leaving it, replaying or applying
+   * a set retires any visible fallback field and an in-flight clipboard write. */
+  function clearBlankOffer() {
+    blankCopyAttempt += 1;
+    blankManual.hidden = true;
+    blankManual.value = "";
+    blankStatus.textContent = "";
+  }
 
   function syncProgress() {
     const answered = twentyOneAnswered(answers);
@@ -1494,6 +1508,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     stage.hidden = false;
     done.hidden = true;
     summary.hidden = true;
+    clearBlankOffer();
     const question = activeQuestions[current];
     prompt.textContent = question;
     answer.value = answers[current];
@@ -1508,6 +1523,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     stage.hidden = true;
     done.hidden = false;
     summary.hidden = true;
+    clearBlankOffer();
     const answered = twentyOneAnswered(answers);
     doneNote.textContent = answered === 0
       ? "You skipped every question. You can still go back and answer any of them."
@@ -1523,6 +1539,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     stage.hidden = true;
     done.hidden = true;
     summary.hidden = false;
+    clearBlankOffer();
     summaryTitle.textContent = twentyOneResultTitle;
     list.replaceChildren();
     const pairs = twentyOnePairs(answers, activeQuestions);
@@ -1596,6 +1613,31 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     showQuestion(current, true);
     update();
   });
+
+  // The invite is the bare built-in route on this origin: no answer, result,
+  // byline, authored prompt or saved state travels with it. No result link is
+  // created, and an authored set still never becomes one of its own.
+  blankCopy.addEventListener("click", async () => {
+    if (view !== "summary") return;
+    const href = new URL(twentyOneBlankPath, location.origin).href;
+    clearBlankOffer();
+    const attempt = blankCopyAttempt;
+    try {
+      await navigator.clipboard.writeText(href);
+      if (attempt !== blankCopyAttempt) return;
+      blankStatus.textContent = authored
+        ? "Built-in starter link copied. Your edited questions and answers stay in this tab."
+        : "Built-in starter link copied. It opens the built-in 21 questions with no answers.";
+    } catch {
+      if (attempt !== blankCopyAttempt) return;
+      blankStatus.textContent = "Clipboard access was denied. Copy the built-in starter link from this field.";
+      blankManual.value = href;
+      blankManual.hidden = false;
+      blankManual.focus();
+      blankManual.select();
+    }
+  });
+
   restarts.forEach((button) => button.addEventListener("click", () => {
     // A replay asks the run’s active prompts again — written or built-in —
     // with fresh answers, until Reset returns to the built-in starter.
