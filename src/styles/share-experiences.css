@@ -140,6 +140,9 @@
 .tot-result li { margin-block: .5rem; max-width: 46ch; color: inherit; }
 .tot-pick-question { display: block; font-size: .88rem; opacity: .78; margin-block-end: .1rem; }
 .tot-result li strong { font-size: 1.06rem; }
+.tot-blank { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1rem; }
+.tot-blank input { flex: 1 1 100%; min-height: 44px; }
+.tot-blank .experience-note { flex-basis: 100%; margin: 0; }
 .tq-progress { margin: 1.25rem 0 0; font-weight: 700; }
 .tq-question {
   padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;

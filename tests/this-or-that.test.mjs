@@ -7,6 +7,7 @@ import {
 import {
   pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
   thisOrThatComplete, thisOrThatCount, thisOrThatProgress, thisOrThatStart,
+  thisOrThatBlankLink, thisOrThatBlankPath, thisOrThatPackFromQuery,
   thisOrThatSummary, undoThisOrThat,
 } from '../src/lib/this-or-that.ts';
 
@@ -143,5 +144,42 @@ test('the starter survives the exact shared-snapshot encode/decode round trip', 
     assert.equal(decoded.game, 'this-or-that');
     assert.equal(decoded.pack, pack, `${pack} is not dropped by the link encode/decode`);
     assert.equal(restoreThisOrThatPack(decoded.pack), pack, `${pack} reopens the same starter`);
+  }
+});
+
+test('a blank starter link is the canonical path with at most one exact pack and no fragment', () => {
+  assert.equal(thisOrThatBlankPath, '/share/experiences/this-or-that');
+  assert.equal(thisOrThatBlankLink('maker'), '/share/experiences/this-or-that');
+  assert.equal(thisOrThatBlankLink('food'), '/share/experiences/this-or-that?pack=food');
+  for (const pack of ['maker', 'food']) {
+    const link = thisOrThatBlankLink(pack);
+    assert.equal(link.includes('#'), false, 'no result fragment travels');
+    assert.equal(link.includes('result='), false);
+    assert.equal(link.includes('byline'), false);
+    assert.equal(link.includes('answer'), false);
+    assert.deepEqual(
+      [...new URLSearchParams(link.split('?')[1] ?? '').keys()],
+      pack === 'food' ? ['pack'] : [],
+      'no query except the exact optional pack',
+    );
+  }
+});
+
+test('a blank link only reopens a starter for exactly one known pack value', () => {
+  assert.equal(thisOrThatPackFromQuery(''), 'maker');
+  assert.equal(thisOrThatPackFromQuery('?'), 'maker');
+  assert.equal(thisOrThatPackFromQuery('?pack=food'), 'food');
+  assert.equal(thisOrThatPackFromQuery('pack=maker'), 'maker');
+  // Missing, repeated, custom and malformed hints never invent a preset.
+  for (const search of [
+    '?pack=', '?pack=unknown', '?pack=custom', '?pack=food&pack=food',
+    '?pack=food&pack=maker', '?pack[]=food',
+    '?result=%7B%22game%22%3A%22this-or-that%22%7D',
+  ]) {
+    assert.equal(thisOrThatPackFromQuery(search), 'maker', `${search || 'empty'} stays Maker`);
+  }
+  for (const search of ['', '?pack=', '?pack=unknown', '?pack=custom', '?pack=food&pack=food']) {
+    assert.equal(thisOrThatBlankLink(thisOrThatPackFromQuery(search)), thisOrThatBlankPath,
+      'only one known food hint produces the pack URL');
   }
 });
