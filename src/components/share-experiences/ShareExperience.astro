@@ -11,6 +11,7 @@ import {
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
 import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
+import { pageUrlLimit } from "../../lib/top-nine-pages.ts";
 
 interface Props {
   game: ExperienceId;
@@ -193,9 +194,29 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em> Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
         <input type="text" maxlength="54" data-object={index} aria-label={`Exhibit ${index + 1}`} />
         <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
+        <span class="exhibit-page-state" data-page-slot-state={index} hidden></span>
         <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
       </label>)}
     </div>
+    <details class="exhibit-pages" data-page-panel>
+      <summary>Link a public web page to an exhibit</summary>
+      <form class="music-paste" data-page-form>
+        <label for="page-target">Page exhibit
+          <select id="page-target" data-page-target-choice>
+            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+          </select>
+        </label>
+        <label for="page-url">Exact public HTTPS page</label>
+        <div class="music-paste-row">
+          <input id="page-url" type="url" inputmode="url" maxlength={pageUrlLimit} autocomplete="off"
+            placeholder="https://example.com/thing" data-page-url />
+          <button type="submit" class="secondary">Attach page</button>
+        </div>
+      </form>
+      <p class="experience-note" role="status" data-page-status></p>
+      <ul class="music-linked" aria-label="Exhibits with web pages" hidden data-page-linked></ul>
+      <p class="experience-note">For a title you type yourself. The exact public page opens in a new tab from the board and stays out of the PNG, its image description and every provider search.</p>
+    </details>
     <div class="exhibition-order">
       <label for="exhibit-order">Move exhibit</label>
       <select id="exhibit-order" data-order-index>{Array.from({length: 9}, (_, index) =>
@@ -391,7 +412,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
         <span class="nine-preview-rank" data-nine-preview-rank={index} hidden>#{index + 1}</span>
         <img alt="" hidden data-nine-preview-cover={index} />
-        <span data-nine-preview-caption={index}>—</span>
+        <a data-nine-preview-caption={index}>—</a>
       </div>)}
     </div>}
     {isNine && <p class="experience-note nine-preview-profile" data-nine-preview-profile hidden>
@@ -441,7 +462,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note" data-share-note>{isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
-      ? "A result link carries your title, subtitle, exhibits, source links, byline, optional profile link and ranked setting. Cover images never go into the link — download the result image to keep them."
+      ? "A result link carries your title, subtitle, exhibits, source links, web page links, byline, optional profile link and ranked setting. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
