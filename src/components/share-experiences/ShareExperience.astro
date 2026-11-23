@@ -4,6 +4,7 @@ import {
   developerBingo, doorChoices, doorRooms, exhibitionPrompts,
   experiencePath, experiences, thisOrThatQuestions, type ExperienceId,
 } from "../../lib/share-experiences.ts";
+import { customThisOrThatOptionLimit, customThisOrThatPromptLimit } from "../../lib/this-or-that.ts";
 
 interface Props {
   game: ExperienceId;
@@ -204,9 +205,26 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         <select id="tot-pack" data-tot-pack>
           <option value="maker">Maker rhythm</option>
           <option value="food">Sweet or spicy</option>
+          <option value="custom">Your own questions</option>
         </select>
       </label>
     </div>
+    <details class="experience-custom tot-custom" data-tot-custom>
+      <summary>Write your own questions</summary>
+      <p class="experience-note">Your questions and answers stay in this tab. Download the finished image to keep your result.</p>
+      <form data-tot-custom-form autocomplete="off">
+        {thisOrThatQuestions.map((_, index) => (
+          <fieldset>
+            <legend>Question {index + 1}</legend>
+            <label>Prompt<input type="text" maxlength={customThisOrThatPromptLimit} data-tot-custom-prompt /></label>
+            <label>First option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-left /></label>
+            <label>Second option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-right /></label>
+          </fieldset>
+        ))}
+        <button type="submit">Play my questions</button>
+        <p class="experience-note" role="status" data-custom-status></p>
+      </form>
+    </details>
     <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
     {thisOrThatQuestions.map(([prompt, left, right], index) => <section hidden={index > 0} class="tot-question" data-question={index}>
       <h2 tabindex="-1">{prompt}</h2>
@@ -221,7 +239,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <section hidden class="door-result tot-result" data-tot-result aria-label="Your five choices">
       <h2 tabindex="-1" data-reveal-title></h2>
       <ol class="tot-picks" data-reveal-picks></ol>
-      <p class="experience-note">Every answer is yours — there’s no score and nothing is stored. Download your result or copy the link to hand someone the same five questions.</p>
+      <p class="experience-note" data-tot-reveal-note>Every answer is yours — there’s no score and nothing is stored. Download your result or copy the link to hand someone the same five questions.</p>
     </section>
     <button hidden type="button" class="secondary experience-reset" data-restart>Play again</button>
   </section>}
@@ -258,7 +276,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis}>Share result</button>
     </div>
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, an optional byline and your nine exhibit titles in top, middle and bottom rows.</p>}
-    <p class="experience-note">{isNine
+    <p class="experience-note" data-share-note>{isNine
       ? "A result link carries your title, exhibits, source links and byline. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>

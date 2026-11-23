@@ -2,6 +2,7 @@ import {
   thisOrThatPacks, thisOrThatQuestions, thisOrThatResultTitle,
   type ThisOrThatPack,
 } from "./share-experiences.ts";
+import { cleanText } from "./share-experience-draft.ts";
 
 /** One This or That run for the #1064 early slice. Picks are always a
  * contiguous prefix: a question is answered only after every earlier one, so
@@ -96,4 +97,44 @@ export function restoreThisOrThatPicks(value: unknown): ThisOrThatSide[] | null 
     picks.push(pick);
   }
   return picks;
+}
+
+/** A custom five is authored for one tab only: the same five panels retext,
+ * the same result image downloads, and no link or route is ever produced.
+ * These bounds keep a written five inside the same contract as the built-in
+ * starters — five prompts, and chosen texts whose listing stays short. */
+export const customThisOrThatPromptLimit = 72;
+export const customThisOrThatOptionLimit = 45;
+export const customThisOrThatTitle = "Your this or that";
+
+export interface ThisOrThatCustomRead {
+  /** The bounded, sanitised five, or null while any row is unusable. */
+  questions: readonly (readonly [string, string, string])[] | null;
+  /** The first row needing attention: 0–4, or -1 when the five are usable. */
+  gap: number;
+  /** Why the gap row fails: something is missing, or both options match. */
+  reason: "empty" | "same" | null;
+}
+
+/** Reads one custom five from raw editor values, five rows of prompt, left
+ * and right. Every value passes through the same visible-text sanitisation
+ * as the built-in starters, and a row plays only with a prompt and two
+ * genuinely different options — case included — so a half-written or
+ * duplicated five never reaches the stage. */
+export function readThisOrThatCustom(
+  rows: readonly (readonly [unknown, unknown, unknown])[],
+): ThisOrThatCustomRead {
+  const questions: [string, string, string][] = [];
+  for (let index = 0; index < thisOrThatCount; index += 1) {
+    const row = rows[index];
+    const prompt = cleanText(row?.[0], customThisOrThatPromptLimit);
+    const left = cleanText(row?.[1], customThisOrThatOptionLimit);
+    const right = cleanText(row?.[2], customThisOrThatOptionLimit);
+    if (!prompt || !left || !right) return { questions: null, gap: index, reason: "empty" };
+    if (left.toLowerCase() === right.toLowerCase()) {
+      return { questions: null, gap: index, reason: "same" };
+    }
+    questions.push([prompt, left, right]);
+  }
+  return { questions, gap: -1, reason: null };
 }
