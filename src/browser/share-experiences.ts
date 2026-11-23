@@ -1854,6 +1854,7 @@ export function mountShareExperience(root: HTMLElement) {
   const byline = root.querySelector<HTMLInputElement>("[data-byline]")!;
   const status = root.querySelector<HTMLElement>("[data-status]")!;
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
+  const copyPng = root.querySelector<HTMLButtonElement>("[data-copy-png]");
   const copy = root.querySelector<HTMLButtonElement>("[data-copy]")!;
   const manual = root.querySelector<HTMLInputElement>("[data-manual-copy]")!;
   const alt = root.querySelector<HTMLButtonElement>("[data-copy-alt]");
@@ -1861,6 +1862,9 @@ export function mountShareExperience(root: HTMLElement) {
   const nativeShare = root.querySelector<HTMLButtonElement>("[data-share]")!;
   const shareNote = root.querySelector<HTMLElement>("[data-share-note]");
   const shareNoteBuiltin = shareNote?.textContent ?? "";
+  // Pasting an image needs both the async Clipboard API and ClipboardItem.
+  if (copyPng && (typeof navigator.clipboard?.write !== "function" || typeof ClipboardItem !== "function"))
+    copyPng.hidden = true;
   let busy = false;
   let sharing = false;
   let controller: Controller;
@@ -1897,6 +1901,7 @@ export function mountShareExperience(root: HTMLElement) {
       manual.value = "";
     }
     download.disabled = busy || !canShare;
+    if (copyPng) copyPng.disabled = busy || !canShare;
     copy.disabled = !links || !canShare;
     if (alt) alt.disabled = !canShare;
     nativeShare.disabled = !links || !canShare || sharing;
@@ -2038,6 +2043,34 @@ export function mountShareExperience(root: HTMLElement) {
           ? "Couldn’t prepare the image. Try again."
           : "Couldn’t prepare the image. Try again, or copy the result link.";
     }
+  });
+
+  // Top Nine only: paste the very PNG Download result renders, from the same
+  // snapshot, format, skin, byline and local cover pixels. No upload or save.
+  copyPng?.addEventListener("click", async () => {
+    const snapshot = result();
+    if (!snapshot || busy) return;
+    busy = true;
+    update();
+    status.textContent = "Copying image…";
+    let message: string;
+    try {
+      // Links belong to the interactive result and result link; the pasted image stays text-only.
+      const { hrefs: _links, ...drawn } = snapshot;
+      const formatValue = format?.value;
+      const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
+      // Give Safari the PNG promise during the tap, before any export or decode wait.
+      const png = renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined);
+      void png.catch(() => {}); // The OS can reject the write before it consumes the PNG.
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+      message = "Image copied. Paste it where you want to share it.";
+    } catch {
+      message = "Clipboard unavailable. Use Download result to save the PNG.";
+    } finally {
+      busy = false;
+      update();
+    }
+    status.textContent = message;
   });
 
   copy.addEventListener("click", async () => {
