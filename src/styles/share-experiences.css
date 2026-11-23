@@ -13,6 +13,9 @@
 .experience-cinema[data-skin="2"] { --stage: #172c20; --stage-ink: #e0ffd2; --accent: #b0e762; }
 .experience-museum[data-skin="1"] { --stage: #eab36b; --stage-ink: #211610; --accent: #642342; }
 .experience-museum[data-skin="2"] { --stage: #131a26; --stage-ink: #dcedff; --accent: #b0ceff; }
+.experience-exhibition { --stage: #17251c; --stage-ink: #f4f1dc; --accent: #d8f36a; }
+.experience-exhibition[data-skin="1"] { --stage: #efe4cf; --stage-ink: #241f17; --accent: #8d3f22; }
+.experience-exhibition[data-skin="2"] { --stage: #111820; --stage-ink: #e6f0ff; --accent: #9fd4ff; }
 .experience-gig[data-skin="1"] { --stage: #124c36; --stage-ink: #fff4d7; --accent: #f9d274; }
 .experience-gig[data-skin="2"] { --stage: #e8e2d5; --stage-ink: #261d1b; --accent: #97243c; }
 .experience-billboard[data-skin="1"] { --stage: #e8ddc4; --stage-ink: #1c2a24; --accent: #b3372a; }
@@ -46,7 +49,8 @@
   object-fit: contain;
 }
 .experience-gig .experience-heading { border-bottom: 6px double var(--stage-ink); }
-.experience-museum .experience-heading img { border: 7px solid var(--stage-ink); }
+.experience-museum .experience-heading img,
+.experience-exhibition .experience-heading img { border: 7px solid var(--stage-ink); }
 .door-stage {
   background: var(--stage); color: var(--stage-ink);
   padding: 0 clamp(1rem, 4vw, 2.6rem) clamp(1.3rem, 4vw, 2.6rem);

@@ -9,8 +9,8 @@ import {
   customThisOrThatAltLimit, customThisOrThatOptionLimit, customThisOrThatPromptLimit,
 } from "../../lib/this-or-that.ts";
 import {
-  cloudflarePersonaChecked, cloudflarePersonaQuestionCount, cloudflarePersonaQuestions,
-} from "../../lib/cloudflare-persona.ts";
+  personaFor,
+} from "../../lib/persona-packs.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
 import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
@@ -28,6 +28,8 @@ const isBingo = game === "tech-bingo";
 const isThis = game === "this-or-that";
 const isTwentyOne = game === "twenty-one-questions";
 const isCloudflare = game === "developer-type";
+const isLanguage = game === "language-type";
+const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
 // fragment contract, so it restores through the same path as a shared result.
@@ -409,14 +411,14 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </section>
   </section>}
 
-  {isCloudflare && <section data-play-panel class="door-stage persona-stage" aria-label="Developer Type Quiz">
-    <p class="persona-progress" role="status" data-persona-progress>Question 1 of {cloudflarePersonaQuestionCount}</p>
+  {persona && <section data-play-panel class="door-stage persona-stage" aria-label={persona.stageLabel}>
+    <p class="persona-progress" role="status" data-persona-progress>Question 1 of {persona.questionCount}</p>
     <p class="experience-note persona-notice" role="status" data-persona-notice></p>
     <section class="persona-question" data-persona-question>
-      <h2 id="persona-prompt" tabindex="-1" data-persona-prompt>{cloudflarePersonaQuestions[0].prompt}</h2>
+      <h2 id="persona-prompt" tabindex="-1" data-persona-prompt>{persona.firstQuestion.prompt}</h2>
       <div class="persona-options" role="group" aria-labelledby="persona-prompt" data-persona-options>
-        {cloudflarePersonaQuestions[0].options.map((option, index) =>
-          <button type="button" data-persona-choice={index}>{option.label}</button>
+        {persona.firstQuestion.options.map((label, index) =>
+          <button type="button" data-persona-choice={index}>{label}</button>
         )}
       </div>
       <div class="tot-controls">
@@ -428,12 +430,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="persona-service" data-persona-service></p>
       <p class="persona-tendency" data-persona-tendency></p>
       <p class="persona-why" data-persona-reason></p>
-      <p class="experience-note persona-disclaimer">A playful App Composer quiz, not an assessment. No answers leave this tab.</p>
+      <p class="experience-note persona-disclaimer">{persona.resultNotice}</p>
       <p><a data-persona-docs target="_blank" rel="noopener noreferrer"></a></p>
       <div class="tot-controls">
         <button type="button" data-persona-retake>Play again</button>
         <button type="button" class="secondary" data-persona-revise hidden>Revise my answers</button>
-        <a class="button secondary" data-persona-fresh href={experiencePath("developer-type")} hidden>Take the quiz yourself</a>
+        <a class="button secondary" data-persona-fresh href={persona.path} hidden>Take the quiz yourself</a>
       </div>
       <div class="persona-link">
         <label for="persona-link">Result link</label>
@@ -443,11 +445,11 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <p class="experience-note" role="status" data-persona-status></p>
       </div>
     </section>
-    <p class="experience-note persona-disclaimer">An independent fan quiz by App Composer, unaffiliated with Cloudflare. Cloudflare, Cloudflare Workers, Durable Objects and Workers AI are trademarks or registered trademarks of Cloudflare, Inc. Service summaries checked against the official docs on {cloudflarePersonaChecked}.</p>
+    <p class="experience-note persona-disclaimer">{persona.disclaimer}</p>
   </section>}
 
   <section class="experience-export" aria-label="Personalise and share">
-    <h2>{isCloudflare ? "Your result card" : isTwentyOne ? "Your share cards" : "Your share image"}</h2>
+    <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
@@ -472,11 +474,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isThis ? ["Game show", "Newsprint", "Studio cyan"]
           : isTwentyOne ? ["Amber slide", "Night archive", "Field notes"]
           : isCloudflare ? ["Midnight etching", "Aged amber", "Night archive"]
+          : isLanguage ? ["Canyon dawn", "Warm paper", "Night archive"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
       </select></label>
-      {(isTwentyOne || isCloudflare) ? <label>Format<select data-format>
+      {(isTwentyOne || isCloudflare || isLanguage) ? <label>Format<select data-format>
         <option value="portrait">Portrait · 1080 × 1350 (4:5)</option>
         <option value="story">Story · 1080 × 1920 (9:16)</option>
         <option value="square">Square · 1080 × 1080 (1:1)</option>
@@ -490,16 +493,16 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {isNine && <p class="experience-note" id="nine-profile-note">A full HTTPS profile link appears beside your preview and travels only in your result link and saved draft — never in the image or its description.</p>}
     {isNine && <p class="experience-note" role="status" data-profile-status></p>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare}>
-        {isCloudflare ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>
+        {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : "tot-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare}>Share result</button>
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
-    {isCloudflare && <div class="experience-actions" data-persona-preview hidden></div>}
+    {persona && <div class="experience-actions" data-persona-preview hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, optional subtitle and byline, and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
     {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
     <p class="experience-note" data-share-note>{isTwentyOne
@@ -508,13 +511,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       ? "A result link carries your title, subtitle, exhibits, source links, web page links, byline, optional profile link and ranked setting. Cover images never go into the link — download the result image to keep them."
       : isCloudflare
       ? "Your card prints the result name, service, explanation and any byline. It never prints your answers or the quiz address; Copy result link above holds the answer-free link."
+      : isLanguage
+      ? "Your card prints the result name, language, explanation and any byline. It never prints your answers or the quiz address; Copy result link above holds the answer-free link."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
     {(isNine || isThis) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && !isCloudflare && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">

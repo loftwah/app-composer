@@ -1,4 +1,8 @@
 import { experiencePath } from "./share-experiences.ts";
+import {
+  createPersonaQuiz,
+  type PersonaOption, type PersonaOutcome, type PersonaQuestion,
+} from "./persona-quiz.ts";
 
 /** “Which Cloudflare service are you?” — one reusable, typed question and
  * outcome definition for the first App Composer persona quiz (#1071/#1069).
@@ -9,109 +13,95 @@ import { experiencePath } from "./share-experiences.ts";
  * by its `href` on 24 November 2026. Answers and scores stay on the page. Sharing carries a result ID
  * in the link fragment.
  *
- * Scoring is deterministic: an option gives 2 to its primary service and 1 to
- * its paired secondary. The highest total wins. An exact tie goes to the
- * service the player chose directly (as primary) most often, then to the one
- * chosen directly earliest, then to the fixed outcome order below. Every
- * outcome is reachable without relying on the tie-break; the focused tests
- * enumerate all 4^8 runs to keep that true. */
+ * Scoring and the answer-free fragment live in persona-quiz.ts, shared with
+ * the Language Type Quiz. The authored outcomes, questions and Cloudflare
+ * wording stay here. */
 
 export const cloudflarePersonaChecked = "24 November 2026";
 
-export interface CloudflarePersonaOutcome {
+export interface CloudflarePersonaOutcome extends PersonaOutcome {
+  /** The service name exactly as the result panel and card print it. */
   readonly service: string;
-  readonly archetype: string;
-  readonly tendency: string;
-  readonly reason: string;
-  readonly href: string;
 }
 
-export const cloudflarePersonaOutcomes = {
+const cloudflarePersonaSource = {
   workers: {
-    service: "Workers®",
+    label: "Workers®",
     archetype: "The Builder",
     tendency: "You want the shortest path from a decent idea to something people can actually open.",
     reason: "On Workers, your code runs on Cloudflare’s network, so a small app can be reachable without a server to babysit.",
     href: "https://developers.cloudflare.com/workers/",
   },
   "durable-objects": {
-    service: "Durable Objects™",
+    label: "Durable Objects™",
     archetype: "The Coordinator",
     tendency: "You are the one who notices two people are about to edit the same thing.",
     reason: "A Durable Object is a single named place where shared state and connected clients can be coordinated.",
     href: "https://developers.cloudflare.com/durable-objects/",
   },
   r2: {
-    service: "R2",
+    label: "R2",
     archetype: "The Keeper",
     tendency: "You give every file a proper home, even the ones everyone else leaves in a chat thread.",
     reason: "R2 stores objects such as files, images and exports, with an S3-compatible API.",
     href: "https://developers.cloudflare.com/r2/",
   },
   d1: {
-    service: "D1",
+    label: "D1",
     archetype: "The Organiser",
     tendency: "When the details start multiplying, you reach for a tidy table and a clear question.",
     reason: "D1 is a managed SQLite database: relational rows you can query with ordinary SQL.",
     href: "https://developers.cloudflare.com/d1/",
   },
   "workers-kv": {
-    service: "Workers KV",
+    label: "Workers KV",
     archetype: "The Shortcut",
     tendency: "You would rather keep the answer close than work it out from scratch every time.",
     reason: "Workers KV is a globally distributed key-value store built for read-heavy lookups.",
     href: "https://developers.cloudflare.com/kv/",
   },
   queues: {
-    service: "Queues",
+    label: "Queues",
     archetype: "The Dispatcher",
     tendency: "When the room gets busy, you are the one saying “put it in a queue and let the workers catch up”.",
     reason: "Queues buffers messages so one part of a system can hand work to another asynchronously.",
     href: "https://developers.cloudflare.com/queues/",
   },
   workflows: {
-    service: "Workflows",
+    label: "Workflows",
     archetype: "The Finisher",
     tendency: "You do not trust a long job that forgets step four the moment step five falls over.",
     reason: "Workflows runs durable multistep tasks, persisting progress and retrying steps when something fails.",
     href: "https://developers.cloudflare.com/workflows/",
   },
   "workers-ai": {
-    service: "Workers AI®",
+    label: "Workers AI®",
     archetype: "The Experimenter",
     tendency: "You would rather try the strange idea this afternoon than wonder about it all week.",
     reason: "Workers AI runs managed model inference from a Worker, so a model call does not need your own GPU.",
     href: "https://developers.cloudflare.com/workers-ai/",
   },
-} as const satisfies Record<string, CloudflarePersonaOutcome>;
+} as const satisfies Record<string, PersonaOutcome>;
 
-export type CloudflarePersonaId = keyof typeof cloudflarePersonaOutcomes;
+export type CloudflarePersonaId = keyof typeof cloudflarePersonaSource;
 
-/** Fixed order. It only decides a tie that survives score, direct picks and
- * earliest direct pick; it never stands in for an actual preference. */
-export const cloudflarePersonaIds = Object.keys(cloudflarePersonaOutcomes) as CloudflarePersonaId[];
+/** The typed option and question shapes the first quiz has always exported. */
+export type CloudflarePersonaOption = PersonaOption<CloudflarePersonaId>;
+export type CloudflarePersonaQuestion = PersonaQuestion<CloudflarePersonaId>;
 
-export interface CloudflarePersonaOption {
-  readonly label: string;
-  readonly primary: CloudflarePersonaId;
-  readonly secondary: CloudflarePersonaId;
-}
-
-export interface CloudflarePersonaQuestion {
-  readonly id: string;
-  readonly prompt: string;
-  readonly options: readonly [
-    CloudflarePersonaOption,
-    CloudflarePersonaOption,
-    CloudflarePersonaOption,
-    CloudflarePersonaOption,
-  ];
-}
+/** The public outcome record keeps the established `service` field so the
+ * existing result card and its checks read exactly what they read before. */
+export const cloudflarePersonaOutcomes = Object.fromEntries(
+  (Object.keys(cloudflarePersonaSource) as CloudflarePersonaId[]).map((id) => {
+    const outcome = cloudflarePersonaSource[id];
+    return [id, { ...outcome, service: outcome.label }];
+  }),
+) as Record<CloudflarePersonaId, CloudflarePersonaOutcome>;
 
 /** Original, situation-based questions. Each of the eight services is a
  * primary choice four times and a secondary four times, so no result needs
  * prior Cloudflare knowledge to find and none is stranded. */
-export const cloudflarePersonaQuestions: readonly CloudflarePersonaQuestion[] = [
+const cloudflarePersonaQuestionData = [
   {
     id: "blank-page",
     prompt: "A side project starts with a blank page. What do you reach for first?",
@@ -192,73 +182,22 @@ export const cloudflarePersonaQuestions: readonly CloudflarePersonaQuestion[] = 
       { label: "Show the model call that made the weird bit", primary: "workers-ai", secondary: "workflows" },
     ],
   },
-];
+] as const satisfies readonly PersonaQuestion<CloudflarePersonaId>[];
 
-export const cloudflarePersonaQuestionCount = cloudflarePersonaQuestions.length;
+export const cloudflarePersonaQuestions = cloudflarePersonaQuestionData;
+
+export const cloudflarePersonaQuiz = createPersonaQuiz({
+  path: experiencePath("developer-type"),
+  outcomes: cloudflarePersonaSource,
+  questions: cloudflarePersonaQuestions,
+});
+
+/** Fixed order. It only decides a tie that survives score, direct picks and
+ * earliest direct pick; it never stands in for an actual preference. */
+export const cloudflarePersonaIds: CloudflarePersonaId[] = [...cloudflarePersonaQuiz.ids];
+export const cloudflarePersonaQuestionCount = cloudflarePersonaQuiz.questionCount;
 export const cloudflarePersonaPath = experiencePath("developer-type");
-
-export interface CloudflarePersonaTally {
-  readonly id: CloudflarePersonaId;
-  readonly score: number;
-  /** How often this outcome was the player’s direct (primary) choice. */
-  readonly direct: number;
-  /** The earliest question answered directly for this outcome, or Infinity. */
-  readonly firstDirect: number;
-}
-
-function compareTallies(a: CloudflarePersonaTally, b: CloudflarePersonaTally): number {
-  return b.score - a.score
-    || b.direct - a.direct
-    || a.firstDirect - b.firstDirect
-    || cloudflarePersonaIds.indexOf(a.id) - cloudflarePersonaIds.indexOf(b.id);
-}
-
-/** Every outcome’s total for one complete run, best first. Null until every
- * question has one valid option index. */
-export function tallyCloudflarePersona(answers: unknown): CloudflarePersonaTally[] | null {
-  if (!Array.isArray(answers) || answers.length !== cloudflarePersonaQuestionCount) return null;
-  const tallies = new Map<CloudflarePersonaId, { score: number; direct: number; firstDirect: number }>();
-  for (const id of cloudflarePersonaIds) {
-    tallies.set(id, { score: 0, direct: 0, firstDirect: Number.POSITIVE_INFINITY });
-  }
-  for (let index = 0; index < cloudflarePersonaQuestionCount; index += 1) {
-    const choice = answers[index];
-    const question = cloudflarePersonaQuestions[index];
-    if (typeof choice !== "number" || !Number.isInteger(choice) || choice < 0 || choice >= question.options.length) {
-      return null;
-    }
-    const option = question.options[choice];
-    const primary = tallies.get(option.primary)!;
-    primary.score += 2;
-    primary.direct += 1;
-    primary.firstDirect = Math.min(primary.firstDirect, index);
-    tallies.get(option.secondary)!.score += 1;
-  }
-  return cloudflarePersonaIds
-    .map((id) => ({ id, ...tallies.get(id)! }))
-    .sort(compareTallies);
-}
-
-/** The deterministic result for one complete run, or null while it is
- * incomplete or malformed. */
-export function resolveCloudflarePersona(answers: unknown): CloudflarePersonaId | null {
-  return tallyCloudflarePersona(answers)?.[0]?.id ?? null;
-}
-
-/** A shared result names exactly one known outcome and never carries an answer.
- * Only the `result` parameter is read, so unrelated share parameters cannot
- * invent an answer; a repeated value is ambiguous, and a missing or unknown
- * value falls back to a fresh quiz. */
-export function cloudflarePersonaOutcomeFromHash(hash: string): CloudflarePersonaId | null {
-  if (!hash.startsWith("#")) return null;
-  const params = new URLSearchParams(hash.slice(1));
-  const value = params.get("result");
-  return params.size === 1 && value && Object.hasOwn(cloudflarePersonaOutcomes, value)
-    ? value as CloudflarePersonaId : null;
-}
-
-/** The one answer-free result address: the canonical public quiz route plus a
- * trusted outcome ID. */
-export function cloudflarePersonaResultPath(id: CloudflarePersonaId): string {
-  return `${cloudflarePersonaPath}#result=${id}`;
-}
+export const tallyCloudflarePersona = cloudflarePersonaQuiz.tally;
+export const resolveCloudflarePersona = cloudflarePersonaQuiz.resolve;
+export const cloudflarePersonaOutcomeFromHash = cloudflarePersonaQuiz.outcomeFromHash;
+export const cloudflarePersonaResultPath = cloudflarePersonaQuiz.resultPath;

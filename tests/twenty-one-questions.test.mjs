@@ -125,7 +125,7 @@ test('the browser keeps twenty-one answers local: no link, no stored draft', () 
   // controller never allows a result link, and a crafted hash never restores.
   const controller = read('src/browser/share-experiences.ts');
   assert.match(controller, /linksAllowed: \(\) => false/);
-  assert.match(controller, /game === "twenty-one-questions" \|\| game === "developer-type"\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
+  assert.match(controller, /game === "twenty-one-questions" \|\| game === "developer-type" \|\| game === "language-type"\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
   assert.doesNotMatch(controller, /draftKey\("twenty-one-questions"\)/, 'no draft storage exists for private answers');
 });
 
@@ -160,7 +160,7 @@ test('private cards offer portrait, Story and Square, with portrait first', () =
   assert.deepEqual(resultSizes.story, [1080, 1920]);
   assert.deepEqual(resultSizes.square, [1080, 1080]);
   const markup = read('src/components/share-experiences/ShareExperience.astro');
-  const block = markup.match(/\(isTwentyOne \|\| isCloudflare\) \? <label>Format<select data-format>([\s\S]*?)<\/select><\/label>/);
+  const block = markup.match(/\(isTwentyOne \|\| isCloudflare \|\| isLanguage\) \? <label>Format<select data-format>([\s\S]*?)<\/select><\/label>/);
   assert.ok(block);
   assert.deepEqual([...block[1].matchAll(/<option value="([^"]+)">/g)].map(match => match[1]), ['portrait', 'story', 'square']);
 });
@@ -186,7 +186,7 @@ test('production permits local images on the three quiz card or photo routes onl
   const middleware = read('src/middleware.ts');
   const block = middleware.split('twenty-one-questions')[1]?.split('X-Content-Type-Options')[0];
   assert.ok(block);
-  assert.match(block, /^\|this-or-that\|developer-type\)\\\/\?\$/);
+  assert.match(block, /^\|this-or-that\|developer-type\|language-type\)\\\/\?\$/);
   assert.ok(block.includes(`csp.replace("img-src 'self'", "img-src 'self' blob:")`));
   assert.doesNotMatch(block, /connect-src|frame-src|script-src/);
 });

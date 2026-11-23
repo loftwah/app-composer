@@ -17,11 +17,8 @@ import {
   twentyOneAnswered, twentyOneAnswerLimit, twentyOneBlankPath, twentyOneCount,
   twentyOnePairs, twentyOnePromptLimit, twentyOneStart,
 } from "../lib/twenty-one-questions.ts";
-import {
-  cloudflarePersonaOutcomeFromHash, cloudflarePersonaOutcomes,
-  cloudflarePersonaPath, cloudflarePersonaQuestions, cloudflarePersonaResultPath,
-  resolveCloudflarePersona, type CloudflarePersonaId,
-} from "../lib/cloudflare-persona.ts";
+import { personaFor } from "../lib/persona-packs.ts";
+import type { PersonaPack } from "../lib/persona-quiz.ts";
 import {
   renderExperienceCards, renderExperienceResult, renderPersonaCard, resultSizes,
   type ResultCoverSlot, type ResultFormat, type ShareExperienceResult,
@@ -102,7 +99,7 @@ interface Controller {
   linksAllowed?(): boolean;
   /** The trusted persona outcome a result card may print. Absent for every
    * other experience; the generic JSON result link is never used for it. */
-  personaOutcome?(): CloudflarePersonaId | null;
+  personaOutcome?(): string | null;
 }
 
 const entry = cleanText;
@@ -2325,11 +2322,11 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   };
 }
 
-/** “Which Cloudflare service are you?” — the first public playable persona
- * slice. Answers stay in this tab; only the chosen outcome name can travel in
- * an answer-free result link. A bare route starts a fresh quiz, and an
- * unknown `#result=` value falls back to that same fresh start. */
-function mountCloudflarePersona(root: HTMLElement, update: () => void): Controller {
+/** The shared “Which X are you?” player used by the Developer Type Quiz and
+ * the Language Type Quiz. Answers stay in this tab; only the chosen outcome
+ * name can travel in an answer-free result link. A bare route starts a fresh
+ * quiz, and an unknown `#result=` value falls back to that same fresh start. */
+function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack): Controller {
   const stage = root.querySelector<HTMLElement>("[data-persona-question]")!;
   const prompt = root.querySelector<HTMLElement>("[data-persona-prompt]")!;
   const options = root.querySelector<HTMLElement>("[data-persona-options]")!;
@@ -2349,9 +2346,9 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
   const link = root.querySelector<HTMLInputElement>("[data-persona-link]")!;
   const copy = root.querySelector<HTMLButtonElement>("[data-persona-copy]")!;
   const copyStatus = root.querySelector<HTMLElement>("[data-persona-status]")!;
-  let answers: (number | null)[] = cloudflarePersonaQuestions.map(() => null);
+  let answers: (number | null)[] = pack.questions.map(() => null);
   let current = 0;
-  let shown: CloudflarePersonaId | null = null;
+  let shown: string | null = null;
   // The outer share bar calls update() once after this controller is built.
   // Events before that point cannot fire, so later stage changes can refresh it.
   let ready = false;
@@ -2362,13 +2359,13 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
 
   function syncQuestionProgress() {
     const answered = answers.filter((answer) => answer !== null).length;
-    progress.textContent = `Question ${current + 1} of ${cloudflarePersonaQuestions.length} · ${answered} answered`;
+    progress.textContent = `Question ${current + 1} of ${pack.questionCount} · ${answered} answered`;
   }
 
   function showQuestion(index: number, focus = true) {
     current = index;
     shown = null;
-    const question = cloudflarePersonaQuestions[index];
+    const question = pack.questions[index];
     stage.hidden = false;
     result.hidden = true;
     prompt.textContent = question.prompt;
@@ -2382,43 +2379,44 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
     if (ready) update();
   }
 
-  function showResult(id: CloudflarePersonaId, shared = false) {
-    const outcome = cloudflarePersonaOutcomes[id];
+  function showResult(id: string, shared = false) {
+    const outcome = pack.outcome(id);
+    if (!outcome) return;
     shown = id;
     notice.textContent = "";
     stage.hidden = true;
     result.hidden = false;
     archetype.textContent = outcome.archetype;
-    service.textContent = outcome.service;
+    service.textContent = outcome.subject;
     tendency.textContent = outcome.tendency;
     reason.textContent = outcome.reason;
     docs.href = outcome.href;
-    docs.textContent = `Read the official ${outcome.service} docs`;
-    docs.setAttribute("aria-label", `Read the official ${outcome.service} documentation on developers.cloudflare.com, opens in a new tab`);
-    link.value = new URL(cloudflarePersonaResultPath(id), location.origin).href;
+    docs.textContent = outcome.docsText;
+    docs.setAttribute("aria-label", outcome.docsAria);
+    link.value = new URL(pack.resultPath(id), location.origin).href;
     copyStatus.textContent = "";
     retake.hidden = shared;
     revise.hidden = shared || answers.some((answer) => answer === null);
     fresh.hidden = !shared;
     progress.textContent = shared
       ? "Shared result"
-      : `All ${cloudflarePersonaQuestions.length} answered · your result`;
+      : `All ${pack.questionCount} answered · your result`;
     archetype.focus();
     if (ready) update();
   }
 
   function resetRun() {
-    answers = cloudflarePersonaQuestions.map(() => null);
+    answers = pack.questions.map(() => null);
     notice.textContent = "";
-    replaceAddress(cloudflarePersonaPath);
+    replaceAddress(pack.path);
     showQuestion(0, true);
   }
 
   choices.forEach((button, choice) => {
     button.addEventListener("click", () => {
       answers[current] = choice;
-      if (current === cloudflarePersonaQuestions.length - 1) {
-        const id = resolveCloudflarePersona(answers);
+      if (current === pack.questionCount - 1) {
+        const id = pack.resolve(answers);
         if (!id) return;
         showResult(id);
         return;
@@ -2435,7 +2433,7 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
 
   revise.addEventListener("click", () => {
     const last = answers.reduce<number>((at, answer, index) => (answer === null ? at : index), 0);
-    replaceAddress(cloudflarePersonaPath);
+    replaceAddress(pack.path);
     showQuestion(last);
   });
 
@@ -2458,7 +2456,7 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
 
   copy.addEventListener("click", async () => {
     if (!shown) return;
-    const href = new URL(cloudflarePersonaResultPath(shown), location.origin).href;
+    const href = new URL(pack.resultPath(shown), location.origin).href;
     link.value = href;
     try {
       await navigator.clipboard.writeText(href);
@@ -2470,13 +2468,13 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
     }
   });
 
-  const shared = cloudflarePersonaOutcomeFromHash(location.hash);
+  const shared = pack.outcomeFromHash(location.hash);
   if (shared) {
     showResult(shared, true);
   } else {
     if (new URLSearchParams(location.hash.slice(1)).has("result")) {
       notice.textContent = "That result link doesn’t match a result in this quiz, so you’re starting from the beginning.";
-      replaceAddress(cloudflarePersonaPath);
+      replaceAddress(pack.path);
     }
     showQuestion(0, false);
   }
@@ -2488,11 +2486,12 @@ function mountCloudflarePersona(root: HTMLElement, update: () => void): Controll
     // existing Copy result link is the only address this quiz hands over.
     result: () => {
       if (!shown) return null;
-      const outcome = cloudflarePersonaOutcomes[shown];
+      const outcome = pack.outcome(shown);
+      if (!outcome) return null;
       return {
-        game: "developer-type" as const,
+        game: pack.game,
         title: outcome.archetype,
-        subtitle: outcome.service,
+        subtitle: outcome.subject,
         byline: "",
         skin: 0,
         background: "",
@@ -2633,6 +2632,7 @@ function thisOrThatAltText(snapshot: ShareExperienceResult): string {
 export function mountShareExperience(root: HTMLElement) {
   const game = root.dataset.experience as ExperienceId;
   if (!Object.hasOwn(experiences, game)) return;
+  const persona = personaFor(game);
   const format = root.querySelector<HTMLSelectElement>("[data-format]");
   const chooseSkin = root.querySelector<HTMLSelectElement>("[data-skin-select]")!;
   const byline = root.querySelector<HTMLInputElement>("[data-byline]")!;
@@ -2714,7 +2714,7 @@ export function mountShareExperience(root: HTMLElement) {
       : "Answer every question to download your result.";
     else if (!canShare && game === "twenty-one-questions") {
       status.textContent = "";
-    } else if (!canShare && game === "developer-type") {
+    } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
@@ -2724,7 +2724,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
     : game === "this-or-that" ? mountThisOrThat(root, update)
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
-    : game === "developer-type" ? mountCloudflarePersona(root, update)
+    : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
     pickSkin();
@@ -2742,10 +2742,10 @@ export function mountShareExperience(root: HTMLElement) {
     });
   }
 
-  // Twenty-one questions never produces result links, and a Developer Type
+  // Twenty-one questions never produces result links, and a persona result
   // link is the answer-free `#result=<id>` fragment the quiz reads itself:
   // neither is the generic JSON snapshot, so a crafted hash restores nothing.
-  const shared = game === "twenty-one-questions" || game === "developer-type"
+  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -2800,12 +2800,21 @@ export function mountShareExperience(root: HTMLElement) {
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       if (personaOutcome) {
         const outcome = personaOutcome();
-        if (!outcome) return;
+        const cardCopy = outcome && persona ? persona.card(outcome) : null;
+        if (!outcome || !cardCopy || !persona) {
+          busy = false;
+          update();
+          status.textContent = "Couldn’t prepare the card. Try again.";
+          return;
+        }
         // A crafted select value cannot widen the card: only these three print.
         const cardFormat = size === "square" || size === "story" ? size : "portrait";
-        const blob = await renderPersonaCard(outcome, cardFormat, {
+        const blob = await renderPersonaCard(cardCopy, cardFormat, {
           byline: entry(byline.value, 48),
           skin: Number(chooseSkin.value),
+          game,
+          label: persona.cardLabel,
+          credit: persona.cardCredit,
         });
         const current = personaAttempt === personaVersion;
         busy = false;
@@ -2813,13 +2822,12 @@ export function mountShareExperience(root: HTMLElement) {
         if (!current || !personaPreview) return;
         const href = URL.createObjectURL(blob);
         personaUrls.push(href);
-        const outcomeCopy = cloudflarePersonaOutcomes[outcome];
         const figure = document.createElement("figure");
         figure.className = "tq-card";
         const preview = document.createElement("img");
         preview.className = "tq-card-preview";
         preview.src = href;
-        preview.alt = `Your Developer Type result card: ${outcomeCopy.archetype}, ${outcomeCopy.service}. ${cardFormat} preview.`;
+        preview.alt = `Your ${persona.stageLabel} result card: ${cardCopy.archetype}, ${cardCopy.subject}. ${cardFormat} preview.`;
         const meta = document.createElement("figcaption");
         meta.className = "tq-card-meta";
         const link = document.createElement("a");
@@ -2975,10 +2983,10 @@ export function mountShareExperience(root: HTMLElement) {
     }
   });
 
-  // Twenty-one questions has no result link to hand over, and a Developer Type
-  // result hands its answer-free link over in the result panel instead. The
-  // native share sheet stays off for both.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "developer-type") {
+  // Twenty-one questions has no result link to hand over, and a persona result
+  // hands its answer-free link over in the result panel instead. The native
+  // share sheet stays off for all of them.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;
