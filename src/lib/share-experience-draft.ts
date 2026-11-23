@@ -12,6 +12,8 @@ export const draftVersion = 1;
 export const draftLimit = 8_000;
 /** One short optional line under a Top Nine title. */
 export const nineSubtitleLimit = 70;
+/** One exhibit title, the same visible-text bound as the nine editor inputs. */
+export const nineItemLimit = 54;
 
 export const draftKey = (experience: string) => `composer.share-experience.${experience}.draft`;
 
@@ -64,7 +66,7 @@ export function readNineDraft(storage: DraftStorage): NineDraft | null {
     const saved = JSON.parse(raw) as Record<string, unknown> | null;
     if (!saved || saved.version !== draftVersion || !Array.isArray(saved.items) || saved.items.length !== 9) return null;
     const title = cleanText(saved.title, 72);
-    const items = saved.items.map((item) => cleanText(item, 54));
+    const items = saved.items.map((item) => cleanText(item, nineItemLimit));
     if (!title && !items.some(Boolean)) return null;
     const subtitle = cleanText(saved.subtitle, nineSubtitleLimit);
     const hrefs = cleanHrefs(saved.hrefs);
@@ -87,7 +89,7 @@ export function readNineDraft(storage: DraftStorage): NineDraft | null {
 
 export function writeNineDraft(storage: DraftStorage, draft: NineDraft): "saved" | "empty" | "too-large" | "blocked" {
   const title = cleanText(draft.title, 72);
-  const items = draft.items.map((item) => cleanText(item, 54));
+  const items = draft.items.map((item) => cleanText(item, nineItemLimit));
   if (!title && !items.some(Boolean)) return "empty";
   const subtitle = cleanText(draft.subtitle, nineSubtitleLimit);
   const hrefs = cleanHrefs(draft.hrefs);

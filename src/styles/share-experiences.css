@@ -359,6 +359,14 @@
 .exhibition-objects label[data-cover-target],
 .exhibition-objects label[data-page-target] { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 .exhibit-pages { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--color-control-border); }
+/* One compact list entry beside the nine inputs: paste, see the count, fill
+   only the slots still waiting, and undo the whole fill in one step. */
+.exhibit-list { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--color-control-border); }
+.share-experience .exhibit-list summary { cursor: pointer; padding-block: .35rem; }
+.exhibit-list textarea { display: block; inline-size: 100%; margin-block: .3rem 0; }
+.exhibit-list-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .6rem; }
+.exhibit-list-actions button { min-height: 44px; }
+.exhibit-list [data-list-status] { margin-block: .5rem 0; }
 .share-experience .exhibit-pages summary { cursor: pointer; padding-block: .35rem; }
 .exhibit-pages select { margin-block: .3rem 0; }
 .exhibit-covers { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--color-control-border); }
@@ -514,6 +522,7 @@
   .experience-heading h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
   .exhibition-heading { grid-template-columns: 1fr; }
   .exhibition-objects input, .tq-answer { font-size: 16px; padding-inline: .3rem; }
+  .exhibit-list textarea { font-size: 16px; }
   .music-kind, .music-search label, .music-search > button[type="submit"],
   .cover-pick label { flex: 1 1 100%; }
   .share-experience .bingo-grid button { padding-inline: .14rem; }
