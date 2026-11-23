@@ -63,6 +63,10 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
   {isNine && <section data-play-panel class="exhibition" aria-label="Edit your exhibition">
     <label for="exhibition-title">Exhibition title</label>
     <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
+    <label class="exhibition-ranked">
+      <input type="checkbox" data-nine-ranked />
+      Rank exhibits #1 to #9
+    </label>
     <details class="exhibit-music" data-music-panel>
       <summary>Find albums, songs, books, apps, games and films</summary>
       <form class="music-search" data-music-form>
@@ -155,7 +159,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     </details>
     <div class="exhibition-objects">
       {Array.from({length: 9}, (_, index) => <label>
-        <span>Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
+        <span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em> Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
         <input type="text" maxlength="54" data-object={index} aria-label={`Exhibit ${index + 1}`} />
         <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
         <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
@@ -185,7 +189,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
       <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
     </div>
-    <p class="experience-note">Drafts keep your title, exhibits and source links in this browser. Cover images aren’t saved — download your result image to keep them.</p>
+    <p class="experience-note">Drafts keep your title, exhibits, source links and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
     <p class="experience-note" role="status" data-draft-status></p>
   </section>}
 
@@ -310,6 +314,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <h2>{isTwentyOne ? "Your share cards" : "Your share image"}</h2>
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
+        <span class="nine-preview-rank" data-nine-preview-rank={index} hidden>#{index + 1}</span>
         <img alt="" hidden data-nine-preview-cover={index} />
         <span data-nine-preview-caption={index}>—</span>
       </div>)}
@@ -345,11 +350,11 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
-    {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, an optional byline and your nine exhibit titles in top, middle and bottom rows.</p>}
+    {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, an optional byline and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
     <p class="experience-note" data-share-note>{isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
-      ? "A result link carries your title, exhibits, source links and byline. Cover images never go into the link — download the result image to keep them."
+      ? "A result link carries your title, exhibits, source links, byline and ranked setting. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />

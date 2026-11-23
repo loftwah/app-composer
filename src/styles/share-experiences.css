@@ -185,6 +185,20 @@
 .exhibition-order select, .bingo-packs select { width: auto; min-width: 4rem; margin: 0; }
 .exhibition-order label, .bingo-packs label { align-self: center; }
 .exhibition-draft { margin-top: .75rem; }
+/* The ranked opt-in is a native checkbox. Off keeps the original unordered
+   favourites; on numbers every occupied slot in the editor, preview and PNG. */
+.exhibition-ranked {
+  display: flex; align-items: center; gap: .55rem;
+  margin: .9rem 0 .2rem; color: inherit; font-weight: 700; cursor: pointer;
+}
+.exhibition-ranked input {
+  inline-size: 1.15rem; block-size: 1.15rem; min-height: 0;
+  margin: 0; padding: 0; flex: none; accent-color: var(--accent);
+}
+.exhibit-rank {
+  font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--accent); margin-inline-end: .35rem;
+}
 .bingo-grid {
   display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 2px; background: var(--stage-ink); border: 2px solid var(--stage-ink);
@@ -313,15 +327,23 @@
 .nine-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: .9rem 0 1rem; }
 .nine-preview-cell { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--stage-ink); color: var(--stage); }
 .nine-preview-cell img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.nine-preview-cell span {
+.nine-preview-cell [data-nine-preview-rank] {
+  position: absolute; inset-block-start: .45rem; inset-inline-start: .45rem; z-index: 1;
+  padding: .08rem .34rem; border-radius: 3px;
+  background: var(--accent); color: var(--stage);
+  font-size: clamp(.62rem, 1.9vw, .78rem); line-height: 1.25; font-weight: 700;
+  font-variant-numeric: tabular-nums; letter-spacing: .01em;
+}
+.nine-preview-cell [data-nine-preview-caption] {
   position: absolute; inset-block-start: .5rem; inset-inline: .5rem;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
   font-size: clamp(.72rem, 2.2vw, .95rem); line-height: 1.14; font-weight: 700;
 }
-.nine-preview-cell[data-covered] span {
+.nine-preview-cell[data-covered] [data-nine-preview-caption] {
   inset-block-start: auto; inset-block-end: 0; padding: .45rem .5rem;
   background: color-mix(in srgb, var(--stage-ink) 85%, transparent);
 }
+.nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
 @media (max-width: 450px) {
   .experience-heading { grid-template-columns: minmax(0, 1fr) minmax(5rem, .45fr); min-height: 0; align-items: center; }
   .experience-heading h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
