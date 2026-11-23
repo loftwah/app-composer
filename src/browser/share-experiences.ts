@@ -1877,14 +1877,16 @@ export function mountShareExperience(root: HTMLElement) {
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       if (cardDownloads) {
-        // Private cards only ever come in the 4:5 default or the 9:16 Story;
+        // Private cards only come in the 4:5 default, the 9:16 Story or Square;
         // a crafted select value cannot turn answers into another result size.
-        const cardFormat = size === "story" ? "story" : "portrait";
+        const cardFormat = size === "story" || size === "square" ? size : "portrait";
         const cards = await renderExperienceCards(drawn, cardFormat);
         const current = attempt === cardVersion;
         busy = false;
         update();
         if (!current) return;
+        // Portrait keeps its original filename; Story and Square name their canvas.
+        const prefix = cardFormat === "portrait" ? "" : `${cardFormat}-`;
         cards.forEach((blob, index) => {
           // One Blob URL per card feeds both the preview and its save link, so
           // the PNG a creator inspects is the exact file the link downloads.
@@ -1901,7 +1903,7 @@ export function mountShareExperience(root: HTMLElement) {
           const link = document.createElement("a");
           link.className = "button secondary";
           link.href = href;
-          link.download = `${game}-${cardFormat === "story" ? "story-" : ""}card-${index + 1}-of-${cards.length}.png`;
+          link.download = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;
           link.textContent = `Save card ${index + 1} of ${cards.length}`;
           meta.append(link);
           figure.append(preview, meta);

@@ -13,6 +13,9 @@ export const twentyOneAnswerLimit = 80;
 /** Answers per downloaded 4:5 card, chosen so a full twenty-one answer run
  * stays readable at large type across several cards. */
 export const twentyOneCardSize = 6;
+/** Answers per downloaded Square card. A 1080×1080 canvas is shorter than 4:5,
+ * so four rows keep the measured heading and answer type with real white space. */
+export const twentyOneSquareCardSize = 4;
 /** The authored prompt cap. It matches the built-in starter’s longest prompt
  * so an edited question still fits the same card row and heading. */
 export const twentyOnePromptLimit = 72;

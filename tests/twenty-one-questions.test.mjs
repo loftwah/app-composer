@@ -9,7 +9,7 @@ import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
   twentyOneAnswerLimit, twentyOneAnswered, twentyOneCount, twentyOnePairs,
-  twentyOneProgress, twentyOnePromptLimit, twentyOneStart,
+  twentyOneProgress, twentyOnePromptLimit, twentyOneStart, twentyOneSquareCardSize,
 } from '../src/lib/twenty-one-questions.ts';
 
 // The #1064 twenty-one-questions starter: one authored interview about a
@@ -111,6 +111,13 @@ test('the export splits into several readable 4:5 cards in question order', () =
   assert.deepEqual(splitTwentyOneCards([]), [], 'nothing answered means no cards');
   assert.deepEqual(splitTwentyOneCards(pairs.slice(0, 7)).map((card) => card.length), [6, 1]);
   assert.deepEqual(splitTwentyOneCards(pairs.slice(0, 5), 0).map((card) => card.length), [5], 'an invalid size falls back to the authored split');
+  assert.equal(twentyOneSquareCardSize, 4, 'Square keeps fewer pairs per card');
+  assert.deepEqual(splitTwentyOneCards(pairs, twentyOneSquareCardSize).map((card) => card.length), [4, 4, 4, 4, 4, 1]);
+  assert.deepEqual(
+    splitTwentyOneCards(pairs, twentyOneSquareCardSize).flat().map((pair) => pair.index),
+    Array.from({ length: 21 }, (_, index) => index),
+    'Square cards keep the same ordered pairs',
+  );
 });
 
 test('the browser keeps twenty-one answers local: no link, no stored draft', () => {
@@ -122,13 +129,21 @@ test('the browser keeps twenty-one answers local: no link, no stored draft', () 
   assert.doesNotMatch(controller, /draftKey\("twenty-one-questions"\)/, 'no draft storage exists for private answers');
 });
 
-test('private cards offer portrait and Story, with portrait first', () => {
+test('private cards offer portrait, Story and Square, with portrait first', () => {
   assert.deepEqual(resultSizes.portrait, [1080, 1350]);
   assert.deepEqual(resultSizes.story, [1080, 1920]);
+  assert.deepEqual(resultSizes.square, [1080, 1080]);
   const markup = read('src/components/share-experiences/ShareExperience.astro');
   const block = markup.match(/isTwentyOne \? <label>Format<select data-format>([\s\S]*?)<\/select><\/label>/);
   assert.ok(block);
-  assert.deepEqual([...block[1].matchAll(/<option value="([^"]+)">/g)].map(match => match[1]), ['portrait', 'story']);
+  assert.deepEqual([...block[1].matchAll(/<option value="([^"]+)">/g)].map(match => match[1]), ['portrait', 'story', 'square']);
+});
+
+test('private card downloads keep portrait and Story names and add Square', () => {
+  const controller = read('src/browser/share-experiences.ts');
+  assert.ok(controller.includes('const cardFormat = size === "story" || size === "square" ? size : "portrait";'));
+  assert.ok(controller.includes('const prefix = cardFormat === "portrait" ? "" : `${cardFormat}-`;'));
+  assert.ok(controller.includes('link.download = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;'));
 });
 
 test('preview and download use the same local card URL', () => {

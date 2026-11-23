@@ -1,6 +1,7 @@
 import { type ExperienceId, twentyOneQuestions } from "../lib/share-experiences.ts";
 import {
-  splitTwentyOneCards, twentyOneAnswered, twentyOneCount, twentyOnePairs,
+  splitTwentyOneCards, twentyOneAnswered, twentyOneCardSize, twentyOneCount, twentyOnePairs,
+  twentyOneSquareCardSize,
 } from "../lib/twenty-one-questions.ts";
 
 export const resultSizes = {
@@ -215,19 +216,22 @@ export async function renderExperienceResult(
 }
 
 /** A twenty-one-questions export: the answered pairs split across several
- * portrait 4:5 cards by default, or the same set on a taller 9:16 Story canvas.
- * Both draw the same ordered, numbered groups; only the Story canvas lifts the
- * content into the viewer's safe area. Answers arrive only in the in-memory
- * snapshot the caller already holds. */
-export async function renderExperienceCards(result: ShareExperienceResult, format: "portrait" | "story" = "portrait"): Promise<Blob[]> {
-  // Both formats draw the same frozen prompt set the caller’s snapshot holds:
+ * portrait 4:5 cards by default, a taller 9:16 Story canvas, or Square cards
+ * carrying at most four pairs each so their type and white space stay measured.
+ * Every format draws the same ordered, numbered groups; only the Story canvas
+ * lifts content into the viewer's safe area. Answers arrive only in the
+ * in-memory snapshot the caller already holds. */
+export async function renderExperienceCards(result: ShareExperienceResult, format: "portrait" | "story" | "square" = "portrait"): Promise<Blob[]> {
+  // All formats draw the same frozen prompt set the caller’s snapshot holds:
   // a malformed snapshot falls back to the built-in starter, never to a mix.
   const questions = Array.isArray(result.questions) && result.questions.length === twentyOneCount
     ? result.questions
     : twentyOneQuestions;
   const pairs = twentyOnePairs(result.items ?? [], questions);
   if (!pairs.length) throw new Error("No answers to export");
-  const cards = splitTwentyOneCards(pairs);
+  // Square has less vertical room than 4:5, so it groups four ordered pairs
+  // per card; portrait and Story keep their existing six-pair split.
+  const cards = splitTwentyOneCards(pairs, format === "square" ? twentyOneSquareCardSize : twentyOneCardSize);
   const [width, height] = resultSizes[format];
   const margin = Math.round(Math.min(width, height) * .067);
   // A Story sits under the viewer's profile row and reply bar. Keep the print
