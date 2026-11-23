@@ -424,8 +424,17 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     <details class="experience-custom persona-remix" data-persona-remix>
       <summary>Remix this quiz</summary>
-      <p class="experience-note" id="persona-remix-help">Edit the title, questions and choices. Each choice keeps its original scoring. Your draft stays in this tab.</p>
+      <p class="experience-note" id="persona-remix-help">Edit the title, questions and choices. Each choice keeps its original scoring.</p>
       <form data-persona-draft-form autocomplete="off" aria-describedby="persona-remix-help">
+        <div class="tot-controls persona-remix-file-actions">
+          <button type="button" class="secondary" data-persona-draft-save>Save draft JSON</button>
+          <label class="persona-remix-open">Open draft JSON
+            <input type="file" accept="application/json,.json" data-persona-draft-file
+              aria-describedby="persona-remix-file-note" />
+          </label>
+        </div>
+        <p class="experience-note persona-remix-file-note" id="persona-remix-file-note">The file saves the title, questions and choices on this device. Answers stay in this tab.</p>
+        <p class="experience-note" role="status" data-persona-draft-file-status></p>
         <label for="persona-draft-title">Draft title</label>
         <input id="persona-draft-title" type="text" maxlength={personaDraftTitleLimit}
           value={`My ${persona.stageLabel} remix`} data-persona-draft-title />

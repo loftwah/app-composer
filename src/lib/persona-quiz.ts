@@ -315,6 +315,109 @@ export interface PersonaDraftRead {
   readonly gap: PersonaDraftGap | null;
 }
 
+/** The one portable draft file format. It has a fixed, answer-free shape: a
+ * versioned Composer schema, the exact pack it belongs to, and the visible
+ * title, prompts and choice labels. Answers, outcomes, identity and links have
+ * no field, so a file cannot carry them. */
+export const personaDraftFileSchema = "composer.persona-quiz-draft/1";
+/** Bytes, not characters. The same bound covers the text this page writes and
+ * a file it opens, and it is measured before the browser parses anything. */
+export const personaDraftFileLimit = 16_384;
+
+/** The first reason a file cannot fill the editor, or null when it can. */
+export type PersonaDraftFileFault =
+  | "oversized"
+  | "unreadable"
+  | "schema"
+  | "version"
+  | "pack"
+  | "shape"
+  | "text";
+
+export interface PersonaDraftFileRead {
+  /** The validated, bounded draft to put in the editor, or null on any fault. */
+  readonly draft: PersonaDraft | null;
+  /** The first unusable visible field when the file's text is the problem. */
+  readonly gap: PersonaDraftGap | null;
+  readonly fault: PersonaDraftFileFault | null;
+}
+
+/** A short pack-specific download name. The game is one of the reviewed pack
+ * IDs, never creator text. */
+export function personaDraftFileName(game: string): string {
+  return `composer-${game}-draft.json`;
+}
+
+/** The exact portable UTF-8 text for one already-validated draft. Field order
+ * and indentation are fixed, so the same draft always produces the same bytes
+ * and the file never gains an answer, outcome, identity or URL field. */
+export function writePersonaDraftFile(game: string, draft: PersonaDraft): string {
+  return `${JSON.stringify({
+    schema: personaDraftFileSchema,
+    game,
+    title: draft.title,
+    questions: draft.questions.map((question) => ({
+      prompt: question.prompt,
+      options: [...question.options],
+    })),
+  }, null, 2)}\n`;
+}
+
+const exactKeys = (value: Record<string, unknown>, keys: readonly string[]) => {
+  const own = Object.keys(value);
+  return own.length === keys.length && keys.every((key) => Object.hasOwn(value, key));
+};
+
+/** Reads one portable draft file against this exact pack and question count.
+ * The byte bound is checked before JSON.parse, the schema before any content,
+ * and the visible text passes through the same readPersonaDraft() a typed
+ * draft uses. Every fault leaves the caller's editor untouched. */
+export function readPersonaDraftFile(
+  game: string,
+  raw: unknown,
+  questionCount: number,
+): PersonaDraftFileRead {
+  const reject = (fault: PersonaDraftFileFault, gap: PersonaDraftGap | null = null): PersonaDraftFileRead =>
+    ({ draft: null, gap, fault });
+  if (typeof raw !== "string") return reject("unreadable");
+  if (new TextEncoder().encode(raw).length > personaDraftFileLimit) return reject("oversized");
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return reject("unreadable");
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) return reject("unreadable");
+  const file = value as Record<string, unknown>;
+  if (typeof file.schema !== "string") return reject("schema");
+  if (file.schema !== personaDraftFileSchema) {
+    return reject(/^composer\.persona-quiz-draft\/\d+$/.test(file.schema) ? "version" : "schema");
+  }
+  if (!exactKeys(file, ["schema", "game", "title", "questions"])) return reject("shape");
+  if (typeof file.game !== "string") return reject("shape");
+  if (file.game !== game) return reject("pack");
+  const count = Number.isInteger(questionCount) && questionCount > 0 ? questionCount : 0;
+  if (typeof file.title !== "string" || !Array.isArray(file.questions) || file.questions.length !== count) {
+    return reject("shape");
+  }
+  const rows: unknown[][] = [];
+  for (const entry of file.questions) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return reject("shape");
+    const question = entry as Record<string, unknown>;
+    if (!exactKeys(question, ["prompt", "options"])) return reject("shape");
+    if (typeof question.prompt !== "string"
+      || !Array.isArray(question.options)
+      || question.options.length !== 4
+      || question.options.some((option) => typeof option !== "string")) {
+      return reject("shape");
+    }
+    rows.push([question.prompt, ...question.options]);
+  }
+  const read = readPersonaDraft(file.title, rows, count);
+  if (!read.draft) return reject("text", read.gap);
+  return { draft: read.draft, gap: null, fault: null };
+}
+
 /** Reads one local draft from raw editor values without touching the starter's
  * mapping data. Every value passes through the shared visible-text
  * normalisation, so what plays is a trimmed, single-spaced copy of what the
