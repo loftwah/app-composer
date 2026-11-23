@@ -212,15 +212,24 @@ export async function renderExperienceResult(
 }
 
 /** A twenty-one-questions export: the answered pairs split across several
- * portrait 4:5 cards, numbered and signed like every other result image.
- * Answers arrive only in the in-memory snapshot the caller already holds. */
-export async function renderExperienceCards(result: ShareExperienceResult): Promise<Blob[]> {
+ * portrait 4:5 cards by default, or the same set on a taller 9:16 Story canvas.
+ * Both draw the same ordered, numbered groups; only the Story canvas lifts the
+ * content into the viewer's safe area. Answers arrive only in the in-memory
+ * snapshot the caller already holds. */
+export async function renderExperienceCards(result: ShareExperienceResult, format: "portrait" | "story" = "portrait"): Promise<Blob[]> {
   const pairs = twentyOnePairs(result.items ?? [], twentyOneQuestions);
   if (!pairs.length) throw new Error("No answers to export");
   const cards = splitTwentyOneCards(pairs);
-  const [width, height] = resultSizes.portrait;
+  const [width, height] = resultSizes[format];
   const margin = Math.round(Math.min(width, height) * .067);
-  const footer = height - margin - 42;
+  // A Story sits under the viewer's profile row and reply bar. Keep the print
+  // width and the card split, but lift the whole layout inside those insets so
+  // no heading, answer or sign-off is covered by Story chrome. Portrait has
+  // both insets at zero, leaving every 4:5 coordinate exactly as it was.
+  const safeTop = format === "story" ? Math.round(height * .13) : 0;
+  const safeBottom = format === "story" ? Math.round(height * .17) : 0;
+  const top = margin + safeTop;
+  const footer = height - safeBottom - margin - 42;
   const mark = await picture("/brand/composer-icon-20261022b-96.png");
   const [paper, ink, accent] = inks[result.game][result.skin] ?? inks[result.game][0];
   const answered = twentyOneAnswered(result.items ?? []);
@@ -235,16 +244,16 @@ export async function renderExperienceCards(result: ShareExperienceResult): Prom
     ctx.fillStyle = paper;
     ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = accent;
-    ctx.fillRect(margin, margin, inner, 3);
+    ctx.fillRect(margin, top, inner, 3);
     ctx.fillStyle = ink;
-    drawFit(ctx, result.title, margin, margin + 14, inner, 96, 64);
+    drawFit(ctx, result.title, margin, top + 14, inner, 96, 64);
     ctx.font = "600 24px system-ui";
     ctx.globalAlpha = .75;
-    ctx.fillText(`${answered} of ${twentyOneCount} answered · card ${card + 1} of ${cards.length}`, margin, margin + 132, inner);
+    ctx.fillText(`${answered} of ${twentyOneCount} answered · card ${card + 1} of ${cards.length}`, margin, top + 132, inner);
     ctx.globalAlpha = 1;
     // Rows share the body evenly, so a short last card breathes and a full
     // card shrinks its longest answers to fit instead of clipping them.
-    const rowsY = margin + 158;
+    const rowsY = top + 158;
     const rowH = (footer - rowsY - 24) / group.length;
     group.forEach((pair, row) => {
       const y = rowsY + row * rowH;

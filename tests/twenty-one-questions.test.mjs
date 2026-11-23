@@ -5,6 +5,7 @@ import {
   experienceArt, experienceOg, experiences, twentyOneQuestions,
   twentyOneResultTitle,
 } from '../src/lib/share-experiences.ts';
+import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
   moveTwentyOne, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
   twentyOneAnswerLimit, twentyOneAnswered, twentyOneCount, twentyOnePairs,
@@ -119,4 +120,13 @@ test('the browser keeps twenty-one answers local: no link, no stored draft', () 
   assert.match(controller, /linksAllowed: \(\) => false/);
   assert.match(controller, /game === "twenty-one-questions"\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
   assert.doesNotMatch(controller, /draftKey\("twenty-one-questions"\)/, 'no draft storage exists for private answers');
+});
+
+test('private cards offer portrait and Story, with portrait first', () => {
+  assert.deepEqual(resultSizes.portrait, [1080, 1350]);
+  assert.deepEqual(resultSizes.story, [1080, 1920]);
+  const markup = read('src/components/share-experiences/ShareExperience.astro');
+  const block = markup.match(/isTwentyOne \? <label>Format<select data-format>([\s\S]*?)<\/select><\/label>/);
+  assert.ok(block);
+  assert.deepEqual([...block[1].matchAll(/<option value="([^"]+)">/g)].map(match => match[1]), ['portrait', 'story']);
 });

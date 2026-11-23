@@ -1747,6 +1747,10 @@ export function mountShareExperience(root: HTMLElement) {
     if (cardDownloads) update();
   });
   if (cardDownloads) {
+    // Changing format retires the old set at once: update() revokes its links
+    // and bumps cardVersion, so a render already in flight from the previous
+    // format cannot append its downloads to the new choice.
+    format?.addEventListener("change", update);
     byline.addEventListener("input", update);
     window.addEventListener("pagehide", clearCardDownloads);
   }
@@ -1799,8 +1803,13 @@ export function mountShareExperience(root: HTMLElement) {
     try {
       // Links belong to the interactive result and result link; the image stays text-only.
       const { hrefs: _links, ...drawn } = snapshot;
+      const formatValue = format?.value;
+      const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       if (cardDownloads) {
-        const cards = await renderExperienceCards(drawn);
+        // Private cards only ever come in the 4:5 default or the 9:16 Story;
+        // a crafted select value cannot turn answers into another result size.
+        const cardFormat = size === "story" ? "story" : "portrait";
+        const cards = await renderExperienceCards(drawn, cardFormat);
         const current = attempt === cardVersion;
         busy = false;
         update();
@@ -1811,7 +1820,7 @@ export function mountShareExperience(root: HTMLElement) {
           const link = document.createElement("a");
           link.className = "button secondary";
           link.href = href;
-          link.download = `${game}-card-${index + 1}-of-${cards.length}.png`;
+          link.download = `${game}-${cardFormat === "story" ? "story-" : ""}card-${index + 1}-of-${cards.length}.png`;
           link.textContent = `Save card ${index + 1} of ${cards.length}`;
           cardDownloads.append(link);
         });
@@ -1819,8 +1828,6 @@ export function mountShareExperience(root: HTMLElement) {
         status.textContent = cards.length === 1 ? "Your card is ready." : "Your cards are ready.";
         return;
       }
-      const formatValue = format?.value;
-      const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined);
       const href = URL.createObjectURL(blob);
       const link = document.createElement("a");
