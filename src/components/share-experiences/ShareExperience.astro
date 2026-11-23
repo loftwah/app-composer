@@ -15,7 +15,8 @@ import {
   personaDraftOptionLimit, personaDraftPromptLimit, personaDraftTitleLimit,
 } from "../../lib/persona-quiz.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
-import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
+import { nineItemLimit, nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
+import { nineListLimit } from "../../lib/top-nine-list.ts";
 import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
 import { pageUrlLimit } from "../../lib/top-nine-pages.ts";
 
@@ -95,6 +96,20 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <input id="exhibition-subtitle" type="text" maxlength={nineSubtitleLimit} placeholder="A short line under the title" data-exhibition-subtitle />
       </div>
     </div>
+    <details class="exhibit-list" data-list-panel>
+      <summary>Paste a list</summary>
+      <p class="experience-note" id="exhibit-list-help">Enter one title per line. Only empty slots without attachments are filled.</p>
+      <form data-list-form>
+        <label for="exhibit-list">Exhibit titles</label>
+        <textarea id="exhibit-list" rows="4" maxlength={nineListLimit} autocomplete="off"
+          aria-describedby="exhibit-list-help exhibit-list-status" data-list-text></textarea>
+        <div class="exhibit-list-actions">
+          <button type="submit" data-list-fill disabled>Fill empty exhibits</button>
+          <button type="button" class="secondary" data-list-undo disabled>Undo fill</button>
+        </div>
+      </form>
+      <p class="experience-note" role="status" aria-live="polite" id="exhibit-list-status" data-list-status></p>
+    </details>
     <label class="exhibition-ranked">
       <input type="checkbox" data-nine-ranked />
       Rank exhibits #1 to #9
@@ -201,7 +216,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <div class="exhibition-objects">
       {Array.from({length: 9}, (_, index) => <label>
         <span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em> Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
-        <input type="text" maxlength="54" data-object={index} aria-label={`Exhibit ${index + 1}`} />
+        <input type="text" maxlength={nineItemLimit} data-object={index} aria-label={`Exhibit ${index + 1}`} />
         <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
         <span class="exhibit-page-state" data-page-slot-state={index} hidden></span>
         <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>

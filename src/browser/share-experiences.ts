@@ -32,6 +32,7 @@ import {
   type DraftStorage, type NineDraft,
 } from "../lib/share-experience-draft.ts";
 import { profileUrl } from "../lib/top-nine-profile.ts";
+import { nineListApplied, nineListSummary, planNineList, planNineListUndo } from "../lib/top-nine-list.ts";
 import { normalisePageLinks, pageLink } from "../lib/top-nine-pages.ts";
 import {
   searchBooks,
@@ -227,6 +228,14 @@ function mountNine(
   const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
   const openDraft = root.querySelector<HTMLButtonElement>("[data-draft-open]")!;
   const clearDraft = root.querySelector<HTMLButtonElement>("[data-draft-clear]")!;
+  const list = {
+    panel: root.querySelector<HTMLDetailsElement>("[data-list-panel]")!,
+    form: root.querySelector<HTMLFormElement>("[data-list-form]")!,
+    text: root.querySelector<HTMLTextAreaElement>("[data-list-text]")!,
+    fill: root.querySelector<HTMLButtonElement>("[data-list-fill]")!,
+    undo: root.querySelector<HTMLButtonElement>("[data-list-undo]")!,
+    status: root.querySelector<HTMLElement>("[data-list-status]")!,
+  };
   const music = {
     panel: root.querySelector<HTMLDetailsElement>("[data-music-panel]")!,
     target: root.querySelector<HTMLSelectElement>("[data-music-target-choice]")!,
@@ -293,6 +302,9 @@ function mountNine(
   let previewOpener: HTMLElement | null = null;
   /** One local undo for the most recent move, cleared when a draft or result replaces the exhibits. */
   let lastMove: { from: number; to: number } | null = null;
+  /** The slots and exact titles one pasted fill added, kept whole so Undo
+   * clears that fill in one step and returns its lines to the editor. */
+  let lastFill: { indexes: number[]; titles: string[] } | null = null;
   /** Album lookups still in flight for a pasted link, one per exhibit. */
   const pendingLookups = new Map<number, AbortController>();
 
@@ -432,6 +444,7 @@ function mountNine(
     });
     renderLinked();
     renderPages();
+    if (list.panel.open) showListCount();
   }
 
   function setLink(index: number, href: string | null) {
@@ -522,6 +535,7 @@ function mountNine(
       cover.linked.append(row);
     });
     cover.linked.hidden = !cover.linked.childElementCount;
+    if (list.panel.open) showListCount();
   }
 
   /** The optional profile link beside the preview: only a validated HTTPS
@@ -1100,6 +1114,7 @@ function mountNine(
     chooseSkin.value = String(draft.skin ?? 0);
     rankedBox.checked = draft.ranked === true;
     discardMove();
+    discardFill();
     cancelLookup();
     closePreview(false);
     hrefs = restoredHrefs;
@@ -1144,6 +1159,9 @@ function mountNine(
     [pageLinks[from], pageLinks[to]] = [pageLinks[to], pageLinks[from]];
     [pageTitles[from], pageTitles[to]] = [pageTitles[to], pageTitles[from]];
     [covers[from], covers[to]] = [covers[to], covers[from]];
+    if (lastFill) {
+      lastFill.indexes = lastFill.indexes.map((index) => index === from ? to : index === to ? from : index);
+    }
     if (previewIndex === from || previewIndex === to) closePreview(false);
     refreshLinks();
     renderCovers();
@@ -1188,6 +1206,86 @@ function mountNine(
     discardMove();
     order.focus({ preventScroll: true });
     draftStatus.textContent = `Move undone. Exhibit ${from + 1} is back in slot ${from + 1}.`;
+  });
+
+  /** Slots a pasted list may claim: no visible title and no staged source
+   * link, page or cover, so a fill never takes over someone else's attachment. */
+  function hasExhibitAttachment(index: number) {
+    return Boolean(hrefs[index] || livePage(index) || covers[index]);
+  }
+
+  function listSlots() {
+    return objects
+      .map((input, index) => (!input.value.trim() && !hasExhibitAttachment(index) ? index : -1))
+      .filter((index) => index >= 0);
+  }
+
+  /** The count beside the paste box, refreshed from the current text and board. */
+  function showListCount() {
+    const open = listSlots();
+    const plan = planNineList(list.text.value, open);
+    list.status.textContent = nineListSummary(plan, open.length);
+    list.fill.disabled = plan.indexes.length === 0;
+  }
+  function discardFill() {
+    lastFill = null;
+    list.undo.disabled = true;
+  }
+
+  /** Write one line through the exhibit's ordinary input path so the preview,
+   * draft, alt text and exports see it exactly as if it were typed. */
+  function setExhibit(index: number, value: string) {
+    objects[index].value = value;
+    objects[index].dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  list.text.addEventListener("input", showListCount);
+  list.panel.addEventListener("toggle", () => {
+    if (list.panel.open) showListCount();
+  });
+  list.form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const open = listSlots();
+    const plan = planNineList(list.text.value, open);
+    if (!plan.lines.length) {
+      list.status.textContent = "Paste at least one exhibit title, one per line.";
+      list.text.focus();
+      return;
+    }
+    if (!plan.indexes.length) {
+      list.status.textContent = nineListSummary(plan, open.length);
+      return;
+    }
+    plan.indexes.forEach((index, line) => setExhibit(index, plan.titles[line]));
+    lastFill = { indexes: plan.indexes.slice(), titles: plan.titles.slice() };
+    list.undo.disabled = false;
+    // Overflow stays in the editor, recoverable for the next fill or an edit.
+    list.text.value = plan.overflow.join("\n");
+    list.status.textContent = nineListApplied(plan, listSlots().length);
+    list.fill.disabled = planNineList(list.text.value, listSlots()).indexes.length === 0;
+    if (objects[target]?.value.trim()) {
+      const empty = firstEmpty();
+      if (empty >= 0) target = empty;
+      markTarget();
+    }
+  });
+  /** One Undo reverses the whole fill: every slot still holding a line this
+   * fill wrote is cleared, and those lines return to the paste box. A slot the
+   * person has since edited keeps their text, and its line is not duplicated. */
+  list.undo.addEventListener("click", () => {
+    if (!lastFill) return;
+    const filled = lastFill;
+    const plan = planNineListUndo(filled, objects.map((input) => input.value), hasExhibitAttachment);
+    plan.clear.forEach((index) => setExhibit(index, ""));
+    const staying = listSlots().length;
+    list.text.value = plan.restored.concat(
+      list.text.value.split(/\r?\n/).filter((line) => line.trim()),
+    ).join("\n");
+    discardFill();
+    const cleared = plan.clear.length;
+    list.status.textContent = `Fill undone · ${cleared} exhibit${cleared === 1 ? "" : "s"} cleared · ${staying} empty slot${staying === 1 ? "" : "s"}${plan.kept ? ` · ${plan.kept} kept your later edit` : ""}.`;
+    list.fill.disabled = planNineList(list.text.value, listSlots()).indexes.length === 0;
+    list.text.focus({ preventScroll: true });
   });
   cover.target.addEventListener("change", () => {
     coverTarget = Number(cover.target.value);
@@ -1417,6 +1515,7 @@ function mountNine(
   markCoverTarget();
   markPageTarget();
   renderCovers();
+  showListCount();
   renderPreview();
   if (previewGrid) previewGrid.hidden = false;
 
@@ -1454,6 +1553,7 @@ function mountNine(
       if (profile) profile.value = profileUrl(snapshot.profile) ?? "";
       if (profileStatus) profileStatus.textContent = "";
       discardMove();
+      discardFill();
       cancelLookup();
       closePreview(false);
       hrefs = trimHrefs(snapshot.hrefs);
