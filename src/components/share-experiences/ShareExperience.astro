@@ -23,6 +23,10 @@ import {
   tierListDefaultTitle, tierListEntryLimit, tierListEntryTotal,
   tierListRowEntryLimit, tierListTiers, tierListTitleLimit,
 } from "../../lib/tier-list.ts";
+import {
+  oneMustGoChoiceCount, oneMustGoChoiceLimit, oneMustGoStarterChoices,
+  oneMustGoTitle,
+} from "../../lib/one-must-go.ts";
 
 interface Props {
   game: ExperienceId;
@@ -38,6 +42,7 @@ const isTwentyOne = game === "twenty-one-questions";
 const isCloudflare = game === "developer-type";
 const isLanguage = game === "language-type";
 const isTier = game === "tier-list";
+const isMustGo = game === "one-must-go";
 const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
@@ -326,6 +331,43 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note">Up to {tierListEntryTotal} entries, {tierListRowEntryLimit} in a row. Use the row menu beside an entry to move it.</p>
   </section>}
 
+  {isMustGo && <section data-play-panel class="omg-stage" aria-label="One must go">
+    <div class="omg-head">
+      <h2 id="omg-prompt">{oneMustGoTitle}</h2>
+      <p class="omg-round-note" data-omg-round-note>Poster round</p>
+    </div>
+    <p class="experience-note">Choose one to eliminate. The other three stay.</p>
+    <div class="omg-choices" role="group" aria-labelledby="omg-prompt">
+      {oneMustGoStarterChoices.map((choice, index) => <button type="button" class="omg-choice" data-omg-choice={index} disabled>
+        <span class="omg-choice-label" data-omg-choice-label>{choice}</span>
+        <span class="omg-choice-state" data-omg-choice-state hidden>Gone</span>
+      </button>)}
+    </div>
+    <p class="experience-note" role="status" aria-live="polite" data-omg-status></p>
+    <section hidden class="omg-result" data-omg-result aria-label="Your elimination">
+      <h3 tabindex="-1" data-omg-result-title></h3>
+      <p data-omg-result-copy></p>
+      <ul class="omg-survivors" aria-label="Still on the stage" data-omg-survivors></ul>
+      <div class="tot-controls">
+        <button type="button" data-omg-again disabled>Choose again</button>
+      </div>
+    </section>
+    <details class="omg-custom">
+      <summary>Write your own round</summary>
+      <p class="experience-note" id="omg-custom-help">Enter four choices of your own. Your round stays in this tab.</p>
+      <form data-omg-form autocomplete="off" aria-describedby="omg-custom-help">
+        {Array.from({ length: oneMustGoChoiceCount }, (_, index) => <label>Choice {index + 1}
+          <input type="text" maxlength={oneMustGoChoiceLimit} data-omg-input disabled />
+        </label>)}
+        <button type="submit" disabled>Play my round</button>
+        <p class="experience-note" role="status" data-omg-form-status></p>
+      </form>
+      <div class="tot-controls">
+        <button type="button" class="secondary" data-omg-starter disabled hidden>Back to the poster round</button>
+      </div>
+    </details>
+  </section>}
+
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
     <div class="tot-packs">
       <label for="tot-pack">Starter
@@ -596,6 +638,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isCloudflare ? ["Midnight etching", "Aged amber", "Night archive"]
           : isLanguage ? ["Canyon dawn", "Warm paper", "Night archive"]
           : isTier ? ["Wine press", "Marble and cobalt", "Cobalt night"]
+          : isMustGo ? ["Noir orange", "Stamp orange", "Paper and ink"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
@@ -623,13 +666,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-persona-avatar-status></p>
     </div>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier}>
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo}>
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : "tot-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier}>Share result</button>
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
     {persona && <div class="experience-actions" data-persona-preview hidden></div>}
@@ -637,6 +680,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
     <p class="experience-note" data-share-note>{isTier
       ? "Download the PNG to keep this board. There is no result link, public board or vote, and your entries are never serialised into a URL."
+      : isMustGo
+      ? "Download the PNG to keep this elimination. There is no result link, public vote or percentage, and a private round never travels in a URL."
       : isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
@@ -651,7 +696,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {(isNine || isThis) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && !isTier && !persona && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">

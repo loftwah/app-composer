@@ -20,9 +20,11 @@ export type ResultFormat = keyof typeof resultSizes;
  * nine short texts. One column at nine would squeeze portrait cells to about
  * a third of their height (and far less on square and landscape), dropping
  * option text toward the fit floor; the grid keeps every choice at the same
- * starting size the five uses, in taller cells than the five-row layout. */
-export function resultColumns(game: ExperienceId, itemCount: number): 1 | 3 | 5 {
+ * starting size the five uses, in taller cells than the five-row layout.
+ * One-must-go prints its four stage choices as a clear 2 × 2. */
+export function resultColumns(game: ExperienceId, itemCount: number): 1 | 2 | 3 | 5 {
   if (game === "tech-bingo") return 5;
+  if (game === "one-must-go") return 2;
   if (game === "this-or-that") return itemCount === 9 ? 3 : 1;
   return 3;
 }
@@ -82,6 +84,9 @@ const inks = {
   "language-type": [["#17251c", "#f4f1dc", "#d8f36a"], ["#efe4cf", "#241f17", "#8d3f22"], ["#111820", "#e6f0ff", "#9fd4ff"]],
   // Wine letterpress, marble and cobalt, matching the owned tier-list stage.
   "tier-list": [["#f7ead8", "#2a161b", "#8c2130"], ["#efe4d3", "#251b1d", "#345f9e"], ["#141b2b", "#e7edf8", "#9fc6ff"]],
+  // Noir orange, white relief and warm paper, matching the owned one-must-go
+  // awards stage.
+  "one-must-go": [["#171310", "#fbeee2", "#f07022"], ["#b84317", "#fff3e6", "#ffd9a8"], ["#efe2cf", "#22170f", "#a63817"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -346,7 +351,10 @@ export async function renderExperienceResult(
     result.items.forEach((caption, index) => {
       const x = margin + (index % cols) * (cellW + gap);
       const y = rowY + Math.floor(index / cols) * (cellH + gap);
-      const marked = result.game === "tech-bingo" && Boolean(result.marked?.includes(index));
+      // Tech Bingo marks selected squares; one-must-go marks the one that left.
+      // Both draw the same clear diagonal and never mark Bingo's free centre.
+      const marked = (result.game === "tech-bingo" || result.game === "one-must-go")
+        && Boolean(result.marked?.includes(index));
       const slot = result.game === "top-nine" ? covers?.[index] : undefined;
       const cover = slot?.art;
       const inset = wide ? 9 : 15;
@@ -413,7 +421,7 @@ export async function renderExperienceResult(
         });
         if (rank) drawRank(ctx, rank, x + inset, y + inset, rankSize, paper, accent);
       }
-      if (marked && index !== 12) {
+      if (marked && !(result.game === "tech-bingo" && index === 12)) {
         ctx.strokeStyle = paper;
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(x + 7, y + cellH - 8); ctx.lineTo(x + cellW - 8, y + 8); ctx.stroke();

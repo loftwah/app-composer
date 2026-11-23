@@ -58,6 +58,11 @@ import {
   tierListRowEntryLimit, tierListSnapshot, tierListTiers,
   type TierListBoard,
 } from "../lib/tier-list.ts";
+import {
+  oneMustGoOutcome, oneMustGoRemainingLine, oneMustGoStarter, oneMustGoTitle,
+  readOneMustGoChoices,
+  type OneMustGoRound,
+} from "../lib/one-must-go.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import {
   normaliseSourceLinks, sourceLink,
@@ -3132,6 +3137,130 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+/** One elimination round on the noir stage. Four choices; choosing one marks
+ * it gone and leaves the other three. "Choose again" restores all four. The
+ * owned poster round is the default; a private authored round is exactly four
+ * typed choices and never becomes a link, draft or stored value. */
+function mountOneMustGo(root: HTMLElement, update: () => void): Controller {
+  const roundNote = root.querySelector<HTMLElement>("[data-omg-round-note]")!;
+  const buttons = elements<HTMLButtonElement>(root, "[data-omg-choice]");
+  const labels = elements<HTMLElement>(root, "[data-omg-choice-label]");
+  const states = elements<HTMLElement>(root, "[data-omg-choice-state]");
+  const status = root.querySelector<HTMLElement>("[data-omg-status]")!;
+  const result = root.querySelector<HTMLElement>("[data-omg-result]")!;
+  const resultTitle = root.querySelector<HTMLElement>("[data-omg-result-title]")!;
+  const resultCopy = root.querySelector<HTMLElement>("[data-omg-result-copy]")!;
+  const survivors = root.querySelector<HTMLUListElement>("[data-omg-survivors]")!;
+  const again = root.querySelector<HTMLButtonElement>("[data-omg-again]")!;
+  const form = root.querySelector<HTMLFormElement>("[data-omg-form]")!;
+  const inputs = elements<HTMLInputElement>(root, "[data-omg-input]");
+  const formStatus = root.querySelector<HTMLElement>("[data-omg-form-status]")!;
+  const starter = root.querySelector<HTMLButtonElement>("[data-omg-starter]")!;
+  const submit = form.querySelector<HTMLButtonElement>("[type=submit]")!;
+  let round: OneMustGoRound = oneMustGoStarter;
+  let gone: number | null = null;
+
+  function paintChoices() {
+    labels.forEach((label, index) => { label.textContent = round.choices[index]; });
+    buttons.forEach((button, index) => {
+      button.disabled = gone !== null;
+      button.classList.toggle("is-gone", gone === index);
+      states[index].hidden = gone !== index;
+      button.setAttribute("aria-label",
+        gone === index ? `${round.choices[index]} is gone` : `Eliminate ${round.choices[index]}`);
+    });
+  }
+
+  function clearResult() {
+    gone = null;
+    result.hidden = true;
+    resultTitle.textContent = "";
+    resultCopy.textContent = "";
+    survivors.replaceChildren();
+  }
+
+  function showRound() {
+    clearResult();
+    roundNote.textContent = round.source === "starter" ? "Poster round" : "Your round, kept in this tab";
+    paintChoices();
+    update();
+  }
+
+  root.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-omg-choice]");
+    if (!button || gone !== null) return;
+    const outcome = oneMustGoOutcome(round, Number(button.dataset.omgChoice));
+    if (!outcome) return;
+    gone = Number(button.dataset.omgChoice);
+    paintChoices();
+    survivors.replaceChildren(...outcome.remaining.map((choice) => {
+      const item = document.createElement("li");
+      item.textContent = choice;
+      return item;
+    }));
+    resultTitle.textContent = `${outcome.gone} is gone.`;
+    resultCopy.textContent = `${outcome.remaining.length} stay on the stage.`;
+    result.hidden = false;
+    update();
+    resultTitle.focus();
+    status.textContent = `${outcome.gone} is gone. ${oneMustGoRemainingLine(outcome.remaining)} stay.`;
+  });
+
+  again.addEventListener("click", () => {
+    clearResult();
+    paintChoices();
+    update();
+    buttons[0].focus();
+    status.textContent = "All four are back. Choose the one that goes.";
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const read = readOneMustGoChoices(inputs.map((input) => input.value));
+    if (!read.ok) {
+      formStatus.textContent = read.message;
+      (inputs.find((input) => !input.value.trim()) ?? inputs[0]).focus({ preventScroll: true });
+      return;
+    }
+    round = read.round;
+    inputs.forEach((input, index) => { input.value = round.choices[index]; });
+    clearResult();
+    roundNote.textContent = "Your round, kept in this tab";
+    paintChoices();
+    starter.hidden = false;
+    formStatus.textContent = "Your round is on the stage.";
+    update();
+    buttons[0].focus();
+    status.textContent = "Your four choices are ready. Choose the one that goes.";
+  });
+
+  starter.addEventListener("click", () => {
+    round = oneMustGoStarter;
+    starter.hidden = true;
+    showRound();
+    buttons[0].focus();
+    formStatus.textContent = "Back to the poster round.";
+    status.textContent = "The poster round is back. Choose the one that goes.";
+  });
+
+  paintChoices();
+  for (const control of [...buttons, ...inputs, again, starter, submit]) control.disabled = false;
+
+  return {
+    result() {
+      if (gone === null) return null;
+      // The four print in stage order; marked is the eliminated index, which
+      // the shared PNG renderer crosses out for this game.
+      return { title: oneMustGoTitle, items: [...round.choices], marked: [gone] };
+    },
+    linksAllowed: () => false,
+    restore() {
+      // A round never travels in a result link; a crafted fragment cannot
+      // replace the four choices this tab is playing.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -3493,6 +3622,8 @@ export function mountShareExperience(root: HTMLElement) {
       status.textContent = "";
     } else if (!canShare && game === "tier-list") {
       status.textContent = "Add at least one entry to download your board.";
+    } else if (!canShare && game === "one-must-go") {
+      status.textContent = "Eliminate one choice to download your result.";
     } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
@@ -3504,6 +3635,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "this-or-that" ? mountThisOrThat(root, update)
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
     : game === "tier-list" ? mountTierList(root, update)
+    : game === "one-must-go" ? mountOneMustGo(root, update)
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
@@ -3525,11 +3657,11 @@ export function mountShareExperience(root: HTMLElement) {
     });
   }
 
-  // Twenty-one questions and the tier list never produce result links, and a
-  // persona result link is the answer-free `#result=<id>` fragment the quiz
-  // reads itself: none is the generic JSON snapshot, so a crafted hash
+  // Twenty-one questions, the tier list and one-must-go never produce result
+  // links, and a persona result link is the answer-free `#result=<id>` fragment
+  // the quiz reads itself: none is the generic JSON snapshot, so a crafted hash
   // restores nothing.
-  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list"
+  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -3834,10 +3966,10 @@ export function mountShareExperience(root: HTMLElement) {
     }
   });
 
-  // Twenty-one questions has no result link to hand over, and a persona result
-  // hands its answer-free link over in the result panel instead. The native
-  // share sheet stays off for all of them.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && !persona) {
+  // Twenty-one questions and one-must-go have no result link to hand over, and
+  // a persona result hands its answer-free link over in the result panel
+  // instead. The native share sheet stays off for all of them.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;
