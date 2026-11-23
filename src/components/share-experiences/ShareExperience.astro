@@ -21,6 +21,16 @@ const isBingo = game === "tech-bingo";
 const isThis = game === "this-or-that";
 const isTwentyOne = game === "twenty-one-questions";
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
+// A text-only, unranked example board built from the current Top Nine result
+// fragment contract, so it restores through the same path as a shared result.
+const exampleBoard = {
+  game: "top-nine",
+  byline: "",
+  skin: 0,
+  title: "Example: Nine programming languages",
+  items: ["Python", "JavaScript", "TypeScript", "Rust", "Go", "Java", "C++", "Ruby", "Swift"],
+};
+const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ result: JSON.stringify(exampleBoard) }).toString()}`;
 ---
 
 <article class:list={["share-experience", `experience-${experience.theme}`]} data-experience={game}
@@ -202,6 +212,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <option value="">Choose a prompt</option>
       {exhibitionPrompts.map((label) => <option>{label}</option>)}
     </select>
+    <p class="experience-note"><a href={exampleBoardHref} target="_blank" rel="noopener noreferrer">Open an example board</a></p>
     <div class="experience-actions exhibition-draft">
       <button type="button" data-draft-save>Save draft</button>
       <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
