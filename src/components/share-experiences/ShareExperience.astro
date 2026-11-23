@@ -446,8 +446,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note persona-disclaimer">An independent fan quiz by App Composer, unaffiliated with Cloudflare. Cloudflare, Cloudflare Workers, Durable Objects and Workers AI are trademarks or registered trademarks of Cloudflare, Inc. Service summaries checked against the official docs on {cloudflarePersonaChecked}.</p>
   </section>}
 
-  <section class="experience-export" aria-label="Personalise and share" hidden={isCloudflare}>
-    <h2>{isTwentyOne ? "Your share cards" : "Your share image"}</h2>
+  <section class="experience-export" aria-label="Personalise and share">
+    <h2>{isCloudflare ? "Your result card" : isTwentyOne ? "Your share cards" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
@@ -471,11 +471,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isNine ? ["Gallery", "Record sleeve", "Night exhibition"]
           : isThis ? ["Game show", "Newsprint", "Studio cyan"]
           : isTwentyOne ? ["Amber slide", "Night archive", "Field notes"]
+          : isCloudflare ? ["Midnight etching", "Aged amber", "Night archive"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
       </select></label>
-      {isTwentyOne ? <label>Format<select data-format>
+      {(isTwentyOne || isCloudflare) ? <label>Format<select data-format>
         <option value="portrait">Portrait · 1080 × 1350 (4:5)</option>
         <option value="story">Story · 1080 × 1920 (9:16)</option>
         <option value="square">Square · 1080 × 1080 (1:1)</option>
@@ -489,21 +490,24 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {isNine && <p class="experience-note" id="nine-profile-note">A full HTTPS profile link appears beside your preview and travels only in your result link and saved draft — never in the image or its description.</p>}
     {isNine && <p class="experience-note" role="status" data-profile-status></p>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne}>
-        {isTwentyOne ? "Prepare cards" : "Download result"}
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare}>
+        {isCloudflare ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : "tot-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne} disabled={isDoor || isNine || isThis || isTwentyOne}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne}>Share result</button>
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
+    {isCloudflare && <div class="experience-actions" data-persona-preview hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, optional subtitle and byline, and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
     {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
     <p class="experience-note" data-share-note>{isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
       ? "A result link carries your title, subtitle, exhibits, source links, web page links, byline, optional profile link and ranked setting. Cover images never go into the link — download the result image to keep them."
+      : isCloudflare
+      ? "Your card prints the result name, service, explanation and any byline. It never prints your answers or the quiz address; Copy result link above holds the answer-free link."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
