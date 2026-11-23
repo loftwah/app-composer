@@ -48,6 +48,15 @@ export const experiences = {
     imageDescription: "An antique silver etching of an orbital library on a midnight-blue collectible card.",
     theme: "museum",
   },
+  "language-type": {
+    title: "Language Type Quiz",
+    description: "Eight ordinary project moments about how you like to make things. Find your type and meet a language that fits.",
+    // The stage reuses the owned Internet Workshop “what-build” exhibition
+    // poster; see public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "what-build",
+    imageDescription: "A vast canyon of impossible small working inventions under huge type reading “What would you build?”.",
+    theme: "exhibition",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;

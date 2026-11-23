@@ -4,8 +4,7 @@ import {
   twentyOneSquareCardSize,
 } from "../lib/twenty-one-questions.ts";
 import { coverBox, type CoverFit } from "../lib/top-nine-cover.ts";
-import { developerTypeCardCopy, developerTypeCardCredit } from "../lib/developer-type-card.ts";
-import type { CloudflarePersonaId } from "../lib/cloudflare-persona.ts";
+import type { PersonaCardPrint } from "../lib/persona-quiz.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -71,8 +70,10 @@ const inks = {
   "tech-bingo": [["#841424", "#ffeed7", "#ffd08a"], ["#164934", "#fff6db", "#fdcb63"], ["#ece3d6", "#251a19", "#982b3d"]],
   "this-or-that": [["#10333c", "#f3faf3", "#ff6a4d"], ["#e8ddc4", "#1c2a24", "#b3372a"], ["#10161d", "#dff1ff", "#9fd4ff"]],
   "twenty-one-questions": [["#f0e7d0", "#33202e", "#b06010"], ["#241a33", "#e9ddc6", "#d9a441"], ["#e7ecdc", "#22301f", "#5c7a3f"]],
-  // The Developer Type card keeps the museum stage's three established pairs.
+  // The Developer Type card keeps the museum stage's three established pairs;
+  // the Language Type card brings its own warm exhibition pairs.
   "developer-type": [["#321b59", "#fff1d6", "#ffb696"], ["#eab36b", "#211610", "#642342"], ["#131a26", "#dcedff", "#b0ceff"]],
+  "language-type": [["#17251c", "#f4f1dc", "#d8f36a"], ["#efe4cf", "#241f17", "#8d3f22"], ["#111820", "#e6f0ff", "#9fd4ff"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -479,10 +480,6 @@ export function personaCardLayout(format: PersonaCardFormat): PersonaCardLayout 
 
 const personaFont = "Space, system-ui";
 
-/** The museum stage's three pairs, read exactly as the live experience sets
- * them. No Cloudflare palette, logo, product icon or typeface is imported. */
-const personaInks = inks["developer-type"];
-
 function personaBlock(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -503,7 +500,7 @@ function personaBlock(
 
 /** A small squared label tick followed by tracked capitals. Drawn rather than
  * set, so the label keeps its rhythm even where letter-spacing is unsupported. */
-function personaLabel(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, ink: string, accent: string) {
+function personaLabel(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, ink: string, accent: string, label: string) {
   ctx.save();
   ctx.fillStyle = accent;
   const tick = Math.round(size * .62);
@@ -511,7 +508,7 @@ function personaLabel(ctx: CanvasRenderingContext2D, x: number, y: number, size:
   ctx.fillStyle = ink;
   ctx.font = `700 ${size}px ${personaFont}`;
   let cursor = x + tick + Math.round(size * .62);
-  for (const character of "DEVELOPER TYPE") {
+  for (const character of label) {
     ctx.fillText(character, cursor, y);
     cursor += ctx.measureText(character).width + Math.round(size * .2);
   }
@@ -550,16 +547,15 @@ function personaServiceTag(
   return { width, height };
 }
 
-/** One downloadable Developer Type result card for a trusted outcome. It takes
- * only the outcome id, the chosen museum pair and the optional byline, so the
- * PNG cannot carry private run data, a docs address or the quiz deep link.
- * The returned Blob URL is what the preview and Save link share. */
+/** One downloadable persona result card for a trusted outcome. It takes only
+ * the printable outcome copy, the chosen stage pair and the optional byline, so
+ * the PNG cannot carry private run data, a docs address or the quiz deep link.
+ * The returned Blob is what the preview and Save link share. */
 export async function renderPersonaCard(
-  id: CloudflarePersonaId,
+  copy: PersonaCardPrint,
   format: PersonaCardFormat,
-  options: { byline: string; skin: number },
+  options: { byline: string; skin: number; game: ExperienceId; label: string; credit: string },
 ): Promise<Blob> {
-  const copy = developerTypeCardCopy(id);
   const layout = personaCardLayout(format);
   const { width, height } = layout;
   const canvas = document.createElement("canvas");
@@ -570,13 +566,14 @@ export async function renderPersonaCard(
   // Space is the page's own display face. Wait for it once so the canvas and
   // the live label share a voice; an unavailable face falls back to system-ui.
   await document.fonts?.ready;
-  const [paper, ink, accent] = personaInks[options.skin] ?? personaInks[0];
+  const palette = inks[options.game];
+  const [paper, ink, accent] = palette[options.skin] ?? palette[0];
   const mark = await picture("/brand/composer-icon-20261022b-96.png");
   ctx.fillStyle = paper;
   ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = accent;
   ctx.fillRect(layout.margin, layout.contentTop, layout.innerWidth, 3);
-  personaLabel(ctx, layout.margin, layout.contentTop + 40, layout.labelSize, ink, accent);
+  personaLabel(ctx, layout.margin, layout.contentTop + 40, layout.labelSize, ink, accent, options.label);
 
   const heroTop = layout.contentTop + 62;
   const room = layout.contentBottom - heroTop;
@@ -588,7 +585,7 @@ export async function renderPersonaCard(
   );
 
   const tagTop = heroTop + hero.height + Math.round(layout.displaySize * .24);
-  const tag = personaServiceTag(ctx, copy.service, layout.margin, tagTop, layout.innerWidth, layout.serviceSize, accent);
+  const tag = personaServiceTag(ctx, copy.subject, layout.margin, tagTop, layout.innerWidth, layout.serviceSize, accent);
 
   const ruleY = tagTop + tag.height + 30;
   ctx.save();
@@ -616,7 +613,7 @@ export async function renderPersonaCard(
   ctx.globalAlpha = .68;
   ctx.fillStyle = ink;
   personaBlock(
-    ctx, developerTypeCardCredit, layout.margin, layout.contentBottom + 8,
+    ctx, options.credit, layout.margin, layout.contentBottom + 8,
     layout.innerWidth, layout.footer - layout.contentBottom - 10, layout.creditSize, 500, 1.35,
   );
   ctx.restore();
