@@ -128,7 +128,20 @@ export const sweetOrSpicyQuestions = [
 ] as const;
 export const sweetOrSpicyResultTitle = "Your sweet-or-spicy side";
 
-/** Both starters share one controller. The pack key travels in a result link
+/** #1068 games starter: five original PC-or-console either-ors about how
+ * someone plays, all written from one point of view. Each entry is the prompt,
+ * then the two exact choice texts, always in that order. Purely authored text:
+ * no game artwork, franchise or external asset is reused. */
+export const gamesQuestions = [
+  ["Your perfect setup starts with…", "A mechanical keyboard and a big monitor", "A controller and the couch"],
+  ["Game night with friends means…", "A headset and a busy voice chat", "Pass the controller around the sofa"],
+  ["The upgrade you save for is…", "A faster graphics card", "A bigger television"],
+  ["After a great run, you want to keep…", "A clip of the last ten seconds", "A screenshot of the final score"],
+  ["When a new game lands, you…", "Dial in the graphics settings", "Press start and learn as you go"],
+] as const;
+export const gamesResultTitle = "Your play style";
+
+/** All starters share one controller. The pack key travels in a result link
  * so a shared result reopens the exact starter; an absent or unknown key keeps
  * the original maker rhythm, unchanged. */
 export const thisOrThatPacks = {
@@ -141,6 +154,11 @@ export const thisOrThatPacks = {
     questions: sweetOrSpicyQuestions,
     title: sweetOrSpicyResultTitle,
     description: "Five original sweet-or-spicy either-ors from the kitchen. Pick a side, undo if you change your mind.",
+  },
+  games: {
+    questions: gamesQuestions,
+    title: gamesResultTitle,
+    description: "Five choices about your setup and how you play.",
   },
 } as const;
 export type ThisOrThatPack = keyof typeof thisOrThatPacks;
