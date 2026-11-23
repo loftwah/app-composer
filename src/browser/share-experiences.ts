@@ -3115,6 +3115,7 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
 
   title.addEventListener("input", update);
   render();
+  for (const control of [title, addText, addRow]) control.disabled = false;
 
   return {
     result() {
