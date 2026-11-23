@@ -1,5 +1,5 @@
 ---
-import { browserCheckPath, handoffAgents, readyTasks } from '../lib/ready-handoff';
+import { browserCheckPath, handoffAgents, readyTasks, conceptInputLimit } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
 const { preferences=false }=Astro.props;
 const selected=Astro.url.searchParams.get('task');
@@ -16,6 +16,13 @@ const browserTask=taskId==='browser';
  {preferences && <label data-ready-agent-choice hidden>Which coding agent do you use?
   <select data-ready-agent>{Object.entries(handoffAgents).map(([id,agent])=><option value={id} selected={id==='any'}>{agent.label}</option>)}</select>
  </label>}
+ {preferences && <details data-ready-concept hidden>
+  <summary>Use an idea I already have</summary>
+  <label>Describe a first small feature
+   <textarea data-ready-concept-input rows="4" maxlength={conceptInputLimit} wrap="soft" placeholder="Write an idea or paste a project brief."></textarea>
+  </label>
+  <p class="small">The idea stays on this page and goes into the setup prompt when you copy it.</p>
+ </details>}
  <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy agent handoff'}</span></button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
  <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
@@ -30,15 +37,55 @@ const browserTask=taskId==='browser';
     color: var(--color-foreground);
     font-weight: 600;
   }
+  details[data-ready-concept] {
+    margin: 14px 0 4px;
+  }
+  details[data-ready-concept] summary {
+    cursor: pointer;
+    min-height: 44px;
+    align-content: center;
+    font-weight: 600;
+  }
+  details[data-ready-concept] label {
+    display: grid;
+    gap: 8px;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  details[data-ready-concept] textarea {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-block-size: 96px;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-foreground);
+    background: var(--color-field);
+    border: 1px solid var(--color-control-border);
+    border-radius: 8px;
+    resize: vertical;
+  }
+  details[data-ready-concept] textarea:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  details[data-ready-concept] p.small {
+    margin: 8px 0 0;
+    color: var(--color-muted);
+    max-width: 70ch;
+  }
 </style>
 <script>
-import {readyTasks,handoffAgents,agentContextLine} from '../lib/ready-handoff';
+import {readyTasks,handoffAgents,agentContextLine,conceptContextBlock} from '../lib/ready-handoff';
 import {setupPreferenceHandoff,assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
 import {currentAssistance} from '../lib/assistance';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
  const selector=container.querySelector<HTMLSelectElement>('[data-ready-task]')!;
  const agentSelector=container.querySelector<HTMLSelectElement>('[data-ready-agent]');
  const agentChoice=container.querySelector<HTMLElement>('[data-ready-agent-choice]');
+ const conceptDetail=container.querySelector<HTMLDetailsElement>('[data-ready-concept]');
+ const conceptInput=container.querySelector<HTMLTextAreaElement>('[data-ready-concept-input]');
  const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
  const prompt=container.querySelector<HTMLElement>('[data-ready-prompt]')!;
  const message=container.querySelector<HTMLElement>('[data-ready-message]')!;
@@ -61,6 +108,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
   copyLabel.textContent=browserTask?'Copy browser check':'Copy agent handoff';
   browserCheckLink.hidden=!browserTask;
   if(agentChoice)agentChoice.hidden=task!==readyTasks.setup;
+  if(conceptDetail)conceptDetail.hidden=task!==readyTasks.setup;
   if(task===readyTasks.setup){
    const hostContext=agentContextLine(agentId);
    if(hostContext)text=hostContext+'\n\n'+text;
@@ -71,6 +119,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
    try{if(form)text+=setupPreferenceHandoff({version:1,destination:(form.elements.namedItem('destination') as RadioNodeList).value,hostname:(form.elements.namedItem('setup-hostname') as HTMLInputElement).value});}
    catch(error){button.disabled=true;failure=error instanceof Error?error.message:'Choose a supported address.';text='Complete your address choice before copying the setup request.';}
   }
+  if(task===readyTasks.setup&&!failure)text+=conceptContextBlock(conceptInput?.value??'');
   // Restored form state, help-level and pageshow events rerun this often. Only a
   // real change to the request retires the status that belongs to the old one.
   if(text!==renderedText||selector.value!==renderedTask){
@@ -84,6 +133,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  selector.disabled=false;update();
  selector.addEventListener('change',update);
  agentSelector?.addEventListener('change',update);
+ conceptInput?.addEventListener('input',update);
  // Native form restoration may finish after the module first executes.
  window.addEventListener('pageshow',update);
  window.addEventListener('composer:setup-choice',update);
