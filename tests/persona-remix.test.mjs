@@ -431,9 +431,9 @@ test('the shared share bar hides its export while a draft is active', () => {
   const controller = source('src/browser/share-experiences.ts');
   assert.match(controller, /const exportable = controller\.exportAllowed\?\.\(\) \?\? true;/);
   assert.match(controller, /if \(exportPanel\) exportPanel\.hidden = !exportable;/);
-  assert.match(controller, /download\.disabled = busy \|\| !canShare \|\| !exportable;/);
+  assert.match(controller, /download\.disabled = busy \|\| avatarPending \|\| !canShare \|\| !exportable;/);
   assert.match(controller, /copy\.disabled = !links \|\| !canShare \|\| !exportable;/);
-  assert.match(controller, /!snapshot \|\| busy \|\| controller\.exportAllowed\?\.\(\) === false/);
+  assert.match(controller, /!snapshot \|\| busy \|\| avatarPending \|\| controller\.exportAllowed\?\.\(\) === false/);
 });
 
 test('the original routes, answer-free links and card formats are untouched', () => {

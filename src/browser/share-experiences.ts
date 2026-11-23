@@ -3057,6 +3057,53 @@ function thisOrThatAltText(snapshot: ShareExperienceResult): string {
     .join(" ");
 }
 
+/** One optional photo behind a persona result card's small circle. It uses the
+ * same device-image path as a Top Nine cover: bounded before decode, checked by
+ * its magic bytes, decoded locally, and never uploaded. The returned object URL
+ * belongs to the caller, which retires it on replace, removal or pagehide. */
+type CardPhotoRead =
+  | { ok: true; art: HTMLCanvasElement; url: string }
+  | { ok: false; message: string };
+
+async function readCardPhoto(file: File): Promise<CardPhotoRead> {
+  if (file.size > coverFileLimit) {
+    return { ok: false, message: `That image is ${Math.round(file.size / 1_048_576)} MB. Photos can be up to ${coverFileLimit / 1_048_576} MB.` };
+  }
+  const head = new Uint8Array(await file.slice(0, coverHeadLimit).arrayBuffer());
+  const sniffed = sniffCover(head);
+  if (!sniffed) {
+    return { ok: false, message: "That file isn’t a readable PNG, JPEG or WebP image. Pick a photo from your device." };
+  }
+  if (sniffed.width * sniffed.height > coverPixelLimit) {
+    return { ok: false, message: `That image is ${sniffed.width.toLocaleString()} × ${sniffed.height.toLocaleString()} pixels. Photos can be up to ${coverPixelLimit / 1_000_000} megapixels.` };
+  }
+  const url = URL.createObjectURL(file);
+  const source = new Image();
+  source.src = url;
+  try {
+    await source.decode();
+  } catch {
+    URL.revokeObjectURL(url);
+    return { ok: false, message: "That image couldn’t be decoded. Export it as PNG or JPEG, then pick it again." };
+  }
+  if (source.naturalWidth * source.naturalHeight > coverPixelLimit) {
+    URL.revokeObjectURL(url);
+    return { ok: false, message: "That image is too large to use here. Try a smaller copy." };
+  }
+  const scale = Math.min(1, coverWorkingMax / Math.max(source.naturalWidth, source.naturalHeight));
+  const art = document.createElement("canvas");
+  art.width = Math.max(1, Math.round(source.naturalWidth * scale));
+  art.height = Math.max(1, Math.round(source.naturalHeight * scale));
+  const artCtx = art.getContext("2d");
+  if (!artCtx) {
+    URL.revokeObjectURL(url);
+    return { ok: false, message: "This browser couldn’t prepare that photo. Try a smaller image." };
+  }
+  artCtx.imageSmoothingQuality = "high";
+  artCtx.drawImage(source, 0, 0, art.width, art.height);
+  return { ok: true, art, url };
+}
+
 export function mountShareExperience(root: HTMLElement) {
   const game = root.dataset.experience as ExperienceId;
   if (!Object.hasOwn(experiences, game)) return;
@@ -3108,6 +3155,91 @@ export function mountShareExperience(root: HTMLElement) {
     personaPreview.replaceChildren();
     personaPreview.hidden = true;
   }
+  // The optional participant photo is a local device image for the persona
+  // card only. It lives beside the renderer, never inside the result snapshot,
+  // captions, storage, a draft file or any remote request.
+  const avatarFile = root.querySelector<HTMLInputElement>("[data-persona-avatar-file]");
+  const avatarPick = root.querySelector<HTMLButtonElement>("[data-persona-avatar-pick]");
+  const avatarRemove = root.querySelector<HTMLButtonElement>("[data-persona-avatar-remove]");
+  const avatarPreview = root.querySelector<HTMLImageElement>("[data-persona-avatar-preview]");
+  const avatarStatus = root.querySelector<HTMLElement>("[data-persona-avatar-status]")!;
+  let cardAvatar: { art: HTMLCanvasElement; url: string } | null = null;
+  /** Bumped by every pick, removal, result change and pagehide, so a slower
+   * decode from an earlier file can never land on a later card. */
+  let avatarAttempt = 0;
+  let avatarPending = false;
+  /** The trusted outcome the current photo was chosen under. */
+  let avatarResult = "";
+  function showAvatar() {
+    const present = cardAvatar !== null;
+    if (avatarPreview) {
+      if (cardAvatar && avatarPreview.getAttribute("src") !== cardAvatar.url) avatarPreview.src = cardAvatar.url;
+      if (!cardAvatar) {
+        avatarPreview.removeAttribute("src");
+        avatarPreview.alt = "";
+      } else avatarPreview.alt = "Your photo, shown as a small circle on the result card";
+      avatarPreview.hidden = !present;
+    }
+    if (avatarPick) {
+      avatarPick.textContent = present ? "Replace photo" : "Add a photo";
+      avatarPick.setAttribute("aria-label", present
+        ? "Replace the photo on your result card"
+        : "Add an optional photo to your result card");
+    }
+    if (avatarRemove) avatarRemove.hidden = !present;
+  }
+  function releaseAvatar() {
+    const previous = cardAvatar;
+    cardAvatar = null;
+    showAvatar();
+    if (previous) URL.revokeObjectURL(previous.url);
+  }
+  /** One device photo onto the persona card. Bounded, sniffed and decoded
+   * before it can replace the current circle; an older pick, removal or result
+   * change leaves the newer state alone. */
+  async function chooseAvatar(file: File) {
+    const run = ++avatarAttempt;
+    avatarPending = true;
+    update();
+    avatarStatus.textContent = "Preparing your photo…";
+    let read: CardPhotoRead;
+    try {
+      read = await readCardPhoto(file);
+    } catch {
+      read = { ok: false, message: "That image couldn’t be read. Pick a PNG, JPEG or WebP copy." };
+    }
+    if (run !== avatarAttempt) {
+      if (read.ok) URL.revokeObjectURL(read.url);
+      return;
+    }
+    avatarPending = false;
+    if (!read.ok) {
+      update();
+      avatarStatus.textContent = read.message;
+      return;
+    }
+    releaseAvatar();
+    cardAvatar = { art: read.art, url: read.url };
+    showAvatar();
+    update();
+    avatarStatus.textContent = "Photo added. It appears only in the card you save and stays in this tab.";
+  }
+  avatarPick?.addEventListener("click", () => avatarFile?.click());
+  avatarFile?.addEventListener("change", () => {
+    const file = avatarFile.files?.[0];
+    // Clearing the control lets the same file be chosen again after a removal.
+    avatarFile.value = "";
+    if (file) void chooseAvatar(file);
+  });
+  avatarRemove?.addEventListener("click", () => {
+    avatarAttempt += 1;
+    avatarPending = false;
+    releaseAvatar();
+    update();
+    if (avatarStatus) avatarStatus.textContent = "Photo removed. Your card will be saved without it.";
+    avatarPick?.focus({ preventScroll: true });
+  });
+  showAvatar();
   /** A description offered after a denied copy belongs to the board it was
    * made from, so any edit, restore or new copy clears it and invalidates a
    * clipboard write still in flight. */
@@ -3119,6 +3251,16 @@ export function mountShareExperience(root: HTMLElement) {
   };
   const update = () => {
     const canShare = Boolean(controller.result());
+    // A photo already chosen stays with the next result; only a decode still in
+    // flight from the previous result is retired, so it can never appear later.
+    if (persona) {
+      const identity = controller.personaOutcome?.() ?? "";
+      if (identity !== avatarResult) {
+        avatarResult = identity;
+        avatarAttempt += 1;
+        avatarPending = false;
+      }
+    }
     // A local persona draft keeps its result off the published card entirely;
     // hiding the share panel also keeps a remix from being mistaken for the
     // original quiz's export.
@@ -3134,8 +3276,8 @@ export function mountShareExperience(root: HTMLElement) {
       manual.hidden = true;
       manual.value = "";
     }
-    download.disabled = busy || !canShare || !exportable;
-    if (copyPng) copyPng.disabled = busy || !canShare || !exportable;
+    download.disabled = busy || avatarPending || !canShare || !exportable;
+    if (copyPng) copyPng.disabled = busy || avatarPending || !canShare || !exportable;
     copy.disabled = !links || !canShare || !exportable;
     if (alt) alt.disabled = !canShare || !exportable;
     nativeShare.disabled = !links || !canShare || !exportable || sharing;
@@ -3175,6 +3317,9 @@ export function mountShareExperience(root: HTMLElement) {
     window.addEventListener("pagehide", () => {
       clearCardDownloads();
       clearPersonaPreview();
+      avatarAttempt += 1;
+      avatarPending = false;
+      releaseAvatar();
     });
   }
 
@@ -3219,7 +3364,7 @@ export function mountShareExperience(root: HTMLElement) {
 
   download.addEventListener("click", async () => {
     const snapshot = result();
-    if (!snapshot || busy || controller.exportAllowed?.() === false) return;
+    if (!snapshot || busy || avatarPending || controller.exportAllowed?.() === false) return;
     const personaOutcome = controller.personaOutcome;
     busy = true;
     update();
@@ -3251,6 +3396,7 @@ export function mountShareExperience(root: HTMLElement) {
           game,
           label: persona.cardLabel,
           credit: persona.cardCredit,
+          avatar: cardAvatar?.art ?? null,
         });
         const current = personaAttempt === personaVersion;
         busy = false;

@@ -452,6 +452,12 @@ export interface PersonaCardLayout {
   readonly bodySize: number;
   readonly noteSize: number;
   readonly creditSize: number;
+  /** The optional participant photo's circle in the label row. It is only
+   * drawn when a valid local file was chosen, so its bounds never move an
+   * existing element and a card without a photo keeps every old pixel. */
+  readonly avatarSize: number;
+  readonly avatarX: number;
+  readonly avatarY: number;
 }
 
 export function personaCardLayout(format: PersonaCardFormat): PersonaCardLayout {
@@ -467,6 +473,10 @@ export function personaCardLayout(format: PersonaCardFormat): PersonaCardLayout 
   const contentBottom = footer - (format === "story" ? 92 : 78);
   const innerWidth = width - margin * 2;
   const story = format === "story";
+  // The circle sits to the right of the tracked label, vertically centred on
+  // that row and above the headline's first line, which starts 62px below the
+  // rule. Right-aligning it keeps the same measured clearance in every format.
+  const avatarSize = 56;
   return {
     width, height, margin, safeTop, safeBottom, contentTop, contentBottom, footer, innerWidth,
     labelSize: story ? 24 : 22,
@@ -475,6 +485,9 @@ export function personaCardLayout(format: PersonaCardFormat): PersonaCardLayout 
     bodySize: story ? 46 : 42,
     noteSize: story ? 30 : 28,
     creditSize: 16,
+    avatarSize,
+    avatarX: width - margin - avatarSize,
+    avatarY: contentTop + 3,
   };
 }
 
@@ -548,13 +561,23 @@ function personaServiceTag(
 }
 
 /** One downloadable persona result card for a trusted outcome. It takes only
- * the printable outcome copy, the chosen stage pair and the optional byline, so
- * the PNG cannot carry private run data, a docs address or the quiz deep link.
- * The returned Blob is what the preview and Save link share. */
+ * the printable outcome copy, the chosen stage pair, the optional byline and
+ * the optional participant photo, so the PNG cannot carry private run data, a
+ * docs address or the quiz deep link. The returned Blob is what the preview and
+ * Save link share. */
 export async function renderPersonaCard(
   copy: PersonaCardPrint,
   format: PersonaCardFormat,
-  options: { byline: string; skin: number; game: ExperienceId; label: string; credit: string },
+  options: {
+    byline: string;
+    skin: number;
+    game: ExperienceId;
+    label: string;
+    credit: string;
+    /** Decoded local pixels only. It arrives beside the printable copy, never
+     * inside a result snapshot, so no link, caption, draft or JSON can carry it. */
+    avatar?: HTMLCanvasElement | null;
+  },
 ): Promise<Blob> {
   const layout = personaCardLayout(format);
   const { width, height } = layout;
@@ -619,6 +642,36 @@ export async function renderPersonaCard(
   ctx.restore();
 
   signCard(ctx, mark, width, layout.margin, layout.footer, ink, options.byline);
+  if (options.avatar) {
+    // The participant's own photo as a small centre-cropped circle. It is
+    // drawn only after a valid local file was decoded, so a card without one
+    // keeps the renderer's previous draw calls and exact PNG bytes.
+    const size = layout.avatarSize;
+    const box = coverBox(options.avatar.width, options.avatar.height, size, size, "cover");
+    const centreX = layout.avatarX + size / 2;
+    const centreY = layout.avatarY + size / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centreX, centreY, size / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(
+      options.avatar,
+      layout.avatarX + (size - box.width) / 2,
+      layout.avatarY + (size - box.height) / 2,
+      box.width,
+      box.height,
+    );
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(centreX, centreY, size / 2 - 1, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
   });

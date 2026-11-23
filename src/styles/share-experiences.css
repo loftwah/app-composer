@@ -474,6 +474,22 @@
   flex: 1 1 100%; min-inline-size: 0;
   color: #211a1b; background: #fff9ec;
 }
+/* The card's optional participant photo: one local picker, the same circle the
+   PNG draws, and a clear removal beside it. */
+.persona-avatar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem;
+  margin-block: .85rem 0;
+}
+.persona-avatar input[type="file"] { display: none; }
+.persona-avatar button { min-height: 44px; padding: .5rem .7rem; font-size: .9rem; }
+.persona-avatar-preview {
+  inline-size: 3.25rem; block-size: 3.25rem; border-radius: 50%;
+  object-fit: cover; flex: none;
+  border: 2px solid var(--accent, currentColor);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.persona-avatar-preview[hidden] { display: none; }
+.persona-avatar .experience-note { flex-basis: 100%; margin: 0; }
 .persona-result [data-persona-docs] {
   color: var(--stage-ink); text-decoration: underline; text-underline-offset: .18em;
 }
