@@ -574,6 +574,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     {isNine && <p class="experience-note" id="nine-profile-note">A full HTTPS profile link appears beside your preview and travels only in your result link and saved draft — never in the image or its description.</p>}
     {isNine && <p class="experience-note" role="status" data-profile-status></p>}
+    {persona && <div class="persona-avatar" data-persona-avatar>
+      <input hidden type="file" accept="image/png,image/jpeg,image/webp" data-persona-avatar-file
+        aria-label="Optional photo for your result card" aria-describedby="persona-avatar-note" />
+      <button type="button" class="secondary" data-persona-avatar-pick>Add a photo</button>
+      <img hidden class="persona-avatar-preview" alt="" data-persona-avatar-preview />
+      <button type="button" class="secondary" data-persona-avatar-remove hidden>Remove photo</button>
+      <p class="experience-note" id="persona-avatar-note">Optional: a small round photo of you in the corner of your card. It stays in this tab and only appears in the card you save — never in a link, caption, description, draft or result.</p>
+      <p class="experience-note" role="status" data-persona-avatar-status></p>
+    </div>}
     <div class="experience-actions">
       <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}

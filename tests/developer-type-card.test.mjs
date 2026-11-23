@@ -129,3 +129,75 @@ test('a prepared card copies the exact preview Blob beside a retained Save PNG f
   assert.match(block, /Card image copied/, 'success wording uses the card status');
   assert.match(block, /Use Save PNG/, 'fallback wording keeps the visible Save link');
 });
+
+// The optional participant photo: one local picker in the published card
+// controls, the same centre-cropped circle in all three formats, and no share
+// path at all. The played journey, exact PNG pixels and visual QA are inspected
+// in the browser by the parent release.
+test('the card offers one local photo picker with a clear removal', () => {
+  const component = read('src/components/share-experiences/ShareExperience.astro');
+  const start = component.indexOf('{persona && <div class="persona-avatar"');
+  assert.ok(start > 0, 'the photo controls sit inside the persona export panel');
+  const avatarBlock = component.slice(start, component.indexOf('</div>}', start));
+  assert.equal((avatarBlock.match(/data-persona-avatar-file/g) ?? []).length, 1, 'exactly one local picker');
+  assert.match(avatarBlock, /type="file" accept="image\/png,image\/jpeg,image\/webp" data-persona-avatar-file/);
+  assert.match(avatarBlock, /data-persona-avatar-pick>Add a photo/);
+  assert.match(avatarBlock, /data-persona-avatar-remove hidden>Remove photo/, 'removal is an explicit control');
+  assert.match(avatarBlock, /id="persona-avatar-note"[^>]*>Optional:/);
+  assert.doesNotMatch(avatarBlock, /type="url"|inputmode="url"/, 'there is no address field');
+  assert.ok(start < component.indexOf('data-download'), 'the picker is in the existing card controls');
+});
+
+test('the avatar circle uses shared layout bounds and is drawn only when chosen', () => {
+  const source = read('src/browser/share-experience-image.ts');
+  const start = source.indexOf('export async function renderPersonaCard');
+  const renderer = source.slice(start);
+  const guarded = renderer.slice(renderer.indexOf('if (options.avatar) {'), renderer.indexOf('return new Promise'));
+  assert.ok(guarded.length > 0, 'the avatar drawing is one guarded block');
+  assert.equal(
+    (renderer.match(/options\.avatar/g) ?? []).length,
+    (guarded.match(/options\.avatar/g) ?? []).length,
+    'every avatar use is inside the chosen-photo guard',
+  );
+  assert.match(renderer, /if \(options\.avatar\) \{/);
+  assert.match(renderer, /coverBox\(options\.avatar\.width, options\.avatar\.height, size, size, "cover"\)/);
+  assert.match(renderer, /ctx\.arc\(centreX, centreY, size \/ 2/);
+  assert.match(renderer, /ctx\.clip\(\)/);
+
+  for (const format of personaCardFormats) {
+    const layout = personaCardLayout(format);
+    assert.ok(layout.avatarY >= layout.contentTop, `${format} circle stays below the rule`);
+    assert.ok(
+      layout.avatarY + layout.avatarSize <= layout.contentTop + 62,
+      `${format} circle clears the headline that starts 62px below the rule`,
+    );
+    assert.equal(layout.avatarX + layout.avatarSize, layout.width - layout.margin, `${format} right-aligns inside the margin`);
+    assert.ok(layout.avatarX - layout.margin > 300, `${format} circle clears the tracked label`);
+    assert.ok(layout.footer > layout.contentBottom + layout.avatarSize, `${format} credit and byline stay in their strip`);
+  }
+});
+
+test('one render carries the chosen photo and stale files never land', () => {
+  const source = read('src/browser/share-experiences.ts');
+  assert.match(source, /async function readCardPhoto\(file: File\)/);
+  assert.match(source, /coverFileLimit/);
+  assert.match(source, /sniffCover\(head\)/);
+  assert.match(source, /coverPixelLimit/);
+  assert.match(source, /URL\.createObjectURL\(file\)/);
+  assert.match(source, /URL\.revokeObjectURL\(url\)/);
+  assert.match(source, /if \(run !== avatarAttempt\)/, 'a slower earlier file is dropped');
+  assert.match(source, /avatarAttempt \+= 1/, 'removal and result changes invalidate it');
+  assert.match(source, /avatar: cardAvatar\?\.art \?\? null/, 'the one prepared render receives the photo');
+
+  const render = source.slice(source.indexOf('if (personaOutcome) {'), source.indexOf('if (cardDownloads) {'));
+  assert.equal((render.match(/renderPersonaCard\(/g) ?? []).length, 1, 'preview, Save and Copy share one PNG');
+  assert.match(render, /const blob = await renderPersonaCard/);
+  assert.match(render, /new ClipboardItem\(\{ "image\/png": blob \}\)/);
+
+  const snapshot = source.slice(
+    source.indexOf('const result = (): ShareExperienceResult | null =>'),
+    source.indexOf('const resultLink ='),
+  );
+  assert.doesNotMatch(snapshot, /avatar/i, 'the photo never enters the result snapshot');
+  assert.doesNotMatch(source.slice(source.indexOf('const resultLink ='), source.indexOf('const offerManualCopy =')), /avatar/i, 'the photo never enters a link');
+});
