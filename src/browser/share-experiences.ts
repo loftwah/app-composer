@@ -17,7 +17,7 @@ import {
 } from "../lib/twenty-one-questions.ts";
 import {
   renderExperienceCards, renderExperienceResult, resultSizes,
-  type ResultCover, type ResultFormat, type ShareExperienceResult,
+  type ResultCoverSlot, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
 import {
   cleanText, clearNineDraft, nineSubtitleLimit, readNineDraft, writeNineDraft,
@@ -38,7 +38,7 @@ import {
   searchWikidata, type GamePlatformFilter, type WikidataPick,
 } from "../lib/top-nine-wikidata.ts";
 import {
-  coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
+  coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover, type CoverFit,
 } from "../lib/top-nine-cover.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import {
@@ -65,11 +65,14 @@ interface ResultSnapshot {
   questions?: string[];
 }
 
-/** One cover a person picked from their device: session-only, never uploaded. */
+/** One cover a person picked from their device: session-only, never uploaded.
+ * Its fit is chosen per cover and shares the slot's whole life — it moves with
+ * a reorder, swap or undo, and a removed or replaced cover takes it along. */
 interface CoverSlot {
   url: string;
-  art: ResultCover;
+  art: HTMLCanvasElement;
   kind: "png" | "jpeg" | "webp";
+  fit: CoverFit;
 }
 
 interface Controller {
@@ -77,7 +80,7 @@ interface Controller {
   restore(snapshot: Record<string, unknown>): void;
   resumeDraft?(protectShared: boolean): void;
   /** Decoded cover art for the downloaded image; never part of a shared result. */
-  exportCovers?(): readonly (ResultCover | null)[] | null;
+  exportCovers?(): readonly (ResultCoverSlot | null)[] | null;
   /** Whether the current run may produce a result link at all. Absent means
    * yes; a written five never becomes one, so URL sharing stays off. */
   linksAllowed?(): boolean;
@@ -420,6 +423,32 @@ function mountNine(
       const row = document.createElement("li");
       const label = document.createElement("span");
       label.textContent = `Exhibit ${index + 1} · ${kindLabel[slot.kind]}`;
+      // The one labelled, compact fit choice for this cover. It edits the
+      // slot in place, so the preview and every export follow at once.
+      const fitField = document.createElement("label");
+      fitField.className = "cover-fit";
+      const fitChoice = document.createElement("select");
+      fitChoice.setAttribute("aria-label", `Fit for exhibit ${index + 1}`);
+      const fill = document.createElement("option");
+      fill.value = "cover";
+      fill.textContent = "Fill cell";
+      const whole = document.createElement("option");
+      whole.value = "contain";
+      whole.textContent = "Show whole cover";
+      fitChoice.append(fill, whole);
+      fitChoice.value = slot.fit;
+      fitChoice.addEventListener("change", () => {
+        const current = covers[index];
+        // A removal rebuilds this list, so a late change on the dropped row
+        // never writes a fit onto a slot that no longer exists.
+        if (!current) return;
+        current.fit = fitChoice.value === "contain" ? "contain" : "cover";
+        renderPreview();
+        coverNote(`Exhibit ${index + 1} ${current.fit === "contain"
+          ? "shows its whole cover, letterboxed on the cell"
+          : "fills its cell with the cover"}.`);
+      });
+      fitField.append("Fit", fitChoice);
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "secondary";
@@ -432,7 +461,7 @@ function mountNine(
         coverNote(`Cover removed from exhibit ${index + 1}. Its title stays.`);
         cover.panel.querySelector("summary")?.focus({ preventScroll: true });
       });
-      row.append(label, remove);
+      row.append(label, fitField, remove);
       cover.linked.append(row);
     });
     cover.linked.hidden = !cover.linked.childElementCount;
@@ -464,6 +493,10 @@ function mountNine(
       }
       cell.toggleAttribute("data-ranked", showRank);
       cell.toggleAttribute("data-covered", Boolean(slot));
+      // The in-page cell hangs the art by the same fit the export will: the
+      // attribute is absent without art, so an empty cell never keeps one.
+      if (slot) cell.setAttribute("data-cover-fit", slot.fit);
+      else cell.removeAttribute("data-cover-fit");
       if (!slot) {
         image.hidden = true;
         image.removeAttribute("src");
@@ -526,7 +559,9 @@ function mountNine(
     artCtx.imageSmoothingQuality = "high";
     artCtx.drawImage(source, 0, 0, art.width, art.height);
     disposeCover(index);
-    covers[index] = { url, art, kind: sniffed.kind };
+    // A fresh cover starts at the current cropped default; any fit chosen for
+    // the art it replaces went with that slot.
+    covers[index] = { url, art, kind: sniffed.kind, fit: "cover" };
     renderCovers();
     renderPreview();
     coverNote(`Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
@@ -1173,7 +1208,9 @@ function mountNine(
         ...(rankedBox.checked ? { ranked: true } : {}),
       };
     },
-    exportCovers: () => (covers.some(Boolean) ? covers.map((slot) => slot?.art ?? null) : null),
+    exportCovers: () => (covers.some(Boolean)
+      ? covers.map((slot) => slot ? { art: slot.art, fit: slot.fit } : null)
+      : null),
     restore(snapshot) {
       const items = snapshot.items;
       const heading = entry(snapshot.title, 72);
