@@ -30,6 +30,9 @@ export interface ShareExperienceResult {
   marked?: number[];
   /** Canonical source links per exhibit. Interactive only: exports stay text-only. */
   hrefs?: (string | null)[];
+  /** Optional public HTTPS profile link. Interactive preview, draft and result
+   * link only: exports and image descriptions never draw or print it. */
+  profile?: string;
   /** Explicit ranked board: occupied slots print #1–#9 in every format.
    * Absent keeps unordered favourites, so old links and drafts stay as they were. */
   ranked?: boolean;

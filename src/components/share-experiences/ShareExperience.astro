@@ -10,6 +10,7 @@ import {
 } from "../../lib/this-or-that.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
+import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
 
 interface Props {
   game: ExperienceId;
@@ -220,7 +221,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
       <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
     </div>
-    <p class="experience-note">Drafts keep your title, subtitle, exhibits, source links and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
+    <p class="experience-note">Drafts keep your title, subtitle, exhibits, source links, profile link and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
     <p class="experience-note" role="status" data-draft-status></p>
   </section>}
 
@@ -393,8 +394,16 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <span data-nine-preview-caption={index}>—</span>
       </div>)}
     </div>}
+    {isNine && <p class="experience-note nine-preview-profile" data-nine-preview-profile hidden>
+      <a data-nine-preview-profile-link target="_blank" rel="nofollow ugc noopener noreferrer"
+        aria-label="Visit creator profile, opens in a new tab"></a>
+    </p>}
     <div class="experience-fields">
       <label>Optional byline<input maxlength="48" data-byline placeholder="Your name or handle" /></label>
+      {isNine && <label>Optional profile link
+        <input type="url" inputmode="url" maxlength={profileUrlLimit} autocomplete="off"
+          data-profile placeholder="https://example.com/you" aria-describedby="nine-profile-note" />
+      </label>}
       <label>Artwork style<select data-skin-select>
         {(isDoor ? ["Midnight cinema", "Newsprint", "Signal green"]
           : isNine ? ["Gallery", "Record sleeve", "Night exhibition"]
@@ -415,6 +424,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <option value="wide">Landscape · 1200 × 630</option>
       </select></label>}
     </div>
+    {isNine && <p class="experience-note" id="nine-profile-note">A full HTTPS profile link appears beside your preview and travels only in your result link and saved draft — never in the image or its description.</p>}
+    {isNine && <p class="experience-note" role="status" data-profile-status></p>}
     <div class="experience-actions">
       <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne}>
         {isTwentyOne ? "Prepare cards" : "Download result"}
@@ -430,7 +441,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note" data-share-note>{isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
-      ? "A result link carries your title, subtitle, exhibits, source links, byline and ranked setting. Cover images never go into the link — download the result image to keep them."
+      ? "A result link carries your title, subtitle, exhibits, source links, byline, optional profile link and ranked setting. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />

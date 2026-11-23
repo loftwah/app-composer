@@ -3,6 +3,7 @@
 // value is ignored instead of replacing what the creator is editing.
 
 import { normaliseSourceLinks } from "./top-nine-source.ts";
+import { profileUrl } from "./top-nine-profile.ts";
 
 export const draftVersion = 1;
 export const draftLimit = 4_000;
@@ -24,6 +25,9 @@ export interface NineDraft {
    * so older drafts and drafts without one keep their exact stored shape. */
   subtitle?: string;
   byline?: string;
+  /** One optional public HTTPS profile link, omitted when absent or invalid
+   * so older drafts keep their exact stored shape. */
+  profile?: string;
   skin?: number;
   /** Explicit ranked ordering. Absent keeps unordered favourites, so older
    * drafts and drafts saved without the opt-in read back unchanged. */
@@ -52,10 +56,12 @@ export function readNineDraft(storage: DraftStorage): NineDraft | null {
     if (!title && !items.some(Boolean)) return null;
     const subtitle = cleanText(saved.subtitle, nineSubtitleLimit);
     const hrefs = cleanHrefs(saved.hrefs);
+    const profile = profileUrl(saved.profile) ?? "";
     return {
       title, items,
       ...(subtitle ? { subtitle } : {}),
       byline: cleanText(saved.byline, 48),
+      ...(profile ? { profile } : {}),
       skin: saved.skin === 1 || saved.skin === 2 ? saved.skin : 0,
       ...(saved.ranked === true ? { ranked: true } : {}),
       ...(hrefs ? { hrefs } : {}),
@@ -71,11 +77,13 @@ export function writeNineDraft(storage: DraftStorage, draft: NineDraft): "saved"
   if (!title && !items.some(Boolean)) return "empty";
   const subtitle = cleanText(draft.subtitle, nineSubtitleLimit);
   const hrefs = cleanHrefs(draft.hrefs);
+  const profile = profileUrl(draft.profile) ?? "";
   const value = JSON.stringify({
     version: draftVersion,
     title, items,
     ...(subtitle ? { subtitle } : {}),
     byline: cleanText(draft.byline, 48),
+    ...(profile ? { profile } : {}),
     skin: draft.skin === 1 || draft.skin === 2 ? draft.skin : 0,
     ...(draft.ranked === true ? { ranked: true } : {}),
     ...(hrefs ? { hrefs } : {}),
