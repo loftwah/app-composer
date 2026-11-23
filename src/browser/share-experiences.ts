@@ -1,6 +1,7 @@
 import {
   agentBingo, developerBingo, doorEndings, experiences, internetBingo,
-  thisOrThatPacks, type ExperienceId, type ThisOrThatPack,
+  thisOrThatPacks, twentyOneQuestions, twentyOneResultTitle,
+  type ExperienceId, type ThisOrThatPack,
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
@@ -8,7 +9,11 @@ import {
   thisOrThatComplete, thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
 } from "../lib/this-or-that.ts";
 import {
-  renderExperienceResult, resultSizes,
+  moveTwentyOne, setTwentyOneAnswer, skipTwentyOne,
+  twentyOneAnswered, twentyOneAnswerLimit, twentyOneCount, twentyOnePairs, twentyOneStart,
+} from "../lib/twenty-one-questions.ts";
+import {
+  renderExperienceCards, renderExperienceResult, resultSizes,
   type ResultCover, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
 import {
@@ -1348,6 +1353,169 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller {
+  const stage = root.querySelector<HTMLElement>("[data-tq-stage]")!;
+  const prompt = stage.querySelector<HTMLElement>("[data-tq-prompt]")!;
+  const answer = root.querySelector<HTMLInputElement>("[data-tq-answer]")!;
+  const back = root.querySelector<HTMLButtonElement>("[data-tq-back]")!;
+  const skip = root.querySelector<HTMLButtonElement>("[data-tq-skip]")!;
+  const next = root.querySelector<HTMLButtonElement>("[data-tq-next]")!;
+  const progress = root.querySelector<HTMLElement>("[data-tq-progress]")!;
+  const done = root.querySelector<HTMLElement>("[data-tq-done]")!;
+  const doneNote = root.querySelector<HTMLElement>("[data-tq-done-note]")!;
+  const doneHeading = done.querySelector<HTMLElement>("h2")!;
+  const backFromDone = root.querySelector<HTMLButtonElement>("[data-tq-back-from-done]")!;
+  const summary = root.querySelector<HTMLElement>("[data-tq-summary]")!;
+  const summaryTitle = summary.querySelector<HTMLElement>("[data-tq-summary-title]")!;
+  const list = summary.querySelector<HTMLElement>("[data-tq-list]")!;
+  const empty = summary.querySelector<HTMLElement>("[data-tq-empty]")!;
+  const resume = root.querySelector<HTMLButtonElement>("[data-tq-resume]")!;
+  const restarts = elements<HTMLButtonElement>(root, "[data-restart]");
+  const finishes = elements<HTMLButtonElement>(root, "[data-tq-finish]");
+  let answers = twentyOneStart();
+  let current = 0;
+  let view: "questions" | "done" | "summary" = "questions";
+
+  function syncProgress() {
+    const answered = twentyOneAnswered(answers);
+    progress.textContent = view === "questions"
+      ? `Question ${current + 1} of ${twentyOneCount} · ${answered} answered`
+      : view === "done"
+      ? `All ${twentyOneCount} asked · ${answered} answered`
+      : `${answered} of ${twentyOneCount} answered`;
+  }
+
+  /** One question at a time: the same stage retexted, so back, skip and edit
+   * are one step each and the current answer is always the visible input. */
+  function showQuestion(index: number, focus = true) {
+    view = "questions";
+    current = index;
+    stage.hidden = false;
+    done.hidden = true;
+    summary.hidden = true;
+    const question = twentyOneQuestions[current];
+    prompt.textContent = question;
+    answer.value = answers[current];
+    next.textContent = current === twentyOneCount - 1 ? "Finish questions" : "Next";
+    back.disabled = current === 0;
+    syncProgress();
+    if (focus) answer.focus();
+  }
+
+  function showDone(focus: boolean) {
+    view = "done";
+    stage.hidden = true;
+    done.hidden = false;
+    summary.hidden = true;
+    const answered = twentyOneAnswered(answers);
+    doneNote.textContent = answered === 0
+      ? "You skipped every question. You can still go back and answer any of them."
+      : `${answered} answered · ${twentyOneCount - answered} skipped.`;
+    syncProgress();
+    if (focus) doneHeading.focus();
+  }
+
+  /** The complete view is always the player's own click: it lists exactly the
+   * answers given, and every entry offers one-step edit back to its question. */
+  function showSummary(focus: boolean) {
+    view = "summary";
+    stage.hidden = true;
+    done.hidden = true;
+    summary.hidden = false;
+    summaryTitle.textContent = twentyOneResultTitle;
+    list.replaceChildren();
+    const pairs = twentyOnePairs(answers);
+    empty.hidden = pairs.length > 0;
+    for (const pair of pairs) {
+      const item = document.createElement("li");
+      const ask = document.createElement("span");
+      ask.className = "tq-pick-question";
+      ask.textContent = `${pair.index + 1}. ${pair.question}`;
+      const said = document.createElement("strong");
+      said.textContent = pair.answer;
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "secondary";
+      edit.textContent = "Edit";
+      edit.setAttribute("aria-label", `Edit your answer to question ${pair.index + 1}`);
+      edit.addEventListener("click", () => {
+        showQuestion(pair.index, true);
+        update();
+      });
+      item.append(ask, said, edit);
+      list.append(item);
+    }
+    syncProgress();
+    if (focus) summaryTitle.focus();
+  }
+
+  function advance(focus: boolean) {
+    if (current === twentyOneCount - 1) showDone(focus);
+    else showQuestion(moveTwentyOne(current, 1), focus);
+    update();
+  }
+
+  // The input is the live answer: every keystroke stays in this screen's
+  // memory only, and no draft, hash or request ever carries it away.
+  answer.addEventListener("input", () => {
+    const recorded = setTwentyOneAnswer(answers, current, answer.value);
+    if (!recorded) return;
+    answers = recorded;
+    syncProgress();
+    update();
+  });
+  // Enter advances like Next, so a keyboard run is one keypress per question.
+  answer.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.isComposing || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    advance(true);
+  });
+  next.addEventListener("click", () => advance(true));
+  back.addEventListener("click", () => {
+    if (current === 0) return;
+    showQuestion(moveTwentyOne(current, -1), true);
+    update();
+  });
+  skip.addEventListener("click", () => {
+    const cleared = skipTwentyOne(answers, current);
+    if (!cleared) return;
+    answers = cleared;
+    answer.value = "";
+    advance(true);
+  });
+  finishes.forEach((button) => button.addEventListener("click", () => {
+    showSummary(true);
+    update();
+  }));
+  backFromDone.addEventListener("click", () => {
+    showQuestion(twentyOneCount - 1, true);
+    update();
+  });
+  resume.addEventListener("click", () => {
+    showQuestion(current, true);
+    update();
+  });
+  restarts.forEach((button) => button.addEventListener("click", () => {
+    answers = twentyOneStart();
+    showQuestion(0, true);
+    update();
+  }));
+
+  showQuestion(0, false);
+
+  return {
+    result: () => view !== "summary" || twentyOneAnswered(answers) === 0
+      ? null
+      : { title: twentyOneResultTitle, items: [...answers] },
+    // Private answers never become a public link: URL sharing stays off for
+    // the whole run, with the downloaded cards as the way out.
+    linksAllowed: () => false,
+    restore() {
+      // A crafted hash is not a shared result: nothing restores.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -1459,7 +1627,7 @@ function sharedResult(game: ExperienceId): { snapshot: Record<string, unknown> |
 export function mountShareExperience(root: HTMLElement) {
   const game = root.dataset.experience as ExperienceId;
   if (!Object.hasOwn(experiences, game)) return;
-  const format = root.querySelector<HTMLSelectElement>("[data-format]")!;
+  const format = root.querySelector<HTMLSelectElement>("[data-format]");
   const chooseSkin = root.querySelector<HTMLSelectElement>("[data-skin-select]")!;
   const byline = root.querySelector<HTMLInputElement>("[data-byline]")!;
   const status = root.querySelector<HTMLElement>("[data-status]")!;
@@ -1475,6 +1643,17 @@ export function mountShareExperience(root: HTMLElement) {
   let sharing = false;
   let controller: Controller;
   let altCopyAttempt = 0;
+  const cardDownloads = root.querySelector<HTMLElement>("[data-tq-downloads]");
+  const cardUrls: string[] = [];
+  let cardVersion = 0;
+  function clearCardDownloads() {
+    if (!cardDownloads) return;
+    cardVersion += 1;
+    for (const href of cardUrls) URL.revokeObjectURL(href);
+    cardUrls.length = 0;
+    cardDownloads.replaceChildren();
+    cardDownloads.hidden = true;
+  }
   /** A description offered after a denied copy belongs to the board it was
    * made from, so any edit, restore or new copy clears it and invalidates a
    * clipboard write still in flight. */
@@ -1486,8 +1665,10 @@ export function mountShareExperience(root: HTMLElement) {
   };
   const update = () => {
     const canShare = Boolean(controller.result());
+    clearCardDownloads();
     // A written This-or-That five never produces a link, so URL sharing is
     // switched off only while it is on stage, with the download as the way out.
+    // Twenty-one questions never produces one at all: answers are private.
     const links = controller.linksAllowed?.() ?? true;
     if (!links) {
       manual.hidden = true;
@@ -1505,16 +1686,31 @@ export function mountShareExperience(root: HTMLElement) {
     else if (!canShare && game === "this-or-that") status.textContent = links
       ? "Answer all five questions to share your result."
       : "Answer all five questions to download your result.";
-    else if (!canShare) status.textContent = "Find an ending to share.";
+    else if (!canShare && game === "twenty-one-questions") {
+      status.textContent = "";
+    } else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
   };
   const pickSkin = () => { root.dataset.skin = chooseSkin.value; };
   controller = game === "pick-a-door" ? mountDoor(root, update)
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
     : game === "this-or-that" ? mountThisOrThat(root, update)
+    : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
     : mountBingo(root);
-  chooseSkin.addEventListener("change", pickSkin);
-  const shared = sharedResult(game);
+  chooseSkin.addEventListener("change", () => {
+    pickSkin();
+    if (cardDownloads) update();
+  });
+  if (cardDownloads) {
+    byline.addEventListener("input", update);
+    window.addEventListener("pagehide", clearCardDownloads);
+  }
+
+  // Twenty-one questions never produces result links, so a crafted hash is
+  // not a shared result: nothing restores and the stage starts empty.
+  const shared = game === "twenty-one-questions"
+    ? { snapshot: null as Record<string, unknown> | null, invalid: false }
+    : sharedResult(game);
   if (shared.snapshot) {
     const snapshot = shared.snapshot;
     const skin = snapshot.skin;
@@ -1553,13 +1749,33 @@ export function mountShareExperience(root: HTMLElement) {
     if (!snapshot || busy) return;
     busy = true;
     update();
-    status.textContent = "Preparing your image…";
+    status.textContent = cardDownloads ? "Preparing your cards…" : "Preparing your image…";
+    const attempt = cardVersion;
     try {
-      const size = Object.hasOwn(resultSizes, format.value) ? format.value as ResultFormat : "portrait";
       // Links belong to the interactive result and result link; the image stays text-only.
       const { hrefs: _links, ...drawn } = snapshot;
-      // Covers are passed beside the snapshot, never inside it, so no link or
-      // draft path can carry a person's photo bytes.
+      if (cardDownloads) {
+        const cards = await renderExperienceCards(drawn);
+        const current = attempt === cardVersion;
+        busy = false;
+        update();
+        if (!current) return;
+        cards.forEach((blob, index) => {
+          const href = URL.createObjectURL(blob);
+          cardUrls.push(href);
+          const link = document.createElement("a");
+          link.className = "button secondary";
+          link.href = href;
+          link.download = `${game}-card-${index + 1}-of-${cards.length}.png`;
+          link.textContent = `Save card ${index + 1} of ${cards.length}`;
+          cardDownloads.append(link);
+        });
+        cardDownloads.hidden = false;
+        status.textContent = cards.length === 1 ? "Your card is ready." : "Your cards are ready.";
+        return;
+      }
+      const formatValue = format?.value;
+      const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined);
       const href = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -1573,9 +1789,11 @@ export function mountShareExperience(root: HTMLElement) {
     } catch {
       busy = false;
       update();
-      status.textContent = controller.linksAllowed?.() === false
-        ? "Couldn’t prepare the image. Try again."
-        : "Couldn’t prepare the image. Try again, or copy the result link.";
+      status.textContent = cardDownloads
+        ? "Couldn’t prepare the cards. Try again."
+        : controller.linksAllowed?.() === false
+          ? "Couldn’t prepare the image. Try again."
+          : "Couldn’t prepare the image. Try again, or copy the result link.";
     }
   });
 
@@ -1628,7 +1846,9 @@ export function mountShareExperience(root: HTMLElement) {
     }
   });
 
-  if (typeof navigator.share === "function") {
+  // Twenty-one questions has no result link to hand over, so the native
+  // share sheet stays off for it entirely.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions") {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;

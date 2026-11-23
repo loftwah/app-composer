@@ -29,6 +29,16 @@ export const experiences = {
     imageDescription: "A vivid game-show billboard: a tired maker at a lit desk chooses between a red card reading a year of free time and one reading a million dollars.",
     theme: "billboard",
   },
+  "twenty-one-questions": {
+    title: "21 Questions",
+    description: "A naturalist’s interview with your life online: twenty-one questions, one at a time. Answers stay in this tab.",
+    // The stage reuses the owned Internet Workshop “internet-specimen” slide, a
+    // museum label for a creature of the internet; see
+    // public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "internet-specimen",
+    imageDescription: "An amber museum slide holding a small white owl with keyboard-pattern feathers, labelled Internet Specimen.",
+    theme: "museum",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;
@@ -134,3 +144,32 @@ export const thisOrThatPacks = {
   },
 } as const;
 export type ThisOrThatPack = keyof typeof thisOrThatPacks;
+
+/** #1064 twenty-one questions: one authored naturalist’s interview about a
+ * person’s life online — habitat, rhythm, reading, making, memory and one
+ * closing line. Written for the specimen stage; every answer is the player’s
+ * own and never leaves the current screen. */
+export const twentyOneQuestions = [
+  "When does your internet day usually start?",
+  "What does your main screen sit on?",
+  "Name the tab you never close.",
+  "What do you read most online?",
+  "Which sound means a good session?",
+  "How many tabs are open right now, honestly?",
+  "Where do your bookmarks actually live?",
+  "Which website feels most like home?",
+  "Name a small site you’d hate to lose.",
+  "What do you make most often?",
+  "Which tool opens first when you work?",
+  "Where do your unfinished drafts go?",
+  "What do you do when something breaks late at night?",
+  "Which online habit are you trying to quit?",
+  "What’s one thing the internet taught you the hard way?",
+  "Who taught you the most online?",
+  "What do you back up that others wouldn’t think to?",
+  "Which message from this year stayed with you?",
+  "What do you check even when nothing’s new?",
+  "What would you show someone brand new here?",
+  "Finish it: the internet is…",
+] as const;
+export const twentyOneResultTitle = "Your internet specimen";
