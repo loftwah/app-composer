@@ -28,6 +28,8 @@ test('ignores spoofed, credentialed, conflicting and unsupported URLs', () => {
     'http://music.apple.com/au/album/697194953',
     'https://music.apple.com/au/album/697194953?i=1&i=2',
     'https://open.spotify.com/playlist/6b08FpNaFFTjc1dJ9DSWfn',
+    // A player URL with an extra path segment is too wide for the strict ID parser.
+    'https://open.spotify.com/embed/album/6b08FpNaFFTjc1dJ9DSWfn/related',
     'https://music.apple.com/au/album/other',
   ]) {
     assert.equal(musicPreview(href), null);
@@ -210,6 +212,35 @@ test('reads a pasted Spotify album link as its own canonical album ID', () => {
   ]) {
     assert.equal(spotifyAlbumRef(href), null);
   }
+});
+
+test('rebuilds the official Spotify player URLs pasted back as canonical sources', () => {
+  const albumEmbed = `https://open.spotify.com/embed/album/${spotifyAlbumId}`;
+  assert.deepEqual(musicPreview(albumEmbed), {
+    href: `https://open.spotify.com/album/${spotifyAlbumId}`,
+    embedUrl: albumEmbed,
+    provider: 'Spotify',
+  });
+  const trackEmbed = 'https://open.spotify.com/embed/track/3KkXRkHbMCARz0aVfEt68P';
+  assert.deepEqual(musicPreview(trackEmbed), {
+    href: 'https://open.spotify.com/track/3KkXRkHbMCARz0aVfEt68P',
+    embedUrl: trackEmbed,
+    provider: 'Spotify',
+  });
+  // Pasted parameters and fragments never reach the source link or the frame,
+  // and normal/storefront paths still parse exactly as before.
+  assert.deepEqual(musicPreview(`${albumEmbed}?si=tracking&utm_source=copy#player`), {
+    href: `https://open.spotify.com/album/${spotifyAlbumId}`,
+    embedUrl: albumEmbed,
+    provider: 'Spotify',
+  });
+  assert.equal(musicPreview(spotify).embedUrl, albumEmbed);
+  assert.equal(musicPreview('https://open.spotify.com/intl-au/album/6b08FpNaFFTjc1dJ9DSWfn').href,
+    `https://open.spotify.com/album/${spotifyAlbumId}`);
+  // A pasted player still feeds the album-only oEmbed lookup, but a track
+  // player never seeds it.
+  assert.deepEqual(spotifyAlbumRef(albumEmbed), { id: spotifyAlbumId });
+  assert.equal(spotifyAlbumRef(trackEmbed), null);
 });
 
 test('looks up one exact Spotify album through official oEmbed, never by search', async (t) => {
