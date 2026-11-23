@@ -168,6 +168,11 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       )}</select>
       <button class="secondary" type="button" data-move="-1">Move earlier</button>
       <button class="secondary" type="button" data-move="1">Move later</button>
+      <label for="exhibit-swap-target">Swap selected exhibit with slot</label>
+      <select id="exhibit-swap-target" data-swap-target>{Array.from({length: 9}, (_, index) =>
+        <option value={index}>{index + 1}</option>
+      )}</select>
+      <button class="secondary" type="button" data-swap-slots disabled>Swap slots</button>
       <button class="secondary" type="button" data-undo-move disabled>Undo last move</button>
     </div>
     <label for="exhibition-theme">Try a title</label>

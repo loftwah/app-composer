@@ -173,6 +173,8 @@ function mountNine(
   const title = root.querySelector<HTMLInputElement>("[data-exhibition-title]")!;
   const objects = elements<HTMLInputElement>(root, "[data-object]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
+  const swapTarget = root.querySelector<HTMLSelectElement>("[data-swap-target]")!;
+  const swapSlots = root.querySelector<HTMLButtonElement>("[data-swap-slots]")!;
   const undoMove = root.querySelector<HTMLButtonElement>("[data-undo-move]")!;
   const preset = root.querySelector<HTMLSelectElement>("[data-nine-preset]")!;
   const draftStatus = root.querySelector<HTMLElement>("[data-draft-status]")!;
@@ -891,6 +893,7 @@ function mountNine(
     renderCovers();
     renderPreview();
     order.value = String(to);
+    updateSwapButton();
     update();
   }
 
@@ -904,16 +907,24 @@ function mountNine(
     undoMove.disabled = true;
   }
 
+  function updateSwapButton() {
+    swapSlots.disabled = order.value === swapTarget.value;
+  }
+
+  function moveExhibit(to: number) {
+    const from = Number(order.value);
+    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || from >= objects.length || to < 0 || to >= objects.length || from === to) return;
+    swapExhibits(from, to);
+    rememberMove(from, to);
+    draftStatus.textContent = `Exhibit ${from + 1} moved to slot ${to + 1}. Undo last move is in the Move controls.`;
+  }
+
   elements<HTMLButtonElement>(root, "[data-move]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const from = Number(order.value);
-      const to = from + Number(button.dataset.move);
-      if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || from >= objects.length || to < 0 || to >= objects.length) return;
-      swapExhibits(from, to);
-      rememberMove(from, to);
-      draftStatus.textContent = `Exhibit ${from + 1} moved to slot ${to + 1}. Undo last move is in the Move controls.`;
-    });
+    button.addEventListener("click", () => moveExhibit(Number(order.value) + Number(button.dataset.move)));
   });
+  order.addEventListener("change", updateSwapButton);
+  swapTarget.addEventListener("change", updateSwapButton);
+  swapSlots.addEventListener("click", () => moveExhibit(Number(swapTarget.value)));
   undoMove.addEventListener("click", () => {
     if (!lastMove) return;
     const { from, to } = lastMove;
