@@ -130,3 +130,13 @@ test('private cards offer portrait and Story, with portrait first', () => {
   assert.ok(block);
   assert.deepEqual([...block[1].matchAll(/<option value="([^"]+)">/g)].map(match => match[1]), ['portrait', 'story']);
 });
+
+test('preview and download use the same local card URL', () => {
+  const controller = read('src/browser/share-experiences.ts');
+  const cards = controller.match(/cards\.forEach\(\(blob, index\) => \{([\s\S]*?)\n        \}\);/);
+  assert.ok(cards);
+  assert.match(cards[1], /const href = URL\.createObjectURL\(blob\);/);
+  assert.match(cards[1], /preview\.src = href;/);
+  assert.match(cards[1], /link\.href = href;/);
+  assert.match(cards[1], /cardUrls\.push\(href\);/);
+});
