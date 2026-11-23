@@ -19,7 +19,7 @@ import {
 } from "../lib/twenty-one-questions.ts";
 import { personaFor } from "../lib/persona-packs.ts";
 import {
-  readPersonaDraft,
+  personaCaption, readPersonaDraft,
   type PersonaDraft, type PersonaDraftGap, type PersonaPack,
 } from "../lib/persona-quiz.ts";
 import {
@@ -2359,6 +2359,15 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   const link = root.querySelector<HTMLInputElement>("[data-persona-link]")!;
   const copy = root.querySelector<HTMLButtonElement>("[data-persona-copy]")!;
   const copyStatus = root.querySelector<HTMLElement>("[data-persona-status]")!;
+  const captionCopy = root.querySelector<HTMLButtonElement>("[data-persona-caption-copy]")!;
+  const captionManual = root.querySelector<HTMLTextAreaElement>("[data-persona-caption-manual]")!;
+  const captionStatus = root.querySelector<HTMLElement>("[data-persona-caption-status]")!;
+  /** Retire any caption fallback from an earlier result or a draft. */
+  const clearCaption = () => {
+    captionStatus.textContent = "";
+    captionManual.hidden = true;
+    captionManual.value = "";
+  };
   const draftNote = root.querySelector<HTMLElement>("[data-persona-draft-note]")!;
   const remix = root.querySelector<HTMLDetailsElement>("[data-persona-remix]")!;
   const remixForm = root.querySelector<HTMLFormElement>("[data-persona-draft-form]")!;
@@ -2439,6 +2448,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     draftNote.hidden = !remixActive;
     link.value = remixActive ? "" : new URL(pack.resultPath(id), location.origin).href;
     copyStatus.textContent = "";
+    clearCaption();
     retake.hidden = shared;
     revise.hidden = shared || answers.some((answer) => answer === null);
     fresh.hidden = remixActive || !shared;
@@ -2511,6 +2521,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     shown = null;
     link.value = "";
     copyStatus.textContent = "";
+    clearCaption();
     draftStatus.textContent = "";
     remix.hidden = true;
     remix.open = false;
@@ -2552,6 +2563,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     linkWrap.hidden = false;
     link.value = "";
     copyStatus.textContent = "";
+    clearCaption();
     retake.textContent = "Play again";
     replaceAddress(pack.path);
     showQuestion(0, true);
@@ -2619,6 +2631,29 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
       copyStatus.textContent = "Clipboard access was denied. The result link is selected — copy it with your device’s copy shortcut.";
       link.focus();
       link.select();
+    }
+  });
+
+  // A caption uses trusted published text and links directly to the original quiz.
+  captionCopy.addEventListener("click", async () => {
+    if (!shown || draft) return;
+    const id = shown;
+    const outcome = pack.outcome(id);
+    if (!outcome) return;
+    const href = new URL(pack.path, location.origin).href;
+    const caption = personaCaption(outcome, href);
+    clearCaption();
+    try {
+      await navigator.clipboard.writeText(caption);
+      if (shown !== id || draft) return;
+      captionStatus.textContent = "Caption copied.";
+    } catch {
+      if (shown !== id || draft) return;
+      captionStatus.textContent = "Caption selected. Use your device’s copy shortcut.";
+      captionManual.value = caption;
+      captionManual.hidden = false;
+      captionManual.focus();
+      captionManual.select();
     }
   });
 

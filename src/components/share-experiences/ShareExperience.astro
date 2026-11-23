@@ -482,6 +482,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <button type="button" class="secondary" data-persona-copy>Copy result link</button>
         <p class="experience-note" id="persona-link-note">The link carries the result name only — never your answers.</p>
         <p class="experience-note" role="status" data-persona-status></p>
+        <div class="persona-caption">
+          <button type="button" class="secondary" data-persona-caption-copy aria-describedby="persona-caption-note">Copy caption</button>
+          <textarea hidden readonly rows="3" aria-label="Result caption" data-persona-caption-manual></textarea>
+          <p class="experience-note" id="persona-caption-note">Paste the caption and quiz link beside your image.</p>
+          <p class="experience-note" role="status" data-persona-caption-status></p>
+        </div>
       </div>
     </section>
     <p class="experience-note persona-disclaimer">{persona.disclaimer}</p>
