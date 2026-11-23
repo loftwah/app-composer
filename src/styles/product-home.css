@@ -244,7 +244,7 @@
 .campaign-bar p {max-width: 35ch; line-height: 1.4;}
 .campaign-bar .home-opening-actions {margin: 0; gap: .3rem 1.1rem;}
 .campaign-bar a {display: inline-flex; align-items: center; min-height: 44px;}
-.campaign-bar a:hover, .home-features a:hover, .home-tools a:hover, .home-resource-index a:hover, .home-other a:hover {text-decoration: underline; text-underline-offset: .22em;}
+.campaign-bar a:not(.home-button):hover, .home-features a:hover, .home-tools a:hover, .home-resource-index a:hover, .home-other a:hover {text-decoration: underline; text-underline-offset: .22em;}
 .home-features {display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(16px,2.5vw,38px);}
 .home-features img, .cloudflare-campaign img {width: 100%; height: auto; display: block;}
 .home-features h3 {font-size: 1.45rem; margin: .65rem 0 .25rem;}
