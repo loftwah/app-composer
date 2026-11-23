@@ -28,8 +28,9 @@ import {
   type ResultCoverSlot, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
 import {
-  cleanText, clearNineDraft, nineSubtitleLimit, readNineDraft, writeNineDraft,
-  type DraftStorage, type NineDraft,
+  cleanText, clearNineDraft, draftFileLimit, draftFileName, nineSubtitleLimit, readNineDraft,
+  readNineDraftFile, writeNineDraft, writeNineDraftFile,
+  type DraftStorage, type NineDraft, type NineDraftFileRead,
 } from "../lib/share-experience-draft.ts";
 import { profileUrl } from "../lib/top-nine-profile.ts";
 import { nineListApplied, nineListSummary, planNineList, planNineListUndo } from "../lib/top-nine-list.ts";
@@ -243,6 +244,9 @@ function mountNine(
   const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
   const openDraft = root.querySelector<HTMLButtonElement>("[data-draft-open]")!;
   const clearDraft = root.querySelector<HTMLButtonElement>("[data-draft-clear]")!;
+  const saveDraftFile = root.querySelector<HTMLButtonElement>("[data-draft-file-save]")!;
+  const openDraftFile = root.querySelector<HTMLInputElement>("[data-draft-file]")!;
+  const draftFileStatus = root.querySelector<HTMLElement>("[data-draft-file-status]")!;
   const list = {
     panel: root.querySelector<HTMLDetailsElement>("[data-list-panel]")!,
     form: root.querySelector<HTMLFormElement>("[data-list-form]")!,
@@ -1479,18 +1483,20 @@ function mountNine(
     });
   });
 
+  /** The board as the portable file sees it: the same fields Save draft writes. */
+  const boardDraft = (): NineDraft => ({
+    title: title.value,
+    subtitle: subtitle.value,
+    items: objects.map((input) => input.value),
+    byline: byline.value,
+    profile: profile?.value,
+    skin: Number(chooseSkin.value),
+    ranked: rankedBox.checked ? true : undefined,
+    hrefs: hrefs.slice(),
+    pages: objects.map((_, index) => livePage(index)),
+  });
   saveDraft.addEventListener("click", () => {
-    const outcome = writeNineDraft(storage, {
-      title: title.value,
-      subtitle: subtitle.value,
-      items: objects.map((input) => input.value),
-      byline: byline.value,
-      profile: profile?.value,
-      skin: Number(chooseSkin.value),
-      ranked: rankedBox.checked ? true : undefined,
-      hrefs: hrefs.slice(),
-      pages: objects.map((_, index) => livePage(index)),
-    });
+    const outcome = writeNineDraft(storage, boardDraft());
     if (outcome === "saved") {
       openDraft.hidden = true;
       const rawProfile = profile?.value.trim() ?? "";
@@ -1525,6 +1531,98 @@ function mountNine(
     draftStatus.textContent = "Saved draft cleared from this device. Your exhibition is still here.";
   });
 
+  const boardSignature = () => JSON.stringify({
+    draft: boardDraft(),
+    coverRun,
+    covers: covers.map((cover) => cover ? [cover.url, cover.fit] : null),
+  });
+  const draftFileSize = `${Math.round(draftFileLimit / 1024)} KB`;
+  /** One honest message for the first reason a file cannot fill the board. */
+  function draftFileProblem(read: NineDraftFileRead): string {
+    if (read.fault === "oversized") {
+      return `That draft file is larger than ${draftFileSize}. This board is unchanged.`;
+    }
+    if (read.fault === "unreadable") return "That file is not valid JSON. This board is unchanged.";
+    if (read.fault === "version") {
+      return "That draft file uses a format this page does not know. Download a fresh draft file here, then open that. This board is unchanged.";
+    }
+    if (read.fault === "schema") return "That is not a Composer Top Nine draft file. This board is unchanged.";
+    if (read.fault === "empty") return "That draft file has no title or exhibit to open. This board is unchanged.";
+    if (read.fault === "shape") {
+      return "That draft file is missing its nine exhibit slots or carries a link, style or ranking value this board cannot use. This board is unchanged.";
+    }
+    return "That draft file could not be opened. This board is unchanged.";
+  }
+
+  /** Download the current board as one bounded, versioned private file. Nothing
+   * is stored or sent; covers stay out because they belong to this session. */
+  saveDraftFile.addEventListener("click", () => {
+    const text = writeNineDraftFile(boardDraft());
+    if (!text) {
+      draftFileStatus.textContent = "Enter a title or an exhibit before downloading a draft file.";
+      return;
+    }
+    // Read the exact bytes back first, so the download is the same shape and
+    // bound the Open draft file control accepts.
+    if (!readNineDraftFile(text).draft) {
+      draftFileStatus.textContent = "This board is too large for one draft file. Shorten a title, exhibit or link, then download again.";
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json;charset=utf-8" }));
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = draftFileName;
+      link.rel = "noopener";
+      link.click();
+    } catch {
+      draftFileStatus.textContent = "This browser didn’t start the download. This board is unchanged; try again.";
+      return;
+    } finally {
+      // Release the blob URL once the browser has had time to start the
+      // download, on success or failure, so the page never leaks one.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    draftFileStatus.textContent = "Draft file ready. Download a PNG to keep the cover images.";
+  });
+
+  // A second pick, or a later typed edit, outranks a slower read of the first.
+  let draftFileAttempt = 0;
+  openDraftFile.addEventListener("change", async () => {
+    const file = openDraftFile.files?.[0];
+    if (!file) return;
+    const attempt = ++draftFileAttempt;
+    const before = boardSignature();
+    try {
+      // Refuse a runaway file before reading or parsing any of it.
+      if (!Number.isFinite(file.size) || file.size > draftFileLimit) {
+        draftFileStatus.textContent = `That draft file is larger than ${draftFileSize}. This board is unchanged.`;
+        return;
+      }
+      const text = await file.text();
+      if (attempt !== draftFileAttempt) return;
+      if (boardSignature() !== before) {
+        draftFileStatus.textContent = "The draft file arrived after you changed this board. Open it again to replace what you have now.";
+        return;
+      }
+      const read = readNineDraftFile(text);
+      if (!read.draft) {
+        draftFileStatus.textContent = draftFileProblem(read);
+        return;
+      }
+      // The same restore path the browser's saved draft uses: covers are
+      // reconciled, links and pages validated, and the preview follows.
+      applyDraft(read.draft);
+      openDraft.hidden = true;
+      draftFileStatus.textContent = "Draft file opened. Save draft here to keep it in this browser.";
+    } catch {
+      if (attempt !== draftFileAttempt) return;
+      draftFileStatus.textContent = "That file could not be read on this device. This board is unchanged.";
+    } finally {
+      if (attempt === draftFileAttempt) openDraftFile.value = "";
+    }
+  });
+
   markTarget();
   refreshLinks();
   markCoverTarget();
@@ -1533,6 +1631,9 @@ function mountNine(
   showListCount();
   renderPreview();
   if (previewGrid) previewGrid.hidden = false;
+  // The file controls are JavaScript-only, so they stay disabled until every
+  // listener above is attached.
+  for (const control of [saveDraftFile, openDraftFile]) control.disabled = false;
 
   return {
     result: () => {

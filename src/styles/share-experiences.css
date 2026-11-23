@@ -234,6 +234,17 @@
 .exhibition-order select, .bingo-packs select { width: auto; min-width: 4rem; margin: 0; }
 .exhibition-order label, .bingo-packs label { align-self: center; }
 .exhibition-draft { margin-top: .75rem; }
+/* One portable board file beside the browser draft controls. The native picker
+   stays visible inside its label, and both controls are disabled until the
+   editor's listeners are attached, so neither claims an action it lacks. */
+.exhibition-file-open {
+  display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem;
+  margin: 0; font-size: .92rem; font-weight: 700; color: inherit; min-width: 0;
+}
+.exhibition-file-open input[type="file"] {
+  margin: 0; max-inline-size: 13rem; min-width: 0; font-size: .9rem;
+}
+.exhibition-file-open input[type="file"]:disabled { cursor: not-allowed; }
 /* The ranked opt-in is a native checkbox. Off keeps the original unordered
    favourites; on numbers every occupied slot in the editor, preview and PNG. */
 .exhibition-ranked {
