@@ -1,5 +1,5 @@
 import {
-  thisOrThatPacks, thisOrThatQuestions, thisOrThatResultTitle,
+  experiencePath, thisOrThatPacks, thisOrThatQuestions, thisOrThatResultTitle,
   type ThisOrThatPack,
 } from "./share-experiences.ts";
 import { cleanText } from "./share-experience-draft.ts";
@@ -85,6 +85,25 @@ export function restoreThisOrThatPack(value: unknown): ThisOrThatPack {
   return typeof value === "string" && Object.hasOwn(thisOrThatPacks, value)
     ? value as ThisOrThatPack
     : "maker";
+}
+
+/** The blank-starter link is the canonical experience path and, only for a
+ * non-maker preset, one exact pack parameter. It never carries a fragment,
+ * a result, a byline, answers or any other query. The Maker starter is the
+ * bare canonical URL, so an untouched link stays the shortest honest address. */
+export const thisOrThatBlankPath = experiencePath("this-or-that");
+
+export function thisOrThatBlankLink(pack: ThisOrThatPack): string {
+  return pack === "maker" ? thisOrThatBlankPath : `${thisOrThatBlankPath}?pack=${pack}`;
+}
+
+/** Reads the optional blank-starter hint from a query string. Only exactly one
+ * known pack counts; a missing, repeated, custom or malformed value opens the
+ * original Maker starter, so a crafted link never invents a preset. A result
+ * fragment still wins: the controller restores it after this first-load hint. */
+export function thisOrThatPackFromQuery(search: string): ThisOrThatPack {
+  const values = new URLSearchParams(search).getAll("pack");
+  return values.length === 1 ? restoreThisOrThatPack(values[0]) : "maker";
 }
 
 /** A shared result restores only with one explicit pick for every question;

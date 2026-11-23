@@ -6,7 +6,8 @@ import {
 import {
   pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
   customThisOrThatTitle, readThisOrThatCustom,
-  thisOrThatComplete, thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
+  thisOrThatBlankLink, thisOrThatComplete, thisOrThatPackFromQuery,
+  thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, setTwentyOneAnswer, skipTwentyOne,
@@ -1138,6 +1139,11 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const revealPicks = result.querySelector<HTMLElement>("[data-reveal-picks]")!;
   const revealNote = result.querySelector<HTMLElement>("[data-tot-reveal-note]");
   const revealNoteBuiltin = revealNote?.textContent ?? "";
+  const blank = root.querySelector<HTMLElement>("[data-tot-blank]")!;
+  const blankCopy = root.querySelector<HTMLButtonElement>("[data-tot-blank-copy]")!;
+  const blankManual = root.querySelector<HTMLInputElement>("[data-tot-blank-manual]")!;
+  const blankStatus = root.querySelector<HTMLElement>("[data-tot-blank-status]")!;
+  let blankCopyAttempt = 0;
   const restart = root.querySelector<HTMLButtonElement>("[data-restart]")!;
   const customPanel = root.querySelector<HTMLDetailsElement>("[data-tot-custom]")!;
   const customForm = root.querySelector<HTMLFormElement>("[data-tot-custom-form]")!;
@@ -1203,10 +1209,22 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     });
   }
 
+  /** A blank offer belongs to a built-in starter only; a written five never
+   * produces a link. Any visible clipboard fallback is cleared as the stage
+   * moves on, so it never lingers beside a different run. */
+  function clearBlankOffer() {
+    blankCopyAttempt += 1;
+    blank.hidden = custom !== null;
+    blankManual.hidden = true;
+    blankManual.value = "";
+    blankStatus.textContent = "";
+  }
+
   function showQuestion(index: number, focus = true) {
     panels.forEach((panel, at) => { panel.hidden = at !== index; });
     result.hidden = true;
     restart.hidden = true;
+    clearBlankOffer();
     syncProgress();
     undo.disabled = answered() === 0;
     if (focus) panels[index].querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
@@ -1216,6 +1234,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     panels.forEach((panel) => { panel.hidden = true; });
     result.hidden = false;
     restart.hidden = false;
+    blank.hidden = custom !== null;
     syncProgress();
     undo.disabled = false;
     renderReveal();
@@ -1282,6 +1301,29 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     update();
   });
 
+  // The blank link hands over the same preset with none of this run's answers:
+  // the canonical path and, for the food starter, one exact pack parameter.
+  // No fragment, result, byline, answers or other query travels. A written five
+  // has no link at all, so its reveal never offers this action.
+  blankCopy.addEventListener("click", async () => {
+    if (custom || result.hidden) return;
+    const href = new URL(thisOrThatBlankLink(pack), location.origin).href;
+    clearBlankOffer();
+    const attempt = blankCopyAttempt;
+    try {
+      await navigator.clipboard.writeText(href);
+      if (attempt !== blankCopyAttempt) return;
+      blankStatus.textContent = "Blank starter link copied. It opens this preset with no answers.";
+    } catch {
+      if (attempt !== blankCopyAttempt) return;
+      blankStatus.textContent = "Clipboard access was denied. Copy the blank link from this field.";
+      blankManual.value = href;
+      blankManual.hidden = false;
+      blankManual.focus();
+      blankManual.select();
+    }
+  });
+
   restart.addEventListener("click", () => {
     picks = thisOrThatStart();
     heading = custom ? customThisOrThatTitle : thisOrThatPacks[pack].title;
@@ -1326,7 +1368,10 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     playCustom();
   });
 
-  applyPack(restoreThisOrThatPack(packSelect.value));
+  // A blank link may name one exact built-in starter for a fresh signed-out
+  // visitor. A shared result fragment still restores its own picks and pack
+  // after this first-load hint, so the fragment keeps precedence.
+  applyPack(thisOrThatPackFromQuery(location.search));
   showQuestion(0, false);
 
   return {

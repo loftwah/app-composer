@@ -242,7 +242,12 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <section hidden class="door-result tot-result" data-tot-result aria-label="Your five choices">
       <h2 tabindex="-1" data-reveal-title></h2>
       <ol class="tot-picks" data-reveal-picks></ol>
-      <p class="experience-note" data-tot-reveal-note>Every answer is yours — there’s no score and nothing is stored. Download your result or copy the link to hand someone the same five questions.</p>
+      <p class="experience-note" data-tot-reveal-note>Every answer is yours — there’s no score and nothing is stored. Download your result, or copy a blank starter link to invite someone to play the same five from the start.</p>
+      <div class="tot-blank" data-tot-blank>
+        <button type="button" class="secondary" data-tot-blank-copy>Copy blank starter link</button>
+        <input hidden readonly aria-label="Blank starter link" data-tot-blank-manual />
+        <p class="experience-note" role="status" data-tot-blank-status></p>
+      </div>
     </section>
     <button hidden type="button" class="secondary experience-reset" data-restart>Play again</button>
   </section>}
