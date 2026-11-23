@@ -1815,14 +1815,26 @@ export function mountShareExperience(root: HTMLElement) {
         update();
         if (!current) return;
         cards.forEach((blob, index) => {
+          // One Blob URL per card feeds both the preview and its save link, so
+          // the PNG a creator inspects is the exact file the link downloads.
           const href = URL.createObjectURL(blob);
           cardUrls.push(href);
+          const figure = document.createElement("figure");
+          figure.className = "tq-card";
+          const preview = document.createElement("img");
+          preview.className = "tq-card-preview";
+          preview.src = href;
+          preview.alt = `Card ${index + 1} preview`;
+          const meta = document.createElement("figcaption");
+          meta.className = "tq-card-meta";
           const link = document.createElement("a");
           link.className = "button secondary";
           link.href = href;
           link.download = `${game}-${cardFormat === "story" ? "story-" : ""}card-${index + 1}-of-${cards.length}.png`;
           link.textContent = `Save card ${index + 1} of ${cards.length}`;
-          cardDownloads.append(link);
+          meta.append(link);
+          figure.append(preview, meta);
+          cardDownloads.append(figure);
         });
         cardDownloads.hidden = false;
         status.textContent = cards.length === 1 ? "Your card is ready." : "Your cards are ready.";
