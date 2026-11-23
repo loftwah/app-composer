@@ -274,9 +274,16 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <button type="button" data-draft-save>Save draft</button>
       <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
       <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
+      <button type="button" class="secondary" data-draft-file-save disabled>Download draft file</button>
+      <label class="exhibition-file-open">Open draft file
+        <input type="file" accept="application/json,.json" data-draft-file disabled
+          aria-describedby="nine-draft-file-note" />
+      </label>
     </div>
     <p class="experience-note">Drafts keep your title, subtitle, exhibits, source links, profile link and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
     <p class="experience-note" role="status" data-draft-status></p>
+    <p class="experience-note" id="nine-draft-file-note">A draft file is private JSON with board text, links and settings. Open it to replace the current board. Download a PNG to keep the cover images.</p>
+    <p class="experience-note" role="status" data-draft-file-status></p>
   </section>}
 
   {isBingo && <section class="bingo-stage" data-play-panel aria-label="Bingo board">
