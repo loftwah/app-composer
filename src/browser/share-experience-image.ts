@@ -8,6 +8,19 @@ export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
 } as const;
 export type ResultFormat = keyof typeof resultSizes;
+
+/** Grid columns for an items export. A five keeps its single full-width column
+ * — the built-in This or That drawing is unchanged — while an authored nine
+ * reuses the 3 × 3 grid the Top Nine exhibition already prints for exactly
+ * nine short texts. One column at nine would squeeze portrait cells to about
+ * a third of their height (and far less on square and landscape), dropping
+ * option text toward the fit floor; the grid keeps every choice at the same
+ * starting size the five uses, in taller cells than the five-row layout. */
+export function resultColumns(game: ExperienceId, itemCount: number): 1 | 3 | 5 {
+  if (game === "tech-bingo") return 5;
+  if (game === "this-or-that") return itemCount === 9 ? 3 : 1;
+  return 3;
+}
 export interface ShareExperienceResult {
   game: ExperienceId;
   title: string;
@@ -166,7 +179,7 @@ export async function renderExperienceResult(
   ctx.fillStyle = ink;
   drawFit(ctx, result.title, margin, margin + 12, width - 2 * margin, header - 12, wide ? 66 : 105);
   if (result.items) {
-    const cols = result.game === "tech-bingo" ? 5 : result.game === "this-or-that" ? 1 : 3;
+    const cols = resultColumns(result.game, result.items.length);
     const rows = Math.ceil(result.items.length / cols);
     const rowY = margin + header + 12;
     const gap = wide ? 6 : 9;

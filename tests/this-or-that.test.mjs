@@ -11,11 +11,13 @@ import {
   travelQuestions, travelResultTitle,
 } from '../src/lib/share-experiences.ts';
 import {
-  moveThisOrThatCustom, pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
-  thisOrThatComplete, thisOrThatCount, thisOrThatProgress, thisOrThatStart,
+  customThisOrThatTitle, moveThisOrThatCustom, pickThisOrThat, restoreThisOrThatLength,
+  restoreThisOrThatPack, restoreThisOrThatPicks, thisOrThatComplete, thisOrThatCount,
+  thisOrThatLengths, thisOrThatProgress, thisOrThatStart, thisOrThatSummary,
+  readThisOrThatCustom, undoThisOrThat,
   thisOrThatBlankLink, thisOrThatBlankPath, thisOrThatPackFromQuery,
-  thisOrThatSummary, readThisOrThatCustom, undoThisOrThat,
 } from '../src/lib/this-or-that.ts';
+import { resultColumns } from '../src/browser/share-experience-image.ts';
 
 // The registry is the one source of truth for the selector, blank links and
 // shared results. New named packs extend it; the three shipped starters keep
@@ -123,6 +125,9 @@ test('a shared result restores only with one pick for every question', () => {
   const bad = [
     [], [0, 1, 0, 1], [0, 1, 0, 1, 0, 1], [0, 1, 0, 1, null], [0, 1, 0, 1, '1'],
     [null, null, null, null, null], '01010', 5, { 0: 1 },
+    // A nine-run's sides never decode as a shared result: the built-in
+    // decoder stays five-only, so no crafted link can pose as a nine finish.
+    [0, 1, 0, 1, 0, 1, 0, 1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1],
   ];
   for (const value of bad) assert.equal(restoreThisOrThatPicks(value), null);
 });
@@ -346,4 +351,130 @@ test('a draft row move carries every prompt and option, including half-written t
   assert.deepEqual(reordered[4], playable[3]);
   assert.deepEqual(readThisOrThatCustom(reordered).questions?.map((row) => [...row]), reordered,
     'a reordered complete five still validates without changing any text');
+});
+
+// The optional authored nine: one local, private length beside the default
+// five. These checks hold the pure boundaries — the offered lengths, a
+// nine-question run's lifecycle, the five-only share decoder, and the exact
+// nine chosen texts a finished run exposes for the PNG.
+
+const nineQuestions = Array.from({ length: 9 }, (_, index) =>
+  [`Question ${index + 1}?`, `Left ${index + 1}`, `Right ${index + 1}`]);
+
+test('the authored length is exactly five or nine, and only a known value widens it', () => {
+  assert.deepEqual(thisOrThatLengths, [5, 9]);
+  assert.equal(restoreThisOrThatLength('5'), 5);
+  assert.equal(restoreThisOrThatLength('9'), 9);
+  for (const value of [undefined, null, '', '4', '11', '21', 'nine', 5, 9, {}, ['9']]) {
+    assert.equal(restoreThisOrThatLength(value), 5, `${JSON.stringify(value)} keeps the default five`);
+  }
+  assert.deepEqual(thisOrThatStart(9), Array.from({ length: 9 }, () => null));
+  assert.equal(thisOrThatStart(9).length, 9);
+  assert.equal(thisOrThatStart().length, 5, 'the default run stays the built-in five');
+});
+
+test('a nine-question authored run plays, undoes and completes exactly like the five', () => {
+  let picks = thisOrThatStart(9);
+  assert.deepEqual(thisOrThatProgress(picks), { question: 1, total: 9 });
+  assert.equal(pickThisOrThat(picks, 8, 0), null, 'a later question cannot be answered first');
+  assert.equal(pickThisOrThat(picks, 0, 2), null, 'a side is either this or that');
+  picks = pickThisOrThat(picks, 0, 1);
+  assert.deepEqual(picks, [1, null, null, null, null, null, null, null, null]);
+  assert.equal(pickThisOrThat(picks, 0, 0), null, 'a repeat tap on an answered question changes nothing');
+  picks = undoThisOrThat(picks);
+  assert.deepEqual(picks, thisOrThatStart(9), 'undo clears the most recent nine-run pick');
+  for (let index = 0; index < 9; index += 1) {
+    const next = pickThisOrThat(picks, index, index % 2);
+    assert.ok(next, `question ${index + 1} accepts its pick in order`);
+    picks = next;
+  }
+  assert.deepEqual(thisOrThatProgress(picks), { question: 9, total: 9 });
+  assert.equal(thisOrThatComplete(picks, 9), true);
+  assert.equal(thisOrThatComplete(picks), false, 'a finished nine is not a complete five');
+  assert.equal(thisOrThatComplete(picks.slice(0, 5), 9), false, 'five picks cannot finish a nine');
+});
+
+test('a finished nine-run lists nine exact chosen texts for the PNG rows', () => {
+  const sides = [0, 1, 0, 1, 0, 1, 0, 1, 0];
+  const summary = thisOrThatSummary(sides, nineQuestions, customThisOrThatTitle);
+  const chosen = nineQuestions.map(([, left, right], index) => (sides[index] === 0 ? left : right));
+  assert.ok(summary);
+  assert.equal(summary.title, customThisOrThatTitle);
+  assert.deepEqual(summary.items, chosen, 'the summary exposes the nine exact ordered chosen items');
+  assert.deepEqual(summary.sides, [...sides]);
+  assert.equal(thisOrThatSummary(thisOrThatStart(9), nineQuestions), null);
+  assert.equal(thisOrThatSummary([0, 1, 0, 1, 0, 1, 0, 1, null], nineQuestions), null);
+  assert.equal(thisOrThatSummary(sides, nineQuestions.slice(0, 5)), null,
+    'five questions cannot carry nine picks');
+});
+
+test('reading a custom set validates exactly the chosen length; hidden drafts stay out of play', () => {
+  const nineRows = nineQuestions.map(([prompt, left, right]) => [prompt, left, right]);
+  const readNine = readThisOrThatCustom(nineRows, 9);
+  assert.equal(readNine.gap, -1);
+  assert.equal(readNine.reason, null);
+  assert.deepEqual(readNine.questions?.map((row) => [...row]), nineRows);
+
+  const same = nineRows.map((row) => [...row]);
+  same[6][1] = 'Same'; same[6][2] = 'same';
+  assert.deepEqual(readThisOrThatCustom(same, 9), { questions: null, gap: 6, reason: 'same' });
+
+  const empty = nineRows.map((row) => [...row]);
+  empty[8][0] = '   ';
+  assert.deepEqual(readThisOrThatCustom(empty, 9), { questions: null, gap: 8, reason: 'empty' });
+
+  // At five the editor reads only its five rows: typed drafts in the hidden
+  // four are neither validated nor lost, whatever they hold.
+  const hidden = nineRows.map((row) => [...row]);
+  hidden[5] = ['', 'dup', 'dup'];
+  hidden[7] = ['  ', '', ''];
+  assert.deepEqual(
+    readThisOrThatCustom(hidden).questions?.map((row) => [...row]),
+    nineRows.slice(0, 5),
+    'hidden rows keep their drafts and never reach validation',
+  );
+  assert.deepEqual(hidden[5], ['', 'dup', 'dup'], 'the untouched draft is still exactly as typed');
+});
+
+test('row moves stay inside the edited length and never disturb hidden drafts', () => {
+  const draft = nineQuestions.map(([prompt, left, right]) => [prompt, left, right]);
+  assert.deepEqual(moveThisOrThatCustom(draft, 4, 1, 5), draft,
+    'the last row of a five cannot move into hidden drafts');
+  assert.deepEqual(moveThisOrThatCustom(draft, 5, 1, 5), draft, 'a hidden row never moves at five');
+  const moved = moveThisOrThatCustom(draft, 4, 1, 9);
+  assert.deepEqual(moved[4], draft[5]);
+  assert.deepEqual(moved[5], draft[4]);
+  for (let index = 0; index < 9; index += 1) {
+    if (index !== 4 && index !== 5) assert.deepEqual(moved[index], draft[index]);
+  }
+  assert.deepEqual(moveThisOrThatCustom(draft, 8, 1, 9), draft, 'the last of nine stays put');
+});
+
+test('the native length selector offers exactly five and nine, never eleven or twenty-one', async () => {
+  const source = await readFile(
+    new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url),
+    'utf8',
+  );
+  const select = source.match(/<select id="tot-length" data-tot-length>([\s\S]*?)<\/select>/);
+  assert.ok(select, 'the authored length selector is present');
+  assert.deepEqual(
+    [...select[1].matchAll(/<option value="([^"]+)"/g)].map((match) => match[1]),
+    ['5', '9'],
+  );
+  assert.ok(source.includes('Array.from({ length: 9 }, (_, index) => ('),
+    'the editor renders one nine-row draft');
+  assert.match(source, /hidden=\{index >= thisOrThatQuestions\.length\}/,
+    'rows past the built-in five start hidden');
+  assert.match(source, /disabled=\{index === thisOrThatQuestions\.length - 1 \|\| index === 8\}/,
+    'the last visible row alone stops moving down');
+  assert.ok(source.includes('Array.from({ length: 9 }, (_, index) => {'),
+    'the stage carries nine play panels');
+});
+
+test('a nine-item result reuses the exhibition grid; the built-in five keeps its column', () => {
+  assert.equal(resultColumns('this-or-that', 5), 1, 'the built-in five keeps its exact drawing');
+  assert.equal(resultColumns('this-or-that', 9), 3, 'an authored nine reuses the proven 3 × 3 grid');
+  assert.equal(resultColumns('tech-bingo', 25), 5);
+  assert.equal(resultColumns('top-nine', 9), 3);
+  assert.equal(resultColumns('pick-a-door', 10), 3);
 });
