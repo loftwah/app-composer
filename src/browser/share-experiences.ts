@@ -2647,8 +2647,9 @@ export function mountShareExperience(root: HTMLElement) {
   const shareNote = root.querySelector<HTMLElement>("[data-share-note]");
   const shareNoteBuiltin = shareNote?.textContent ?? "";
   // Pasting an image needs both the async Clipboard API and ClipboardItem.
-  if (copyPng && (typeof navigator.clipboard?.write !== "function" || typeof ClipboardItem !== "function"))
-    copyPng.hidden = true;
+  // The same capability gates the Copy PNG button added to a prepared card.
+  const imageClipboard = typeof navigator.clipboard?.write === "function" && typeof ClipboardItem === "function";
+  if (copyPng && !imageClipboard) copyPng.hidden = true;
   let busy = false;
   let sharing = false;
   let controller: Controller;
@@ -2836,6 +2837,35 @@ export function mountShareExperience(root: HTMLElement) {
         link.download = `${game}-${outcome}-${cardFormat}.png`;
         link.textContent = `Save ${cardFormat} PNG`;
         meta.append(link);
+        if (imageClipboard) {
+          // Copy the very Blob behind this preview and Save link, not a new
+          // render or its URL. The version fixes which result the card holds;
+          // update() clears this figure on a changed format, style, byline,
+          // revise or retake, so a stale card can never reach the clipboard.
+          const version = personaVersion;
+          let copying = false;
+          const copyButton = document.createElement("button");
+          copyButton.type = "button";
+          copyButton.className = "button secondary";
+          copyButton.textContent = "Copy PNG";
+          copyButton.addEventListener("click", async () => {
+            if (copying || version !== personaVersion) return;
+            copying = true;
+            try {
+              // Give Safari the PNG during the tap, before the write is consumed.
+              await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+              if (version !== personaVersion) return;
+              status.textContent = "Card image copied. Paste it where you want to share it.";
+            } catch {
+              if (version !== personaVersion) return;
+              // Save PNG stays visible in this figure as the fallback.
+              status.textContent = "Clipboard unavailable. Use Save PNG to keep the card.";
+            } finally {
+              copying = false;
+            }
+          });
+          meta.append(copyButton);
+        }
         figure.append(preview, meta);
         personaPreview.append(figure);
         personaPreview.hidden = false;

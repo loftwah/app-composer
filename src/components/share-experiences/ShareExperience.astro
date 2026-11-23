@@ -50,7 +50,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   </nav>
   <header class="experience-heading">
     <div>
-      <h1>{isCloudflare ? "Which Cloudflare® service are you?" : experience.title}</h1>
+      <h1>{isCloudflare ? "Which Cloudflare® service are you?" : isLanguage ? "Which programming language are you?" : experience.title}</h1>
       <p data-tot-description>{experience.description}</p>
     </div>
     <picture>

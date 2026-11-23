@@ -108,3 +108,24 @@ test('the export panel previews the same card it saves', () => {
   assert.match(component, /isCloudflare \? "Prepare card"/);
   assert.match(component, /data-download[^>]*isCloudflare/);
 });
+
+test('a prepared card copies the exact preview Blob beside a retained Save PNG fallback', () => {
+  const source = read('src/browser/share-experiences.ts');
+  assert.match(source, /const imageClipboard = typeof navigator\.clipboard\?\.write === "function" && typeof ClipboardItem === "function"/);
+  assert.match(source, /if \(copyPng && !imageClipboard\) copyPng\.hidden = true/);
+
+  const start = source.indexOf('if (personaOutcome) {');
+  assert.ok(start > 0, 'the persona card export exists');
+  const block = source.slice(start, source.indexOf('if (cardDownloads) {', start));
+  assert.match(block, /Save \$\{cardFormat\} PNG/, 'the visible Save PNG link stays');
+  assert.match(block, /copyButton\.textContent = "Copy PNG"/);
+  assert.match(block, /if \(imageClipboard\)/, 'the same image clipboard capability gates the button');
+  assert.match(block, /new ClipboardItem\(\{ "image\/png": blob \}\)/, 'the prepared PNG Blob is copied');
+  assert.match(block, /navigator\.clipboard\.write/);
+  assert.equal((block.match(/renderPersonaCard\(/g) ?? []).length, 1, 'only the preview Blob is rendered');
+  const handler = block.slice(block.indexOf('copyButton.addEventListener'));
+  assert.doesNotMatch(handler, /renderPersonaCard\(/, 'copying never renders a fresh image');
+  assert.match(block, /version !== personaVersion/, 'a cleared or changed card cannot be copied');
+  assert.match(block, /Card image copied/, 'success wording uses the card status');
+  assert.match(block, /Use Save PNG/, 'fallback wording keeps the visible Save link');
+});
