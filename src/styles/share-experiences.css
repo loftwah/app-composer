@@ -396,6 +396,65 @@
 }
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
 .nine-preview-cell a[data-nine-preview-caption][href] { text-decoration: underline; text-underline-offset: .14em; }
+/* The persona quiz reuses the shared stage colours and the museum theme. Its
+   four answers are large, plainly labelled targets; the result is a collectible
+   label rather than a scorecard. */
+.persona-stage { margin-top: 1rem; }
+.persona-progress { margin: 1.25rem 0 0; font-weight: 700; }
+.persona-notice { min-height: 1.35em; margin-block: .45rem 0; }
+.persona-question {
+  padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
+  min-height: 13rem; border-top: 1px solid currentColor;
+}
+.persona-question h2 { color: inherit; margin-top: 0; font-size: clamp(1.7rem, 4.3vw, 3.2rem); }
+.persona-options {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(.55rem, 3vw, 1.5rem);
+}
+.share-experience .persona-options button {
+  min-height: clamp(6.4rem, 22vw, 9.5rem);
+  padding: clamp(.8rem, 2.6vw, 1.2rem);
+  justify-content: flex-start;
+  text-align: start;
+  background: transparent; color: inherit;
+  border: 4px double var(--stage-ink); border-radius: 0;
+  font-size: clamp(1.02rem, 2.9vw, 1.45rem); line-height: 1.2; font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.share-experience .persona-options button:hover {
+  background: color-mix(in srgb, var(--stage-ink) 12%, transparent);
+}
+.share-experience .persona-options button[aria-pressed="true"] {
+  background: var(--stage-ink); color: var(--stage);
+}
+.share-experience .persona-options button:focus-visible {
+  outline: 3px dashed currentColor; outline-offset: -7px;
+}
+.persona-result h2 {
+  color: inherit; margin: 0 0 .2rem;
+  font-size: clamp(2.4rem, 9vw, 4.8rem); line-height: .96; letter-spacing: -.035em;
+}
+.persona-service {
+  margin: 0 0 1rem; color: var(--accent);
+  font-size: clamp(1.2rem, 3vw, 1.7rem); font-weight: 700;
+}
+.persona-tendency { max-width: 38ch; font-size: clamp(1.15rem, 2.6vw, 1.5rem); line-height: 1.3; }
+.persona-why { max-width: 54ch; color: inherit; }
+.persona-disclaimer { max-width: 62ch; }
+.persona-link {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem;
+  margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid currentColor;
+}
+.persona-link label { flex-basis: 100%; margin: 0; font-weight: 700; }
+.persona-link input {
+  flex: 1 1 16rem; min-height: 44px;
+  color: #211a1b; background: #fff9ec;
+}
+.persona-link .experience-note { flex-basis: 100%; max-inline-size: none; margin: 0; }
+.persona-result [data-persona-docs] {
+  color: var(--stage-ink); text-decoration: underline; text-underline-offset: .18em;
+}
+.persona-result .button.secondary { color: var(--stage-ink); border-color: var(--stage-ink); background: transparent; }
 @media (max-width: 450px) {
   .experience-heading { grid-template-columns: minmax(0, 1fr) minmax(5rem, .45fr); min-height: 0; align-items: center; }
   .experience-heading h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
@@ -404,6 +463,8 @@
   .music-kind, .music-search label, .music-search > button[type="submit"],
   .cover-pick label { flex: 1 1 100%; }
   .share-experience .bingo-grid button { padding-inline: .14rem; }
+  .persona-options { grid-template-columns: 1fr; }
+  .persona-link input { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .door-result:not([hidden]) { animation: none; }

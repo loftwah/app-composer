@@ -8,6 +8,9 @@ import {
 import {
   customThisOrThatAltLimit, customThisOrThatOptionLimit, customThisOrThatPromptLimit,
 } from "../../lib/this-or-that.ts";
+import {
+  cloudflarePersonaChecked, cloudflarePersonaQuestionCount, cloudflarePersonaQuestions,
+} from "../../lib/cloudflare-persona.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
 import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
@@ -24,6 +27,7 @@ const isNine = game === "top-nine";
 const isBingo = game === "tech-bingo";
 const isThis = game === "this-or-that";
 const isTwentyOne = game === "twenty-one-questions";
+const isCloudflare = game === "developer-type";
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
 // fragment contract, so it restores through the same path as a shared result.
@@ -44,7 +48,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   </nav>
   <header class="experience-heading">
     <div>
-      <h1>{experience.title}</h1>
+      <h1>{isCloudflare ? "Which Cloudflare® service are you?" : experience.title}</h1>
       <p data-tot-description>{experience.description}</p>
     </div>
     <picture>
@@ -405,7 +409,44 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </section>
   </section>}
 
-  <section class="experience-export" aria-label="Personalise and share">
+  {isCloudflare && <section data-play-panel class="door-stage persona-stage" aria-label="Developer Type Quiz">
+    <p class="persona-progress" role="status" data-persona-progress>Question 1 of {cloudflarePersonaQuestionCount}</p>
+    <p class="experience-note persona-notice" role="status" data-persona-notice></p>
+    <section class="persona-question" data-persona-question>
+      <h2 id="persona-prompt" tabindex="-1" data-persona-prompt>{cloudflarePersonaQuestions[0].prompt}</h2>
+      <div class="persona-options" role="group" aria-labelledby="persona-prompt" data-persona-options>
+        {cloudflarePersonaQuestions[0].options.map((option, index) =>
+          <button type="button" data-persona-choice={index}>{option.label}</button>
+        )}
+      </div>
+      <div class="tot-controls">
+        <button type="button" class="secondary" data-persona-back disabled>Back</button>
+      </div>
+    </section>
+    <section hidden class="door-result persona-result" data-persona-result aria-label="Your result">
+      <h2 tabindex="-1" data-persona-archetype></h2>
+      <p class="persona-service" data-persona-service></p>
+      <p class="persona-tendency" data-persona-tendency></p>
+      <p class="persona-why" data-persona-reason></p>
+      <p class="experience-note persona-disclaimer">A playful App Composer quiz, not an assessment. No answers leave this tab.</p>
+      <p><a data-persona-docs target="_blank" rel="noopener noreferrer"></a></p>
+      <div class="tot-controls">
+        <button type="button" data-persona-retake>Play again</button>
+        <button type="button" class="secondary" data-persona-revise hidden>Revise my answers</button>
+        <a class="button secondary" data-persona-fresh href={experiencePath("developer-type")} hidden>Take the quiz yourself</a>
+      </div>
+      <div class="persona-link">
+        <label for="persona-link">Result link</label>
+        <input id="persona-link" readonly data-persona-link aria-describedby="persona-link-note" />
+        <button type="button" class="secondary" data-persona-copy>Copy result link</button>
+        <p class="experience-note" id="persona-link-note">The link carries the result name only — never your answers.</p>
+        <p class="experience-note" role="status" data-persona-status></p>
+      </div>
+    </section>
+    <p class="experience-note persona-disclaimer">An independent fan quiz by App Composer, unaffiliated with Cloudflare. Cloudflare, Cloudflare Workers, Durable Objects and Workers AI are trademarks or registered trademarks of Cloudflare, Inc. Service summaries checked against the official docs on {cloudflarePersonaChecked}.</p>
+  </section>}
+
+  <section class="experience-export" aria-label="Personalise and share" hidden={isCloudflare}>
     <h2>{isTwentyOne ? "Your share cards" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
@@ -469,7 +510,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {(isNine || isThis) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !isCloudflare && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">

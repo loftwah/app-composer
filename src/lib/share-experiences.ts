@@ -39,6 +39,15 @@ export const experiences = {
     imageDescription: "An amber museum slide holding a small white owl with keyboard-pattern feathers, labelled Internet Specimen.",
     theme: "museum",
   },
+  "developer-type": {
+    title: "Developer Type Quiz",
+    description: "Eight small situations about how you work on a project. Find your type and learn about a service that fits.",
+    // The stage reuses the owned Internet Workshop “which-cloudflare”
+    // collectible card; see public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "which-cloudflare",
+    imageDescription: "An antique silver etching of an orbital library on a midnight-blue collectible card.",
+    theme: "museum",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;
