@@ -140,3 +140,11 @@ test('preview and download use the same local card URL', () => {
   assert.match(cards[1], /link\.href = href;/);
   assert.match(cards[1], /cardUrls\.push\(href\);/);
 });
+
+test('production permits local card images on the quiz route', () => {
+  const middleware = read('src/middleware.ts');
+  const block = middleware.split('twenty-one-questions')[1]?.split('X-Content-Type-Options')[0];
+  assert.ok(block);
+  assert.ok(block.includes(`csp.replace("img-src 'self'", "img-src 'self' blob:")`));
+  assert.doesNotMatch(block, /connect-src|frame-src|script-src/);
+});

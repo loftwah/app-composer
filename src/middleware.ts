@@ -100,6 +100,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
       );
     }
   }
+  if (/^\/share\/experiences\/twenty-one-questions\/?$/.test(context.url.pathname)) {
+    const csp = response.headers.get("content-security-policy");
+    if (csp) {
+      // The prepared card image uses the same browser-local Blob as its download.
+      response.headers.set("content-security-policy", csp.replace("img-src 'self'", "img-src 'self' blob:"));
+    }
+  }
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-Frame-Options", "DENY");
