@@ -6,7 +6,7 @@ import {
   twentyOneResultTitle, type ExperienceId,
 } from "../../lib/share-experiences.ts";
 import { customThisOrThatOptionLimit, customThisOrThatPromptLimit } from "../../lib/this-or-that.ts";
-import { twentyOneAnswerLimit } from "../../lib/twenty-one-questions.ts";
+import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 
 interface Props {
   game: ExperienceId;
@@ -254,6 +254,19 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
 
   {isTwentyOne && <section data-play-panel class="door-stage" aria-label="Answer twenty-one questions">
     <p class="tq-progress" role="status" data-tq-progress>Question 1 of {twentyOneQuestions.length} · 0 answered</p>
+    <details class="experience-custom tq-custom" data-tq-custom>
+      <summary>Edit the 21 prompts</summary>
+      <p class="experience-note" id="tq-custom-help">Enter 21 prompts, one per line, up to {twentyOnePromptLimit} characters each. Applying or restoring the starter clears the current answers.</p>
+      <form data-tq-custom-form autocomplete="off">
+        <label for="tq-custom-prompts">Prompts</label>
+        <textarea id="tq-custom-prompts" rows={twentyOneQuestions.length} maxlength="2000" aria-describedby="tq-custom-help" data-tq-custom-prompts>{twentyOneQuestions.join("\n")}</textarea>
+        <div class="tq-controls">
+          <button type="submit">Apply and start fresh</button>
+          <button type="button" class="secondary" data-tq-custom-reset>Reset to built-in</button>
+        </div>
+      </form>
+    </details>
+    <p class="experience-note tq-custom-status" role="status" data-tq-custom-status></p>
     <section class="tq-question" data-tq-stage>
       <h2 id="tq-prompt" tabindex="-1" data-tq-prompt>{twentyOneQuestions[0]}</h2>
       <label class="tq-answer-label" for="tq-answer">Your answer</label>

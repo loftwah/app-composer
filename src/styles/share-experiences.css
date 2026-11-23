@@ -229,6 +229,15 @@
 .experience-custom { margin-top: 1rem; }
 .experience-custom form { margin-top: 1rem; }
 .experience-custom textarea { display: block; width: 100%; margin-block: .45rem 1rem; }
+/* The 21-questions prompt editor reuses the custom-panel shell. Its field
+   stays readable on the museum stage and opens as the full 21-line draft. */
+.tq-custom { margin-block: 1rem; }
+.tq-custom summary { cursor: pointer; font-weight: 700; }
+.tq-custom label { margin-block: .7rem .3rem; color: inherit; font-weight: 700; }
+.tq-custom textarea { margin-block: 0 .6rem; color: #211a1b; background: #fff9ec; }
+.tq-custom .experience-note,
+.tq-custom-status { max-width: 62ch; }
+.tq-custom-status { color: inherit; }
 .experience-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.3rem; }
 .experience-footer > a { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; }
 .experience-footer nav a { min-height: 44px; display: flex; align-items: center; }

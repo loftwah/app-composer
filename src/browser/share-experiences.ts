@@ -10,8 +10,9 @@ import {
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
 } from "../lib/this-or-that.ts";
 import {
-  moveTwentyOne, setTwentyOneAnswer, skipTwentyOne,
-  twentyOneAnswered, twentyOneAnswerLimit, twentyOneCount, twentyOnePairs, twentyOneStart,
+  moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne,
+  twentyOneAnswered, twentyOneAnswerLimit, twentyOneCount, twentyOnePairs,
+  twentyOnePromptLimit, twentyOneStart,
 } from "../lib/twenty-one-questions.ts";
 import {
   renderExperienceCards, renderExperienceResult, resultSizes,
@@ -56,6 +57,8 @@ interface ResultSnapshot {
   pack?: ThisOrThatPack;
   /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
+  /** The frozen authored prompts a private 21-questions card export draws. */
+  questions?: string[];
 }
 
 /** One cover a person picked from their device: session-only, never uploaded. */
@@ -1417,28 +1420,41 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   const resume = root.querySelector<HTMLButtonElement>("[data-tq-resume]")!;
   const restarts = elements<HTMLButtonElement>(root, "[data-restart]");
   const finishes = elements<HTMLButtonElement>(root, "[data-tq-finish]");
+  const customPanel = root.querySelector<HTMLDetailsElement>("[data-tq-custom]")!;
+  const customForm = root.querySelector<HTMLFormElement>("[data-tq-custom-form]")!;
+  const customPrompts = root.querySelector<HTMLTextAreaElement>("[data-tq-custom-prompts]")!;
+  const customStatus = root.querySelector<HTMLElement>("[data-tq-custom-status]")!;
+  const customReset = root.querySelector<HTMLButtonElement>("[data-tq-custom-reset]")!;
   let answers = twentyOneStart();
   let current = 0;
   let view: "questions" | "done" | "summary" = "questions";
+  /** The prompts this run asks. Only Apply or Reset changes them, so the
+   * editor stays a draft and an active run is never retexted mid-answer. */
+  let activeQuestions: readonly string[] = twentyOneQuestions;
+  /** Whether the active set differs from the built-in starter, for the quiet
+   * progress marker. */
+  let authored = false;
 
   function syncProgress() {
     const answered = twentyOneAnswered(answers);
+    const source = authored ? " · your prompts" : "";
     progress.textContent = view === "questions"
-      ? `Question ${current + 1} of ${twentyOneCount} · ${answered} answered`
+      ? `Question ${current + 1} of ${twentyOneCount} · ${answered} answered${source}`
       : view === "done"
-      ? `All ${twentyOneCount} asked · ${answered} answered`
-      : `${answered} of ${twentyOneCount} answered`;
+      ? `All ${twentyOneCount} asked · ${answered} answered${source}`
+      : `${answered} of ${twentyOneCount} answered${source}`;
   }
 
-  /** One question at a time: the same stage retexted, so back, skip and edit
-   * are one step each and the current answer is always the visible input. */
+  /** One question at a time: the same stage retexted from the run’s frozen
+   * prompts, so back, skip and edit are one step each and the current answer
+   * is always the visible input. */
   function showQuestion(index: number, focus = true) {
     view = "questions";
     current = index;
     stage.hidden = false;
     done.hidden = true;
     summary.hidden = true;
-    const question = twentyOneQuestions[current];
+    const question = activeQuestions[current];
     prompt.textContent = question;
     answer.value = answers[current];
     next.textContent = current === twentyOneCount - 1 ? "Finish questions" : "Next";
@@ -1469,7 +1485,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     summary.hidden = false;
     summaryTitle.textContent = twentyOneResultTitle;
     list.replaceChildren();
-    const pairs = twentyOnePairs(answers);
+    const pairs = twentyOnePairs(answers, activeQuestions);
     empty.hidden = pairs.length > 0;
     for (const pair of pairs) {
       const item = document.createElement("li");
@@ -1541,17 +1557,72 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     update();
   });
   restarts.forEach((button) => button.addEventListener("click", () => {
+    // A replay asks the run’s active prompts again — written or built-in —
+    // with fresh answers, until Reset returns to the built-in starter.
     answers = twentyOneStart();
     showQuestion(0, true);
     update();
   }));
 
+  /** Every failure names its line and leaves the active run untouched. */
+  function promptProblem(read: ReturnType<typeof readTwentyOnePrompts>): string {
+    const line = read.gap + 1;
+    if (read.reason === "count") {
+      return `Enter exactly ${twentyOneCount} prompts, one per line. This editor has ${read.count} ${read.count === 1 ? "line" : "lines"}.`;
+    }
+    if (read.reason === "empty") return `Line ${line} is empty. Write a prompt on every line.`;
+    if (read.reason === "long") return `Line ${line} is longer than ${twentyOnePromptLimit} characters. Shorten it to fit the card.`;
+    if (read.reason === "duplicate") return `Line ${line} repeats an earlier prompt. Make all ${twentyOneCount} distinct.`;
+    return "Check the 21 prompts, then apply them again.";
+  }
+
+  /** Put the caret on the exact line that needs attention. Textarea values use
+   * one \n per line, so counting those offsets reaches the failing line. */
+  function selectPromptLine(index: number) {
+    const lines = customPrompts.value.split(/\r?\n/);
+    let start = 0;
+    for (let line = 0; line < index && line < lines.length; line += 1) start += lines[line].length + 1;
+    customPrompts.focus();
+    customPrompts.setSelectionRange(start, start + (lines[index]?.length ?? 0));
+  }
+
+  /** A written set lives only in this tab. Applying is the one action that
+   * replaces the current run: the frozen prompts, a fresh answer list and the
+   * same stage, with no link, draft, request or stored copy. */
+  function applyPrompts(prompts: readonly string[]) {
+    activeQuestions = [...prompts];
+    authored = activeQuestions.some((prompt, index) => prompt !== twentyOneQuestions[index]);
+    customPrompts.value = activeQuestions.join("\n");
+    answers = twentyOneStart();
+    customPanel.open = false;
+    customStatus.textContent = "";
+    showQuestion(0, true);
+    update();
+  }
+
+  customForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const read = readTwentyOnePrompts(customPrompts.value.split(/\r?\n/));
+    if (!read.prompts) {
+      customStatus.textContent = promptProblem(read);
+      customPanel.open = true;
+      if (read.gap >= 0) selectPromptLine(read.gap);
+      else customPrompts.focus();
+      return;
+    }
+    applyPrompts(read.prompts);
+  });
+
+  customReset.addEventListener("click", () => applyPrompts(twentyOneQuestions));
+
   showQuestion(0, false);
 
   return {
+    // The card snapshot freezes the answers and the exact ordered prompts the
+    // run asked. Preview and both formats draw from this one copy.
     result: () => view !== "summary" || twentyOneAnswered(answers) === 0
       ? null
-      : { title: twentyOneResultTitle, items: [...answers] },
+      : { title: twentyOneResultTitle, items: [...answers], questions: [...activeQuestions] },
     // Private answers never become a public link: URL sharing stays off for
     // the whole run, with the downloaded cards as the way out.
     linksAllowed: () => false,
