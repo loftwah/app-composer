@@ -2475,6 +2475,8 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   const draftTitle = root.querySelector<HTMLInputElement>("[data-persona-draft-title]")!;
   const draftPrompts = elements<HTMLInputElement>(root, "[data-persona-draft-prompt]");
   const draftOptions = elements<HTMLInputElement>(root, "[data-persona-draft-option]");
+  const draftOutcomeInputs = elements<HTMLInputElement>(root, "[data-persona-draft-outcome]");
+  const draftOutcomeIds = pack.ids;
   const draftStatus = root.querySelector<HTMLElement>("[data-persona-draft-status]")!;
   const draftSave = root.querySelector<HTMLButtonElement>("[data-persona-draft-save]")!;
   const draftFile = root.querySelector<HTMLInputElement>("[data-persona-draft-file]")!;
@@ -2545,7 +2547,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     // A shared result is read-only: the remix editor belongs to a fresh run,
     // so a draft can never start while someone else's result fragment is open.
     remix.hidden = shared || remixActive;
-    archetype.textContent = outcome.archetype;
+    archetype.textContent = draft?.outcomes?.[id] || outcome.archetype;
     service.textContent = outcome.subject;
     tendency.textContent = outcome.tendency;
     reason.textContent = outcome.reason;
@@ -2609,9 +2611,20 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     ...draftOptions.slice(index * 4, index * 4 + 4).map((input) => input.value),
   ]);
 
+  /** Read each optional name against the trusted outcome ID rendered beside
+   * it, so the stable mapping can never move with the typed text. */
+  const editorOutcomes = () => draftOutcomeInputs.map((input, index) => ({
+    id: draftOutcomeIds[index] ?? "",
+    label: input.value,
+  }));
+
   /** Put exactly the validated, cleaned draft text back in the editor. */
   function fillDraftEditor(next: PersonaDraft) {
     draftTitle.value = next.title;
+    draftOutcomeInputs.forEach((input, index) => {
+      const id = draftOutcomeIds[index];
+      input.value = id ? next.outcomes?.[id] ?? "" : "";
+    });
     next.questions.forEach((question, index) => {
       const promptInput = draftPrompts[index];
       if (promptInput) promptInput.value = question.prompt;
@@ -2625,7 +2638,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   /** Validate the editor text and put exactly that cleaned text on stage. The
    * draft supplies labels only; scoring still uses the pack's fixed mappings. */
   function startDraft() {
-    const read = readPersonaDraft(draftTitle.value, editorRows(), pack.questions.length);
+    const read = readPersonaDraft(draftTitle.value, editorRows(), pack.questions.length, editorOutcomes());
     if (!read.draft) {
       draftStatus.textContent = draftGapMessage(read.gap);
       focusDraftGap(read.gap);
@@ -2706,6 +2719,9 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
       return "That draft belongs to a different quiz. Open it on that quiz’s page. Your editor is unchanged.";
     }
     if (read.fault === "schema") return "That is not a Composer quiz draft. Your editor is unchanged.";
+    if (read.fault === "outcome") {
+      return "That draft names a result this quiz does not have. Your editor is unchanged.";
+    }
     if (read.fault === "shape") {
       return "That draft is missing its pack, title, questions or four choice labels. Your editor is unchanged.";
     }
@@ -2718,7 +2734,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   /** Save deliberately writes the validated visible text to one bounded,
    * versioned JSON file on the creator's device. Nothing is stored or sent. */
   function saveDraftFile() {
-    const read = readPersonaDraft(draftTitle.value, editorRows(), pack.questions.length);
+    const read = readPersonaDraft(draftTitle.value, editorRows(), pack.questions.length, editorOutcomes());
     if (!read.draft) {
       draftFileStatus.textContent = draftGapMessage(read.gap);
       focusDraftGap(read.gap);
@@ -2727,7 +2743,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     const text = writePersonaDraftFile(pack.game, read.draft);
     // Read the exact bytes back before handing them over, so the downloaded
     // file is the same bounded, answer-free shape an import accepts.
-    const checked = readPersonaDraftFile(pack.game, text, pack.questions.length);
+    const checked = readPersonaDraftFile(pack.game, text, pack.questions.length, draftOutcomeIds);
     if (!checked.draft) {
       draftFileStatus.textContent = `Shorten the draft to fit in a ${draftFileLimit} file, then save again.`;
       return;
@@ -2771,7 +2787,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
         draftFileStatus.textContent = "The draft file arrived after you edited this page. Open it again to replace your current text.";
         return;
       }
-      const read = readPersonaDraftFile(pack.game, text, pack.questions.length);
+      const read = readPersonaDraftFile(pack.game, text, pack.questions.length, draftOutcomeIds);
       if (!read.draft) {
         draftFileStatus.textContent = draftFileProblem(read);
         return;

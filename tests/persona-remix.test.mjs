@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   personaDraftFileLimit, personaDraftFileName, personaDraftFileSchema,
-  personaDraftOptionLimit, personaDraftPromptLimit, personaDraftTitleLimit,
+  personaDraftNamedFileSchema, personaDraftOptionLimit, personaDraftOutcomeLimit,
+  personaDraftPromptLimit, personaDraftTitleLimit,
   readPersonaDraft, readPersonaDraftFile, writePersonaDraftFile,
 } from '../src/lib/persona-quiz.ts';
 import {
@@ -35,9 +36,15 @@ test('the draft limits are bounded and every starter field fits them', () => {
   assert.ok(personaDraftTitleLimit > 0 && personaDraftTitleLimit <= 60);
   assert.ok(personaDraftPromptLimit >= 69, 'the longest built-in prompt still fits');
   assert.ok(personaDraftOptionLimit >= 45, 'the longest built-in choice still fits');
+  assert.ok(personaDraftOutcomeLimit > 0 && personaDraftOutcomeLimit <= 60,
+    'the optional result name is a short visible-text field');
   for (const pack of packs) {
     assert.ok(`My ${pack.stageLabel} remix`.length <= personaDraftTitleLimit,
       `${pack.game} has a distinct default draft title inside the limit`);
+    for (const outcome of pack.outcomes) {
+      assert.ok(outcome.label.length <= personaDraftOutcomeLimit,
+        'every original result name fits the editor field');
+    }
     for (const question of pack.questions) {
       assert.ok(question.prompt.length <= personaDraftPromptLimit);
       assert.equal(question.options.length, 4, 'the editor retexts exactly four choices');
@@ -111,6 +118,127 @@ test('a saved draft file carries only the exact pack, version and visible text',
   }
 });
 
+test('every trusted outcome keeps its stable ID and original printed name', () => {
+  for (const pack of packs) {
+    assert.deepEqual(pack.ids, pack.outcomes.map((outcome) => outcome.id));
+    assert.equal(pack.outcomes.length, 8, 'the editor exposes exactly the pack results');
+    for (const outcome of pack.outcomes) {
+      const original = pack.outcome(outcome.id);
+      assert.ok(original, `${pack.game}/${outcome.id} still resolves`);
+      assert.equal(outcome.label, original.archetype,
+        'a blank name can always fall back to the published headline');
+    }
+  }
+});
+
+test('authored result names are trimmed, bounded and keep their trusted ID', () => {
+  for (const pack of packs) {
+    const rows = rowsFor(pack);
+    const first = pack.ids[0];
+    const second = pack.ids[1];
+    const read = readPersonaDraft('Named draft', rows, pack.questionCount, [
+      { id: first, label: `  My   ${first}  ` },
+      { id: second, label: '   ' },
+      ...pack.ids.slice(2).map((id) => ({ id, label: `  ${id}  ` })),
+    ]);
+    assert.equal(read.gap, null);
+    assert.equal(read.draft.outcomes[first], `My ${first}`,
+      'a typed name is cleaned visible text, not markup');
+    assert.ok(!Object.hasOwn(read.draft.outcomes, second),
+      'a blank field inherits and is not written');
+    assert.equal(read.draft.outcomes[pack.ids[2]], pack.ids[2]);
+
+    const overlong = 'n'.repeat(personaDraftOutcomeLimit + 20);
+    const bounded = readPersonaDraft('Named draft', rows, pack.questionCount, {
+      [first]: overlong,
+    });
+    assert.equal(bounded.draft.outcomes[first].length, personaDraftOutcomeLimit);
+
+    const inherited = readPersonaDraft(
+      'Named draft', rows, pack.questionCount,
+      pack.ids.map((id) => ({ id, label: '   ' })),
+    );
+    assert.deepEqual(Object.keys(inherited.draft).sort(), ['questions', 'title'],
+      'a draft with every name blank keeps the original text-only shape');
+  }
+});
+
+test('a named draft uses the compatible V2 file while V1 keeps the old bytes', () => {
+  const pack = languageTypePersona;
+  const rows = rowsFor(pack);
+  const first = pack.ids[0];
+  const second = pack.ids[1];
+  const named = readPersonaDraft('My named remix', rows, pack.questionCount, {
+    [first]: 'Ruby, my way',
+    [second]: 'Python, my way',
+    [pack.ids[2]]: '   ',
+  });
+  const text = writePersonaDraftFile(pack.game, named.draft);
+  const saved = JSON.parse(text);
+  assert.equal(saved.schema, personaDraftNamedFileSchema);
+  assert.deepEqual(Object.keys(saved), ['schema', 'game', 'title', 'outcomes', 'questions']);
+  assert.deepEqual(saved.outcomes, { [first]: 'Ruby, my way', [second]: 'Python, my way' },
+    'only authored names are written, keyed by the exact pack IDs');
+  assert.ok(Buffer.byteLength(text, 'utf8') <= personaDraftFileLimit);
+  const reopened = readPersonaDraftFile(pack.game, text, pack.questionCount, pack.ids);
+  assert.equal(reopened.fault, null);
+  assert.equal(reopened.gap, null);
+  assert.deepEqual(reopened.draft, named.draft);
+  assert.equal(writePersonaDraftFile(pack.game, reopened.draft), text);
+
+  const textOnly = readPersonaDraft('Plain remix', rows, pack.questionCount);
+  const v1 = writePersonaDraftFile(pack.game, textOnly.draft);
+  assert.equal(JSON.parse(v1).schema, personaDraftFileSchema);
+  assert.equal(v1, writePersonaDraftFile(pack.game, readPersonaDraftFile(
+    pack.game, v1, pack.questionCount).draft),
+  'an existing V1 file still reads and writes the same bytes');
+});
+
+test('a V2 file rejects an unknown outcome ID or malformed names unchanged', () => {
+  const pack = developerTypePersona;
+  const rows = rowsFor(pack);
+  const named = readPersonaDraft('Named remix', rows, pack.questionCount, {
+    [pack.ids[0]]: 'My result',
+  });
+  const saved = JSON.parse(writePersonaDraftFile(pack.game, named.draft));
+  const check = (value) => readPersonaDraftFile(
+    pack.game, typeof value === 'string' ? value : JSON.stringify(value), pack.questionCount, pack.ids);
+
+  assert.equal(check({ ...saved, outcomes: { ...saved.outcomes, 'not-a-result': 'Nope' } }).fault,
+    'outcome');
+  assert.equal(check({ ...saved, outcomes: { [pack.ids[0]]: 7 } }).fault, 'shape');
+  assert.equal(check({ ...saved, outcomes: [] }).fault, 'shape');
+  assert.equal(check({ ...saved, outcomes: 'names' }).fault, 'shape');
+  const missing = { ...saved };
+  delete missing.outcomes;
+  assert.equal(check(missing).fault, 'shape');
+  assert.equal(check({ ...saved, schema: 'composer.persona-quiz-draft/3' }).fault, 'version');
+});
+
+test('the optional outcome-name disclosure and its safe result use are wired once', () => {
+  const stage = source('src/components/share-experiences/ShareExperience.astro');
+  assert.match(stage, /data-persona-draft-names>/);
+  assert.match(stage, /<summary>Rename results \(optional\)<\/summary>/);
+  assert.match(stage, /data-persona-draft-outcome=\{outcome\.id\}/);
+  assert.match(stage, /aria-describedby="persona-remix-names-note"/);
+  assert.match(stage, /Leave a name blank to keep the original\./);
+
+  const controller = source('src/browser/share-experiences.ts');
+  const start = controller.indexOf('function mountPersona');
+  const end = controller.indexOf('function mountBingo', start);
+  const persona = controller.slice(start, end);
+  assert.match(persona, /\[data-persona-draft-outcome\]/);
+  assert.match(persona, /const draftOutcomeIds = pack\.ids;/);
+  assert.match(persona, /readPersonaDraft\(draftTitle\.value, editorRows\(\), pack\.questions\.length, editorOutcomes\(\)\)/);
+  assert.match(persona, /archetype\.textContent = draft\?\.outcomes\?\.\[id\] \|\| outcome\.archetype;/,
+    'only the private draft result line takes the authored name');
+  assert.match(persona, /service\.textContent = outcome\.subject;/);
+  assert.match(persona, /docs\.href = outcome\.href;/);
+  assert.match(persona, /docs\.textContent = outcome\.docsText;/);
+  assert.match(persona, /personaOutcome: \(\) => \(draft \? null : shown\)/);
+  assert.match(persona, /if \(!shown \|\| draft\) return;\n\s+const href = new URL\(pack\.resultPath\(shown\)/);
+});
+
 test('a foreign, unknown, wrong-pack or malformed file leaves the editor usable', () => {
   const pack = developerTypePersona;
   const read = readPersonaDraft('Draft', rowsFor(pack), pack.questionCount);
@@ -121,7 +249,7 @@ test('a foreign, unknown, wrong-pack or malformed file leaves the editor usable'
   assert.equal(check('{').fault, 'unreadable');
   assert.equal(check('[]').fault, 'unreadable');
   assert.equal(check({ ...saved, schema: 'composer.other/1' }).fault, 'schema');
-  assert.equal(check({ ...saved, schema: 'composer.persona-quiz-draft/2' }).fault, 'version');
+  assert.equal(check({ ...saved, schema: 'composer.persona-quiz-draft/3' }).fault, 'version');
   assert.equal(check(saved, languageTypePersona.game).fault, 'pack');
   assert.equal(check({ ...saved, answers: [1, 2] }).fault, 'shape');
   assert.equal(check({ ...saved, questions: saved.questions.slice(1) }).fault, 'shape');
@@ -157,7 +285,7 @@ test('the remix file controls are local, explicit and leave Play draft as the on
     'the byte bound is checked before any read');
   assert.match(persona, /const revision = editorRevision;/);
   assert.match(persona, /if \(revision !== editorRevision\)/);
-  assert.match(persona, /readPersonaDraftFile\(pack\.game, text, pack\.questions\.length\)/);
+  assert.match(persona, /readPersonaDraftFile\(pack\.game, text, pack\.questions\.length, draftOutcomeIds\)/);
   assert.match(persona, /fillDraftEditor\(read\.draft\)/);
   assert.match(persona, /writePersonaDraftFile\(pack\.game, read\.draft\)/);
   assert.match(persona, /URL\.revokeObjectURL\(url\)/);

@@ -180,6 +180,11 @@ export interface PersonaPack {
   readonly path: string;
   readonly stageLabel: string;
   readonly questionCount: number;
+  /** Every trusted outcome ID in the pack's fixed result order. */
+  readonly ids: readonly string[];
+  /** Every trusted outcome ID with the original printed name. A draft may
+   * retext the name; the ID and this record stay the published quiz's. */
+  readonly outcomes: readonly PersonaPackOutcomeRef[];
   readonly questions: readonly PersonaPackQuestion[];
   readonly firstQuestion: {
     readonly prompt: string;
@@ -219,12 +224,15 @@ export function createPersonaPack<Id extends string, Outcome extends PersonaOutc
   const find = (id: string): Outcome | null =>
     Object.hasOwn(config.quiz.outcomes, id) ? config.quiz.outcomes[id as Id] : null;
   const firstQuestion = config.quiz.questions[0];
+  const ids = [...config.quiz.ids];
 
   return {
     game: config.game,
     path: config.quiz.path,
     stageLabel: config.stageLabel,
     questionCount: config.quiz.questionCount,
+    ids,
+    outcomes: ids.map((id) => ({ id, label: config.quiz.outcomes[id].archetype })),
     questions: config.quiz.questions.map((question) => ({
       id: question.id,
       prompt: question.prompt,
@@ -279,11 +287,16 @@ export function createPersonaPack<Id extends string, Outcome extends PersonaOutc
  * prompts and four choice labels while keeping each choice in its starter
  * position, so the pack's primary/secondary mappings, deterministic scoring,
  * tie-break and trusted outcomes stay exactly those of the published quiz.
- * The draft is never scored, addressed, stored or exported on its own: the
- * stage keeps calling the pack's resolve() with the same option indexes. */
+ * One optional authored name may replace a result's printed subject on this
+ * private draft only. The draft is never scored, addressed, stored or exported
+ * on its own: the stage keeps calling the pack's resolve() with the same option
+ * indexes, and the original outcome stays the source of its link and docs. */
 export const personaDraftTitleLimit = 60;
 export const personaDraftPromptLimit = 100;
 export const personaDraftOptionLimit = 60;
+/** One optional draft result name, keyed by a trusted pack outcome ID. The
+ * bound matches the other short visible-text fields. */
+export const personaDraftOutcomeLimit = 60;
 
 export interface PersonaDraftQuestion {
   readonly prompt: string;
@@ -293,8 +306,16 @@ export interface PersonaDraftQuestion {
 
 export interface PersonaDraft {
   readonly title: string;
+  /** Only the names the creator typed, keyed by the pack's stable outcome IDs.
+   * Absent when every field is blank and the original names are inherited. */
+  readonly outcomes?: Readonly<Record<string, string>>;
   readonly questions: readonly PersonaDraftQuestion[];
 }
+
+/** The outcome fields as typed in the editor, or as read from a V2 file. */
+export type PersonaDraftOutcomeInput =
+  | Readonly<Record<string, unknown>>
+  | readonly { readonly id: string; readonly label: unknown }[];
 
 /** The first field that stops a draft from playing, with the exact question or
  * choice to fix. The title and prompt variants carry no option index. */
@@ -315,11 +336,16 @@ export interface PersonaDraftRead {
   readonly gap: PersonaDraftGap | null;
 }
 
-/** The one portable draft file format. It has a fixed, answer-free shape: a
- * versioned Composer schema, the exact pack it belongs to, and the visible
+/** Composer's original text-only draft file. It has a fixed, answer-free
+ * shape: a versioned schema, the exact pack it belongs to, and the visible
  * title, prompts and choice labels. Answers, outcomes, identity and links have
- * no field, so a file cannot carry them. */
+ * no field, so a V1 file cannot carry them. */
 export const personaDraftFileSchema = "composer.persona-quiz-draft/1";
+/** The compatible V2 shape. It is written only when at least one authored
+ * result name is present, so a text-only draft keeps the exact V1 bytes. The
+ * `outcomes` object is keyed only by a trusted pack outcome ID and holds one
+ * bounded printed name per ID; every other field keeps its V1 meaning. */
+export const personaDraftNamedFileSchema = "composer.persona-quiz-draft/2";
 /** Bytes, not characters. The same bound covers the text this page writes and
  * a file it opens, and it is measured before the browser parses anything. */
 export const personaDraftFileLimit = 16_384;
@@ -331,6 +357,7 @@ export type PersonaDraftFileFault =
   | "schema"
   | "version"
   | "pack"
+  | "outcome"
   | "shape"
   | "text";
 
@@ -349,18 +376,23 @@ export function personaDraftFileName(game: string): string {
 }
 
 /** The exact portable UTF-8 text for one already-validated draft. Field order
- * and indentation are fixed, so the same draft always produces the same bytes
- * and the file never gains an answer, outcome, identity or URL field. */
+ * and indentation are fixed, so the same draft always produces the same bytes.
+ * A draft without authored outcome names keeps the established V1 shape and
+ * bytes; one with names uses the checked V2 shape. */
 export function writePersonaDraftFile(game: string, draft: PersonaDraft): string {
-  return `${JSON.stringify({
-    schema: personaDraftFileSchema,
+  const outcomes = Object.entries(draft.outcomes ?? {})
+    .filter(([, label]) => typeof label === "string" && label.length > 0);
+  const value: Record<string, unknown> = {
+    schema: outcomes.length ? personaDraftNamedFileSchema : personaDraftFileSchema,
     game,
     title: draft.title,
-    questions: draft.questions.map((question) => ({
-      prompt: question.prompt,
-      options: [...question.options],
-    })),
-  }, null, 2)}\n`;
+  };
+  if (outcomes.length) value.outcomes = Object.fromEntries(outcomes);
+  value.questions = draft.questions.map((question) => ({
+    prompt: question.prompt,
+    options: [...question.options],
+  }));
+  return `${JSON.stringify(value, null, 2)}\n`;
 }
 
 const exactKeys = (value: Record<string, unknown>, keys: readonly string[]) => {
@@ -369,13 +401,16 @@ const exactKeys = (value: Record<string, unknown>, keys: readonly string[]) => {
 };
 
 /** Reads one portable draft file against this exact pack and question count.
- * The byte bound is checked before JSON.parse, the schema before any content,
- * and the visible text passes through the same readPersonaDraft() a typed
- * draft uses. Every fault leaves the caller's editor untouched. */
+ * V1 and V2 are both accepted. The byte bound is checked before JSON.parse, the
+ * schema before any content, and the visible text passes through the same
+ * readPersonaDraft() a typed draft uses. A V2 file may add only names for this
+ * pack's registered outcome IDs; an unknown ID is rejected before the editor is
+ * touched. Every fault leaves the caller's editor untouched. */
 export function readPersonaDraftFile(
   game: string,
   raw: unknown,
   questionCount: number,
+  outcomeIds: readonly string[] = [],
 ): PersonaDraftFileRead {
   const reject = (fault: PersonaDraftFileFault, gap: PersonaDraftGap | null = null): PersonaDraftFileRead =>
     ({ draft: null, gap, fault });
@@ -390,15 +425,32 @@ export function readPersonaDraftFile(
   if (!value || typeof value !== "object" || Array.isArray(value)) return reject("unreadable");
   const file = value as Record<string, unknown>;
   if (typeof file.schema !== "string") return reject("schema");
-  if (file.schema !== personaDraftFileSchema) {
+  const named = file.schema === personaDraftNamedFileSchema;
+  if (file.schema !== personaDraftFileSchema && !named) {
     return reject(/^composer\.persona-quiz-draft\/\d+$/.test(file.schema) ? "version" : "schema");
   }
-  if (!exactKeys(file, ["schema", "game", "title", "questions"])) return reject("shape");
+  const keys = named
+    ? ["schema", "game", "title", "outcomes", "questions"]
+    : ["schema", "game", "title", "questions"];
+  if (!exactKeys(file, keys)) return reject("shape");
   if (typeof file.game !== "string") return reject("shape");
   if (file.game !== game) return reject("pack");
   const count = Number.isInteger(questionCount) && questionCount > 0 ? questionCount : 0;
   if (typeof file.title !== "string" || !Array.isArray(file.questions) || file.questions.length !== count) {
     return reject("shape");
+  }
+  let outcomeInput: readonly { id: string; label: unknown }[] = [];
+  if (named) {
+    const outcomes = file.outcomes;
+    if (!outcomes || typeof outcomes !== "object" || Array.isArray(outcomes)) return reject("shape");
+    const trusted = new Set(outcomeIds);
+    const entries = Object.entries(outcomes as Record<string, unknown>);
+    if (entries.length > trusted.size) return reject("outcome");
+    for (const [id, label] of entries) {
+      if (!trusted.has(id)) return reject("outcome");
+      if (typeof label !== "string") return reject("shape");
+    }
+    outcomeInput = entries.map(([id, label]) => ({ id, label }));
   }
   const rows: unknown[][] = [];
   for (const entry of file.questions) {
@@ -413,20 +465,39 @@ export function readPersonaDraftFile(
     }
     rows.push([question.prompt, ...question.options]);
   }
-  const read = readPersonaDraft(file.title, rows, count);
+  const read = readPersonaDraft(file.title, rows, count, outcomeInput);
   if (!read.draft) return reject("text", read.gap);
   return { draft: read.draft, gap: null, fault: null };
+}
+
+/** Normalise the outcome-name fields without changing their trusted IDs. A
+ * blank name is dropped, so the result inherits the published outcome name. */
+function readOutcomeNames(input: PersonaDraftOutcomeInput | undefined): Record<string, string> | undefined {
+  if (!input) return undefined;
+  const entries: [string, string][] = [];
+  const source = Array.isArray(input)
+    ? input.map((entry) => [String(entry?.id ?? ""), entry?.label] as const)
+    : Object.entries(input as Record<string, unknown>);
+  for (const [id, value] of source) {
+    if (!id) continue;
+    const label = cleanText(value, personaDraftOutcomeLimit);
+    if (label) entries.push([id, label]);
+  }
+  return entries.length ? Object.fromEntries(entries) : undefined;
 }
 
 /** Reads one local draft from raw editor values without touching the starter's
  * mapping data. Every value passes through the shared visible-text
  * normalisation, so what plays is a trimmed, single-spaced copy of what the
  * creator sees. A row plays only with a prompt and four non-empty, distinct
- * labels; rows beyond the pack's question count are never read. */
+ * labels; rows beyond the pack's question count are never read. Optional
+ * outcome names are cleaned to the same standard and keyed by the trusted IDs
+ * the caller supplies; a blank name is omitted so the original is inherited. */
 export function readPersonaDraft(
   titleValue: unknown,
   rows: readonly (readonly unknown[])[],
   questionCount: number,
+  outcomeInput?: PersonaDraftOutcomeInput,
 ): PersonaDraftRead {
   const title = cleanText(titleValue, personaDraftTitleLimit);
   if (!title) return { draft: null, gap: { field: "title", reason: "empty" } };
@@ -455,5 +526,9 @@ export function readPersonaDraft(
     }
     questions.push({ prompt, options: [labels[0], labels[1], labels[2], labels[3]] });
   }
-  return { draft: { title, questions }, gap: null };
+  const outcomes = readOutcomeNames(outcomeInput);
+  return {
+    draft: outcomes ? { title, outcomes, questions } : { title, questions },
+    gap: null,
+  };
 }
