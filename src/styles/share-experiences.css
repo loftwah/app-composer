@@ -112,12 +112,39 @@
 .tot-custom input { display: block; inline-size: 100%; margin-block-start: .25rem; }
 .tot-custom .tot-move { display: flex; align-items: end; gap: .4rem; }
 .tot-custom .tot-move button { min-height: 44px; padding: .5rem .7rem; font-size: .9rem; }
+.tot-custom .tot-photo {
+  grid-column: 1 / -1;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .7rem;
+  padding-block-start: .15rem;
+}
+.tot-custom .tot-photo input[type="file"] { display: none; }
+.tot-custom .tot-photo button { min-height: 44px; padding: .5rem .7rem; font-size: .9rem; }
+.tot-custom .tot-photo-preview {
+  inline-size: 4rem; block-size: 4rem; object-fit: cover;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, var(--stage-ink) 8%, transparent);
+}
+.tot-custom .tot-photo-preview[hidden] { display: none; }
+.tot-custom .tot-photo-alt { flex: 1 1 13rem; font-weight: 400; }
+.tot-custom .tot-photo-alt[hidden] { display: none; }
+.tot-custom .tot-photo-alt input { margin-block-start: .15rem; }
+.tot-custom .tot-photo .experience-note { flex-basis: 100%; margin: 0; }
 .tot-progress { margin: 1.25rem 0 0; font-weight: 700; }
 .tot-question {
   padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
   min-height: 13rem; border-top: 1px solid currentColor;
 }
 .tot-question h2 { color: inherit; margin-top: 0; font-size: clamp(1.7rem, 4.3vw, 3.2rem); }
+.tot-question-photo {
+  display: block;
+  inline-size: min(100%, 30rem);
+  max-block-size: 18rem;
+  margin: 0 0 1rem;
+  object-fit: contain;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, var(--stage-ink) 8%, transparent);
+}
+.tot-question-photo[hidden] { display: none; }
 .tot-options {
   position: relative;
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));

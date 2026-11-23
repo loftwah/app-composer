@@ -5,7 +5,9 @@ import {
   experiencePath, experiences, thisOrThatQuestions, twentyOneQuestions,
   twentyOneResultTitle, type ExperienceId,
 } from "../../lib/share-experiences.ts";
-import { customThisOrThatOptionLimit, customThisOrThatPromptLimit } from "../../lib/this-or-that.ts";
+import {
+  customThisOrThatAltLimit, customThisOrThatOptionLimit, customThisOrThatPromptLimit,
+} from "../../lib/this-or-that.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
 
@@ -258,7 +260,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     <details class="experience-custom tot-custom" data-tot-custom>
       <summary>Write your own questions</summary>
-      <p class="experience-note">Your questions and answers stay in this tab. Download the finished image to keep your result.</p>
+      <p class="experience-note">Your questions, answers and photos stay in this tab. The downloaded image lists your choices as text only.</p>
       <div class="tot-length">
         <label for="tot-length">Length
           <select id="tot-length" data-tot-length>
@@ -279,6 +281,19 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
               <button type="button" class="secondary" data-tot-move="up" aria-label={`Move question ${index + 1} up`} disabled={index === 0}>Move up</button>
               <button type="button" class="secondary" data-tot-move="down" aria-label={`Move question ${index + 1} down`} disabled={index === thisOrThatQuestions.length - 1 || index === 8}>Move down</button>
             </div>
+            <div class="tot-photo">
+              <input hidden type="file" accept="image/png,image/jpeg,image/webp"
+                aria-label={`Optional photo for question ${index + 1}`} data-tot-custom-photo />
+              <button type="button" class="secondary" data-tot-custom-photo-pick
+                aria-label={`Add the optional photo for question ${index + 1}`}>Add a photo</button>
+              <img hidden class="tot-photo-preview" alt="" data-tot-custom-photo-preview />
+              <button type="button" class="secondary" data-tot-custom-photo-clear hidden
+                aria-label={`Remove the photo from question ${index + 1}`}>Remove photo</button>
+              <label class="tot-photo-alt" hidden>Description (optional)
+                <input type="text" maxlength={customThisOrThatAltLimit} data-tot-custom-photo-alt />
+              </label>
+              <p class="experience-note" role="status" data-tot-custom-photo-status></p>
+            </div>
           </fieldset>
         ))}
         <button type="submit">Play my questions</button>
@@ -291,6 +306,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         ?? (["Your question goes here.", "First option", "Second option"] as const);
       return <section hidden={index > 0} class="tot-question" data-question={index}>
         <h2 tabindex="-1">{prompt}</h2>
+        <img hidden class="tot-question-photo" alt="" data-tot-question-photo />
         <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
           <button type="button" data-choice="0">{left}</button>
           <button type="button" data-choice="1">{right}</button>
