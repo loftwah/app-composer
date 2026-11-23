@@ -334,12 +334,17 @@
 .cover-linked { list-style: none; padding: 0; margin: .8rem 0 0; display: grid; gap: .3rem; }
 .cover-linked li { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding-top: .4rem; border-top: 1px solid var(--color-border); }
 .cover-linked span { flex: 1 1 9rem; font-size: .92rem; }
+.cover-fit { display: inline-flex; align-items: center; gap: .4rem; color: inherit; font-size: .92rem; }
 .share-experience .cover-linked button { min-height: 44px; padding: 6px 12px; font-size: .86rem; }
+.share-experience .cover-linked .cover-fit select { min-height: 44px; width: auto; }
 .exhibit-cover-state { display: block; font-size: .72rem; line-height: 1.35; margin-top: -.25rem; color: var(--accent); }
 .nine-preview-subtitle { margin: .9rem 0 -.25rem; font-weight: 700; font-size: .95rem; color: inherit; max-width: 46ch; }
 .nine-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: .9rem 0 1rem; }
 .nine-preview-cell { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--stage-ink); color: var(--stage); }
 .nine-preview-cell img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* A whole-cover fit letterboxes the art inside the same cell ink the export
+ * paints, so the preview mirrors the chosen hang exactly. */
+.nine-preview-cell[data-cover-fit="contain"] img { object-fit: contain; }
 .nine-preview-cell [data-nine-preview-rank] {
   position: absolute; inset-block-start: .45rem; inset-inline-start: .45rem; z-index: 1;
   padding: .08rem .34rem; border-radius: 3px;

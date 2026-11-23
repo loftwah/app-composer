@@ -3,6 +3,7 @@ import {
   splitTwentyOneCards, twentyOneAnswered, twentyOneCardSize, twentyOneCount, twentyOnePairs,
   twentyOneSquareCardSize,
 } from "../lib/twenty-one-questions.ts";
+import { coverBox, type CoverFit } from "../lib/top-nine-cover.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -46,6 +47,14 @@ export interface ShareExperienceResult {
  * path can carry a person's photo bytes.
  */
 export type ResultCover = HTMLCanvasElement;
+
+/** One exhibit's export cover: its decoded pixels and the cell fit the person
+ * chose beside it. It arrives only in this argument — never inside the result
+ * snapshot — so a fit stays exactly as private as the art it shapes. */
+export interface ResultCoverSlot {
+  art: ResultCover;
+  fit: CoverFit;
+}
 
 const inks = {
   "pick-a-door": [["#1c102a", "#f8e9d0", "#ffbc65"], ["#e8d9bf", "#251d14", "#8b392c"], ["#182a21", "#eaffd4", "#a7e679"]],
@@ -154,7 +163,7 @@ function signCard(
 export async function renderExperienceResult(
   result: ShareExperienceResult,
   format: ResultFormat,
-  covers?: readonly (ResultCover | null)[],
+  covers?: readonly (ResultCoverSlot | null)[],
 ) {
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
@@ -219,7 +228,8 @@ export async function renderExperienceResult(
       const x = margin + (index % cols) * (cellW + gap);
       const y = rowY + Math.floor(index / cols) * (cellH + gap);
       const marked = result.game === "tech-bingo" && Boolean(result.marked?.includes(index));
-      const cover = result.game === "top-nine" ? covers?.[index] : undefined;
+      const slot = result.game === "top-nine" ? covers?.[index] : undefined;
+      const cover = slot?.art;
       const inset = wide ? 9 : 15;
       const rank = rankFor(caption, index);
       ctx.fillStyle = marked ? accent : ink;
@@ -258,17 +268,16 @@ export async function renderExperienceResult(
         }
         drawFit(ctx, caption || "—", x + mat + inset, titleY, cellW - mat - inset * 2, Math.max(titleH, rankSize), 24);
       } else {
-        // Square-ish cells hang the art edge to edge (cover) and keep the
-        // title readable on a scrim of the same ink the solid cells use.
+        // Square-ish cells hang the art by its chosen fit: cropped edge to
+        // edge, or the whole artwork letterboxed on this cell's ink. Either
+        // way the title stays readable on a scrim of that same ink.
         ctx.save();
         ctx.beginPath();
         ctx.rect(x, y, cellW, cellH);
         ctx.clip();
-        const scale = Math.max(cellW / cover.width, cellH / cover.height);
-        const dw = cover.width * scale;
-        const dh = cover.height * scale;
+        const box = coverBox(cover.width, cover.height, cellW, cellH, slot?.fit ?? "cover");
         ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(cover, x + (cellW - dw) / 2, y + (cellH - dh) / 2, dw, dh);
+        ctx.drawImage(cover, x + (cellW - box.width) / 2, y + (cellH - box.height) / 2, box.width, box.height);
         ctx.restore();
         const fit = fitText(ctx, caption || "—", cellW - inset * 2, cellH * .5, 43);
         const captionH = fit.lines.length * fit.size * 1.14;

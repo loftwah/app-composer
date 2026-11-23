@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
+  coverBox, coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
 } from '../src/lib/top-nine-cover.ts';
 
 // A cover is only ever accepted after its real bytes identify it as a bounded
@@ -89,4 +89,25 @@ test('reports oversized dimensions so the editor can refuse them honestly', () =
   assert.deepEqual(sniffed, { kind: 'png', width: 40000, height: 40000 });
   assert.equal(sniffed.width * sniffed.height > coverPixelLimit, true);
   assert.equal(coverFileLimit > 0 && coverHeadLimit > 0 && coverWorkingMax > 0, true);
+});
+
+// A fit is the only choice a cover gets: crop to fill the cell, or keep every
+// edge and letterbox the rest on the cell ink. These rectangles are exactly
+// what the preview and the non-wide export paint.
+
+test('coverBox fills a square cell by cropping, and letterboxes under contain', () => {
+  // A wide cover in a square cell: fill overflows the sides, whole keeps
+  // both side edges and letterboxes above and below.
+  assert.deepEqual(coverBox(600, 300, 300, 300, 'cover'), { width: 600, height: 300 });
+  assert.deepEqual(coverBox(600, 300, 300, 300, 'contain'), { width: 300, height: 150 });
+});
+
+test('coverBox treats portrait art as the mirror of wide art', () => {
+  assert.deepEqual(coverBox(300, 600, 300, 300, 'cover'), { width: 300, height: 600 });
+  assert.deepEqual(coverBox(300, 600, 300, 300, 'contain'), { width: 150, height: 300 });
+});
+
+test('coverBox leaves square art identical under either fit', () => {
+  assert.deepEqual(coverBox(300, 300, 300, 300, 'cover'), { width: 300, height: 300 });
+  assert.deepEqual(coverBox(300, 300, 300, 300, 'contain'), { width: 300, height: 300 });
 });

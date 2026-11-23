@@ -9,10 +9,31 @@ export const coverHeadLimit = 1_048_576;
 export const coverPixelLimit = 30_000_000;
 export const coverWorkingMax = 720;
 
+/** How one hung cover fills its exhibit cell: cropped edge to edge, or the
+ * whole artwork letterboxed on the cell ink. Like the art itself, a fit is
+ * chosen per cover in the tab and never travels in a link, draft or export
+ * snapshot — only into the drawn pixels. */
+export type CoverFit = "cover" | "contain";
+
 export interface SniffedCover {
   kind: "png" | "jpeg" | "webp";
   width: number;
   height: number;
+}
+
+/** The size a cover paints inside one box for the chosen fit: "cover" crops
+ * the art to fill the box, "contain" keeps every edge, letterboxing the rest. */
+export function coverBox(
+  coverWidth: number,
+  coverHeight: number,
+  boxWidth: number,
+  boxHeight: number,
+  fit: CoverFit,
+): { width: number; height: number } {
+  const scale = fit === "contain"
+    ? Math.min(boxWidth / coverWidth, boxHeight / coverHeight)
+    : Math.max(boxWidth / coverWidth, boxHeight / coverHeight);
+  return { width: coverWidth * scale, height: coverHeight * scale };
 }
 
 const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] as const;
