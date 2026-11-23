@@ -100,10 +100,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
       );
     }
   }
-  if (/^\/share\/experiences\/twenty-one-questions\/?$/.test(context.url.pathname)) {
+  if (/^\/share\/experiences\/(twenty-one-questions|this-or-that)\/?$/.test(context.url.pathname)) {
     const csp = response.headers.get("content-security-policy");
     if (csp) {
-      // The prepared card image uses the same browser-local Blob as its download.
+      // Quiz cards and private prompt photos use image URLs from local Blobs.
       response.headers.set("content-security-policy", csp.replace("img-src 'self'", "img-src 'self' blob:"));
     }
   }
