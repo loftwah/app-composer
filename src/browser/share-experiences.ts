@@ -2400,8 +2400,8 @@ export function mountShareExperience(root: HTMLElement) {
     }
   });
 
-  // Top Nine only: paste the very PNG Download result renders, from the same
-  // snapshot, format, skin, byline and local cover pixels. No upload or save.
+  // Paste the very PNG Download result renders, from the same snapshot,
+  // format, skin, byline and local cover pixels. No upload or save.
   copyPng?.addEventListener("click", async () => {
     const snapshot = result();
     if (!snapshot || busy) return;
