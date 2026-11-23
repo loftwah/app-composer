@@ -177,6 +177,12 @@
   padding: clamp(.85rem, 3vw, 1.8rem);
 }
 .exhibition, .bingo-stage { margin-top: 1rem; }
+/* Title and its optional short line sit side by side, sharing one row until
+   the phone layout stacks them. */
+.exhibition-heading { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: .2rem .8rem; align-items: start; }
+.exhibition-heading label { margin-block: .5rem .15rem; }
+.exhibition-heading input { margin-block: .3rem .3rem; }
+.exhibition-heading + .exhibition-ranked { margin-top: .6rem; }
 .exhibition-objects {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(.35rem, 1.3vw, .9rem);
   margin: 1rem 0;
@@ -330,6 +336,7 @@
 .cover-linked span { flex: 1 1 9rem; font-size: .92rem; }
 .share-experience .cover-linked button { min-height: 44px; padding: 6px 12px; font-size: .86rem; }
 .exhibit-cover-state { display: block; font-size: .72rem; line-height: 1.35; margin-top: -.25rem; color: var(--accent); }
+.nine-preview-subtitle { margin: .9rem 0 -.25rem; font-weight: 700; font-size: .95rem; color: inherit; max-width: 46ch; }
 .nine-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: .9rem 0 1rem; }
 .nine-preview-cell { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--stage-ink); color: var(--stage); }
 .nine-preview-cell img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -353,6 +360,7 @@
 @media (max-width: 450px) {
   .experience-heading { grid-template-columns: minmax(0, 1fr) minmax(5rem, .45fr); min-height: 0; align-items: center; }
   .experience-heading h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
+  .exhibition-heading { grid-template-columns: 1fr; }
   .exhibition-objects input, .tq-answer { font-size: 16px; padding-inline: .3rem; }
   .music-kind, .music-search label, .music-search > button[type="submit"],
   .cover-pick label { flex: 1 1 100%; }

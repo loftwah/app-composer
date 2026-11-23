@@ -41,6 +41,24 @@ test('saved text keeps the editor limits', () => {
   assert.equal(draft.items[8], 'z');
 });
 
+test('an optional subtitle round-trips, stays bounded and older drafts keep their exact shape', () => {
+  const storage = fakeStorage();
+  writeNineDraft(storage, { title: 'Nine', items: blank(), subtitle: '  A   small  internet  ' });
+  assert.deepEqual(readNineDraft(storage), {
+    title: 'Nine', items: blank(), subtitle: 'A small internet', byline: '', skin: 0,
+  });
+  writeNineDraft(storage, { title: 'Nine', items: blank(), subtitle: 'x'.repeat(90) });
+  assert.equal(readNineDraft(storage).subtitle.length, 70);
+  // Clearing the field omits the key, keeping the pre-subtitle stored shape.
+  writeNineDraft(storage, { title: 'Nine', items: blank(), subtitle: '   ' });
+  assert.equal(storage.data.get(draftKey('top-nine')).includes('subtitle'), false);
+  assert.equal('subtitle' in readNineDraft(storage), false);
+  const old = fakeStorage({
+    [draftKey('top-nine')]: payload({ version: draftVersion, title: 'Nine', items: blank() }),
+  });
+  assert.equal('subtitle' in readNineDraft(old), false);
+});
+
 test('foreign, malformed, oversized and empty values are ignored', () => {
   const cases = [
     payload({ version: 2, title: 'Nine', items: [...Array(8).fill('a'), 'b'] }),
