@@ -1,4 +1,5 @@
 import type { ExperienceId } from "./share-experiences.ts";
+import { cleanText } from "./share-experience-draft.ts";
 
 /** The shared “Which X are you?” engine used by the Developer Type Quiz and
  * the Language Type Quiz. A pack supplies its own original outcomes and
@@ -149,10 +150,24 @@ export interface PersonaPackOutcome extends PersonaCardPrint {
   readonly docsAria: string;
 }
 
+/** One built-in outcome a choice scores toward. The ID and label are read
+ * from the pack’s trusted outcome definitions; the draft editor shows them
+ * but never writes them. */
+export interface PersonaPackOutcomeRef {
+  readonly id: string;
+  readonly label: string;
+}
+
+export interface PersonaPackOption {
+  readonly label: string;
+  readonly primary: PersonaPackOutcomeRef;
+  readonly secondary: PersonaPackOutcomeRef;
+}
+
 export interface PersonaPackQuestion {
   readonly id: string;
   readonly prompt: string;
-  readonly options: readonly { readonly label: string }[];
+  readonly options: readonly PersonaPackOption[];
 }
 
 export interface PersonaPack {
@@ -208,7 +223,15 @@ export function createPersonaPack<Id extends string, Outcome extends PersonaOutc
     questions: config.quiz.questions.map((question) => ({
       id: question.id,
       prompt: question.prompt,
-      options: question.options.map((option) => ({ label: option.label })),
+      options: question.options.map((option) => {
+        const primary = config.quiz.outcomes[option.primary];
+        const secondary = config.quiz.outcomes[option.secondary];
+        return {
+          label: option.label,
+          primary: { id: option.primary, label: config.subject(primary) },
+          secondary: { id: option.secondary, label: config.subject(secondary) },
+        };
+      }),
     })),
     firstQuestion: {
       prompt: firstQuestion.prompt,
@@ -245,4 +268,84 @@ export function createPersonaPack<Id extends string, Outcome extends PersonaOutc
       } : null;
     },
   };
+}
+
+/** A local remix of one starter. It retexts the visible title, question
+ * prompts and four choice labels while keeping each choice in its starter
+ * position, so the pack's primary/secondary mappings, deterministic scoring,
+ * tie-break and trusted outcomes stay exactly those of the published quiz.
+ * The draft is never scored, addressed, stored or exported on its own: the
+ * stage keeps calling the pack's resolve() with the same option indexes. */
+export const personaDraftTitleLimit = 60;
+export const personaDraftPromptLimit = 100;
+export const personaDraftOptionLimit = 60;
+
+export interface PersonaDraftQuestion {
+  readonly prompt: string;
+  /** Exactly the starter's four choice positions, retexted. */
+  readonly options: readonly [string, string, string, string];
+}
+
+export interface PersonaDraft {
+  readonly title: string;
+  readonly questions: readonly PersonaDraftQuestion[];
+}
+
+/** The first field that stops a draft from playing, with the exact question or
+ * choice to fix. The title and prompt variants carry no option index. */
+export type PersonaDraftGap =
+  | { readonly field: "title"; readonly reason: "empty" }
+  | { readonly field: "prompt"; readonly question: number; readonly reason: "empty" }
+  | {
+    readonly field: "option";
+    readonly question: number;
+    readonly option: number;
+    readonly reason: "empty" | "duplicate";
+  };
+
+export interface PersonaDraftRead {
+  /** The bounded, readable draft, or null while any field needs attention. */
+  readonly draft: PersonaDraft | null;
+  /** The first field to fix, or null when the draft is playable. */
+  readonly gap: PersonaDraftGap | null;
+}
+
+/** Reads one local draft from raw editor values without touching the starter's
+ * mapping data. Every value passes through the shared visible-text
+ * normalisation, so what plays is a trimmed, single-spaced copy of what the
+ * creator sees. A row plays only with a prompt and four non-empty, distinct
+ * labels; rows beyond the pack's question count are never read. */
+export function readPersonaDraft(
+  titleValue: unknown,
+  rows: readonly (readonly unknown[])[],
+  questionCount: number,
+): PersonaDraftRead {
+  const title = cleanText(titleValue, personaDraftTitleLimit);
+  if (!title) return { draft: null, gap: { field: "title", reason: "empty" } };
+  const count = Number.isInteger(questionCount) && questionCount > 0 ? questionCount : 0;
+  const source = Array.isArray(rows) ? rows : [];
+  if (source.length < count) {
+    return { draft: null, gap: { field: "prompt", question: source.length, reason: "empty" } };
+  }
+  const questions: PersonaDraftQuestion[] = [];
+  for (let question = 0; question < count; question += 1) {
+    const row = source[question] ?? [];
+    const prompt = cleanText(row[0], personaDraftPromptLimit);
+    if (!prompt) {
+      return { draft: null, gap: { field: "prompt", question, reason: "empty" } };
+    }
+    const labels: string[] = [];
+    for (let option = 0; option < 4; option += 1) {
+      const label = cleanText(row[option + 1], personaDraftOptionLimit);
+      if (!label) {
+        return { draft: null, gap: { field: "option", question, option, reason: "empty" } };
+      }
+      if (labels.some((existing) => existing.toLowerCase() === label.toLowerCase())) {
+        return { draft: null, gap: { field: "option", question, option, reason: "duplicate" } };
+      }
+      labels.push(label);
+    }
+    questions.push({ prompt, options: [labels[0], labels[1], labels[2], labels[3]] });
+  }
+  return { draft: { title, questions }, gap: null };
 }

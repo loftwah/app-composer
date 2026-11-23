@@ -11,6 +11,9 @@ import {
 import {
   personaFor,
 } from "../../lib/persona-packs.ts";
+import {
+  personaDraftOptionLimit, personaDraftPromptLimit, personaDraftTitleLimit,
+} from "../../lib/persona-quiz.ts";
 import { twentyOneAnswerLimit, twentyOnePromptLimit } from "../../lib/twenty-one-questions.ts";
 import { nineSubtitleLimit } from "../../lib/share-experience-draft.ts";
 import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
@@ -412,6 +415,41 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   </section>}
 
   {persona && <section data-play-panel class="door-stage persona-stage" aria-label={persona.stageLabel}>
+    <div class="persona-remix-mode" data-persona-draft-active hidden>
+      <p class="experience-note persona-remix-note" role="status" data-persona-draft-active-note></p>
+      <div class="tot-controls">
+        <button type="button" class="secondary" data-persona-draft-edit>Edit draft</button>
+        <button type="button" class="secondary" data-persona-draft-original>Return to original</button>
+      </div>
+    </div>
+    <details class="experience-custom persona-remix" data-persona-remix>
+      <summary>Remix this quiz</summary>
+      <p class="experience-note" id="persona-remix-help">Edit the title, questions and choices. Each choice keeps its original scoring. Your draft stays in this tab.</p>
+      <form data-persona-draft-form autocomplete="off" aria-describedby="persona-remix-help">
+        <label for="persona-draft-title">Draft title</label>
+        <input id="persona-draft-title" type="text" maxlength={personaDraftTitleLimit}
+          value={`My ${persona.stageLabel} remix`} data-persona-draft-title />
+        {persona.questions.map((question, index) => <fieldset data-persona-draft-question={index}>
+          <legend>Question {index + 1}</legend>
+          <label>Prompt
+            <input type="text" maxlength={personaDraftPromptLimit} value={question.prompt}
+              aria-label={`Question ${index + 1} prompt`} data-persona-draft-prompt />
+          </label>
+          <div class="persona-remix-options">
+            {question.options.map((option, choice) => <label class="persona-remix-choice">
+              <span>Choice {choice + 1}</span>
+              <input type="text" maxlength={personaDraftOptionLimit} value={option.label}
+                aria-label={`Question ${index + 1} choice ${choice + 1}`} data-persona-draft-option />
+              <span class="persona-remix-map">Direct: {option.primary.label} · paired with {option.secondary.label}</span>
+            </label>)}
+          </div>
+        </fieldset>)}
+        <div class="tot-controls">
+          <button type="submit" data-persona-draft-play>Play draft</button>
+        </div>
+        <p class="experience-note" role="status" data-persona-draft-status></p>
+      </form>
+    </details>
     <p class="persona-progress" role="status" data-persona-progress>Question 1 of {persona.questionCount}</p>
     <p class="experience-note persona-notice" role="status" data-persona-notice></p>
     <section class="persona-question" data-persona-question>
@@ -430,6 +468,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="persona-service" data-persona-service></p>
       <p class="persona-tendency" data-persona-tendency></p>
       <p class="persona-why" data-persona-reason></p>
+      <p class="experience-note persona-draft-note" data-persona-draft-note hidden>Draft result. This remix, your answers and this outcome stay in this tab: there is no result link and no result card.</p>
       <p class="experience-note persona-disclaimer">{persona.resultNotice}</p>
       <p><a data-persona-docs target="_blank" rel="noopener noreferrer"></a></p>
       <div class="tot-controls">
@@ -437,7 +476,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <button type="button" class="secondary" data-persona-revise hidden>Revise my answers</button>
         <a class="button secondary" data-persona-fresh href={persona.path} hidden>Take the quiz yourself</a>
       </div>
-      <div class="persona-link">
+      <div class="persona-link" data-persona-link-panel>
         <label for="persona-link">Result link</label>
         <input id="persona-link" readonly data-persona-link aria-describedby="persona-link-note" />
         <button type="button" class="secondary" data-persona-copy>Copy result link</button>
@@ -448,7 +487,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note persona-disclaimer">{persona.disclaimer}</p>
   </section>}
 
-  <section class="experience-export" aria-label="Personalise and share">
+  <section class="experience-export" data-export-panel aria-label="Personalise and share">
     <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
