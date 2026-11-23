@@ -73,6 +73,21 @@ const platformNames: Record<string, string> = {
   Q229429: "3DO", Q1063978: "32X", Q650601: "Atari Jaguar", Q471094: "Amiga 1200",
 };
 
+/**
+ * Games-only platform families, drawn explicitly from the curated names above.
+ * A game belongs to PC or console only when its own P400 statements carry one
+ * of these IDs. Mobile Android/iOS, absent or unknown platforms and the
+ * ambiguous Amiga 1200 never infer a family, so those games stay under All.
+ */
+const pcPlatforms = new Set(["Q1406", "Q388", "Q14116", "Q170434", "Q47604", "Q13522376"]);
+const consolePlatforms = new Set([
+  "Q10677", "Q10683", "Q5014725", "Q183259", "Q132020", "Q48263", "Q13361286",
+  "Q19610114", "Q10676", "Q200912", "Q188642", "Q229429", "Q1063978", "Q650601",
+]);
+
+/** The Games platform filter; All is the original, unchanged game search. */
+export type GamePlatformFilter = "all" | "pc" | "console";
+
 const entityPath = /^\/(wiki|entity)\/(Q[1-9]\d{0,9})\/?$/;
 
 /** Rebuild an exact Wikidata item link, dropping query trackers and aliases. */
@@ -165,6 +180,15 @@ function platform(claims: Claims | undefined): string | undefined {
   return ids.map((id) => platformNames[id]).join(" · ");
 }
 
+/** Which families a game's recorded P400 items evidence, if any. */
+function gameFamilies(claims: Claims | undefined): GamePlatformFilter[] {
+  const ids = itemIds(claims, "P400");
+  const families: GamePlatformFilter[] = [];
+  if (ids.some((id) => pcPlatforms.has(id))) families.push("pc");
+  if (ids.some((id) => consolePlatforms.has(id))) families.push("console");
+  return families;
+}
+
 /**
  * Known non-article namespaces. A main-namespace title may contain a colon
  * ("Star Trek: The Motion Picture"), but a File:/Category:/Talk: page is not
@@ -186,11 +210,16 @@ function article(sitelinks: Sitelinks | undefined): string | undefined {
  * One search plus one batched read, filtered to the exact known film, series,
  * game or album types. Items typed only as a narrower or different class are
  * not offered; the panel states that coverage is partial.
+ *
+ * For games, an optional platform filter narrows the same response to items
+ * whose own P400 statements evidence that family. All keeps the unchanged
+ * default, and no filter is inferred from descriptions, years or mobile IDs.
  */
 export async function searchWikidata(
   query: string,
   kind: WikidataKind,
   signal?: AbortSignal,
+  platformFilter: GamePlatformFilter = "all",
 ): Promise<WikidataPick[]> {
   const text = query.trim();
   if (text.length < 2 || text.length > 100) return [];
@@ -227,6 +256,7 @@ export async function searchWikidata(
     const item = record(entities?.[hit.id]);
     const claims = record(item?.claims) as Claims | undefined;
     if (!itemIds(claims, "P31").some((id) => accepted.has(id))) continue;
+    if (kind === "game" && platformFilter !== "all" && !gameFamilies(claims).includes(platformFilter)) continue;
     const pick: WikidataPick = {
       title: hit.label,
       artist: hit.description,

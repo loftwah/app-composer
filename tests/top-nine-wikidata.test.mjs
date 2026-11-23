@@ -394,6 +394,48 @@ test('malformed upstream data never becomes a pick', async (t) => {
   assert.deepEqual(await searchWikidata('Dune', 'film'), []);
 });
 
+// Platform filter sample: every game is P31 Q7889, so only the recorded P400
+// IDs can decide. Descriptions and years deliberately mention PC, console or
+// neither to prove they never infer a family; mobile-only and unrecorded games
+// stay under All.
+const platformSearch = { searchinfo: { search: 'Platform' }, search: [
+  searchRow('Q9001', 'Codeword', 'cross-platform action game'),
+  searchRow('Q9002', 'Quarry', 'PC strategy game, console version cancelled'),
+  searchRow('Q9003', 'Ridge Racer', 'console racing game'),
+  searchRow('Q9004', 'Pocket Pop', 'mobile puzzle game for PC and console'),
+  searchRow('Q9005', 'Blank', 'game with no recorded platform'),
+] };
+const platformEntities = { entities: {
+  Q9001: { claims: { P31: [claim('Q7889')], P577: [time('+2019-01-01T00:00:00Z', 11)],
+    P400: [claim('Q1406'), claim('Q5014725')] } },
+  Q9002: { claims: { P31: [claim('Q7889')], P400: [claim('Q1406'), claim('Q388')] } },
+  Q9003: { claims: { P31: [claim('Q7889')], P400: [claim('Q10683')] } },
+  Q9004: { claims: { P31: [claim('Q7889')], P577: [time('+2021-01-01T00:00:00Z', 11)],
+    P400: [claim('Q94'), claim('Q48493')] } },
+  Q9005: { claims: { P31: [claim('Q7889')], P577: [time('+1999-01-01T00:00:00Z', 11)] } },
+} };
+
+test('game filters use recorded PC and console P400 IDs, and All stays the default', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(platformSearch)()
+    : ok(platformEntities)());
+  const titles = (picks) => picks.map((pick) => pick.title);
+  // All is the unchanged default: mobile-only and unrecorded games stay in.
+  const all = await searchWikidata('Platform', 'game');
+  assert.deepEqual(titles(all), ['Codeword', 'Quarry', 'Ridge Racer', 'Pocket Pop', 'Blank']);
+  // Both families are evidenced by Codeword's own P400 claims.
+  assert.deepEqual(titles(await searchWikidata('Platform', 'game', undefined, 'pc')),
+    ['Codeword', 'Quarry']);
+  assert.deepEqual(titles(await searchWikidata('Platform', 'game', undefined, 'console')),
+    ['Codeword', 'Ridge Racer']);
+  // The explicit All option matches the default exactly.
+  assert.deepEqual(await searchWikidata('Platform', 'game', undefined, 'all'), all);
+  assert.equal(fetch.mock.callCount(), 8);
+  // The filter never reaches into other kinds: films keep their own search.
+  assert.deepEqual(await searchWikidata('Platform', 'film'), []);
+  assert.equal(fetch.mock.callCount(), 10);
+});
+
 test('a failed or cancelled search stays one request with no retries', async (t) => {
   const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', { status: 429 }));
   await assert.rejects(searchWikidata('Dune', 'film'), /429/);

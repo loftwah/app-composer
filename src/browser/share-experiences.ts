@@ -34,7 +34,7 @@ import {
   lookupSpotifyAlbumTitle, spotifyAlbumRef,
 } from "../lib/top-nine-music.ts";
 import {
-  searchWikidata, type WikidataPick,
+  searchWikidata, type GamePlatformFilter, type WikidataPick,
 } from "../lib/top-nine-wikidata.ts";
 import {
   coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover,
@@ -191,6 +191,9 @@ function mountNine(
     panel: root.querySelector<HTMLDetailsElement>("[data-music-panel]")!,
     target: root.querySelector<HTMLSelectElement>("[data-music-target-choice]")!,
     kind: elements<HTMLButtonElement>(root, "[data-music-kind]"),
+    platformField: root.querySelector<HTMLElement>("[data-music-platform]")!,
+    platform: root.querySelector<HTMLSelectElement>("[data-music-game-platform]")!,
+    gameCoverage: root.querySelector<HTMLElement>("[data-music-game-coverage]")!,
     country: root.querySelector<HTMLSelectElement>("[data-music-country]")!,
     form: root.querySelector<HTMLFormElement>("[data-music-form]")!,
     query: root.querySelector<HTMLInputElement>("[data-music-query]")!,
@@ -788,6 +791,13 @@ function mountNine(
       requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
       : requestedKind === "book" ? "books" : requestedKind === "app" ? "apps"
       : requestedKind === "film" ? "films" : requestedKind === "series" ? "TV series" : "games";
+    // Games alone carry the platform filter, read from the selector beside the
+    // Games button. All is the original search; any other kind always uses All.
+    const platform: GamePlatformFilter = requestedKind === "game"
+      ? music.platform.value === "pc" ? "pc" : music.platform.value === "console" ? "console" : "all"
+      : "all";
+    const gameFilter = requestedKind === "game" && platform !== "all";
+    const searchLabel = gameFilter ? platform === "pc" ? "PC games" : "console games" : kindLabel;
     // Books and apps have no music-service fallback; weak, empty and failed
     // searches keep them straight to the retry message. Album searches keep
     // their Apple/Spotify links and the explicit Wikidata-album action.
@@ -805,7 +815,7 @@ function mountNine(
     clearResults();
     hideRecovery();
     note(wikiAlbums ? `Searching Wikidata albums for “${query}”…`
-      : wiki ? `Searching Wikidata ${kindLabel} for “${query}”…`
+      : wiki ? `Searching Wikidata ${searchLabel} for “${query}”…`
       : `Searching ${store} ${kindLabel} for “${query}”…`);
     try {
       const picks = requestedKind === "book"
@@ -815,13 +825,15 @@ function mountNine(
         : wikiAlbums
         ? await searchWikidata(query, "album", controller.signal)
         : requestedKind === "film" || requestedKind === "series" || requestedKind === "game"
-        ? await searchWikidata(query, requestedKind, controller.signal)
+        ? await searchWikidata(query, requestedKind, controller.signal, platform)
         : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
       const usable = picks.filter((pick) => pick && typeof pick.title === "string" && sourceLink(pick.href));
       if (!usable.length) {
         note(wikiAlbums
           ? `No albums matched “${query}” on Wikidata. Coverage is partial — search again with a shorter title, or paste an Apple Music, Spotify or Wikidata link.`
+          : wiki && gameFilter
+          ? `No ${searchLabel} matched “${query}” on Wikidata. Try All games for titles with no recorded platform, a shorter title, or a pasted Wikidata link.`
           : wiki
           ? `No ${kindLabel} matched “${query}” on Wikidata. Try a shorter title, switch the type, or paste a Wikidata link.`
           : `No ${kindLabel} matched “${query}” in ${store}. Try a shorter title, switch the type, change storefront, or paste a link.`);
@@ -1006,8 +1018,19 @@ function mountNine(
       const wiki = kind === "film" || kind === "series" || kind === "game";
       music.storefront.hidden = wiki;
       music.coverage.hidden = !wiki;
+      // The platform filter belongs to Games alone; every other kind hides it
+      // and keeps its own search exactly as before.
+      const games = kind === "game";
+      music.platformField.hidden = !games;
+      music.gameCoverage.hidden = !games;
       clearSearch();
     });
+  });
+  /** A changed platform filter applies to the next submitted search; results
+   * from the previous filter are cleared rather than silently relabelled. */
+  music.platform.addEventListener("change", () => {
+    clearSearch();
+    note(music.platform.value === "all" ? "" : "Platform filter set. Search again to apply it.");
   });
   music.target.addEventListener("change", () => {
     target = Number(music.target.value);

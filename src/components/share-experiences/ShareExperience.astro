@@ -84,6 +84,13 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
           <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
           <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
         </div>
+        <label for="music-game-platform" data-music-platform hidden>Game platform
+          <select id="music-game-platform" data-music-game-platform>
+            <option value="all">All games</option>
+            <option value="pc">PC</option>
+            <option value="console">Console</option>
+          </select>
+        </label>
         <label for="music-country" data-music-storefront>Storefront
           <select id="music-country" data-music-country>
             <option value="AU">Australia (AU)</option>
@@ -112,6 +119,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         </label>
         <button type="submit" data-music-submit>Search</button>
       </form>
+      <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
       <p class="experience-note" role="status" data-music-status></p>
       <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
       <button type="button" class="secondary" hidden data-music-more>Show more results</button>
