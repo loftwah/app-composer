@@ -5,10 +5,11 @@ import {
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatLength, restoreThisOrThatPack, restoreThisOrThatPicks,
-  customThisOrThatTitle, moveThisOrThatCustom, readThisOrThatCustom,
+  checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatTitle, freezeThisOrThatPhotos,
+  moveThisOrThatCustom, readThisOrThatCustom,
   thisOrThatBlankLink, thisOrThatComplete, thisOrThatCount, thisOrThatPackFromQuery,
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
-  type ThisOrThatLength,
+  type ThisOrThatLength, type ThisOrThatPromptPhoto,
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne,
@@ -1245,6 +1246,19 @@ function mountNine(
   };
 }
 
+/** One resized photo for a written question, kept in this tab. Each editor
+ * row and applied run owns the URLs through which it shows those bytes. */
+interface DraftQuestionPhoto {
+  url: string;
+  blob: Blob;
+}
+
+interface DraftPhotoRow {
+  photo: DraftQuestionPhoto | null;
+  /** Bumped when a newer selection or a clear makes an arriving decode stale. */
+  run: number;
+}
+
 function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const panels = elements<HTMLElement>(root, "[data-question]");
   const progress = root.querySelector<HTMLElement>("[data-tot-progress]")!;
@@ -1270,6 +1284,12 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const customRights = elements<HTMLInputElement>(root, "[data-tot-custom-right]");
   const customRows = elements<HTMLFieldSetElement>(root, "[data-tot-custom-form] fieldset");
   const lengthSelect = root.querySelector<HTMLSelectElement>("[data-tot-length]")!;
+  const customPhotos = elements<HTMLInputElement>(root, "[data-tot-custom-photo]");
+  const customPhotoPicks = elements<HTMLButtonElement>(root, "[data-tot-custom-photo-pick]");
+  const customPhotoPreviews = elements<HTMLImageElement>(root, "[data-tot-custom-photo-preview]");
+  const customPhotoClears = elements<HTMLButtonElement>(root, "[data-tot-custom-photo-clear]");
+  const customPhotoAlts = elements<HTMLInputElement>(root, "[data-tot-custom-photo-alt]");
+  const customPhotoStatuses = elements<HTMLElement>(root, "[data-tot-custom-photo-status]");
   let picks: (0 | 1 | null)[] = thisOrThatStart();
   let pack: ThisOrThatPack = "maker";
   let heading: string = thisOrThatPacks.maker.title;
@@ -1279,13 +1299,59 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   /** The length the editor is writing for. Five is the default; nine is the
    * one optional authored length. Switching it edits only the editor. */
   let customLength: ThisOrThatLength = thisOrThatCount;
+  /** The editor's photo drafts, one per row. A cleared or replaced photo only
+   * changes this draft; the applied snapshot below owns its own URLs. */
+  let photoRows: DraftPhotoRow[] = Array.from({ length: 9 }, () => ({ photo: null, run: 0 }));
+  /** Photos frozen into the active written run, with their own object URLs so
+   * replacing or clearing an editor photo cannot break what is playing. */
+  let appliedPhotos: (ThisOrThatPromptPhoto | null)[] = [];
 
   /** The questions the stage is currently asking, written or built-in. */
   const activeQuestions = () => custom ?? thisOrThatPacks[pack].questions;
 
+  /** Retire the played run's photo URLs; the editor's copies stay untouched. */
+  function releaseAppliedPhotos() {
+    for (const photo of appliedPhotos) if (photo) URL.revokeObjectURL(photo.url);
+    appliedPhotos = [];
+  }
+
+  /** Show one row's editor state: a compact trigger, its thumbnail, the optional
+   * description and a remove action. Invalid selections never reach here, so
+   * whatever photo the row already had keeps its place. */
+  function renderPhotoRow(index: number) {
+    const photo = photoRows[index]?.photo ?? null;
+    const preview = customPhotoPreviews[index];
+    const pick = customPhotoPicks[index];
+    const clear = customPhotoClears[index];
+    const alt = customPhotoAlts[index];
+    if (preview) {
+      if (photo) {
+        if (preview.getAttribute("src") !== photo.url) preview.src = photo.url;
+        preview.hidden = false;
+        preview.alt = cleanThisOrThatAlt(alt?.value) || `Photo for question ${index + 1}`;
+      } else {
+        preview.hidden = true;
+        preview.removeAttribute("src");
+        preview.alt = "";
+      }
+    }
+    if (pick) {
+      pick.textContent = photo ? "Replace photo" : "Add a photo";
+      pick.setAttribute("aria-label",
+        `${photo ? "Replace" : "Add"} the optional photo for question ${index + 1}`);
+    }
+    if (clear) clear.hidden = !photo;
+    if (alt) {
+      alt.disabled = !photo;
+      alt.closest("label")?.toggleAttribute("hidden", !photo);
+    }
+  }
+
   /** Swapping starters only retexts the panels it will ask: one controller, the
    * same choice, undo, focus and replay behaviour, no second quiz. */
   function applyPack(next: ThisOrThatPack) {
+    custom = null;
+    releaseAppliedPhotos();
     pack = next;
     const selected = thisOrThatPacks[pack];
     packSelect.value = pack;
@@ -1294,12 +1360,24 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     heading = selected.title;
   }
 
-  function retextPanels(questions: readonly (readonly [string, string, string])[]) {
+  function retextPanels(
+    questions: readonly (readonly [string, string, string])[],
+    photos: readonly (ThisOrThatPromptPhoto | null)[] = [],
+  ) {
     panels.forEach((panel, index) => {
+      const photo = panel.querySelector<HTMLImageElement>("[data-tot-question-photo]");
       const question = questions[index];
       // Panels beyond this run — the nine-panel tail during any five — stay
       // hidden with whatever text they hold until a longer run retexts them.
-      if (!question) return;
+      // Their photo is dropped so no revoked editor or played URL lingers.
+      if (!question) {
+        if (photo) {
+          photo.hidden = true;
+          photo.removeAttribute("src");
+          photo.alt = "";
+        }
+        return;
+      }
       const [prompt, left, right] = question;
       panel.querySelector("h2")!.textContent = prompt;
       // The group's accessible name is authored from the maker prompt; keep it
@@ -1308,6 +1386,18 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
       const buttons = panel.querySelectorAll<HTMLButtonElement>("[data-choice]");
       buttons[0].textContent = left;
       buttons[1].textContent = right;
+      if (photo) {
+        const state = photos[index] ?? null;
+        if (state) {
+          if (photo.getAttribute("src") !== state.url) photo.src = state.url;
+          photo.alt = state.alt;
+          photo.hidden = false;
+        } else {
+          photo.hidden = true;
+          photo.removeAttribute("src");
+          photo.alt = "";
+        }
+      }
     });
   }
 
@@ -1320,6 +1410,77 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
       row.hidden = index >= length;
       row.querySelector<HTMLButtonElement>('[data-tot-move="down"]')!.disabled = index === length - 1;
     });
+  }
+
+  /** One device photo onto one written question: bounded before decode, decoded
+   * locally, and only then attached. A stale selection, a bad format or an
+   * oversized image leaves the previous photo exactly as it was. */
+  async function choosePhoto(row: DraftPhotoRow, file: File) {
+    const run = ++row.run;
+    const at = () => Math.max(0, photoRows.indexOf(row));
+    const say = (text: string) => {
+      const status = customPhotoStatuses[at()];
+      if (row.run === run && status) status.textContent = text;
+    };
+    let head: Uint8Array;
+    try {
+      head = new Uint8Array(await file.slice(0, coverHeadLimit).arrayBuffer());
+    } catch {
+      say(`Question ${at() + 1}: that file couldn’t be read. Pick it again.`);
+      return;
+    }
+    if (row.run !== run) return;
+    const checked = checkThisOrThatPhoto(file.size, head);
+    if (!checked.ok) {
+      if (checked.reason === "size") {
+        say(`Question ${at() + 1}: that image is too large. Photos can be up to ${checked.limit / 1_048_576} MB.`);
+      } else if (checked.reason === "format") {
+        say(`Question ${at() + 1}: that file isn’t a PNG, JPEG or WebP image.`);
+      } else {
+        say(`Question ${at() + 1}: that image is ${checked.width.toLocaleString()} × ${checked.height.toLocaleString()} pixels. Photos can be up to ${checked.limit / 1_000_000} megapixels.`);
+      }
+      return;
+    }
+    const original = URL.createObjectURL(file);
+    const source = new Image();
+    source.src = original;
+    let blob: Blob | null;
+    try {
+      await source.decode();
+      if (row.run !== run) return;
+      if (source.naturalWidth * source.naturalHeight > coverPixelLimit) {
+        say(`Question ${at() + 1}: that image is too large to show here. Try a smaller copy.`);
+        return;
+      }
+      const scale = Math.min(1, coverWorkingMax / Math.max(source.naturalWidth, source.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Image preparation unavailable");
+      context.imageSmoothingQuality = "high";
+      context.drawImage(source, 0, 0, canvas.width, canvas.height);
+      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    } catch {
+      say(`Question ${at() + 1}: that image couldn’t be prepared. Try a PNG, JPEG or WebP copy.`);
+      return;
+    } finally {
+      source.removeAttribute("src");
+      URL.revokeObjectURL(original);
+    }
+    if (row.run !== run) return;
+    if (!blob) {
+      say(`Question ${at() + 1}: that image couldn’t be prepared. Try a smaller copy.`);
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    if (row.photo) URL.revokeObjectURL(row.photo.url);
+    row.photo = { url, blob };
+    const index = at();
+    const alt = customPhotoAlts[index];
+    if (alt) alt.value = "";
+    renderPhotoRow(index);
+    say(`Question ${index + 1} has a photo. It stays in this tab and isn’t drawn into the result image.`);
   }
 
   const answered = () => picks.filter((pick) => pick !== null).length;
@@ -1376,9 +1537,10 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     syncProgress();
     undo.disabled = false;
     renderReveal();
-    // The written set has no link to hand over; the note points at the download instead.
+    // The written set has no link to hand over; the note points at the text-only
+    // download instead, and says plainly that photos stay in the tab.
     if (revealNote) revealNote.textContent = custom
-      ? "Every answer is yours — download your result image to keep it. Your own questions never become a link."
+      ? "Every answer is yours — download the text-only result image to keep it. Your own questions and photos never become a link."
       : revealNoteBuiltin;
     if (focus) revealTitle.focus({ preventScroll: true });
   }
@@ -1427,6 +1589,41 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     applyLength(restoreThisOrThatLength(lengthSelect.value));
     customStatus.textContent = `Editing ${customLength} questions. Everything you typed is kept.`;
   });
+
+  // One optional photo per written question. The trigger opens the native
+  // picker, the file is checked before any decode, and a bad pick leaves the
+  // row's previous photo exactly as it was.
+  customPhotoPicks.forEach((button, index) => {
+    button.addEventListener("click", () => customPhotos[index]?.click());
+  });
+  customPhotos.forEach((input, index) => {
+    input.addEventListener("change", () => {
+      const file = input.files?.[0];
+      input.value = "";
+      const row = photoRows[index];
+      if (file && row) void choosePhoto(row, file);
+    });
+  });
+  customPhotoClears.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      const row = photoRows[index];
+      if (!row) return;
+      row.run += 1; // a decode still arriving must not undo this clear
+      if (row.photo) URL.revokeObjectURL(row.photo.url);
+      row.photo = null;
+      const alt = customPhotoAlts[index];
+      if (alt) alt.value = "";
+      if (customPhotoStatuses[index]) {
+        customPhotoStatuses[index].textContent = `Photo removed from question ${index + 1}.`;
+      }
+      renderPhotoRow(index);
+      customPhotoPicks[index]?.focus({ preventScroll: true });
+    });
+  });
+  customPhotoAlts.forEach((alt, index) => {
+    alt.addEventListener("input", () => renderPhotoRow(index));
+  });
+  photoRows.forEach((_, index) => renderPhotoRow(index));
 
   // Left and right arrows choose a side to focus; Enter or Space picks it.
   elements<HTMLElement>(root, "[data-tot-options]").forEach((group) => {
@@ -1480,6 +1677,25 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     update();
   });
 
+  /** Freeze the editor's current photos into the run that is about to play.
+   * Each played photo gets its own object URL, so a later editor replacement or
+   * clear cannot revoke what the active run is showing. */
+  function makeAppliedPhotos(count: number): (ThisOrThatPromptPhoto | null)[] | null {
+    const raw: (ThisOrThatPromptPhoto | null)[] = [];
+    try {
+      for (let index = 0; index < count; index += 1) {
+        const photo = photoRows[index]?.photo;
+        raw.push(photo
+          ? { url: URL.createObjectURL(photo.blob), alt: customPhotoAlts[index]?.value ?? "" }
+          : null);
+      }
+    } catch {
+      for (const photo of raw) if (photo) URL.revokeObjectURL(photo.url);
+      return null;
+    }
+    return freezeThisOrThatPhotos(raw, count);
+  }
+
   /** A written set never persists: it lives in the editor's own inputs, plays
    * only through this explicit action, and retexting the stage is all it
    * takes — the same panels, the same run, nothing sent anywhere. */
@@ -1497,12 +1713,19 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
       (focusRow.find((input) => input && !input.value.trim()) ?? customLefts[read.gap])?.focus();
       return false;
     }
+    const photos = makeAppliedPhotos(customLength);
+    if (!photos) {
+      customStatus.textContent = "This browser couldn’t prepare those photos. Try again, or play without them.";
+      return false;
+    }
+    releaseAppliedPhotos();
+    appliedPhotos = photos;
     custom = read.questions;
     picks = thisOrThatStart(customLength);
     heading = customThisOrThatTitle;
     packSelect.value = "custom";
-    if (description) description.textContent = "You’re playing your own questions. They stay in this tab.";
-    retextPanels(custom);
+    if (description) description.textContent = "You’re playing your own questions and photos. They stay in this tab.";
+    retextPanels(custom, appliedPhotos);
     showQuestion(0, false);
     panels[0].querySelector<HTMLButtonElement>("[data-choice]")?.focus();
     customPanel.open = false;
@@ -1517,8 +1740,9 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   });
 
   // Row moves edit only the draft in the inputs, and never leave the length
-  // being edited. The stage, its picks, any applied set and the starter links
-  // stay exactly as they are until "Play my questions".
+  // being edited. Each photo draft and its description travel with the whole
+  // row; the stage, its picks, any applied set and the starter links stay
+  // exactly as they are until "Play my questions".
   customRows.forEach((row, index) => {
     row.querySelectorAll<HTMLButtonElement>("[data-tot-move]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -1527,12 +1751,26 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
         // A hidden draft row is never swapped into, so its typed text keeps.
         if (to < 0 || to >= customLength) return;
         const draft = customPrompts.map((prompt, at) =>
-          [prompt.value, customLefts[at].value, customRights[at].value] as const);
-        moveThisOrThatCustom(draft, index, step, customLength).forEach(([prompt, left, right], at) => {
-          customPrompts[at].value = prompt;
-          customLefts[at].value = left;
-          customRights[at].value = right;
+          [
+            prompt.value,
+            customLefts[at].value,
+            customRights[at].value,
+            photoRows[at],
+            customPhotoAlts[at]?.value ?? "",
+          ] as const);
+        moveThisOrThatCustom(draft, index, step, customLength).forEach((draftRow, at) => {
+          customPrompts[at].value = draftRow[0];
+          customLefts[at].value = draftRow[1];
+          customRights[at].value = draftRow[2];
+          photoRows[at] = draftRow[3];
+          if (customPhotoAlts[at]) customPhotoAlts[at].value = draftRow[4];
         });
+        // File inputs are only triggers; their rows now carry the swapped state.
+        customPhotos.forEach((input) => { input.value = ""; });
+        if (customPhotoStatuses[index]) customPhotoStatuses[index].textContent = "";
+        if (customPhotoStatuses[to]) customPhotoStatuses[to].textContent = "";
+        renderPhotoRow(index);
+        renderPhotoRow(to);
         customPrompts[to].focus({ preventScroll: true });
         customStatus.textContent = `Question ${index + 1} moved ${step < 0 ? "up" : "down"} to ${to + 1}.`;
       });
@@ -1544,6 +1782,18 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   // after this first-load hint, so the fragment keeps precedence.
   applyPack(thisOrThatPackFromQuery(location.search));
   showQuestion(0, false);
+
+  // Leave no photo object URLs behind on a real unload. A bfcache visit keeps
+  // them alive so a restored tab still shows what it did before.
+  window.addEventListener("pagehide", (event) => {
+    if (event.persisted) return;
+    releaseAppliedPhotos();
+    photoRows.forEach((row) => {
+      row.run += 1;
+      if (row.photo) URL.revokeObjectURL(row.photo.url);
+      row.photo = null;
+    });
+  });
 
   return {
     result: () => {
@@ -2013,7 +2263,7 @@ export function mountShareExperience(root: HTMLElement) {
     clearAltFallback();
     if (shareNote && game === "this-or-that") shareNote.textContent = links
       ? shareNoteBuiltin
-      : "Links and sharing are off for your own questions. Download the image to keep your result — they stay in this tab.";
+      : "Links and sharing are off for your own questions. Download the text-only image to keep the choices — photos stay in this tab.";
     if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
     else if (!canShare && game === "this-or-that") status.textContent = links
       ? "Answer every question to share your result."

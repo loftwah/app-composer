@@ -3,6 +3,7 @@ import {
   type ThisOrThatPack,
 } from "./share-experiences.ts";
 import { cleanText } from "./share-experience-draft.ts";
+import { coverFileLimit, coverPixelLimit, sniffCover, type SniffedCover } from "./top-nine-cover.ts";
 
 /** One This or That run for the #1064 early slice. Picks are always a
  * contiguous prefix: a question is answered only after every earlier one, so
@@ -143,6 +144,61 @@ export const customThisOrThatPromptLimit = 72;
 export const customThisOrThatOptionLimit = 45;
 export const customThisOrThatTitle = "Your this or that";
 
+/** One optional prompt illustration for a written question. The bytes stay in
+ * the tab: only a local blob URL is held while the editor or a played run
+ * needs it, and the downloaded result image remains text-only. */
+export interface ThisOrThatPromptPhoto {
+  /** A local blob URL owned by the tab, never a result link or draft value. */
+  url: string;
+  /** An optional short description; empty leaves the illustration decorative. */
+  alt: string;
+}
+
+export const customThisOrThatAltLimit = 120;
+
+export type ThisOrThatPhotoCheck =
+  | { ok: true; kind: SniffedCover["kind"]; width: number; height: number }
+  | { ok: false; reason: "size"; limit: number }
+  | { ok: false; reason: "format" }
+  | { ok: false; reason: "pixels"; width: number; height: number; limit: number };
+
+/** The same real-byte, format and pixel guard as Top Nine covers, before any
+ * decode. A renamed SVG or any other format never reaches the browser. */
+export function checkThisOrThatPhoto(size: number, head: Uint8Array): ThisOrThatPhotoCheck {
+  if (!Number.isFinite(size) || size < 0 || size > coverFileLimit) {
+    return { ok: false, reason: "size", limit: coverFileLimit };
+  }
+  const sniffed = sniffCover(head);
+  if (!sniffed) return { ok: false, reason: "format" };
+  if (sniffed.width * sniffed.height > coverPixelLimit) {
+    return {
+      ok: false, reason: "pixels", width: sniffed.width, height: sniffed.height,
+      limit: coverPixelLimit,
+    };
+  }
+  return { ok: true, kind: sniffed.kind, width: sniffed.width, height: sniffed.height };
+}
+
+/** A short, single-spaced description for the optional photo. */
+export function cleanThisOrThatAlt(value: unknown): string {
+  return cleanText(value, customThisOrThatAltLimit);
+}
+
+/** Freeze the applied run's photo metadata: copy each blob URL and its
+ * description, bounded to the played questions. Replacing or clearing an
+ * editor photo later therefore cannot change what the active run shows. */
+export function freezeThisOrThatPhotos(
+  photos: readonly (ThisOrThatPromptPhoto | null)[],
+  count: number = photos.length,
+): (ThisOrThatPromptPhoto | null)[] {
+  const length = Number.isInteger(count) && count > 0 ? count : 0;
+  return Array.from({ length }, (_, index) => {
+    const photo = photos[index];
+    const url = typeof photo?.url === "string" && photo.url.startsWith("blob:") ? photo.url : "";
+    return url ? { url, alt: cleanThisOrThatAlt(photo?.alt) } : null;
+  });
+}
+
 export interface ThisOrThatCustomRead {
   /** The bounded, sanitised set, or null while any row is unusable. */
   questions: readonly (readonly [string, string, string])[] | null;
@@ -178,18 +234,18 @@ export function readThisOrThatCustom(
   return { questions, gap: -1, reason: null };
 }
 
-/** Move one draft row a single step inside the edited length, carrying
- * prompt, first and second option exactly as typed — blank and half-written
- * values included. A row already at an edge of the length stays put, and rows
- * beyond the length are never touched or swapped into; no text is trimmed or
- * validated here. */
-export function moveThisOrThatCustom(
-  rows: readonly (readonly [string, string, string])[],
+/** Move one draft row a single step inside the edited length, carrying the
+ * whole row exactly as typed — prompt, both options, and any attached photo
+ * draft or description. Blank and half-written values included. A row already
+ * at an edge of the length stays put, and rows beyond the length are never
+ * touched or swapped into; no text is trimmed or validated here. */
+export function moveThisOrThatCustom<T extends readonly [string, string, string, ...unknown[]]>(
+  rows: readonly T[],
   from: number,
   step: -1 | 1,
   count: number = thisOrThatCount,
-): (readonly [string, string, string])[] {
-  const next = rows.map((row) => [...row] as [string, string, string]);
+): T[] {
+  const next = rows.map((row) => [...row] as unknown as T);
   const to = from + step;
   if (from < 0 || from >= count || to < 0 || to >= count) return next;
   [next[from], next[to]] = [next[to], next[from]];
