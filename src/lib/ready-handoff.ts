@@ -3,6 +3,24 @@ const source = 'Use App Composer’s current Get Ready implementation at https:/
 export const browserCheckPath = '/ready/browser-check';
 export const browserCheckUrl = 'https://composer.loftwah.com' + browserCheckPath;
 
+// A visitor names the agent they already use. This adds setup context only; it
+// never asserts installation, sign-in, entitlement or a working deployment.
+export const handoffAgents = {
+ any: { label: 'Any coding agent' },
+ opencode: { label: 'OpenCode' },
+ codex: { label: 'Codex' },
+ 'claude-code': { label: 'Claude Code' },
+ cursor: { label: 'Cursor' },
+ antigravity: { label: 'Google Antigravity' },
+} as const;
+
+export type HandoffAgent = keyof typeof handoffAgents;
+
+export const agentContextLine = (agent: HandoffAgent): string =>
+ agent === 'any'
+  ? ''
+  : `I’m using ${handoffAgents[agent].label}. Check which tools this session can use in my chosen project. Report what you verified and what remains unverified.`;
+
 export const readyTasks = {
  setup: {
   label: 'Set up my first app',
