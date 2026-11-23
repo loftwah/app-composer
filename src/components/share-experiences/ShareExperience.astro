@@ -246,6 +246,10 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
             <label>Prompt<input type="text" maxlength={customThisOrThatPromptLimit} data-tot-custom-prompt /></label>
             <label>First option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-left /></label>
             <label>Second option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-right /></label>
+            <div class="tot-move">
+              <button type="button" class="secondary" data-tot-move="up" aria-label={`Move question ${index + 1} up`} disabled={index === 0}>Move up</button>
+              <button type="button" class="secondary" data-tot-move="down" aria-label={`Move question ${index + 1} down`} disabled={index === thisOrThatQuestions.length - 1}>Move down</button>
+            </div>
           </fieldset>
         ))}
         <button type="submit">Play my questions</button>

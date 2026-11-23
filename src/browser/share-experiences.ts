@@ -5,7 +5,7 @@ import {
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
-  customThisOrThatTitle, readThisOrThatCustom,
+  customThisOrThatTitle, moveThisOrThatCustom, readThisOrThatCustom,
   thisOrThatBlankLink, thisOrThatComplete, thisOrThatPackFromQuery,
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
 } from "../lib/this-or-that.ts";
@@ -1218,6 +1218,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const customPrompts = elements<HTMLInputElement>(root, "[data-tot-custom-prompt]");
   const customLefts = elements<HTMLInputElement>(root, "[data-tot-custom-left]");
   const customRights = elements<HTMLInputElement>(root, "[data-tot-custom-right]");
+  const customRows = elements<HTMLFieldSetElement>(root, "[data-tot-custom-form] fieldset");
   let picks: (0 | 1 | null)[] = thisOrThatStart();
   let pack: ThisOrThatPack = "maker";
   let heading: string = thisOrThatPacks.maker.title;
@@ -1433,6 +1434,27 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   customForm.addEventListener("submit", (event) => {
     event.preventDefault();
     playCustom();
+  });
+
+  // Row moves edit only the draft in the inputs. The stage, its picks, any
+  // applied five and the starter links stay exactly as they are until Apply.
+  customRows.forEach((row, index) => {
+    row.querySelectorAll<HTMLButtonElement>("[data-tot-move]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const step = button.dataset.totMove === "up" ? -1 : 1;
+        const to = index + step;
+        if (to < 0 || to >= customRows.length) return;
+        const draft = customPrompts.map((prompt, at) =>
+          [prompt.value, customLefts[at].value, customRights[at].value] as const);
+        moveThisOrThatCustom(draft, index, step).forEach(([prompt, left, right], at) => {
+          customPrompts[at].value = prompt;
+          customLefts[at].value = left;
+          customRights[at].value = right;
+        });
+        customPrompts[to].focus({ preventScroll: true });
+        customStatus.textContent = `Question ${index + 1} moved ${step < 0 ? "up" : "down"} to ${to + 1}.`;
+      });
+    });
   });
 
   // A blank link may name one exact built-in starter for a fresh signed-out

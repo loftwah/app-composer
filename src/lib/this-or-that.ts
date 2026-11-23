@@ -157,3 +157,18 @@ export function readThisOrThatCustom(
   }
   return { questions, gap: -1, reason: null };
 }
+
+/** Move one draft row a single step in the editor, carrying prompt, first and
+ * second option exactly as typed — blank and half-written values included.
+ * A row already at an edge stays put; no text is trimmed or validated here. */
+export function moveThisOrThatCustom(
+  rows: readonly (readonly [string, string, string])[],
+  from: number,
+  step: -1 | 1,
+): (readonly [string, string, string])[] {
+  const next = rows.map((row) => [...row] as [string, string, string]);
+  const to = from + step;
+  if (from < 0 || from >= next.length || to < 0 || to >= next.length) return next;
+  [next[from], next[to]] = [next[to], next[from]];
+  return next;
+}

@@ -11,10 +11,10 @@ import {
   travelQuestions, travelResultTitle,
 } from '../src/lib/share-experiences.ts';
 import {
-  pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
+  moveThisOrThatCustom, pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
   thisOrThatComplete, thisOrThatCount, thisOrThatProgress, thisOrThatStart,
   thisOrThatBlankLink, thisOrThatBlankPath, thisOrThatPackFromQuery,
-  thisOrThatSummary, undoThisOrThat,
+  thisOrThatSummary, readThisOrThatCustom, undoThisOrThat,
 } from '../src/lib/this-or-that.ts';
 
 // The registry is the one source of truth for the selector, blank links and
@@ -319,4 +319,31 @@ test('a blank link only reopens a starter for exactly one known pack value', () 
     assert.equal(thisOrThatBlankLink(thisOrThatPackFromQuery(search)), thisOrThatBlankPath,
       'only one known pack hint produces a pack URL');
   }
+});
+
+test('a draft row move carries every prompt and option, including half-written text', () => {
+  const draft = [
+    ['Prompt one', 'Left one', 'Right one'],
+    ['Prompt two', 'Left two', 'Right two'],
+    ['Half prompt', '', 'Right three'],
+    ['', 'Left four', ''],
+    ['Prompt five', 'Left five', 'Right five'],
+  ];
+  const up = moveThisOrThatCustom(draft, 2, -1);
+  assert.deepEqual(up[1], ['Half prompt', '', 'Right three'], 'the whole moved row keeps its blank value');
+  assert.deepEqual(up[2], ['Prompt two', 'Left two', 'Right two'], 'the displaced row moves down intact');
+  assert.deepEqual(draft[2], ['Half prompt', '', 'Right three'], 'the source draft is never mutated');
+  assert.deepEqual(moveThisOrThatCustom(draft, 0, -1), draft, 'moving the first row up is a no-op');
+  assert.deepEqual(moveThisOrThatCustom(draft, 4, 1), draft, 'moving the last row down is a no-op');
+
+  const moved = moveThisOrThatCustom(draft, 3, -1);
+  assert.deepEqual(moved[2], ['', 'Left four', ''], 'a partially entered row moves as typed');
+  assert.deepEqual(moveThisOrThatCustom(moved, 2, 1), draft, 'a move can be undone');
+
+  const playable = thisOrThatQuestions.map(([prompt, left, right]) => [prompt, left, right]);
+  const reordered = moveThisOrThatCustom(playable, 4, -1);
+  assert.deepEqual(reordered[3], playable[4]);
+  assert.deepEqual(reordered[4], playable[3]);
+  assert.deepEqual(readThisOrThatCustom(reordered).questions?.map((row) => [...row]), reordered,
+    'a reordered complete five still validates without changing any text');
 });
