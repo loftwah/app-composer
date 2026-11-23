@@ -18,7 +18,10 @@ import {
   twentyOnePairs, twentyOnePromptLimit, twentyOneStart,
 } from "../lib/twenty-one-questions.ts";
 import { personaFor } from "../lib/persona-packs.ts";
-import type { PersonaPack } from "../lib/persona-quiz.ts";
+import {
+  readPersonaDraft,
+  type PersonaDraft, type PersonaDraftGap, type PersonaPack,
+} from "../lib/persona-quiz.ts";
 import {
   renderExperienceCards, renderExperienceResult, renderPersonaCard, resultSizes,
   type ResultCoverSlot, type ResultFormat, type ShareExperienceResult,
@@ -97,6 +100,9 @@ interface Controller {
   /** Whether the current run may produce a result link at all. Absent means
    * yes; a written five never becomes one, so URL sharing stays off. */
   linksAllowed?(): boolean;
+  /** Whether the shared result card export may run. Absent means yes; a local
+   * persona remix never becomes the published quiz's result card. */
+  exportAllowed?(): boolean;
   /** The trusted persona outcome a result card may print. Absent for every
    * other experience; the generic JSON result link is never used for it. */
   personaOutcome?(): string | null;
@@ -2325,7 +2331,13 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
 /** The shared “Which X are you?” player used by the Developer Type Quiz and
  * the Language Type Quiz. Answers stay in this tab; only the chosen outcome
  * name can travel in an answer-free result link. A bare route starts a fresh
- * quiz, and an unknown `#result=` value falls back to that same fresh start. */
+ * quiz, and an unknown `#result=` value falls back to that same fresh start.
+ *
+ * A remix draft retexts only the visible title, prompts and four choice
+ * labels. Each choice keeps its starter position and primary/secondary
+ * mapping, so the same `pack.resolve()` decides the outcome. A draft run never
+ * writes the address, offers a result link, reaches storage or produces the
+ * published quiz's result card. */
 function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack): Controller {
   const stage = root.querySelector<HTMLElement>("[data-persona-question]")!;
   const prompt = root.querySelector<HTMLElement>("[data-persona-prompt]")!;
@@ -2343,12 +2355,26 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   const retake = root.querySelector<HTMLButtonElement>("[data-persona-retake]")!;
   const revise = root.querySelector<HTMLButtonElement>("[data-persona-revise]")!;
   const fresh = root.querySelector<HTMLAnchorElement>("[data-persona-fresh]")!;
+  const linkWrap = root.querySelector<HTMLElement>("[data-persona-link-panel]")!;
   const link = root.querySelector<HTMLInputElement>("[data-persona-link]")!;
   const copy = root.querySelector<HTMLButtonElement>("[data-persona-copy]")!;
   const copyStatus = root.querySelector<HTMLElement>("[data-persona-status]")!;
+  const draftNote = root.querySelector<HTMLElement>("[data-persona-draft-note]")!;
+  const remix = root.querySelector<HTMLDetailsElement>("[data-persona-remix]")!;
+  const remixForm = root.querySelector<HTMLFormElement>("[data-persona-draft-form]")!;
+  const draftTitle = root.querySelector<HTMLInputElement>("[data-persona-draft-title]")!;
+  const draftPrompts = elements<HTMLInputElement>(root, "[data-persona-draft-prompt]");
+  const draftOptions = elements<HTMLInputElement>(root, "[data-persona-draft-option]");
+  const draftStatus = root.querySelector<HTMLElement>("[data-persona-draft-status]")!;
+  const draftActive = root.querySelector<HTMLElement>("[data-persona-draft-active]")!;
+  const draftActiveNote = root.querySelector<HTMLElement>("[data-persona-draft-active-note]")!;
+  const draftEdit = root.querySelector<HTMLButtonElement>("[data-persona-draft-edit]")!;
+  const draftOriginal = root.querySelector<HTMLButtonElement>("[data-persona-draft-original]")!;
   let answers: (number | null)[] = pack.questions.map(() => null);
   let current = 0;
   let shown: string | null = null;
+  /** The validated local draft on stage, or null for the published quiz. */
+  let draft: PersonaDraft | null = null;
   // The outer share bar calls update() once after this controller is built.
   // Events before that point cannot fire, so later stage changes can refresh it.
   let ready = false;
@@ -2356,6 +2382,15 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   const replaceAddress = (path: string) => {
     try { history.replaceState(null, "", path); } catch { /* A blocked history still plays. */ }
   };
+
+  /** The prompt and four labels the stage should show. A draft keeps the
+   * starter's option order, so index 0–3 still means the same mapping. */
+  const questionAt = (index: number) => draft
+    ? draft.questions[index]
+    : {
+      prompt: pack.questions[index].prompt,
+      options: pack.questions[index].options.map((option) => option.label),
+    };
 
   function syncQuestionProgress() {
     const answered = answers.filter((answer) => answer !== null).length;
@@ -2365,12 +2400,13 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   function showQuestion(index: number, focus = true) {
     current = index;
     shown = null;
-    const question = pack.questions[index];
+    const question = questionAt(index);
     stage.hidden = false;
     result.hidden = true;
+    remix.hidden = draft !== null;
     prompt.textContent = question.prompt;
     choices.forEach((button, choice) => {
-      button.textContent = question.options[choice].label;
+      button.textContent = question.options[choice];
       button.setAttribute("aria-pressed", String(answers[index] === choice));
     });
     back.disabled = index === 0;
@@ -2382,10 +2418,14 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   function showResult(id: string, shared = false) {
     const outcome = pack.outcome(id);
     if (!outcome) return;
+    const remixActive = draft !== null;
     shown = id;
     notice.textContent = "";
     stage.hidden = true;
     result.hidden = false;
+    // A shared result is read-only: the remix editor belongs to a fresh run,
+    // so a draft can never start while someone else's result fragment is open.
+    remix.hidden = shared || remixActive;
     archetype.textContent = outcome.archetype;
     service.textContent = outcome.subject;
     tendency.textContent = outcome.tendency;
@@ -2393,14 +2433,21 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     docs.href = outcome.href;
     docs.textContent = outcome.docsText;
     docs.setAttribute("aria-label", outcome.docsAria);
-    link.value = new URL(pack.resultPath(id), location.origin).href;
+    // A draft result is local: no result address is written or shown, and the
+    // published card never stands in for a remixed quiz.
+    linkWrap.hidden = remixActive;
+    draftNote.hidden = !remixActive;
+    link.value = remixActive ? "" : new URL(pack.resultPath(id), location.origin).href;
     copyStatus.textContent = "";
     retake.hidden = shared;
     revise.hidden = shared || answers.some((answer) => answer === null);
-    fresh.hidden = !shared;
-    progress.textContent = shared
-      ? "Shared result"
-      : `All ${pack.questionCount} answered · your result`;
+    fresh.hidden = remixActive || !shared;
+    retake.textContent = remixActive ? "Play draft again" : "Play again";
+    progress.textContent = remixActive
+      ? `All ${pack.questionCount} answered · draft result`
+      : shared
+        ? "Shared result"
+        : `All ${pack.questionCount} answered · your result`;
     archetype.focus();
     if (ready) update();
   }
@@ -2408,9 +2455,116 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   function resetRun() {
     answers = pack.questions.map(() => null);
     notice.textContent = "";
-    replaceAddress(pack.path);
+    if (!draft) replaceAddress(pack.path);
     showQuestion(0, true);
   }
+
+  /** One honest message for the first unusable draft field. */
+  function draftGapMessage(gap: PersonaDraftGap | null): string {
+    if (!gap) return "";
+    if (gap.field === "title") return "Give the draft a title before playing.";
+    if (gap.field === "prompt") return `Question ${gap.question + 1} needs a prompt.`;
+    if (gap.reason === "duplicate") {
+      return `Question ${gap.question + 1}, choice ${gap.option + 1} repeats another choice. Give each choice its own label.`;
+    }
+    return `Question ${gap.question + 1}, choice ${gap.option + 1} needs a label.`;
+  }
+
+  function focusDraftGap(gap: PersonaDraftGap | null) {
+    remix.open = true;
+    if (!gap || gap.field === "title") {
+      draftTitle.focus();
+      return;
+    }
+    if (gap.field === "prompt") {
+      draftPrompts[gap.question]?.focus();
+      return;
+    }
+    draftOptions[gap.question * 4 + gap.option]?.focus();
+  }
+
+  /** Validate the editor text and put exactly that cleaned text on stage. The
+   * draft supplies labels only; scoring still uses the pack's fixed mappings. */
+  function startDraft() {
+    const rows = draftPrompts.map((promptInput, index) => [
+      promptInput.value,
+      ...draftOptions.slice(index * 4, index * 4 + 4).map((input) => input.value),
+    ]);
+    const read = readPersonaDraft(draftTitle.value, rows, pack.questions.length);
+    if (!read.draft) {
+      draftStatus.textContent = draftGapMessage(read.gap);
+      focusDraftGap(read.gap);
+      return;
+    }
+    // What plays is the trimmed, single-spaced text the creator now sees.
+    draftTitle.value = read.draft.title;
+    read.draft.questions.forEach((question, index) => {
+      const promptInput = draftPrompts[index];
+      if (promptInput) promptInput.value = question.prompt;
+      question.options.forEach((label, choice) => {
+        const optionInput = draftOptions[index * 4 + choice];
+        if (optionInput) optionInput.value = label;
+      });
+    });
+    draft = read.draft;
+    answers = pack.questions.map(() => null);
+    shown = null;
+    link.value = "";
+    copyStatus.textContent = "";
+    draftStatus.textContent = "";
+    remix.hidden = true;
+    remix.open = false;
+    draftActive.hidden = false;
+    draftEdit.hidden = false;
+    draftActiveNote.textContent = `Playing “${draft.title}”.`;
+    showQuestion(0, true);
+  }
+
+  /** Leave the stage without losing a single typed draft value. */
+  function editDraft() {
+    if (!draft) return;
+    remix.hidden = false;
+    remix.open = true;
+    draftActive.hidden = false;
+    draftEdit.hidden = true;
+    stage.hidden = true;
+    result.hidden = true;
+    progress.textContent = "Editing your draft";
+    draftActiveNote.textContent = `Editing “${draftTitle.value || draft.title}”. Playing the draft starts at question 1.`;
+    draftStatus.textContent = "";
+    draftTitle.focus();
+    update();
+  }
+
+  /** Cancel the remix and start the published quiz cleanly. The editor keeps
+   * its text, but the address, answers, result link and card are the original. */
+  function returnToOriginal() {
+    draft = null;
+    shown = null;
+    answers = pack.questions.map(() => null);
+    notice.textContent = "";
+    draftActive.hidden = true;
+    draftActiveNote.textContent = "";
+    draftEdit.hidden = false;
+    remix.hidden = false;
+    remix.open = false;
+    draftNote.hidden = true;
+    linkWrap.hidden = false;
+    link.value = "";
+    copyStatus.textContent = "";
+    retake.textContent = "Play again";
+    replaceAddress(pack.path);
+    showQuestion(0, true);
+    draftStatus.textContent = "Original quiz restored. Your draft text is still in the editor.";
+  }
+
+  remixForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    startDraft();
+  });
+
+  draftEdit.addEventListener("click", editDraft);
+  draftOriginal.addEventListener("click", returnToOriginal);
 
   choices.forEach((button, choice) => {
     button.addEventListener("click", () => {
@@ -2433,7 +2587,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
 
   revise.addEventListener("click", () => {
     const last = answers.reduce<number>((at, answer, index) => (answer === null ? at : index), 0);
-    replaceAddress(pack.path);
+    if (!draft) replaceAddress(pack.path);
     showQuestion(last);
   });
 
@@ -2455,7 +2609,7 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   });
 
   copy.addEventListener("click", async () => {
-    if (!shown) return;
+    if (!shown || draft) return;
     const href = new URL(pack.resultPath(shown), location.origin).href;
     link.value = href;
     try {
@@ -2482,10 +2636,10 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   ready = true;
   return {
     // The card is drawn from the same trusted outcome id the result panel and
-    // its answer-free link use. The generic JSON result link stays off; the
-    // existing Copy result link is the only address this quiz hands over.
+    // its answer-free link use. A local draft supplies neither, so the generic
+    // JSON result link and the published card stay off for it.
     result: () => {
-      if (!shown) return null;
+      if (!shown || draft) return null;
       const outcome = pack.outcome(shown);
       if (!outcome) return null;
       return {
@@ -2498,7 +2652,8 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
       };
     },
     linksAllowed: () => false,
-    personaOutcome: () => shown,
+    exportAllowed: () => !draft,
+    personaOutcome: () => (draft ? null : shown),
     restore() {
       // Only the validated outcome fragment above can restore a result.
     },
@@ -2637,6 +2792,7 @@ export function mountShareExperience(root: HTMLElement) {
   const chooseSkin = root.querySelector<HTMLSelectElement>("[data-skin-select]")!;
   const byline = root.querySelector<HTMLInputElement>("[data-byline]")!;
   const status = root.querySelector<HTMLElement>("[data-status]")!;
+  const exportPanel = root.querySelector<HTMLElement>("[data-export-panel]");
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
   const copyPng = root.querySelector<HTMLButtonElement>("[data-copy-png]");
   const copy = root.querySelector<HTMLButtonElement>("[data-copy]")!;
@@ -2690,6 +2846,11 @@ export function mountShareExperience(root: HTMLElement) {
   };
   const update = () => {
     const canShare = Boolean(controller.result());
+    // A local persona draft keeps its result off the published card entirely;
+    // hiding the share panel also keeps a remix from being mistaken for the
+    // original quiz's export.
+    const exportable = controller.exportAllowed?.() ?? true;
+    if (exportPanel) exportPanel.hidden = !exportable;
     clearCardDownloads();
     clearPersonaPreview();
     // A written This-or-That set never produces a link, so URL sharing is
@@ -2700,16 +2861,17 @@ export function mountShareExperience(root: HTMLElement) {
       manual.hidden = true;
       manual.value = "";
     }
-    download.disabled = busy || !canShare;
-    if (copyPng) copyPng.disabled = busy || !canShare;
-    copy.disabled = !links || !canShare;
-    if (alt) alt.disabled = !canShare;
-    nativeShare.disabled = !links || !canShare || sharing;
+    download.disabled = busy || !canShare || !exportable;
+    if (copyPng) copyPng.disabled = busy || !canShare || !exportable;
+    copy.disabled = !links || !canShare || !exportable;
+    if (alt) alt.disabled = !canShare || !exportable;
+    nativeShare.disabled = !links || !canShare || !exportable || sharing;
     clearAltFallback();
     if (shareNote && game === "this-or-that") shareNote.textContent = links
       ? shareNoteBuiltin
       : "Links and sharing are off for your own questions. Download the text-only image to keep the choices — photos stay in this tab.";
-    if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
+    if (!exportable) status.textContent = "";
+    else if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
     else if (!canShare && game === "this-or-that") status.textContent = links
       ? "Answer every question to share your result."
       : "Answer every question to download your result.";
@@ -2784,7 +2946,7 @@ export function mountShareExperience(root: HTMLElement) {
 
   download.addEventListener("click", async () => {
     const snapshot = result();
-    if (!snapshot || busy) return;
+    if (!snapshot || busy || controller.exportAllowed?.() === false) return;
     const personaOutcome = controller.personaOutcome;
     busy = true;
     update();
@@ -2936,7 +3098,7 @@ export function mountShareExperience(root: HTMLElement) {
   // format, skin, byline and local cover pixels. No upload or save.
   copyPng?.addEventListener("click", async () => {
     const snapshot = result();
-    if (!snapshot || busy) return;
+    if (!snapshot || busy || controller.exportAllowed?.() === false) return;
     busy = true;
     update();
     status.textContent = "Copying image…";
@@ -2963,7 +3125,7 @@ export function mountShareExperience(root: HTMLElement) {
 
   copy.addEventListener("click", async () => {
     const snapshot = result();
-    if (!snapshot || controller.linksAllowed?.() === false) return;
+    if (!snapshot || controller.linksAllowed?.() === false || controller.exportAllowed?.() === false) return;
     const href = resultLink(snapshot);
     manual.hidden = true;
     manual.value = "";

@@ -460,6 +460,36 @@
   color: var(--stage-ink); text-decoration: underline; text-underline-offset: .18em;
 }
 .persona-result .button.secondary { color: var(--stage-ink); border-color: var(--stage-ink); background: transparent; }
+/* A local persona remix keeps the published stage's colours and four answers.
+   The editor is compact text only; it never becomes a link, stored draft or
+   result card, and each label states the built-in mapping it keeps. */
+.persona-remix { margin-block: 1rem 0; }
+.persona-remix summary { color: inherit; font-weight: 700; }
+.persona-remix label { color: inherit; margin-block: .45rem 0; font-size: .92rem; font-weight: 700; }
+.persona-remix input {
+  margin-block: .25rem .35rem; color: #211a1b; background: #fff9ec;
+}
+.persona-remix fieldset {
+  margin-block: .8rem; padding: .7rem .75rem;
+  border: 1px solid currentColor; border-radius: 0;
+  min-inline-size: 0;
+}
+.persona-remix legend { padding-inline: .3rem; font-weight: 700; }
+.persona-remix-options {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .2rem .8rem;
+}
+.persona-remix-choice { min-width: 0; }
+.persona-remix-map {
+  display: block; margin-block-end: .35rem;
+  font-size: .8rem; font-weight: 400; line-height: 1.35; opacity: .85;
+}
+.persona-remix-mode {
+  margin-block: 1rem; padding: .8rem .9rem; border: 1px solid currentColor;
+}
+.persona-remix-mode .tot-controls { margin-top: .35rem; }
+.persona-remix-mode .persona-remix-note { margin: 0; max-inline-size: none; font-weight: 700; }
+.persona-draft-note { color: inherit; max-width: 58ch; }
 @media (max-width: 450px) {
   .experience-heading { grid-template-columns: minmax(0, 1fr) minmax(5rem, .45fr); min-height: 0; align-items: center; }
   .experience-heading h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
@@ -469,7 +499,8 @@
   .cover-pick label { flex: 1 1 100%; }
   .share-experience .bingo-grid button { padding-inline: .14rem; }
   .persona-options { grid-template-columns: 1fr; }
-  .persona-link input { font-size: 16px; }
+  .persona-remix-options { grid-template-columns: 1fr; }
+  .persona-remix input, .persona-link input { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .door-result:not([hidden]) { animation: none; }
