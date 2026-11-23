@@ -4,6 +4,7 @@ import {
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
+  customThisOrThatTitle, readThisOrThatCustom,
   thisOrThatComplete, thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
 } from "../lib/this-or-that.ts";
 import {
@@ -64,6 +65,9 @@ interface Controller {
   resumeDraft?(protectShared: boolean): void;
   /** Decoded cover art for the downloaded image; never part of a shared result. */
   exportCovers?(): readonly (ResultCover | null)[] | null;
+  /** Whether the current run may produce a result link at all. Absent means
+   * yes; a written five never becomes one, so URL sharing stays off. */
+  linksAllowed?(): boolean;
 }
 
 const entry = cleanText;
@@ -1127,10 +1131,23 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const result = root.querySelector<HTMLElement>("[data-tot-result]")!;
   const revealTitle = result.querySelector<HTMLElement>("[data-reveal-title]")!;
   const revealPicks = result.querySelector<HTMLElement>("[data-reveal-picks]")!;
+  const revealNote = result.querySelector<HTMLElement>("[data-tot-reveal-note]");
+  const revealNoteBuiltin = revealNote?.textContent ?? "";
   const restart = root.querySelector<HTMLButtonElement>("[data-restart]")!;
+  const customPanel = root.querySelector<HTMLDetailsElement>("[data-tot-custom]")!;
+  const customForm = root.querySelector<HTMLFormElement>("[data-tot-custom-form]")!;
+  const customStatus = root.querySelector<HTMLElement>("[data-custom-status]")!;
+  const customPrompts = elements<HTMLInputElement>(root, "[data-tot-custom-prompt]");
+  const customLefts = elements<HTMLInputElement>(root, "[data-tot-custom-left]");
+  const customRights = elements<HTMLInputElement>(root, "[data-tot-custom-right]");
   let picks: (0 | 1 | null)[] = thisOrThatStart();
   let pack: ThisOrThatPack = "maker";
   let heading: string = thisOrThatPacks.maker.title;
+  /** The written five now on stage, or null while a built-in starter plays. */
+  let custom: readonly (readonly [string, string, string])[] | null = null;
+
+  /** The five the stage is currently asking, written or built-in. */
+  const activeQuestions = () => custom ?? thisOrThatPacks[pack].questions;
 
   /** Swapping starters only retexts the same five panels: one controller, the
    * same choice, undo, focus and replay behaviour, no second quiz. */
@@ -1139,8 +1156,13 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     const selected = thisOrThatPacks[pack];
     packSelect.value = pack;
     if (description) description.textContent = selected.description;
+    retextPanels(selected.questions);
+    heading = selected.title;
+  }
+
+  function retextPanels(questions: readonly (readonly [string, string, string])[]) {
     panels.forEach((panel, index) => {
-      const [prompt, left, right] = selected.questions[index];
+      const [prompt, left, right] = questions[index];
       panel.querySelector("h2")!.textContent = prompt;
       // The group's accessible name is authored from the maker prompt; keep it
       // in step with the h2 so a swapped starter is announced by its real question.
@@ -1149,7 +1171,6 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
       buttons[0].textContent = left;
       buttons[1].textContent = right;
     });
-    heading = selected.title;
   }
 
   const answered = () => picks.filter((pick) => pick !== null).length;
@@ -1165,7 +1186,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   function renderReveal() {
     revealTitle.textContent = heading;
     revealPicks.replaceChildren();
-    thisOrThatPacks[pack].questions.forEach(([prompt, left, right], index) => {
+    activeQuestions().forEach(([prompt, left, right], index) => {
       const item = document.createElement("li");
       const ask = document.createElement("span");
       ask.className = "tot-pick-question";
@@ -1193,6 +1214,10 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     syncProgress();
     undo.disabled = false;
     renderReveal();
+    // The written five have no link to hand over; the note points at the download instead.
+    if (revealNote) revealNote.textContent = custom
+      ? "Every answer is yours — download your result image to keep it. Your own five never become a link."
+      : revealNoteBuiltin;
     if (focus) revealTitle.focus({ preventScroll: true });
   }
 
@@ -1217,7 +1242,16 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
 
   // One native selector swaps the five prompts in place. It never changes the
   // starter on first load, and replay keeps whichever starter is on screen.
+  // "Your five" plays whatever the editor holds right now; an unusable editor
+  // keeps the built-in starter and points at the row to fix.
   packSelect.addEventListener("change", () => {
+    if (packSelect.value === "custom") {
+      packSelect.value = custom ? "custom" : pack;
+      customPanel.open = true;
+      customPrompts[0]?.focus();
+      return;
+    }
+    custom = null;
     picks = thisOrThatStart();
     applyPack(restoreThisOrThatPack(packSelect.value));
     showQuestion(0, false);
@@ -1245,10 +1279,46 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
 
   restart.addEventListener("click", () => {
     picks = thisOrThatStart();
-    heading = thisOrThatPacks[pack].title;
+    heading = custom ? customThisOrThatTitle : thisOrThatPacks[pack].title;
     showQuestion(0, false);
     panels[0].querySelector<HTMLButtonElement>("[data-choice]")?.focus({ preventScroll: true });
     update();
+  });
+
+  /** A written five never persists: it lives in the editor's own inputs, plays
+   * only through this explicit action, and retexting the stage is all it
+   * takes — the same panels, the same run, nothing sent anywhere. */
+  function playCustom(): boolean {
+    const rows = customPrompts.map((prompt, index) =>
+      [prompt.value, customLefts[index]?.value, customRights[index]?.value] as const);
+    const read = readThisOrThatCustom(rows);
+    if (!read.questions) {
+      const row = read.gap + 1;
+      customStatus.textContent = read.reason === "same"
+        ? `Question ${row} needs two different options.`
+        : `Question ${row} needs a prompt and two options.`;
+      customPanel.open = true;
+      const focusRow = [customPrompts[read.gap], customLefts[read.gap], customRights[read.gap]];
+      (focusRow.find((input) => input && !input.value.trim()) ?? customLefts[read.gap])?.focus();
+      return false;
+    }
+    custom = read.questions;
+    picks = thisOrThatStart();
+    heading = customThisOrThatTitle;
+    packSelect.value = "custom";
+    if (description) description.textContent = "You’re playing your own five. They stay in this tab.";
+    retextPanels(custom);
+    showQuestion(0, false);
+    panels[0].querySelector<HTMLButtonElement>("[data-choice]")?.focus();
+    customPanel.open = false;
+    customStatus.textContent = "";
+    update();
+    return true;
+  }
+
+  customForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    playCustom();
   });
 
   applyPack(restoreThisOrThatPack(packSelect.value));
@@ -1256,14 +1326,16 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
 
   return {
     result: () => {
-      const selected = thisOrThatPacks[pack];
-      const summary = thisOrThatSummary(picks, selected.questions, selected.title);
+      const summary = thisOrThatSummary(picks, activeQuestions(), heading);
       // The PNG lists the five exact choices as rows; sides and the starter
-      // travel in the link so it reopens the same run. Image marking is Bingo-only.
+      // travel in the link so it reopens the same run. Image marking is
+      // Bingo-only, and a written five carries no pack at all — it never
+      // travels in a link, so prompts and answers stay in this tab.
       return summary
-        ? { title: heading, items: [...summary.items], marked: [...summary.sides], pack }
+        ? { title: heading, items: [...summary.items], marked: [...summary.sides], ...(custom ? {} : { pack }) }
         : null;
     },
+    linksAllowed: () => custom === null,
     restore(snapshot) {
       const sides = restoreThisOrThatPicks(snapshot.marked);
       const title = entry(snapshot.title, 72);
@@ -1397,6 +1469,8 @@ export function mountShareExperience(root: HTMLElement) {
   const alt = root.querySelector<HTMLButtonElement>("[data-copy-alt]");
   const altManual = root.querySelector<HTMLTextAreaElement>("[data-manual-alt]");
   const nativeShare = root.querySelector<HTMLButtonElement>("[data-share]")!;
+  const shareNote = root.querySelector<HTMLElement>("[data-share-note]");
+  const shareNoteBuiltin = shareNote?.textContent ?? "";
   let busy = false;
   let sharing = false;
   let controller: Controller;
@@ -1412,13 +1486,25 @@ export function mountShareExperience(root: HTMLElement) {
   };
   const update = () => {
     const canShare = Boolean(controller.result());
+    // A written This-or-That five never produces a link, so URL sharing is
+    // switched off only while it is on stage, with the download as the way out.
+    const links = controller.linksAllowed?.() ?? true;
+    if (!links) {
+      manual.hidden = true;
+      manual.value = "";
+    }
     download.disabled = busy || !canShare;
-    copy.disabled = !canShare;
+    copy.disabled = !links || !canShare;
     if (alt) alt.disabled = !canShare;
-    nativeShare.disabled = !canShare || sharing;
+    nativeShare.disabled = !links || !canShare || sharing;
     clearAltFallback();
+    if (shareNote && game === "this-or-that") shareNote.textContent = links
+      ? shareNoteBuiltin
+      : "Links and sharing are off for your own five. Download the image to keep your result — your questions stay in this tab.";
     if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
-    else if (!canShare && game === "this-or-that") status.textContent = "Answer all five questions to share your result.";
+    else if (!canShare && game === "this-or-that") status.textContent = links
+      ? "Answer all five questions to share your result."
+      : "Answer all five questions to download your result.";
     else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
   };
@@ -1455,6 +1541,7 @@ export function mountShareExperience(root: HTMLElement) {
   };
 
   const offerManualCopy = (href: string) => {
+    if (controller.linksAllowed?.() === false) return;
     manual.value = href;
     manual.hidden = false;
     manual.focus();
@@ -1486,13 +1573,15 @@ export function mountShareExperience(root: HTMLElement) {
     } catch {
       busy = false;
       update();
-      status.textContent = "Couldn’t prepare the image. Try again, or copy the result link.";
+      status.textContent = controller.linksAllowed?.() === false
+        ? "Couldn’t prepare the image. Try again."
+        : "Couldn’t prepare the image. Try again, or copy the result link.";
     }
   });
 
   copy.addEventListener("click", async () => {
     const snapshot = result();
-    if (!snapshot) return;
+    if (!snapshot || controller.linksAllowed?.() === false) return;
     const href = resultLink(snapshot);
     manual.hidden = true;
     manual.value = "";
@@ -1544,7 +1633,7 @@ export function mountShareExperience(root: HTMLElement) {
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;
       const snapshot = result();
-      if (!snapshot) return;
+      if (!snapshot || controller.linksAllowed?.() === false) return;
       const href = resultLink(snapshot);
       manual.hidden = true;
       manual.value = "";

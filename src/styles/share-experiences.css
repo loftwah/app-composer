@@ -94,6 +94,18 @@
 .tot-packs { display: flex; flex-wrap: wrap; align-items: end; gap: .6rem; margin-top: 1rem; }
 .tot-packs label { font-weight: 700; }
 .tot-packs select { min-height: 44px; margin-block: .3rem 0; }
+.tot-custom { margin-block: .8rem; }
+.tot-custom summary { cursor: pointer; font-weight: 700; }
+.tot-custom fieldset {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: .65rem;
+  min-inline-size: 0;
+  margin: 0 0 1rem;
+}
+.tot-custom legend { font-weight: 700; }
+.tot-custom label { min-inline-size: 0; }
+.tot-custom input { display: block; inline-size: 100%; margin-block-start: .25rem; }
 .tot-progress { margin: 1.25rem 0 0; font-weight: 700; }
 .tot-question {
   padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
