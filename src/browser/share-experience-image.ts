@@ -5,6 +5,9 @@ import {
 } from "../lib/twenty-one-questions.ts";
 import { coverBox, type CoverFit } from "../lib/top-nine-cover.ts";
 import type { PersonaCardPrint } from "../lib/persona-quiz.ts";
+import {
+  tierListDefaultTitle, tierListRows, tierListTierCount, tierListTiers,
+} from "../lib/tier-list.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -38,6 +41,9 @@ export interface ShareExperienceResult {
    * board, draft and result link only: exports and descriptions never draw or
    * print it, and nothing fetches or embeds it. */
   pages?: (string | null)[];
+  /** Tier-list only: entries per row, always four numbers summing to items.
+   * The board never becomes a result link, so this stays in the tab. */
+  tierSizes?: number[];
   /** Explicit ranked board: occupied slots print #1–#9 in every format.
    * Absent keeps unordered favourites, so old links and drafts stay as they were. */
   ranked?: boolean;
@@ -74,6 +80,8 @@ const inks = {
   // the Language Type card brings its own warm exhibition pairs.
   "developer-type": [["#321b59", "#fff1d6", "#ffb696"], ["#eab36b", "#211610", "#642342"], ["#131a26", "#dcedff", "#b0ceff"]],
   "language-type": [["#17251c", "#f4f1dc", "#d8f36a"], ["#efe4cf", "#241f17", "#8d3f22"], ["#111820", "#e6f0ff", "#9fd4ff"]],
+  // Wine letterpress, marble and cobalt, matching the owned tier-list stage.
+  "tier-list": [["#f7ead8", "#2a161b", "#8c2130"], ["#efe4d3", "#251b1d", "#345f9e"], ["#141b2b", "#e7edf8", "#9fc6ff"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -192,11 +200,90 @@ function signCard(
   }
 }
 
+/** One local tier-list PNG: the title, four named rows and their entries in
+ * reading order, then the same publisher sign-off every card carries. Rows are
+ * fixed, so the same board always draws the same text in the same position. */
+async function renderTierList(result: ShareExperienceResult, format: ResultFormat): Promise<Blob> {
+  const [width, height] = resultSizes[format];
+  const wide = format === "wide";
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  const palette = inks["tier-list"];
+  const [paper, ink, accent] = palette[result.skin] ?? palette[0];
+  const margin = Math.round(Math.min(width, height) * .067);
+  const footer = height - margin - 42;
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = accent;
+  ctx.fillRect(margin, margin, width - 2 * margin, 3);
+  const header = wide ? 92 : Math.round(height * .15);
+  ctx.fillStyle = ink;
+  drawFit(ctx, result.title || tierListDefaultTitle, margin, margin + 12, width - 2 * margin, header - 12, wide ? 54 : 96);
+  const rows = tierListRows(result.items, result.tierSizes);
+  const gap = wide ? 5 : 8;
+  const rowTop = margin + header + 10;
+  const rowH = (footer - rowTop - 18 - gap * (tierListTierCount - 1)) / tierListTierCount;
+  const labelW = Math.round((width - margin * 2) * (wide ? .2 : .27));
+  const inset = wide ? 9 : 14;
+  rows.forEach((entries, index) => {
+    const y = rowTop + index * (rowH + gap);
+    ctx.fillStyle = ink;
+    ctx.fillRect(margin, y, labelW, rowH);
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, y, 5, rowH);
+    ctx.fillStyle = paper;
+    const label = fitText(ctx, tierListTiers[index].label, labelW - inset * 2, rowH - inset * 2, wide ? 24 : 32);
+    const labelH = label.lines.length * label.size * 1.14;
+    label.lines.forEach((line, lineIndex) => {
+      ctx.fillText(line, margin + inset, y + (rowH - labelH) / 2 + label.size + lineIndex * label.size * 1.14, labelW - inset * 2);
+    });
+    const x = margin + labelW + gap;
+    const innerW = width - margin - x;
+    ctx.save();
+    ctx.globalAlpha = .07;
+    ctx.fillStyle = accent;
+    ctx.fillRect(x, y, innerW, rowH);
+    ctx.restore();
+    if (!entries.length) {
+      ctx.save();
+      ctx.globalAlpha = .55;
+      ctx.fillStyle = ink;
+      drawFit(ctx, "Empty row", x + inset, y + inset, innerW - inset * 2, rowH - inset * 2, wide ? 18 : 24, { weight: 500 });
+      ctx.restore();
+      return;
+    }
+    if (wide) {
+      ctx.fillStyle = ink;
+      drawFit(ctx, entries.join(" · "), x + inset, y + inset, innerW - inset * 2, rowH - inset * 2, 26, { weight: 600 });
+      return;
+    }
+    const lineH = (rowH - inset * 2) / entries.length;
+    entries.forEach((entry, entryIndex) => {
+      const lineY = y + inset + entryIndex * lineH;
+      ctx.fillStyle = accent;
+      ctx.fillRect(x + inset, lineY + Math.min(lineH * .5, 16), 4, 4);
+      ctx.fillStyle = ink;
+      drawFit(ctx, entry, x + inset + 12, lineY, innerW - inset * 2 - 12, lineH, 30, { weight: 600 });
+    });
+  });
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
+}
+
 export async function renderExperienceResult(
   result: ShareExperienceResult,
   format: ResultFormat,
   covers?: readonly (ResultCoverSlot | null)[],
 ) {
+  // The tier board has its own fixed four-row drawing; every other game keeps
+  // the established title-and-grid renderer exactly as it was.
+  if (result.game === "tier-list") return renderTierList(result, format);
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
   canvas.width = width;

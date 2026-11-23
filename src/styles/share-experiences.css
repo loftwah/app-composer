@@ -9,6 +9,7 @@
 .experience-museum { --stage: #321b59; --stage-ink: #fff1d6; --accent: #ffb696; }
 .experience-gig { --stage: #991e2c; --stage-ink: #fff1d4; --accent: #fecca0; }
 .experience-billboard { --stage: #10333c; --stage-ink: #f3faf3; --accent: #ff6a4d; }
+.experience-sorting { --stage: #5a1622; --stage-ink: #fff2e1; --accent: #a8c8ff; }
 .experience-cinema[data-skin="1"] { --stage: #e6d9c4; --stage-ink: #291e15; --accent: #92372a; }
 .experience-cinema[data-skin="2"] { --stage: #172c20; --stage-ink: #e0ffd2; --accent: #b0e762; }
 .experience-museum[data-skin="1"] { --stage: #eab36b; --stage-ink: #211610; --accent: #642342; }
@@ -20,6 +21,8 @@
 .experience-gig[data-skin="2"] { --stage: #e8e2d5; --stage-ink: #261d1b; --accent: #97243c; }
 .experience-billboard[data-skin="1"] { --stage: #e8ddc4; --stage-ink: #1c2a24; --accent: #b3372a; }
 .experience-billboard[data-skin="2"] { --stage: #10161d; --stage-ink: #dff1ff; --accent: #9fd4ff; }
+.experience-sorting[data-skin="1"] { --stage: #efe4d3; --stage-ink: #251b1d; --accent: #345f9e; }
+.experience-sorting[data-skin="2"] { --stage: #141b2b; --stage-ink: #e7edf8; --accent: #9fc6ff; }
 .share-experience [hidden] { display: none; }
 .experience-crumb { font-size: .94rem; margin-block-end: 1rem; }
 .experience-heading {
@@ -413,6 +416,57 @@
 }
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
 .nine-preview-cell a[data-nine-preview-caption][href] { text-decoration: underline; text-underline-offset: .14em; }
+/* The tier board is one bounded, browser-local list. Each row keeps its own
+   named surface; entries stay ordinary text fields with a labelled row menu
+   and removal button, so the keyboard and phone paths are the native ones. */
+.tier-stage {
+  margin-top: 1rem;
+  padding: clamp(1rem, 3vw, 1.8rem);
+  background: var(--stage);
+  color: var(--stage-ink);
+}
+.tier-stage .experience-note { color: inherit; }
+.tier-stage button.secondary { color: var(--stage-ink); border-color: var(--stage-ink); background: transparent; }
+.tier-tools { display: flex; flex-wrap: wrap; align-items: end; gap: .6rem; margin: 1rem 0 .3rem; }
+.tier-title { flex: 1 1 16rem; font-weight: 700; }
+.tier-tools input { display: block; inline-size: 100%; margin-block-start: .3rem; color: #211a1b; background: #fff9ec; }
+.tier-tools button { min-height: 44px; }
+.tier-local-note { max-width: 72ch; }
+.tier-add { display: flex; flex-wrap: wrap; align-items: end; gap: .55rem; margin-top: .8rem; }
+.tier-add label { font-weight: 700; }
+.tier-add label:first-child { flex: 1 1 15rem; }
+.tier-add input, .tier-add select {
+  display: block; margin-block-start: .3rem; min-height: 44px;
+  color: #211a1b; background: #fff9ec;
+}
+.tier-add button { min-height: 44px; }
+.tier-rows { display: grid; gap: .7rem; margin-top: 1rem; }
+.tier-row { border: 1px solid var(--stage-ink); }
+.tier-row-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
+  padding: .45rem .7rem;
+  background: var(--stage-ink); color: var(--stage);
+}
+.tier-row-head h2 {
+  margin: 0; color: inherit;
+  font-size: clamp(1rem, 2.6vw, 1.2rem); letter-spacing: -.01em;
+}
+.tier-row-head span { font-size: .82rem; font-variant-numeric: tabular-nums; }
+.tier-entries { list-style: none; margin: 0; padding: .55rem; display: grid; gap: .5rem; }
+.tier-entry { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.tier-entry input {
+  flex: 1 1 12rem; min-width: 0; min-height: 44px; margin: 0;
+  color: #211a1b; background: #fff9ec;
+}
+.tier-entry select, .tier-entry button { min-height: 44px; }
+.tier-entry select { max-inline-size: 11rem; }
+.tier-entry select option { color: #211a1b; background: #fff9ec; }
+.share-experience .tier-entry input:focus-visible,
+.share-experience .tier-entry select:focus-visible,
+.share-experience .tier-entry button:focus-visible {
+  outline: 3px dashed currentColor; outline-offset: 2px;
+}
+.tier-empty { margin: 0; padding: .7rem .75rem; font-size: .92rem; opacity: .8; }
 /* The persona quiz reuses the shared stage colours and the museum theme. Its
    four answers are large, plainly labelled targets; the result is a collectible
    label rather than a scorecard. */
@@ -559,6 +613,8 @@
   .persona-remix-options { grid-template-columns: 1fr; }
   .persona-remix-names-list { grid-template-columns: 1fr; }
   .persona-remix input, .persona-link input { font-size: 16px; }
+  .tier-entry input, .tier-add input, .tier-add select { font-size: 16px; }
+  .tier-entry select { max-inline-size: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .door-result:not([hidden]) { animation: none; }

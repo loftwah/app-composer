@@ -57,6 +57,15 @@ export const experiences = {
     imageDescription: "A vast canyon of impossible small working inventions under huge type reading “What would you build?”.",
     theme: "exhibition",
   },
+  "tier-list": {
+    title: "Tier List",
+    description: "Sort a short list of things into four rows of your own keeping. The board starts empty and stays in this browser.",
+    // The stage reuses the owned Internet Workshop “tier-list” press sheet; see
+    // public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "tier-list",
+    imageDescription: "An engraved wine-red poster of four stern judges studying a rubber duck beside a tall ranking scale.",
+    theme: "sorting",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;
@@ -64,7 +73,11 @@ export const experiencePath = (id: ExperienceId) => `/share/experiences/${id}`;
 export const experienceArt = (id: ExperienceId) =>
   `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`;
 export const experienceOg = (id: ExperienceId) =>
-  `/campaign/internet-workshop-20261122/${experiences[id].slug}-og-v1.jpg`;
+  // The tier-list press sheet is the same 1200 × 630 artwork used for its
+  // social card; no additional file is introduced.
+  id === "tier-list"
+    ? `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`
+    : `/campaign/internet-workshop-20261122/${experiences[id].slug}-og-v1.jpg`;
 
 export const doorRooms = [
   ["The Patch Room", "A workshop that only opens for unfinished business."],

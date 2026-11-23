@@ -19,6 +19,10 @@ import { nineItemLimit, nineSubtitleLimit } from "../../lib/share-experience-dra
 import { nineListLimit } from "../../lib/top-nine-list.ts";
 import { profileUrlLimit } from "../../lib/top-nine-profile.ts";
 import { pageUrlLimit } from "../../lib/top-nine-pages.ts";
+import {
+  tierListDefaultTitle, tierListEntryLimit, tierListEntryTotal,
+  tierListRowEntryLimit, tierListTiers, tierListTitleLimit,
+} from "../../lib/tier-list.ts";
 
 interface Props {
   game: ExperienceId;
@@ -33,6 +37,7 @@ const isThis = game === "this-or-that";
 const isTwentyOne = game === "twenty-one-questions";
 const isCloudflare = game === "developer-type";
 const isLanguage = game === "language-type";
+const isTier = game === "tier-list";
 const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
@@ -286,6 +291,39 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         disabled={index === 12} data-tile={index}>{value}</button>)}
     </div>
     <p class="experience-note" id="bingo-hint">Arrow keys move between squares. Enter or Space marks the square.</p>
+  </section>}
+
+  {isTier && <section data-play-panel class="tier-stage" aria-label="Build your tier list">
+    <div class="tier-tools">
+      <label class="tier-title">List title
+        <input id="tier-title" type="text" maxlength={tierListTitleLimit} value={tierListDefaultTitle} data-tier-title />
+      </label>
+      <button type="button" class="secondary" data-tier-starter>Try an example list</button>
+    </div>
+    <p class="experience-note tier-local-note" id="tier-local-note">Your board stays in this tab. Download a PNG to keep a copy.</p>
+    <form class="tier-add" data-tier-add autocomplete="off">
+      <label>New entry
+        <input type="text" maxlength={tierListEntryLimit} placeholder="A book, tool, habit…" aria-describedby="tier-local-note" data-tier-add-text />
+      </label>
+      <label>Row
+        <select data-tier-add-row>
+          {tierListTiers.map((tier, row) => <option value={row}>{tier.label}</option>)}
+        </select>
+      </label>
+      <button type="submit">Add entry</button>
+    </form>
+    <p class="experience-note" data-tier-status role="status" aria-live="polite"></p>
+    <div class="tier-rows">
+      {tierListTiers.map((tier, row) => <section class="tier-row" aria-labelledby={`tier-row-${row}`}>
+        <div class="tier-row-head">
+          <h2 id={`tier-row-${row}`}>{tier.label}</h2>
+          <span data-tier-count={row}>0 of {tierListRowEntryLimit}</span>
+        </div>
+        <p class="tier-empty" data-tier-empty={row}>No entries yet.</p>
+        <ol class="tier-entries" data-tier-list={row} aria-labelledby={`tier-row-${row}`} hidden></ol>
+      </section>)}
+    </div>
+    <p class="experience-note">Up to {tierListEntryTotal} entries, {tierListRowEntryLimit} in a row. Use the row menu beside an entry to move it.</p>
   </section>}
 
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
@@ -557,6 +595,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isTwentyOne ? ["Amber slide", "Night archive", "Field notes"]
           : isCloudflare ? ["Midnight etching", "Aged amber", "Night archive"]
           : isLanguage ? ["Canyon dawn", "Warm paper", "Night archive"]
+          : isTier ? ["Wine press", "Marble and cobalt", "Cobalt night"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
@@ -584,19 +623,21 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-persona-avatar-status></p>
     </div>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier}>
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : "tot-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage}>Share result</button>
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
     {persona && <div class="experience-actions" data-persona-preview hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, optional subtitle and byline, and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
     {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
-    <p class="experience-note" data-share-note>{isTwentyOne
+    <p class="experience-note" data-share-note>{isTier
+      ? "Download the PNG to keep this board. There is no result link, public board or vote, and your entries are never serialised into a URL."
+      : isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
       ? "A result link carries your title, subtitle, exhibits, source links, web page links, byline, optional profile link and ranked setting. Cover images never go into the link — download the result image to keep them."
@@ -610,7 +651,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {(isNine || isThis) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && !persona && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !isTier && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">
