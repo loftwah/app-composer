@@ -7,9 +7,9 @@ import {
 } from '../src/lib/share-experiences.ts';
 import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
-  moveTwentyOne, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
+  moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
   twentyOneAnswerLimit, twentyOneAnswered, twentyOneCount, twentyOnePairs,
-  twentyOneProgress, twentyOneStart,
+  twentyOneProgress, twentyOnePromptLimit, twentyOneStart,
 } from '../src/lib/twenty-one-questions.ts';
 
 // The #1064 twenty-one-questions starter: one authored interview about a
@@ -147,4 +147,56 @@ test('production permits local card images on the quiz route', () => {
   assert.ok(block);
   assert.ok(block.includes(`csp.replace("img-src 'self'", "img-src 'self' blob:")`));
   assert.doesNotMatch(block, /connect-src|frame-src|script-src/);
+});
+
+test('an authored set is exactly 21 bounded, nonempty, distinct cleaned prompts', () => {
+  const spaced = twentyOneQuestions.map((question) => `  ${question.replaceAll(' ', '  ')}  `);
+  const readPrompts = readTwentyOnePrompts(spaced);
+  assert.deepEqual(readPrompts.prompts, [...twentyOneQuestions]);
+  assert.equal(readPrompts.gap, -1);
+  assert.equal(readPrompts.reason, null);
+  assert.equal(readPrompts.count, 21);
+  // A closing newline is tolerated; any other blank line is a gap.
+  assert.deepEqual(readTwentyOnePrompts([...twentyOneQuestions, '']).prompts, [...twentyOneQuestions]);
+  assert.deepEqual(readTwentyOnePrompts([...twentyOneQuestions, '  ', '']).prompts, [...twentyOneQuestions]);
+
+  const short = readTwentyOnePrompts(twentyOneQuestions.slice(0, 20));
+  assert.equal(short.prompts, null);
+  assert.equal(short.reason, 'count');
+  assert.equal(short.count, 20);
+
+  const blank = [...twentyOneQuestions];
+  blank[4] = '   ';
+  const empty = readTwentyOnePrompts(blank);
+  assert.equal(empty.prompts, null);
+  assert.equal(empty.reason, 'empty');
+  assert.equal(empty.gap, 4);
+
+  const repeated = [...twentyOneQuestions];
+  repeated[9] = repeated[8];
+  const duplicate = readTwentyOnePrompts(repeated);
+  assert.equal(duplicate.prompts, null);
+  assert.equal(duplicate.reason, 'duplicate');
+  assert.equal(duplicate.gap, 9);
+
+  const long = [...twentyOneQuestions];
+  long[0] = 'x'.repeat(twentyOnePromptLimit + 1);
+  const over = readTwentyOnePrompts(long);
+  assert.equal(over.prompts, null);
+  assert.equal(over.reason, 'long');
+  assert.equal(over.gap, 0);
+  assert.equal(twentyOnePromptLimit, 72);
+
+  const atLimit = [...twentyOneQuestions];
+  atLimit[0] = 'y'.repeat(twentyOnePromptLimit);
+  assert.equal(readTwentyOnePrompts(atLimit).prompts[0].length, 72);
+});
+
+test('duplicate prompts are recognised across case and Unicode spelling', () => {
+  const prompts = [...twentyOneQuestions];
+  prompts[0] = "How do you take your café?";
+  prompts[1] = "HOW DO YOU TAKE YOUR CAFE\u0301?";
+  const read = readTwentyOnePrompts(prompts);
+  assert.equal(read.reason, 'duplicate');
+  assert.equal(read.gap, 1);
 });

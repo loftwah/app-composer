@@ -15,6 +15,9 @@ export interface ShareExperienceResult {
   marked?: number[];
   /** Canonical source links per exhibit. Interactive only: exports stay text-only. */
   hrefs?: (string | null)[];
+  /** Frozen authored prompts for a private twenty-one-questions run. Card
+   * exports only: results never travel in a link, so this stays in the tab. */
+  questions?: string[];
   byline: string;
   skin: number;
   background: string;
@@ -217,7 +220,12 @@ export async function renderExperienceResult(
  * content into the viewer's safe area. Answers arrive only in the in-memory
  * snapshot the caller already holds. */
 export async function renderExperienceCards(result: ShareExperienceResult, format: "portrait" | "story" = "portrait"): Promise<Blob[]> {
-  const pairs = twentyOnePairs(result.items ?? [], twentyOneQuestions);
+  // Both formats draw the same frozen prompt set the caller’s snapshot holds:
+  // a malformed snapshot falls back to the built-in starter, never to a mix.
+  const questions = Array.isArray(result.questions) && result.questions.length === twentyOneCount
+    ? result.questions
+    : twentyOneQuestions;
+  const pairs = twentyOnePairs(result.items ?? [], questions);
   if (!pairs.length) throw new Error("No answers to export");
   const cards = splitTwentyOneCards(pairs);
   const [width, height] = resultSizes[format];
