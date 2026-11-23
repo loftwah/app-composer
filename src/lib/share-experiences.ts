@@ -66,6 +66,16 @@ export const experiences = {
     imageDescription: "An engraved wine-red poster of four stern judges studying a rubber duck beside a tall ranking scale.",
     theme: "sorting",
   },
+  "one-must-go": {
+    title: "One Must Go",
+    description: "Play the poster round or write your own four choices.",
+    // The stage reuses the owned Internet Workshop “one-must-go” poster and its
+    // Music · Games · Code · The Web round; see
+    // public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "one-must-go",
+    imageDescription: "A noir-orange awards stage where four spotlit objects — a dial-up modem, a music player, a code editor and a game console — stand under the words “One must go.” and “Music · Games · Code · The Web”.",
+    theme: "noir",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;
@@ -73,9 +83,9 @@ export const experiencePath = (id: ExperienceId) => `/share/experiences/${id}`;
 export const experienceArt = (id: ExperienceId) =>
   `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`;
 export const experienceOg = (id: ExperienceId) =>
-  // The tier-list press sheet is the same 1200 × 630 artwork used for its
-  // social card; no additional file is introduced.
-  id === "tier-list"
+  // The tier-list and one-must-go posters are already the 1200 × 630 artwork
+  // used for their social cards; no additional file is introduced.
+  id === "tier-list" || id === "one-must-go"
     ? `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`
     : `/campaign/internet-workshop-20261122/${experiences[id].slug}-og-v1.jpg`;
 
