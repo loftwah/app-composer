@@ -296,21 +296,21 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   {isTier && <section data-play-panel class="tier-stage" aria-label="Build your tier list">
     <div class="tier-tools">
       <label class="tier-title">List title
-        <input id="tier-title" type="text" maxlength={tierListTitleLimit} value={tierListDefaultTitle} data-tier-title />
+        <input id="tier-title" type="text" maxlength={tierListTitleLimit} value={tierListDefaultTitle} data-tier-title disabled />
       </label>
-      <button type="button" class="secondary" data-tier-starter>Try an example list</button>
+      <button type="button" class="secondary" data-tier-starter disabled>Try an example list</button>
     </div>
     <p class="experience-note tier-local-note" id="tier-local-note">Your board stays in this tab. Download a PNG to keep a copy.</p>
     <form class="tier-add" data-tier-add autocomplete="off">
       <label>New entry
-        <input type="text" maxlength={tierListEntryLimit} placeholder="A book, tool, habit…" aria-describedby="tier-local-note" data-tier-add-text />
+        <input type="text" maxlength={tierListEntryLimit} placeholder="A book, tool, habit…" aria-describedby="tier-local-note" data-tier-add-text disabled />
       </label>
       <label>Row
-        <select data-tier-add-row>
+        <select data-tier-add-row disabled>
           {tierListTiers.map((tier, row) => <option value={row}>{tier.label}</option>)}
         </select>
       </label>
-      <button type="submit">Add entry</button>
+      <button type="submit" disabled>Add entry</button>
     </form>
     <p class="experience-note" data-tier-status role="status" aria-live="polite"></p>
     <div class="tier-rows">
