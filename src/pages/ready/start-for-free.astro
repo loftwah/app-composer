@@ -1,0 +1,57 @@
+---
+import Base from '../../layouts/Base.astro';
+import { Copy, Download } from '@lucide/astro';
+import { Content, getHeadings } from '../../editorial/ready/start-for-free.md';
+import markdown from '../../editorial/ready/start-for-free.md?raw';
+
+const [title] = getHeadings();
+---
+
+<Base title={title.text} description="Pick a free starting point, use your own agent and publish a small app you own.">
+  <article class="free-first">
+    <header>
+      <h1>{title.text}</h1>
+      <div class="free-first-actions">
+        <a class="button" href="/ready#agent-start">Get the setup prompt</a>
+        <button type="button" class="button secondary" data-copy-guide hidden><Copy size={18} aria-hidden="true" /> Copy Markdown</button>
+        <a class="button secondary" href="/ready/start-for-free.md" download="start-for-free.md"><Download size={18} aria-hidden="true" /> Download Markdown</a>
+      </div>
+      <p class="small" role="status" data-copy-guide-status></p>
+    </header>
+    <div class="free-first-content"><Content /></div>
+    <details>
+      <summary>Read the Markdown source</summary>
+      <pre data-guide-source tabindex="0">{markdown}</pre>
+    </details>
+  </article>
+</Base>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy-guide]');
+  const source = document.querySelector<HTMLElement>('[data-guide-source]');
+  const status = document.querySelector<HTMLElement>('[data-copy-guide-status]');
+  if (button && source && status) {
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(source.textContent ?? '');
+        status.textContent = 'Markdown copied.';
+      } catch {
+        status.textContent = 'Copy was blocked. Download the Markdown or select the source below.';
+      }
+    });
+  }
+</script>
+
+<style>
+  .free-first { max-width: 76ch; }
+  .free-first-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+  .free-first-actions [hidden] { display: none; }
+  [data-copy-guide-status]:empty { display: none; }
+  .free-first-content { margin-top: 1.5rem; }
+  .free-first-content :global(h1) { display: none; }
+  .free-first-content :global(h2) { border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-top: 2rem; }
+  .free-first-content :global(li + li) { margin-top: .65rem; }
+  .free-first details { margin-top: 2rem; }
+  .free-first pre { max-height: 25rem; overflow: auto; }
+</style>
