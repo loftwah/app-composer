@@ -18,6 +18,11 @@ import {
   twentyOnePairs, twentyOnePromptLimit, twentyOneStart,
 } from "../lib/twenty-one-questions.ts";
 import {
+  cloudflarePersonaOutcomeFromHash, cloudflarePersonaOutcomes,
+  cloudflarePersonaPath, cloudflarePersonaQuestions, cloudflarePersonaResultPath,
+  resolveCloudflarePersona, type CloudflarePersonaId,
+} from "../lib/cloudflare-persona.ts";
+import {
   renderExperienceCards, renderExperienceResult, resultSizes,
   type ResultCoverSlot, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
@@ -2317,6 +2322,167 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   };
 }
 
+/** “Which Cloudflare service are you?” — the first public playable persona
+ * slice. Answers stay in this tab; only the chosen outcome name can travel in
+ * an answer-free result link. A bare route starts a fresh quiz, and an
+ * unknown `#result=` value falls back to that same fresh start. */
+function mountCloudflarePersona(root: HTMLElement): Controller {
+  const stage = root.querySelector<HTMLElement>("[data-persona-question]")!;
+  const prompt = root.querySelector<HTMLElement>("[data-persona-prompt]")!;
+  const options = root.querySelector<HTMLElement>("[data-persona-options]")!;
+  const choices = elements<HTMLButtonElement>(root, "[data-persona-choice]");
+  const progress = root.querySelector<HTMLElement>("[data-persona-progress]")!;
+  const back = root.querySelector<HTMLButtonElement>("[data-persona-back]")!;
+  const notice = root.querySelector<HTMLElement>("[data-persona-notice]")!;
+  const result = root.querySelector<HTMLElement>("[data-persona-result]")!;
+  const archetype = root.querySelector<HTMLElement>("[data-persona-archetype]")!;
+  const service = root.querySelector<HTMLElement>("[data-persona-service]")!;
+  const tendency = root.querySelector<HTMLElement>("[data-persona-tendency]")!;
+  const reason = root.querySelector<HTMLElement>("[data-persona-reason]")!;
+  const docs = root.querySelector<HTMLAnchorElement>("[data-persona-docs]")!;
+  const retake = root.querySelector<HTMLButtonElement>("[data-persona-retake]")!;
+  const revise = root.querySelector<HTMLButtonElement>("[data-persona-revise]")!;
+  const fresh = root.querySelector<HTMLAnchorElement>("[data-persona-fresh]")!;
+  const link = root.querySelector<HTMLInputElement>("[data-persona-link]")!;
+  const copy = root.querySelector<HTMLButtonElement>("[data-persona-copy]")!;
+  const copyStatus = root.querySelector<HTMLElement>("[data-persona-status]")!;
+  let answers: (number | null)[] = cloudflarePersonaQuestions.map(() => null);
+  let current = 0;
+  let shown: CloudflarePersonaId | null = null;
+
+  const replaceAddress = (path: string) => {
+    try { history.replaceState(null, "", path); } catch { /* A blocked history still plays. */ }
+  };
+
+  function syncQuestionProgress() {
+    const answered = answers.filter((answer) => answer !== null).length;
+    progress.textContent = `Question ${current + 1} of ${cloudflarePersonaQuestions.length} · ${answered} answered`;
+  }
+
+  function showQuestion(index: number, focus = true) {
+    current = index;
+    const question = cloudflarePersonaQuestions[index];
+    stage.hidden = false;
+    result.hidden = true;
+    prompt.textContent = question.prompt;
+    choices.forEach((button, choice) => {
+      button.textContent = question.options[choice].label;
+      button.setAttribute("aria-pressed", String(answers[index] === choice));
+    });
+    back.disabled = index === 0;
+    syncQuestionProgress();
+    if (focus) prompt.focus();
+  }
+
+  function showResult(id: CloudflarePersonaId, shared = false) {
+    const outcome = cloudflarePersonaOutcomes[id];
+    shown = id;
+    notice.textContent = "";
+    stage.hidden = true;
+    result.hidden = false;
+    archetype.textContent = outcome.archetype;
+    service.textContent = outcome.service;
+    tendency.textContent = outcome.tendency;
+    reason.textContent = outcome.reason;
+    docs.href = outcome.href;
+    docs.textContent = `Read the official ${outcome.service} docs`;
+    docs.setAttribute("aria-label", `Read the official ${outcome.service} documentation on developers.cloudflare.com, opens in a new tab`);
+    link.value = new URL(cloudflarePersonaResultPath(id), location.origin).href;
+    copyStatus.textContent = "";
+    retake.hidden = shared;
+    revise.hidden = shared || answers.some((answer) => answer === null);
+    fresh.hidden = !shared;
+    progress.textContent = shared
+      ? "Shared result"
+      : `All ${cloudflarePersonaQuestions.length} answered · your result`;
+    archetype.focus();
+  }
+
+  function resetRun() {
+    answers = cloudflarePersonaQuestions.map(() => null);
+    notice.textContent = "";
+    replaceAddress(cloudflarePersonaPath);
+    showQuestion(0, true);
+  }
+
+  choices.forEach((button, choice) => {
+    button.addEventListener("click", () => {
+      answers[current] = choice;
+      if (current === cloudflarePersonaQuestions.length - 1) {
+        const id = resolveCloudflarePersona(answers);
+        if (!id) return;
+        showResult(id);
+        return;
+      }
+      showQuestion(current + 1);
+    });
+  });
+
+  back.addEventListener("click", () => {
+    if (current > 0) showQuestion(current - 1);
+  });
+
+  retake.addEventListener("click", () => resetRun());
+
+  revise.addEventListener("click", () => {
+    const last = answers.reduce((at, answer, index) => (answer === null ? at : index), 0);
+    replaceAddress(cloudflarePersonaPath);
+    showQuestion(last);
+  });
+
+  // Arrow keys move between the four answers; Enter and Space already choose
+  // the focused button. Home and End reach the first and last answer.
+  options.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const step = event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1
+      : event.key === "ArrowRight" || event.key === "ArrowDown" ? 1
+      : event.key === "Home" ? -99
+      : event.key === "End" ? 99 : 0;
+    if (!step) return;
+    const from = choices.indexOf(document.activeElement as HTMLButtonElement);
+    if (from < 0) return;
+    event.preventDefault();
+    const next = step === -99 ? 0 : step === 99 ? choices.length - 1
+      : (from + step + choices.length) % choices.length;
+    choices[next]?.focus();
+  });
+
+  copy.addEventListener("click", async () => {
+    if (!shown) return;
+    const href = new URL(cloudflarePersonaResultPath(shown), location.origin).href;
+    link.value = href;
+    try {
+      await navigator.clipboard.writeText(href);
+      copyStatus.textContent = "Result link copied. It carries the result name only — never your answers.";
+    } catch {
+      copyStatus.textContent = "Clipboard access was denied. The result link is selected — copy it with your device’s copy shortcut.";
+      link.focus();
+      link.select();
+    }
+  });
+
+  const shared = cloudflarePersonaOutcomeFromHash(location.hash);
+  if (shared) {
+    showResult(shared, true);
+  } else {
+    if (new URLSearchParams(location.hash.slice(1)).has("result")) {
+      notice.textContent = "That result link doesn’t match a result in this quiz, so you’re starting from the beginning.";
+      replaceAddress(cloudflarePersonaPath);
+    }
+    showQuestion(0, false);
+  }
+
+  return {
+    // This slice deliberately has no PNG or generic JSON result link yet; the
+    // explicit, answer-free result fragment above is the one share path.
+    result: () => null,
+    linksAllowed: () => false,
+    restore() {
+      // Only the validated outcome fragment above can restore a result.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -2518,6 +2684,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
     : game === "this-or-that" ? mountThisOrThat(root, update)
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
+    : game === "developer-type" ? mountCloudflarePersona(root)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
     pickSkin();
