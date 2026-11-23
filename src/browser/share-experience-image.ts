@@ -4,6 +4,8 @@ import {
   twentyOneSquareCardSize,
 } from "../lib/twenty-one-questions.ts";
 import { coverBox, type CoverFit } from "../lib/top-nine-cover.ts";
+import { developerTypeCardCopy, developerTypeCardCredit } from "../lib/developer-type-card.ts";
+import type { CloudflarePersonaId } from "../lib/cloudflare-persona.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -69,6 +71,8 @@ const inks = {
   "tech-bingo": [["#841424", "#ffeed7", "#ffd08a"], ["#164934", "#fff6db", "#fdcb63"], ["#ece3d6", "#251a19", "#982b3d"]],
   "this-or-that": [["#10333c", "#f3faf3", "#ff6a4d"], ["#e8ddc4", "#1c2a24", "#b3372a"], ["#10161d", "#dff1ff", "#9fd4ff"]],
   "twenty-one-questions": [["#f0e7d0", "#33202e", "#b06010"], ["#241a33", "#e9ddc6", "#d9a441"], ["#e7ecdc", "#22301f", "#5c7a3f"]],
+  // The Developer Type card keeps the museum stage's three established pairs.
+  "developer-type": [["#321b59", "#fff1d6", "#ffb696"], ["#eab36b", "#211610", "#642342"], ["#131a26", "#dcedff", "#b0ceff"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -91,23 +95,43 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
   return lines;
 }
 
-/** The largest bold size at or below `initial` whose wrapped text fits `height`. */
-function fitText(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, initial: number) {
+/** The largest bold size at or below `initial` whose wrapped text fits `height`.
+ * `family`, `weight` and `lineHeight` default to the long-standing system-ui
+ * voice every existing export uses; the Developer Type card opts into the
+ * product's own Space display face and tighter display leading. */
+function fitText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  width: number,
+  height: number,
+  initial: number,
+  { family = "system-ui", weight = 700, lineHeight = 1.14 }: { family?: string; weight?: number; lineHeight?: number } = {},
+) {
   let size = initial;
   let lines: string[] = [];
   do {
-    ctx.font = `700 ${size}px system-ui`;
+    ctx.font = `${weight} ${size}px ${family}`;
     lines = wrap(ctx, text, width);
-    if (lines.length * size * 1.14 <= height) break;
+    if (lines.length * size * lineHeight <= height) break;
     size -= 2;
   } while (size > 12);
   return { size, lines };
 }
 
-function drawFit(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number, height: number, initial: number) {
-  const { size, lines } = fitText(ctx, text, width, height, initial);
+function drawFit(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  initial: number,
+  options: { family?: string; weight?: number; lineHeight?: number } = {},
+) {
+  const { size, lines } = fitText(ctx, text, width, height, initial, options);
+  const lineHeight = options.lineHeight ?? 1.14;
   lines.forEach((line, index) => {
-    ctx.fillText(line, x, y + size + index * size * 1.14, width);
+    ctx.fillText(line, x, y + size + index * size * lineHeight, width);
   });
 }
 
@@ -401,4 +425,204 @@ export async function renderExperienceCards(result: ShareExperienceResult, forma
     blobs.push(blob);
   }
   return blobs;
+}
+
+/** The three formats the Developer Type result card offers. Wide is not one:
+ * the outcome reads as a collectible specimen label, not a link preview. */
+export const personaCardFormats = ["square", "portrait", "story"] as const;
+export type PersonaCardFormat = (typeof personaCardFormats)[number];
+
+/** The drawn bounds of one persona card. The same numbers position every
+ * element and are exported so the focused tests can check that no format
+ * puts type under Story chrome or outside the printed margin. */
+export interface PersonaCardLayout {
+  readonly width: number;
+  readonly height: number;
+  readonly margin: number;
+  readonly safeTop: number;
+  readonly safeBottom: number;
+  readonly contentTop: number;
+  readonly contentBottom: number;
+  readonly footer: number;
+  readonly innerWidth: number;
+  readonly labelSize: number;
+  readonly displaySize: number;
+  readonly serviceSize: number;
+  readonly bodySize: number;
+  readonly noteSize: number;
+  readonly creditSize: number;
+}
+
+export function personaCardLayout(format: PersonaCardFormat): PersonaCardLayout {
+  const [width, height] = resultSizes[format];
+  const margin = Math.round(Math.min(width, height) * .067);
+  // Story sits under the viewer's profile row and reply bar, exactly like the
+  // twenty-one-questions export. Square and portrait keep both insets at zero.
+  const safeTop = format === "story" ? Math.round(height * .13) : 0;
+  const safeBottom = format === "story" ? Math.round(height * .17) : 0;
+  const footer = height - safeBottom - margin - 42;
+  const contentTop = margin + safeTop;
+  // Leave a quiet strip above the sign-off for the trademark credit.
+  const contentBottom = footer - (format === "story" ? 92 : 78);
+  const innerWidth = width - margin * 2;
+  const story = format === "story";
+  return {
+    width, height, margin, safeTop, safeBottom, contentTop, contentBottom, footer, innerWidth,
+    labelSize: story ? 24 : 22,
+    displaySize: story ? 150 : 132,
+    serviceSize: story ? 62 : 56,
+    bodySize: story ? 46 : 42,
+    noteSize: story ? 30 : 28,
+    creditSize: 16,
+  };
+}
+
+const personaFont = "Space, system-ui";
+
+/** The museum stage's three pairs, read exactly as the live experience sets
+ * them. No Cloudflare palette, logo, product icon or typeface is imported. */
+const personaInks = inks["developer-type"];
+
+function personaBlock(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  maxHeight: number,
+  initial: number,
+  weight: number,
+  lineHeight: number,
+) {
+  const { size, lines } = fitText(ctx, text, width, maxHeight, initial, { family: personaFont, weight, lineHeight });
+  lines.forEach((line, index) => {
+    ctx.fillText(line, x, y + size + index * size * lineHeight, width);
+  });
+  return { size, lines, height: lines.length * size * lineHeight };
+}
+
+/** A small squared label tick followed by tracked capitals. Drawn rather than
+ * set, so the label keeps its rhythm even where letter-spacing is unsupported. */
+function personaLabel(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, ink: string, accent: string) {
+  ctx.save();
+  ctx.fillStyle = accent;
+  const tick = Math.round(size * .62);
+  ctx.fillRect(x, y - tick, tick, tick);
+  ctx.fillStyle = ink;
+  ctx.font = `700 ${size}px ${personaFont}`;
+  let cursor = x + tick + Math.round(size * .62);
+  for (const character of "DEVELOPER TYPE") {
+    ctx.fillText(character, cursor, y);
+    cursor += ctx.measureText(character).width + Math.round(size * .2);
+  }
+  ctx.restore();
+}
+
+/** The service reads as a specimen tag: an outlined label, not a button or a
+ * product badge. It shrinks to one line rather than clipping a long name. */
+function personaServiceTag(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  initial: number,
+  accent: string,
+) {
+  let size = initial;
+  ctx.save();
+  do {
+    ctx.font = `700 ${size}px ${personaFont}`;
+    if (ctx.measureText(text).width + size * 1.3 <= maxWidth) break;
+    size -= 2;
+  } while (size > 20);
+  const padX = Math.round(size * .55);
+  const padY = Math.round(size * .3);
+  const width = Math.min(maxWidth, Math.ceil(ctx.measureText(text).width) + padX * 2);
+  const height = size + padY * 2;
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x + 1.5, y + 1.5, width - 3, height - 3);
+  ctx.fillStyle = accent;
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x + padX, y + height / 2 + Math.round(size * .04));
+  ctx.restore();
+  return { width, height };
+}
+
+/** One downloadable Developer Type result card for a trusted outcome. It takes
+ * only the outcome id, the chosen museum pair and the optional byline, so the
+ * PNG cannot carry private run data, a docs address or the quiz deep link.
+ * The returned Blob URL is what the preview and Save link share. */
+export async function renderPersonaCard(
+  id: CloudflarePersonaId,
+  format: PersonaCardFormat,
+  options: { byline: string; skin: number },
+): Promise<Blob> {
+  const copy = developerTypeCardCopy(id);
+  const layout = personaCardLayout(format);
+  const { width, height } = layout;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  // Space is the page's own display face. Wait for it once so the canvas and
+  // the live label share a voice; an unavailable face falls back to system-ui.
+  await document.fonts?.ready;
+  const [paper, ink, accent] = personaInks[options.skin] ?? personaInks[0];
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = accent;
+  ctx.fillRect(layout.margin, layout.contentTop, layout.innerWidth, 3);
+  personaLabel(ctx, layout.margin, layout.contentTop + 40, layout.labelSize, ink, accent);
+
+  const heroTop = layout.contentTop + 62;
+  const room = layout.contentBottom - heroTop;
+  ctx.fillStyle = ink;
+  const hero = personaBlock(
+    ctx, copy.archetype, layout.margin, heroTop, layout.innerWidth,
+    Math.round(room * (format === "story" ? .3 : .34)),
+    layout.displaySize, 700, 1.02,
+  );
+
+  const tagTop = heroTop + hero.height + Math.round(layout.displaySize * .24);
+  const tag = personaServiceTag(ctx, copy.service, layout.margin, tagTop, layout.innerWidth, layout.serviceSize, accent);
+
+  const ruleY = tagTop + tag.height + 30;
+  ctx.save();
+  ctx.globalAlpha = .3;
+  ctx.fillStyle = ink;
+  ctx.fillRect(layout.margin, ruleY, layout.innerWidth, 2);
+  ctx.restore();
+
+  const tendencyTop = ruleY + 26;
+  const tendencyMax = Math.round((layout.contentBottom - tendencyTop) * .46);
+  ctx.fillStyle = ink;
+  const tendency = personaBlock(
+    ctx, copy.tendency, layout.margin, tendencyTop, layout.innerWidth, tendencyMax,
+    layout.bodySize, 500, 1.28,
+  );
+
+  const noteTop = tendencyTop + tendency.height + 26;
+  ctx.save();
+  ctx.globalAlpha = .82;
+  ctx.fillStyle = ink;
+  personaBlock(ctx, copy.reason, layout.margin, noteTop, layout.innerWidth, layout.contentBottom - noteTop, layout.noteSize, 500, 1.4);
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = .68;
+  ctx.fillStyle = ink;
+  personaBlock(
+    ctx, developerTypeCardCredit, layout.margin, layout.contentBottom + 8,
+    layout.innerWidth, layout.footer - layout.contentBottom - 10, layout.creditSize, 500, 1.35,
+  );
+  ctx.restore();
+
+  signCard(ctx, mark, width, layout.margin, layout.footer, ink, options.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
 }

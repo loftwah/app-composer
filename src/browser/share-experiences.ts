@@ -23,7 +23,7 @@ import {
   resolveCloudflarePersona, type CloudflarePersonaId,
 } from "../lib/cloudflare-persona.ts";
 import {
-  renderExperienceCards, renderExperienceResult, resultSizes,
+  renderExperienceCards, renderExperienceResult, renderPersonaCard, resultSizes,
   type ResultCoverSlot, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
 import {
@@ -100,6 +100,9 @@ interface Controller {
   /** Whether the current run may produce a result link at all. Absent means
    * yes; a written five never becomes one, so URL sharing stays off. */
   linksAllowed?(): boolean;
+  /** The trusted persona outcome a result card may print. Absent for every
+   * other experience; the generic JSON result link is never used for it. */
+  personaOutcome?(): CloudflarePersonaId | null;
 }
 
 const entry = cleanText;
@@ -2326,7 +2329,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
  * slice. Answers stay in this tab; only the chosen outcome name can travel in
  * an answer-free result link. A bare route starts a fresh quiz, and an
  * unknown `#result=` value falls back to that same fresh start. */
-function mountCloudflarePersona(root: HTMLElement): Controller {
+function mountCloudflarePersona(root: HTMLElement, update: () => void): Controller {
   const stage = root.querySelector<HTMLElement>("[data-persona-question]")!;
   const prompt = root.querySelector<HTMLElement>("[data-persona-prompt]")!;
   const options = root.querySelector<HTMLElement>("[data-persona-options]")!;
@@ -2349,6 +2352,9 @@ function mountCloudflarePersona(root: HTMLElement): Controller {
   let answers: (number | null)[] = cloudflarePersonaQuestions.map(() => null);
   let current = 0;
   let shown: CloudflarePersonaId | null = null;
+  // The outer share bar calls update() once after this controller is built.
+  // Events before that point cannot fire, so later stage changes can refresh it.
+  let ready = false;
 
   const replaceAddress = (path: string) => {
     try { history.replaceState(null, "", path); } catch { /* A blocked history still plays. */ }
@@ -2361,6 +2367,7 @@ function mountCloudflarePersona(root: HTMLElement): Controller {
 
   function showQuestion(index: number, focus = true) {
     current = index;
+    shown = null;
     const question = cloudflarePersonaQuestions[index];
     stage.hidden = false;
     result.hidden = true;
@@ -2372,6 +2379,7 @@ function mountCloudflarePersona(root: HTMLElement): Controller {
     back.disabled = index === 0;
     syncQuestionProgress();
     if (focus) prompt.focus();
+    if (ready) update();
   }
 
   function showResult(id: CloudflarePersonaId, shared = false) {
@@ -2396,6 +2404,7 @@ function mountCloudflarePersona(root: HTMLElement): Controller {
       ? "Shared result"
       : `All ${cloudflarePersonaQuestions.length} answered · your result`;
     archetype.focus();
+    if (ready) update();
   }
 
   function resetRun() {
@@ -2425,7 +2434,7 @@ function mountCloudflarePersona(root: HTMLElement): Controller {
   retake.addEventListener("click", () => resetRun());
 
   revise.addEventListener("click", () => {
-    const last = answers.reduce((at, answer, index) => (answer === null ? at : index), 0);
+    const last = answers.reduce<number>((at, answer, index) => (answer === null ? at : index), 0);
     replaceAddress(cloudflarePersonaPath);
     showQuestion(last);
   });
@@ -2472,11 +2481,25 @@ function mountCloudflarePersona(root: HTMLElement): Controller {
     showQuestion(0, false);
   }
 
+  ready = true;
   return {
-    // This slice deliberately has no PNG or generic JSON result link yet; the
-    // explicit, answer-free result fragment above is the one share path.
-    result: () => null,
+    // The card is drawn from the same trusted outcome id the result panel and
+    // its answer-free link use. The generic JSON result link stays off; the
+    // existing Copy result link is the only address this quiz hands over.
+    result: () => {
+      if (!shown) return null;
+      const outcome = cloudflarePersonaOutcomes[shown];
+      return {
+        game: "developer-type" as const,
+        title: outcome.archetype,
+        subtitle: outcome.service,
+        byline: "",
+        skin: 0,
+        background: "",
+      };
+    },
     linksAllowed: () => false,
+    personaOutcome: () => shown,
     restore() {
       // Only the validated outcome fragment above can restore a result.
     },
@@ -2641,6 +2664,20 @@ export function mountShareExperience(root: HTMLElement) {
     cardDownloads.replaceChildren();
     cardDownloads.hidden = true;
   }
+  // A Developer Type card is one PNG, previewed beside the same Blob URL its
+  // Save link downloads. Unlike the twenty-one-questions set, its image is
+  // drawn from the trusted outcome id rather than any typed answer.
+  const personaPreview = root.querySelector<HTMLElement>("[data-persona-preview]");
+  const personaUrls: string[] = [];
+  let personaVersion = 0;
+  function clearPersonaPreview() {
+    if (!personaPreview) return;
+    personaVersion += 1;
+    for (const href of personaUrls) URL.revokeObjectURL(href);
+    personaUrls.length = 0;
+    personaPreview.replaceChildren();
+    personaPreview.hidden = true;
+  }
   /** A description offered after a denied copy belongs to the board it was
    * made from, so any edit, restore or new copy clears it and invalidates a
    * clipboard write still in flight. */
@@ -2653,6 +2690,7 @@ export function mountShareExperience(root: HTMLElement) {
   const update = () => {
     const canShare = Boolean(controller.result());
     clearCardDownloads();
+    clearPersonaPreview();
     // A written This-or-That set never produces a link, so URL sharing is
     // switched off only while it is on stage, with the download as the way out.
     // Twenty-one questions never produces one at all: answers are private.
@@ -2676,6 +2714,8 @@ export function mountShareExperience(root: HTMLElement) {
       : "Answer every question to download your result.";
     else if (!canShare && game === "twenty-one-questions") {
       status.textContent = "";
+    } else if (!canShare && game === "developer-type") {
+      status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
   };
@@ -2684,24 +2724,28 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
     : game === "this-or-that" ? mountThisOrThat(root, update)
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
-    : game === "developer-type" ? mountCloudflarePersona(root)
+    : game === "developer-type" ? mountCloudflarePersona(root, update)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
     pickSkin();
-    if (cardDownloads) update();
+    if (cardDownloads || personaPreview) update();
   });
-  if (cardDownloads) {
+  if (cardDownloads || personaPreview) {
     // Changing format retires the old set at once: update() revokes its links
-    // and bumps cardVersion, so a render already in flight from the previous
+    // and bumps the version, so a render already in flight from the previous
     // format cannot append its downloads to the new choice.
     format?.addEventListener("change", update);
     byline.addEventListener("input", update);
-    window.addEventListener("pagehide", clearCardDownloads);
+    window.addEventListener("pagehide", () => {
+      clearCardDownloads();
+      clearPersonaPreview();
+    });
   }
 
-  // Twenty-one questions never produces result links, so a crafted hash is
-  // not a shared result: nothing restores and the stage starts empty.
-  const shared = game === "twenty-one-questions"
+  // Twenty-one questions never produces result links, and a Developer Type
+  // link is the answer-free `#result=<id>` fragment the quiz reads itself:
+  // neither is the generic JSON snapshot, so a crafted hash restores nothing.
+  const shared = game === "twenty-one-questions" || game === "developer-type"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -2740,16 +2784,56 @@ export function mountShareExperience(root: HTMLElement) {
   download.addEventListener("click", async () => {
     const snapshot = result();
     if (!snapshot || busy) return;
+    const personaOutcome = controller.personaOutcome;
     busy = true;
     update();
-    status.textContent = cardDownloads ? "Preparing your cards…" : "Preparing your image…";
+    status.textContent = personaOutcome
+      ? "Preparing your card…"
+      : cardDownloads ? "Preparing your cards…" : "Preparing your image…";
     const attempt = cardVersion;
+    const personaAttempt = personaVersion;
     try {
       // Links, web pages and the optional profile belong to the interactive
       // result and result link; the image stays text-only.
       const { hrefs: _links, profile: _profile, pages: _pages, ...drawn } = snapshot;
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
+      if (personaOutcome) {
+        const outcome = personaOutcome();
+        if (!outcome) return;
+        // A crafted select value cannot widen the card: only these three print.
+        const cardFormat = size === "square" || size === "story" ? size : "portrait";
+        const blob = await renderPersonaCard(outcome, cardFormat, {
+          byline: entry(byline.value, 48),
+          skin: Number(chooseSkin.value),
+        });
+        const current = personaAttempt === personaVersion;
+        busy = false;
+        update();
+        if (!current || !personaPreview) return;
+        const href = URL.createObjectURL(blob);
+        personaUrls.push(href);
+        const outcomeCopy = cloudflarePersonaOutcomes[outcome];
+        const figure = document.createElement("figure");
+        figure.className = "tq-card";
+        const preview = document.createElement("img");
+        preview.className = "tq-card-preview";
+        preview.src = href;
+        preview.alt = `Your Developer Type result card: ${outcomeCopy.archetype}, ${outcomeCopy.service}. ${cardFormat} preview.`;
+        const meta = document.createElement("figcaption");
+        meta.className = "tq-card-meta";
+        const link = document.createElement("a");
+        link.className = "button secondary";
+        link.href = href;
+        link.download = `${game}-${outcome}-${cardFormat}.png`;
+        link.textContent = `Save ${cardFormat} PNG`;
+        meta.append(link);
+        figure.append(preview, meta);
+        personaPreview.append(figure);
+        personaPreview.hidden = false;
+        status.textContent = "Your result card is ready. Save the exact PNG below.";
+        return;
+      }
       if (cardDownloads) {
         // Private cards only come in the 4:5 default, the 9:16 Story or Square;
         // a crafted select value cannot turn answers into another result size.
@@ -2800,11 +2884,13 @@ export function mountShareExperience(root: HTMLElement) {
     } catch {
       busy = false;
       update();
-      status.textContent = cardDownloads
-        ? "Couldn’t prepare the cards. Try again."
-        : controller.linksAllowed?.() === false
-          ? "Couldn’t prepare the image. Try again."
-          : "Couldn’t prepare the image. Try again, or copy the result link.";
+      status.textContent = personaOutcome
+        ? "Couldn’t prepare the card. Try again."
+        : cardDownloads
+          ? "Couldn’t prepare the cards. Try again."
+          : controller.linksAllowed?.() === false
+            ? "Couldn’t prepare the image. Try again."
+            : "Couldn’t prepare the image. Try again, or copy the result link.";
     }
   });
 
@@ -2889,9 +2975,10 @@ export function mountShareExperience(root: HTMLElement) {
     }
   });
 
-  // Twenty-one questions has no result link to hand over, so the native
-  // share sheet stays off for it entirely.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions") {
+  // Twenty-one questions has no result link to hand over, and a Developer Type
+  // result hands its answer-free link over in the result panel instead. The
+  // native share sheet stays off for both.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "developer-type") {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;

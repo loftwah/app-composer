@@ -100,7 +100,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       );
     }
   }
-  if (/^\/share\/experiences\/(twenty-one-questions|this-or-that)\/?$/.test(context.url.pathname)) {
+  if (/^\/share\/experiences\/(twenty-one-questions|this-or-that|developer-type)\/?$/.test(context.url.pathname)) {
     const csp = response.headers.get("content-security-policy");
     if (csp) {
       // Quiz cards and private prompt photos use image URLs from local Blobs.
