@@ -1,5 +1,5 @@
 ---
-import { browserCheckPath, readyTasks } from '../lib/ready-handoff';
+import { browserCheckPath, handoffAgents, readyTasks } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
 const { preferences=false }=Astro.props;
 const selected=Astro.url.searchParams.get('task');
@@ -13,10 +13,13 @@ const browserTask=taskId==='browser';
  </label>
  <p data-ready-help class="small" role="status">{initial.help}</p>
  <p class="small" data-browser-check-link hidden={!browserTask}><a href={browserCheckPath}>Open the practice page</a></p>
+ {preferences && <label data-ready-agent-choice hidden>Which coding agent do you use?
+  <select data-ready-agent>{Object.entries(handoffAgents).map(([id,agent])=><option value={id} selected={id==='any'}>{agent.label}</option>)}</select>
+ </label>}
  <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy agent handoff'}</span></button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
  <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
- <noscript><p class="small">Open the handoff above, select its text and paste it into {browserTask ? 'your agent' : 'Codex or OpenCode'}. Without JavaScript, it contains the selected request.</p></noscript>
+ <noscript><p class="small">Open the handoff above, select its text and paste it into your coding agent. Without JavaScript, it contains the selected request.</p></noscript>
 </div>
 <style>
   pre[data-ready-prompt] {
@@ -29,11 +32,13 @@ const browserTask=taskId==='browser';
   }
 </style>
 <script>
-import {readyTasks} from '../lib/ready-handoff';
+import {readyTasks,handoffAgents,agentContextLine} from '../lib/ready-handoff';
 import {setupPreferenceHandoff,assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
 import {currentAssistance} from '../lib/assistance';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
  const selector=container.querySelector<HTMLSelectElement>('[data-ready-task]')!;
+ const agentSelector=container.querySelector<HTMLSelectElement>('[data-ready-agent]');
+ const agentChoice=container.querySelector<HTMLElement>('[data-ready-agent-choice]');
  const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
  const prompt=container.querySelector<HTMLElement>('[data-ready-prompt]')!;
  const message=container.querySelector<HTMLElement>('[data-ready-message]')!;
@@ -48,11 +53,18 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const update=()=>{
   const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
   const browserTask=task===readyTasks.browser;
+  const selectedAgent=agentSelector?.value??'any';
+  const agentId=Object.hasOwn(handoffAgents,selectedAgent)?selectedAgent as keyof typeof handoffAgents:'any';
   let text=task.prompt,failure='';
   button.disabled=false;
   help.textContent=task.help;
   copyLabel.textContent=browserTask?'Copy browser check':'Copy agent handoff';
   browserCheckLink.hidden=!browserTask;
+  if(agentChoice)agentChoice.hidden=task!==readyTasks.setup;
+  if(task===readyTasks.setup){
+   const hostContext=agentContextLine(agentId);
+   if(hostContext)text=hostContext+'\n\n'+text;
+  }
   if(!browserTask)text+=assistanceHandoff(currentAssistance());
   if(!browserTask&&container.dataset.useSetupPreferences){
    const form=document.querySelector<HTMLFormElement>('[data-setup-preferences]');
@@ -71,6 +83,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  // Reconcile browser-restored form state before enabling copy.
  selector.disabled=false;update();
  selector.addEventListener('change',update);
+ agentSelector?.addEventListener('change',update);
  // Native form restoration may finish after the module first executes.
  window.addEventListener('pageshow',update);
  window.addEventListener('composer:setup-choice',update);
@@ -83,7 +96,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
    await navigator.clipboard.writeText(text);
    if(!started(attemptId,startedAt,task,text))return;
    message.dataset.state='copied';
-   message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into Codex or OpenCode in your chosen project.';
+   message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into your coding agent in your chosen project.';
   }catch{
    if(!started(attemptId,startedAt,task,text))return;
    message.dataset.state='manual';
