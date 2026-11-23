@@ -32,6 +32,35 @@ Official documentation:
 
 These are **documented capabilities**, not completed App Composer independent-provider tests.
 
+## Follow-up exchange — infrastructure ownership, multicloud and local AI
+
+**Second screenshot (owner-provided, 2026/11/23 AEDT UTC+11 / 2026/11/23 UTC):** The respondent clarified that using IaaS such as Cloudflare or AWS is, in their view, a trade of sovereignty. They also questioned AI dependency, noting the current economics of self-hosted models and their discomfort with the direction of the market. The founder replied that multicloud is familiar from their workplaces, and suggested running the software with Docker and celld on owned hardware. These are **individual claims in a conversation**, not verified customer evidence or proof of a tested Composer deployment.
+
+**Editorial lesson:** both parties highlight real constraints. Choosing among managed clouds, or even using several, can reduce exposure to one provider but does not automatically make the system sovereign. Self-hosting increases direct control over compute/storage and makes the operator responsible for security, availability, hardware, network, backups and patching. Model choice is an independent dimension: BYO commercial models, local models and hybrid AI each have their own costs, data boundaries, reliability and capability trade-offs.
+
+**Important technology separation — do not flatten into a single “it runs anywhere” promise:**
+
+| Technology | What upstream documentation supports | What is **not** proven for App Composer |
+| --- | --- | --- |
+| EmDash on Node.js + Docker | Official [Node deployment guide](https://docs.emdashcms.com/deployment/nodejs/) describes Node, Docker/Compose, persistent SQLite or supported remote database and local/S3-compatible media | Actual equivalence of the entire Composer application and its Cloudflare bindings |
+| celld (currently v0.6.2 beta upstream) | [celld site](https://celld.dev/) and [compatibility matrix](https://celld.dev/docs/cloudflare-compat/) document self-hosting many Workers, DO, D1, R2, KV, Queue, Workflow and Cron APIs with known limits | Full parity with Cloudflare Workers; Composer's own deployed application running successfully; Cloudflare edge infrastructure and Workers AI availability |
+| Cloudflare managed deployment | The current App Composer first-party runtime and preferred production path | Provider independence, automatic provider failover or exit without service-specific rewrite |
+| BYO agent/model | Composer's product policy supports choosing agents and qualified providers | Comparable economics, privacy and quality for every local or cloud model |
+
+**Material celld gaps from its current compatibility table:** Workers AI, Vectorize, Hyperdrive, Browser Rendering and Email Workers are **not implemented**, and its cache and Node compatibility are partial. Therefore “Docker and celld on your own hardware” describes **two distinct potential routes**, not one proven Composer self-host recipe. Any AI inference must use a separately qualified provider, local model or adapter on celld. Record the actual need for Cloudflare edge services and security/account boundaries.
+
+### Concrete case-study questions emerging from the exchange
+- Who holds each credential, source repo, domain, database, media store, encryption key and account? Who can revoke or transfer access?
+- Can the owner export source/data and complete an independent **restore, login, edit and publish** without Cloudflare access?
+- Which bindings work on celld, which require adaptation, and which fail? Include Workers AI explicitly because this is central to Composer's purpose.
+- Does the local/alternate provider retain the owner journey with realistic performance, reliability, backup, recovery and operation costs? Count required human support.
+- Could an owner use a different agent/model without recreating their project or surrendering intellectual property? Compare local inference and managed model economics **for one representative workload**, without universal price claims.
+- Is multicloud simultaneous deployment, a tested exit route, or merely diagrams? Treat resilience, portability, privacy and jurisdiction as separate questions.
+
+**Reader-facing framing:** *“Freedom isn't proved by the number of logos on an architecture diagram. It's proved by your ability to operate, recover, change providers or select another model under known conditions.”*
+
+**Implementation routing:** #253 owns an actual provider-exit drill and decision record; #252 owns runtime/celld and Node/Docker qualification; #360 owns the final accurate article; #168 consumes the relevant WordPress-to-EmDash demonstrations. Keep the screenshots as source context but do not publish avatars or direct user quotes externally until provenance/rights are checked.
+
 ## Publication 1 — flagship article (editorial draft)
 
 # Is Cloudflare-first just another kind of lock-in?
@@ -45,6 +74,10 @@ WordPress helped make the web accessible because anyone could publish without le
 But freedom from one dependency is not necessarily freedom from all dependencies. A WordPress site might be portable between conventional hosts while still relying on commercial plugins, a proprietary theme builder, integrations, or years of agency-specific configuration. Moving the files is not always the same as moving a working business.
 
 The same criticism applies to our proposed alternative.
+
+A follow-up to the original criticism put the issue plainly: managed infrastructure is still somebody else's infrastructure. And self-hosted AI can be expensive enough that paying a model provider remains the practical choice. Both statements deserve serious treatment. Multicloud is a useful engineering option, but multiple cloud accounts do not themselves demonstrate sovereignty. Nor does replacing a managed service with a self-hosted runtime automatically improve reliability, security or total operating cost. The choice should be explicit, and the exit should be rehearsed.
+
+There are different technical routes worth distinguishing. EmDash documents a Node.js and Docker deployment using alternative data services. celld, currently a beta self-hosted implementation of many Cloudflare Workers APIs, offers a different route for some Workers-style workloads. Its current compatibility list excludes Workers AI and several other platform capabilities. **Neither upstream route is evidence of an end-to-end App Composer migration until we run and publish that test.**
 
 **EmDash** offers an open-source CMS built with Astro and TypeScript. Its documentation describes both Cloudflare Workers deployments and Node.js deployments using several database and media-storage options. That gives the CMS more than one documented hosting shape.
 
@@ -130,6 +163,8 @@ Because it is our preferred starting platform for useful, low-friction, integrat
 | Runtime differences | KV/DO/Queues/Access/bindings, replaced adapters, unsupported capability | Not run |
 | Operations | Backups, monitoring, alerts, secrets custody, provider cutover, recovery | Not run |
 | Economics | Human steps, elapsed time, provider fees, ongoing duty, downtime | Not run |
+| Local model / BYO agent | Ability to rebind the project to approved local/cloud agents; representative workload cost/quality/latency; privacy and permission differences | Not run |
+| celld compatibility | Runtime and state binding inventory, test cases, Workers AI absence, cache/security/edge gaps | Not run |
 | Verdict | Pass / partial / blocked / fail, scope and reproducibility | Not run |
 
 **Ownership:** #253 controls cross-provider exit evidence, #252 validates the alternate runtime, #168 ties the tested result to the WordPress migration walkthrough, #360 publishes the explanation, and #11 indexes verified release evidence. No new benchmarking infrastructure is required.
