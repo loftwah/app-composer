@@ -366,6 +366,7 @@
 .share-experience .cover-linked .cover-fit select { min-height: 44px; width: auto; }
 .exhibit-cover-state { display: block; font-size: .72rem; line-height: 1.35; margin-top: -.25rem; color: var(--accent); }
 .nine-preview-subtitle { margin: .9rem 0 -.25rem; font-weight: 700; font-size: .95rem; color: inherit; max-width: 46ch; }
+.nine-preview-profile { margin: -.35rem 0 .9rem; overflow-wrap: anywhere; }
 .nine-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: .9rem 0 1rem; }
 .nine-preview-cell { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--stage-ink); color: var(--stage); }
 .nine-preview-cell img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

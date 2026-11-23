@@ -25,6 +25,7 @@ import {
   cleanText, clearNineDraft, nineSubtitleLimit, readNineDraft, writeNineDraft,
   type DraftStorage, type NineDraft,
 } from "../lib/share-experience-draft.ts";
+import { profileUrl } from "../lib/top-nine-profile.ts";
 import {
   searchBooks,
 } from "../lib/top-nine-books.ts";
@@ -63,6 +64,9 @@ interface ResultSnapshot {
   ranked?: boolean;
   /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
+  /** One optional public HTTPS profile link. Interactive preview, draft and
+   * result link only; absent when empty and never part of an export. */
+  profile?: string;
   /** The frozen authored prompts a private 21-questions card export draws. */
   questions?: string[];
 }
@@ -181,6 +185,10 @@ function mountNine(
 ): Controller {
   const title = root.querySelector<HTMLInputElement>("[data-exhibition-title]")!;
   const subtitle = root.querySelector<HTMLInputElement>("[data-exhibition-subtitle]")!;
+  const profile = root.querySelector<HTMLInputElement>("[data-profile]");
+  const profileStatus = root.querySelector<HTMLElement>("[data-profile-status]");
+  const profileRow = root.querySelector<HTMLElement>("[data-nine-preview-profile]");
+  const profileLink = root.querySelector<HTMLAnchorElement>("[data-nine-preview-profile-link]");
   const objects = elements<HTMLInputElement>(root, "[data-object]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
   const swapTarget = root.querySelector<HTMLSelectElement>("[data-swap-target]")!;
@@ -469,6 +477,29 @@ function mountNine(
     cover.linked.hidden = !cover.linked.childElementCount;
   }
 
+  /** The optional profile link beside the preview: only a validated HTTPS
+   * address becomes clickable. Nothing is fetched or embedded, and clearing or
+   * invalidating the field removes the link rather than leaving a stale one. */
+  function renderProfile() {
+    if (!profileRow || !profileLink) return;
+    const raw = profile?.value.trim() ?? "";
+    const href = profileUrl(raw);
+    const invalid = Boolean(raw && !href);
+    if (invalid) profile?.setAttribute("aria-invalid", "true");
+    else profile?.removeAttribute("aria-invalid");
+    const message = invalid ? "Use a full public profile link beginning with https://." : "";
+    if (profileStatus && profileStatus.textContent !== message) profileStatus.textContent = message;
+    if (href) {
+      profileLink.href = href;
+      profileLink.textContent = href;
+      profileRow.hidden = false;
+      return;
+    }
+    profileRow.hidden = true;
+    profileLink.removeAttribute("href");
+    profileLink.textContent = "";
+  }
+
   /** The in-page grid mirrors what the downloaded image will hang: cover first,
    * title on top, in the exhibition's own cell colours. An explicitly ranked
    * board also numbers every occupied slot here, exactly as the export does. */
@@ -507,6 +538,7 @@ function mountNine(
       if (image.getAttribute("src") !== slot.url) image.src = slot.url;
       image.hidden = false;
     });
+    renderProfile();
   }
 
   /** One device image onto one exhibit: bounded, decoded locally, never uploaded. */
@@ -928,6 +960,8 @@ function mountNine(
     subtitle.value = draft.subtitle ?? "";
     objects.forEach((input, index) => { input.value = restoredItems[index]; });
     byline.value = draft.byline ?? "";
+    if (profile) profile.value = draft.profile ?? "";
+    if (profileStatus) profileStatus.textContent = "";
     chooseSkin.value = String(draft.skin ?? 0);
     rankedBox.checked = draft.ranked === true;
     discardMove();
@@ -1154,13 +1188,17 @@ function mountNine(
       subtitle: subtitle.value,
       items: objects.map((input) => input.value),
       byline: byline.value,
+      profile: profile?.value,
       skin: Number(chooseSkin.value),
       ranked: rankedBox.checked ? true : undefined,
       hrefs: hrefs.slice(),
     });
     if (outcome === "saved") {
       openDraft.hidden = true;
-      draftStatus.textContent = "Saved on this device. It opens next time you visit in this browser.";
+      const rawProfile = profile?.value.trim() ?? "";
+      draftStatus.textContent = rawProfile && !profileUrl(rawProfile)
+        ? "Saved on this device without the profile link, which isn’t a public HTTPS profile address."
+        : "Saved on this device. It opens next time you visit in this browser.";
     } else if (outcome === "empty") {
       draftStatus.textContent = "Enter a title or an exhibit before saving.";
     } else if (outcome === "too-large") {
@@ -1203,10 +1241,12 @@ function mountNine(
       if (!heading || !items.every(Boolean)) return null;
       const line = entry(subtitle.value, nineSubtitleLimit);
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
+      const profileHref = profile ? profileUrl(profile.value) : null;
       return {
         title: heading, items,
         ...(line ? { subtitle: line } : {}),
         ...(links ? { hrefs: links } : {}),
+        ...(profileHref ? { profile: profileHref } : {}),
         ...(rankedBox.checked ? { ranked: true } : {}),
       };
     },
@@ -1221,6 +1261,10 @@ function mountNine(
       subtitle.value = entry(snapshot.subtitle, nineSubtitleLimit);
       objects.forEach((input, index) => { input.value = entry(items[index], 54); });
       rankedBox.checked = snapshot.ranked === true;
+      // A shared hash is untrusted input: only a validated HTTPS profile
+      // address restores, and an unsafe one leaves the field empty.
+      if (profile) profile.value = profileUrl(snapshot.profile) ?? "";
+      if (profileStatus) profileStatus.textContent = "";
       discardMove();
       cancelLookup();
       closePreview(false);
@@ -2352,8 +2396,9 @@ export function mountShareExperience(root: HTMLElement) {
     status.textContent = cardDownloads ? "Preparing your cards…" : "Preparing your image…";
     const attempt = cardVersion;
     try {
-      // Links belong to the interactive result and result link; the image stays text-only.
-      const { hrefs: _links, ...drawn } = snapshot;
+      // Links and the optional profile belong to the interactive result and
+      // result link; the image stays text-only.
+      const { hrefs: _links, profile: _profile, ...drawn } = snapshot;
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       if (cardDownloads) {
@@ -2424,8 +2469,9 @@ export function mountShareExperience(root: HTMLElement) {
     status.textContent = "Copying image…";
     let message: string;
     try {
-      // Links belong to the interactive result and result link; the pasted image stays text-only.
-      const { hrefs: _links, ...drawn } = snapshot;
+      // Links and the optional profile belong to the interactive result and
+      // result link; the pasted image stays text-only.
+      const { hrefs: _links, profile: _profile, ...drawn } = snapshot;
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       // Give Safari the PNG promise during the tap, before any export or decode wait.
