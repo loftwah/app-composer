@@ -5,7 +5,8 @@ import {
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatLength, restoreThisOrThatPack, restoreThisOrThatPicks,
-  checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatTitle, freezeThisOrThatPhotos,
+  checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatOptionLimit,
+  customThisOrThatTitle, freezeThisOrThatPhotos,
   moveThisOrThatCustom, readThisOrThatCustom,
   thisOrThatBlankLink, thisOrThatComplete, thisOrThatCount, thisOrThatPackFromQuery,
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
@@ -2201,6 +2202,19 @@ function sharedResult(game: ExperienceId): { snapshot: Record<string, unknown> |
   }
 }
 
+/** The visible text of a This-or-That text-only PNG: its title, optional
+ * byline and every chosen option in question order. Prompts, unchosen sides,
+ * private photo descriptions and links never reach the export or clipboard. */
+function thisOrThatAltText(snapshot: ShareExperienceResult): string {
+  const title = cleanText(snapshot.title, 72);
+  const byline = cleanText(snapshot.byline, 48);
+  const items = (snapshot.items ?? []).map((item) => cleanText(item, customThisOrThatOptionLimit));
+  if (!title || (items.length !== 5 && items.length !== 9) || items.some((item) => !item)) return "";
+  return [title, ...(byline ? [`By ${byline}`] : []), ...items]
+    .map((line) => (/[.!?…]$/.test(line) ? line : `${line}.`))
+    .join(" ");
+}
+
 export function mountShareExperience(root: HTMLElement) {
   const game = root.dataset.experience as ExperienceId;
   if (!Object.hasOwn(experiences, game)) return;
@@ -2449,12 +2463,14 @@ export function mountShareExperience(root: HTMLElement) {
   alt?.addEventListener("click", async () => {
     const snapshot = result();
     if (!snapshot) return;
-    const text = topNineAltText({
+    const text = game === "this-or-that" ? thisOrThatAltText(snapshot) : topNineAltText({
       title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
       ranked: snapshot.ranked === true,
     });
     if (!text) {
-      status.textContent = "Enter a title and nine exhibits to describe them for alt text.";
+      status.textContent = game === "this-or-that"
+        ? "Answer every question to describe your result for alt text."
+        : "Enter a title and nine exhibits to describe them for alt text.";
       return;
     }
     manual.hidden = true;
