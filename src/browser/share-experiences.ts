@@ -271,7 +271,7 @@ function mountNine(
         `https://www.wikidata.org/wiki/Special:Search?search=${encodeURIComponent(query.toWellFormed())}`;
       music.recoveryWikidata.hidden = false;
       music.recoveryNote.textContent =
-        "Wrong match? Search Wikidata, open the exact film or game, copy its link and paste it below.";
+        "Wrong match? Search Wikidata, open the exact film, TV series or game, copy its link and paste it below.";
     } else {
       const links = musicSearchLinks(query, country);
       music.recoveryApple.href = links.apple;
@@ -699,10 +699,10 @@ function mountNine(
     const artist = entry(pick.artist, 48);
     const year = yearOf(pick.year);
     const filled = target + 1;
-    // Films and games read as "Dune (2021)"; the description is shown in the
-    // result row, not typed into the exhibit. Wikidata album picks get the
-    // same title/year and one metadata-only note: playback needs a real
-    // Apple Music or Spotify link, never an inferred provider ID.
+    // Films, TV series and games read as "Dune (2021)"; the description is
+    // shown in the result row, not typed into the exhibit. Wikidata album
+    // picks get the same title/year and one metadata-only note: playback needs
+    // a real Apple Music or Spotify link, never an inferred provider ID.
     objects[target].value = entry(source.provider === "Wikidata"
       ? year ? `${name} (${year})` : name
       : artist ? `${name} · ${artist}` : name, 54);
@@ -782,11 +782,12 @@ function mountNine(
     const country = music.country.value;
     const store = storeName();
     const requestedKind: SourceKind = kind;
-    const wiki = wikiAlbums || requestedKind === "film" || requestedKind === "game";
+    const wiki = wikiAlbums || requestedKind === "film" || requestedKind === "series"
+      || requestedKind === "game";
     const kindLabel =
       requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
       : requestedKind === "book" ? "books" : requestedKind === "app" ? "apps"
-      : requestedKind === "film" ? "films" : "games";
+      : requestedKind === "film" ? "films" : requestedKind === "series" ? "TV series" : "games";
     // Books and apps have no music-service fallback; weak, empty and failed
     // searches keep them straight to the retry message. Album searches keep
     // their Apple/Spotify links and the explicit Wikidata-album action.
@@ -813,7 +814,7 @@ function mountNine(
         ? await searchApps(query, country, controller.signal)
         : wikiAlbums
         ? await searchWikidata(query, "album", controller.signal)
-        : requestedKind === "film" || requestedKind === "game"
+        : requestedKind === "film" || requestedKind === "series" || requestedKind === "game"
         ? await searchWikidata(query, requestedKind, controller.signal)
         : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
@@ -999,10 +1000,10 @@ function mountNine(
     button.addEventListener("click", () => {
       const next = button.dataset.musicKind;
       kind = next === "song" || next === "book" || next === "app"
-        || next === "film" || next === "game" ? next : "album";
+        || next === "film" || next === "series" || next === "game" ? next : "album";
       music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
-      // Films and games come from Wikidata, so the storefront does not apply.
-      const wiki = kind === "film" || kind === "game";
+      // Films, TV series and games come from Wikidata, so the storefront does not apply.
+      const wiki = kind === "film" || kind === "series" || kind === "game";
       music.storefront.hidden = wiki;
       music.coverage.hidden = !wiki;
       clearSearch();

@@ -9,8 +9,8 @@ import { musicPreview } from "./top-nine-music.ts";
 import { wikidataSource } from "./top-nine-wikidata.ts";
 
 export type SourceProvider = "Apple Music" | "Spotify" | "Apple Books" | "App Store" | "Wikidata";
-/** What the Find titles panel searches: the two music kinds, or books, apps, films or games. */
-export type SourceKind = "album" | "song" | "book" | "app" | "film" | "game";
+/** What the Find titles panel searches: the two music kinds, or books, apps, films, TV series or games. */
+export type SourceKind = "album" | "song" | "book" | "app" | "film" | "series" | "game";
 
 export function sourceLink(value: unknown): { href: string; provider: SourceProvider } | null {
   const music = musicPreview(value);

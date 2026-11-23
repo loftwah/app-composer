@@ -261,6 +261,81 @@ test('a verified anime film type is offered, unknown types are not', async (t) =
   assert.equal(fetch.mock.callCount(), 2);
 });
 
+// Breaking Bad: live wbsearchentities rows and batched read, captured
+// 2026-11-24. Q1079 is P31 Q5398426 television series (no P577 year). The
+// same query carries an exact-label episode, a season, the El Camino film and
+// the franchise item, none of which is a series.
+const breakingBadSearch = { searchinfo: { search: 'Breaking Bad' }, search: [
+  searchRow('Q1079', 'Breaking Bad', 'American crime drama television series (2008–2013)'),
+  searchRow('Q113461786', 'Breaking Bad', 'neo-Western crime drama franchise'),
+  searchRow('Q113390660', 'Breaking Bad', 'episode of Better Call Saul (S6 E11)'),
+  searchRow('Q1629860', 'Breaking Bad, season 2', 'season of television series'),
+  searchRow('Q61741521', 'El Camino: A Breaking Bad Movie', '2019 American film by Vince Gilligan'),
+] };
+const breakingBadEntities = { entities: {
+  Q1079: {
+    claims: { P31: [claim('Q5398426')] },
+    sitelinks: { enwiki: { title: 'Breaking Bad' } },
+  },
+  Q113461786: { claims: { P31: [claim('Q196600')] } },
+  Q113390660: {
+    claims: { P31: [claim('Q21191270')], P577: [time('+2022-08-01T00:00:00Z', 11)] },
+    sitelinks: { enwiki: { title: 'Breaking Bad (Better Call Saul)' } },
+  },
+  Q1629860: { claims: { P31: [claim('Q3464665')] } },
+  Q61741521: {
+    claims: { P31: [claim('Q11424')], P577: [time('+2019-10-11T00:00:00Z', 11)] },
+    sitelinks: { enwiki: { title: 'El Camino: A Breaking Bad Movie' } },
+  },
+} };
+
+// Chernobyl: live rows and batched read, captured 2026-11-24. Q48741246 is P31
+// Q1259759 miniseries; the disaster, city and book share the query.
+const chernobylSearch = { searchinfo: { search: 'Chernobyl' }, search: [
+  searchRow('Q486', 'Chernobyl disaster', '1986 nuclear accident in the Soviet Union'),
+  searchRow('Q129677', 'Chernobyl', 'partially abandoned city in Kyiv Oblast, Ukraine'),
+  searchRow('Q48741246', 'Chernobyl', '2019 miniseries about the Chernobyl disaster'),
+  searchRow('Q139808178', 'Chernobyl', 'book'),
+] };
+const chernobylEntities = { entities: {
+  Q486: { claims: { P31: [claim('Q15725976')] } },
+  Q129677: { claims: { P31: [claim('Q356936')] } },
+  Q48741246: {
+    claims: { P31: [claim('Q1259759')], P577: [time('+2019-05-06T00:00:00Z', 11)] },
+    sitelinks: { enwiki: { title: 'Chernobyl (miniseries)' } },
+  },
+  Q139808178: { claims: { P31: [claim('Q7725634')] } },
+} };
+
+test('the series kind offers a series and a miniseries, never film, episode or season', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://www.wikidata.org');
+    assert.equal(init.credentials, 'omit');
+    if (url.searchParams.get('action') === 'wbsearchentities') {
+      return ok(url.searchParams.get('search') === 'Breaking Bad' ? breakingBadSearch : chernobylSearch)();
+    }
+    return ok(url.searchParams.get('ids').startsWith('Q1079') ? breakingBadEntities : chernobylEntities)();
+  });
+  assert.deepEqual(await searchWikidata('Breaking Bad', 'series'), [
+    { title: 'Breaking Bad', artist: 'American crime drama television series (2008–2013)',
+      href: 'https://www.wikidata.org/wiki/Q1079',
+      article: 'https://en.wikipedia.org/wiki/Breaking_Bad' },
+  ]);
+  assert.deepEqual(await searchWikidata('Chernobyl', 'series'), [
+    { title: 'Chernobyl', artist: '2019 miniseries about the Chernobyl disaster', year: 2019,
+      href: 'https://www.wikidata.org/wiki/Q48741246',
+      article: 'https://en.wikipedia.org/wiki/Chernobyl_(miniseries)' },
+  ]);
+  // The film kind keeps the film and excludes the series: each exact type
+  // stays in its own kind.
+  assert.deepEqual(await searchWikidata('Breaking Bad', 'film'), [
+    { title: 'El Camino: A Breaking Bad Movie', artist: '2019 American film by Vince Gilligan',
+      year: 2019, href: 'https://www.wikidata.org/wiki/Q61741521',
+      article: 'https://en.wikipedia.org/wiki/El_Camino%3A_A_Breaking_Bad_Movie' },
+  ]);
+  assert.equal(fetch.mock.callCount(), 6);
+});
+
 test('malformed claims and sitelinks never crash or invent a record', async (t) => {
   // Claims and sitelinks arrive in shapes the Action API does not promise.
   const malformedSearch = { search: [
