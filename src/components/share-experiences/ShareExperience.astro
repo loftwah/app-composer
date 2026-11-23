@@ -420,12 +420,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         {isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
-      {isNine && <button type="button" class="secondary" data-copy-alt disabled aria-describedby="nine-alt-note">Copy image description</button>}
+      {(isNine || isThis) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : "tot-alt-note"}>Copy image description</button>}
       <button type="button" class="secondary" data-copy hidden={isTwentyOne} disabled={isDoor || isNine || isThis || isTwentyOne}>Copy result link</button>
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, optional subtitle and byline, and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
+    {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
     <p class="experience-note" data-share-note>{isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
@@ -433,7 +434,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
-    {isNine && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
+    {(isNine || isThis) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
   {!isNine && !isThis && !isTwentyOne && <details class="experience-custom">
