@@ -23,6 +23,22 @@ test('an untyped byline adds no empty label', () => {
   assert.equal(text.startsWith('My internet hall of fame.'), true);
 });
 
+test('an optional subtitle follows the title, stays bounded and adds no empty sentence', () => {
+  assert.equal(
+    topNineAltText({ title: 'Nine albums', subtitle: '  Songs for a long drive  ', items: nine }),
+    'Nine albums. Songs for a long drive. Top row has Kid A, Blue and Vespertine. '
+    + 'Middle row has Homogenic, Dummy and Mezzanine. Bottom row has Aja, Innervisions and Selected Ambient Works.',
+  );
+  const bounded = topNineAltText({ title: 'Nine albums', subtitle: 'x'.repeat(90), items: nine });
+  assert.equal(bounded.includes('x'.repeat(70) + '.'), true);
+  assert.equal(bounded.includes('x'.repeat(71)), false);
+  // The old title-then-byline sentence list is unchanged when no subtitle is typed.
+  assert.equal(
+    topNineAltText({ title: 'Nine albums', subtitle: '   ', byline: 'Mina', items: nine }).startsWith('Nine albums. By Mina. '),
+    true,
+  );
+});
+
 test('an explicitly ranked board announces each #1 to #9 position', () => {
   assert.equal(
     topNineAltText({ title: 'Nine albums', items: nine, ranked: true }),

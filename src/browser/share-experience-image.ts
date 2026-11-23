@@ -177,7 +177,32 @@ export async function renderExperienceResult(
   ctx.fillStyle = accent;
   ctx.fillRect(margin, margin, width - 2 * margin, 3);
   ctx.fillStyle = ink;
-  drawFit(ctx, result.title, margin, margin + 12, width - 2 * margin, header - 12, wide ? 66 : 105);
+  // A Top Nine may carry one optional subtitle in the same header the title
+  // already uses. The subtitle sits on the header's bottom edge and the title
+  // keeps the room above it, so the grid start never moves and neither line is
+  // clipped. Without a subtitle this is exactly the previous draw call.
+  const subtitle = result.game === "top-nine" && result.items ? (result.subtitle ?? "").trim() : "";
+  if (!subtitle) {
+    drawFit(ctx, result.title, margin, margin + 12, width - 2 * margin, header - 12, wide ? 66 : 105);
+  } else {
+    const subtitleSize = wide ? 18 : 30;
+    const subtitleLine = Math.round(subtitleSize * 1.22);
+    ctx.font = `600 ${subtitleSize}px system-ui`;
+    const lines = wrap(ctx, subtitle, width - 2 * margin);
+    const block = lines.length * subtitleLine;
+    const blockTop = margin + header - block;
+    const gap = wide ? 4 : 10;
+    drawFit(
+      ctx, result.title, margin, margin + 12, width - 2 * margin,
+      Math.max(blockTop - margin - 12 - gap, subtitleSize), wide ? 66 : 105,
+    );
+    ctx.save();
+    ctx.globalAlpha = .82;
+    ctx.textBaseline = "top";
+    ctx.font = `600 ${subtitleSize}px system-ui`;
+    lines.forEach((line, index) => ctx.fillText(line, margin, blockTop + index * subtitleLine, width - 2 * margin));
+    ctx.restore();
+  }
   if (result.items) {
     const cols = resultColumns(result.game, result.items.length);
     const rows = Math.ceil(result.items.length / cols);

@@ -20,7 +20,7 @@ import {
   type ResultCover, type ResultFormat, type ShareExperienceResult,
 } from "./share-experience-image.ts";
 import {
-  cleanText, clearNineDraft, readNineDraft, writeNineDraft,
+  cleanText, clearNineDraft, nineSubtitleLimit, readNineDraft, writeNineDraft,
   type DraftStorage, type NineDraft,
 } from "../lib/share-experience-draft.ts";
 import {
@@ -175,6 +175,7 @@ function mountNine(
   pickSkin: () => void,
 ): Controller {
   const title = root.querySelector<HTMLInputElement>("[data-exhibition-title]")!;
+  const subtitle = root.querySelector<HTMLInputElement>("[data-exhibition-subtitle]")!;
   const objects = elements<HTMLInputElement>(root, "[data-object]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
   const swapTarget = root.querySelector<HTMLSelectElement>("[data-swap-target]")!;
@@ -227,6 +228,7 @@ function mountNine(
     linked: root.querySelector<HTMLUListElement>("[data-cover-linked]")!,
   };
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
+  const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
   const previewCells = elements<HTMLElement>(root, "[data-nine-preview-cell]");
   const storage: DraftStorage = (() => {
     try { return localStorage; } catch { return blockedStorage; }
@@ -441,6 +443,11 @@ function mountNine(
    * board also numbers every occupied slot here, exactly as the export does. */
   function renderPreview() {
     const ranked = rankedBox.checked;
+    const line = entry(subtitle.value, nineSubtitleLimit);
+    if (previewSubtitle) {
+      previewSubtitle.textContent = line;
+      previewSubtitle.hidden = !line;
+    }
     previewCells.forEach((cell, index) => {
       const slot = covers[index];
       const showRank = ranked && Boolean(objects[index].value.trim());
@@ -881,6 +888,7 @@ function mountNine(
       coverNote(`Covers cleared from ${cleared} exhibit${cleared === 1 ? "" : "s"} whose title or source changed with the draft.`);
     }
     title.value = draft.title;
+    subtitle.value = draft.subtitle ?? "";
     objects.forEach((input, index) => { input.value = restoredItems[index]; });
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
@@ -1106,6 +1114,7 @@ function mountNine(
   saveDraft.addEventListener("click", () => {
     const outcome = writeNineDraft(storage, {
       title: title.value,
+      subtitle: subtitle.value,
       items: objects.map((input) => input.value),
       byline: byline.value,
       skin: Number(chooseSkin.value),
@@ -1155,9 +1164,11 @@ function mountNine(
       const items = objects.map((input) => entry(input.value, 54));
       const heading = entry(title.value, 72);
       if (!heading || !items.every(Boolean)) return null;
+      const line = entry(subtitle.value, nineSubtitleLimit);
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
       return {
         title: heading, items,
+        ...(line ? { subtitle: line } : {}),
         ...(links ? { hrefs: links } : {}),
         ...(rankedBox.checked ? { ranked: true } : {}),
       };
@@ -1168,6 +1179,7 @@ function mountNine(
       const heading = entry(snapshot.title, 72);
       if (!heading || !Array.isArray(items) || items.length !== 9) return;
       title.value = heading;
+      subtitle.value = entry(snapshot.subtitle, nineSubtitleLimit);
       objects.forEach((input, index) => { input.value = entry(items[index], 54); });
       rankedBox.checked = snapshot.ranked === true;
       discardMove();
@@ -2151,7 +2163,7 @@ export function mountShareExperience(root: HTMLElement) {
     const snapshot = result();
     if (!snapshot) return;
     const text = topNineAltText({
-      title: snapshot.title, byline: snapshot.byline, items: snapshot.items ?? [],
+      title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
       ranked: snapshot.ranked === true,
     });
     if (!text) {
