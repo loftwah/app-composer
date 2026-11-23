@@ -1,10 +1,10 @@
-// Film and video-game picks from Wikidata's public Action API, used by the
-// Top Nine "Find titles" panel. Browser-direct with credentials omitted: no
-// proxy, no key, no autoplay, no polling and no retries — one search request
-// plus at most one batched entity read per submit. Wikidata data and labels
-// are CC0; a pick links the item's source page and never claims comprehensive
-// coverage. Per the official Data Access guidance, free-text titles go to the
-// Action API search, not WDQS/SPARQL.
+// Film, TV-series, video-game and album picks from Wikidata's public Action
+// API, used by the Top Nine "Find titles" panel. Browser-direct with
+// credentials omitted: no proxy, no key, no autoplay, no polling and no
+// retries — one search request plus at most one batched entity read per
+// submit. Wikidata data and labels are CC0; a pick links the item's source
+// page and never claims comprehensive coverage. Per the official Data Access
+// guidance, free-text titles go to the Action API search, not WDQS/SPARQL.
 
 import { catalogueText, type CataloguePick } from "./itunes-catalogue.ts";
 
@@ -15,7 +15,7 @@ export interface WikidataPick extends CataloguePick {
   platform?: string;
 }
 
-export type WikidataKind = "film" | "game" | "album";
+export type WikidataKind = "film" | "series" | "game" | "album";
 
 const api = "https://www.wikidata.org/w/api.php";
 const userAgent = "App Composer/1.0 (https://composer.loftwah.com)";
@@ -33,6 +33,16 @@ const searchLimit = 30;
  * not offered; the panel states that coverage is partial.
  */
 const filmTypes = new Set(["Q11424", "Q20650540"]);
+/**
+ * Exact instance-type filter for the explicit TV-series kind, so only verified
+ * series items are offered. Q5398426 is television series (Breaking Bad, Q1079,
+ * is P31 Q5398426) and Q1259759 is miniseries (Chernobyl, Q48741246, is P31
+ * Q1259759), both read from the official item pages on 2026-11-24. Films
+ * (Q11424), episodes (Q21191270) and seasons (Q3464665) are never offered here,
+ * and narrower series types stay out; the panel states that coverage is
+ * partial.
+ */
+const seriesTypes = new Set(["Q5398426", "Q1259759"]);
 const gameTypes = new Set(["Q7889"]);
 /**
  * Album fallback, offered only as an explicit action from the music panel's
@@ -173,9 +183,9 @@ function article(sitelinks: Sitelinks | undefined): string | undefined {
 }
 
 /**
- * One search plus one batched read, filtered to the exact known film or game
- * types. Items typed only as a narrower or different class are not offered;
- * the panel states that coverage is partial.
+ * One search plus one batched read, filtered to the exact known film, series,
+ * game or album types. Items typed only as a narrower or different class are
+ * not offered; the panel states that coverage is partial.
  */
 export async function searchWikidata(
   query: string,
@@ -185,6 +195,7 @@ export async function searchWikidata(
   const text = query.trim();
   if (text.length < 2 || text.length > 100) return [];
   const accepted = kind === "film" ? filmTypes
+    : kind === "series" ? seriesTypes
     : kind === "game" ? gameTypes
     : albumTypes;
 
