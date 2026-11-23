@@ -147,6 +147,32 @@ export function personaCaption(outcome: Pick<PersonaCardPrint, "archetype" | "su
   return `${outcome.archetype} — ${outcome.subject}\n${href}`;
 }
 
+/** A short plain description of the text one prepared card actually prints:
+ * the trusted result headline, subject and takeaway, followed by the cleaned
+ * byline and a neutral portrait note only when a local photo was drawn. Only
+ * printable copy enters it, so no answer, private remix, address, file name or
+ * photo content can reach the clipboard or an image's alt text. It stays free
+ * of DOM access so a focused test can check the string deterministically. */
+export function personaCardAltText(
+  copy: PersonaCardPrint,
+  byline: string,
+  hasPortrait: boolean,
+): string {
+  const sentence = (value: string) => /[.!?…]$/.test(value) ? value : `${value}.`;
+  const archetype = cleanText(copy.archetype, 72);
+  const subject = cleanText(copy.subject, 72);
+  const tendency = cleanText(copy.tendency, 240);
+  const by = cleanText(byline, 48);
+  if (!archetype || !subject || !tendency) return "";
+  return [
+    sentence(archetype),
+    sentence(subject),
+    sentence(tendency),
+    ...(by ? [sentence(`By ${by}`)] : []),
+    ...(hasPortrait ? ["A small portrait photo appears on the card."] : []),
+  ].join(" ");
+}
+
 /** The runtime view one quiz page needs. It keeps pack-specific wording in the
  * pack and shared stage mechanics in the controller. */
 export interface PersonaPackOutcome extends PersonaCardPrint {
