@@ -96,6 +96,10 @@
 .tot-packs select { min-height: 44px; margin-block: .3rem 0; }
 .tot-custom { margin-block: .8rem; }
 .tot-custom summary { cursor: pointer; font-weight: 700; }
+.tot-length { display: flex; flex-wrap: wrap; align-items: end; gap: .6rem; margin-block: .4rem 1rem; }
+.tot-length label { font-weight: 700; }
+.tot-length select { min-height: 44px; margin-block: .3rem 0; }
+.tot-length .experience-note { flex-basis: 100%; margin: 0; }
 .tot-custom fieldset {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));

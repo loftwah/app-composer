@@ -220,7 +220,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <p class="experience-note" id="bingo-hint">Arrow keys move between squares. Enter or Space marks the square.</p>
   </section>}
 
-  {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer five this-or-that choices">
+  {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
     <div class="tot-packs">
       <label for="tot-pack">Starter
         <select id="tot-pack" data-tot-pack>
@@ -239,16 +239,25 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <details class="experience-custom tot-custom" data-tot-custom>
       <summary>Write your own questions</summary>
       <p class="experience-note">Your questions and answers stay in this tab. Download the finished image to keep your result.</p>
+      <div class="tot-length">
+        <label for="tot-length">Length
+          <select id="tot-length" data-tot-length>
+            <option value="5">Five questions</option>
+            <option value="9">Nine questions</option>
+          </select>
+        </label>
+        <p class="experience-note">Switching length keeps everything you’ve typed. Hidden rows hold their drafts until you play.</p>
+      </div>
       <form data-tot-custom-form autocomplete="off">
-        {thisOrThatQuestions.map((_, index) => (
-          <fieldset>
+        {Array.from({ length: 9 }, (_, index) => (
+          <fieldset hidden={index >= thisOrThatQuestions.length}>
             <legend>Question {index + 1}</legend>
             <label>Prompt<input type="text" maxlength={customThisOrThatPromptLimit} data-tot-custom-prompt /></label>
             <label>First option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-left /></label>
             <label>Second option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-right /></label>
             <div class="tot-move">
               <button type="button" class="secondary" data-tot-move="up" aria-label={`Move question ${index + 1} up`} disabled={index === 0}>Move up</button>
-              <button type="button" class="secondary" data-tot-move="down" aria-label={`Move question ${index + 1} down`} disabled={index === thisOrThatQuestions.length - 1}>Move down</button>
+              <button type="button" class="secondary" data-tot-move="down" aria-label={`Move question ${index + 1} down`} disabled={index === thisOrThatQuestions.length - 1 || index === 8}>Move down</button>
             </div>
           </fieldset>
         ))}
@@ -257,17 +266,21 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       </form>
     </details>
     <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
-    {thisOrThatQuestions.map(([prompt, left, right], index) => <section hidden={index > 0} class="tot-question" data-question={index}>
-      <h2 tabindex="-1">{prompt}</h2>
-      <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
-        <button type="button" data-choice="0">{left}</button>
-        <button type="button" data-choice="1">{right}</button>
-      </div>
-    </section>)}
+    {Array.from({ length: 9 }, (_, index) => {
+      const [prompt, left, right] = thisOrThatQuestions[index]
+        ?? (["Your question goes here.", "First option", "Second option"] as const);
+      return <section hidden={index > 0} class="tot-question" data-question={index}>
+        <h2 tabindex="-1">{prompt}</h2>
+        <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
+          <button type="button" data-choice="0">{left}</button>
+          <button type="button" data-choice="1">{right}</button>
+        </div>
+      </section>;
+    })}
     <div class="tot-controls">
       <button type="button" class="secondary" data-tot-undo disabled>Undo last choice</button>
     </div>
-    <section hidden class="door-result tot-result" data-tot-result aria-label="Your five choices">
+    <section hidden class="door-result tot-result" data-tot-result aria-label="Your choices">
       <h2 tabindex="-1" data-reveal-title></h2>
       <ol class="tot-picks" data-reveal-picks></ol>
       <p class="experience-note" data-tot-reveal-note>Every answer is yours — there’s no score and nothing is stored. Download your result, or copy a blank starter link to invite someone to play the same five from the start.</p>

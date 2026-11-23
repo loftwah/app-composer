@@ -13,8 +13,20 @@ export type ThisOrThatPicks = readonly (ThisOrThatSide | null)[];
 
 export const thisOrThatCount = thisOrThatQuestions.length;
 
-export const thisOrThatStart = (): (ThisOrThatSide | null)[] =>
-  Array.from({ length: thisOrThatCount }, () => null);
+/** The two authored lengths: the built-in five every starter plays, and one
+ * optional nine for a locally written set. Nothing else — no eleven and no
+ * twenty-one — is ever offered or accepted. */
+export const thisOrThatLengths = [thisOrThatCount, 9] as const;
+export type ThisOrThatLength = (typeof thisOrThatLengths)[number];
+
+/** The length selector offers exactly the two authored lengths; any other
+ * value keeps the default five, so a crafted input never widens the game. */
+export function restoreThisOrThatLength(value: unknown): ThisOrThatLength {
+  return thisOrThatLengths.find((length) => String(length) === value) ?? thisOrThatCount;
+}
+
+export const thisOrThatStart = (count: number = thisOrThatCount): (ThisOrThatSide | null)[] =>
+  Array.from({ length: count }, () => null);
 
 /** A pick only counts for the first unanswered question; stale views, double
  * taps and repeats on an answered question change nothing. Returns the next
@@ -49,13 +61,17 @@ export function thisOrThatProgress(picks: ThisOrThatPicks): { question: number; 
   return { question: Math.min(answered + 1, picks.length), total: picks.length };
 }
 
-export function thisOrThatComplete(picks: ThisOrThatPicks): boolean {
-  return picks.length === thisOrThatCount && picks.every((pick) => pick === 0 || pick === 1);
+export function thisOrThatComplete(
+  picks: ThisOrThatPicks,
+  count: number = thisOrThatCount,
+): boolean {
+  return picks.length === count && picks.every((pick) => pick === 0 || pick === 1);
 }
 
 /** The real ending: the exact chosen text of every question, exposed as
- * ordered items for the PNG and side indices for the result link.
- * Null until all five are answered. */
+ * ordered items for the PNG and side indices for the result link. Null until
+ * every question of the set on stage — the built-in five or a written nine —
+ * has its one pick. */
 export function thisOrThatSummary(
   picks: ThisOrThatPicks,
   questions: readonly (readonly [string, string, string])[] = thisOrThatQuestions,
@@ -68,7 +84,7 @@ export function thisOrThatSummary(
   /** The exact chosen side per question, in question order. */
   sides: readonly ThisOrThatSide[];
 } | null {
-  if (!thisOrThatComplete(picks)) return null;
+  if (!thisOrThatComplete(picks, questions.length)) return null;
   const chosen = questions.map(([, left, right], index) =>
     picks[index] === 0 ? left : right);
   return {
@@ -118,33 +134,37 @@ export function restoreThisOrThatPicks(value: unknown): ThisOrThatSide[] | null 
   return picks;
 }
 
-/** A custom five is authored for one tab only: the same five panels retext,
- * the same result image downloads, and no link or route is ever produced.
- * These bounds keep a written five inside the same contract as the built-in
- * starters — five prompts, and chosen texts whose listing stays short. */
+/** A custom set is authored for one tab only: the same panels retext, the
+ * same result image downloads, and no link or route is ever produced. These
+ * bounds keep a written set — the built-in five or one optional nine — inside
+ * the same contract as the built-in starters: short prompts, and chosen texts
+ * whose listing stays short. */
 export const customThisOrThatPromptLimit = 72;
 export const customThisOrThatOptionLimit = 45;
 export const customThisOrThatTitle = "Your this or that";
 
 export interface ThisOrThatCustomRead {
-  /** The bounded, sanitised five, or null while any row is unusable. */
+  /** The bounded, sanitised set, or null while any row is unusable. */
   questions: readonly (readonly [string, string, string])[] | null;
-  /** The first row needing attention: 0–4, or -1 when the five are usable. */
+  /** The first row needing attention: 0–8, or -1 when the set is usable. */
   gap: number;
   /** Why the gap row fails: something is missing, or both options match. */
   reason: "empty" | "same" | null;
 }
 
-/** Reads one custom five from raw editor values, five rows of prompt, left
+/** Reads one custom set of the chosen length from raw editor values — five
+ * rows by default, nine for the optional length — each row of prompt, left
  * and right. Every value passes through the same visible-text sanitisation
  * as the built-in starters, and a row plays only with a prompt and two
  * genuinely different options — case included — so a half-written or
- * duplicated five never reaches the stage. */
+ * duplicated set never reaches the stage. Rows beyond the length are never
+ * read: they keep whatever draft text they hold until the editor widens. */
 export function readThisOrThatCustom(
   rows: readonly (readonly [unknown, unknown, unknown])[],
+  count: number = thisOrThatCount,
 ): ThisOrThatCustomRead {
   const questions: [string, string, string][] = [];
-  for (let index = 0; index < thisOrThatCount; index += 1) {
+  for (let index = 0; index < count; index += 1) {
     const row = rows[index];
     const prompt = cleanText(row?.[0], customThisOrThatPromptLimit);
     const left = cleanText(row?.[1], customThisOrThatOptionLimit);
@@ -158,17 +178,20 @@ export function readThisOrThatCustom(
   return { questions, gap: -1, reason: null };
 }
 
-/** Move one draft row a single step in the editor, carrying prompt, first and
- * second option exactly as typed — blank and half-written values included.
- * A row already at an edge stays put; no text is trimmed or validated here. */
+/** Move one draft row a single step inside the edited length, carrying
+ * prompt, first and second option exactly as typed — blank and half-written
+ * values included. A row already at an edge of the length stays put, and rows
+ * beyond the length are never touched or swapped into; no text is trimmed or
+ * validated here. */
 export function moveThisOrThatCustom(
   rows: readonly (readonly [string, string, string])[],
   from: number,
   step: -1 | 1,
+  count: number = thisOrThatCount,
 ): (readonly [string, string, string])[] {
   const next = rows.map((row) => [...row] as [string, string, string]);
   const to = from + step;
-  if (from < 0 || from >= next.length || to < 0 || to >= next.length) return next;
+  if (from < 0 || from >= count || to < 0 || to >= count) return next;
   [next[from], next[to]] = [next[to], next[from]];
   return next;
 }
