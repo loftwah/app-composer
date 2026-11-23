@@ -377,11 +377,21 @@ export default function MyApps() {
         {status}
       </p>
       {!account && (
-        <p>
-          <a className="button" href="/_emdash/admin/login?redirect=/me">
-            Sign in with EmDash
-          </a>
-        </p>
+        <div className="member-invitation">
+          <p>
+            You need an invitation from a workspace owner to use the private
+            profiles and app tools on this site.
+          </p>
+          <p>
+            <a href="/ready">Get Ready</a> to build an app with your own agent
+            and accounts.
+          </p>
+          <p>
+            <a className="button" href="/_emdash/admin/login?redirect=/me">
+              Invited sign-in with EmDash
+            </a>
+          </p>
+        </div>
       )}
       <div className="member-actions">
         <button disabled={busy} onClick={() => void execute(() => load())}>
