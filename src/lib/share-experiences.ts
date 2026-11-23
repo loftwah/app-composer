@@ -141,6 +141,55 @@ export const gamesQuestions = [
 ] as const;
 export const gamesResultTitle = "Your play style";
 
+/** #1064 named starters: five more packs, each five original either-ors about
+ * an ordinary part of life. Written for a phone card — a short prompt and two
+ * natural labels — with no borrowed franchise, title or character. Each pack
+ * keeps its own concise result heading. */
+export const filmAndTvQuestions = [
+  ["Film night, sofa claimed.", "Lights off, phone in a drawer", "Chatting through the first scene"],
+  ["A series hooks you at episode two.", "Watch the rest tonight", "Ration one a night"],
+  ["The credits start rolling.", "Sit through to the very end", "Straight up for the kettle"],
+  ["Someone asks what to watch.", "An old favourite, again", "Something none of us have seen"],
+  ["The plot wobbles halfway.", "Give it twenty more minutes", "Switch to the backup pick"],
+] as const;
+export const filmAndTvResultTitle = "Your watch habit";
+
+export const booksAndMusicQuestions = [
+  ["A slow afternoon opens up.", "Finish the book you started", "Play an album start to finish"],
+  ["An hour of deep focus.", "Instrumental on repeat", "Silence and a closed door"],
+  ["A friend lends you something.", "Novel with a cracked spine", "Record with a note inside"],
+  ["The last page, the final track.", "Sit with it a while", "Start the next one"],
+  ["Packing for a long trip.", "Two books and headphones", "One book and a window seat"],
+] as const;
+export const booksAndMusicResultTitle = "Your quiet company";
+
+export const travelQuestions = [
+  ["A free weekend appears.", "A train to somewhere new", "The same coast as always"],
+  ["Packing the small bag.", "One outfit, worn twice", "Options for every weather"],
+  ["First morning away.", "Walk until you find breakfast", "Ask the front desk"],
+  ["The map has one gap.", "Follow the thin road", "Head back to the square"],
+  ["Last hour before heading home.", "One more museum", "Coffee and people-watching"],
+] as const;
+export const travelResultTitle = "Your travel pace";
+
+export const technologyQuestions = [
+  ["A new device arrives.", "Set it up before dinner", "Leave it boxed till the weekend"],
+  ["The update prompt appears.", "Install it now", "Remind me next week"],
+  ["Your cable drawer opens.", "Keep one of each", "Bin what I can’t name"],
+  ["Something stops working.", "Search for the exact error", "Restart and hope"],
+  ["You recommend one thing.", "Keyboard I’ve had for years", "App that saves me an hour"],
+] as const;
+export const technologyResultTitle = "Your setup instinct";
+
+export const everydayQuestions = [
+  ["The alarm goes off early.", "Up and out the door", "Ten more minutes, properly"],
+  ["The fridge is nearly empty.", "Cook whatever’s left", "Walk to the corner shop"],
+  ["A free evening at home.", "Tidy one small corner", "Nothing, and enjoy it"],
+  ["Your phone buzzes in a queue.", "Answer it now", "Let it wait"],
+  ["Sunday night, week ahead.", "Write the list", "Keep it in my head"],
+] as const;
+export const everydayResultTitle = "Your ordinary week";
+
 /** All starters share one controller. The pack key travels in a result link
  * so a shared result reopens the exact starter; an absent or unknown key keeps
  * the original maker rhythm, unchanged. */
@@ -159,6 +208,31 @@ export const thisOrThatPacks = {
     questions: gamesQuestions,
     title: gamesResultTitle,
     description: "Five choices about your setup and how you play.",
+  },
+  "film-tv": {
+    questions: filmAndTvQuestions,
+    title: filmAndTvResultTitle,
+    description: "Five choices about how you watch, from opening credits to the last scene.",
+  },
+  "books-music": {
+    questions: booksAndMusicQuestions,
+    title: booksAndMusicResultTitle,
+    description: "Five either-ors for pages, playlists and the sound of a slow afternoon.",
+  },
+  travel: {
+    questions: travelQuestions,
+    title: travelResultTitle,
+    description: "Five small decisions from the first train out to the last hour away.",
+  },
+  technology: {
+    questions: technologyQuestions,
+    title: technologyResultTitle,
+    description: "Five choices about the devices, updates and cables in your everyday orbit.",
+  },
+  everyday: {
+    questions: everydayQuestions,
+    title: everydayResultTitle,
+    description: "Five ordinary moments, and the small call you make in each one.",
   },
 } as const;
 export type ThisOrThatPack = keyof typeof thisOrThatPacks;
