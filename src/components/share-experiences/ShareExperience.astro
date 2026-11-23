@@ -359,6 +359,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
       <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne}>
         {isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
+      {isNine && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {isNine && <button type="button" class="secondary" data-copy-alt disabled aria-describedby="nine-alt-note">Copy image description</button>}
       <button type="button" class="secondary" data-copy hidden={isTwentyOne} disabled={isDoor || isNine || isThis || isTwentyOne}>Copy result link</button>
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne}>Share result</button>
