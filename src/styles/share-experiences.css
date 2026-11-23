@@ -282,6 +282,10 @@
   max-inline-size: 25rem; margin-inline: auto;
 }
 .tq-card-meta { margin-block-start: .75rem; text-align: center; }
+.tq-card-meta textarea:not([hidden]) {
+  display: block; inline-size: 100%; margin-block: .5rem 0;
+  color: #211a1b; background: #fff9ec;
+}
 .experience-note { font-size: .92rem; margin: .6rem 0 0; }
 .experience-note:empty { display: none; }
 .experience-custom { margin-top: 1rem; }

@@ -19,7 +19,7 @@ import {
 } from "../lib/twenty-one-questions.ts";
 import { personaFor } from "../lib/persona-packs.ts";
 import {
-  personaCaption, personaDraftFileLimit, personaDraftFileName, readPersonaDraft,
+  personaCaption, personaCardAltText, personaDraftFileLimit, personaDraftFileName, readPersonaDraft,
   readPersonaDraftFile, writePersonaDraftFile,
   type PersonaDraft, type PersonaDraftFileRead, type PersonaDraftGap, type PersonaPack,
 } from "../lib/persona-quiz.ts";
@@ -3390,8 +3390,10 @@ export function mountShareExperience(root: HTMLElement) {
         }
         // A crafted select value cannot widen the card: only these three print.
         const cardFormat = size === "square" || size === "story" ? size : "portrait";
+        const printedByline = entry(byline.value, 48);
+        const hasPortrait = cardAvatar !== null;
         const blob = await renderPersonaCard(cardCopy, cardFormat, {
-          byline: entry(byline.value, 48),
+          byline: printedByline,
           skin: Number(chooseSkin.value),
           game,
           label: persona.cardLabel,
@@ -3404,12 +3406,17 @@ export function mountShareExperience(root: HTMLElement) {
         if (!current || !personaPreview) return;
         const href = URL.createObjectURL(blob);
         personaUrls.push(href);
+        // The version fixes which result this prepared card holds; update()
+        // clears the figure on a changed format, style, byline, revise or
+        // retake, so neither its image nor its description can go stale.
+        const version = personaVersion;
+        const description = personaCardAltText(cardCopy, printedByline, hasPortrait);
         const figure = document.createElement("figure");
         figure.className = "tq-card";
         const preview = document.createElement("img");
         preview.className = "tq-card-preview";
         preview.src = href;
-        preview.alt = `Your ${persona.stageLabel} result card: ${cardCopy.archetype}, ${cardCopy.subject}. ${cardFormat} preview.`;
+        preview.alt = description;
         const meta = document.createElement("figcaption");
         meta.className = "tq-card-meta";
         const link = document.createElement("a");
@@ -3420,10 +3427,8 @@ export function mountShareExperience(root: HTMLElement) {
         meta.append(link);
         if (imageClipboard) {
           // Copy the very Blob behind this preview and Save link, not a new
-          // render or its URL. The version fixes which result the card holds;
-          // update() clears this figure on a changed format, style, byline,
-          // revise or retake, so a stale card can never reach the clipboard.
-          const version = personaVersion;
+          // render or its URL. Both this and the description below belong to
+          // the one prepared, versioned card.
           let copying = false;
           const copyButton = document.createElement("button");
           copyButton.type = "button";
@@ -3447,6 +3452,38 @@ export function mountShareExperience(root: HTMLElement) {
           });
           meta.append(copyButton);
         }
+        // A plain description of this card's printed result, copied as text
+        // with a selected readonly fallback when text clipboard is denied.
+        const copyDescription = document.createElement("button");
+        copyDescription.type = "button";
+        copyDescription.className = "button secondary";
+        copyDescription.textContent = "Copy image description";
+        const descriptionManual = document.createElement("textarea");
+        descriptionManual.hidden = true;
+        descriptionManual.readOnly = true;
+        descriptionManual.rows = 3;
+        descriptionManual.value = description;
+        descriptionManual.setAttribute("aria-label", "Image description text");
+        let copyingDescription = false;
+        copyDescription.addEventListener("click", async () => {
+          if (copyingDescription || version !== personaVersion) return;
+          copyingDescription = true;
+          try {
+            await navigator.clipboard.writeText(description);
+            if (version !== personaVersion) return;
+            status.textContent = "Image description copied. Paste it into your image’s alt text.";
+          } catch {
+            if (version !== personaVersion) return;
+            descriptionManual.hidden = false;
+            descriptionManual.focus();
+            descriptionManual.select();
+            status.textContent =
+              "Clipboard access was denied. The image description is selected below — copy it with your device’s copy shortcut.";
+          } finally {
+            copyingDescription = false;
+          }
+        });
+        meta.append(copyDescription, descriptionManual);
         figure.append(preview, meta);
         personaPreview.append(figure);
         personaPreview.hidden = false;
