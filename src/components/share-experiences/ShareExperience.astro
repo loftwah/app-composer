@@ -333,10 +333,9 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
 
   {isMustGo && <section data-play-panel class="omg-stage" aria-label="One must go">
     <div class="omg-head">
-      <h2 id="omg-prompt">{oneMustGoTitle}</h2>
+      <h2 id="omg-prompt">Which one would you drop?</h2>
       <p class="omg-round-note" data-omg-round-note>Poster round</p>
     </div>
-    <p class="experience-note">Choose one to eliminate. The other three stay.</p>
     <div class="omg-choices" role="group" aria-labelledby="omg-prompt">
       {oneMustGoStarterChoices.map((choice, index) => <button type="button" class="omg-choice" data-omg-choice={index} disabled>
         <span class="omg-choice-label" data-omg-choice-label>{choice}</span>

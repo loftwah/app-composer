@@ -68,7 +68,7 @@ export const experiences = {
   },
   "one-must-go": {
     title: "One Must Go",
-    description: "Four good things on a noir-orange stage. Eliminate one and the other three stay. Your own round stays in this tab.",
+    description: "Play the poster round or write your own four choices.",
     // The stage reuses the owned Internet Workshop “one-must-go” poster and its
     // Music · Games · Code · The Web round; see
     // public/campaign/internet-workshop-20261122/provenance.json.
