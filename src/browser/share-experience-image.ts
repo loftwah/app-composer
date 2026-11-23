@@ -16,6 +16,9 @@ export interface ShareExperienceResult {
   marked?: number[];
   /** Canonical source links per exhibit. Interactive only: exports stay text-only. */
   hrefs?: (string | null)[];
+  /** Explicit ranked board: occupied slots print #1–#9 in every format.
+   * Absent keeps unordered favourites, so old links and drafts stay as they were. */
+  ranked?: boolean;
   /** Frozen authored prompts for a private twenty-one-questions run. Card
    * exports only: results never travel in a link, so this stays in the tab. */
   questions?: string[];
@@ -79,6 +82,36 @@ function drawFit(ctx: CanvasRenderingContext2D, text: string, x: number, y: numb
   });
 }
 
+/** The numbered chip an explicitly ranked Top Nine prints in one occupied slot.
+ * It uses the board's accent and paper, so all three skins keep their contrast. */
+function rankChipHeight(size: number) {
+  return Math.round(size * 1.5);
+}
+
+function drawRank(
+  ctx: CanvasRenderingContext2D,
+  rank: number,
+  x: number,
+  y: number,
+  size: number,
+  paper: string,
+  accent: string,
+) {
+  const label = `#${rank}`;
+  const pad = Math.round(size * .34);
+  const height = rankChipHeight(size);
+  ctx.save();
+  ctx.font = `800 ${size}px system-ui`;
+  const width = Math.ceil(ctx.measureText(label).width) + pad * 2;
+  ctx.fillStyle = accent;
+  ctx.fillRect(x, y, width, height);
+  ctx.fillStyle = paper;
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, x + pad, y + height / 2 + 1);
+  ctx.restore();
+  return height;
+}
+
 /** The publisher line every exported card carries: the approved mark, the
  * product name and site, and one optional byline. Shared by every experience
  * renderer so single images and card sets sign off identically. */
@@ -139,17 +172,31 @@ export async function renderExperienceResult(
     const gap = wide ? 6 : 9;
     const cellW = (width - margin * 2 - (cols - 1) * gap) / cols;
     const cellH = (footer - rowY - (rows - 1) * gap - 18) / rows;
+    // An explicitly ranked Top Nine numbers each occupied slot in every
+    // format; an unordered board keeps exactly the previous drawing.
+    const ranked = result.game === "top-nine" && result.ranked === true;
+    const rankSize = Math.max(13, Math.min(30, Math.round(Math.min(cellW, cellH) * (wide ? .16 : .1))));
+    const rankFor = (caption: string, index: number) => ranked && caption.trim() ? index + 1 : 0;
     result.items.forEach((caption, index) => {
       const x = margin + (index % cols) * (cellW + gap);
       const y = rowY + Math.floor(index / cols) * (cellH + gap);
       const marked = result.game === "tech-bingo" && Boolean(result.marked?.includes(index));
       const cover = result.game === "top-nine" ? covers?.[index] : undefined;
       const inset = wide ? 9 : 15;
+      const rank = rankFor(caption, index);
       ctx.fillStyle = marked ? accent : ink;
       ctx.fillRect(x, y, cellW, cellH);
       if (!cover) {
         ctx.fillStyle = paper;
-        drawFit(ctx, caption || "—", x + inset, y + inset, cellW - inset * 2, cellH - inset * 2, wide ? 24 : cols === 5 ? 28 : 43);
+        let top = y + inset;
+        let room = cellH - inset * 2;
+        if (rank) {
+          const used = drawRank(ctx, rank, x + inset, top, rankSize, paper, accent)
+            + Math.max(6, Math.round(inset * .5));
+          top += used;
+          room -= used;
+        }
+        drawFit(ctx, caption || "—", x + inset, top, cellW - inset * 2, Math.max(room, rankSize), wide ? 24 : cols === 5 ? 28 : 43);
       } else if (wide) {
         // Landscape strips are shallow: contain the art in a matted square and
         // keep the readable title beside it.
@@ -163,7 +210,15 @@ export async function renderExperienceResult(
         ctx.lineWidth = 2;
         ctx.strokeRect(x + (mat - dw) / 2, y + (mat - dh) / 2, dw, dh);
         ctx.fillStyle = paper;
-        drawFit(ctx, caption || "—", x + mat + inset, y + inset, cellW - mat - inset * 2, cellH - inset * 2, 24);
+        let titleY = y + inset;
+        let titleH = cellH - inset * 2;
+        if (rank) {
+          const used = drawRank(ctx, rank, x + mat + inset, titleY, rankSize, paper, accent)
+            + Math.max(6, Math.round(inset * .5));
+          titleY += used;
+          titleH -= used;
+        }
+        drawFit(ctx, caption || "—", x + mat + inset, titleY, cellW - mat - inset * 2, Math.max(titleH, rankSize), 24);
       } else {
         // Square-ish cells hang the art edge to edge (cover) and keep the
         // title readable on a scrim of the same ink the solid cells use.
@@ -190,6 +245,7 @@ export async function renderExperienceResult(
         fit.lines.forEach((line, lineIndex) => {
           ctx.fillText(line, x + inset, first + fit.size + lineIndex * fit.size * 1.14, cellW - inset * 2);
         });
+        if (rank) drawRank(ctx, rank, x + inset, y + inset, rankSize, paper, accent);
       }
       if (marked && index !== 12) {
         ctx.strokeStyle = paper;

@@ -20,6 +20,9 @@ export interface NineDraft {
   items: string[];
   byline?: string;
   skin?: number;
+  /** Explicit ranked ordering. Absent keeps unordered favourites, so older
+   * drafts and drafts saved without the opt-in read back unchanged. */
+  ranked?: boolean;
   /** One optional canonical source link per exhibit, omitted when there are none. */
   hrefs?: (string | null)[];
 }
@@ -47,6 +50,7 @@ export function readNineDraft(storage: DraftStorage): NineDraft | null {
       title, items,
       byline: cleanText(saved.byline, 48),
       skin: saved.skin === 1 || saved.skin === 2 ? saved.skin : 0,
+      ...(saved.ranked === true ? { ranked: true } : {}),
       ...(hrefs ? { hrefs } : {}),
     };
   } catch {
@@ -64,6 +68,7 @@ export function writeNineDraft(storage: DraftStorage, draft: NineDraft): "saved"
     title, items,
     byline: cleanText(draft.byline, 48),
     skin: draft.skin === 1 || draft.skin === 2 ? draft.skin : 0,
+    ...(draft.ranked === true ? { ranked: true } : {}),
     ...(hrefs ? { hrefs } : {}),
   });
   if (value.length > draftLimit) return "too-large";

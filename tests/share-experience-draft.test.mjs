@@ -106,6 +106,26 @@ test('an exhibition without music keeps the exact old stored shape', () => {
   assert.equal('hrefs' in readNineDraft(storage), false);
 });
 
+test('an explicitly ranked board keeps its preference and old drafts stay unordered', () => {
+  const storage = fakeStorage();
+  writeNineDraft(storage, { title: 'Nine', items: blank(), ranked: true });
+  assert.deepEqual(readNineDraft(storage), {
+    title: 'Nine', items: blank(), byline: '', skin: 0, ranked: true,
+  });
+  // Unordered stays exactly the old stored shape and restores as unordered.
+  writeNineDraft(storage, { title: 'Nine', items: blank(), ranked: false });
+  assert.equal(storage.data.get(draftKey('top-nine')).includes('ranked'), false);
+  assert.equal('ranked' in readNineDraft(storage), false);
+  const old = fakeStorage({
+    [draftKey('top-nine')]: payload({ version: draftVersion, title: 'Nine', items: blank() }),
+  });
+  assert.equal('ranked' in readNineDraft(old), false);
+  const junk = fakeStorage({
+    [draftKey('top-nine')]: payload({ version: draftVersion, title: 'Nine', items: blank(), ranked: 'yes' }),
+  });
+  assert.equal('ranked' in readNineDraft(junk), false);
+});
+
 test('stored links stay bounded, HTTPS-only and nine slots wide', () => {
   const storage = fakeStorage();
   writeNineDraft(storage, {

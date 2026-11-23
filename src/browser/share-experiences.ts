@@ -55,6 +55,9 @@ interface ResultSnapshot {
   marked?: number[];
   /** Which This or That starter a shared link reopens; absent means maker. */
   pack?: ThisOrThatPack;
+  /** Explicit ranked ordering. Absent keeps unordered favourites, so older
+   * results and links restore exactly as they were. */
+  ranked?: boolean;
   /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
   /** The frozen authored prompts a private 21-questions card export draws. */
@@ -177,6 +180,9 @@ function mountNine(
   const swapSlots = root.querySelector<HTMLButtonElement>("[data-swap-slots]")!;
   const undoMove = root.querySelector<HTMLButtonElement>("[data-undo-move]")!;
   const preset = root.querySelector<HTMLSelectElement>("[data-nine-preset]")!;
+  const rankedBox = root.querySelector<HTMLInputElement>("[data-nine-ranked]")!;
+  const rankMarks = elements<HTMLElement>(root, "[data-exhibit-rank]");
+  const rankBadges = elements<HTMLElement>(root, "[data-nine-preview-rank]");
   const draftStatus = root.querySelector<HTMLElement>("[data-draft-status]")!;
   const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
   const openDraft = root.querySelector<HTMLButtonElement>("[data-draft-open]")!;
@@ -427,13 +433,25 @@ function mountNine(
   }
 
   /** The in-page grid mirrors what the downloaded image will hang: cover first,
-   * title on top, in the exhibition's own cell colours. */
+   * title on top, in the exhibition's own cell colours. An explicitly ranked
+   * board also numbers every occupied slot here, exactly as the export does. */
   function renderPreview() {
+    const ranked = rankedBox.checked;
     previewCells.forEach((cell, index) => {
       const slot = covers[index];
+      const showRank = ranked && Boolean(objects[index].value.trim());
       const image = cell.querySelector<HTMLImageElement>("[data-nine-preview-cover]")!;
       const caption = cell.querySelector<HTMLElement>("[data-nine-preview-caption]")!;
       caption.textContent = objects[index].value.trim() || "—";
+      const badge = rankBadges[index];
+      if (badge) badge.hidden = !showRank;
+      const mark = rankMarks[index];
+      if (mark) {
+        mark.hidden = !showRank;
+        if (showRank) objects[index].setAttribute("aria-describedby", mark.id);
+        else objects[index].removeAttribute("aria-describedby");
+      }
+      cell.toggleAttribute("data-ranked", showRank);
       cell.toggleAttribute("data-covered", Boolean(slot));
       if (!slot) {
         image.hidden = true;
@@ -852,6 +870,7 @@ function mountNine(
     objects.forEach((input, index) => { input.value = restoredItems[index]; });
     byline.value = draft.byline ?? "";
     chooseSkin.value = String(draft.skin ?? 0);
+    rankedBox.checked = draft.ranked === true;
     discardMove();
     cancelLookup();
     closePreview(false);
@@ -867,6 +886,10 @@ function mountNine(
   }
 
   root.addEventListener("input", () => {
+    renderPreview();
+    update();
+  });
+  rankedBox.addEventListener("change", () => {
     renderPreview();
     update();
   });
@@ -1061,6 +1084,7 @@ function mountNine(
       items: objects.map((input) => input.value),
       byline: byline.value,
       skin: Number(chooseSkin.value),
+      ranked: rankedBox.checked ? true : undefined,
       hrefs: hrefs.slice(),
     });
     if (outcome === "saved") {
@@ -1107,7 +1131,11 @@ function mountNine(
       const heading = entry(title.value, 72);
       if (!heading || !items.every(Boolean)) return null;
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
-      return { title: heading, items, ...(links ? { hrefs: links } : {}) };
+      return {
+        title: heading, items,
+        ...(links ? { hrefs: links } : {}),
+        ...(rankedBox.checked ? { ranked: true } : {}),
+      };
     },
     exportCovers: () => (covers.some(Boolean) ? covers.map((slot) => slot?.art ?? null) : null),
     restore(snapshot) {
@@ -1116,6 +1144,7 @@ function mountNine(
       if (!heading || !Array.isArray(items) || items.length !== 9) return;
       title.value = heading;
       objects.forEach((input, index) => { input.value = entry(items[index], 54); });
+      rankedBox.checked = snapshot.ranked === true;
       discardMove();
       cancelLookup();
       closePreview(false);
@@ -1968,6 +1997,7 @@ export function mountShareExperience(root: HTMLElement) {
     if (!snapshot) return;
     const text = topNineAltText({
       title: snapshot.title, byline: snapshot.byline, items: snapshot.items ?? [],
+      ranked: snapshot.ranked === true,
     });
     if (!text) {
       status.textContent = "Enter a title and nine exhibits to describe them for alt text.";

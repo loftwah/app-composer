@@ -23,6 +23,17 @@ test('an untyped byline adds no empty label', () => {
   assert.equal(text.startsWith('My internet hall of fame.'), true);
 });
 
+test('an explicitly ranked board announces each #1 to #9 position', () => {
+  assert.equal(
+    topNineAltText({ title: 'Nine albums', items: nine, ranked: true }),
+    'Nine albums. Top row has #1 Kid A, #2 Blue and #3 Vespertine. '
+    + 'Middle row has #4 Homogenic, #5 Dummy and #6 Mezzanine. '
+    + 'Bottom row has #7 Aja, #8 Innervisions and #9 Selected Ambient Works.',
+  );
+  // The unordered default keeps the plain row text with no positions.
+  assert.equal(topNineAltText({ title: 'Nine albums', items: nine }).includes('#'), false);
+});
+
 test('an incomplete exhibition produces no description', () => {
   assert.equal(topNineAltText({ title: 'Nine things', items: [...nine.slice(0, 8), ' '] }), '');
   assert.equal(topNineAltText({ title: 'Nine things', items: nine.slice(0, 8) }), '');
