@@ -1,4 +1,7 @@
-import type { ExperienceId } from "../lib/share-experiences.ts";
+import { type ExperienceId, twentyOneQuestions } from "../lib/share-experiences.ts";
+import {
+  splitTwentyOneCards, twentyOneAnswered, twentyOneCount, twentyOnePairs,
+} from "../lib/twenty-one-questions.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -29,6 +32,7 @@ const inks = {
   "top-nine": [["#361c60", "#fff1d5", "#ffbFA0"], ["#f3be78", "#25202a", "#692642"], ["#141f2c", "#e4f1ff", "#a4ccff"]],
   "tech-bingo": [["#841424", "#ffeed7", "#ffd08a"], ["#164934", "#fff6db", "#fdcb63"], ["#ece3d6", "#251a19", "#982b3d"]],
   "this-or-that": [["#10333c", "#f3faf3", "#ff6a4d"], ["#e8ddc4", "#1c2a24", "#b3372a"], ["#10161d", "#dff1ff", "#9fd4ff"]],
+  "twenty-one-questions": [["#f0e7d0", "#33202e", "#b06010"], ["#241a33", "#e9ddc6", "#d9a441"], ["#e7ecdc", "#22301f", "#5c7a3f"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -69,6 +73,32 @@ function drawFit(ctx: CanvasRenderingContext2D, text: string, x: number, y: numb
   lines.forEach((line, index) => {
     ctx.fillText(line, x, y + size + index * size * 1.14, width);
   });
+}
+
+/** The publisher line every exported card carries: the approved mark, the
+ * product name and site, and one optional byline. Shared by every experience
+ * renderer so single images and card sets sign off identically. */
+function signCard(
+  ctx: CanvasRenderingContext2D,
+  mark: HTMLImageElement,
+  width: number,
+  margin: number,
+  footer: number,
+  ink: string,
+  byline: string,
+) {
+  ctx.drawImage(mark, margin, footer, 36, 36);
+  ctx.fillStyle = ink;
+  ctx.font = "700 24px system-ui";
+  ctx.fillText("Made with App Composer", margin + 47, footer + 16);
+  ctx.font = "600 18px system-ui";
+  ctx.fillText("composer.loftwah.com", margin + 47, footer + 40);
+  if (byline) {
+    ctx.textAlign = "right";
+    ctx.font = "700 24px system-ui";
+    ctx.fillText(byline, width - margin, footer + 26, width - margin * 2 - 370);
+    ctx.textAlign = "left";
+  }
 }
 
 export async function renderExperienceResult(
@@ -175,18 +205,69 @@ export async function renderExperienceResult(
     const textY = wide ? panelY + 15 : panelY + imageH + 16;
     drawFit(ctx, result.subtitle ?? "", textX, textY, width - textX - margin, footer - textY - 10, wide ? 39 : 48);
   }
-  ctx.drawImage(mark, margin, footer, 36, 36);
-  ctx.fillStyle = ink;
-  ctx.font = "700 24px system-ui";
-  ctx.fillText("Made with App Composer", margin + 47, footer + 16);
-  ctx.font = "600 18px system-ui";
-  ctx.fillText("composer.loftwah.com", margin + 47, footer + 40);
-  if (result.byline) {
-    ctx.textAlign = "right";
-    ctx.font = "700 24px system-ui";
-    ctx.fillText(result.byline, width - margin, footer + 26, width - margin * 2 - 370);
-  }
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Could not export image")), "image/png");
   });
+}
+
+/** A twenty-one-questions export: the answered pairs split across several
+ * portrait 4:5 cards, numbered and signed like every other result image.
+ * Answers arrive only in the in-memory snapshot the caller already holds. */
+export async function renderExperienceCards(result: ShareExperienceResult): Promise<Blob[]> {
+  const pairs = twentyOnePairs(result.items ?? [], twentyOneQuestions);
+  if (!pairs.length) throw new Error("No answers to export");
+  const cards = splitTwentyOneCards(pairs);
+  const [width, height] = resultSizes.portrait;
+  const margin = Math.round(Math.min(width, height) * .067);
+  const footer = height - margin - 42;
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  const [paper, ink, accent] = inks[result.game][result.skin] ?? inks[result.game][0];
+  const answered = twentyOneAnswered(result.items ?? []);
+  const inner = width - margin * 2;
+  const blobs: Blob[] = [];
+  for (const [card, group] of cards.entries()) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Image rendering is unavailable");
+    ctx.fillStyle = paper;
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, margin, inner, 3);
+    ctx.fillStyle = ink;
+    drawFit(ctx, result.title, margin, margin + 14, inner, 96, 64);
+    ctx.font = "600 24px system-ui";
+    ctx.globalAlpha = .75;
+    ctx.fillText(`${answered} of ${twentyOneCount} answered · card ${card + 1} of ${cards.length}`, margin, margin + 132, inner);
+    ctx.globalAlpha = 1;
+    // Rows share the body evenly, so a short last card breathes and a full
+    // card shrinks its longest answers to fit instead of clipping them.
+    const rowsY = margin + 158;
+    const rowH = (footer - rowsY - 24) / group.length;
+    group.forEach((pair, row) => {
+      const y = rowsY + row * rowH;
+      if (row) {
+        ctx.save();
+        ctx.globalAlpha = .3;
+        ctx.fillStyle = ink;
+        ctx.fillRect(margin, y - 10, inner, 2);
+        ctx.restore();
+      }
+      ctx.fillStyle = accent;
+      const ask = fitText(ctx, `${pair.index + 1}. ${pair.question}`, inner, rowH * .42, 30);
+      ask.lines.forEach((line, lineIndex) => {
+        ctx.fillText(line, margin, y + 12 + ask.size + lineIndex * ask.size * 1.14, inner);
+      });
+      const answerTop = y + 12 + ask.lines.length * ask.size * 1.14 + 8;
+      ctx.fillStyle = ink;
+      drawFit(ctx, pair.answer, margin, answerTop, inner, y + rowH - 14 - answerTop, 36);
+    });
+    signCard(ctx, mark, width, margin, footer, ink, result.byline);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!blob) throw new Error("Could not export image");
+    blobs.push(blob);
+  }
+  return blobs;
 }

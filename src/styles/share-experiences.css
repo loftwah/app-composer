@@ -140,6 +140,29 @@
 .tot-result li { margin-block: .5rem; max-width: 46ch; color: inherit; }
 .tot-pick-question { display: block; font-size: .88rem; opacity: .78; margin-block-end: .1rem; }
 .tot-result li strong { font-size: 1.06rem; }
+.tq-progress { margin: 1.25rem 0 0; font-weight: 700; }
+.tq-question {
+  padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
+  min-height: 13rem; border-top: 1px solid currentColor;
+}
+.tq-question h2 { color: inherit; margin-top: 0; font-size: clamp(1.7rem, 4.3vw, 3.2rem); }
+.tq-answer-label { font-weight: 700; margin-top: .5rem; }
+.tq-answer {
+  display: block; inline-size: min(100%, 32rem);
+  margin: .4rem 0 .9rem; padding: .55em .6em;
+  color: #211a1b; background: #fff9ec;
+}
+.tq-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+.tq-quiet { margin-top: .5rem; }
+.tq-done p, .tq-summary p { color: inherit; max-width: 44ch; }
+.tq-picks { margin: .4rem 0 0; padding-inline-start: 1.5rem; }
+.tq-picks li {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: .15rem .8rem; margin-block: .55rem; max-width: 46ch; color: inherit;
+}
+.tq-pick-question { flex-basis: 100%; font-size: .88rem; opacity: .78; }
+.tq-picks strong { font-size: 1.06rem; }
+.tq-picks .secondary { min-height: 44px; padding: 4px 12px; font-size: .86rem; }
 .exhibition, .bingo-stage, .experience-export, .experience-custom {
   border: 1px solid var(--border, #77757b);
   padding: clamp(.85rem, 3vw, 1.8rem);
@@ -274,7 +297,7 @@
 @media (max-width: 450px) {
   .experience-heading { grid-template-columns: minmax(0, 1fr) minmax(5rem, .45fr); min-height: 0; align-items: center; }
   .experience-heading h1 { font-size: clamp(1.85rem, 8vw, 2.5rem); }
-  .exhibition-objects input { font-size: 16px; padding-inline: .3rem; }
+  .exhibition-objects input, .tq-answer { font-size: 16px; padding-inline: .3rem; }
   .music-kind, .music-search label, .music-search > button[type="submit"],
   .cover-pick label { flex: 1 1 100%; }
   .share-experience .bingo-grid button { padding-inline: .14rem; }

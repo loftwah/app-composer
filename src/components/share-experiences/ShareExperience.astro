@@ -2,9 +2,11 @@
 import "../../styles/share-experiences.css";
 import {
   developerBingo, doorChoices, doorRooms, exhibitionPrompts,
-  experiencePath, experiences, thisOrThatQuestions, type ExperienceId,
+  experiencePath, experiences, thisOrThatQuestions, twentyOneQuestions,
+  twentyOneResultTitle, type ExperienceId,
 } from "../../lib/share-experiences.ts";
 import { customThisOrThatOptionLimit, customThisOrThatPromptLimit } from "../../lib/this-or-that.ts";
+import { twentyOneAnswerLimit } from "../../lib/twenty-one-questions.ts";
 
 interface Props {
   game: ExperienceId;
@@ -16,6 +18,7 @@ const isDoor = game === "pick-a-door";
 const isNine = game === "top-nine";
 const isBingo = game === "tech-bingo";
 const isThis = game === "this-or-that";
+const isTwentyOne = game === "twenty-one-questions";
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 ---
 
@@ -244,8 +247,44 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     <button hidden type="button" class="secondary experience-reset" data-restart>Play again</button>
   </section>}
 
+  {isTwentyOne && <section data-play-panel class="door-stage" aria-label="Answer twenty-one questions">
+    <p class="tq-progress" role="status" data-tq-progress>Question 1 of {twentyOneQuestions.length} · 0 answered</p>
+    <section class="tq-question" data-tq-stage>
+      <h2 id="tq-prompt" tabindex="-1" data-tq-prompt>{twentyOneQuestions[0]}</h2>
+      <label class="tq-answer-label" for="tq-answer">Your answer</label>
+      <input id="tq-answer" type="text" maxlength={twentyOneAnswerLimit} autocomplete="off"
+        enterkeyhint="next" aria-describedby="tq-prompt" data-tq-answer />
+      <div class="tq-controls">
+        <button type="button" class="secondary" data-tq-back disabled>Back</button>
+        <button type="button" class="secondary" data-tq-skip>Skip this question</button>
+        <button type="button" data-tq-next>Next</button>
+      </div>
+      <div class="tq-controls tq-quiet">
+        <button type="button" class="secondary" data-tq-finish>See my answers</button>
+      </div>
+    </section>
+    <section hidden class="door-result tq-done" data-tq-done aria-label="All questions asked">
+      <h2 tabindex="-1">That’s all {twentyOneQuestions.length} questions.</h2>
+      <p data-tq-done-note></p>
+      <div class="tq-controls">
+        <button type="button" data-tq-finish>See my answers</button>
+        <button type="button" class="secondary" data-tq-back-from-done>Back to the last question</button>
+        <button type="button" class="secondary experience-reset" data-restart>Start over</button>
+      </div>
+    </section>
+    <section hidden class="door-result tq-summary" data-tq-summary aria-label="Your answers">
+      <h2 tabindex="-1" data-tq-summary-title>{twentyOneResultTitle}</h2>
+      <p hidden class="experience-note" data-tq-empty>No answers yet. Go back and answer at least one question.</p>
+      <ol class="tq-picks" data-tq-list></ol>
+      <div class="tq-controls">
+        <button type="button" class="secondary" data-tq-resume>Back to questions</button>
+        <button type="button" class="secondary experience-reset" data-restart>Start over</button>
+      </div>
+    </section>
+  </section>}
+
   <section class="experience-export" aria-label="Personalise and share">
-    <h2>Your share image</h2>
+    <h2>{isTwentyOne ? "Your share cards" : "Your share image"}</h2>
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
         <img alt="" hidden data-nine-preview-cover={index} />
@@ -258,25 +297,31 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
         {(isDoor ? ["Midnight cinema", "Newsprint", "Signal green"]
           : isNine ? ["Gallery", "Record sleeve", "Night exhibition"]
           : isThis ? ["Game show", "Newsprint", "Studio cyan"]
+          : isTwentyOne ? ["Amber slide", "Night archive", "Field notes"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
       </select></label>
-      <label>Format<select data-format>
+      {!isTwentyOne && <label>Format<select data-format>
         <option value="portrait">Portrait · 1080 × 1350</option>
         <option value="story">Story · 1080 × 1920</option>
         <option value="square">Square · 1080 × 1080</option>
         <option value="wide">Landscape · 1200 × 630</option>
-      </select></label>
+      </select></label>}
     </div>
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis}>Download result</button>
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne}>
+        {isTwentyOne ? "Prepare cards" : "Download result"}
+      </button>
       {isNine && <button type="button" class="secondary" data-copy-alt disabled aria-describedby="nine-alt-note">Copy image description</button>}
-      <button type="button" class="secondary" data-copy disabled={isDoor || isNine || isThis}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis}>Share result</button>
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne} disabled={isDoor || isNine || isThis || isTwentyOne}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne}>Share result</button>
     </div>
+    {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, an optional byline and your nine exhibit titles in top, middle and bottom rows.</p>}
-    <p class="experience-note" data-share-note>{isNine
+    <p class="experience-note" data-share-note>{isTwentyOne
+      ? "Your answers stay in this tab. Save your cards to keep a copy."
+      : isNine
       ? "A result link carries your title, exhibits, source links and byline. Cover images never go into the link — download the result image to keep them."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
@@ -284,7 +329,7 @@ const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.s
     {isNine && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">
