@@ -38,6 +38,7 @@ const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&next=browser'
    <div class="agent-entry">
     <a class="button" href={firstAgentGuide}>Set up my first agent <ArrowRight size={18} aria-hidden="true"/></a>
     <a href="#agent-start">{browserTask ? 'I have an agent. Show the browser check' : 'I already have an agent'}</a>
+    <a href="/ready/start-for-free">Read the free-first cheat sheet</a>
    </div>
   )}
  </div>
@@ -97,7 +98,7 @@ const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&next=browser'
   gap:.25rem;
   flex-shrink:0;
  }
- .agent-entry > a:last-child {display:flex;align-items:center;min-block-size:44px}
+ .agent-entry > a:not(.button) {display:flex;align-items:center;min-block-size:44px}
  @media(max-width:950px) {
   .agent-entry {margin-top:1.5rem}
  }
