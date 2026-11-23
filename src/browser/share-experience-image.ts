@@ -33,6 +33,10 @@ export interface ShareExperienceResult {
   /** Optional public HTTPS profile link. Interactive preview, draft and result
    * link only: exports and image descriptions never draw or print it. */
   profile?: string;
+  /** Optional exact public web page per manually named exhibit. Interactive
+   * board, draft and result link only: exports and descriptions never draw or
+   * print it, and nothing fetches or embeds it. */
+  pages?: (string | null)[];
   /** Explicit ranked board: occupied slots print #1–#9 in every format.
    * Absent keeps unordered favourites, so old links and drafts stay as they were. */
   ranked?: boolean;

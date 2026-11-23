@@ -26,6 +26,7 @@ import {
   type DraftStorage, type NineDraft,
 } from "../lib/share-experience-draft.ts";
 import { profileUrl } from "../lib/top-nine-profile.ts";
+import { normalisePageLinks, pageLink } from "../lib/top-nine-pages.ts";
 import {
   searchBooks,
 } from "../lib/top-nine-books.ts";
@@ -64,6 +65,10 @@ interface ResultSnapshot {
   ranked?: boolean;
   /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
+  /** Optional exact public web page per manually named exhibit. Interactive
+   * board, draft and result link only: absent when empty, never part of an
+   * export, and nothing here fetches or embeds it. */
+  pages?: (string | null)[];
   /** One optional public HTTPS profile link. Interactive preview, draft and
    * result link only; absent when empty and never part of an export. */
   profile?: string;
@@ -189,6 +194,14 @@ function mountNine(
   const profileStatus = root.querySelector<HTMLElement>("[data-profile-status]");
   const profileRow = root.querySelector<HTMLElement>("[data-nine-preview-profile]");
   const profileLink = root.querySelector<HTMLAnchorElement>("[data-nine-preview-profile-link]");
+  const page = {
+    panel: root.querySelector<HTMLDetailsElement>("[data-page-panel]")!,
+    target: root.querySelector<HTMLSelectElement>("[data-page-target-choice]")!,
+    form: root.querySelector<HTMLFormElement>("[data-page-form]")!,
+    input: root.querySelector<HTMLInputElement>("[data-page-url]")!,
+    status: root.querySelector<HTMLElement>("[data-page-status]")!,
+    linked: root.querySelector<HTMLUListElement>("[data-page-linked]")!,
+  };
   const objects = elements<HTMLInputElement>(root, "[data-object]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
   const swapTarget = root.querySelector<HTMLSelectElement>("[data-swap-target]")!;
@@ -247,6 +260,10 @@ function mountNine(
     try { return localStorage; } catch { return blockedStorage; }
   })();
   let hrefs: (string | null)[] = objects.map(() => null);
+  /** Exact public pages for manually named exhibits, each remembered with the
+   * title it was attached to so a retitled exhibit never keeps a stale link. */
+  let pageLinks: (string | null)[] = objects.map(() => null);
+  let pageTitles: string[] = objects.map(() => "");
   let covers: (CoverSlot | null)[] = objects.map(() => null);
   let target = 0;
   let coverTarget = 0;
@@ -321,6 +338,13 @@ function mountNine(
     });
   }
 
+  /** Exact pages for the current board: positional like source links, and
+   * only for an exhibit whose title still matches the attached page. */
+  function trimPages(value: unknown) {
+    const restored = normalisePageLinks(value);
+    return objects.map((input, index) => (input.value.trim() ? restored[index] ?? null : null));
+  }
+
   function markTarget() {
     music.target.value = String(target);
     objects.forEach((input, index) => {
@@ -328,6 +352,15 @@ function mountNine(
       input.closest("label")?.toggleAttribute("data-music-target", active);
       const marker = root.querySelector<HTMLElement>(`[data-exhibit-filling="${index}"]`);
       if (marker) marker.hidden = !active;
+    });
+  }
+
+  /** The page form marks its own target, so it stays independent of the
+   * provider search's Fill exhibit choice. */
+  function markPageTarget() {
+    const slot = Number(page.target.value);
+    objects.forEach((input, index) => {
+      input.closest("label")?.toggleAttribute("data-page-target", page.panel.open && index === slot);
     });
   }
 
@@ -376,6 +409,7 @@ function mountNine(
   }
 
   function refreshLinks() {
+    if (prunePages()) renderPreview();
     hrefs.forEach((href, index) => {
       const source = sourceLink(href);
       objects[index].closest("label")?.toggleAttribute("data-has-link", Boolean(source));
@@ -385,6 +419,7 @@ function mountNine(
       state.textContent = source ? `${source.provider} link` : "";
     });
     renderLinked();
+    renderPages();
   }
 
   function setLink(index: number, href: string | null) {
@@ -500,6 +535,76 @@ function mountNine(
     profileLink.textContent = "";
   }
 
+  /** The exact page for one exhibit, only while its title is still the one the
+   * page was attached to. An edit, a provider fill or an empty slot never
+   * leaves an old address hanging from a different title. */
+  function livePage(index: number) {
+    const href = pageLinks[index];
+    return href && pageTitles[index] === objects[index].value.trim() ? href : null;
+  }
+
+  /** Retire any page whose title changed without going through the page form,
+   * such as a provider pick or a pasted source link filling the same slot. */
+  function prunePages() {
+    let changed = false;
+    pageLinks.forEach((href, index) => {
+      if (!href || pageTitles[index] === objects[index].value.trim()) return;
+      pageLinks[index] = null;
+      pageTitles[index] = "";
+      changed = true;
+    });
+    return changed;
+  }
+
+  function pageHost(href: string) {
+    try { return new URL(href).hostname.replace(/^www\./, "") || "web page"; } catch { return "web page"; }
+  }
+
+  /** The compact management list for exact pages: one outbound open and one
+   * intentional remove per manually named exhibit. No fetch, embed or upload. */
+  function renderPages() {
+    objects.forEach((_, index) => {
+      const state = root.querySelector<HTMLElement>(`[data-page-slot-state="${index}"]`);
+      if (!state) return;
+      const href = livePage(index);
+      state.hidden = !href;
+      state.textContent = href ? `Web page · ${pageHost(href)}` : "";
+    });
+    page.linked.replaceChildren();
+    pageLinks.forEach((_, index) => {
+      const href = livePage(index);
+      if (!href) return;
+      const name = entry(objects[index].value, 40) || "untitled";
+      const row = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = `Exhibit ${index + 1} · ${name} · ${pageHost(href)}`;
+      const open = document.createElement("a");
+      open.className = "button secondary";
+      open.href = href;
+      open.target = "_blank";
+      open.rel = "noopener noreferrer ugc";
+      open.textContent = "Open page";
+      open.setAttribute("aria-label", `Open the web page for exhibit ${index + 1} in a new tab`);
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "secondary";
+      remove.textContent = "Remove page";
+      remove.setAttribute("aria-label", `Remove the web page link from exhibit ${index + 1}`);
+      remove.addEventListener("click", () => {
+        pageLinks[index] = null;
+        pageTitles[index] = "";
+        page.status.textContent = `Exhibit ${index + 1} keeps its title. Its web page link was removed.`;
+        renderPages();
+        renderPreview();
+        update();
+        page.panel.querySelector("summary")?.focus({ preventScroll: true });
+      });
+      row.append(label, open, remove);
+      page.linked.append(row);
+    });
+    page.linked.hidden = !page.linked.childElementCount;
+  }
+
   /** The in-page grid mirrors what the downloaded image will hang: cover first,
    * title on top, in the exhibition's own cell colours. An explicitly ranked
    * board also numbers every occupied slot here, exactly as the export does. */
@@ -514,8 +619,26 @@ function mountNine(
       const slot = covers[index];
       const showRank = ranked && Boolean(objects[index].value.trim());
       const image = cell.querySelector<HTMLImageElement>("[data-nine-preview-cover]")!;
-      const caption = cell.querySelector<HTMLElement>("[data-nine-preview-caption]")!;
-      caption.textContent = objects[index].value.trim() || "—";
+      const caption = cell.querySelector<HTMLAnchorElement>("[data-nine-preview-caption]")!;
+      const label = objects[index].value.trim() || "—";
+      caption.textContent = label;
+      // A manually attached page makes the board title itself an ordinary
+      // outbound link. No page means no href, so the caption stays plain text.
+      const pageHref = livePage(index);
+      if (pageHref) {
+        caption.href = pageHref;
+        caption.target = "_blank";
+        caption.rel = "noopener noreferrer ugc";
+        caption.title = pageHref;
+        caption.setAttribute("aria-label",
+          `${objects[index].value.trim() || `Exhibit ${index + 1}`} — open its web page in a new tab`);
+      } else {
+        caption.removeAttribute("href");
+        caption.removeAttribute("target");
+        caption.removeAttribute("rel");
+        caption.removeAttribute("title");
+        caption.removeAttribute("aria-label");
+      }
       const badge = rankBadges[index];
       if (badge) badge.hidden = !showRank;
       const mark = rankMarks[index];
@@ -968,7 +1091,10 @@ function mountNine(
     cancelLookup();
     closePreview(false);
     hrefs = restoredHrefs;
+    pageLinks = trimPages(draft.pages);
+    pageTitles = objects.map((input) => input.value.trim());
     if (hrefs.some(Boolean)) music.panel.open = true;
+    if (pageLinks.some(Boolean)) page.panel.open = true;
     const empty = firstEmpty();
     target = empty < 0 ? 0 : empty;
     markTarget();
@@ -1003,6 +1129,8 @@ function mountNine(
     objects[from].value = objects[to].value;
     objects[to].value = first;
     [hrefs[from], hrefs[to]] = [hrefs[to], hrefs[from]];
+    [pageLinks[from], pageLinks[to]] = [pageLinks[to], pageLinks[from]];
+    [pageTitles[from], pageTitles[to]] = [pageTitles[to], pageTitles[from]];
     [covers[from], covers[to]] = [covers[to], covers[from]];
     if (previewIndex === from || previewIndex === to) closePreview(false);
     refreshLinks();
@@ -1054,6 +1182,8 @@ function mountNine(
     markCoverTarget();
   });
   cover.panel.addEventListener("toggle", markCoverTarget);
+  page.target.addEventListener("change", markPageTarget);
+  page.panel.addEventListener("toggle", markPageTarget);
   cover.file.addEventListener("change", () => {
     const file = cover.file.files?.[0];
     // Reset the input so picking the same file again after a removal re-fires.
@@ -1153,6 +1283,35 @@ function mountNine(
     // preview exist.
     if (!typed) void fillAlbumTitle(slot, source.href);
   });
+  /** Attach one exact public page to a title the person typed. Replacing an
+   * existing page is a second deliberate submit; nothing is fetched or embedded. */
+  page.form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const href = pageLink(page.input.value);
+    if (!href) {
+      page.status.textContent = "That isn’t a public HTTPS page. Use a full address beginning with https://.";
+      page.input.focus();
+      page.input.select();
+      return;
+    }
+    const slot = Number(page.target.value);
+    const name = objects[slot]?.value.trim() ?? "";
+    if (!name) {
+      page.status.textContent = `Type exhibit ${slot + 1}’s title first, then attach its page.`;
+      objects[slot].focus();
+      return;
+    }
+    const previous = livePage(slot);
+    pageLinks[slot] = href;
+    pageTitles[slot] = name;
+    page.input.value = "";
+    renderPages();
+    renderPreview();
+    page.status.textContent = `Exhibit ${slot + 1} links to ${href}.${previous && previous !== href
+      ? " The previous page was replaced."
+      : " Its title stays as you typed it."}`;
+    update();
+  });
   objects.forEach((input, index) => {
     input.addEventListener("paste", (event) => {
       const text = event.clipboardData?.getData("text")?.trim() ?? "";
@@ -1162,10 +1321,23 @@ function mountNine(
       const typed = input.value.trim();
       setLink(index, source.href);
       if (!typed || /^https?:\/\//i.test(typed)) input.value = "";
+      if (prunePages()) {
+        renderPages();
+        renderPreview();
+      }
       note(`Exhibit ${index + 1} has a ${source.provider} link. ${input.value.trim() ? "Its title stays as you typed it." : "Type its title, or search for it."}`);
       update();
     });
     input.addEventListener("input", () => {
+      // A page belongs to the exact title it was attached to. Changing that
+      // title detaches it explicitly instead of leaving a stale address.
+      if (pageLinks[index] && pageTitles[index] !== input.value.trim()) {
+        pageLinks[index] = null;
+        pageTitles[index] = "";
+        page.status.textContent = `Exhibit ${index + 1} no longer has its web page link because its title changed. Attach the page again if it still belongs.`;
+        renderPages();
+        renderPreview();
+      }
       if (input.value.trim()) return;
       const hadLink = Boolean(hrefs[index]);
       const hadCover = Boolean(covers[index]);
@@ -1192,6 +1364,7 @@ function mountNine(
       skin: Number(chooseSkin.value),
       ranked: rankedBox.checked ? true : undefined,
       hrefs: hrefs.slice(),
+      pages: objects.map((_, index) => livePage(index)),
     });
     if (outcome === "saved") {
       openDraft.hidden = true;
@@ -1230,6 +1403,7 @@ function mountNine(
   markTarget();
   refreshLinks();
   markCoverTarget();
+  markPageTarget();
   renderCovers();
   renderPreview();
   if (previewGrid) previewGrid.hidden = false;
@@ -1241,11 +1415,13 @@ function mountNine(
       if (!heading || !items.every(Boolean)) return null;
       const line = entry(subtitle.value, nineSubtitleLimit);
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
+      const pageOut = objects.map((_, index) => livePage(index));
       const profileHref = profile ? profileUrl(profile.value) : null;
       return {
         title: heading, items,
         ...(line ? { subtitle: line } : {}),
         ...(links ? { hrefs: links } : {}),
+        ...(pageOut.some(Boolean) ? { pages: pageOut } : {}),
         ...(profileHref ? { profile: profileHref } : {}),
         ...(rankedBox.checked ? { ranked: true } : {}),
       };
@@ -1269,7 +1445,10 @@ function mountNine(
       cancelLookup();
       closePreview(false);
       hrefs = trimHrefs(snapshot.hrefs);
+      pageLinks = trimPages(snapshot.pages);
+      pageTitles = objects.map((input) => input.value.trim());
       if (hrefs.some(Boolean)) music.panel.open = true;
+      if (pageLinks.some(Boolean)) page.panel.open = true;
       const empty = firstEmpty();
       target = empty < 0 ? 0 : empty;
       markTarget();
@@ -2233,7 +2412,10 @@ function mountBingo(root: HTMLElement): Controller {
 }
 
 function sharedResult(game: ExperienceId): { snapshot: Record<string, unknown> | null; invalid: boolean } {
-  if (location.hash.length > 10_000) return { snapshot: null, invalid: false };
+  // Nine additional URLs can each expand when form-encoded. Keep room for
+  // the full Top Nine board while retaining the existing bound on other games.
+  const limit = game === "top-nine" ? 20_000 : 10_000;
+  if (location.hash.length > limit) return { snapshot: null, invalid: false };
   const shared = new URLSearchParams(location.hash.slice(1)).get("result");
   if (!shared) return { snapshot: null, invalid: false };
   try {
@@ -2396,9 +2578,9 @@ export function mountShareExperience(root: HTMLElement) {
     status.textContent = cardDownloads ? "Preparing your cards…" : "Preparing your image…";
     const attempt = cardVersion;
     try {
-      // Links and the optional profile belong to the interactive result and
-      // result link; the image stays text-only.
-      const { hrefs: _links, profile: _profile, ...drawn } = snapshot;
+      // Links, web pages and the optional profile belong to the interactive
+      // result and result link; the image stays text-only.
+      const { hrefs: _links, profile: _profile, pages: _pages, ...drawn } = snapshot;
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       if (cardDownloads) {
@@ -2469,9 +2651,9 @@ export function mountShareExperience(root: HTMLElement) {
     status.textContent = "Copying image…";
     let message: string;
     try {
-      // Links and the optional profile belong to the interactive result and
-      // result link; the pasted image stays text-only.
-      const { hrefs: _links, profile: _profile, ...drawn } = snapshot;
+      // Links, web pages and the optional profile belong to the interactive
+      // result and result link; the pasted image stays text-only.
+      const { hrefs: _links, profile: _profile, pages: _pages, ...drawn } = snapshot;
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       // Give Safari the PNG promise during the tap, before any export or decode wait.
