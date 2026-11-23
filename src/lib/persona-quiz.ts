@@ -142,6 +142,11 @@ export interface PersonaCardPrint {
   readonly reason: string;
 }
 
+/** Trusted public result text and a direct link to take the original quiz. */
+export function personaCaption(outcome: Pick<PersonaCardPrint, "archetype" | "subject">, href: string): string {
+  return `${outcome.archetype} — ${outcome.subject}\n${href}`;
+}
+
 /** The runtime view one quiz page needs. It keeps pack-specific wording in the
  * pack and shared stage mechanics in the controller. */
 export interface PersonaPackOutcome extends PersonaCardPrint {

@@ -456,6 +456,16 @@
   color: #211a1b; background: #fff9ec;
 }
 .persona-link .experience-note { flex-basis: 100%; max-inline-size: none; margin: 0; }
+.persona-caption {
+  flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center;
+  gap: .5rem .6rem; margin-top: .35rem; padding-top: .55rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+}
+.persona-caption .experience-note { flex-basis: 100%; max-inline-size: none; margin: 0; }
+.persona-caption textarea {
+  flex: 1 1 100%; min-inline-size: 0;
+  color: #211a1b; background: #fff9ec;
+}
 .persona-result [data-persona-docs] {
   color: var(--stage-ink); text-decoration: underline; text-underline-offset: .18em;
 }
