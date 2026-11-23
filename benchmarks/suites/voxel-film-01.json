@@ -1,0 +1,40 @@
+{
+  "schema": "benchmark-suite/v1",
+  "id": "VOXEL-FILM-01",
+  "name": "Code-authored world: offline contract smoke",
+  "description": "Provider-free fictional five-tile scene checks, with real browser rendering, agent construction, source reopening, GPU film export and visual quality explicitly left unverified.",
+  "kind": "deterministic",
+  "providerFree": true,
+  "requirements": {
+    "network": false,
+    "credentials": [],
+    "spendMicro": 0
+  },
+  "checks": [
+    {
+      "module": "voxel-film-01",
+      "id": "synthetic-world-contract"
+    },
+    {
+      "module": "voxel-film-01",
+      "id": "synthetic-frame-seek"
+    },
+    {
+      "module": "voxel-film-01",
+      "id": "synthetic-invalid-manifests"
+    },
+    {
+      "module": "voxel-film-01",
+      "id": "studio-film-not-verified"
+    }
+  ],
+  "evidence": {
+    "status": "not-run",
+    "note": "No committed run receipt. The fictional local checks can run for free, but actual Studio GPU rendering, exported film and visual acceptance remain unverified."
+  },
+  "limits": [
+    "Fixture checks are synthetic contracts, not an executable 3D scene or rendered media.",
+    "A fixture pass does not establish any Media Studio browser or GPU capability.",
+    "The real film case remains blocked until an authorised 240-frame rendered MP4/WebM, saved editable source, human review and measured cost are present."
+  ]
+}
