@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  sweetOrSpicyQuestions, sweetOrSpicyResultTitle, thisOrThatPacks,
-  thisOrThatQuestions, thisOrThatResultTitle,
+  gamesQuestions, gamesResultTitle, sweetOrSpicyQuestions, sweetOrSpicyResultTitle,
+  thisOrThatPacks, thisOrThatQuestions, thisOrThatResultTitle,
 } from '../src/lib/share-experiences.ts';
 import {
   pickThisOrThat, restoreThisOrThatPack, restoreThisOrThatPicks,
@@ -113,17 +113,33 @@ test('the food starter is five original sweet-or-spicy choices from one point of
   }
 });
 
+test('the games starter has five complete pairs and its own result', () => {
+  assert.equal(gamesQuestions.length, 5);
+  assert.equal(thisOrThatPacks.games.questions, gamesQuestions);
+  assert.equal(thisOrThatPacks.games.title, gamesResultTitle);
+  assert.notEqual(gamesResultTitle, thisOrThatResultTitle);
+  assert.notEqual(gamesResultTitle, sweetOrSpicyResultTitle);
+  for (const [prompt, left, right] of gamesQuestions) {
+    assert.match(prompt, /\S/);
+    assert.ok(left.trim() === left && left.length > 0);
+    assert.ok(right.trim() === right && right.length > 0);
+    assert.notEqual(left, right);
+  }
+});
+
 test('a shared starter is explicit and version-safe; old links stay maker', () => {
   for (const value of [undefined, null, '', 'unknown', 5, {}, ['maker']]) {
     assert.equal(restoreThisOrThatPack(value), 'maker', 'absent or invalid packs keep the original starter');
   }
   assert.equal(restoreThisOrThatPack('maker'), 'maker');
   assert.equal(restoreThisOrThatPack('food'), 'food');
+  assert.equal(restoreThisOrThatPack('games'), 'games');
   assert.equal(thisOrThatPacks.maker.title, thisOrThatResultTitle);
+  assert.equal(thisOrThatPacks.food.title, sweetOrSpicyResultTitle);
 });
 
 test('a shared result restores the exact starter and its exact choice texts', () => {
-  for (const pack of ['maker', 'food']) {
+  for (const pack of ['maker', 'food', 'games']) {
     const selected = thisOrThatPacks[pack];
     const sides = restoreThisOrThatPicks([0, 1, 0, 1, 0]);
     const summary = thisOrThatSummary(sides, selected.questions, selected.title);
@@ -138,7 +154,7 @@ test('a shared result restores the exact starter and its exact choice texts', ()
 test('the starter survives the exact shared-snapshot encode/decode round trip', () => {
   // Mirrors resultLink (URLSearchParams + JSON.stringify) and sharedResult
   // (URLSearchParams.get + JSON.parse) in src/browser/share-experiences.ts.
-  for (const pack of ['maker', 'food']) {
+  for (const pack of ['maker', 'food', 'games']) {
     const encoded = new URLSearchParams({ result: JSON.stringify({ game: 'this-or-that', pack }) }).toString();
     const decoded = JSON.parse(new URLSearchParams(encoded).get('result'));
     assert.equal(decoded.game, 'this-or-that');
@@ -151,7 +167,8 @@ test('a blank starter link is the canonical path with at most one exact pack and
   assert.equal(thisOrThatBlankPath, '/share/experiences/this-or-that');
   assert.equal(thisOrThatBlankLink('maker'), '/share/experiences/this-or-that');
   assert.equal(thisOrThatBlankLink('food'), '/share/experiences/this-or-that?pack=food');
-  for (const pack of ['maker', 'food']) {
+  assert.equal(thisOrThatBlankLink('games'), '/share/experiences/this-or-that?pack=games');
+  for (const pack of ['maker', 'food', 'games']) {
     const link = thisOrThatBlankLink(pack);
     assert.equal(link.includes('#'), false, 'no result fragment travels');
     assert.equal(link.includes('result='), false);
@@ -159,7 +176,7 @@ test('a blank starter link is the canonical path with at most one exact pack and
     assert.equal(link.includes('answer'), false);
     assert.deepEqual(
       [...new URLSearchParams(link.split('?')[1] ?? '').keys()],
-      pack === 'food' ? ['pack'] : [],
+      pack === 'maker' ? [] : ['pack'],
       'no query except the exact optional pack',
     );
   }
@@ -169,17 +186,18 @@ test('a blank link only reopens a starter for exactly one known pack value', () 
   assert.equal(thisOrThatPackFromQuery(''), 'maker');
   assert.equal(thisOrThatPackFromQuery('?'), 'maker');
   assert.equal(thisOrThatPackFromQuery('?pack=food'), 'food');
+  assert.equal(thisOrThatPackFromQuery('?pack=games'), 'games');
   assert.equal(thisOrThatPackFromQuery('pack=maker'), 'maker');
   // Missing, repeated, custom and malformed hints never invent a preset.
   for (const search of [
     '?pack=', '?pack=unknown', '?pack=custom', '?pack=food&pack=food',
-    '?pack=food&pack=maker', '?pack[]=food',
+    '?pack=games&pack=games', '?pack=food&pack=maker', '?pack[]=food', '?pack[]=games',
     '?result=%7B%22game%22%3A%22this-or-that%22%7D',
   ]) {
     assert.equal(thisOrThatPackFromQuery(search), 'maker', `${search || 'empty'} stays Maker`);
   }
   for (const search of ['', '?pack=', '?pack=unknown', '?pack=custom', '?pack=food&pack=food']) {
     assert.equal(thisOrThatBlankLink(thisOrThatPackFromQuery(search)), thisOrThatBlankPath,
-      'only one known food hint produces the pack URL');
+      'only one known pack hint produces a pack URL');
   }
 });

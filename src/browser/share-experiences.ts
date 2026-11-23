@@ -1369,7 +1369,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   });
 
   // The blank link hands over the same preset with none of this run's answers:
-  // the canonical path and, for the food starter, one exact pack parameter.
+  // the canonical path and, for a non-maker starter, one exact pack parameter.
   // No fragment, result, byline, answers or other query travels. A written five
   // has no link at all, so its reveal never offers this action.
   blankCopy.addEventListener("click", async () => {
