@@ -51,6 +51,13 @@ import {
 import {
   coverFileLimit, coverHeadLimit, coverPixelLimit, coverWorkingMax, sniffCover, type CoverFit,
 } from "../lib/top-nine-cover.ts";
+import {
+  addTierListEntry, editTierListEntry, emptyTierListBoard, moveTierListEntry,
+  removeTierListEntry, startTierListBoard, tierListCount, tierListDefaultTitle,
+  tierListEntryLimit, tierListEntryTotal, tierListExampleTitle, tierListHasRoom,
+  tierListRowEntryLimit, tierListSnapshot, tierListTiers,
+  type TierListBoard,
+} from "../lib/tier-list.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import {
   normaliseSourceLinks, sourceLink,
@@ -67,6 +74,9 @@ interface ResultSnapshot {
   marked?: number[];
   /** Which This or That starter a shared link reopens; absent means maker. */
   pack?: ThisOrThatPack;
+  /** Tier-list only: entries per row, summing to items. The board never
+   * becomes a link, so this value stays in the tab. */
+  tierSizes?: number[];
   /** Explicit ranked ordering. Absent keeps unordered favourites, so older
    * results and links restore exactly as they were. */
   ranked?: boolean;
@@ -2933,6 +2943,194 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   };
 }
 
+/** The four-row personal board. Entries are edited in place, moved between
+ * rows with a labelled native select, and removed one at a time. The board
+ * starts empty; the optional starter is original copy and never overwrites
+ * typed work. Nothing here is saved, published or serialised into a link. */
+function mountTierList(root: HTMLElement, update: () => void): Controller {
+  const title = root.querySelector<HTMLInputElement>("[data-tier-title]")!;
+  const starter = root.querySelector<HTMLButtonElement>("[data-tier-starter]")!;
+  const addForm = root.querySelector<HTMLFormElement>("[data-tier-add]")!;
+  const addText = root.querySelector<HTMLInputElement>("[data-tier-add-text]")!;
+  const addRow = root.querySelector<HTMLSelectElement>("[data-tier-add-row]")!;
+  const status = root.querySelector<HTMLElement>("[data-tier-status]")!;
+  const lists = elements<HTMLOListElement>(root, "[data-tier-list]");
+  const empties = elements<HTMLElement>(root, "[data-tier-empty]");
+  const counts = elements<HTMLElement>(root, "[data-tier-count]");
+  let board: TierListBoard = emptyTierListBoard();
+
+  function sync() {
+    board.forEach((row, index) => {
+      counts[index].textContent = `${row.length} of ${tierListRowEntryLimit}`;
+      empties[index].hidden = row.length > 0;
+      lists[index].hidden = row.length === 0;
+    });
+    const full = tierListCount(board) >= tierListEntryTotal;
+    starter.disabled = tierListCount(board) > 0;
+    addForm.querySelector<HTMLButtonElement>("[type=submit]")!.disabled = full;
+    Array.from(addRow.options).forEach((option, index) => {
+      option.disabled = full || !tierListHasRoom(board, index);
+    });
+  }
+
+  function focusEntry(row: number, index: number) {
+    root.querySelector<HTMLInputElement>(
+      `[data-tier-entry][data-row="${row}"][data-index="${index}"]`,
+    )?.focus({ preventScroll: true });
+  }
+
+  function render() {
+    board.forEach((row, rowIndex) => {
+      lists[rowIndex].replaceChildren(...row.map((text, index) => {
+        const item = document.createElement("li");
+        item.className = "tier-entry";
+        const field = document.createElement("input");
+        field.type = "text";
+        field.value = text;
+        field.maxLength = tierListEntryLimit;
+        field.autocomplete = "off";
+        field.dataset.tierEntry = "";
+        field.dataset.row = String(rowIndex);
+        field.dataset.index = String(index);
+        field.setAttribute("aria-label", `${tierListTiers[rowIndex].label} entry ${index + 1}`);
+        const move = document.createElement("select");
+        move.dataset.tierMove = "";
+        move.dataset.row = String(rowIndex);
+        move.dataset.index = String(index);
+        move.setAttribute("aria-label", `Move ${text.trim() || "this empty entry"} to another row`);
+        tierListTiers.forEach((tier, target) => {
+          const option = document.createElement("option");
+          option.value = String(target);
+          option.textContent = tier.label;
+          option.selected = target === rowIndex;
+          option.disabled = target !== rowIndex && board[target].length >= tierListRowEntryLimit;
+          move.append(option);
+        });
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "secondary";
+        remove.dataset.tierRemove = "";
+        remove.dataset.row = String(rowIndex);
+        remove.dataset.index = String(index);
+        remove.textContent = "Remove";
+        remove.setAttribute("aria-label", `Remove ${text.trim() || "this empty entry"} from ${tierListTiers[rowIndex].label}`);
+        item.append(field, move, remove);
+        return item;
+      }));
+    });
+    sync();
+  }
+
+  root.addEventListener("input", (event) => {
+    const field = (event.target as HTMLElement).closest<HTMLInputElement>("[data-tier-entry]");
+    if (!field) return;
+    const row = Number(field.dataset.row);
+    const next = editTierListEntry(board, row, Number(field.dataset.index), field.value);
+    if (next) board = next;
+    const label = field.value.trim() || "this empty entry";
+    const item = field.closest(".tier-entry");
+    item?.querySelector("[data-tier-move]")?.setAttribute("aria-label", `Move ${label} to another row`);
+    item?.querySelector("[data-tier-remove]")?.setAttribute("aria-label", `Remove ${label} from ${tierListTiers[row].label}`);
+    sync();
+    update();
+  });
+
+  root.addEventListener("change", (event) => {
+    const move = (event.target as HTMLElement).closest<HTMLSelectElement>("[data-tier-move]");
+    if (!move) return;
+    const fromRow = Number(move.dataset.row);
+    const index = Number(move.dataset.index);
+    const toRow = Number(move.value);
+    const moved = moveTierListEntry(board, fromRow, index, toRow);
+    if (!moved) {
+      move.value = String(fromRow);
+      status.textContent = "That row is full. Choose another row first.";
+      return;
+    }
+    if (toRow === fromRow) return;
+    board = moved.board;
+    render();
+    update();
+    focusEntry(toRow, moved.index);
+    status.textContent = `Moved to ${tierListTiers[toRow].label}.`;
+  });
+
+  root.addEventListener("click", (event) => {
+    const remove = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-tier-remove]");
+    if (!remove) return;
+    const row = Number(remove.dataset.row);
+    const index = Number(remove.dataset.index);
+    const text = board[row]?.[index] ?? "";
+    const next = removeTierListEntry(board, row, index);
+    if (!next) return;
+    board = next;
+    render();
+    update();
+    addText.focus({ preventScroll: true });
+    status.textContent = `Removed ${text.trim() || "the empty entry"} from ${tierListTiers[row].label}.`;
+  });
+
+  addForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const row = Number(addRow.value);
+    if (tierListCount(board) >= tierListEntryTotal) {
+      status.textContent = `A board holds up to ${tierListEntryTotal} entries. Remove one to add another.`;
+      return;
+    }
+    if (!tierListHasRoom(board, row)) {
+      status.textContent = `${tierListTiers[row].label} already holds ${tierListRowEntryLimit} entries. Choose another row or remove one.`;
+      return;
+    }
+    const text = addText.value.trim();
+    if (!text) {
+      status.textContent = "Type an entry first.";
+      addText.focus();
+      return;
+    }
+    const next = addTierListEntry(board, row, text);
+    if (!next) {
+      status.textContent = "That entry could not be added. Try a shorter one.";
+      return;
+    }
+    board = next;
+    addText.value = "";
+    render();
+    update();
+    focusEntry(row, board[row].length - 1);
+    status.textContent = `Added to ${tierListTiers[row].label}.`;
+  });
+
+  starter.addEventListener("click", () => {
+    if (tierListCount(board) > 0) {
+      status.textContent = "Remove your entries first if you want the example.";
+      return;
+    }
+    board = startTierListBoard();
+    if (!title.value.trim() || title.value === tierListDefaultTitle) title.value = tierListExampleTitle;
+    render();
+    update();
+    focusEntry(0, 0);
+    status.textContent = "Example added. Edit any entry, move it to another row, or remove it.";
+  });
+
+  title.addEventListener("input", update);
+  render();
+
+  return {
+    result() {
+      const snapshot = tierListSnapshot(title.value, board);
+      return snapshot
+        ? { title: snapshot.title, items: snapshot.items, tierSizes: snapshot.tierSizes }
+        : null;
+    },
+    linksAllowed: () => false,
+    restore() {
+      // A tier board never travels in a result link; a crafted fragment cannot
+      // fill or replace the board this tab is editing.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -3292,6 +3490,8 @@ export function mountShareExperience(root: HTMLElement) {
       : "Answer every question to download your result.";
     else if (!canShare && game === "twenty-one-questions") {
       status.textContent = "";
+    } else if (!canShare && game === "tier-list") {
+      status.textContent = "Add at least one entry to download your board.";
     } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
@@ -3302,6 +3502,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
     : game === "this-or-that" ? mountThisOrThat(root, update)
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
+    : game === "tier-list" ? mountTierList(root, update)
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
@@ -3323,10 +3524,11 @@ export function mountShareExperience(root: HTMLElement) {
     });
   }
 
-  // Twenty-one questions never produces result links, and a persona result
-  // link is the answer-free `#result=<id>` fragment the quiz reads itself:
-  // neither is the generic JSON snapshot, so a crafted hash restores nothing.
-  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type"
+  // Twenty-one questions and the tier list never produce result links, and a
+  // persona result link is the answer-free `#result=<id>` fragment the quiz
+  // reads itself: none is the generic JSON snapshot, so a crafted hash
+  // restores nothing.
+  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -3634,7 +3836,7 @@ export function mountShareExperience(root: HTMLElement) {
   // Twenty-one questions has no result link to hand over, and a persona result
   // hands its answer-free link over in the result panel instead. The native
   // share sheet stays off for all of them.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && !persona) {
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;
