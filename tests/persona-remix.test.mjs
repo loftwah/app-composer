@@ -2,8 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
+  personaDraftFileLimit, personaDraftFileName, personaDraftFileSchema,
   personaDraftOptionLimit, personaDraftPromptLimit, personaDraftTitleLimit,
-  readPersonaDraft,
+  readPersonaDraft, readPersonaDraftFile, writePersonaDraftFile,
 } from '../src/lib/persona-quiz.ts';
 import {
   developerTypePersona, languageTypePersona, personaPacks,
@@ -60,6 +61,114 @@ test('the pack exposes each choice position with its trusted built-in mapping', 
         assert.notEqual(option.primary.id, option.secondary.id);
       }
     }
+  }
+});
+
+test('a saved draft file carries only the exact pack, version and visible text', () => {
+  for (const pack of packs) {
+    const read = readPersonaDraft(`My ${pack.stageLabel} remix`, rowsFor(pack), pack.questionCount);
+    assert.equal(read.gap, null);
+    const text = writePersonaDraftFile(pack.game, read.draft);
+    assert.ok(Buffer.byteLength(text, 'utf8') <= personaDraftFileLimit,
+      'the exact bytes stay inside the advertised file bound');
+    assert.equal(personaDraftFileName(pack.game), `composer-${pack.game}-draft.json`);
+    const saved = JSON.parse(text);
+    assert.deepEqual(Object.keys(saved), ['schema', 'game', 'title', 'questions']);
+    assert.equal(saved.schema, personaDraftFileSchema);
+    assert.equal(saved.game, pack.game);
+    assert.equal(saved.title, read.draft.title);
+    saved.questions.forEach((question, index) => {
+      assert.deepEqual(Object.keys(question), ['prompt', 'options']);
+      assert.equal(question.prompt, pack.questions[index].prompt);
+      assert.deepEqual(question.options, pack.questions[index].options.map((option) => option.label));
+    });
+    for (const forbidden of ['http', 'workers-kv', 'result=']) {
+      assert.ok(!text.toLowerCase().includes(forbidden), `a draft file carries no ${forbidden}`);
+    }
+    // Every key is one of the visible-text fields; no answer, outcome,
+    // identity or link field exists anywhere in the file.
+    const keys = new Set();
+    const collect = (value) => {
+      if (Array.isArray(value)) {
+        value.forEach(collect);
+        return;
+      }
+      if (value && typeof value === 'object') {
+        for (const [key, entry] of Object.entries(value)) {
+          keys.add(key);
+          collect(entry);
+        }
+      }
+    };
+    collect(saved);
+    assert.deepEqual([...keys].sort(), ['game', 'options', 'prompt', 'questions', 'schema', 'title']);
+    const reopened = readPersonaDraftFile(pack.game, text, pack.questionCount);
+    assert.equal(reopened.fault, null);
+    assert.equal(reopened.gap, null);
+    assert.deepEqual(reopened.draft, read.draft);
+    assert.equal(writePersonaDraftFile(pack.game, reopened.draft), text,
+      'the same draft always writes the exact portable bytes');
+  }
+});
+
+test('a foreign, unknown, wrong-pack or malformed file leaves the editor usable', () => {
+  const pack = developerTypePersona;
+  const read = readPersonaDraft('Draft', rowsFor(pack), pack.questionCount);
+  const saved = JSON.parse(writePersonaDraftFile(pack.game, read.draft));
+  const check = (value, game = pack.game) => readPersonaDraftFile(
+    game, typeof value === 'string' ? value : JSON.stringify(value), pack.questionCount);
+
+  assert.equal(check('{').fault, 'unreadable');
+  assert.equal(check('[]').fault, 'unreadable');
+  assert.equal(check({ ...saved, schema: 'composer.other/1' }).fault, 'schema');
+  assert.equal(check({ ...saved, schema: 'composer.persona-quiz-draft/2' }).fault, 'version');
+  assert.equal(check(saved, languageTypePersona.game).fault, 'pack');
+  assert.equal(check({ ...saved, answers: [1, 2] }).fault, 'shape');
+  assert.equal(check({ ...saved, questions: saved.questions.slice(1) }).fault, 'shape');
+  assert.equal(check({
+    ...saved,
+    questions: [{ ...saved.questions[0], options: ['a', 'b', 'c'] }, ...saved.questions.slice(1)],
+  }).fault, 'shape');
+  assert.equal(check({ ...saved, title: '   ' }).fault, 'text');
+
+  const repeated = JSON.parse(JSON.stringify(saved));
+  repeated.questions[1].options[1] = repeated.questions[1].options[0];
+  const duplicate = check(repeated);
+  assert.equal(duplicate.fault, 'text');
+  assert.equal(duplicate.gap.reason, 'duplicate');
+
+  assert.equal(check('x'.repeat(personaDraftFileLimit + 1)).fault, 'oversized');
+  assert.equal(readPersonaDraftFile(pack.game, null, pack.questionCount).fault, 'unreadable');
+});
+
+test('the remix file controls are local, explicit and leave Play draft as the only start', () => {
+  const stage = source('src/components/share-experiences/ShareExperience.astro');
+  assert.match(stage, /type="submit" data-persona-draft-play>Play draft</);
+  assert.match(stage, /type="button" class="secondary" data-persona-draft-save>Save draft JSON</);
+  assert.match(stage, /accept="application\/json,\.json" data-persona-draft-file/);
+  assert.match(stage, /id="persona-remix-file-note">The file saves the title, questions and choices on this device/);
+  assert.match(stage, /role="status" data-persona-draft-file-status/);
+
+  const controller = source('src/browser/share-experiences.ts');
+  const start = controller.indexOf('function mountPersona');
+  const end = controller.indexOf('function mountBingo', start);
+  const persona = controller.slice(start, end);
+  assert.ok(persona.indexOf('file.size > personaDraftFileLimit') < persona.indexOf('await file.text()'),
+    'the byte bound is checked before any read');
+  assert.match(persona, /const revision = editorRevision;/);
+  assert.match(persona, /if \(revision !== editorRevision\)/);
+  assert.match(persona, /readPersonaDraftFile\(pack\.game, text, pack\.questions\.length\)/);
+  assert.match(persona, /fillDraftEditor\(read\.draft\)/);
+  assert.match(persona, /writePersonaDraftFile\(pack\.game, read\.draft\)/);
+  assert.match(persona, /URL\.revokeObjectURL\(url\)/);
+
+  const fileStart = persona.indexOf('draftFile.addEventListener("change"');
+  const fileEnd = persona.indexOf('remixForm.addEventListener("submit"', fileStart);
+  assert.ok(fileStart > 0 && fileEnd > fileStart, 'the file import handler exists');
+  const importHandler = persona.slice(fileStart, fileEnd);
+  for (const forbidden of ['startDraft()', 'showQuestion(', 'draft =', 'replaceAddress(', 'localStorage', 'fetch(']) {
+    assert.ok(!importHandler.includes(forbidden),
+      `an accepted file only fills the editor, never ${forbidden}`);
   }
 });
 

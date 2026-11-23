@@ -19,8 +19,9 @@ import {
 } from "../lib/twenty-one-questions.ts";
 import { personaFor } from "../lib/persona-packs.ts";
 import {
-  personaCaption, readPersonaDraft,
-  type PersonaDraft, type PersonaDraftGap, type PersonaPack,
+  personaCaption, personaDraftFileLimit, personaDraftFileName, readPersonaDraft,
+  readPersonaDraftFile, writePersonaDraftFile,
+  type PersonaDraft, type PersonaDraftFileRead, type PersonaDraftGap, type PersonaPack,
 } from "../lib/persona-quiz.ts";
 import {
   renderExperienceCards, renderExperienceResult, renderPersonaCard, resultSizes,
@@ -2375,6 +2376,9 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   const draftPrompts = elements<HTMLInputElement>(root, "[data-persona-draft-prompt]");
   const draftOptions = elements<HTMLInputElement>(root, "[data-persona-draft-option]");
   const draftStatus = root.querySelector<HTMLElement>("[data-persona-draft-status]")!;
+  const draftSave = root.querySelector<HTMLButtonElement>("[data-persona-draft-save]")!;
+  const draftFile = root.querySelector<HTMLInputElement>("[data-persona-draft-file]")!;
+  const draftFileStatus = root.querySelector<HTMLElement>("[data-persona-draft-file-status]")!;
   const draftActive = root.querySelector<HTMLElement>("[data-persona-draft-active]")!;
   const draftActiveNote = root.querySelector<HTMLElement>("[data-persona-draft-active-note]")!;
   const draftEdit = root.querySelector<HTMLButtonElement>("[data-persona-draft-edit]")!;
@@ -2384,6 +2388,12 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   let shown: string | null = null;
   /** The validated local draft on stage, or null for the published quiz. */
   let draft: PersonaDraft | null = null;
+  /** Bumped by every typed editor change, so a slow file read cannot replace
+   * text the creator changed after choosing the file. */
+  let editorRevision = 0;
+  /** Identifies the newest file read; an older read never lands. */
+  let fileAttempt = 0;
+  const draftFileLimit = `${Math.round(personaDraftFileLimit / 1024)} KB`;
   // The outer share bar calls update() once after this controller is built.
   // Events before that point cannot fire, so later stage changes can refresh it.
   let ready = false;
@@ -2493,22 +2503,16 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     draftOptions[gap.question * 4 + gap.option]?.focus();
   }
 
-  /** Validate the editor text and put exactly that cleaned text on stage. The
-   * draft supplies labels only; scoring still uses the pack's fixed mappings. */
-  function startDraft() {
-    const rows = draftPrompts.map((promptInput, index) => [
-      promptInput.value,
-      ...draftOptions.slice(index * 4, index * 4 + 4).map((input) => input.value),
-    ]);
-    const read = readPersonaDraft(draftTitle.value, rows, pack.questions.length);
-    if (!read.draft) {
-      draftStatus.textContent = draftGapMessage(read.gap);
-      focusDraftGap(read.gap);
-      return;
-    }
-    // What plays is the trimmed, single-spaced text the creator now sees.
-    draftTitle.value = read.draft.title;
-    read.draft.questions.forEach((question, index) => {
+  /** Read the editor rows exactly as typed. */
+  const editorRows = () => draftPrompts.map((promptInput, index) => [
+    promptInput.value,
+    ...draftOptions.slice(index * 4, index * 4 + 4).map((input) => input.value),
+  ]);
+
+  /** Put exactly the validated, cleaned draft text back in the editor. */
+  function fillDraftEditor(next: PersonaDraft) {
+    draftTitle.value = next.title;
+    next.questions.forEach((question, index) => {
       const promptInput = draftPrompts[index];
       if (promptInput) promptInput.value = question.prompt;
       question.options.forEach((label, choice) => {
@@ -2516,6 +2520,22 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
         if (optionInput) optionInput.value = label;
       });
     });
+  }
+
+  /** Validate the editor text and put exactly that cleaned text on stage. The
+   * draft supplies labels only; scoring still uses the pack's fixed mappings. */
+  function startDraft() {
+    const read = readPersonaDraft(draftTitle.value, editorRows(), pack.questions.length);
+    if (!read.draft) {
+      draftStatus.textContent = draftGapMessage(read.gap);
+      focusDraftGap(read.gap);
+      return;
+    }
+    // What plays is the trimmed, single-spaced text the creator now sees.
+    fileAttempt += 1;
+    draftFile.value = "";
+    draftFileStatus.textContent = "";
+    fillDraftEditor(read.draft);
     draft = read.draft;
     answers = pack.questions.map(() => null);
     shown = null;
@@ -2550,6 +2570,9 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   /** Cancel the remix and start the published quiz cleanly. The editor keeps
    * its text, but the address, answers, result link and card are the original. */
   function returnToOriginal() {
+    fileAttempt += 1;
+    draftFile.value = "";
+    draftFileStatus.textContent = "";
     draft = null;
     shown = null;
     answers = pack.questions.map(() => null);
@@ -2570,11 +2593,110 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
     draftStatus.textContent = "Original quiz restored. Your draft text is still in the editor.";
   }
 
+  /** One honest message for the first reason a portable file cannot be used. */
+  function draftFileProblem(read: PersonaDraftFileRead): string {
+    if (read.fault === "oversized") {
+      return `That draft file is larger than ${draftFileLimit}. Your editor is unchanged.`;
+    }
+    if (read.fault === "unreadable") return "That file is not valid JSON. Your editor is unchanged.";
+    if (read.fault === "version") {
+      return "That draft uses a format this quiz page does not know. Save a fresh draft here, then open that file. Your editor is unchanged.";
+    }
+    if (read.fault === "pack") {
+      return "That draft belongs to a different quiz. Open it on that quiz’s page. Your editor is unchanged.";
+    }
+    if (read.fault === "schema") return "That is not a Composer quiz draft. Your editor is unchanged.";
+    if (read.fault === "shape") {
+      return "That draft is missing its pack, title, questions or four choice labels. Your editor is unchanged.";
+    }
+    if (read.gap) {
+      return `That draft needs attention before it can play. ${draftGapMessage(read.gap)} Your editor is unchanged.`;
+    }
+    return "That draft could not be opened. Your editor is unchanged.";
+  }
+
+  /** Save deliberately writes the validated visible text to one bounded,
+   * versioned JSON file on the creator's device. Nothing is stored or sent. */
+  function saveDraftFile() {
+    const read = readPersonaDraft(draftTitle.value, editorRows(), pack.questions.length);
+    if (!read.draft) {
+      draftFileStatus.textContent = draftGapMessage(read.gap);
+      focusDraftGap(read.gap);
+      return;
+    }
+    const text = writePersonaDraftFile(pack.game, read.draft);
+    // Read the exact bytes back before handing them over, so the downloaded
+    // file is the same bounded, answer-free shape an import accepts.
+    const checked = readPersonaDraftFile(pack.game, text, pack.questions.length);
+    if (!checked.draft) {
+      draftFileStatus.textContent = `Shorten the draft to fit in a ${draftFileLimit} file, then save again.`;
+      return;
+    }
+    fillDraftEditor(read.draft);
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json;charset=utf-8" }));
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = personaDraftFileName(pack.game);
+      link.rel = "noopener";
+      link.click();
+    } catch {
+      draftFileStatus.textContent = "Couldn’t save the draft file.";
+      return;
+    } finally {
+      // Release the blob URL once the browser has had time to start the
+      // download, on success or failure, so the page never leaks one.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    draftFileStatus.textContent = "Draft JSON ready to download.";
+  }
+
+  /** Opening a file fills the editor's text only. It never starts a run,
+   * rewrites the address or touches the published quiz's link and card. */
+  draftFile.addEventListener("change", async () => {
+    const file = draftFile.files?.[0];
+    if (!file) return;
+    const attempt = ++fileAttempt;
+    const revision = editorRevision;
+    try {
+      // Refuse a runaway file before reading or parsing any of it.
+      if (!Number.isFinite(file.size) || file.size > personaDraftFileLimit) {
+        draftFileStatus.textContent = `That draft file is larger than ${draftFileLimit}. Your editor is unchanged.`;
+        return;
+      }
+      const text = await file.text();
+      if (attempt !== fileAttempt) return;
+      // A read that lands after a later typed edit is stale: keep the edit.
+      if (revision !== editorRevision) {
+        draftFileStatus.textContent = "The draft file arrived after you edited this page. Open it again to replace your current text.";
+        return;
+      }
+      const read = readPersonaDraftFile(pack.game, text, pack.questions.length);
+      if (!read.draft) {
+        draftFileStatus.textContent = draftFileProblem(read);
+        return;
+      }
+      fillDraftEditor(read.draft);
+      draftFileStatus.textContent = "Draft file opened. Review the text, then choose Play draft.";
+    } catch {
+      if (attempt !== fileAttempt) return;
+      draftFileStatus.textContent = "That file could not be read on this device. Your editor is unchanged.";
+    } finally {
+      if (attempt === fileAttempt) draftFile.value = "";
+    }
+  });
+
   remixForm.addEventListener("submit", (event) => {
     event.preventDefault();
     startDraft();
   });
 
+  // Any typed change after a file was chosen outranks a slower read.
+  remixForm.addEventListener("input", () => {
+    editorRevision += 1;
+  });
+
+  draftSave.addEventListener("click", saveDraftFile);
   draftEdit.addEventListener("click", editDraft);
   draftOriginal.addEventListener("click", returnToOriginal);
 
