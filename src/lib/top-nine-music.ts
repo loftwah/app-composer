@@ -8,6 +8,10 @@ export type MusicPick = CataloguePick;
 
 const applePath = /^\/([a-z]{2})\/(album|song)\/(?:[^/]+\/)?([1-9]\d{0,11})\/?$/;
 const spotifyPath = /^\/(?:intl-[a-z]{2}\/)?(album|track)\/([a-zA-Z0-9]{22})\/?$/;
+/** The two official player URLs the app emits, pasted back as a source. Only
+ * these flat embed kinds are accepted: the ID is folded back onto the normal
+ * album/track path so every consumer sees one canonical source form. */
+const spotifyEmbedInputPath = /^\/embed\/(album|track)\/([a-zA-Z0-9]{22})\/?$/;
 const spotifyEmbedPath = /^\/embed\/album\/([a-zA-Z0-9]{22})$/;
 /** The one official Spotify oEmbed endpoint; it answers JSON with
  * `access-control-allow-origin: *`, so the browser reads it directly with no
@@ -46,7 +50,7 @@ export function musicPreview(value: unknown): {
     };
   }
   if (url.hostname === "open.spotify.com") {
-    const match = spotifyPath.exec(url.pathname);
+    const match = spotifyPath.exec(url.pathname) ?? spotifyEmbedInputPath.exec(url.pathname);
     if (!match) return null;
     const path = `/${match[1]}/${match[2]}`;
     return {
