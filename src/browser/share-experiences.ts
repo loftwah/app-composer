@@ -69,6 +69,7 @@ import {
   wrongAnswerPrompts, wrongAnswerStart,
 } from "../lib/wrong-answers.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
+import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
   oneMustGoAltText, tierListAltText, wrongAnswersAltText,
 } from "../lib/experience-alt-text.ts";
@@ -3684,6 +3685,22 @@ export function mountShareExperience(root: HTMLElement) {
   let sharing = false;
   let controller: Controller;
   let altCopyAttempt = 0;
+  // One manual caption for a board that can be exported. Its text and any
+  // denied-clipboard fallback belong to the heading fields they were made
+  // from: an edit or a board change retires both and any write still in flight.
+  const nineCaptionCopy = root.querySelector<HTMLButtonElement>("[data-nine-caption-copy]");
+  const nineCaptionManual = root.querySelector<HTMLTextAreaElement>("[data-nine-caption-manual]");
+  const nineCaptionStatus = root.querySelector<HTMLElement>("[data-nine-caption-status]");
+  let nineCaptionAttempt = 0;
+  const clearNineCaption = () => {
+    if (!nineCaptionCopy) return;
+    nineCaptionAttempt += 1;
+    if (nineCaptionManual) {
+      nineCaptionManual.hidden = true;
+      nineCaptionManual.value = "";
+    }
+    if (nineCaptionStatus) nineCaptionStatus.textContent = "";
+  };
   const cardDownloads = root.querySelector<HTMLElement>("[data-tq-downloads]");
   const cardUrls: string[] = [];
   let cardVersion = 0;
@@ -3835,7 +3852,9 @@ export function mountShareExperience(root: HTMLElement) {
     copy.disabled = !links || !canShare || !exportable;
     if (alt) alt.disabled = !canShare || !exportable;
     nativeShare.disabled = !links || !canShare || !exportable || sharing;
+    if (nineCaptionCopy) nineCaptionCopy.disabled = busy || !canShare || !exportable;
     clearAltFallback();
+    clearNineCaption();
     if (shareNote && game === "this-or-that") shareNote.textContent = links
       ? shareNoteBuiltin
       : "Links and sharing are off for your own questions. Download the text-only image to keep the choices — photos stay in this tab.";
@@ -4156,6 +4175,34 @@ export function mountShareExperience(root: HTMLElement) {
     } catch {
       status.textContent = "Clipboard access was denied. Copy the address from this field.";
       offerManualCopy(href);
+    }
+  });
+
+  // One manual caption for a board that can be exported: the heading fields it
+  // prints and a bare invite to the canonical Top Nine path on this instance.
+  // No result, exhibit title, cover, local draft, profile address, publishing
+  // or provider call takes part. The explicit Copy result link stays available
+  // for creators who deliberately want the full serialized board.
+  nineCaptionCopy?.addEventListener("click", async () => {
+    const snapshot = result();
+    if (!snapshot || game !== "top-nine" || controller.exportAllowed?.() === false) return;
+    const caption = topNineCaption(snapshot, location.origin);
+    if (!caption) return;
+    clearNineCaption();
+    const attempt = nineCaptionAttempt;
+    try {
+      await navigator.clipboard.writeText(caption);
+      if (attempt !== nineCaptionAttempt) return;
+      if (nineCaptionStatus) nineCaptionStatus.textContent = "Caption copied.";
+    } catch {
+      if (attempt !== nineCaptionAttempt) return;
+      if (nineCaptionStatus) nineCaptionStatus.textContent = "Caption selected. Use your device’s copy shortcut.";
+      if (nineCaptionManual) {
+        nineCaptionManual.value = caption;
+        nineCaptionManual.hidden = false;
+        nineCaptionManual.focus();
+        nineCaptionManual.select();
+      }
     }
   });
 
