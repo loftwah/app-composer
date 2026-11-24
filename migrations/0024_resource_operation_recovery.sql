@@ -1,9 +1,6 @@
--- A resource operation whose app record was explicitly confirmed absent can be
--- abandoned by its owner. This is not a silent retry or a deletion: the
--- operation receipt and its recorded request stay readable.
---
--- SQLite cannot widen an existing CHECK, so rebuild the journal exactly as
--- migration 0007 did. No table references an operation id.
+CREATE TABLE creator_outcome_intents_0024 AS
+SELECT * FROM creator_outcome_intents;
+
 CREATE TABLE creator_resource_operations_next (
   id TEXT PRIMARY KEY,
   resource_id TEXT NOT NULL REFERENCES creator_app_resources(id),
@@ -19,6 +16,9 @@ CREATE TABLE creator_resource_operations_next (
 INSERT INTO creator_resource_operations_next SELECT * FROM creator_resource_operations;
 DROP TABLE creator_resource_operations;
 ALTER TABLE creator_resource_operations_next RENAME TO creator_resource_operations;
+
+INSERT INTO creator_outcome_intents SELECT * FROM creator_outcome_intents_0024;
+DROP TABLE creator_outcome_intents_0024;
 -- Keep the earliest open operation as the canonical recovery note. Any later
 -- duplicate is retained read-only as abandoned instead of failing the one-open
 -- invariant below.
