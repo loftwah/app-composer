@@ -67,9 +67,10 @@ import {
   type TierListBoard,
 } from "../lib/tier-list.ts";
 import {
-  oneMustGoOutcome, oneMustGoRemainingLine, oneMustGoStarter, oneMustGoTitle,
-  readOneMustGoChoices,
-  type OneMustGoRound,
+  oneMustGoBuiltinRounds, oneMustGoOutcome, oneMustGoRemainingLine,
+  oneMustGoRoundFromQuery, oneMustGoRoundNote, oneMustGoRoundPath, oneMustGoStarter,
+  oneMustGoTitle, readOneMustGoChoices,
+  type OneMustGoBuiltinId, type OneMustGoRound,
 } from "../lib/one-must-go.ts";
 import {
   wrongAnswerCount, wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle,
@@ -3951,10 +3952,12 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
 
 /** One elimination round on the noir stage. Four choices; choosing one marks
  * it gone and leaves the other three. "Choose again" restores all four. The
- * owned poster round is the default; a private authored round is exactly four
- * typed choices and never becomes a link, draft or stored value. */
-function mountOneMustGo(root: HTMLElement, update: () => void): Controller {
+ * owned poster round is the default; two authored built-ins are addressable by
+ * an answer-free link; a private authored round is exactly four typed choices
+ * and never becomes a link, draft or stored value. */
+function mountOneMustGo(root: HTMLElement, update: () => void, initialRound: OneMustGoRound): Controller {
   const roundNote = root.querySelector<HTMLElement>("[data-omg-round-note]")!;
+  const roundButtons = elements<HTMLButtonElement>(root, "[data-omg-round]");
   const buttons = elements<HTMLButtonElement>(root, "[data-omg-choice]");
   const labels = elements<HTMLElement>(root, "[data-omg-choice-label]");
   const states = elements<HTMLElement>(root, "[data-omg-choice-state]");
@@ -3969,8 +3972,12 @@ function mountOneMustGo(root: HTMLElement, update: () => void): Controller {
   const formStatus = root.querySelector<HTMLElement>("[data-omg-form-status]")!;
   const starter = root.querySelector<HTMLButtonElement>("[data-omg-starter]")!;
   const submit = form.querySelector<HTMLButtonElement>("[type=submit]")!;
-  let round: OneMustGoRound = oneMustGoStarter;
+  const copy = root.querySelector<HTMLButtonElement>("[data-omg-copy]")!;
+  const copyManual = root.querySelector<HTMLInputElement>("[data-omg-copy-manual]")!;
+  const copyStatus = root.querySelector<HTMLElement>("[data-omg-copy-status]")!;
+  let round: OneMustGoRound = initialRound;
   let gone: number | null = null;
+  let copyAttempt = 0;
 
   function paintChoices() {
     labels.forEach((label, index) => { label.textContent = round.choices[index]; });
@@ -3991,15 +3998,55 @@ function mountOneMustGo(root: HTMLElement, update: () => void): Controller {
     survivors.replaceChildren();
   }
 
-  function showRound() {
+  /** A new round always retires the previous elimination, the selected-round
+   * buttons and any clipboard field still describing the old round. Typed
+   * custom input is deliberately left untouched. */
+  function showRound(next: OneMustGoRound) {
+    round = next;
+    copyAttempt += 1;
+    copyManual.hidden = true;
+    copyManual.value = "";
     clearResult();
-    roundNote.textContent = round.source === "starter" ? "Poster round" : "Your round, kept in this tab";
+    starter.hidden = round.source !== "custom";
+    formStatus.textContent = "";
+    paintRound();
     paintChoices();
     update();
   }
 
+  function paintRound() {
+    roundNote.textContent = oneMustGoRoundNote(round);
+    const active = round.source === "builtin"
+      ? round.id
+      : round.source === "starter" ? "poster" : "";
+    roundButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.omgRound === active));
+    });
+    const canLink = round.source !== "custom";
+    copy.hidden = !canLink;
+    copy.disabled = !canLink;
+    copyStatus.textContent = canLink
+      ? ""
+      : "Your round stays in this tab. Only built-in rounds become links.";
+  }
+
   root.addEventListener("click", (event) => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-omg-choice]");
+    const target = event.target as HTMLElement;
+    const roundButton = target.closest<HTMLButtonElement>("[data-omg-round]");
+    if (roundButton) {
+      const id = roundButton.dataset.omgRound;
+      const next = id === "poster"
+        ? oneMustGoStarter
+        : id && Object.hasOwn(oneMustGoBuiltinRounds, id)
+          ? oneMustGoBuiltinRounds[id as OneMustGoBuiltinId]
+          : null;
+      if (!next) return;
+      showRound(next);
+      buttons[0].focus();
+      status.textContent = `${oneMustGoRoundNote(next)} is on the stage. Choose the one that goes.`;
+      return;
+    }
+    const button = target.closest<HTMLButtonElement>("[data-omg-choice]");
     if (!button || gone !== null) return;
     const outcome = oneMustGoOutcome(round, Number(button.dataset.omgChoice));
     if (!outcome) return;
@@ -4034,29 +4081,48 @@ function mountOneMustGo(root: HTMLElement, update: () => void): Controller {
       (inputs.find((input) => !input.value.trim()) ?? inputs[0]).focus({ preventScroll: true });
       return;
     }
-    round = read.round;
-    inputs.forEach((input, index) => { input.value = round.choices[index]; });
-    clearResult();
-    roundNote.textContent = "Your round, kept in this tab";
-    paintChoices();
-    starter.hidden = false;
+    inputs.forEach((input, index) => { input.value = read.round.choices[index]; });
+    showRound(read.round);
     formStatus.textContent = "Your round is on the stage.";
-    update();
     buttons[0].focus();
     status.textContent = "Your four choices are ready. Choose the one that goes.";
   });
 
   starter.addEventListener("click", () => {
-    round = oneMustGoStarter;
-    starter.hidden = true;
-    showRound();
+    showRound(oneMustGoStarter);
     buttons[0].focus();
     formStatus.textContent = "Back to the poster round.";
     status.textContent = "The poster round is back. Choose the one that goes.";
   });
 
+  // The link is the canonical route for this built-in round: no choice, result,
+  // byline or custom text. Moving or writing a round retires a clipboard write
+  // still in flight, and a denied clipboard selects the same link in a field.
+  copy.addEventListener("click", async () => {
+    const path = oneMustGoRoundPath(round);
+    if (!path) return;
+    const href = new URL(path, location.origin).href;
+    copyAttempt += 1;
+    const attempt = copyAttempt;
+    copyManual.hidden = true;
+    copyManual.value = "";
+    try {
+      await navigator.clipboard.writeText(href);
+      if (attempt !== copyAttempt) return;
+      copyStatus.textContent = "Challenge link copied. It opens this round with no choice made.";
+    } catch {
+      if (attempt !== copyAttempt) return;
+      copyStatus.textContent = "Clipboard access was denied. Copy the challenge link from this field.";
+      copyManual.value = href;
+      copyManual.hidden = false;
+      copyManual.focus();
+      copyManual.select();
+    }
+  });
+
+  paintRound();
   paintChoices();
-  for (const control of [...buttons, ...inputs, again, starter, submit]) control.disabled = false;
+  for (const control of [...roundButtons, ...buttons, ...inputs, again, starter, submit]) control.disabled = false;
 
   return {
     result() {
@@ -4978,7 +5044,7 @@ export function mountShareExperience(root: HTMLElement) {
     })
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
     : game === "tier-list" ? mountTierList(root, update)
-    : game === "one-must-go" ? mountOneMustGo(root, update)
+    : game === "one-must-go" ? mountOneMustGo(root, update, oneMustGoRoundFromQuery(location.search))
     : game === "wrong-answers" ? mountWrongAnswers(root, update)
     : game === "red-flag-court" ? mountRedFlagCourt(root, update)
     : game === "tech-tournament" ? mountTechTournament(root, update)

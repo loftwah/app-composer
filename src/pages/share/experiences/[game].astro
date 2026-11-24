@@ -3,6 +3,7 @@ import Base from "../../../layouts/Base.astro";
 import ShareExperience from "../../../components/share-experiences/ShareExperience.astro";
 import { experienceArt, experienceOg, experiences, type ExperienceId } from "../../../lib/share-experiences.ts";
 import { cursedChoiceFromQuery } from "../../../lib/cursed-choices.ts";
+import { oneMustGoRoundFromQuery, oneMustGoStarter } from "../../../lib/one-must-go.ts";
 
 const id = Astro.params.game ?? "";
 if (!Object.hasOwn(experiences, id)) return new Response("Experience not found", { status: 404 });
@@ -11,9 +12,12 @@ const experience = experiences[game];
 // Only a valid Cursed Choices invite may preselect a prompt. Everything else
 // opens curse one with no restored state; the controller uses the same check.
 const curseIndex = game === "cursed-choices" ? cursedChoiceFromQuery(Astro.url.search) : 0;
+// Only a valid One Must Go built-in link may preselect its authored round. A
+// crafted or mixed query opens the owned poster round with no restored state.
+const mustGoRound = game === "one-must-go" ? oneMustGoRoundFromQuery(Astro.url.search) : oneMustGoStarter;
 ---
 
 <Base title={experience.title} description={experience.description} shareImage={experienceOg(game)}
   shareType="image/jpeg" shareAlt={experience.imageDescription}>
-  <ShareExperience {game} experience={experience} art={experienceArt(game)} {curseIndex} />
+  <ShareExperience {game} experience={experience} art={experienceArt(game)} {curseIndex} {mustGoRound} />
 </Base>

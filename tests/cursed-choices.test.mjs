@@ -254,7 +254,7 @@ test('the protected route serves only registered games and restores no result st
   const page = read('src/pages/share/experiences/[game].astro');
   assert.match(page, /const id = Astro\.params\.game \?\? "";/);
   assert.match(page, /if \(!Object\.hasOwn\(experiences, id\)\) return new Response\("Experience not found", \{ status: 404 \}\);/);
-  assert.match(page, /<ShareExperience \{game\} experience=\{experience\} art=\{experienceArt\(game\)\} \{curseIndex\} \/>/);
+  assert.match(page, /<ShareExperience \{game\} experience=\{experience\} art=\{experienceArt\(game\)\} \{curseIndex\} \{mustGoRound\} \/>/);
   assert.match(page, /const curseIndex = game === "cursed-choices" \? cursedChoiceFromQuery\(Astro\.url\.search\) : 0;/);
   const controller = read('src/browser/share-experiences.ts');
   const guard = controller.match(/const shared = ([^;]+)\n\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);

@@ -704,6 +704,8 @@
 .omg-custom button[type="submit"] { grid-column: 1 / -1; justify-self: start; }
 .omg-custom .experience-note { grid-column: 1 / -1; margin: 0; }
 .omg-stage button.secondary { color: var(--stage-ink); border-color: var(--stage-ink); background: transparent; }
+.omg-rounds button[aria-pressed="true"] { color: var(--stage); background: var(--stage-ink); }
+.omg-invite input { inline-size: 100%; margin-block-start: .6rem; color: #211a1b; background: #fff9ec; }
 /* The persona quiz reuses the shared stage colours and the museum theme. Its
    four answers are large, plainly labelled targets; the result is a collectible
    label rather than a scorecard. */
