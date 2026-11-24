@@ -147,7 +147,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       Rank exhibits #1 to #9
     </label>
     <details class="exhibit-music" data-music-panel>
-      <summary>Find albums, songs, books, apps, games, films and TV series</summary>
+      <summary>Find albums, songs, books, apps, games, films, TV series and programming languages</summary>
       <form class="music-search" data-music-form>
         <label for="music-target">Fill exhibit
           <select id="music-target" data-music-target-choice>
@@ -162,6 +162,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
           <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
           <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
+          <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
         </div>
         <label for="music-game-platform" data-music-platform hidden>Game platform
           <select id="music-game-platform" data-music-game-platform>
@@ -193,7 +194,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
             <option value="NL">Netherlands (NL)</option>
           </select>
         </label>
-        <label for="music-query" class="music-query">Album, song, book, app, game, film or TV series
+        <label for="music-query" class="music-query">Album, song, book, app, game, film, TV series or programming language
           <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
         </label>
         <button type="submit" data-music-submit>Search</button>
@@ -234,7 +235,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <div class="music-preview-frame" data-music-preview-frame></div>
         <p class="experience-note"><a data-music-preview-source target="_blank" rel="noopener noreferrer nofollow">Open in the music app</a></p>
       </section>
-      <p class="experience-note" data-music-coverage hidden>Films, TV series and games come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
+      <p class="experience-note" data-music-coverage hidden>Films, TV series, games and programming languages come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
     </details>
     <details class="exhibit-covers" data-cover-panel>
       <summary>Hang your own cover art</summary>

@@ -1,8 +1,8 @@
-// Film, TV-series, video-game and album picks from Wikidata's public Action
-// API, used by the Top Nine "Find titles" panel. Browser-direct with
-// credentials omitted: no proxy, no key, no autoplay, no polling and no
-// retries — one search request plus at most one batched entity read per
-// submit. Wikidata data and labels are CC0; a pick links the item's source
+// Film, TV-series, video-game, album and programming-language picks from
+// Wikidata's public Action API, used by the Top Nine "Find titles" panel.
+// Browser-direct with credentials omitted: no proxy, no key, no autoplay, no
+// polling and no retries — one search request plus at most one batched entity
+// read per submit. Wikidata data and labels are CC0; a pick links the item's source
 // page and never claims comprehensive coverage. Per the official Data Access
 // guidance, free-text titles go to the Action API search, not WDQS/SPARQL.
 
@@ -15,7 +15,7 @@ export interface WikidataPick extends CataloguePick {
   platform?: string;
 }
 
-export type WikidataKind = "film" | "series" | "game" | "album";
+export type WikidataKind = "film" | "series" | "game" | "album" | "language";
 
 const api = "https://www.wikidata.org/w/api.php";
 const userAgent = "App Composer/1.0 (https://composer.loftwah.com)";
@@ -55,8 +55,17 @@ const gameTypes = new Set(["Q7889"]);
  * source link, playback comes only from a pasted Apple Music or Spotify link.
  */
 const albumTypes = new Set(["Q482994", "Q20853847"]);
+/**
+ * Programming language, accepted only when the item's own non-deprecated P31
+ * carries Q9143. Verified against live responses on 2026-11-24: Rust Q575650,
+ * C++ Q2407, Python Q28865 and Java Q251 include Q9143, while Node.js Q756100
+ * is a JavaScript runtime and does not. The class graph is never followed, so
+ * a narrower class or a runtime is not inferred as a language.
+ */
+const languageType = "Q9143";
+const languageTypes = new Set([languageType]);
 
-/** Every instance type accepted by the picker and the exact-link title fill. */
+/** Every non-language instance type accepted by the picker and exact-link title fill. */
 const knownTypes = new Set([...filmTypes, ...seriesTypes, ...gameTypes, ...albumTypes]);
 
 /**
@@ -110,6 +119,7 @@ export function wikidataSource(value: unknown): string | null {
 }
 
 interface Claim {
+  rank?: unknown;
   mainsnak?: { datavalue?: { value?: unknown } };
 }
 type Claims = Record<string, Claim[]>;
@@ -129,9 +139,10 @@ function claimsFor(claims: Claims | undefined, property: string): Claim[] {
   return Array.isArray(value) ? value : [];
 }
 
-/** Item IDs from one property, ignoring malformed claims. */
-function itemIds(claims: Claims | undefined, property: string): string[] {
+/** Item IDs from one property. Language classification excludes deprecated statements. */
+function itemIds(claims: Claims | undefined, property: string, currentOnly = false): string[] {
   return claimsFor(claims, property).flatMap((claim): string[] => {
+    if (currentOnly && claim?.rank === "deprecated") return [];
     const value = record(claim?.mainsnak?.datavalue?.value);
     return typeof value?.id === "string" ? [value.id] : [];
   });
@@ -178,13 +189,14 @@ function releaseYear(claims: Claims | undefined): number | undefined {
 
 /**
  * One bounded public wbgetentities read for the exact item behind a pasted
- * Wikidata link. Only an item whose own P31 is a current film, TV-series, game
- * or album type can name a slot, and only its own English or common-language
- * label plus a reliable P577 year is used — no description, sitelink, image or
- * guessed type. A wrong ID, unknown type, missing label or malformed response
- * returns null, leaving the link with its manual title. The request reuses
- * request(): one Action API call with the same abort, timeout and auth
- * defaults, never a search and never a retry.
+ * Wikidata link. Only an item whose own P31 is a current film, TV-series, game,
+ * album or non-deprecated programming-language type can name a slot, and only
+ * its own English or common-language label plus a reliable P577 year is used —
+ * no description, sitelink, image or guessed type. A language keeps its bare
+ * label, with no date inferred. A wrong ID, unknown type, missing label or
+ * malformed response returns null, leaving the link with its manual title. The
+ * request reuses request(): one Action API call with the same abort, timeout
+ * and auth defaults, never a search and never a retry.
  */
 export async function lookupWikidataTitle(
   value: unknown,
@@ -206,13 +218,16 @@ export async function lookupWikidataTitle(
   if (item.id !== undefined && item.id !== qid) return null;
 
   const claims = record(item.claims) as Claims | undefined;
-  if (!itemIds(claims, "P31").some((id) => knownTypes.has(id))) return null;
+  const language = itemIds(claims, "P31", true).includes(languageType);
+  if (!language && !itemIds(claims, "P31").some((id) => knownTypes.has(id))) return null;
 
   const labels = record(item.labels);
   const title = catalogueText(record(labels?.en)?.value)
     || catalogueText(record(labels?.mul)?.value);
   if (!title) return null;
-  const year = releaseYear(claims);
+  // A language's own label is the whole title: no year is invented from
+  // unrelated or ambiguous dates.
+  const year = language ? undefined : releaseYear(claims);
   return year === undefined ? title : `${title} (${year})`;
 }
 
@@ -251,8 +266,10 @@ function article(sitelinks: Sitelinks | undefined): string | undefined {
 
 /**
  * One search plus one batched read, filtered to the exact known film, series,
- * game or album types. Items typed only as a narrower or different class are
- * not offered; the panel states that coverage is partial.
+ * game, album or programming-language types. Items typed only as a narrower or
+ * different class are not offered; the panel states that coverage is partial.
+ * Programming languages accept Q9143 only from a non-deprecated P31 and never
+ * infer a year.
  *
  * For games, an optional platform filter narrows the same response to items
  * whose own P400 statements evidence that family. All keeps the unchanged
@@ -269,6 +286,7 @@ export async function searchWikidata(
   const accepted = kind === "film" ? filmTypes
     : kind === "series" ? seriesTypes
     : kind === "game" ? gameTypes
+    : kind === "language" ? languageTypes
     : albumTypes;
 
   const search = await request(new URLSearchParams({
@@ -298,14 +316,15 @@ export async function searchWikidata(
   for (const hit of hits) {
     const item = record(entities?.[hit.id]);
     const claims = record(item?.claims) as Claims | undefined;
-    if (!itemIds(claims, "P31").some((id) => accepted.has(id))) continue;
+    const types = itemIds(claims, "P31", kind === "language");
+    if (!types.some((id) => accepted.has(id))) continue;
     if (kind === "game" && platformFilter !== "all" && !gameFamilies(claims).includes(platformFilter)) continue;
     const pick: WikidataPick = {
       title: hit.label,
       artist: hit.description,
       href: `https://www.wikidata.org/wiki/${hit.id}`,
     };
-    const year = releaseYear(claims);
+    const year = kind === "language" ? undefined : releaseYear(claims);
     if (year !== undefined) pick.year = year;
     const platforms = platform(claims);
     if (platforms) pick.platform = platforms;
