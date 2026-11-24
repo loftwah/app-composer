@@ -787,6 +787,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </section>
     <section hidden class="door-result persona-result" data-persona-result aria-label="Your result">
       <h2 tabindex="-1" data-persona-archetype></h2>
+      <div class="tot-result-actions" data-persona-card-actions hidden>
+        <div class="tot-reveal-download">
+          <button type="button" data-reveal-download disabled>Prepare card</button>
+          <span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note></span>
+          <a class="button secondary" hidden data-persona-save>Save PNG</a>
+        </div>
+      </div>
       <p class="persona-service" data-persona-service></p>
       <p class="persona-tendency" data-persona-tendency></p>
       <p class="persona-why" data-persona-reason></p>
