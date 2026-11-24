@@ -1,0 +1,67 @@
+{
+  "title": "App Composer: Operation World Domination",
+  "publishedArtwork": 13,
+  "film": "https://media.loftwah.com/p/7LZN-PT2isCqeG2t",
+  "trailer": "https://media.loftwah.com/p/6ef--UaaAPxAjpKU",
+  "studioCollection": "https://media.loftwah.com/gallery?project=prj_ede18b26b0334757a5fea687c5ca015e",
+  "reviewedAt": "2026-11-24",
+  "artwork": "Original campaign artwork generated for this production with Codex ImageGen.",
+  "dialogue": "Original script, locally synthesised with two Kokoro-82M voice blends. No actor cloning.",
+  "score": "Original score and foley composed for the film.",
+  "productFootage": "Public App Composer and Media Studio interfaces captured on 24 November 2026 AEDT.",
+  "source": "https://github.com/loftwah/app-composer/blob/main/docs/roadmap.md",
+  "assets": [
+    {
+      "id": "composer-owd-poster",
+      "sha256": "cb8b34df471d49218857a55fe38d7ae08ed66a6fe83eabacd061aa68bbefec76"
+    },
+    {
+      "id": "composer-owd-01-first-app",
+      "sha256": "e063c60f5897f127b04030705feef881e62e1122e12eac329443c0556b455ca8"
+    },
+    {
+      "id": "composer-owd-02-chosen-agents",
+      "sha256": "ddb8181a3531c4a06f696e4199bd315715ca2f90dc065e0673b1a67efa6084e3"
+    },
+    {
+      "id": "composer-owd-03-reuse",
+      "sha256": "3791c0f8318b3c735be2fbdd5e650320f6ee3b1d573ed13a0f33ea533567a89d"
+    },
+    {
+      "id": "composer-owd-04-creative",
+      "sha256": "406d854de666dd32e19cbdf19c1c7bba53d502e125565a37b6f04224da1a43c5"
+    },
+    {
+      "id": "composer-owd-05-tokens",
+      "sha256": "18d409fe2189421431dd4c4db48cac816edbc9082a292173f0fdc837c69bd744"
+    },
+    {
+      "id": "composer-owd-06-share",
+      "sha256": "f4e629db1437446c52f8d92796854a9225590cee718710b71e2787e74f309558"
+    },
+    {
+      "id": "composer-owd-07-benchmarks",
+      "sha256": "e09e5561dbceb064dc7624aaf91fd3049473c310ddceb8d0a232567973250d22"
+    },
+    {
+      "id": "composer-owd-08-enterprise",
+      "sha256": "6ce7f747577f4859354a91dda6f2db10d2661f8b4cce2fedd2d9ab0cbc361eb2"
+    },
+    {
+      "id": "composer-owd-09-self-rebuild",
+      "sha256": "a864dbcfd5cf5d9518a42be8b3c29dae37f193045f534c73723f863ddb1b05d7"
+    },
+    {
+      "id": "composer-owd-thumbnail-mastermind",
+      "sha256": "7ab2cdadf4db8b186a8ab58af94b60c79d1a64e58bf9635abea124d455cb711f"
+    },
+    {
+      "id": "composer-owd-thumbnail-target",
+      "sha256": "4e5842896931f6113d61bd69b1523330f853d542a2415ae6186d1e2851b8ffd1"
+    },
+    {
+      "id": "composer-owd-thumbnail-partners",
+      "sha256": "9b5a0cf602dc3b249c256b13c3a2f617ada28dfb56dc906f8335c82bdd009664"
+    }
+  ]
+}

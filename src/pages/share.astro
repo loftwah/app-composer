@@ -21,6 +21,7 @@ if (!filmsView && (params.get('view') === 'stacks' || hasShareWallFilters(shareW
   return Astro.redirect(filters.size ? `/studio/published?${filters}` : '/studio/published', 308);
 }
 const filters = artworkFilters(params);
+const dominationFilm = !filmsView && filters.tag === "operation-world-domination";
 const internetWorkshop = !filmsView && filters.tag === "internet-workshop";
 const shareData = filmsView ? null : await Promise.all([
   composerShareCollection(filters.tag) ?? listShareArtwork(),
@@ -33,10 +34,20 @@ if (!filmsView && !catalogue) Astro.response.status = 503;
 if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 ---
 
-<Base title={filmsView ? "Share films" : internetWorkshop ? "Internet Workshop" : "Share artwork"} description={filmsView ? "Watch short films from our projects, with captions and credit intact." : "Browse public artwork from our projects and share a piece with its credit intact."}
+<Base title={filmsView ? "Share films" : dominationFilm ? "Operation World Domination" : internetWorkshop ? "Internet Workshop" : "Share artwork"} description={filmsView ? "Watch short films from our projects, with captions and credit intact." : "Browse public artwork from our projects and share a piece with its credit intact."}
   noindex={noindexFor(Astro.url.hostname, (filmsView && params.size === 1) || (Boolean(catalogue) && params.size === 0))}>
   {filmsView ? <ShareFilmsView /> : (
     <div class="share-artwork-library">
+      {dominationFilm && (
+        <nav class="workshop-play" aria-label="Operation World Domination film and release materials">
+          <strong>Operation World Domination</strong>
+          <a href="https://media.loftwah.com/p/7LZN-PT2isCqeG2t">Watch the film</a>
+          <a href="https://media.loftwah.com/p/6ef--UaaAPxAjpKU">Theatrical trailer</a>
+          <a href="https://media.loftwah.com/gallery?project=prj_ede18b26b0334757a5fea687c5ca015e">Full release in Media Studio</a>
+          <a href="/campaign/operation-world-domination/captions.en.vtt" download>English captions</a>
+          <a href="/campaign/operation-world-domination/campaign-art-and-captions.zip" download>Download the campaign art</a>
+        </nav>
+      )}
       {internetWorkshop && (
         <nav class="workshop-play" aria-label="Remix an Internet Workshop experience">
           <strong>Play and remix</strong>

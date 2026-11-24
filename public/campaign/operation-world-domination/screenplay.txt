@@ -1,0 +1,245 @@
+# App Composer: Operation World Domination
+
+An original miniature spy comedy. Orson Quill, a meticulous self-appointed mastermind, presents from a brass underwater operations room. Mabel Finch, his unflappable assistant, has read the appendices. A red lever, a brass key and a very small shark recur. The fictional briefing illustrates the roadmap. Direct captures are identified as current product.
+
+## Cast
+
+**Orson Quill**. British-inflected baritone. Tightly wound, delighted when explaining logistics. Treat a small inconvenience as a state secret. Bravado deflates whenever Mabel asks about ownership.
+
+**Mabel Finch**. Quiet precise alto. Dry, almost conversational. The truth sounds like a correction to the minutes. Never plays the punchline.
+
+## Cold open
+
+INT. UNDERSEA BRIEFING ROOM, NIGHT. Empty chair. Red lever. A brass key drops onto the conference table. Quill comes out of the teal shadows. Finch looks up from her minutes exactly once.
+
+**Orson Quill**
+
+Miss Finch. Dim the lights. I'm about to take over the world.
+
+**Mabel Finch**
+
+They're already dim. We share a meter with the aquarium.
+
+**Orson Quill**
+
+Very well. Our target is one. Trillion. Tokens.
+
+**Mabel Finch**
+
+And what are we holding the world to ransom with?
+
+**Orson Quill**
+
+Useful software.
+
+**Mabel Finch**
+
+I'll get a smaller siren.
+
+## Operation Frickin’ Easy
+
+Finch tries the intimidating button. Instead of an alarm, a little lamp lights. Cut to live Learn and the real public starter. An illustrative brass key passes from Quill to an unseen owner.
+
+**Orson Quill**
+
+Operation Frickin' Easy. Start with the app you wish existed. Get Ready takes you through setup with an agent you can use.
+
+**Orson Quill**
+
+The mission is your first useful app, live in your own Cloudflare account. Your own source. And a second change you can come back and make.
+
+**Mabel Finch**
+
+Who keeps the keys?
+
+**Orson Quill**
+
+They do.
+
+**Mabel Finch**
+
+You had keys cut for everybody?
+
+**Orson Quill**
+
+I got a very nasty bulk discount.
+
+## Operation Mini-Me
+
+INT. SWITCHBOARD. Copper patch cords click into a console. Quill points to an empty chair reserved for the chosen agent. Finch stamps APPROVAL REQUIRED on the file.
+
+**Orson Quill**
+
+Operation Mini-Me. Bring your own agent. Em Dash is the command centre. Discord is the line to the lair. M C P gives the agent scoped tools, and GitHub keeps the source and the record.
+
+**Orson Quill**
+
+The goal is bounded autonomous delivery. An agent can carry a change through review, release and verification when authorised.
+
+**Mabel Finch**
+
+And the human can say no?
+
+**Orson Quill**
+
+That's why the veto button is bigger than mine.
+
+## Operation LEGO Empire
+
+INT. MINIATURE WORKSHOP. A walnut bench with abstract modular building blocks, no branded toy forms. A guestbook fits next to a link hub. Finch lets Quill discover the label on the third drawer.
+
+**Orson Quill**
+
+Operation Lego Empire. Reuse independent apps, widgets, infrastructure and agent skills. A guestbook and a link hub can work together and still keep their own data and release cycles.
+
+**Mabel Finch**
+
+What if the piece I need doesn't exist?
+
+**Orson Quill**
+
+Build the piece. We are an evil empire of very clearly labelled drawers.
+
+**Mabel Finch**
+
+This one says spare buttons.
+
+## Operation Hollywood
+
+INT. MINIATURE SOUNDSTAGE. A spotlight warms up. Clapboard, analogue synth, original figurine. Cut to a public Media Studio screen and an approved live playable demo. Finch slowly pushes a script away from Quill.
+
+**Orson Quill**
+
+Operation Hollywood. The ambition is films, music, games and characters you can keep working on. Media Studio already brings images, sound and video into one project.
+
+**Orson Quill**
+
+Save the takes. Keep the editable work. Give the soundtrack a proper ending.
+
+**Mabel Finch**
+
+Do I get a speaking part?
+
+**Orson Quill**
+
+You have seventeen.
+
+**Mabel Finch**
+
+That's how they get you.
+
+## Operation Unlimited Tokens
+
+INT. GENERATOR ROOM. Two physical meters. One stops when the job is done. The other wakes each time a real request arrives. A scale lights up for one trillion and promptly dims.
+
+**Orson Quill**
+
+Operation Unlimited Tokens. Build-time A I helps make the app. Its meter belongs to whatever tool builds it. Production Workers A I runs when a live app needs it.
+
+**Orson Quill**
+
+A customer asks a question. A search returns a useful answer with sources. They come back tomorrow. Multiply that by useful apps people actually own.
+
+**Mabel Finch**
+
+And if the model adds nothing?
+
+**Orson Quill**
+
+Turn it off.
+
+**Mabel Finch**
+
+Unlimited.
+
+**Orson Quill**
+
+That's the folder name, Finch.
+
+## Operation Self-Replication
+
+INT. SCREENING WALL. A film frame travels through an optical relay into public Share. A different pair of hands puts a new variation on a pin board. Label any reuse example as a roadmap illustration.
+
+**Orson Quill**
+
+Operation Self-Replication. Share already lets people discover finished work. The ambition is a loop: communities ask for things, creators share what worked, and someone remixes what they're allowed to reuse.
+
+**Mabel Finch**
+
+With a credit for the original maker?
+
+**Orson Quill**
+
+In large, legible type. We have a reputation to ruin.
+
+## Operation Sharks with Frickin’ Benchmarks
+
+INT. TEST TANK. Rack focus from a fin behind glass to a comically small felt shark. Three score slips on a clipboard. Do not show invented performance numbers as evidence.
+
+**Orson Quill**
+
+Operation Sharks with Frickin' Benchmarks. Compare the same job. Show the output and the cost. Check what worked, what failed, and whether anyone comes back.
+
+**Mabel Finch**
+
+What happens when a result looks bad?
+
+**Orson Quill**
+
+We improve it or retire it.
+
+**Mabel Finch**
+
+Should I tell the shark?
+
+**Orson Quill**
+
+He's here for the control group.
+
+## Operation Corporate Takeover
+
+INT. SUBMERGED BOARDROOM. Three paperwork trays. Finch sets down a much smaller folder than Quill expected. Through the porthole, the shark turns the other way.
+
+**Orson Quill**
+
+Operation Corporate Takeover. Start with creators. Help agencies repeat what works for clients. Then prove enterprise use with a real sponsor and one bounded job.
+
+**Orson Quill**
+
+Roles, customer-controlled identity, approvals, costs and release history.
+
+**Mabel Finch**
+
+You're planning to win procurement?
+
+**Orson Quill**
+
+I prefer to think of it as getting invited back to procurement.
+
+## Operation Ouroboros
+
+INT. BRIEFING ROOM. Quill pulls the red lever. A miniature of the room slides out of a drawer. Mabel finds an ordinary cardboard moving box and takes the keys. End on a beat of silence.
+
+**Orson Quill**
+
+Operation Ouroboros. Rebuild App Composer using App Composer. In a separate owner's Cloudflare account. Restore the work, check what still runs and make the next change.
+
+**Mabel Finch**
+
+And if they can run it without us?
+
+**Orson Quill**
+
+That's the victory condition.
+
+**Mabel Finch**
+
+So your world domination plan is to make yourself optional.
+
+**Orson Quill**
+
+I was hoping you'd wait until after the credits.
+
+**Mabel Finch**
+
+I'll leave you a key.

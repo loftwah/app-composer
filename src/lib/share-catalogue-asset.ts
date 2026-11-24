@@ -7,6 +7,7 @@ import computerClub from "./computer-club-share-20261122.json" with { type: "jso
 import workshopShare from "./workshop-share-20261122.json" with { type: "json" };
 import shareResources from "./share-resources-20261120.json" with { type: "json" };
 import internetWorkshop from "./internet-workshop-20261122.json" with { type: "json" };
+import operationWorldDomination from "./operation-world-domination-share.json" with { type: "json" };
 import {
   catalogueAssetSchema,
   catalogueIdentity,
@@ -31,6 +32,7 @@ const nativeCollections = new Map<string, readonly ComposerShareRecord[]>([
   ["workshop-series", workshopShare],
   ["internet-workshop", internetWorkshop],
   ["computer-club", computerClub],
+  ["operation-world-domination", operationWorldDomination],
   ...Object.entries(shareResources),
 ]);
 const nativeRecords = new Map([...nativeCollections].flatMap(([tag, records]) =>

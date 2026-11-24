@@ -1,0 +1,341 @@
+1
+00:00:01,650 --> 00:00:05,171
+QUILL: Miss Finch. Dim the lights. I'm about to
+take over the world.
+
+2
+00:00:05,466 --> 00:00:08,383
+FINCH: They're already dim. We share a meter with
+the aquarium.
+
+3
+00:00:08,738 --> 00:00:11,889
+QUILL: Very well. Our target is ONE TRILLION
+TOKENS.
+
+4
+00:00:12,554 --> 00:00:14,820
+FINCH: And what are we holding the world to
+ransom with?
+
+5
+00:00:15,085 --> 00:00:16,456
+QUILL: Useful software.
+
+6
+00:00:17,341 --> 00:00:18,958
+FINCH: I'll get a smaller siren.
+
+7
+00:00:23,248 --> 00:00:26,827
+QUILL: Operation Frickin' Easy. Start with the
+app you wish existed.
+
+8
+00:00:26,852 --> 00:00:30,372
+QUILL: Get Ready takes you through setup with an
+agent you can use.
+
+9
+00:00:30,577 --> 00:00:34,773
+QUILL: The mission is your first useful app, live
+in your own Cloudflare account.
+
+10
+00:00:34,798 --> 00:00:38,424
+QUILL: Your own source. And a second change you
+can come back and make.
+
+11
+00:00:38,669 --> 00:00:39,993
+FINCH: Who keeps the keys?
+
+12
+00:00:40,258 --> 00:00:41,165
+QUILL: They do.
+
+13
+00:00:41,570 --> 00:00:43,486
+FINCH: You had keys cut for everybody?
+
+14
+00:00:43,771 --> 00:00:46,040
+QUILL: I got a very nasty bulk discount.
+
+15
+00:00:47,402 --> 00:00:51,979
+QUILL: Operation Mini-Me. Bring your own agent.
+EmDash is the command centre.
+
+16
+00:00:52,004 --> 00:00:54,082
+QUILL: Discord is the line to the lair.
+
+17
+00:00:54,107 --> 00:00:56,252
+QUILL: MCP gives the agent scoped tools,
+
+18
+00:00:56,277 --> 00:00:59,079
+QUILL: and GitHub keeps the source and the
+record.
+
+19
+00:00:59,284 --> 00:01:01,834
+QUILL: The goal is bounded autonomous delivery.
+
+20
+00:01:01,859 --> 00:01:04,603
+QUILL: An agent can carry a change through
+review,
+
+21
+00:01:04,628 --> 00:01:07,244
+QUILL: release and verification when authorised.
+
+22
+00:01:07,569 --> 00:01:09,286
+FINCH: And the human can say no?
+
+23
+00:01:09,551 --> 00:01:12,400
+QUILL: That's why the veto button is bigger than
+mine.
+
+24
+00:01:13,838 --> 00:01:17,385
+QUILL: Operation Lego Empire. Reuse independent
+apps, widgets,
+
+25
+00:01:17,410 --> 00:01:19,463
+QUILL: infrastructure and agent skills.
+
+26
+00:01:19,488 --> 00:01:24,269
+QUILL: A guestbook and a link hub can work
+together and still keep their own data
+
+27
+00:01:24,294 --> 00:01:25,503
+QUILL: and release cycles.
+
+28
+00:01:25,738 --> 00:01:27,905
+FINCH: What if the piece I need doesn't exist?
+
+29
+00:01:28,180 --> 00:01:32,428
+QUILL: Build the piece. We are an evil empire of
+very clearly labelled drawers.
+
+30
+00:01:32,903 --> 00:01:34,676
+FINCH: This one says spare buttons.
+
+31
+00:01:35,832 --> 00:01:39,005
+QUILL: Operation Hollywood. The ambition is
+films, music,
+
+32
+00:01:39,030 --> 00:01:41,883
+QUILL: games and characters you can keep working
+on.
+
+33
+00:01:41,908 --> 00:01:46,297
+QUILL: Media Studio already brings images, sound
+and video into one project.
+
+34
+00:01:46,502 --> 00:01:48,820
+QUILL: Save the takes. Keep the editable work.
+
+35
+00:01:48,845 --> 00:01:50,983
+QUILL: Give the soundtrack a proper ending.
+
+36
+00:01:51,328 --> 00:01:52,977
+FINCH: Do I get a speaking part?
+
+37
+00:01:53,262 --> 00:01:54,601
+QUILL: You have seventeen.
+
+38
+00:01:55,056 --> 00:01:56,535
+FINCH: That's how they get you.
+
+39
+00:01:57,860 --> 00:02:01,712
+QUILL: Operation Unlimited Tokens. Build-time AI
+helps make the app.
+
+40
+00:02:01,737 --> 00:02:04,573
+QUILL: Its meter belongs to whatever tool builds
+it.
+
+41
+00:02:04,598 --> 00:02:07,878
+QUILL: Production Workers AI runs when a live app
+needs it.
+
+42
+00:02:08,093 --> 00:02:12,720
+QUILL: A customer asks a question. A search
+returns a useful answer with sources.
+
+43
+00:02:12,745 --> 00:02:17,058
+QUILL: They come back tomorrow. Multiply that by
+useful apps people actually
+
+44
+00:02:17,083 --> 00:02:17,310
+QUILL: own.
+
+45
+00:02:17,585 --> 00:02:19,383
+FINCH: And if the model adds nothing?
+
+46
+00:02:19,628 --> 00:02:20,612
+QUILL: Turn it off.
+
+47
+00:02:21,107 --> 00:02:22,236
+FINCH: Unlimited.
+
+48
+00:02:22,601 --> 00:02:24,458
+QUILL: That's the folder name, Finch.
+
+49
+00:02:25,728 --> 00:02:29,947
+QUILL: Operation Self-Replication. Share already
+lets people discover finished
+
+50
+00:02:29,972 --> 00:02:33,354
+QUILL: work. The ambition is a loop: communities
+ask for things,
+
+51
+00:02:33,379 --> 00:02:37,598
+QUILL: creators share what worked, and someone
+remixes what they're allowed to
+
+52
+00:02:37,623 --> 00:02:37,957
+QUILL: reuse.
+
+53
+00:02:38,272 --> 00:02:40,256
+FINCH: With a credit for the original maker?
+
+54
+00:02:40,521 --> 00:02:44,099
+QUILL: In large, legible type. We have a
+reputation to ruin.
+
+55
+00:02:45,465 --> 00:02:49,246
+QUILL: Operation Sharks with Frickin' Benchmarks.
+Compare the same job.
+
+56
+00:02:49,271 --> 00:02:50,970
+QUILL: Show the output and the cost.
+
+57
+00:02:50,995 --> 00:02:54,657
+QUILL: Check what worked, what failed, and
+whether anyone comes back.
+
+58
+00:02:54,972 --> 00:02:57,063
+FINCH: What happens when a result looks bad?
+
+59
+00:02:57,338 --> 00:02:59,383
+QUILL: We improve it or retire it.
+
+60
+00:02:59,818 --> 00:03:01,280
+FINCH: Should I tell the shark?
+
+61
+00:03:01,605 --> 00:03:03,470
+QUILL: He's here for the control group.
+
+62
+00:03:04,808 --> 00:03:07,965
+QUILL: Operation Corporate Takeover. Start with
+creators.
+
+63
+00:03:07,990 --> 00:03:10,764
+QUILL: Help agencies repeat what works for
+clients.
+
+64
+00:03:10,789 --> 00:03:14,964
+QUILL: Then prove enterprise use with a real
+sponsor and one bounded job.
+
+65
+00:03:15,169 --> 00:03:18,185
+QUILL: Roles, customer-controlled identity,
+approvals,
+
+66
+00:03:18,210 --> 00:03:19,868
+QUILL: costs and release history.
+
+67
+00:03:20,213 --> 00:03:22,020
+FINCH: You're planning to win procurement?
+
+68
+00:03:22,305 --> 00:03:25,941
+QUILL: I prefer to think of it as getting invited
+back to procurement.
+
+69
+00:03:27,277 --> 00:03:31,153
+QUILL: Operation Ouroboros. Rebuild App Composer
+using App Composer.
+
+70
+00:03:31,178 --> 00:03:33,775
+QUILL: In a separate owner's Cloudflare account.
+
+71
+00:03:33,800 --> 00:03:37,932
+QUILL: Restore the work, check what still runs
+and make the next change.
+
+72
+00:03:38,257 --> 00:03:40,145
+FINCH: And if they can run it without us?
+
+73
+00:03:40,430 --> 00:03:42,163
+QUILL: That's the victory condition.
+
+74
+00:03:42,778 --> 00:03:45,942
+FINCH: So your world domination plan is to make
+yourself optional.
+
+75
+00:03:46,447 --> 00:03:49,348
+QUILL: I was hoping you'd wait until after the
+credits.
+
+76
+00:03:49,743 --> 00:03:51,147
+FINCH: I'll leave you a key.
