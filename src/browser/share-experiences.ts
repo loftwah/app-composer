@@ -79,9 +79,9 @@ import {
   type RedFlagVerdict,
 } from "../lib/red-flag-court.ts";
 import {
-  cursedChoiceCount, cursedChoiceMade, cursedChoicePrompt, cursedChoiceStart,
-  cursedChoices, cursedChoicesAltText, cursedChoicesPrintTitle, readCursedChoice,
-  type CursedChoice,
+  cursedChoiceCount, cursedChoiceFromQuery, cursedChoiceInvitePath, cursedChoiceMade,
+  cursedChoicePrompt, cursedChoiceStart, cursedChoices, cursedChoicesAltText,
+  cursedChoicesPrintTitle, readCursedChoice, type CursedChoice,
 } from "../lib/cursed-choices.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
@@ -4063,11 +4063,11 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
 }
 
 /** The ten-curse docket. Each prompt keeps its own side for this tab only, and
- * choosing the other side changes it. There is no score, comparison, result
- * link, public vote, provider or stored value: the downloaded card prints just
- * the current curse — its exact prompt, the chosen constraint and that side's
- * consequence. */
-function mountCursedChoices(root: HTMLElement, update: () => void): Controller {
+ * choosing the other side changes it. The only link this stage makes is an
+ * answer-free invite to the requested curse; there is no score, comparison,
+ * result link, public vote, provider or stored value. The downloaded card
+ * prints just the current curse — its prompt, side and consequence. */
+function mountCursedChoices(root: HTMLElement, update: () => void, requested: number): Controller {
   const promptButtons = elements<HTMLButtonElement>(root, "[data-cc-prompt]");
   const indexMarks = elements<HTMLElement>(root, "[data-cc-index-pick]");
   const heading = root.querySelector<HTMLElement>("[data-cc-heading]")!;
@@ -4080,13 +4080,25 @@ function mountCursedChoices(root: HTMLElement, update: () => void): Controller {
   const prev = root.querySelector<HTMLButtonElement>("[data-cc-prev]")!;
   const next = root.querySelector<HTMLButtonElement>("[data-cc-next]")!;
   const clear = root.querySelector<HTMLButtonElement>("[data-cc-clear]")!;
+  const copy = root.querySelector<HTMLButtonElement>("[data-cc-copy]")!;
+  const copyManual = root.querySelector<HTMLInputElement>("[data-cc-copy-manual]")!;
+  const copyStatus = root.querySelector<HTMLElement>("[data-cc-copy-status]")!;
   const picks: (CursedChoice | null)[] = cursedChoiceStart();
-  let current = 0;
+  let current = cursedChoicePrompt(requested) ? requested : 0;
   let ready = false;
+  let copyAttempt = 0;
   const refresh = () => { if (ready) update(); };
   const sideLine = (side: CursedChoice | null) => {
     const entry = cursedChoicePrompt(current);
     return side === null || !entry ? "no side" : entry.choices[side];
+  };
+  // Moving curses retires any visible fallback and any clipboard write still
+  // in flight, so a late result cannot describe a curse no longer on stage.
+  const clearCopyOffer = () => {
+    copyAttempt += 1;
+    copyStatus.textContent = "";
+    copyManual.hidden = true;
+    copyManual.value = "";
   };
 
   function paint(focus = false) {
@@ -4120,6 +4132,7 @@ function mountCursedChoices(root: HTMLElement, update: () => void): Controller {
   }
 
   function show(index: number, focus = true) {
+    clearCopyOffer();
     if (!Number.isInteger(index) || index < 0 || index >= cursedChoiceCount) return;
     current = index;
     paint(focus);
@@ -4160,8 +4173,30 @@ function mountCursedChoices(root: HTMLElement, update: () => void): Controller {
     }
   });
 
-  for (const control of [...promptButtons, ...choiceButtons]) control.disabled = false;
-  paint();
+  // The invite is the canonical route plus only this curse's ordinal. It opens
+  // the exact prompt unplayed: no side, consequence, byline, answer, draft,
+  // result fragment or other query. A denied clipboard selects the same link
+  // in a readonly field; moving curses retires it.
+  copy.addEventListener("click", async () => {
+    const href = new URL(cursedChoiceInvitePath(current), location.origin).href;
+    clearCopyOffer();
+    const attempt = copyAttempt;
+    try {
+      await navigator.clipboard.writeText(href);
+      if (attempt !== copyAttempt) return;
+      copyStatus.textContent = `Challenge link copied. It opens curse ${current + 1} with no choices.`;
+    } catch {
+      if (attempt !== copyAttempt) return;
+      copyStatus.textContent = "Clipboard access was denied. Copy the challenge link from this field.";
+      copyManual.value = href;
+      copyManual.hidden = false;
+      copyManual.focus();
+      copyManual.select();
+    }
+  });
+
+  for (const control of [...promptButtons, ...choiceButtons, copy]) control.disabled = false;
+  show(current, false);
   ready = true;
 
   return {
@@ -4822,7 +4857,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "wrong-answers" ? mountWrongAnswers(root, update)
     : game === "red-flag-court" ? mountRedFlagCourt(root, update)
     : game === "tech-tournament" ? mountTechTournament(root, update)
-    : game === "cursed-choices" ? mountCursedChoices(root, update)
+    : game === "cursed-choices" ? mountCursedChoices(root, update, cursedChoiceFromQuery(location.search))
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {

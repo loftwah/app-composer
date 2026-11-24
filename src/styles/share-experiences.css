@@ -1161,6 +1161,9 @@
 .share-experience .cc-controls a:focus-visible {
   outline: 3px dashed var(--accent); outline-offset: 2px;
 }
+.cc-invite { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .9rem; }
+.cc-invite input { flex: 1 1 100%; min-height: 44px; }
+.cc-invite .experience-note { flex-basis: 100%; margin: 0; }
 @media (max-width: 720px) {
   .rfc-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cc-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
