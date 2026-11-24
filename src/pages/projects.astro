@@ -72,6 +72,18 @@ const day = (value: string | null | undefined) => {
   </div>
  </section>
 
+ <section class="family-feature" aria-labelledby="prints-desktop-project">
+  <div>
+   <h2 id="prints-desktop-project">Prints Desktop</h2>
+  </div>
+  <div>
+   <p>Explore Afterlight, six speculative landscapes in an independent Rust and Rune creative workspace. Open the Mac preview and keep any of the included original images.</p>
+   <div class="family-actions">
+    <a href="/prints-desktop">See Prints Desktop <ArrowRight size={16} aria-hidden="true"/></a>
+   </div>
+  </div>
+ </section>
+
  {groups.filter(group => group.projects.length > 0).map(group => (
   <section class="tier-group" id={`tier-${group.id}`} aria-labelledby={`tier-${group.id}-heading`}>
    <header class="tier-heading">
