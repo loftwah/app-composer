@@ -29,6 +29,9 @@ import {
 import {
   wrongAnswerCount, wrongAnswerLimit, wrongAnswerPrompts,
 } from "../../lib/wrong-answers.ts";
+import {
+  redFlagCourtCases, redFlagCourtCount, redFlagCourtSubtitle,
+} from "../../lib/red-flag-court.ts";
 
 interface Props {
   game: ExperienceId;
@@ -46,6 +49,7 @@ const isLanguage = game === "language-type";
 const isTier = game === "tier-list";
 const isMustGo = game === "one-must-go";
 const isWrong = game === "wrong-answers";
+const isCourt = game === "red-flag-court";
 const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
@@ -404,6 +408,35 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note wa-status" role="status" aria-live="polite" data-wa-status></p>
   </section>}
 
+  {isCourt && <section data-play-panel class="rfc-stage" aria-label="Red Flag Court docket">
+    <div class="rfc-masthead">
+      <p class="rfc-kicker">{redFlagCourtSubtitle} · Internet Workshop</p>
+      <p class="rfc-folio" data-rfc-folio>Case 01 of {redFlagCourtCount} · 0 called</p>
+    </div>
+    <div class="rfc-index" role="group" aria-label="Choose a case">
+      {redFlagCourtCases.map((entry, index) => <button type="button" data-rfc-case={index}
+        aria-label={`Case ${index + 1}: ${entry.tab}`} aria-pressed={index === 0 ? "true" : "false"}
+        aria-controls="rfc-case" disabled>
+        <span class="rfc-index-number">{String(index + 1).padStart(2, "0")}</span>
+        <span class="rfc-index-name">{entry.tab}</span>
+        <span class="rfc-index-verdict" data-rfc-index-verdict={index} hidden></span>
+      </button>)}
+    </div>
+    <div class="rfc-sheet">
+      <h2 id="rfc-case" class="rfc-case" tabindex="-1" data-rfc-heading>{redFlagCourtCases[0].habit}</h2>
+      <div class="rfc-verdicts" role="group" aria-labelledby="rfc-case">
+        <button type="button" class="rfc-red" data-rfc-verdict="red" aria-pressed="false" disabled>Red flag</button>
+        <button type="button" class="rfc-green" data-rfc-verdict="green" aria-pressed="false" disabled>Green flag</button>
+      </div>
+      <p class="experience-note" role="status" aria-live="polite" data-rfc-status>Choose a case, then call it. Verdicts stay in this tab.</p>
+      <div class="rfc-controls">
+        <button type="button" class="secondary" data-rfc-prev disabled>Previous case</button>
+        <button type="button" class="secondary" data-rfc-next disabled>Next case</button>
+        <a class="secondary" href={experiencePath("red-flag-court")} data-rfc-fresh aria-label="Start a fresh docket and clear every verdict in this tab">Start a fresh docket</a>
+      </div>
+    </div>
+  </section>}
+
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
     <div class="tot-packs">
       <label for="tot-pack">Starter
@@ -647,7 +680,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   </section>}
 
   <section class="experience-export" data-export-panel aria-label="Personalise and share">
-    <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : "Your share image"}</h2>
+    <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
@@ -676,11 +709,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isTier ? ["Wine press", "Marble and cobalt", "Cobalt night"]
           : isMustGo ? ["Noir orange", "Stamp orange", "Paper and ink"]
           : isWrong ? ["Saffron page", "Faded copy", "Night school"]
+          : isCourt ? ["Court paper", "Late edition", "Newsprint"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
       </select></label>
-      {(isTwentyOne || isCloudflare || isLanguage) ? <label>Format<select data-format>
+      {isCourt ? <label>Format<select data-format>
+        <option value="portrait">Portrait · 1080 × 1350</option>
+        <option value="wide">Landscape · 1200 × 630</option>
+      </select></label> : (isTwentyOne || isCloudflare || isLanguage) ? <label>Format<select data-format>
         <option value="portrait">Portrait · 1080 × 1350 (4:5)</option>
         <option value="story">Story · 1080 × 1920 (9:16)</option>
         <option value="square">Square · 1080 × 1080 (1:1)</option>
@@ -703,13 +740,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-persona-avatar-status></p>
     </div>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong}>
-        {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt}>
+        {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : isCourt ? "Download verdict card" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
-      {(isNine || isThis || isTier || isMustGo || isWrong) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : isThis ? "tot-alt-note" : "local-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong}>Share result</button>
+      {(isNine || isThis || isTier || isMustGo || isWrong || isCourt) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : isThis ? "tot-alt-note" : "local-alt-note"}>Copy image description</button>}
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt}>Share result</button>
     </div>
     {isNine && <div class="persona-caption" data-nine-caption>
       <button type="button" class="secondary" data-nine-caption-copy disabled aria-describedby="nine-caption-note">Copy caption</button>
@@ -721,10 +758,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {persona && <div class="experience-actions" data-persona-preview hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, optional subtitle and byline, and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
     {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
-    {(isTier || isMustGo || isWrong) && <p class="experience-note" id="local-alt-note">{isTier
+    {(isTier || isMustGo || isWrong || isCourt) && <p class="experience-note" id="local-alt-note">{isTier
       ? "A plain-text image description made from your list title, optional byline and the four named rows in order, with their entries."
       : isMustGo
       ? "A plain-text image description made from the title, the choice crossed out and the three that stay in stage order, plus any byline."
+      : isCourt
+      ? "A plain-text image description made from the current case number, its exact wording, your verdict and any byline."
       : "A plain-text image description made from the selected question, your answer and any byline."}</p>}
     <p class="experience-note" data-share-note>{isTier
       ? "Download the PNG to keep this board. There is no result link, public board or vote, and your entries are never serialised into a URL."
@@ -732,6 +771,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       ? "Download the PNG to keep this elimination. There is no result link, public vote or percentage, and a private round never travels in a URL."
       : isWrong
       ? "The PNG includes the selected question, your answer and any byline."
+      : isCourt
+      ? "The card prints the current case, its exact wording, your red or green flag and any byline. There is no result link, public verdict or stored docket."
       : isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
@@ -743,10 +784,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
-    {(isNine || isThis || isTier || isMustGo || isWrong) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
+    {(isNine || isThis || isTier || isMustGo || isWrong || isCourt) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !isWrong && !persona && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !isWrong && !isCourt && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">

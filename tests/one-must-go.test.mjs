@@ -100,8 +100,9 @@ test('the browser round never becomes a link, draft, vote or public write', () =
   assert.doesNotMatch(controller, /draftKey\("one-must-go"\)/, 'no draft storage exists for a round');
 
   const start = controller.indexOf('function mountOneMustGo');
-  const block = controller.slice(start, controller.indexOf('function mountBingo', start));
-  assert.ok(start > 0 && block.length > 0);
+  const end = controller.indexOf('\n}\n', start);
+  assert.ok(start > 0 && end > start);
+  const block = controller.slice(start, end);
   for (const forbidden of ['vote', 'percentage', 'localStorage', 'sessionStorage', 'fetch(', 'resultLink']) {
     assert.equal(block.toLowerCase().includes(forbidden.toLowerCase()), false, `the round does not use ${forbidden}`);
   }

@@ -86,6 +86,16 @@ export const experiences = {
     imageDescription: "A vintage textbook cover holds a serious diagram of tiny chairs and a kettle inside a database cabinet, stamped “Wrong Answers Only”.",
     theme: "textbook",
   },
+  "red-flag-court": {
+    title: "Red Flag Court",
+    description: "Call ten small computer habits green or red, one case at a time. Your verdicts stay in this tab.",
+    // The stage reuses the owned Internet Workshop “red-flag-court” tabloid
+    // courtroom poster and its 47-tabs case; see
+    // public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "red-flag-court",
+    imageDescription: "A lurid tabloid courtroom judge in glasses stamps a stack of red and green case files beside the words “47 browser tabs”.",
+    theme: "tabloid",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;

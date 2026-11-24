@@ -11,6 +11,10 @@ import {
 import {
   wrongAnswerCount, wrongAnswerPlate,
 } from "../lib/wrong-answers.ts";
+import {
+  redFlagCourtCard, redFlagCourtCount, redFlagCourtSubtitle,
+  type RedFlagVerdict,
+} from "../lib/red-flag-court.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -58,6 +62,9 @@ export interface ShareExperienceResult {
   /** The selected prompt and private answer for a Wrong Answers Only export. */
   prompt?: string;
   answer?: string;
+  /** Red Flag Court: current docket position and verdict. Memory only, never a link. */
+  courtCase?: number;
+  verdict?: RedFlagVerdict;
   byline: string;
   skin: number;
   background: string;
@@ -96,6 +103,9 @@ const inks = {
   // The owned wrong-answers textbook: saffron blueprint ink on aged paper,
   // a faded copy, and a night-school page for the dark skin.
   "wrong-answers": [["#efe0bd", "#3a2412", "#8a4a08"], ["#f7f1e5", "#2a2319", "#7b3f10"], ["#1d1913", "#f4e6c7", "#e6ad3c"]],
+  // The owned tabloid courtroom: warm court paper and red ink, a late edition,
+  // and a cooler newsprint sheet. The verdict block stays red or green.
+  "red-flag-court": [["#f3e4c7", "#1c1511", "#a3151f"], ["#17120f", "#f6ead2", "#d8343f"], ["#e9e4d8", "#1d1b18", "#7a1a1f"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -583,6 +593,99 @@ async function renderTierList(result: ShareExperienceResult, format: ResultForma
   });
 }
 
+/** One local Red Flag Court verdict card: the tabloid masthead, the current
+ * case's exact wording, its docket number and the participant's red or green
+ * call, plus the same publisher sign-off every card carries. Portrait stacks
+ * the case above the stamped verdict; the wide card sets them side by side. */
+async function renderRedFlagCourt(result: ShareExperienceResult, format: ResultFormat): Promise<Blob> {
+  const card = redFlagCourtCard(result.courtCase, result.verdict);
+  if (!card) throw new Error("No verdict to export");
+  // Only the two promised sizes print; a crafted select value falls back to the
+  // portrait rather than inventing another card shape.
+  const layout: ResultFormat = format === "wide" ? "wide" : "portrait";
+  const [width, height] = resultSizes[layout];
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  await document.fonts?.ready;
+  const palette = inks["red-flag-court"];
+  const [paper, ink, accent] = palette[result.skin] ?? palette[0];
+  const verdict = card.verdict === "red"
+    ? { fill: "#a3151f", text: "#fff3df" }
+    : { fill: "#146b3a", text: "#f7ffe9" };
+  const wide = layout === "wide";
+  const margin = Math.round(Math.min(width, height) * .06);
+  const footer = height - margin - 42;
+  const inner = width - margin * 2;
+
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+
+  // Masthead: a heavy accent rule, the docket name and this case's position.
+  ctx.fillStyle = accent;
+  ctx.fillRect(margin, margin, inner, wide ? 8 : 12);
+  const headY = margin + (wide ? 34 : 48);
+  const metaSize = wide ? 14 : 18;
+  drawTracked(ctx, redFlagCourtSubtitle.toUpperCase(), margin, headY, metaSize, ink, wide ? 2 : 3);
+  const position = `CASE ${String(card.number).padStart(2, "0")} / ${redFlagCourtCount}`;
+  drawTracked(ctx, position, margin + inner - trackedWidth(ctx, position, metaSize, wide ? 2 : 3), headY, metaSize, accent, wide ? 2 : 3);
+  ctx.fillStyle = ink;
+  ctx.fillRect(margin, headY + (wide ? 14 : 20), inner, 2);
+
+  const contentTop = headY + (wide ? 50 : 74);
+  const contentBottom = footer - (wide ? 48 : 96);
+
+  if (wide) {
+    const gutter = Math.round(inner * .05);
+    const leftWidth = Math.round(inner * .5);
+    const rightX = margin + leftWidth + gutter;
+    const rightWidth = margin + inner - rightX;
+    drawTracked(ctx, `THE CASE · ${card.tab.toUpperCase()}`, margin, contentTop + 14, 14, accent, 2);
+    ctx.fillStyle = ink;
+    drawFit(ctx, card.habit, margin, contentTop + 30, leftWidth, contentBottom - contentTop - 30, 52, {
+      family: "Space, system-ui", weight: 800, lineHeight: 1.02,
+    });
+    const panelY = contentTop - 6;
+    const panelH = contentBottom - panelY;
+    ctx.fillStyle = verdict.fill;
+    ctx.fillRect(rightX, panelY, rightWidth, panelH);
+    ctx.strokeStyle = verdict.text;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(rightX + 8.5, panelY + 8.5, rightWidth - 17, panelH - 17);
+    drawTracked(ctx, "THE VERDICT", rightX + 26, panelY + 38, 14, verdict.text, 2);
+    ctx.fillStyle = verdict.text;
+    drawFit(ctx, card.verdictLabel.toUpperCase(), rightX + 26, panelY + 58, rightWidth - 52, panelH - 84, 96, {
+      family: "Space, system-ui", weight: 800, lineHeight: .96,
+    });
+  } else {
+    const verdictH = Math.round((contentBottom - contentTop) * .38);
+    const verdictY = contentBottom - verdictH;
+    drawTracked(ctx, `THE CASE · ${card.tab.toUpperCase()}`, margin, contentTop + 14, 18, accent, 3);
+    ctx.fillStyle = ink;
+    drawFit(ctx, card.habit, margin, contentTop + 38, inner, verdictY - contentTop - 74, 96, {
+      family: "Space, system-ui", weight: 800, lineHeight: 1.03,
+    });
+    ctx.fillStyle = verdict.fill;
+    ctx.fillRect(margin, verdictY, inner, verdictH);
+    ctx.strokeStyle = verdict.text;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(margin + 9, verdictY + 9, inner - 18, verdictH - 18);
+    drawTracked(ctx, "THE VERDICT", margin + 30, verdictY + 44, 18, verdict.text, 3);
+    ctx.fillStyle = verdict.text;
+    drawFit(ctx, card.verdictLabel.toUpperCase(), margin + 30, verdictY + 64, inner - 60, verdictH - 92, 170, {
+      family: "Space, system-ui", weight: 800, lineHeight: .95,
+    });
+  }
+
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
+}
+
 export async function renderExperienceResult(
   result: ShareExperienceResult,
   format: ResultFormat,
@@ -593,6 +696,7 @@ export async function renderExperienceResult(
   // title-and-grid renderer exactly as it was.
   if (result.game === "tier-list") return renderTierList(result, format);
   if (result.game === "wrong-answers") return renderWrongAnswers(result, format);
+  if (result.game === "red-flag-court") return renderRedFlagCourt(result, format);
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
   canvas.width = width;
