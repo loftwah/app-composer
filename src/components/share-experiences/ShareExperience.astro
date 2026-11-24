@@ -640,10 +640,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" id="tq-custom-help">Enter 21 prompts, one per line, up to {twentyOnePromptLimit} characters each. Applying or restoring the starter clears the current answers.</p>
       <form data-tq-custom-form autocomplete="off">
         <label for="tq-custom-prompts">Prompts</label>
-        <textarea id="tq-custom-prompts" rows={twentyOneQuestions.length} maxlength="2000" aria-describedby="tq-custom-help" data-tq-custom-prompts>{twentyOneQuestions.join("\n")}</textarea>
+        <textarea id="tq-custom-prompts" rows={twentyOneQuestions.length} maxlength="2000" aria-describedby="tq-custom-help" data-tq-custom-prompts disabled>{twentyOneQuestions.join("\n")}</textarea>
         <div class="tq-controls">
-          <button type="submit">Apply and start fresh</button>
-          <button type="button" class="secondary" data-tq-custom-reset>Reset to built-in</button>
+          <button type="submit" disabled>Apply and start fresh</button>
+          <button type="button" class="secondary" data-tq-custom-reset disabled>Reset to built-in</button>
         </div>
       </form>
       <div class="tq-controls tq-file-actions">
@@ -661,21 +661,21 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <h2 id="tq-prompt" tabindex="-1" data-tq-prompt>{twentyOneQuestions[0]}</h2>
       <label class="tq-answer-label" for="tq-answer">Your answer</label>
       <input id="tq-answer" type="text" maxlength={twentyOneAnswerLimit} autocomplete="off"
-        enterkeyhint="next" aria-describedby="tq-prompt" data-tq-answer />
+        enterkeyhint="next" aria-describedby="tq-prompt" data-tq-answer disabled />
       <div class="tq-controls">
         <button type="button" class="secondary" data-tq-back disabled>Back</button>
-        <button type="button" class="secondary" data-tq-skip>Skip this question</button>
-        <button type="button" data-tq-next>Next</button>
+        <button type="button" class="secondary" data-tq-skip disabled>Skip this question</button>
+        <button type="button" data-tq-next disabled>Next</button>
       </div>
       <div class="tq-controls tq-quiet">
-        <button type="button" class="secondary" data-tq-finish>See my answers</button>
+        <button type="button" class="secondary" data-tq-finish disabled>See my answers</button>
       </div>
     </section>
     <section hidden class="door-result tq-done" data-tq-done aria-label="All questions asked">
       <h2 tabindex="-1">That’s all {twentyOneQuestions.length} questions.</h2>
       <p data-tq-done-note></p>
       <div class="tq-controls">
-        <button type="button" data-tq-finish>See my answers</button>
+        <button type="button" data-tq-finish disabled>See my answers</button>
         <button type="button" class="secondary" data-tq-back-from-done>Back to the last question</button>
         <button type="button" class="secondary experience-reset" data-restart>Start over</button>
       </div>

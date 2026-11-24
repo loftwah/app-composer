@@ -3012,8 +3012,6 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   // Any typed edit after a file was chosen outranks a slower read.
   customPrompts.addEventListener("input", () => { promptRevision += 1; });
   promptFileSave.addEventListener("click", savePromptFile);
-  // Like the other file controls, these are JavaScript-only and start disabled.
-  for (const control of [promptFileSave, promptFileInput]) control.disabled = false;
 
   showQuestion(0, false);
 
@@ -3026,6 +3024,24 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     // Private answers never become a public link: URL sharing stays off for
     // the whole run, with the downloaded cards as the way out.
     linksAllowed: () => false,
+    activate() {
+      // Answer, next, skip, both finish buttons and every prompt editor action
+      // ship disabled in markup: a held module must not accept an early answer
+      // that this mount would then discard. This is the one ordinary entry
+      // that releases them, after the handlers and initial state are ready.
+      // Back keeps its own rule in showQuestion(), so question 1 stays backless.
+      answer.disabled = false;
+      next.disabled = false;
+      skip.disabled = false;
+      for (const button of finishes) button.disabled = false;
+      const submit = customForm.querySelector<HTMLButtonElement>("[type=submit]");
+      if (submit) submit.disabled = false;
+      customPrompts.disabled = false;
+      customReset.disabled = false;
+      // The prompt file controls are JavaScript-only too. Releasing them here
+      // keeps one held module from leaving any of them apparently usable.
+      for (const control of [promptFileSave, promptFileInput]) control.disabled = false;
+    },
     restore() {
       // A crafted hash is not a shared result: nothing restores.
     },
