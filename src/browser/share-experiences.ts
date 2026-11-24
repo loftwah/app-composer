@@ -136,6 +136,10 @@ interface Controller {
   result(): ResultSnapshot | null;
   restore(snapshot: Record<string, unknown>): void;
   resumeDraft?(protectShared: boolean): void;
+  /** Releases the markup-level pre-hydration guard on initial play controls,
+   * once the pack, any shared result and every handler are in place. Only the
+   * games that ship such guarded controls implement it. */
+  activate?(): void;
   /** Decoded cover art for the downloaded image; never part of a shared result. */
   exportCovers?(): readonly (ResultCoverSlot | null)[] | null;
   /** Whether the current run may produce a result link at all. Absent means
@@ -2378,6 +2382,18 @@ function mountThisOrThat(
         : null;
     },
     linksAllowed: () => custom === null,
+    activate() {
+      // The stage buttons, starter selector and custom submit ship disabled in
+      // markup so a held first tap cannot land before this mount, the requested
+      // pack and any shared result are in place. This is the one ordinary entry
+      // that releases them; Undo, row moves and reveal states keep their own
+      // independent disabled logic.
+      packSelect.disabled = false;
+      customForm.querySelector<HTMLButtonElement>("[type=submit]")!.disabled = false;
+      for (const button of elements<HTMLButtonElement>(root, "[data-choice]")) {
+        button.disabled = false;
+      }
+    },
     restore(snapshot) {
       const sides = restoreThisOrThatPicks(snapshot.marked);
       const title = entry(snapshot.title, 72);
@@ -4145,6 +4161,7 @@ export function mountShareExperience(root: HTMLElement) {
   }
   controller.resumeDraft?.(Boolean(shared.snapshot));
   update();
+  controller.activate?.();
 
   const result = (): ShareExperienceResult | null => {
     const snapshot = controller.result();
