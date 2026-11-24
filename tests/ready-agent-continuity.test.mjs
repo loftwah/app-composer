@@ -78,3 +78,22 @@ test('Astro and the client use the shared validation and query builder', () => {
   assert.ok(browserCheck.includes('Continue to app setup</a>'));
   assert.ok(browserCheck.includes('Back to the browser check in Get Ready</a>'));
 });
+
+test('the local Markdown download shares copy gating and keeps private input out of its name', () => {
+  const handoff = read('src/components/ReadyHandoff.astro');
+  assert.ok(handoff.includes("import { Copy, Download } from '@lucide/astro';"));
+  assert.ok(handoff.includes('class="button secondary" data-download-ready disabled'));
+  assert.ok(handoff.includes("prompt.closest('details')!.open=true;"));
+  assert.ok(handoff.includes('const setDisabled=(value:boolean)=>{button.disabled=value;downloadButton.disabled=value;};'));
+  assert.ok(handoff.includes('setDisabled(false);'));
+  assert.ok(handoff.includes('catch(error){setDisabled(true);'));
+
+  const download = handoff.slice(handoff.indexOf("downloadButton.addEventListener('click'"));
+  assert.ok(download.includes('attempt++;'), 'a clipboard write still in flight is retired');
+  assert.ok(download.includes("const text=prompt.textContent??'';"), 'the rendered text is saved verbatim');
+  assert.ok(download.includes("new Blob([text],{type:'text/markdown;charset=utf-8'})"));
+  assert.ok(download.includes("anchor.download='ready-handoff.md';"), 'one fixed safe filename');
+  assert.ok(download.includes('window.setTimeout(()=>URL.revokeObjectURL(url),1000);'));
+  assert.ok(!/anchor\.download[^;]*concept/i.test(download));
+  assert.ok(!/localStorage|sessionStorage|fetch\(/.test(download));
+});
