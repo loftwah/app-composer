@@ -8,6 +8,7 @@ interface Props { job: DiscoveryJob }
 const { job } = Astro.props;
 const relatedRoles = job.relatedRoles.map((id) => discoveryRoles.find((role) => role.id === id)!).filter(Boolean);
 const nextJob = discoveryJobs[(discoveryJobs.findIndex((entry) => entry.id === job.id) + 1) % discoveryJobs.length];
+const opensMiniAppDirectly = ['branding', 'diagram', 'pdf', 'inspect'].includes(job.id);
 ---
 <div class:list={['job-experience', `job-${job.id}`]}>
   <DiscoveryModes mode="job" />
@@ -16,12 +17,13 @@ const nextJob = discoveryJobs[(discoveryJobs.findIndex((entry) => entry.id === j
       <p class="job-kicker">The job</p>
       <h2 id="job-result-heading">{job.headline}</h2>
       <p class="job-outcome">{job.outcome}</p>
+      {opensMiniAppDirectly && <DeviceSupport support={appDeviceSupport(job.app)} compact />}
       <div class="job-actions"><a class="button" href={job.action.href}>{job.action.label}<ArrowRight size={18} aria-hidden="true" /></a></div>
       <details class="job-context">
         <summary>Who this is for and what you need</summary>
         <p>{job.roleNote} Related role {relatedRoles.length === 1 ? 'page' : 'pages'}: {relatedRoles.map((role, index) => <><a href={'/for/' + role.id}>{role.label}</a>{index < relatedRoles.length - 1 ? ' · ' : ''}</>)}.</p>
         <p>{job.support}</p>
-        <DeviceSupport support={appDeviceSupport(job.app)} compact />
+        {!opensMiniAppDirectly && <DeviceSupport support={appDeviceSupport(job.app)} compact />}
       </details>
     </div>
     <figure class="job-example">
