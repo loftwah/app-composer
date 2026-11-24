@@ -539,39 +539,100 @@
 }
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
 .nine-preview-cell a[data-nine-preview-caption][href] { text-decoration: underline; text-underline-offset: .14em; }
-/* Top Nine opens on the work: nine ordinary fields, the real grid beside them
-   on desktop, and optional tools after the first task. The markup stays in this
-   order at every width; no control is visually reordered ahead of its focus. */
+/* The board comes before its edit panel in both the visual and keyboard order. */
 .nine-workspace {
-  display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; row-gap: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  row-gap: .8rem;
 }
-.nine-workspace .experience-heading-nine {
-  min-height: 0; grid-template-columns: minmax(0, 1fr); align-items: start;
-  padding: .82rem 1rem; gap: .3rem;
+.nine-identity {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .65rem;
 }
-.experience-heading-nine h1 {
-  margin: 0 0 .35rem; font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1.05;
+.nine-identity h1 {
+  margin: 0;
+  font-size: clamp(1.45rem, 4.5vw, 2.25rem);
+  line-height: 1.1;
 }
-.experience-heading-nine p { max-width: 46ch; font-size: 1rem; }
-.experience-heading-nine .nine-example { margin: .15rem 0 0; }
-.nine-workspace .experience-crumb { margin-block-end: 0; }
-.nine-example a, .nine-options-link { text-decoration: none; }
-.nine-example a {
-  display: inline-flex; align-items: center; min-height: 44px;
-  color: var(--accent); font-weight: 700;
+.nine-identity a { padding-block: .5rem; font-size: .88rem; text-decoration: underline; }
+.nine-canvas {
+  min-width: 0;
+  padding: clamp(.55rem, 2vw, 1.2rem);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
-.nine-example a:hover { color: var(--stage-ink); }
+.nine-board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+}
+.nine-board-head h2 { flex: 1 1 auto; min-width: 0; margin: 0; font-size: clamp(1.15rem, 3vw, 1.65rem); }
+.nine-board-head input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: .22rem .4rem;
+  font-size: inherit;
+  font-weight: 700;
+}
+.nine-board-head .nine-count { flex: none; margin: 0; white-space: nowrap; }
+.nine-canvas .nine-preview { gap: clamp(.28rem, 1vw, .56rem); margin: .58rem 0 .45rem; }
+.nine-canvas .nine-preview-cell:not([data-filled]) {
+  background: var(--color-background);
+  border: 1px dashed var(--color-border);
+  color: var(--color-muted);
+}
+.nine-canvas .nine-preview-cell [data-nine-preview-caption] { overflow-wrap: normal; }
+.nine-canvas .nine-tile-edit {
+  position: absolute;
+  inset: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.3rem;
+}
+.nine-canvas .nine-tile-edit:focus-visible { outline-offset: -4px; }
+.nine-canvas .nine-preview-cell[data-filled] .nine-tile-edit span {
+  position: absolute;
+  inset-inline-end: .32rem;
+  inset-block-end: .3rem;
+  padding: .05rem .28rem;
+  background: var(--stage-ink);
+  color: var(--stage);
+  font-size: .69rem;
+  line-height: 1.3;
+}
+.nine-canvas .nine-preview-cell:has(a[href]) .nine-tile-edit {
+  inset: auto 0 0 auto;
+  width: 44px;
+  height: 44px;
+}
+.nine-canvas .nine-preview-cell a[href] { z-index: 1; }
+.nine-canvas .nine-preview-cell[data-covered] .nine-tile-edit span {
+  inset-block-start: .3rem;
+  inset-block-end: auto;
+}
+.nine-canvas .nine-preview-cell[data-covered]:has(a[href]) .nine-tile-edit { inset-block: 0 auto; }
+.nine-board-links { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+.nine-workspace:not([data-nine-recipient]) [data-nine-preview-title],
+.nine-workspace[data-nine-recipient] :is([data-exhibition-title], [data-nine-edit-slot], [data-nine-paste-shortcut], .nine-editor) { display: none; }
+.nine-workspace[data-nine-recipient] :is(.nine-canvas, .nine-export) {
+  width: min(100%, 34rem);
+  justify-self: center;
+}
 .nine-editor {
   margin-top: 0; padding: 1rem 0 0; background: transparent; color: inherit;
   border: 0; border-top: 1px solid var(--color-border);
 }
 .nine-editor h2 { margin: 0; font-size: 1.55rem; }
-.nine-intro { margin: .35rem 0 .8rem; color: var(--color-muted); max-width: 48ch; }
-.nine-title-field label { display: block; margin: 0; font-weight: 700; }
-.nine-title-field input {
-  display: block; inline-size: 100%; min-height: 44px; margin-block: .3rem .8rem;
-  color: #211a1b; background: #fff7ea; font-size: 16px;
-}
 .nine-editor .exhibition-objects {
   grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem .55rem;
   margin: .4rem 0 .8rem; padding: 0; background: transparent; color: inherit;
@@ -610,15 +671,13 @@
   margin-top: 0; padding: clamp(1rem, 2.5vw, 1.4rem);
   background: var(--stage); color: var(--stage-ink); border: 0; align-self: start;
 }
-.nine-export h2 { margin: 0; font-size: 1.4rem; }
 .nine-export .experience-note { color: inherit; }
-.nine-export .nine-preview { margin-block: .8rem .6rem; }
 .nine-count {
   margin: .6rem 0 0; font-size: .86rem; font-variant-numeric: tabular-nums; opacity: .88;
 }
 .nine-download-requirement { min-height: 1.4em; margin-block: .2rem 0; font-size: .88rem; }
-.nine-download-row { display: flex; margin-top: .75rem; }
-.nine-download-row button { min-height: 44px; }
+.nine-download-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+.nine-download-row :is(button, a) { min-height: 44px; }
 .nine-options-link {
   display: inline-flex; align-items: center; min-height: 44px;
   color: var(--accent); font-weight: 700;
@@ -657,9 +716,10 @@
     grid-template-columns: minmax(0, 1.08fr) minmax(20rem, .92fr);
     column-gap: clamp(1.25rem, 3vw, 2rem);
   }
-  .nine-workspace > :not(.nine-editor):not(.nine-export) { grid-column: 1 / -1; }
-  .nine-editor { grid-column: 1; }
-  .nine-export { grid-column: 2; }
+  .nine-workspace > :not(.nine-editor):not(.nine-canvas) { grid-column: 1 / -1; }
+  .nine-canvas { grid-column: 1; }
+  .nine-editor { grid-column: 2; }
+  .nine-workspace[data-nine-recipient] .nine-canvas { grid-column: 1 / -1; }
 }
 @media (max-width: 450px) {
   .nine-editor .exhibition-objects { gap: .35rem .45rem; }
