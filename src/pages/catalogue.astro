@@ -48,7 +48,7 @@ if(error)Astro.response.status=503;
           {deviceOptions.map(([value,label])=><option value={value} selected={deviceFilter===value}>{label}</option>)}
         </select>
         <button type="submit" class="button secondary">Apply filter</button>
-        {deviceFilter && <a href="/catalogue">Clear</a>}
+        {deviceFilter && <a href="/catalogue">Clear device filter</a>}
       </form>
       {visibleEntries.map(({entry,support})=>(
         <section class="route-row">
@@ -62,10 +62,7 @@ if(error)Astro.response.status=503;
         </section>
       ))}
       {deviceFilter && visibleEntries.length === 0 && (
-        <div class="catalogue-empty">
-          <p>No published mini-apps match this device assessment.</p>
-          <a href="/catalogue">Clear device filter</a>
-        </div>
+        <p class="catalogue-empty">No published mini-apps match this device assessment.</p>
       )}
       <p class="small" role="status">{deviceFilter ? `Matching published entries: ${visibleEntries.length} of ${entries.length}.` : `Published entries: ${entries.length}.`}</p>
       <a href="/init">Configure a supported preset</a> · <a href="/blueprints">Take a versioned blueprint</a>
