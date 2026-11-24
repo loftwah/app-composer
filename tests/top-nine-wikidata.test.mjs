@@ -341,6 +341,54 @@ test('the series kind offers a series and a miniseries, never film, episode or s
   assert.equal(fetch.mock.callCount(), 6);
 });
 
+test('series use the earliest valid current P580 only when P577 has no usable year', async (t) => {
+  const search = { search: [
+    searchRow('Q16893352', 'Stalker', 'American TV series (2014–2015)'),
+    searchRow('Q900201', 'Premiere', 'miniseries'),
+    searchRow('Q900202', 'Published series', 'television series'),
+    searchRow('Q900203', 'Former series', 'television series'),
+  ] };
+  const entities = { entities: {
+    Q16893352: {
+      claims: { P31: [claim('Q5398426')], P580: [time('+2014-10-01T00:00:00Z', 11)] },
+    },
+    Q900201: {
+      claims: {
+        P31: [claim('Q1259759')],
+        P577: [time('+2017-00-00T00:00:00Z', 8)],
+        P580: [
+          time('+2020-02-03T00:00:00Z', 11),
+          time('+2018-00-00T00:00:00Z', 8),
+          { ...time('+2016-01-01T00:00:00Z', 11), rank: 'deprecated' },
+          time('+2019-01-01T00:00:00Z', 9),
+        ],
+      },
+    },
+    Q900202: {
+      claims: { P31: [claim('Q5398426')],
+        P577: [time('+2021-01-01T00:00:00Z', 11)], P580: [time('+2011-01-01T00:00:00Z', 11)] },
+    },
+    // Acceptance keeps its existing rank semantics; only the fallback needs a current P31.
+    Q900203: {
+      claims: { P31: [deprecatedClaim('Q5398426')], P580: [time('+2014-01-01T00:00:00Z', 11)] },
+    },
+  } };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(search)()
+    : ok(entities)());
+  assert.deepEqual(await searchWikidata('Stalker', 'series'), [
+    { title: 'Stalker', artist: 'American TV series (2014–2015)', year: 2014,
+      href: 'https://www.wikidata.org/wiki/Q16893352' },
+    { title: 'Premiere', artist: 'miniseries', year: 2019,
+      href: 'https://www.wikidata.org/wiki/Q900201' },
+    { title: 'Published series', artist: 'television series', year: 2021,
+      href: 'https://www.wikidata.org/wiki/Q900202' },
+    { title: 'Former series', artist: 'television series',
+      href: 'https://www.wikidata.org/wiki/Q900203' },
+  ]);
+  assert.equal(fetch.mock.callCount(), 2);
+});
+
 test('malformed claims and sitelinks never crash or invent a record', async (t) => {
   // Claims and sitelinks arrive in shapes the Action API does not promise.
   const malformedSearch = { search: [
@@ -563,6 +611,63 @@ test('an exact album link prefers the English label and keeps its year', async (
   });
   assert.equal(await lookupWikidataTitle(albumLink), 'Modal Soul (2005)');
   assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('exact links use P580 only for current series; other kinds keep their existing year rule', async (t) => {
+  const items = {
+    Q16893352: {
+      title: 'Stalker (2014)', label: 'Stalker',
+      claims: { P31: [claim('Q5398426')], P580: [time('+2014-10-01T00:00:00Z', 11)] },
+    },
+    Q900204: {
+      title: 'Premiere (2019)', label: 'Premiere',
+      claims: { P31: [claim('Q1259759')], P580: [time('+2019-01-01T00:00:00Z', 11)] },
+    },
+    Q900205: {
+      title: 'Former series', label: 'Former series',
+      claims: { P31: [deprecatedClaim('Q5398426')], P580: [time('+2014-01-01T00:00:00Z', 11)] },
+    },
+    Q200437: {
+      title: 'Stalker (1979)', label: 'Stalker',
+      claims: { P31: [claim('Q11424')], P577: [time('+1979-00-00T00:00:00Z', 9)] },
+    },
+    Q900206: {
+      title: 'Film', label: 'Film',
+      claims: { P31: [claim('Q11424')], P580: [time('+1999-01-01T00:00:00Z', 11)] },
+    },
+    Q900207: {
+      title: 'Game', label: 'Game',
+      claims: { P31: [claim('Q7889')], P580: [time('+1999-01-01T00:00:00Z', 11)] },
+    },
+    Q900208: {
+      title: 'Album', label: 'Album',
+      claims: { P31: [claim('Q482994')], P580: [time('+1999-01-01T00:00:00Z', 11)] },
+    },
+    Q900209: {
+      title: 'Book', label: 'Book',
+      claims: { P31: [claim('Q571')], P580: [time('+1999-01-01T00:00:00Z', 11)] },
+    },
+    Q900210: {
+      title: 'Language', label: 'Language',
+      claims: { P31: [claim('Q9143')], P580: [time('+1999-01-01T00:00:00Z', 11)] },
+    },
+  };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    const qid = url.searchParams.get('ids');
+    assert.equal(url.searchParams.get('action'), 'wbgetentities');
+    assert.equal(url.searchParams.get('props'), 'labels|claims');
+    assert.equal(url.searchParams.get('languages'), 'en|mul');
+    const item = items[qid];
+    assert.ok(item);
+    return read({ [qid]: {
+      type: 'item', id: qid, labels: { en: { language: 'en', value: item.label } },
+      claims: item.claims,
+    } })();
+  });
+  for (const [qid, item] of Object.entries(items)) {
+    assert.equal(await lookupWikidataTitle(`https://www.wikidata.org/wiki/${qid}`), item.title, qid);
+  }
+  assert.equal(fetch.mock.callCount(), Object.keys(items).length);
 });
 
 test('only the current film, series, game, album and language instance types fill a title', async (t) => {
