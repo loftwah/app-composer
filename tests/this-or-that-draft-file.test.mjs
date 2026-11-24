@@ -4,29 +4,32 @@ import { readFileSync } from 'node:fs';
 import {
   customThisOrThatOptionLimit, customThisOrThatPromptLimit,
   readThisOrThatDraftFile, thisOrThatDraftFileLimit, thisOrThatDraftFileName,
-  thisOrThatDraftFileSchema, writeThisOrThatDraftFile,
+  thisOrThatDraftFileSchema, thisOrThatDraftRowCount, thisOrThatLegacyDraftFileSchema,
+  writeThisOrThatDraftFile,
 } from '../src/lib/this-or-that.ts';
 import { twentyOnePromptFileLimit } from '../src/lib/twenty-one-questions.ts';
 
-// #1064 local question drafts: the editor's nine rows and active length only.
+// #1064 local question drafts: the editor's eleven rows and active length only.
 // No pick, photo, description, URL, storage or run state can travel in the file.
 
 const source = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const blankRows = () => Array.from({ length: 9 }, () => ['', '', '']);
+const blankRows = () => Array.from({ length: thisOrThatDraftRowCount }, () => ['', '', '']);
 const check = (value) => readThisOrThatDraftFile(typeof value === 'string' ? value : JSON.stringify(value));
 
-test('v1 round-trips all nine sanitized rows, hidden drafts, blanks and either active length', () => {
-  const rows = Array.from({ length: 9 }, (_, index) =>
+test('v2 strictly round-trips all eleven sanitized rows, hidden drafts, blanks and every active length', () => {
+  const rows = Array.from({ length: 11 }, (_, index) =>
     [`  Prompt ${index + 1}?  `, `  Left ${index + 1}  `, ` Right ${index + 1} `]);
   rows[5] = ['', '', ''];
   rows[6] = ['  Hidden   prompt ', '', ' Hidden right '];
   rows[7] = ['   ', '\t', '\n'];
   rows[8] = ['  Prompt\twith\nspace  ', ' Left   space ', ' Right\u00a0space '];
+  rows[9] = ['Hidden ten', 'Kept left', 'Kept right'];
+  rows[10] = ['', 'Unfinished left', ''];
   const expected = rows.map(([prompt, left, right], index) => index < 5
     ? [`Prompt ${index + 1}?`, `Left ${index + 1}`, `Right ${index + 1}`]
     : [prompt.trim().replace(/\s+/g, ' '), left.trim().replace(/\s+/g, ' '), right.trim().replace(/\s+/g, ' ')]);
 
-  for (const length of [5, 9]) {
+  for (const length of [5, 9, 11]) {
     const text = writeThisOrThatDraftFile(rows, length);
     assert.equal(typeof text, 'string');
     assert.equal(writeThisOrThatDraftFile(rows, length), text, 'the same draft always writes the same bytes');
@@ -34,12 +37,12 @@ test('v1 round-trips all nine sanitized rows, hidden drafts, blanks and either a
     assert.equal(thisOrThatDraftFileLimit, twentyOnePromptFileLimit, 'the local JSON bound matches 21 Questions');
 
     const file = JSON.parse(text);
-    assert.deepEqual(Object.keys(file), ['schema', 'rows', 'length'], 'exactly the owned schema, nine rows and length');
+    assert.deepEqual(Object.keys(file), ['schema', 'rows', 'length'], 'exactly the owned schema, eleven rows and length');
     assert.equal(file.schema, thisOrThatDraftFileSchema);
-    assert.equal(thisOrThatDraftFileSchema, 'composer.this-or-that-draft/1');
+    assert.equal(thisOrThatDraftFileSchema, 'composer.this-or-that-draft/2');
     assert.equal(thisOrThatDraftFileName, 'composer-this-or-that-draft.json');
     assert.equal(file.length, length);
-    assert.equal(file.rows.length, 9);
+    assert.equal(file.rows.length, 11);
     assert.deepEqual(file.rows, expected, 'hidden and blank rows survive with exact cleaned text');
     for (const forbidden of ['answers', 'result', 'byline', 'picks', 'marked', 'photos', 'photo', 'alt', 'url', 'href', 'storage', 'request']) {
       assert.equal(Object.keys(file).some((key) => key.toLowerCase().includes(forbidden)), false,
@@ -58,16 +61,46 @@ test('v1 round-trips all nine sanitized rows, hidden drafts, blanks and either a
   assert.deepEqual(readThisOrThatDraftFile(unfinished).draft, { rows: blankRows(), length: 5 });
 });
 
-test('the widest sanitized editor set still fits the byte bound', () => {
-  const rows = Array.from({ length: 9 }, () => [
+test('an exact downloaded v1 nine-row draft restores faithfully with two blank new rows', () => {
+  const legacyRows = Array.from({ length: 9 }, (_, index) =>
+    [`  Prompt ${index + 1}?  `, `  Left ${index + 1}  `, ` Right ${index + 1} `]);
+  legacyRows[5] = ['', '', ''];
+  legacyRows[6] = ['  Hidden   prompt ', '', ' Hidden right '];
+  legacyRows[8] = ['Prompt\twith\nspace', 'Left   space', 'Right\u00a0space'];
+  const cleaned = legacyRows.map(([prompt, left, right]) =>
+    [prompt, left, right].map((text) => text.trim().replace(/\s+/g, ' ')));
+  for (const length of [5, 9]) {
+    const raw = JSON.stringify({ schema: thisOrThatLegacyDraftFileSchema, rows: legacyRows, length });
+    assert.equal(thisOrThatLegacyDraftFileSchema, 'composer.this-or-that-draft/1');
+    assert.deepEqual(readThisOrThatDraftFile(raw), {
+      draft: { rows: [...cleaned, ['', '', ''], ['', '', '']], length },
+      fault: null, gap: -1, field: null,
+    });
+  }
+
+  const valid = { schema: thisOrThatLegacyDraftFileSchema, rows: legacyRows, length: 9 };
+  for (const rows of [legacyRows.slice(0, 8), [...legacyRows, ['', '', '']], [...legacyRows, ['', '', ''], ['', '', '']]]) {
+    assert.equal(check({ ...valid, rows }).fault, 'shape', 'v1 accepts exactly nine rows');
+  }
+  assert.equal(check({ ...valid, length: 11 }).fault, 'length', 'v1 never invents an eleven-run');
+  assert.equal(check({ ...valid, extra: true }).fault, 'shape', 'v1 keeps the exact three-key shape');
+  const overlong = legacyRows.map((row) => [...row]);
+  overlong[8][2] = 'x'.repeat(customThisOrThatOptionLimit + 1);
+  assert.deepEqual({ fault: check({ ...valid, rows: overlong }).fault, gap: check({ ...valid, rows: overlong }).gap },
+    { fault: 'long', gap: 8 }, 'v1 keeps the same per-field bounds');
+  assert.equal(writeThisOrThatDraftFile(legacyRows, 9), null, 'new writes never emit the old nine-row shape');
+});
+
+test('the widest sanitized eleven-row editor set still fits the byte bound', () => {
+  const rows = Array.from({ length: 11 }, () => [
     'é'.repeat(customThisOrThatPromptLimit),
     'é'.repeat(customThisOrThatOptionLimit),
     'é'.repeat(customThisOrThatOptionLimit),
   ]);
-  const text = writeThisOrThatDraftFile(rows, 9);
+  const text = writeThisOrThatDraftFile(rows, 11);
   assert.ok(text);
   assert.ok(Buffer.byteLength(text, 'utf8') <= thisOrThatDraftFileLimit);
-  assert.deepEqual(readThisOrThatDraftFile(text).draft, { rows, length: 9 });
+  assert.deepEqual(readThisOrThatDraftFile(text).draft, { rows, length: 11 });
 });
 
 test('malformed, oversized, foreign, wrong-shape and overlong files return no draft', () => {
@@ -84,15 +117,17 @@ test('malformed, oversized, foreign, wrong-shape and overlong files return no dr
   assert.equal(check('not json').fault, 'unreadable');
   assert.equal(check([]).fault, 'unreadable');
   assert.equal(check({}).fault, 'schema');
-  assert.equal(check({ ...valid, schema: 'composer.this-or-that-draft/2' }).fault, 'version');
+  assert.equal(check({ ...valid, schema: 'composer.this-or-that-draft/3' }).fault, 'version');
   assert.equal(check({ ...valid, schema: 'composer.twenty-one-prompts/1' }).fault, 'schema');
   assert.equal(check({ ...valid, extra: 'x' }).fault, 'shape');
   assert.equal(check({ ...valid, rows: undefined }).fault, 'shape');
   assert.equal(check({ ...valid, rows: valid.rows.slice(0, 8) }).fault, 'shape');
+  assert.equal(check({ ...valid, rows: valid.rows.slice(0, 10) }).fault, 'shape');
+  assert.equal(check({ ...valid, rows: [...valid.rows, ['', '', '']] }).fault, 'shape');
   assert.equal(check(mutateRows((rows) => { rows[4] = ['one', 'two']; })).fault, 'shape');
   assert.equal(check(mutateRows((rows) => { rows[4] = ['one', 'two', 'three', 'four']; })).fault, 'shape');
   assert.equal(check(mutateRows((rows) => { rows[4][2] = 3; })).fault, 'shape');
-  for (const length of [4, 6, 11, '5', null, true]) {
+  for (const length of [4, 6, 7, 10, 12, '5', null, true]) {
     assert.equal(check({ ...valid, length }).fault, 'length');
   }
   for (const field of ['answers', 'picks', 'marked', 'photos', 'urls', 'requests']) {
@@ -110,6 +145,7 @@ test('malformed, oversized, foreign, wrong-shape and overlong files return no dr
     { fault: 'long', gap: 8, field: 'right' });
 
   assert.equal(writeThisOrThatDraftFile(valid.rows.slice(0, 8), 5), null);
+  assert.equal(writeThisOrThatDraftFile(valid.rows.slice(0, 10), 11), null);
   assert.equal(writeThisOrThatDraftFile(valid.rows, 7), null);
   assert.equal(writeThisOrThatDraftFile(mutateRows((rows) => { rows[0][0] = 'x'.repeat(73); }), 5), null);
 
@@ -117,7 +153,7 @@ test('malformed, oversized, foreign, wrong-shape and overlong files return no dr
   assert.equal(check('é'.repeat(thisOrThatDraftFileLimit / 2 + 1)).fault, 'oversized');
   assert.equal(check('x'.repeat(thisOrThatDraftFileLimit + 1)).fault, 'oversized');
   for (const value of [
-    'not json', {}, { ...valid, answers: [] }, { ...valid, length: 11 },
+    'not json', {}, { ...valid, answers: [] }, { ...valid, length: 12 },
     mutateRows((rows) => { rows[0][0] = 'x'.repeat(73); }),
   ]) {
     assert.equal(check(value).draft, null, 'every refusal hands back no editor replacement');

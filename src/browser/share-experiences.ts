@@ -11,7 +11,7 @@ import {
   readThisOrThatDraftFile, writeThisOrThatDraftFile,
   compareThisOrThatChoices,
   thisOrThatBlankLink, thisOrThatComplete, thisOrThatCount, thisOrThatDraftFileLimit,
-  thisOrThatDraftFileName, thisOrThatPackFromQuery,
+  thisOrThatDraftFileName, thisOrThatDraftRowCount, thisOrThatPackFromQuery,
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
   type ThisOrThatComparison, type ThisOrThatDraftFileRead, type ThisOrThatLength,
   type ThisOrThatPromptPhoto, type ThisOrThatSide,
@@ -94,7 +94,7 @@ import {
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
-  oneMustGoAltText, techTournamentAltText, tierListAltText, wrongAnswersAltText,
+  oneMustGoAltText, techTournamentAltText, thisOrThatAltText, tierListAltText, wrongAnswersAltText,
 } from "../lib/experience-alt-text.ts";
 import {
   techTournamentComplete, techTournamentCurrent, techTournamentMatchLabel,
@@ -2201,18 +2201,18 @@ function mountThisOrThat(
   let picks: (0 | 1 | null)[] = thisOrThatStart();
   let pack: ThisOrThatPack = "maker";
   let heading: string = thisOrThatPacks.maker.title;
-  /** The written set now on stage — five or nine — or null while a built-in
-   * starter plays. Built-in starters are always the authored five. */
+  /** The written set now on stage — five, nine or eleven — or null while a
+   * built-in starter plays. Built-in starters are always the authored five. */
   let custom: readonly (readonly [string, string, string])[] | null = null;
-  /** The length the editor is writing for. Five is the default; nine is the
-   * one optional authored length. Switching it edits only the editor. */
+  /** The length the editor is writing for. Five is the default; nine and
+   * eleven are optional private authored lengths. Switching edits only the editor. */
   let customLength: ThisOrThatLength = thisOrThatCount;
   /** The editor's photo drafts, one per row. A cleared or replaced photo only
    * changes this draft; the applied snapshot below owns its own URLs. */
-  let photoRows: DraftPhotoRow[] = Array.from({ length: 9 }, () => ({ photo: null, run: 0, pending: false }));
+  let photoRows: DraftPhotoRow[] = Array.from({ length: thisOrThatDraftRowCount }, () => ({ photo: null, run: 0, pending: false }));
   /** The editor revision at which each native photo picker opened. A selection
    * arriving after a draft replacement belongs to the old text and is refused. */
-  let photoPickRevisions: (number | undefined)[] = Array.from({ length: 9 }, () => undefined);
+  let photoPickRevisions: (number | undefined)[] = Array.from({ length: thisOrThatDraftRowCount }, () => undefined);
   /** Photos frozen into the active written run, with their own object URLs so
    * replacing or clearing an editor photo cannot break what is playing. */
   let appliedPhotos: (ThisOrThatPromptPhoto | null)[] = [];
@@ -2354,8 +2354,8 @@ function mountThisOrThat(
     panels.forEach((panel, index) => {
       const photo = panel.querySelector<HTMLImageElement>("[data-tot-question-photo]");
       const question = questions[index];
-      // Panels beyond this run — the nine-panel tail during any five — stay
-      // hidden with whatever text they hold until a longer run retexts them.
+      // Panels beyond this run — the wider draft tail during any shorter run —
+      // stay hidden with whatever text they hold until a longer run retexts them.
       // Their photo is dropped so no revoked editor or played URL lingers.
       if (!question) {
         if (photo) {
@@ -2577,8 +2577,8 @@ function mountThisOrThat(
     update();
   });
 
-  // The length selector edits only the editor: five rows or nine, every typed
-  // row keeps its draft in both directions, and nothing validates or plays
+  // The length selector edits only the editor: five, nine or eleven rows, every
+  // typed row keeps its draft in both directions, and nothing validates or plays
   // until "Play my questions" says so.
   lengthSelect.addEventListener("change", () => {
     applyLength(restoreThisOrThatLength(lengthSelect.value));
@@ -2706,8 +2706,8 @@ function mountThisOrThat(
   restart.addEventListener("click", () => {
     // Replay is a fresh run: it never inherits a comparison or its counts.
     clearComparison();
-    // Replay keeps the run on stage: a written nine replays nine questions,
-    // a written five or a built-in starter replays five.
+    // Replay keeps the run on stage: a written eleven replays eleven questions,
+    // a written nine replays nine, and a written five or built-in replays five.
     picks = thisOrThatStart(activeQuestions().length);
     heading = custom ? customThisOrThatTitle : thisOrThatPacks[pack].title;
     showQuestion(0, false);
@@ -2777,7 +2777,7 @@ function mountThisOrThat(
     playCustom();
   });
 
-  /** The file always carries all nine rows, not only the visible length. */
+  /** The file always carries all eleven rows, not only the visible length. */
   const draftRows = () => customPrompts.map((prompt, index) =>
     [prompt.value, customLefts[index]?.value, customRights[index]?.value] as const);
 
@@ -2793,8 +2793,8 @@ function mountThisOrThat(
     if (read.fault === "unreadable") return `That file is not valid JSON.${unchanged}`;
     if (read.fault === "schema") return `That is not a Composer This or That question draft.${unchanged}`;
     if (read.fault === "version") return `That question draft uses a format this page does not know. Save a fresh one here, then open that.${unchanged}`;
-    if (read.fault === "shape") return `That file must hold exactly nine three-text rows and a five/nine length, with no other fields.${unchanged}`;
-    if (read.fault === "length") return `That draft’s active length must be five or nine questions.${unchanged}`;
+    if (read.fault === "shape") return `That file must hold exactly nine v1 rows or eleven v2 rows, each with three texts, and no other fields.${unchanged}`;
+    if (read.fault === "length") return `That draft’s active length must be five, nine or eleven; a v1 draft accepts five or nine.${unchanged}`;
     if (read.fault === "long") {
       const field = read.field === "left" ? "first option" : read.field === "right" ? "second option" : "prompt";
       const limit = field === "prompt" ? customThisOrThatPromptLimit : customThisOrThatOptionLimit;
@@ -2808,7 +2808,7 @@ function mountThisOrThat(
   function saveQuestionDraft() {
     const text = writeThisOrThatDraftFile(draftRows(), customLength);
     if (!text) {
-      draftFileStatus.textContent = "This draft could not be saved. Check that all nine rows fit the prompt and option limits.";
+      draftFileStatus.textContent = "This draft could not be saved. Check that all eleven rows fit the prompt and option limits.";
       return;
     }
     // Read the exact bytes back before download, so the file has the same owned
@@ -2830,7 +2830,7 @@ function mountThisOrThat(
     } finally {
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
-    draftFileStatus.textContent = "Question draft ready. It holds all nine rows, including hidden and blank rows — no picks or photos.";
+    draftFileStatus.textContent = "Question draft ready. It holds all eleven rows, including hidden and blank rows — no picks or photos.";
   }
 
   /** Opening replaces only the editor. A valid file is confirmed first when
@@ -2876,7 +2876,7 @@ function mountThisOrThat(
       clearEditorPhotos();
       draftRevision += 1;
       customPanel.open = true;
-      draftFileStatus.textContent = `Question draft opened for ${draft.length} questions. Review all nine rows, then choose Play my questions. Your current run is unchanged.`;
+      draftFileStatus.textContent = `Question draft opened for ${draft.length} questions. Review all eleven rows, then choose Play my questions. Your current run is unchanged.`;
       customPrompts[0]?.focus({ preventScroll: true });
     } catch {
       if (attempt !== draftFileAttempt) return;
@@ -2950,10 +2950,10 @@ function mountThisOrThat(
     result: () => {
       const summary = thisOrThatSummary(picks, activeQuestions(), heading);
       // The PNG lists the exact chosen texts of the run on stage — five for a
-      // built-in starter, five or nine for a written set — as rows; sides and
-      // the starter travel in the link so it reopens the same run. Image
-      // marking is Bingo-only, and a written set carries no pack at all — it
-      // never travels in a link, so prompts and answers stay in this tab.
+      // built-in starter, five/nine/eleven for a written set — as rows; sides
+      // and the starter travel in the link only for built-ins. Image marking is
+      // Bingo-only, and a written set carries no pack at all — it never travels
+      // in a link, so prompts and answers stay in this tab.
       return summary
         ? { title: heading, items: [...summary.items], marked: [...summary.sides], ...(custom ? {} : { pack }) }
         : null;
@@ -5216,19 +5216,6 @@ function sharedResult(game: ExperienceId): { snapshot: Record<string, unknown> |
   } catch {
     return { snapshot: null, invalid: true };
   }
-}
-
-/** The visible text of a This-or-That text-only PNG: its title, optional
- * byline and every chosen option in question order. Prompts, unchosen sides,
- * private photo descriptions and links never reach the export or clipboard. */
-function thisOrThatAltText(snapshot: ShareExperienceResult): string {
-  const title = cleanText(snapshot.title, 72);
-  const byline = cleanText(snapshot.byline, 48);
-  const items = (snapshot.items ?? []).map((item) => cleanText(item, customThisOrThatOptionLimit));
-  if (!title || (items.length !== 5 && items.length !== 9) || items.some((item) => !item)) return "";
-  return [title, ...(byline ? [`By ${byline}`] : []), ...items]
-    .map((line) => (/[.!?…]$/.test(line) ? line : `${line}.`))
-    .join(" ");
 }
 
 /** One optional photo behind a persona result card's small circle. It uses the

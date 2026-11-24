@@ -14,7 +14,7 @@ import {
   customThisOrThatTitle, moveThisOrThatCustom, pickThisOrThat, restoreThisOrThatLength,
   restoreThisOrThatPack, restoreThisOrThatPicks, thisOrThatComplete, thisOrThatCount,
   thisOrThatLengths, thisOrThatProgress, thisOrThatStart, thisOrThatSummary,
-  readThisOrThatCustom, undoThisOrThat,
+  thisOrThatDraftRowCount, readThisOrThatCustom, undoThisOrThat,
   thisOrThatBlankLink, thisOrThatBlankPath, thisOrThatPackFromQuery,
   compareThisOrThatChoices, readThisOrThatComparisonOffer,
 } from '../src/lib/this-or-that.ts';
@@ -439,23 +439,28 @@ test('a draft row move carries every prompt and option, including half-written t
     'a reordered complete five still validates without changing any text');
 });
 
-// The optional authored nine: one local, private length beside the default
-// five. These checks hold the pure boundaries — the offered lengths, a
-// nine-question run's lifecycle, the five-only share decoder, and the exact
-// nine chosen texts a finished run exposes for the PNG.
+// The optional authored nine and eleven: private/local lengths beside the
+// default five. These checks hold the pure boundaries — the offered lengths,
+// full run lifecycles, the five-only share decoder, and the exact chosen texts
+// a finished run exposes for the PNG.
 
 const nineQuestions = Array.from({ length: 9 }, (_, index) =>
   [`Question ${index + 1}?`, `Left ${index + 1}`, `Right ${index + 1}`]);
+const elevenQuestions = Array.from({ length: 11 }, (_, index) =>
+  [`Question ${index + 1}?`, `Left ${index + 1}`, `Right ${index + 1}`]);
 
-test('the authored length is exactly five or nine, and only a known value widens it', () => {
-  assert.deepEqual(thisOrThatLengths, [5, 9]);
+test('the authored lengths are exactly five, nine or eleven, and only a known value widens them', () => {
+  assert.deepEqual(thisOrThatLengths, [5, 9, 11]);
+  assert.equal(thisOrThatDraftRowCount, 11);
   assert.equal(restoreThisOrThatLength('5'), 5);
   assert.equal(restoreThisOrThatLength('9'), 9);
-  for (const value of [undefined, null, '', '4', '11', '21', 'nine', 5, 9, {}, ['9']]) {
+  assert.equal(restoreThisOrThatLength('11'), 11);
+  for (const value of [undefined, null, '', '4', '10', '21', 'nine', 5, 9, 11, {}, ['9']]) {
     assert.equal(restoreThisOrThatLength(value), 5, `${JSON.stringify(value)} keeps the default five`);
   }
   assert.deepEqual(thisOrThatStart(9), Array.from({ length: 9 }, () => null));
   assert.equal(thisOrThatStart(9).length, 9);
+  assert.deepEqual(thisOrThatStart(11), Array.from({ length: 11 }, () => null));
   assert.equal(thisOrThatStart().length, 5, 'the default run stays the built-in five');
 });
 
@@ -478,6 +483,27 @@ test('a nine-question authored run plays, undoes and completes exactly like the 
   assert.equal(thisOrThatComplete(picks, 9), true);
   assert.equal(thisOrThatComplete(picks), false, 'a finished nine is not a complete five');
   assert.equal(thisOrThatComplete(picks.slice(0, 5), 9), false, 'five picks cannot finish a nine');
+});
+
+test('an eleven-question authored run progresses through every row and lists all eleven choices', () => {
+  let picks = thisOrThatStart(11);
+  assert.deepEqual(thisOrThatProgress(picks), { question: 1, total: 11 });
+  assert.equal(pickThisOrThat(picks, 10, 0), null, 'the eleventh question cannot be answered first');
+  for (let index = 0; index < 11; index += 1) {
+    const next = pickThisOrThat(picks, index, index % 2);
+    assert.ok(next, `question ${index + 1} accepts its pick in order`);
+    picks = next;
+    assert.deepEqual(thisOrThatProgress(picks), { question: Math.min(index + 2, 11), total: 11 });
+  }
+  assert.equal(thisOrThatComplete(picks, 11), true);
+  assert.equal(thisOrThatComplete(picks), false, 'a finished eleven is not a complete five');
+  const summary = thisOrThatSummary(picks, elevenQuestions, customThisOrThatTitle);
+  const chosen = elevenQuestions.map(([, left, right], index) => (picks[index] === 0 ? left : right));
+  assert.deepEqual(summary.items, chosen, 'all eleven exact ordered choices reach the PNG');
+  assert.deepEqual(summary.sides, [...picks]);
+  assert.equal(thisOrThatSummary(picks.slice(0, 10), elevenQuestions), null);
+  assert.deepEqual(undoThisOrThat(picks), thisOrThatStart(11).map((_, index) => index < 10 ? picks[index] : null),
+    'undo reopens the eleventh question');
 });
 
 test('a finished nine-run lists nine exact chosen texts for the PNG rows', () => {
@@ -520,6 +546,16 @@ test('reading a custom set validates exactly the chosen length; hidden drafts st
     'hidden rows keep their drafts and never reach validation',
   );
   assert.deepEqual(hidden[5], ['', 'dup', 'dup'], 'the untouched draft is still exactly as typed');
+
+  const elevenRows = elevenQuestions.map(([prompt, left, right]) => [prompt, left, right]);
+  assert.deepEqual(readThisOrThatCustom(elevenRows, 11).questions?.map((row) => [...row]), elevenRows);
+  const eleventhGap = elevenRows.map((row) => [...row]);
+  eleventhGap[10][2] = '';
+  assert.deepEqual(readThisOrThatCustom(eleventhGap, 11), { questions: null, gap: 10, reason: 'empty' });
+  eleventhGap[10][2] = 'Right 11';
+  const hiddenTail = [...elevenRows, ['Hidden twelve', 'Left twelve', 'Right twelve']];
+  assert.deepEqual(readThisOrThatCustom(hiddenTail, 11).questions?.map((row) => [...row]), elevenRows,
+    'a row beyond eleven never reaches validation or play');
 });
 
 test('row moves stay inside the edited length and never disturb hidden drafts', () => {
@@ -534,9 +570,15 @@ test('row moves stay inside the edited length and never disturb hidden drafts', 
     if (index !== 4 && index !== 5) assert.deepEqual(moved[index], draft[index]);
   }
   assert.deepEqual(moveThisOrThatCustom(draft, 8, 1, 9), draft, 'the last of nine stays put');
+  const eleven = elevenQuestions.map(([prompt, left, right]) => [prompt, left, right]);
+  const movedEleven = moveThisOrThatCustom(eleven, 9, 1, 11);
+  assert.deepEqual(movedEleven[9], eleven[10]);
+  assert.deepEqual(movedEleven[10], eleven[9]);
+  assert.deepEqual(moveThisOrThatCustom(eleven, 10, 1, 11), eleven, 'the last of eleven stays put');
+  assert.deepEqual(moveThisOrThatCustom(eleven, 10, 1, 9), eleven, 'a hidden eleven-row draft never moves at nine');
 });
 
-test('the native length selector offers exactly five and nine, never eleven or twenty-one', async () => {
+test('the native length selector offers exactly five, nine and eleven, never twenty-one', async () => {
   const source = await readFile(
     new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url),
     'utf8',
@@ -545,21 +587,20 @@ test('the native length selector offers exactly five and nine, never eleven or t
   assert.ok(select, 'the authored length selector is present');
   assert.deepEqual(
     [...select[1].matchAll(/<option value="([^"]+)"/g)].map((match) => match[1]),
-    ['5', '9'],
+    ['5', '9', '11'],
   );
-  assert.ok(source.includes('Array.from({ length: 9 }, (_, index) => ('),
-    'the editor renders one nine-row draft');
+  assert.equal((source.match(/Array\.from\(\{ length: thisOrThatDraftRowCount \}/g) ?? []).length, 2,
+    'the editor and stage each carry all eleven rows');
   assert.match(source, /hidden=\{index >= thisOrThatQuestions\.length\}/,
     'rows past the built-in five start hidden');
-  assert.match(source, /disabled=\{index === thisOrThatQuestions\.length - 1 \|\| index === 8\}/,
+  assert.match(source, /disabled=\{index === thisOrThatQuestions\.length - 1 \|\| index === thisOrThatDraftRowCount - 1\}/,
     'the last visible row alone stops moving down');
-  assert.ok(source.includes('Array.from({ length: 9 }, (_, index) => {'),
-    'the stage carries nine play panels');
 });
 
-test('a nine-item result reuses the exhibition grid; the built-in five keeps its column', () => {
+test('a nine-item result reuses the exhibition grid; eleven compacts a fourth row and five keeps its column', () => {
   assert.equal(resultColumns('this-or-that', 5), 1, 'the built-in five keeps its exact drawing');
   assert.equal(resultColumns('this-or-that', 9), 3, 'an authored nine reuses the proven 3 × 3 grid');
+  assert.equal(resultColumns('this-or-that', 11), 3, 'an authored eleven uses the same grid with four rows');
   assert.equal(resultColumns('tech-bingo', 25), 5);
   assert.equal(resultColumns('top-nine', 9), 3);
   assert.equal(resultColumns('pick-a-door', 10), 3);

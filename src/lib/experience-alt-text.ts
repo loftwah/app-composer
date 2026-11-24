@@ -1,4 +1,4 @@
-/** Plain-text descriptions of the three local games' downloaded PNGs.
+/** Plain-text descriptions of the local games' downloaded PNGs.
  *
  * Each formatter uses exactly the text the renderer prints: the tier list's
  * title and four named rows, one-must-go's title, crossed-out choice and
@@ -17,6 +17,7 @@ import {
   oneMustGoRemainingLine, oneMustGoTitle,
 } from "./one-must-go.ts";
 import { wrongAnswerPlate, wrongAnswerPrintTitle } from "./wrong-answers.ts";
+import { customThisOrThatOptionLimit, isThisOrThatLength } from "./this-or-that.ts";
 import {
   techTournamentOutcome, techTournamentPickCount, techTournamentTitle,
 } from "./tech-tournament.ts";
@@ -34,6 +35,26 @@ const bylineLine = (value: unknown) => {
 const list = (values: readonly string[]) => values.length > 1
   ? `${values.slice(0, -1).join(", ")} and ${values.at(-1)}`
   : values[0] ?? "";
+
+/** The This-or-That text-only PNG: its title, optional byline and every chosen
+ * option in question order. Prompts, unchosen sides, private photo descriptions
+ * and links never reach the description. Five, nine and eleven are the only
+ * complete authored lengths. */
+export function thisOrThatAltText(input: {
+  title?: string;
+  byline?: string;
+  items?: readonly string[];
+}): string {
+  const title = cleanText(input.title, 72);
+  const items = (input.items ?? []).map((item) => cleanText(item, customThisOrThatOptionLimit));
+  if (!title || !isThisOrThatLength(items.length) || items.some((item) => !item)) return "";
+  const byline = bylineLine(input.byline);
+  return [
+    sentence(title),
+    ...(byline ? [byline] : []),
+    ...items.map(sentence),
+  ].join(" ");
+}
 
 /** The tier-list PNG: its title, an optional byline and all four named rows in
  * print order, each with its entries. An empty row prints “Empty row”, so the
