@@ -16,8 +16,9 @@ import {
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, readTwentyOnePrompts, readTwentyOnePromptFile, setTwentyOneAnswer, skipTwentyOne,
-  twentyOneAnswered, twentyOneAnswerLimit, twentyOneAnswersText, twentyOneBlankPath, twentyOneCount,
-  twentyOnePairs, twentyOnePromptFileLimit, twentyOnePromptFileName, twentyOnePromptLimit,
+  twentyOneAnswered, twentyOneAnswerLimit, twentyOneAnswersFileName, twentyOneAnswersText,
+  twentyOneBlankPath, twentyOneCount, twentyOnePairs, twentyOnePromptFileLimit,
+  twentyOnePromptFileName, twentyOnePromptLimit,
   twentyOneStart, writeTwentyOnePromptFile,
   type TwentyOnePromptFileRead,
 } from "../lib/twenty-one-questions.ts";
@@ -2771,6 +2772,9 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   const copyAnswers = root.querySelector<HTMLButtonElement>("[data-tq-copy-answers]")!;
   const copyAnswersManual = root.querySelector<HTMLTextAreaElement>("[data-tq-copy-answers-manual]")!;
   const copyAnswersStatus = root.querySelector<HTMLElement>("[data-tq-copy-answers-status]")!;
+  // The local text-file export sits beside the copy, with the same gating.
+  const saveAnswers = root.querySelector<HTMLButtonElement>("[data-tq-save-answers]")!;
+  const saveAnswersStatus = root.querySelector<HTMLElement>("[data-tq-save-answers-status]")!;
   let copyAnswersAttempt = 0;
   let copyingAnswers = false;
   // One invite action for the built-in game, wherever the summary is shown.
@@ -2822,6 +2826,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     copyAnswersManual.hidden = true;
     copyAnswersManual.value = "";
     copyAnswersStatus.textContent = "";
+    saveAnswersStatus.textContent = "";
   }
 
   function syncProgress() {
@@ -2846,6 +2851,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     clearBlankOffer();
     clearCopyAnswers();
     copyAnswers.disabled = true;
+    saveAnswers.disabled = true;
     const question = activeQuestions[current];
     prompt.textContent = question;
     answer.value = answers[current];
@@ -2863,6 +2869,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     clearBlankOffer();
     clearCopyAnswers();
     copyAnswers.disabled = true;
+    saveAnswers.disabled = true;
     const answered = twentyOneAnswered(answers);
     doneNote.textContent = answered === 0
       ? "You skipped every question. You can still go back and answer any of them."
@@ -2883,8 +2890,9 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     summaryTitle.textContent = twentyOneResultTitle;
     list.replaceChildren();
     const pairs = twentyOnePairs(answers, activeQuestions);
-    // The copy exists only when this private summary has a response.
+    // The copy and the file save exist only when this summary has a response.
     copyAnswers.disabled = pairs.length === 0;
+    saveAnswers.disabled = pairs.length === 0;
     empty.hidden = pairs.length > 0;
     for (const pair of pairs) {
       const item = document.createElement("li");
@@ -3016,6 +3024,33 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     showQuestion(0, true);
     update();
   }));
+
+  // One deliberate click writes the same frozen pairs the copy reads into one
+  // local UTF-8 text file. The bytes never leave this device: the only URL is a
+  // short-lived blob, no answer enters the page address or storage, and the
+  // clipboard denial and fallback above stay exactly as they were.
+  saveAnswers.addEventListener("click", () => {
+    if (view !== "summary" || saveAnswers.disabled) return;
+    const pairs = twentyOnePairs(answers, activeQuestions);
+    if (pairs.length === 0) return;
+    const text = twentyOneAnswersText(pairs);
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = twentyOneAnswersFileName;
+      link.rel = "noopener";
+      link.click();
+    } catch {
+      saveAnswersStatus.textContent = "This browser didn’t start the download. Your answers are unchanged; try again.";
+      return;
+    } finally {
+      // Release the blob URL once the browser has had time to start the
+      // download, on success or failure, so the page never leaks one.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    saveAnswersStatus.textContent = "Answers saved as a local text file.";
+  });
 
   /** Every failure names its line and leaves the active run untouched. */
   function promptProblem(read: ReturnType<typeof readTwentyOnePrompts>): string {

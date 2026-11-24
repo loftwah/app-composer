@@ -165,6 +165,9 @@ export function splitTwentyOneCards<T>(pairs: readonly T[], perCard = twentyOneC
  * no field, so the file cannot carry anything from a run. */
 export const twentyOnePromptFileSchema = "composer.twenty-one-prompts/1";
 export const twentyOnePromptFileName = "composer-21-questions-prompts.json";
+/** One fixed local filename for the private answer export. No answer, prompt
+ * or result text ever enters this name, a URL or any storage. */
+export const twentyOneAnswersFileName = "composer-21-questions-answers.txt";
 /** Bytes, not characters: the same bound covers what this page writes and what
  * it opens, and is checked before the browser parses anything. */
 export const twentyOnePromptFileLimit = 8_192;

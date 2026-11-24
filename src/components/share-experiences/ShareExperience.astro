@@ -705,8 +705,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       </div>
       <div class="tot-blank tq-copy-answers">
         <button type="button" class="secondary" data-tq-copy-answers disabled>Copy answers as text</button>
+        <button type="button" class="secondary" data-tq-save-answers disabled>Save answers (.txt)</button>
         <textarea hidden readonly rows="8" aria-label="Your answers as text" data-tq-copy-answers-manual></textarea>
         <p class="experience-note" role="status" data-tq-copy-answers-status></p>
+        <p class="experience-note" role="status" data-tq-save-answers-status></p>
       </div>
       <div class="tot-blank" data-tq-blank>
         <button type="button" class="secondary" data-tq-blank-copy>Copy built-in starter link</button>

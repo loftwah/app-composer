@@ -8,7 +8,8 @@ import {
 import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
-  twentyOneAnswerLimit, twentyOneAnswered, twentyOneAnswersText, twentyOneBlankPath, twentyOneCount,
+  twentyOneAnswerLimit, twentyOneAnswered, twentyOneAnswersFileName, twentyOneAnswersText,
+  twentyOneBlankPath, twentyOneCount,
   twentyOnePairs, twentyOneProgress, twentyOnePromptLimit, twentyOneStart, twentyOneSquareCardSize,
 } from '../src/lib/twenty-one-questions.ts';
 
@@ -244,6 +245,8 @@ test('the signed-out summary copy writes only current pairs and retires stale re
   assert.ok(mount.includes('const copyAnswers = root.querySelector<HTMLButtonElement>("[data-tq-copy-answers]")!'));
   assert.ok(mount.includes('const copyAnswersManual = root.querySelector<HTMLTextAreaElement>("[data-tq-copy-answers-manual]")!'));
   assert.ok(mount.includes('const copyAnswersStatus = root.querySelector<HTMLElement>("[data-tq-copy-answers-status]")!'));
+  assert.ok(mount.includes('const saveAnswers = root.querySelector<HTMLButtonElement>("[data-tq-save-answers]")!'));
+  assert.ok(mount.includes('const saveAnswersStatus = root.querySelector<HTMLElement>("[data-tq-save-answers-status]")!'));
 
   const clear = mount.match(/function clearCopyAnswers\(\) \{([\s\S]*?)\n  \}/);
   assert.ok(clear, 'one retirement helper');
@@ -251,6 +254,7 @@ test('the signed-out summary copy writes only current pairs and retires stale re
   assert.match(clear[1], /copyAnswersManual\.hidden = true;\s*copyAnswersManual\.value = "";\s*copyAnswersStatus\.textContent = "";/);
   assert.equal((mount.match(/clearCopyAnswers\(\);/g) ?? []).length, 6, 'every view, edit, apply and attempt retires it');
   assert.ok(mount.includes('copyAnswers.disabled = pairs.length === 0;'), 'no response means no usable copy');
+  assert.equal((mount.match(/saveAnswers\.disabled = (true|pairs\.length === 0);/g) ?? []).length, 3, 'the file button is disabled outside a non-empty summary');
 
   const handler = mount.slice(mount.indexOf('copyAnswers.addEventListener'), mount.indexOf('restarts.forEach'));
   assert.match(handler, /if \(view !== "summary" \|\| copyAnswers\.disabled \|\| copyingAnswers\) return;/);
@@ -261,10 +265,22 @@ test('the signed-out summary copy writes only current pairs and retires stale re
   assert.match(handler, /copyAnswersManual\.value = text;\s*copyAnswersManual\.hidden = false;\s*copyAnswersManual\.focus\(\);\s*copyAnswersManual\.select\(\);/);
   assert.doesNotMatch(handler, /fetch\(|localStorage|sessionStorage|new URL|\.href|resultLink|download|ClipboardItem|analytics/, 'no link, storage, server, file or analytics path');
 
+  const save = mount.slice(mount.indexOf('saveAnswers.addEventListener'), mount.indexOf('/** Every failure names its line'));
+  assert.match(save, /if \(view !== "summary" \|\| saveAnswers\.disabled\) return;/);
+  assert.match(save, /const pairs = twentyOnePairs\(answers, activeQuestions\)/);
+  assert.match(save, /const text = twentyOneAnswersText\(pairs\)/);
+  assert.match(save, /new Blob\(\[text\], \{ type: "text\/plain;charset=utf-8" \}\)/);
+  assert.match(save, /link\.download = twentyOneAnswersFileName;/);
+  assert.match(save, /setTimeout\(\(\) => URL\.revokeObjectURL\(url\), 1000\)/);
+  assert.equal(twentyOneAnswersFileName, 'composer-21-questions-answers.txt', 'one fixed, safe filename');
+  assert.doesNotMatch(save, /fetch\(|location|localStorage|sessionStorage|navigator|resultLink|analytics/, 'no network, page URL or storage path');
+
   const markup = read('src/components/share-experiences/ShareExperience.astro');
   const block = markup.match(/<div class="tot-blank tq-copy-answers">([\s\S]*?)<\/div>/);
   assert.ok(block, 'one copy block in the private summary');
   assert.match(block[1], /<button type="button" class="secondary" data-tq-copy-answers disabled>Copy answers as text<\/button>/);
+  assert.match(block[1], /<button type="button" class="secondary" data-tq-save-answers disabled>Save answers \(\.txt\)<\/button>/);
+  assert.match(block[1], /role="status" data-tq-save-answers-status/);
   assert.match(block[1], /<textarea hidden readonly rows="8" aria-label="Your answers as text" data-tq-copy-answers-manual><\/textarea>/);
   assert.match(block[1], /role="status" data-tq-copy-answers-status/);
 });
