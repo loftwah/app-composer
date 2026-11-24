@@ -148,6 +148,8 @@ test('the live route keeps file controls mount-gated, local and separate from th
   assert.equal((markup.match(/data-tot-draft-file-save/g) ?? []).length, 1);
 
   const controller = source('src/browser/share-experiences.ts');
+  assert.match(controller, /import \{[^}]*\bcustomThisOrThatPromptLimit\b[^}]*\} from "\.\.\/lib\/this-or-that\.ts";/,
+    'the browser can name the shared limit when a draft prompt is too long');
   const start = controller.indexOf('function mountThisOrThat');
   const end = controller.indexOf('function mountTwentyQuestions', start);
   assert.ok(start > 0 && end > start);

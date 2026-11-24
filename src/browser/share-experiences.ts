@@ -5,7 +5,7 @@ import {
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatLength, restoreThisOrThatPack, restoreThisOrThatPicks,
-  checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatOptionLimit,
+  checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatOptionLimit, customThisOrThatPromptLimit,
   customThisOrThatTitle, freezeThisOrThatPhotos,
   moveThisOrThatCustom, readThisOrThatCustom, readThisOrThatComparisonOffer,
   readThisOrThatDraftFile, writeThisOrThatDraftFile,
