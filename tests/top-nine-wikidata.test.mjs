@@ -10,6 +10,7 @@ import { lookupWikidataTitle, searchWikidata, wikidataSource } from '../src/lib/
 const searchRow = (id, label, description) => ({ id, label, description });
 const claim = (id) => ({ mainsnak: { datavalue: { value: { id } } } });
 const time = (time, precision) => ({ mainsnak: { datavalue: { value: { time, precision } } } });
+const isbn = (value) => ({ mainsnak: { datavalue: { value } } });
 const ok = (body) => async () => new Response(JSON.stringify(body), { status: 200 });
 
 // Dune: wbsearchentities for "Dune" (5 of the 30 live rows) and the batched
@@ -445,6 +446,7 @@ test('a failed or cancelled search stays one request with no retries', async (t)
   controller.abort();
   await assert.rejects(searchWikidata('Dune', 'film', controller.signal), { name: 'AbortError' });
   await assert.rejects(searchWikidata('Modal Soul', 'album', controller.signal), { name: 'AbortError' });
+  await assert.rejects(searchWikidata('SICP', 'book', controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
   // A MediaWiki error body reads as a rejected request, not an empty result.
   fetch.mock.mockImplementation(async (url) => url.searchParams.get('action') === 'wbsearchentities'
@@ -456,6 +458,8 @@ test('a failed or cancelled search stays one request with no retries', async (t)
   assert.deepEqual(await searchWikidata('x'.repeat(101), 'film'), []);
   assert.deepEqual(await searchWikidata('  ', 'album'), []);
   assert.deepEqual(await searchWikidata('x'.repeat(101), 'album'), []);
+  assert.deepEqual(await searchWikidata('  ', 'book'), []);
+  assert.deepEqual(await searchWikidata('x'.repeat(101), 'book'), []);
   assert.equal(fetch.mock.callCount(), 2);
 });
 
@@ -745,6 +749,134 @@ test('an exact programming-language link fills its bare label in one bounded rea
   assert.equal(fetch.mock.callCount(), 3);
 });
 
+// Book sample: live wbsearchentities rows and batched read, captured 2026-11-24.
+// Q108597673 is P31 Q571. Q126707955 and Q138335500 are P31 Q3331189 editions
+// with valid P212 ISBN-13 values. Q1249747 is only Q7725634 literary work and
+// Q85803794 has no P31, so neither proves a book or edition.
+const sicpSearch = { searchinfo: { search: 'Structure and Interpretation of Computer Programs' }, search: [
+  searchRow('Q1249747', 'Structure and Interpretation of Computer Programs',
+    'famous 1985 computer science textbook'),
+  searchRow('Q126707955', 'Structure and Interpretation of Computer Programs', 'paperback edition (en)'),
+  searchRow('Q138335500', 'Structure and Interpretation of Computer Programs', 'ebook edition'),
+  searchRow('Q108597673', 'Structure and Interpretation of Computer Programs, JavaScript Edition', ''),
+  searchRow('Q85803794', 'Structure and Interpretation of Computer Programs, JavaScript Adaptation',
+    'textbook based computer structure'),
+] };
+const sicpEntities = { entities: {
+  Q1249747: {
+    claims: { P31: [claim('Q7725634')],
+      P577: [time('+1996-07-25T00:00:00Z', 11), time('+1984-00-00T00:00:00Z', 9)] },
+    sitelinks: { enwiki: { title: 'Structure and Interpretation of Computer Programs' } },
+  },
+  Q126707955: { claims: { P31: [claim('Q3331189')], P212: [isbn('978-0-262-51087-5')] } },
+  Q138335500: { claims: { P31: [claim('Q3331189')], P212: [isbn('978-0-262-36762-2')] } },
+  Q108597673: {
+    claims: { P31: [claim('Q571')] },
+    sitelinks: { enwiki: { title: 'Structure and Interpretation of Computer Programs, JavaScript Edition' } },
+  },
+  Q85803794: { claims: {} },
+} };
+
+test('books keep a Q571 book and ISBN-verified editions, never broad literary works', async (t) => {
+  const request = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://www.wikidata.org');
+    assert.equal(url.pathname, '/w/api.php');
+    assert.equal(init.credentials, 'omit');
+    if (url.searchParams.get('action') === 'wbsearchentities') {
+      assert.deepEqual(Object.fromEntries(url.searchParams), {
+        action: 'wbsearchentities', search: 'Structure and Interpretation of Computer Programs',
+        language: 'en', uselang: 'en', type: 'item', limit: '30', format: 'json', origin: '*',
+      });
+      return ok(sicpSearch)();
+    }
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      action: 'wbgetentities', props: 'claims|sitelinks',
+      ids: 'Q1249747|Q126707955|Q138335500|Q108597673|Q85803794', format: 'json', origin: '*',
+    });
+    return ok(sicpEntities)();
+  });
+  assert.deepEqual(await searchWikidata('Structure and Interpretation of Computer Programs', 'book'), [
+    { title: 'Structure and Interpretation of Computer Programs', artist: 'paperback edition (en)',
+      href: 'https://www.wikidata.org/wiki/Q126707955', isbn: '978-0-262-51087-5' },
+    { title: 'Structure and Interpretation of Computer Programs', artist: 'ebook edition',
+      href: 'https://www.wikidata.org/wiki/Q138335500', isbn: '978-0-262-36762-2' },
+    { title: 'Structure and Interpretation of Computer Programs, JavaScript Edition', artist: '',
+      href: 'https://www.wikidata.org/wiki/Q108597673',
+      article: 'https://en.wikipedia.org/wiki/Structure_and_Interpretation_of_Computer_Programs%2C_JavaScript_Edition' },
+  ]);
+  assert.equal(request.mock.callCount(), 2);
+});
+
+test('the book rule needs Q571 or a current edition with a valid active ISBN-13', async (t) => {
+  // Every row below is checked from its own P31/P212 only: broad work classes,
+  // untyped items, ISBN-10 and bad checksums never become a book, while a real
+  // Q571 stays a book even without an ISBN.
+  const search = { search: [
+    searchRow('Q910001', 'Deprecated book', ''),
+    searchRow('Q910002', 'Deprecated ISBN edition', ''),
+    searchRow('Q910003', 'Bad checksum edition', ''),
+    searchRow('Q910004', 'ISBN-10 only edition', ''),
+    searchRow('Q910005', 'Book and edition', ''),
+    searchRow('Q910006', 'Non-fiction work', ''),
+    searchRow('Q910007', 'Digits-only edition', ''),
+  ] };
+  const entities = { entities: {
+    Q910001: { claims: { P31: [{ rank: 'deprecated', mainsnak: { datavalue: { value: { id: 'Q571' } } } }] } },
+    Q910002: { claims: { P31: [claim('Q3331189')],
+      P212: [{ rank: 'deprecated', mainsnak: { datavalue: { value: '978-0-262-51087-5' } } }] } },
+    Q910003: { claims: { P31: [claim('Q3331189')], P212: [isbn('4006381333931'), isbn('978-0-262-51087-4')] } },
+    Q910004: { claims: { P31: [claim('Q3331189')], P957: [isbn('0-262-51087-1')] } },
+    Q910005: { claims: { P31: [claim('Q571'), claim('Q3331189')] } },
+    Q910006: { claims: { P31: [claim('Q20540385')], P212: [isbn('978-0-262-51087-5')] } },
+    Q910007: { claims: { P31: [claim('Q3331189')], P212: [isbn('9780262362665')] } },
+  } };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(search)()
+    : ok(entities)());
+  assert.deepEqual(await searchWikidata('Book', 'book'), [
+    { title: 'Book and edition', artist: '', href: 'https://www.wikidata.org/wiki/Q910005' },
+    { title: 'Digits-only edition', artist: '', href: 'https://www.wikidata.org/wiki/Q910007',
+      isbn: '9780262362665' },
+  ]);
+  assert.equal(fetch.mock.callCount(), 2);
+});
+
+test('an exact book link uses the same rule, so works and unverifiable editions stay manual', async (t) => {
+  const labels = {
+    Q108597673: 'Structure and Interpretation of Computer Programs, JavaScript Edition',
+    Q126707955: 'Structure and Interpretation of Computer Programs',
+    Q1249747: 'Structure and Interpretation of Computer Programs',
+    Q85803794: 'Structure and Interpretation of Computer Programs, JavaScript Adaptation',
+    Q910003: 'Bad checksum edition',
+  };
+  const claims = {
+    Q108597673: { P31: [claim('Q571')] },
+    Q126707955: { P31: [claim('Q3331189')], P212: [isbn('978-0-262-51087-5')] },
+    Q1249747: { P31: [claim('Q7725634')] },
+    Q85803794: {},
+    Q910003: { P31: [claim('Q3331189')], P212: [isbn('978-0-262-51087-4')] },
+  };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    const qid = url.searchParams.get('ids');
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      action: 'wbgetentities', props: 'labels|claims', languages: 'en|mul',
+      ids: qid, format: 'json', origin: '*',
+    });
+    return read({ [qid]: {
+      type: 'item', id: qid, labels: { en: { language: 'en', value: labels[qid] } },
+      claims: claims[qid],
+    } })();
+  });
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q108597673'),
+    'Structure and Interpretation of Computer Programs, JavaScript Edition');
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q126707955'),
+    'Structure and Interpretation of Computer Programs');
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q1249747'), null);
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q85803794'), null);
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q910003'), null);
+  assert.equal(fetch.mock.callCount(), 5);
+});
+
 test('the Find titles panel adds one language choice without claiming playback or images', () => {
   const component = readFileSync(
     new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url), 'utf8');
@@ -763,4 +895,27 @@ test('the Find titles panel adds one language choice without claiming playback o
   assert.match(controller, /searchWikidata\(query, requestedKind, controller\.signal, platform\)/);
   assert.match(controller, /kind === "film" \|\| kind === "series" \|\| kind === "game"\s*\n\s*\|\| kind === "language"/);
   assert.match(controller, /open the exact film, TV series, game or programming language/);
+});
+
+test('Books stays on Apple Books and adds only the deliberate Wikidata-books action', () => {
+  const component = readFileSync(
+    new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url), 'utf8');
+  const controller = readFileSync(
+    new URL('../src/browser/share-experiences.ts', import.meta.url), 'utf8');
+  // Apple Books remains the default; the one new control is the Books recovery
+  // button beside the unchanged albums action, and no other kind gains one.
+  assert.match(component, /data-music-kind="album" aria-pressed="true">Albums</);
+  assert.match(component, /data-music-kind="book" aria-pressed="false">Books</);
+  assert.equal((component.match(/data-music-recovery-wikidata-books/g) ?? []).length, 1);
+  assert.match(component, /data-music-recovery-wikidata-books hidden>Search Wikidata books</);
+  assert.equal((component.match(/data-music-recovery-wikidata-albums/g) ?? []).length, 1);
+  // The controller reads the button, offers it only after a Books search, and
+  // routes it through the same bounded two-call adapter, never automatically.
+  assert.match(controller, /recoveryBooks: root\.querySelector<HTMLButtonElement>\("\[data-music-recovery-wikidata-books\]"\)/);
+  assert.match(controller, /showRecovery\(query, country, false, false, true\)/);
+  assert.match(controller, /music\.recoveryBooks\.addEventListener\("click", \(\) => \{[\s\S]*?kind !== "book"[\s\S]*?runSearch\(false, true\)/);
+  assert.match(controller, /wikiBooks\s*\?\s*await searchWikidata\(query, "book", controller\.signal\)/);
+  // A verified ISBN is shown in the result row, so an edition is recognisable.
+  assert.match(controller, /const isbn = "isbn" in pick && typeof pick\.isbn === "string"/);
+  assert.match(controller, /\[artist, year, platform, isbn, source\.provider\]\.filter\(Boolean\)\.join\(" · "\)/);
 });

@@ -346,6 +346,7 @@ function mountNine(
     recoverySpotify: root.querySelector<HTMLAnchorElement>("[data-music-recovery-spotify]")!,
     recoveryWikidata: root.querySelector<HTMLAnchorElement>("[data-music-recovery-wikidata]")!,
     recoveryAlbums: root.querySelector<HTMLButtonElement>("[data-music-recovery-wikidata-albums]")!,
+    recoveryBooks: root.querySelector<HTMLButtonElement>("[data-music-recovery-wikidata-books]")!,
     storefront: root.querySelector<HTMLElement>("[data-music-storefront]")!,
     coverage: root.querySelector<HTMLElement>("[data-music-coverage]")!,
     pasteForm: root.querySelector<HTMLFormElement>("[data-music-paste-form]")!,
@@ -428,21 +429,26 @@ function mountNine(
   const kindLabel = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
 
   /** Manual recovery beside the results: ordinary links, no fetch and no new service.
-   * For album queries only, one explicit action searches Wikidata albums with
-   * the exact current term; those results stay release details — playback comes
-   * only from an Apple Music or Spotify link. */
-  function showRecovery(query: string, country: string, wiki: boolean, albumAction = false) {
+   * For album and book queries only, one explicit action searches Wikidata for
+   * the exact current term through the same two-call adapter; those results stay
+   * release details — playback comes only from an Apple Music or Spotify link,
+   * and a book pick links its Wikidata item and verified ISBN, never a cover. */
+  function showRecovery(query: string, country: string, wiki: boolean, albumAction = false, bookAction = false) {
     for (const anchor of [music.recoveryApple, music.recoverySpotify, music.recoveryWikidata]) {
       anchor.hidden = true;
       anchor.removeAttribute("href");
     }
     music.recoveryAlbums.hidden = !albumAction;
+    music.recoveryBooks.hidden = !bookAction;
     if (wiki) {
       music.recoveryWikidata.href =
         `https://www.wikidata.org/wiki/Special:Search?search=${encodeURIComponent(query.toWellFormed())}`;
       music.recoveryWikidata.hidden = false;
       music.recoveryNote.textContent =
         "Wrong match? Search Wikidata, open the exact film, TV series, game or programming language, copy its link and paste it below.";
+    } else if (bookAction) {
+      music.recoveryNote.textContent =
+        "Wrong match? Search Wikidata books: each result links its item page and shows an ISBN when one is verified. Apple Books stays the default search.";
     } else {
       const links = musicSearchLinks(query, country);
       music.recoveryApple.href = links.apple;
@@ -458,6 +464,7 @@ function mountNine(
   function hideRecovery() {
     music.recovery.hidden = true;
     music.recoveryAlbums.hidden = true;
+    music.recoveryBooks.hidden = true;
     for (const anchor of [music.recoveryApple, music.recoverySpotify, music.recoveryWikidata]) {
       anchor.hidden = true;
       anchor.removeAttribute("href");
@@ -968,6 +975,7 @@ function mountNine(
       const playable = musicPreview(pick.href);
       const article = "article" in pick && typeof pick.article === "string" ? pick.article : null;
       const platform = "platform" in pick && typeof pick.platform === "string" ? pick.platform : null;
+      const isbn = "isbn" in pick && typeof pick.isbn === "string" ? entry(`ISBN ${pick.isbn}`, 30) : null;
       const row = document.createElement("li");
       if (article) row.className = "has-article";
       const button = document.createElement("button");
@@ -975,7 +983,7 @@ function mountNine(
       const heading = document.createElement("strong");
       heading.textContent = name;
       const detail = document.createElement("span");
-      detail.textContent = [artist, year, platform, source.provider].filter(Boolean).join(" · ")
+      detail.textContent = [artist, year, platform, isbn, source.provider].filter(Boolean).join(" · ")
         || `Unlisted · ${source.provider}`;
       button.append(heading, detail);
       button.addEventListener("click", () => fillFromPick(pick, button));
@@ -1235,11 +1243,11 @@ function mountNine(
     }
   }
 
-  /** One search of the active kind. The album fallback passes wikiAlbums to
-   * run the exact current term through the same Wikidata catalogue instead —
-   * same two-request shape, same abort and run-token protections, never
-   * automatic. */
-  async function runSearch(wikiAlbums = false) {
+  /** One search of the active kind. The album and book fallbacks pass
+   * wikiAlbums or wikiBooks to run the exact current term through the same
+   * Wikidata catalogue instead — same two-request shape, same abort and
+   * run-token protections, never automatic. */
+  async function runSearch(wikiAlbums = false, wikiBooks = false) {
     const query = entry(music.query.value, 80);
     if (query.length < 2) {
       note("Enter at least two characters to search.");
@@ -1249,7 +1257,7 @@ function mountNine(
     const country = music.country.value;
     const store = storeName();
     const requestedKind: SourceKind = kind;
-    const wiki = wikiAlbums || requestedKind === "film" || requestedKind === "series"
+    const wiki = wikiAlbums || wikiBooks || requestedKind === "film" || requestedKind === "series"
       || requestedKind === "game" || requestedKind === "language";
     const kindLabel =
       requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
@@ -1263,13 +1271,16 @@ function mountNine(
       : "all";
     const gameFilter = requestedKind === "game" && platform !== "all";
     const searchLabel = gameFilter ? platform === "pc" ? "PC games" : "console games" : kindLabel;
-    // Books and apps have no music-service fallback; weak, empty and failed
-    // searches keep them straight to the retry message. Album searches keep
-    // their Apple/Spotify links and the explicit Wikidata-album action.
+    // Apps have no fallback. Book searches keep Apple Books as the default and
+    // add only the deliberate Wikidata-books action; album searches keep their
+    // Apple/Spotify links and the explicit Wikidata-album action.
     const offerRecovery = () => {
-      if (requestedKind !== "book" && requestedKind !== "app") {
-        showRecovery(query, country, wiki && !wikiAlbums, requestedKind === "album");
+      if (requestedKind === "app") return;
+      if (requestedKind === "book") {
+        showRecovery(query, country, false, false, true);
+        return;
       }
+      showRecovery(query, country, wiki && !wikiAlbums && !wikiBooks, requestedKind === "album");
     };
     searching?.abort();
     const controller = new AbortController();
@@ -1280,11 +1291,14 @@ function mountNine(
     clearResults();
     hideRecovery();
     note(wikiAlbums ? `Searching Wikidata albums for “${query}”…`
+      : wikiBooks ? `Searching Wikidata books for “${query}”…`
       : wiki ? `Searching Wikidata ${searchLabel} for “${query}”…`
       : `Searching ${store} ${kindLabel} for “${query}”…`);
     try {
       const picks = requestedKind === "book"
-        ? await searchBooks(query, country, controller.signal)
+        ? wikiBooks
+          ? await searchWikidata(query, "book", controller.signal)
+          : await searchBooks(query, country, controller.signal)
         : requestedKind === "app"
         ? await searchApps(query, country, controller.signal)
         : wikiAlbums
@@ -1298,6 +1312,8 @@ function mountNine(
       if (!usable.length) {
         note(wikiAlbums
           ? `No albums matched “${query}” on Wikidata. Coverage is partial — search again with a shorter title, or paste an Apple Music, Spotify or Wikidata link.`
+          : wikiBooks
+          ? `No books matched “${query}” on Wikidata. Coverage is partial — try a shorter title, or paste an Apple Books or Wikidata link.`
           : wiki && gameFilter
           ? `No ${searchLabel} matched “${query}” on Wikidata. Try All games for titles with no recorded platform, a shorter title, or a pasted Wikidata link.`
           : wiki
@@ -1647,10 +1663,15 @@ function mountNine(
   /** The album-only explicit fallback: the exact current term, one strict
    * Wikidata album search, never a link, auto-fetch or retry. Editing the
    * query or switching kind clears the recovery area first, so the action
-   * only runs for the term that offered it. */
+   * only runs for the term that offered it. The book fallback is the same
+   * deliberate action through the shared two-call adapter. */
   music.recoveryAlbums.addEventListener("click", () => {
     if (kind !== "album" || entry(music.query.value, 80).length < 2) return;
     void runSearch(true);
+  });
+  music.recoveryBooks.addEventListener("click", () => {
+    if (kind !== "book" || entry(music.query.value, 80).length < 2) return;
+    void runSearch(false, true);
   });
   music.more.addEventListener("click", () => {
     if (shownResults >= resultPicks.length) return;
