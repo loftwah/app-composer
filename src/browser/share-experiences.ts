@@ -1611,6 +1611,24 @@ function mountNine(
     objects[index].dispatchEvent(new Event("input", { bubbles: true }));
   }
 
+  for (const [panel, primary] of [
+    [list.panel, list.fill],
+    [music.panel, music.submit],
+  ] as const) {
+    panel.querySelector("summary")?.addEventListener("click", () => {
+      if (panel.open) return;
+      requestAnimationFrame(() => {
+        if (!panel.open) return;
+        const viewport = window.visualViewport;
+        const visibleBottom = (viewport?.height ?? window.innerHeight)
+          + (viewport?.offsetTop ?? 0);
+        if (primary.getBoundingClientRect().bottom > visibleBottom) {
+          primary.scrollIntoView({ block: "nearest" });
+        }
+      });
+    });
+  }
+
   list.text.addEventListener("input", showListCount);
   list.panel.addEventListener("toggle", () => {
     if (list.panel.open) showListCount();
