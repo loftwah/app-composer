@@ -333,7 +333,8 @@ test('the reveal has one local Download PNG shortcut on the shared export path',
   assert.match(reveal[0], /<div class="tot-result-actions">\s*<div class="tot-reveal-download">\s*<button type="button" data-reveal-download disabled>Download PNG<\/button>/);
   assert.match(reveal[0], /<span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note><\/span>/,
     'local feedback is visual only, leaving the existing status as the one live region');
-  assert.equal((source.match(/\bdata-reveal-download(?=[\s>])/g) ?? []).length, 1, 'only one shortcut is added');
+  assert.equal((reveal[0].match(/\bdata-reveal-download(?=[\s>])/g) ?? []).length, 1,
+    'this app renders only its own shortcut; other experiences have separate mutually exclusive blocks');
   assert.ok(source.indexOf('data-export-panel') > source.indexOf('data-tot-result'),
     'the detailed export controls stay further down the page');
   const controller = await readFile(

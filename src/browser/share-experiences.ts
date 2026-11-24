@@ -5304,7 +5304,7 @@ export function mountShareExperience(root: HTMLElement) {
   const status = root.querySelector<HTMLElement>("[data-status]")!;
   const exportPanel = root.querySelector<HTMLElement>("[data-export-panel]");
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
-  // The This-or-That reveal keeps one download shortcut beside its heading;
+  // Quiz reveals can offer a download shortcut beside their heading;
   // both controls below share the same export callable and disabled state.
   const revealDownload = root.querySelector<HTMLButtonElement>("[data-reveal-download]");
   const revealDownloadNote = root.querySelector<HTMLElement>("[data-reveal-download-note]");
@@ -5383,9 +5383,16 @@ export function mountShareExperience(root: HTMLElement) {
   // Save link downloads. Unlike the twenty-one-questions set, its image is
   // drawn from the trusted outcome id rather than any typed answer.
   const personaPreview = root.querySelector<HTMLElement>("[data-persona-preview]");
+  const personaCardActions = root.querySelector<HTMLElement>("[data-persona-card-actions]");
+  const personaQuickSave = root.querySelector<HTMLAnchorElement>("[data-persona-save]");
   const personaUrls: string[] = [];
   let personaVersion = 0;
   function clearPersonaPreview() {
+    if (personaQuickSave) {
+      personaQuickSave.hidden = true;
+      personaQuickSave.removeAttribute("href");
+      personaQuickSave.removeAttribute("download");
+    }
     if (!personaPreview) return;
     personaVersion += 1;
     for (const href of personaUrls) URL.revokeObjectURL(href);
@@ -5508,6 +5515,7 @@ export function mountShareExperience(root: HTMLElement) {
     // original quiz's export.
     const exportable = controller.exportAllowed?.() ?? true;
     if (exportPanel) exportPanel.hidden = !exportable;
+    if (personaCardActions) personaCardActions.hidden = !exportable || !canShare;
     clearCardDownloads();
     clearPersonaPreview();
     // A written This-or-That set never produces a link, so URL sharing is
@@ -5653,7 +5661,7 @@ export function mountShareExperience(root: HTMLElement) {
   };
 
   /** The one PNG export path, shared by the detailed Download result control
-   * and the This-or-That reveal shortcut. Both read the same captured snapshot,
+   * and the quiz reveal shortcut. Both read the same captured snapshot,
    * format, skin, byline and renderer, and the one `busy` lock covers both. */
   const runDownload = async (fromReveal = false) => {
     const revealNote = (message: string) => {
@@ -5724,6 +5732,13 @@ export function mountShareExperience(root: HTMLElement) {
         link.download = filename;
         link.textContent = `Save ${cardFormat} PNG`;
         meta.append(link);
+        if (fromReveal && personaQuickSave) {
+          // The result shortcut downloads the exact preview Blob and filename.
+          // It is a native anchor only: no second render, Blob or export write.
+          personaQuickSave.href = href;
+          personaQuickSave.download = filename;
+          personaQuickSave.hidden = false;
+        }
         if (personaFileToShare) {
           // Share the exact Blob behind this preview and Save link, with the
           // same filename and PNG type. No URL, title, text, fields or remix
@@ -5816,7 +5831,10 @@ export function mountShareExperience(root: HTMLElement) {
         figure.append(preview, meta);
         personaPreview.append(figure);
         personaPreview.hidden = false;
-        status.textContent = "Your result card is ready. Save the exact PNG below.";
+        status.textContent = fromReveal
+          ? "Your result card is ready. Select Save PNG beside your result."
+          : "Your result card is ready. Save the exact PNG below.";
+        revealNote("Your card is ready.");
         return;
       }
       if (cardDownloads) {
