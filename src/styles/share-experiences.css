@@ -536,7 +536,8 @@
 .nine-preview-cell[data-covered] [data-nine-preview-caption] {
   inset-block-start: auto; inset-block-end: 0;
   box-sizing: border-box; max-block-size: calc(2lh + .6rem);
-  padding: .3rem .42rem; -webkit-line-clamp: 2;
+  padding-inline: .42rem; border-block: .3rem solid transparent;
+  -webkit-line-clamp: 2;
   background: color-mix(in srgb, var(--stage-ink) 85%, transparent);
 }
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
