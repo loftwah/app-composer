@@ -321,6 +321,32 @@ test('initial This or That controls are disabled in markup until one safe mount 
   assert.match(controller, /controller\.activate\?\.\(\);/);
 });
 
+test('the reveal has one local Download PNG shortcut on the shared export path', async () => {
+  const source = await readFile(
+    new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url),
+    'utf8',
+  );
+  const reveal = source.match(/<section hidden class="door-result tot-result" data-tot-result[\s\S]*?<\/section>/);
+  assert.ok(reveal, 'the This-or-That result section is present');
+  assert.match(reveal[0], /<h2 tabindex="-1" data-reveal-title><\/h2>\s*<div class="tot-reveal-download">\s*<button type="button" data-reveal-download disabled>Download PNG<\/button>/);
+  assert.match(reveal[0], /<span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note><\/span>/,
+    'local feedback is visual only, leaving the existing status as the one live region');
+  assert.equal((source.match(/\bdata-reveal-download(?=[\s>])/g) ?? []).length, 1, 'only one shortcut is added');
+  assert.ok(source.indexOf('data-export-panel') > source.indexOf('data-tot-result'),
+    'the detailed export controls stay further down the page');
+  const controller = await readFile(
+    new URL('../src/browser/share-experiences.ts', import.meta.url),
+    'utf8',
+  );
+  assert.match(controller, /const runDownload = async \(fromReveal = false\) => \{/);
+  assert.match(controller, /download\.addEventListener\("click", \(\) => \{ void runDownload\(\); \}\);/);
+  assert.match(controller, /revealDownload\?\.addEventListener\("click", \(\) => \{ void runDownload\(true\); \}\);/);
+  assert.match(controller, /if \(revealDownload\) revealDownload\.disabled = download\.disabled;/);
+  assert.match(controller, /revealNote\("Preparing PNG…"\)/);
+  assert.match(controller, /revealNote\("Your image is ready\."\)/);
+  assert.match(controller, /revealNote\("Couldn’t prepare the PNG\. Try again\."\)/);
+});
+
 test('a shared starter is explicit and version-safe; old links stay maker', () => {
   for (const value of [undefined, null, '', 'unknown', 5, {}, ['maker']]) {
     assert.equal(restoreThisOrThatPack(value), 'maker', 'absent or invalid packs keep the original starter');

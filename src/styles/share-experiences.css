@@ -200,6 +200,8 @@
 .share-experience .tot-options button:hover { background: color-mix(in srgb, var(--stage-ink) 12%, transparent); }
 .share-experience .tot-options button:focus-visible { outline: 3px dashed currentColor; outline-offset: -7px; }
 .tot-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
+.tot-reveal-download { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .8rem; }
+.tot-reveal-download-note { font-size: .88rem; }
 .tot-result ol { margin: .4rem 0 0; padding-inline-start: 1.5rem; }
 .tot-result li { margin-block: .5rem; max-width: 46ch; color: inherit; }
 .tot-pick-question { display: block; font-size: .88rem; opacity: .78; margin-block-end: .1rem; }

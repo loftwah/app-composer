@@ -5286,6 +5286,10 @@ export function mountShareExperience(root: HTMLElement) {
   const status = root.querySelector<HTMLElement>("[data-status]")!;
   const exportPanel = root.querySelector<HTMLElement>("[data-export-panel]");
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
+  // The This-or-That reveal keeps one download shortcut beside its heading;
+  // both controls below share the same export callable and disabled state.
+  const revealDownload = root.querySelector<HTMLButtonElement>("[data-reveal-download]");
+  const revealDownloadNote = root.querySelector<HTMLElement>("[data-reveal-download-note]");
   const copyPng = root.querySelector<HTMLButtonElement>("[data-copy-png]");
   const preparePngShare = root.querySelector<HTMLButtonElement>("[data-prepare-png-share]");
   const sharePng = root.querySelector<HTMLButtonElement>("[data-share-png]");
@@ -5497,6 +5501,10 @@ export function mountShareExperience(root: HTMLElement) {
       manual.value = "";
     }
     download.disabled = busy || avatarPending || !canShare || !exportable;
+    if (revealDownload) revealDownload.disabled = download.disabled;
+    // The reveal note is visual only: the shared status below stays the one
+    // live region, and every state change clears a stale local message.
+    if (revealDownloadNote) revealDownloadNote.textContent = "";
     if (copyPng) copyPng.disabled = busy || avatarPending || !canShare || !exportable;
     copy.disabled = !links || !canShare || !exportable;
     if (alt) alt.disabled = !canShare || !exportable;
@@ -5626,12 +5634,19 @@ export function mountShareExperience(root: HTMLElement) {
     manual.select();
   };
 
-  download.addEventListener("click", async () => {
+  /** The one PNG export path, shared by the detailed Download result control
+   * and the This-or-That reveal shortcut. Both read the same captured snapshot,
+   * format, skin, byline and renderer, and the one `busy` lock covers both. */
+  const runDownload = async (fromReveal = false) => {
+    const revealNote = (message: string) => {
+      if (fromReveal && revealDownloadNote) revealDownloadNote.textContent = message;
+    };
     const snapshot = result();
     if (!snapshot || busy || avatarPending || controller.exportAllowed?.() === false) return;
     const personaOutcome = controller.personaOutcome;
     busy = true;
     update();
+    revealNote("Preparing PNG…");
     status.textContent = personaOutcome
       ? "Preparing your card…"
       : cardDownloads ? "Preparing your cards…" : "Preparing your image…";
@@ -5894,6 +5909,7 @@ export function mountShareExperience(root: HTMLElement) {
       busy = false;
       update();
       status.textContent = "Your image is ready.";
+      revealNote("Your image is ready.");
     } catch {
       busy = false;
       update();
@@ -5904,8 +5920,12 @@ export function mountShareExperience(root: HTMLElement) {
           : controller.linksAllowed?.() === false
             ? "Couldn’t prepare the image. Try again."
             : "Couldn’t prepare the image. Try again, or copy the result link.";
+      revealNote("Couldn’t prepare the PNG. Try again.");
     }
-  });
+  };
+
+  download.addEventListener("click", () => { void runDownload(); });
+  revealDownload?.addEventListener("click", () => { void runDownload(true); });
 
   // Paste the very PNG Download result renders, from the same snapshot,
   // format, skin, byline and local cover pixels. No upload or save.
