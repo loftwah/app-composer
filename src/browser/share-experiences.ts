@@ -5866,12 +5866,14 @@ export function mountShareExperience(root: HTMLElement) {
         const prefix = cardFormat === "portrait" ? "" : `${cardFormat}-`;
         const version = cardVersion;
         let copyingCard = false;
+        const files: { filename: string; blob: Blob }[] = [];
         cards.forEach((blob, index) => {
           // One Blob URL per card feeds both the preview and its save link, so
           // the PNG a creator inspects is the exact file the link downloads.
           const href = URL.createObjectURL(blob);
           cardUrls.push(href);
           const filename = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;
+          files.push({ filename, blob });
           const fileToShare = twentyOneShareFile(blob, filename, navigator);
           const figure = document.createElement("figure");
           figure.className = "tq-card";
@@ -5947,6 +5949,50 @@ export function mountShareExperience(root: HTMLElement) {
           figure.append(preview, meta);
           cardDownloads.append(figure);
         });
+        if (files.length > 1) {
+          const actions = document.createElement("div");
+          actions.className = "tq-card-set-actions";
+          const bundle = document.createElement("button");
+          bundle.type = "button";
+          bundle.className = "secondary";
+          bundle.textContent = "Download all cards (ZIP)";
+          let preparingZip = false;
+          bundle.addEventListener("click", async () => {
+            if (preparingZip || version !== cardVersion) return;
+            preparingZip = true;
+            bundle.setAttribute("aria-busy", "true");
+            bundle.setAttribute("aria-disabled", "true");
+            status.textContent = "Preparing your card ZIP…";
+            try {
+              const { MAX_PACKAGE, zip } = await import("../../lib/launch-kit/archive.mjs");
+              if (version !== cardVersion) return;
+              if (files.reduce((bytes, file) => bytes + file.blob.size, 0) >= MAX_PACKAGE) {
+                status.textContent = "This set is too large for one ZIP. Save each card below.";
+                return;
+              }
+              const entries = await Promise.all(files.map(async ({ filename, blob }) =>
+                [filename, new Uint8Array(await blob.arrayBuffer())] as const,
+              ));
+              if (version !== cardVersion) return;
+              const archive = zip(new Map(entries));
+              const href = URL.createObjectURL(new Blob([new Uint8Array(archive)], { type: "application/zip" }));
+              const link = document.createElement("a");
+              link.href = href;
+              link.download = "twenty-one-questions-cards.zip";
+              link.click();
+              setTimeout(() => URL.revokeObjectURL(href), 1000);
+              status.textContent = "Your card ZIP is ready.";
+            } catch {
+              if (version === cardVersion) status.textContent = "Couldn’t prepare the ZIP. Save each card below.";
+            } finally {
+              preparingZip = false;
+              bundle.removeAttribute("aria-busy");
+              bundle.removeAttribute("aria-disabled");
+            }
+          });
+          actions.append(bundle);
+          cardDownloads.prepend(actions);
+        }
         cardDownloads.hidden = false;
         status.textContent = cards.length === 1 ? "Your card is ready." : "Your cards are ready.";
         return;
