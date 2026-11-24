@@ -665,6 +665,7 @@
   inline-size: 100%; min-width: 0; min-height: 44px; margin: 0;
   color: #211a1b; background: #fff7ea; font-size: 16px;
 }
+.nine-field-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .nine-editor .exhibit-link-state,
 .nine-editor .exhibit-page-state,
 .nine-editor .exhibit-cover-state { margin: 0; }

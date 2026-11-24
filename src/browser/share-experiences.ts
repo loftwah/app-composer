@@ -1656,6 +1656,16 @@ function mountNine(
     allFields.textContent = expanded ? "Show selected title" : "Show all titles";
     allFields.closest(".nine-editor")?.toggleAttribute("data-nine-active-field", !expanded);
   });
+  const fieldActions = root.querySelector<HTMLElement>("[data-nine-field-actions]");
+  root.querySelector<HTMLButtonElement>("[data-nine-back-to-board]")?.addEventListener("click", () => {
+    // Read the current slot from the DOM so any entered tile returns to itself
+    // without a second source of truth, leaving every title and the hash alone.
+    const currentInput = exhibitionBoard.querySelector<HTMLInputElement>("[data-nine-current] [data-object]");
+    const index = Number(currentInput?.dataset.object ?? 0);
+    const tile = root.querySelector<HTMLButtonElement>(`[data-nine-edit-slot="${index}"]`);
+    (tile ?? previewHeading).focus({ preventScroll: true });
+    previewHeading.scrollIntoView({ behavior: "instant", block: "start" });
+  });
   objects.forEach((input, index) => {
     input.addEventListener("focus", () => {
       objects.forEach((field, slot) => field.closest("label")?.toggleAttribute("data-nine-current", slot === index));
@@ -1670,7 +1680,8 @@ function mountNine(
       exhibitionBoard.querySelector("[data-nine-current]")?.removeAttribute("data-nine-current");
       input.closest("label")?.setAttribute("data-nine-current", "");
       input.focus({ preventScroll: true });
-      input.scrollIntoView({ behavior: "instant", block: "nearest" });
+      // Align the tapped field with its actions so Back to board stays reachable.
+      (fieldActions ?? input).scrollIntoView({ behavior: "instant", block: "nearest" });
     });
   });
   root.querySelector("[data-nine-paste-shortcut]")?.addEventListener("click", () => {
