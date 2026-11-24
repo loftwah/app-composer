@@ -8,7 +8,7 @@ import {
 } from '../src/lib/top-nine-list.ts';
 import { pageLink, pageUrlLimit } from '../src/lib/top-nine-pages.ts';
 import { wikidataSource } from '../src/lib/top-nine-wikidata.ts';
-import { musicUrlLimit } from '../src/lib/top-nine-music.ts';
+import { musicPreview, musicUrlLimit } from '../src/lib/top-nine-music.ts';
 import {
   draftKey, nineItemLimit, readNineDraft, writeNineDraft,
 } from '../src/lib/share-experience-draft.ts';
@@ -348,12 +348,14 @@ test('the repeatable nine-film and series fixture keeps distinct official Wikida
 });
 
 // The fixtures use canonical metadata pages. No lookup or artwork is needed
-// when the creator supplied both the title and the source.
+// when the creator supplied both the title and the source. Food links are
+// ordinary manually supplied Wikidata pages, not an implied food lookup.
 const ninePageFixtures = [
   { name: 'pc-game', file: 'top-nine-pc-games.tsv', canonical: wikidataSource, key: wikidataKey },
   { name: 'console-game', file: 'top-nine-console-games.tsv', canonical: wikidataSource, key: wikidataKey },
   { name: 'app', file: 'top-nine-apps.tsv', canonical: appSource, key: appleAuAppKey },
   { name: 'programming-language', file: 'top-nine-languages.tsv', canonical: wikidataSource, key: wikidataKey },
+  { name: 'food', file: 'top-nine-foods.tsv', canonical: wikidataSource, key: wikidataKey },
 ];
 
 for (const source of ninePageFixtures) {
@@ -390,6 +392,43 @@ for (const source of ninePageFixtures) {
     assert.equal(fetch.mock.callCount(), 0);
   });
 }
+
+test('the repeatable nine-mixed fixture keeps every documented row form without fetching or embedding', (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('planning the local mixed fixture must not fetch');
+  });
+  const fixture = read('tests/fixtures/top-nine-mixed.tsv').trimEnd();
+  const rows = fixture.split('\n');
+  const columns = rows.map((row) => row.split('\t'));
+  const titleOnly = columns.filter((row) => row.length === 1);
+  const pageRows = columns.filter((row) => row.length === 2);
+  const musicRows = columns.filter((row) => row.length === 3);
+  const empty = Array.from({ length: 9 }, (_, index) => index);
+  assert.equal(rows.length, 9);
+  assert.equal(titleOnly.length + pageRows.length + musicRows.length, rows.length);
+  assert.equal(titleOnly.length, 2);
+  assert.equal(pageRows.length, 6);
+  assert.equal(musicRows.length, 1);
+  assert.ok(titleOnly.every(([title]) => title));
+  assert.ok(pageRows.every(([title, page]) => title && pageLink(page) === page));
+  assert.equal(musicRows[0][1], '');
+  assert.equal(musicPreview(musicRows[0][2])?.provider, 'Apple Music');
+
+  const plan = planNineList(fixture, empty);
+  assert.deepEqual(plan.indexes, empty);
+  assert.deepEqual(plan.titles, columns.map(([title]) => title));
+  assert.deepEqual(plan.urls, columns.map(([, page]) => page ? pageLink(page) : null));
+  assert.deepEqual(plan.sources, columns.map(([, , source]) => source ? musicPreview(source)?.href ?? null : null));
+  assert.equal(plan.urls.filter(Boolean).length, 6);
+  assert.equal(plan.sources.filter(Boolean).length, 1);
+  assert.ok(plan.sources.every((source) => !source || !source.includes('/embed/')));
+  assert.deepEqual(plan.rows, rows);
+  assert.deepEqual(plan.overflow, []);
+  assert.deepEqual(plan.remaining, []);
+  assert.deepEqual(plan.invalid, []);
+  assert.equal(plan.invalidMusic, 0);
+  assert.equal(fetch.mock.callCount(), 0);
+});
 
 test('invalid third-column sources stay verbatim with corrective music help', () => {
   const spotifyAlbum = 'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn';
