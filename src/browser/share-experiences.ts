@@ -4590,6 +4590,10 @@ export function mountShareExperience(root: HTMLElement) {
   const exportPanel = root.querySelector<HTMLElement>("[data-export-panel]");
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
   const copyPng = root.querySelector<HTMLButtonElement>("[data-copy-png]");
+  // Transient export preference for Top Nine only: read straight from the
+  // control when a PNG is made, never copied into the result, link, draft,
+  // caption or description. Absent on other games, so they keep the default.
+  const nineCredit = root.querySelector<HTMLInputElement>("[data-nine-credit]");
   const copy = root.querySelector<HTMLButtonElement>("[data-copy]")!;
   const manual = root.querySelector<HTMLInputElement>("[data-manual-copy]")!;
   const alt = root.querySelector<HTMLButtonElement>("[data-copy-alt]");
@@ -5077,7 +5081,7 @@ export function mountShareExperience(root: HTMLElement) {
         status.textContent = cards.length === 1 ? "Your card is ready." : "Your cards are ready.";
         return;
       }
-      const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined);
+      const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined, nineCredit?.checked ?? true);
       const href = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = href;
@@ -5116,7 +5120,7 @@ export function mountShareExperience(root: HTMLElement) {
       const formatValue = format?.value;
       const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
       // Give Safari the PNG promise during the tap, before any export or decode wait.
-      const png = renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined);
+      const png = renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined, nineCredit?.checked ?? true);
       void png.catch(() => {}); // The OS can reject the write before it consumes the PNG.
       await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
       message = "Image copied. Paste it where you want to share it.";

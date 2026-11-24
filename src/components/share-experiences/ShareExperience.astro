@@ -851,6 +851,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <option value="wide">Landscape · 1200 × 630</option>
       </select></label>}
     </div>
+    {isNine && <label class="exhibition-ranked">
+      <input type="checkbox" data-nine-credit checked />
+      Show App Composer credit on the PNG
+    </label>}
     {isNine && <p class="experience-note" id="nine-profile-note">A full HTTPS profile link appears beside your preview and travels only in your result link and saved draft — never in the image or its description.</p>}
     {isNine && <p class="experience-note" role="status" data-profile-status></p>}
     {persona && <div class="persona-avatar" data-persona-avatar>
