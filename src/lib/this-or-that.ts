@@ -297,6 +297,122 @@ export function readThisOrThatCustom(
   return { questions, gap: -1, reason: null };
 }
 
+/** One local question-draft file. It carries the editor only: all nine rows,
+ * including hidden and unfinished ones, plus the active five/nine length. Picks,
+ * photos, descriptions, links and run state have no field and never travel. */
+export const thisOrThatDraftFileSchema = "composer.this-or-that-draft/1";
+export const thisOrThatDraftFileName = "composer-this-or-that-draft.json";
+/** Bytes, not characters: the same fixed bound covers writes and opens, and is
+ * checked before JSON.parse. It matches the 21 Questions local-file bound. */
+export const thisOrThatDraftFileLimit = 8_192;
+export type ThisOrThatDraftRow = readonly [string, string, string];
+
+export interface ThisOrThatDraft {
+  rows: readonly ThisOrThatDraftRow[];
+  length: ThisOrThatLength;
+}
+
+export type ThisOrThatDraftField = "prompt" | "left" | "right";
+export type ThisOrThatDraftFileFault =
+  | "oversized"
+  | "unreadable"
+  | "schema"
+  | "version"
+  | "shape"
+  | "length"
+  | "long";
+
+export interface ThisOrThatDraftFileRead {
+  /** The exact cleaned editor draft, or null on every fault. */
+  readonly draft: ThisOrThatDraft | null;
+  readonly fault: ThisOrThatDraftFileFault | null;
+  /** The failing row for a row fault, otherwise -1. */
+  readonly gap: number;
+  readonly field: ThisOrThatDraftField | null;
+}
+
+interface ThisOrThatDraftRowsRead {
+  rows: ThisOrThatDraftRow[] | null;
+  fault: ThisOrThatDraftFileFault | null;
+  gap: number;
+  field: ThisOrThatDraftField | null;
+}
+
+/** Clean all nine rows without asking whether they are playable. Blank and
+ * half-written rows are valid drafts; only the exact row shape and the shared
+ * per-field bounds apply. One extra character exposes an overlong value instead
+ * of silently truncating what the person wrote. */
+function readThisOrThatDraftRows(value: unknown): ThisOrThatDraftRowsRead {
+  const reject = (
+    fault: ThisOrThatDraftFileFault,
+    gap = -1,
+    field: ThisOrThatDraftField | null = null,
+  ): ThisOrThatDraftRowsRead => ({ rows: null, fault, gap, field });
+  if (!Array.isArray(value) || value.length !== 9) return reject("shape");
+  const fields = ["prompt", "left", "right"] as const;
+  const limits = [customThisOrThatPromptLimit, customThisOrThatOptionLimit, customThisOrThatOptionLimit] as const;
+  const rows: ThisOrThatDraftRow[] = [];
+  for (let index = 0; index < 9; index += 1) {
+    const row = value[index];
+    if (!Array.isArray(row) || row.length !== 3 || row.some((text) => typeof text !== "string")) {
+      return reject("shape", index);
+    }
+    const cleaned: [string, string, string] = ["", "", ""];
+    for (let field = 0; field < 3; field += 1) {
+      const text = cleanText(row[field], limits[field] + 1);
+      if (text.length > limits[field]) return reject("long", index, fields[field]);
+      cleaned[field] = text;
+    }
+    rows.push(cleaned);
+  }
+  return { rows, fault: null, gap: -1, field: null };
+}
+
+/** Write one already-bounded editor draft to deterministic local bytes. The
+ * exact saved shape is accepted by the reader below, including blank rows. */
+export function writeThisOrThatDraftFile(
+  rows: readonly (readonly [unknown, unknown, unknown])[],
+  length: ThisOrThatLength,
+): string | null {
+  const read = readThisOrThatDraftRows(rows);
+  if (!read.rows || (length !== 5 && length !== 9)) return null;
+  const text = `${JSON.stringify({ schema: thisOrThatDraftFileSchema, rows: read.rows, length }, null, 2)}\n`;
+  return new TextEncoder().encode(text).length <= thisOrThatDraftFileLimit ? text : null;
+}
+
+/** Read one owned v1 draft. Bytes are bounded before parsing, the schema and
+ * exact three-key shape before content, and every row then uses the same
+ * visible-text cleaning and limits as the editor. No fault returns a draft. */
+export function readThisOrThatDraftFile(raw: unknown): ThisOrThatDraftFileRead {
+  const reject = (
+    fault: ThisOrThatDraftFileFault,
+    gap = -1,
+    field: ThisOrThatDraftField | null = null,
+  ): ThisOrThatDraftFileRead => ({ draft: null, fault, gap, field });
+  if (typeof raw !== "string") return reject("unreadable");
+  if (new TextEncoder().encode(raw).length > thisOrThatDraftFileLimit) return reject("oversized");
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return reject("unreadable");
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) return reject("unreadable");
+  const file = value as Record<string, unknown>;
+  if (typeof file.schema !== "string") return reject("schema");
+  if (file.schema !== thisOrThatDraftFileSchema) {
+    return reject(/^composer\.this-or-that-draft\/\d+$/.test(file.schema) ? "version" : "schema");
+  }
+  const keys = Object.keys(file);
+  if (keys.length !== 3 || !keys.includes("schema") || !keys.includes("rows") || !keys.includes("length")) {
+    return reject("shape");
+  }
+  const rows = readThisOrThatDraftRows(file.rows);
+  if (!rows.rows) return reject(rows.fault ?? "shape", rows.gap, rows.field);
+  if (file.length !== 5 && file.length !== 9) return reject("length");
+  return { draft: { rows: rows.rows, length: file.length }, fault: null, gap: -1, field: null };
+}
+
 /** Move one draft row a single step inside the edited length, carrying the
  * whole row exactly as typed — prompt, both options, and any attached photo
  * draft or description. Blank and half-written values included. A row already

@@ -8,11 +8,13 @@ import {
   checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatOptionLimit,
   customThisOrThatTitle, freezeThisOrThatPhotos,
   moveThisOrThatCustom, readThisOrThatCustom, readThisOrThatComparisonOffer,
+  readThisOrThatDraftFile, writeThisOrThatDraftFile,
   compareThisOrThatChoices,
-  thisOrThatBlankLink, thisOrThatComplete, thisOrThatCount, thisOrThatPackFromQuery,
+  thisOrThatBlankLink, thisOrThatComplete, thisOrThatCount, thisOrThatDraftFileLimit,
+  thisOrThatDraftFileName, thisOrThatPackFromQuery,
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
-  type ThisOrThatComparison, type ThisOrThatLength, type ThisOrThatPromptPhoto,
-  type ThisOrThatSide,
+  type ThisOrThatComparison, type ThisOrThatDraftFileRead, type ThisOrThatLength,
+  type ThisOrThatPromptPhoto, type ThisOrThatSide,
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, readTwentyOnePrompts, readTwentyOnePromptFile, setTwentyOneAnswer, skipTwentyOne,
@@ -2097,6 +2099,8 @@ interface DraftPhotoRow {
   photo: DraftQuestionPhoto | null;
   /** Bumped when a newer selection or a clear makes an arriving decode stale. */
   run: number;
+  /** A selected photo is still being read or decoded. */
+  pending: boolean;
 }
 
 function mountThisOrThat(
@@ -2134,6 +2138,9 @@ function mountThisOrThat(
   const customPanel = root.querySelector<HTMLDetailsElement>("[data-tot-custom]")!;
   const customForm = root.querySelector<HTMLFormElement>("[data-tot-custom-form]")!;
   const customStatus = root.querySelector<HTMLElement>("[data-custom-status]")!;
+  const draftFileSave = root.querySelector<HTMLButtonElement>("[data-tot-draft-file-save]")!;
+  const draftFileInput = root.querySelector<HTMLInputElement>("[data-tot-draft-file]")!;
+  const draftFileStatus = root.querySelector<HTMLElement>("[data-tot-draft-file-status]")!;
   const customPrompts = elements<HTMLInputElement>(root, "[data-tot-custom-prompt]");
   const customLefts = elements<HTMLInputElement>(root, "[data-tot-custom-left]");
   const customRights = elements<HTMLInputElement>(root, "[data-tot-custom-right]");
@@ -2156,10 +2163,17 @@ function mountThisOrThat(
   let customLength: ThisOrThatLength = thisOrThatCount;
   /** The editor's photo drafts, one per row. A cleared or replaced photo only
    * changes this draft; the applied snapshot below owns its own URLs. */
-  let photoRows: DraftPhotoRow[] = Array.from({ length: 9 }, () => ({ photo: null, run: 0 }));
+  let photoRows: DraftPhotoRow[] = Array.from({ length: 9 }, () => ({ photo: null, run: 0, pending: false }));
+  /** The editor revision at which each native photo picker opened. A selection
+   * arriving after a draft replacement belongs to the old text and is refused. */
+  let photoPickRevisions: (number | undefined)[] = Array.from({ length: 9 }, () => undefined);
   /** Photos frozen into the active written run, with their own object URLs so
    * replacing or clearing an editor photo cannot break what is playing. */
   let appliedPhotos: (ThisOrThatPromptPhoto | null)[] = [];
+  /** A local draft read belongs to the editor revision it started from. A newer
+   * file pick, typed row, move, length or photo change makes it stale. */
+  let draftFileAttempt = 0;
+  let draftRevision = 0;
 
   /** The questions the stage is currently asking, written or built-in. */
   const activeQuestions = () => custom ?? thisOrThatPacks[pack].questions;
@@ -2168,6 +2182,21 @@ function mountThisOrThat(
   function releaseAppliedPhotos() {
     for (const photo of appliedPhotos) if (photo) URL.revokeObjectURL(photo.url);
     appliedPhotos = [];
+  }
+
+  /** Retire every editor photo and any decode still arriving. The applied run
+   * owns separate URLs, so this never changes what is currently playing. */
+  function clearEditorPhotos() {
+    photoRows.forEach((row, index) => {
+      row.run += 1;
+      row.pending = false;
+      if (row.photo) URL.revokeObjectURL(row.photo.url);
+      row.photo = null;
+      if (customPhotoAlts[index]) customPhotoAlts[index].value = "";
+      if (customPhotos[index]) customPhotos[index].value = "";
+      if (customPhotoStatuses[index]) customPhotoStatuses[index].textContent = "";
+      renderPhotoRow(index);
+    });
   }
 
   /** Show one row's editor state: a compact trigger, its thumbnail, the optional
@@ -2329,70 +2358,75 @@ function mountThisOrThat(
    * oversized image leaves the previous photo exactly as it was. */
   async function choosePhoto(row: DraftPhotoRow, file: File) {
     const run = ++row.run;
+    row.pending = true;
     const at = () => Math.max(0, photoRows.indexOf(row));
     const say = (text: string) => {
       const status = customPhotoStatuses[at()];
       if (row.run === run && status) status.textContent = text;
     };
-    let head: Uint8Array;
     try {
-      head = new Uint8Array(await file.slice(0, coverHeadLimit).arrayBuffer());
-    } catch {
-      say(`Question ${at() + 1}: that file couldn’t be read. Pick it again.`);
-      return;
-    }
-    if (row.run !== run) return;
-    const checked = checkThisOrThatPhoto(file.size, head);
-    if (!checked.ok) {
-      if (checked.reason === "size") {
-        say(`Question ${at() + 1}: that image is too large. Photos can be up to ${checked.limit / 1_048_576} MB.`);
-      } else if (checked.reason === "format") {
-        say(`Question ${at() + 1}: that file isn’t a PNG, JPEG or WebP image.`);
-      } else {
-        say(`Question ${at() + 1}: that image is ${checked.width.toLocaleString()} × ${checked.height.toLocaleString()} pixels. Photos can be up to ${checked.limit / 1_000_000} megapixels.`);
-      }
-      return;
-    }
-    const original = URL.createObjectURL(file);
-    const source = new Image();
-    source.src = original;
-    let blob: Blob | null;
-    try {
-      await source.decode();
-      if (row.run !== run) return;
-      if (source.naturalWidth * source.naturalHeight > coverPixelLimit) {
-        say(`Question ${at() + 1}: that image is too large to show here. Try a smaller copy.`);
+      let head: Uint8Array;
+      try {
+        head = new Uint8Array(await file.slice(0, coverHeadLimit).arrayBuffer());
+      } catch {
+        say(`Question ${at() + 1}: that file couldn’t be read. Pick it again.`);
         return;
       }
-      const scale = Math.min(1, coverWorkingMax / Math.max(source.naturalWidth, source.naturalHeight));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
-      canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
-      const context = canvas.getContext("2d");
-      if (!context) throw new Error("Image preparation unavailable");
-      context.imageSmoothingQuality = "high";
-      context.drawImage(source, 0, 0, canvas.width, canvas.height);
-      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
-    } catch {
-      say(`Question ${at() + 1}: that image couldn’t be prepared. Try a PNG, JPEG or WebP copy.`);
-      return;
+      if (row.run !== run) return;
+      const checked = checkThisOrThatPhoto(file.size, head);
+      if (!checked.ok) {
+        if (checked.reason === "size") {
+          say(`Question ${at() + 1}: that image is too large. Photos can be up to ${checked.limit / 1_048_576} MB.`);
+        } else if (checked.reason === "format") {
+          say(`Question ${at() + 1}: that file isn’t a PNG, JPEG or WebP image.`);
+        } else {
+          say(`Question ${at() + 1}: that image is ${checked.width.toLocaleString()} × ${checked.height.toLocaleString()} pixels. Photos can be up to ${checked.limit / 1_000_000} megapixels.`);
+        }
+        return;
+      }
+      const original = URL.createObjectURL(file);
+      const source = new Image();
+      source.src = original;
+      let blob: Blob | null;
+      try {
+        await source.decode();
+        if (row.run !== run) return;
+        if (source.naturalWidth * source.naturalHeight > coverPixelLimit) {
+          say(`Question ${at() + 1}: that image is too large to show here. Try a smaller copy.`);
+          return;
+        }
+        const scale = Math.min(1, coverWorkingMax / Math.max(source.naturalWidth, source.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Image preparation unavailable");
+        context.imageSmoothingQuality = "high";
+        context.drawImage(source, 0, 0, canvas.width, canvas.height);
+        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      } catch {
+        say(`Question ${at() + 1}: that image couldn’t be prepared. Try a PNG, JPEG or WebP copy.`);
+        return;
+      } finally {
+        source.removeAttribute("src");
+        URL.revokeObjectURL(original);
+      }
+      if (row.run !== run) return;
+      if (!blob) {
+        say(`Question ${at() + 1}: that image couldn’t be prepared. Try a smaller copy.`);
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      if (row.photo) URL.revokeObjectURL(row.photo.url);
+      row.photo = { url, blob };
+      const index = at();
+      const alt = customPhotoAlts[index];
+      if (alt) alt.value = "";
+      renderPhotoRow(index);
+      say(`Question ${index + 1} has a photo. It stays in this tab and isn’t drawn into the result image.`);
     } finally {
-      source.removeAttribute("src");
-      URL.revokeObjectURL(original);
+      if (row.run === run) row.pending = false;
     }
-    if (row.run !== run) return;
-    if (!blob) {
-      say(`Question ${at() + 1}: that image couldn’t be prepared. Try a smaller copy.`);
-      return;
-    }
-    const url = URL.createObjectURL(blob);
-    if (row.photo) URL.revokeObjectURL(row.photo.url);
-    row.photo = { url, blob };
-    const index = at();
-    const alt = customPhotoAlts[index];
-    if (alt) alt.value = "";
-    renderPhotoRow(index);
-    say(`Question ${index + 1} has a photo. It stays in this tab and isn’t drawn into the result image.`);
   }
 
   const answered = () => picks.filter((pick) => pick !== null).length;
@@ -2502,21 +2536,40 @@ function mountThisOrThat(
   // until "Play my questions" says so.
   lengthSelect.addEventListener("change", () => {
     applyLength(restoreThisOrThatLength(lengthSelect.value));
+    draftRevision += 1;
     customStatus.textContent = `Editing ${customLength} questions. Everything you typed is kept.`;
   });
+
+  // Every typed row outranks a local draft read that is still arriving.
+  for (const input of [...customPrompts, ...customLefts, ...customRights]) {
+    input.addEventListener("input", () => { draftRevision += 1; });
+  }
 
   // One optional photo per written question. The trigger opens the native
   // picker, the file is checked before any decode, and a bad pick leaves the
   // row's previous photo exactly as it was.
   customPhotoPicks.forEach((button, index) => {
-    button.addEventListener("click", () => customPhotos[index]?.click());
+    button.addEventListener("click", () => {
+      photoPickRevisions[index] = draftRevision;
+      customPhotos[index]?.click();
+    });
   });
   customPhotos.forEach((input, index) => {
     input.addEventListener("change", () => {
       const file = input.files?.[0];
       input.value = "";
       const row = photoRows[index];
-      if (file && row) void choosePhoto(row, file);
+      const pickedAt = photoPickRevisions[index];
+      photoPickRevisions[index] = undefined;
+      if (!file || !row) return;
+      if (pickedAt !== undefined && pickedAt !== draftRevision) {
+        if (customPhotoStatuses[index]) {
+          customPhotoStatuses[index].textContent = `Question ${index + 1}: the draft changed while the photo picker was open. Pick the photo again.`;
+        }
+        return;
+      }
+      draftRevision += 1;
+      void choosePhoto(row, file);
     });
   });
   customPhotoClears.forEach((button, index) => {
@@ -2524,6 +2577,7 @@ function mountThisOrThat(
       const row = photoRows[index];
       if (!row) return;
       row.run += 1; // a decode still arriving must not undo this clear
+      row.pending = false;
       if (row.photo) URL.revokeObjectURL(row.photo.url);
       row.photo = null;
       const alt = customPhotoAlts[index];
@@ -2531,12 +2585,16 @@ function mountThisOrThat(
       if (customPhotoStatuses[index]) {
         customPhotoStatuses[index].textContent = `Photo removed from question ${index + 1}.`;
       }
+      draftRevision += 1;
       renderPhotoRow(index);
       customPhotoPicks[index]?.focus({ preventScroll: true });
     });
   });
   customPhotoAlts.forEach((alt, index) => {
-    alt.addEventListener("input", () => renderPhotoRow(index));
+    alt.addEventListener("input", () => {
+      draftRevision += 1;
+      renderPhotoRow(index);
+    });
   });
   photoRows.forEach((_, index) => renderPhotoRow(index));
 
@@ -2630,9 +2688,8 @@ function mountThisOrThat(
     return freezeThisOrThatPhotos(raw, count);
   }
 
-  /** A written set never persists: it lives in the editor's own inputs, plays
-   * only through this explicit action, and retexting the stage is all it
-   * takes — the same panels, the same run, nothing sent anywhere. */
+  /** A written set plays only through this action, which freezes the editor's
+   * current question text and photos for the run. */
   function playCustom(): boolean {
     const rows = customPrompts.map((prompt, index) =>
       [prompt.value, customLefts[index]?.value, customRights[index]?.value] as const);
@@ -2674,6 +2731,117 @@ function mountThisOrThat(
     playCustom();
   });
 
+  /** The file always carries all nine rows, not only the visible length. */
+  const draftRows = () => customPrompts.map((prompt, index) =>
+    [prompt.value, customLefts[index]?.value, customRights[index]?.value] as const);
+
+  function hasEditorContent(): boolean {
+    return [...customPrompts, ...customLefts, ...customRights, ...customPhotoAlts]
+      .some((input) => input.value !== "")
+      || photoRows.some((row) => row.photo !== null || row.pending);
+  }
+
+  function draftFileProblem(read: ThisOrThatDraftFileRead): string {
+    const unchanged = " Your editor and current run are unchanged.";
+    if (read.fault === "oversized") return `That question draft is larger than ${Math.round(thisOrThatDraftFileLimit / 1024)} KB.${unchanged}`;
+    if (read.fault === "unreadable") return `That file is not valid JSON.${unchanged}`;
+    if (read.fault === "schema") return `That is not a Composer This or That question draft.${unchanged}`;
+    if (read.fault === "version") return `That question draft uses a format this page does not know. Save a fresh one here, then open that.${unchanged}`;
+    if (read.fault === "shape") return `That file must hold exactly nine three-text rows and a five/nine length, with no other fields.${unchanged}`;
+    if (read.fault === "length") return `That draft’s active length must be five or nine questions.${unchanged}`;
+    if (read.fault === "long") {
+      const field = read.field === "left" ? "first option" : read.field === "right" ? "second option" : "prompt";
+      const limit = field === "prompt" ? customThisOrThatPromptLimit : customThisOrThatOptionLimit;
+      return `Question ${read.gap + 1}’s ${field} is longer than ${limit} characters.${unchanged}`;
+    }
+    return `That question draft could not be opened.${unchanged}`;
+  }
+
+  /** Save writes every editor row and the active length to one bounded local
+   * file. Blank rows survive; picks, photos and the applied run have no field. */
+  function saveQuestionDraft() {
+    const text = writeThisOrThatDraftFile(draftRows(), customLength);
+    if (!text) {
+      draftFileStatus.textContent = "This draft could not be saved. Check that all nine rows fit the prompt and option limits.";
+      return;
+    }
+    // Read the exact bytes back before download, so the file has the same owned
+    // shape and bounds the open handler accepts.
+    if (!readThisOrThatDraftFile(text).draft) {
+      draftFileStatus.textContent = "This draft is too large for one file. Shorten the question text, then save again.";
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json;charset=utf-8" }));
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = thisOrThatDraftFileName;
+      link.rel = "noopener";
+      link.click();
+    } catch {
+      draftFileStatus.textContent = "This browser didn’t start the download. Your editor and current run are unchanged; try again.";
+      return;
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    draftFileStatus.textContent = "Question draft ready. It holds all nine rows, including hidden and blank rows — no picks or photos.";
+  }
+
+  /** Opening replaces only the editor. A valid file is confirmed first when
+   * any row or photo work exists, then editor photos and pickups are retired.
+   * The frozen run, its picks and its separate photo URLs are never touched. */
+  draftFileInput.addEventListener("change", async () => {
+    const file = draftFileInput.files?.[0];
+    if (!file) return;
+    const attempt = ++draftFileAttempt;
+    const revision = draftRevision;
+    try {
+      // Refuse a runaway file before reading or parsing any of it.
+      if (!Number.isFinite(file.size) || file.size > thisOrThatDraftFileLimit) {
+        draftFileStatus.textContent = `That question draft is larger than ${Math.round(thisOrThatDraftFileLimit / 1024)} KB. Your editor and current run are unchanged.`;
+        return;
+      }
+      const text = await file.text();
+      if (attempt !== draftFileAttempt) return;
+      if (revision !== draftRevision) {
+        draftFileStatus.textContent = "The question draft arrived after you changed the editor. Open it again to replace your draft.";
+        return;
+      }
+      const read = readThisOrThatDraftFile(text);
+      const draft = read.draft;
+      if (!draft) {
+        draftFileStatus.textContent = draftFileProblem(read);
+        return;
+      }
+      if (hasEditorContent() && !window.confirm(
+        "Replace the question editor with this draft? Any typed rows and photos will be cleared. The run currently on stage will not change.",
+      )) {
+        draftFileStatus.textContent = "Open cancelled. Your editor and current run are unchanged.";
+        return;
+      }
+      if (attempt !== draftFileAttempt || revision !== draftRevision) return;
+      draft.rows.forEach((row, index) => {
+        customPrompts[index].value = row[0];
+        customLefts[index].value = row[1];
+        customRights[index].value = row[2];
+      });
+      lengthSelect.value = String(draft.length);
+      applyLength(draft.length);
+      clearEditorPhotos();
+      draftRevision += 1;
+      customPanel.open = true;
+      draftFileStatus.textContent = `Question draft opened for ${draft.length} questions. Review all nine rows, then choose Play my questions. Your current run is unchanged.`;
+      customPrompts[0]?.focus({ preventScroll: true });
+    } catch {
+      if (attempt !== draftFileAttempt) return;
+      draftFileStatus.textContent = "That file could not be read on this device. Your editor and current run are unchanged.";
+    } finally {
+      if (attempt === draftFileAttempt) draftFileInput.value = "";
+    }
+  });
+
+  draftFileSave.addEventListener("click", saveQuestionDraft);
+
   // Row moves edit only the draft in the inputs, and never leave the length
   // being edited. Each photo draft and its description travel with the whole
   // row; the stage, its picks, any applied set and the starter links stay
@@ -2685,6 +2853,7 @@ function mountThisOrThat(
         const to = index + step;
         // A hidden draft row is never swapped into, so its typed text keeps.
         if (to < 0 || to >= customLength) return;
+        draftRevision += 1;
         const draft = customPrompts.map((prompt, at) =>
           [
             prompt.value,
@@ -2725,6 +2894,7 @@ function mountThisOrThat(
     releaseAppliedPhotos();
     photoRows.forEach((row) => {
       row.run += 1;
+      row.pending = false;
       if (row.photo) URL.revokeObjectURL(row.photo.url);
       row.photo = null;
     });
@@ -2751,6 +2921,8 @@ function mountThisOrThat(
       // independent disabled logic.
       packSelect.disabled = false;
       customForm.querySelector<HTMLButtonElement>("[type=submit]")!.disabled = false;
+      draftFileSave.disabled = false;
+      draftFileInput.disabled = false;
       for (const button of elements<HTMLButtonElement>(root, "[data-choice]")) {
         button.disabled = false;
       }
