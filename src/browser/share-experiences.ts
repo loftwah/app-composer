@@ -95,7 +95,7 @@ import {
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
-  approvedCoverForSource, type ApprovedCover,
+  approvedCoverForSource, normaliseApprovedCovers, type ApprovedCover, type ApprovedCoverReference,
 } from "../lib/top-nine-approved-cover.ts";
 import {
   oneMustGoAltText, techTournamentAltText, thisOrThatAltText, tierListAltText, wrongAnswersAltText,
@@ -134,6 +134,7 @@ interface ResultSnapshot {
   ranked?: boolean;
   /** Canonical source links per exhibit; present only when at least one exists. */
   hrefs?: (string | null)[];
+  approvedCovers?: (ApprovedCoverReference | null)[];
   /** Optional exact public web page per manually named exhibit. Interactive
    * board, draft and result link only: absent when empty, never part of an
    * export, and nothing here fetches or embeds it. */
@@ -692,6 +693,7 @@ function mountNine(
         if (!current) return;
         current.fit = fitChoice.value === "contain" ? "contain" : "cover";
         renderPreview();
+        update();
         coverNote(`Exhibit ${index + 1} ${current.fit === "contain"
           ? "shows its whole cover, letterboxed on the cell"
           : "fills its cell with the cover"}.`);
@@ -707,6 +709,7 @@ function mountNine(
         disposeCover(index);
         renderCovers();
         renderPreview();
+        update();
         coverNote(`Cover removed from exhibit ${index + 1}. Its title stays.`);
         cover.panel.querySelector("summary")?.focus({ preventScroll: true });
       });
@@ -912,6 +915,7 @@ function mountNine(
     index: number,
     applies: () => boolean,
     approved?: ApprovedCover,
+    fit: CoverFit = "cover",
   ) {
     const fail = (text: string) => { if (applies()) coverNote(approved ? "Artwork couldn’t load. You can add custom art." : text); };
     if (bytes.size > coverFileLimit) {
@@ -964,25 +968,27 @@ function mountNine(
     disposeCover(index);
     // A fresh cover starts at the current cropped default; any fit chosen for
     // the art it replaced went with that slot.
-    covers[index] = { url, art, kind: sniffed.kind, fit: "cover", ...(approved ? { approved } : {}) };
+    covers[index] = { url, art, kind: sniffed.kind, fit, ...(approved ? { approved } : {}) };
     renderCovers();
     renderPreview();
     coverNote(approved
       ? `Catalogue artwork added to tile ${index + 1}.`
       : `Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
-    if (approved) update();
   }
 
   function hangCover(file: File) {
     const index = coverTarget;
-    cancelApprovedCover(index);
+    if (pendingCovers.has(index)) {
+      cancelApprovedCover(index);
+      update();
+    }
     const run = ++coverRun;
     return hangCoverImage(file, index, () => run === coverRun);
   }
 
   /** Fetch only a reviewed, versioned same-origin asset after a catalogue pick.
    * The exact slot must still own the request after both fetch and decode. */
-  async function hangApprovedCover(index: number, href: string) {
+  async function hangApprovedCover(index: number, href: string, fit: CoverFit = "cover") {
     const approved = approvedCoverForSource(href);
     if (!approved) return;
     const request = new AbortController();
@@ -998,11 +1004,14 @@ function mountNine(
       const bytes = await response.blob();
       if (!applies()) return;
       if (bytes.size !== approved.bytes) throw new Error("Artwork size changed.");
-      await hangCoverImage(bytes, index, applies, approved);
+      await hangCoverImage(bytes, index, applies, approved, fit);
     } catch {
       if (applies()) coverNote("Artwork couldn’t load. You can add custom art.");
     } finally {
-      if (pendingCovers.get(index) === request) pendingCovers.delete(index);
+      if (pendingCovers.get(index) === request) {
+        pendingCovers.delete(index);
+        update();
+      }
     }
   }
 
@@ -1268,8 +1277,8 @@ function mountNine(
         ? " The Wikidata link is release details only — paste an Apple Music or Spotify link for playback."
         : ""
     }`);
-    update();
     void hangApprovedCover(slot, source.href);
+    update();
     if (returnAfterPick) {
       returnAfterPick = false;
       music.panel.open = false;
@@ -2291,6 +2300,9 @@ function mountNine(
       if (!heading || !items.every(Boolean)) return null;
       const line = entry(subtitle.value, nineSubtitleLimit);
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
+      const approvedCovers = covers.map((cover) => cover?.approved
+        ? { id: cover.approved.id, fit: cover.fit }
+        : null);
       const pageOut = objects.map((_, index) => livePage(index));
       const profileHref = profile ? profileUrl(profile.value) : null;
       const date = topNineDate(dateInput.value);
@@ -2298,12 +2310,14 @@ function mountNine(
         title: heading, items,
         ...(line ? { subtitle: line } : {}),
         ...(links ? { hrefs: links } : {}),
+        ...(approvedCovers.some(Boolean) ? { approvedCovers } : {}),
         ...(pageOut.some(Boolean) ? { pages: pageOut } : {}),
         ...(profileHref ? { profile: profileHref } : {}),
         ...(date ? { date } : {}),
         ...(rankedBox.checked ? { ranked: true } : {}),
       };
     },
+    exportAllowed: () => pendingCovers.size === 0,
     exportCovers: () => (covers.some(Boolean)
       ? covers.map((slot) => slot ? { art: slot.art, fit: slot.fit } : null)
       : null),
@@ -2326,6 +2340,10 @@ function mountNine(
       closePreview(false);
       clearReplace();
       hrefs = trimHrefs(snapshot.hrefs);
+      normaliseApprovedCovers(snapshot.approvedCovers, hrefs).forEach((ref, index) => {
+        const href = hrefs[index];
+        if (href && ref) void hangApprovedCover(index, href, ref.fit);
+      });
       pageLinks = trimPages(snapshot.pages);
       pageTitles = objects.map((input) => input.value.trim());
       if (hrefs.some(Boolean)) music.panel.open = true;
@@ -5701,7 +5719,7 @@ export function mountShareExperience(root: HTMLElement) {
     // hiding the share panel also keeps a remix from being mistaken for the
     // original quiz's export.
     const exportable = controller.exportAllowed?.() ?? true;
-    if (exportPanel) exportPanel.hidden = !exportable;
+    if (exportPanel && game !== "top-nine") exportPanel.hidden = !exportable;
     if (ninePreviewButton) ninePreviewButton.disabled = !canShare || !exportable || busy;
     if (personaCardActions) personaCardActions.hidden = !exportable || !canShare;
     clearCardDownloads();
@@ -5735,7 +5753,7 @@ export function mountShareExperience(root: HTMLElement) {
     if (shareNote && game === "this-or-that") shareNote.textContent = links
       ? shareNoteBuiltin
       : "Links and sharing are off for your own questions. Download the text-only image to keep the choices — photos stay in this tab.";
-    if (!exportable) status.textContent = "";
+    if (!exportable) status.textContent = game === "top-nine" ? "Loading cover art…" : "";
     else if (!canShare && game === "top-nine") status.textContent = "Add a board title and nine favourites to download.";
     else if (!canShare && game === "this-or-that") status.textContent = links
       ? "Answer every question to share your result."

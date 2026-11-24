@@ -3,9 +3,11 @@
 // Apple identifies the release; the pinned, locally served CC0 file supplies the
 // pixels. Titles, slugs, search terms and other catalogue rows never select it.
 
+import type { CoverFit } from "./top-nine-cover.ts";
 import { appleAlbumRef } from "./top-nine-music.ts";
 
 export const approvedOpenGoldbergCover = {
+  id: "open-goldberg-1126033418-678c1b99",
   appleAlbumId: "1162185845",
   src: "/top-nine/covers/open-goldberg-1126033418-678c1b99.jpg",
   sha256: "678c1b990236d8f08938ffb61ffae7d2068e7e1f6c94192c944f15f42dfbfe43",
@@ -19,6 +21,7 @@ export const approvedOpenGoldbergCover = {
 } as const;
 
 export interface ApprovedCover {
+  id: string;
   src: string;
   bytes: number;
   attribution: string;
@@ -32,4 +35,25 @@ export function approvedCoverForSource(value: unknown): ApprovedCover | null {
   return appleAlbumRef(value)?.id === approvedOpenGoldbergCover.appleAlbumId
     ? approvedOpenGoldbergCover
     : null;
+}
+
+
+export interface ApprovedCoverReference {
+  id: string;
+  fit: CoverFit;
+}
+
+/** A result can hang only a pinned cover for that exact exhibit's source.
+ * Legacy results and malformed references produce no artwork requests. */
+export function normaliseApprovedCovers(
+  value: unknown,
+  hrefs: readonly (string | null)[],
+): (ApprovedCoverReference | null)[] {
+  if (!Array.isArray(value) || value.length !== 9) return [];
+  return hrefs.map((href, index) => {
+    const cover = approvedCoverForSource(href);
+    const ref = value[index] as Partial<ApprovedCoverReference> | null;
+    if (!cover || !ref || ref.id !== cover.id || (ref.fit !== "cover" && ref.fit !== "contain")) return null;
+    return { id: cover.id, fit: ref.fit };
+  });
 }
