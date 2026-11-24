@@ -4,6 +4,7 @@ import {
   twentyOneSquareCardSize,
 } from "../lib/twenty-one-questions.ts";
 import { coverBox, type CoverFit } from "../lib/top-nine-cover.ts";
+import { topNineDateLabel } from "../lib/top-nine-date.ts";
 import type { PersonaCardPrint } from "../lib/persona-quiz.ts";
 import {
   tierListDefaultTitle, tierListRows, tierListTierCount, tierListTiers,
@@ -77,6 +78,9 @@ export interface ShareExperienceResult {
    * only; the card is drawn from exactly these two and never becomes a link. */
   cursePrompt?: number;
   curseChoice?: CursedChoice;
+  /** Top Nine only: one intentional calendar day printed beside the byline.
+   * Absent keeps every existing footer byte unchanged. */
+  date?: string;
   byline: string;
   skin: number;
   background: string;
@@ -219,7 +223,9 @@ function drawRank(
 }
 
 /** Draw the shared footer. The approved mark carries the product name and site.
- * Top Nine may hide that credit. The creator's byline is independent. */
+ * Top Nine may hide that credit. The creator's byline and optional date are
+ * independent; the date uses the same two-line right-hand footer as the credit
+ * only when deliberately supplied. */
 function signCard(
   ctx: CanvasRenderingContext2D,
   mark: HTMLImageElement | null,
@@ -228,6 +234,7 @@ function signCard(
   footer: number,
   ink: string,
   byline: string,
+  date = "",
 ) {
   ctx.fillStyle = ink;
   if (mark) {
@@ -237,10 +244,17 @@ function signCard(
     ctx.font = "600 18px system-ui";
     ctx.fillText("composer.loftwah.com", margin + 47, footer + 40);
   }
-  if (byline) {
+  if (byline || date) {
     ctx.textAlign = "right";
-    ctx.font = "700 24px system-ui";
-    ctx.fillText(byline, width - margin, footer + 26, width - margin * 2 - 370);
+    const room = width - margin * 2 - 370;
+    if (byline) {
+      ctx.font = `700 ${date ? 22 : 24}px system-ui`;
+      ctx.fillText(byline, width - margin, footer + (date ? 16 : 26), room);
+    }
+    if (date) {
+      ctx.font = "600 18px system-ui";
+      ctx.fillText(date, width - margin, footer + (byline ? 40 : 26), room);
+    }
     ctx.textAlign = "left";
   }
 }
@@ -1112,7 +1126,8 @@ export async function renderExperienceResult(
     const textY = wide ? panelY + 15 : panelY + imageH + 16;
     drawFit(ctx, result.subtitle ?? "", textX, textY, width - textX - margin, footer - textY - 10, wide ? 39 : 48);
   }
-  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  const date = result.game === "top-nine" ? topNineDateLabel(result.date) : "";
+  signCard(ctx, mark, width, margin, footer, ink, result.byline, date);
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Could not export image")), "image/png");
   });

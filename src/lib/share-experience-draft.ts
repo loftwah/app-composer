@@ -5,6 +5,7 @@
 import { normaliseSourceLinks } from "./top-nine-source.ts";
 import { normalisePageLinks } from "./top-nine-pages.ts";
 import { profileUrl } from "./top-nine-profile.ts";
+import { topNineDate } from "./top-nine-date.ts";
 
 export const draftVersion = 1;
 /** Room for nine exhibits with both a provider source link and an exact public
@@ -40,6 +41,9 @@ export interface NineDraft {
    * so older drafts and drafts without one keep their exact stored shape. */
   subtitle?: string;
   byline?: string;
+  /** One intentional calendar day beside the byline, omitted when blank or
+   * invalid so older drafts keep their exact stored shape. */
+  date?: string;
   /** One optional public HTTPS profile link, omitted when absent or invalid
    * so older drafts keep their exact stored shape. */
   profile?: string;
@@ -66,6 +70,7 @@ interface NineDraftInput {
   items?: unknown;
   subtitle?: unknown;
   byline?: unknown;
+  date?: unknown;
   profile?: unknown;
   skin?: unknown;
   ranked?: unknown;
@@ -79,6 +84,7 @@ interface NineDraftFields {
   items: string[];
   subtitle?: string;
   byline: string;
+  date?: string;
   profile?: string;
   skin: number;
   ranked?: true;
@@ -109,10 +115,12 @@ function cleanNineDraft(draft: NineDraftInput): NineDraftFields | null {
   const hrefs = cleanHrefs(draft.hrefs);
   const pages = cleanPages(draft.pages, items);
   const profile = profileUrl(draft.profile) ?? "";
+  const date = topNineDate(draft.date);
   return {
     title, items,
     ...(subtitle ? { subtitle } : {}),
     byline: cleanText(draft.byline, 48),
+    ...(date ? { date } : {}),
     ...(profile ? { profile } : {}),
     skin: draft.skin === 1 || draft.skin === 2 ? draft.skin : 0,
     ...(draft.ranked === true ? { ranked: true } : {}),
@@ -165,7 +173,7 @@ export interface NineDraftFileRead {
 
 /** Every key a file may carry. Anything else is foreign and refused. */
 const draftFileKeys = [
-  "schema", "title", "items", "subtitle", "byline", "profile", "skin", "ranked", "hrefs", "pages",
+  "schema", "title", "items", "subtitle", "byline", "date", "profile", "skin", "ranked", "hrefs", "pages",
 ] as const;
 
 /** The portable shape checked before any value is cleaned: nine string slots,
@@ -177,6 +185,7 @@ function draftFileShape(value: Record<string, unknown>): boolean {
   if (value.items.some((item) => typeof item !== "string")) return false;
   if (value.subtitle !== undefined && typeof value.subtitle !== "string") return false;
   if (value.byline !== undefined && typeof value.byline !== "string") return false;
+  if (value.date !== undefined && typeof value.date !== "string") return false;
   if (value.profile !== undefined && typeof value.profile !== "string") return false;
   if (value.skin !== undefined && value.skin !== 0 && value.skin !== 1 && value.skin !== 2) return false;
   if (value.ranked !== undefined && typeof value.ranked !== "boolean") return false;
