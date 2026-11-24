@@ -240,6 +240,17 @@ function mountDoor(root: HTMLElement, update: () => void): Controller {
 
   return {
     result: () => current,
+    activate() {
+      // Door, hidden ending and custom-submit controls ship disabled in markup
+      // so a held first tap cannot land before this mount and any shared result
+      // are in place. This is the one ordinary entry that releases them; room,
+      // replay and reveal states keep their own independent hidden logic.
+      for (const button of elements<HTMLButtonElement>(root, "[data-door], [data-ending]")) {
+        button.disabled = false;
+      }
+      const submit = editor.form?.querySelector<HTMLButtonElement>("[type=submit]");
+      if (submit) submit.disabled = false;
+    },
     restore(snapshot) {
       const title = entry(snapshot.title, 72);
       const subtitle = entry(snapshot.subtitle, 240);
