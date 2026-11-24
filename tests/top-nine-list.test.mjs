@@ -5,6 +5,7 @@ import {
   nineListApplied, nineListLimit, nineListSummary, planNineList, planNineListUndo,
 } from '../src/lib/top-nine-list.ts';
 import { pageLink, pageUrlLimit } from '../src/lib/top-nine-pages.ts';
+import { musicUrlLimit } from '../src/lib/top-nine-music.ts';
 import {
   draftKey, nineItemLimit, readNineDraft, writeNineDraft,
 } from '../src/lib/share-experience-draft.ts';
@@ -102,6 +103,7 @@ test('a plain one-title-per-line paste stays exactly page-free', () => {
   const plan = planNineList('Alpha\nBeta', [0, 1, 2]);
   assert.deepEqual(plan.lines, ['Alpha', 'Beta']);
   assert.deepEqual(plan.urls, [null, null]);
+  assert.deepEqual(plan.sources, [null, null]);
   assert.deepEqual(plan.rows, ['Alpha', 'Beta']);
   assert.deepEqual(plan.remaining, []);
   assert.deepEqual(plan.invalid, []);
@@ -109,6 +111,7 @@ test('a plain one-title-per-line paste stays exactly page-free', () => {
   const trailing = planNineList('Title\t', [0]);
   assert.deepEqual(trailing.titles, ['Title']);
   assert.deepEqual(trailing.urls, [null]);
+  assert.deepEqual(trailing.sources, [null]);
   assert.deepEqual(trailing.invalid, []);
 });
 
@@ -118,6 +121,7 @@ test('a second column becomes one exact public page validated by pageLink', () =
   const plan = planNineList(`  First   thing \t ${safe} \nSecond`, [0, 1]);
   assert.deepEqual(plan.titles, ['First thing', 'Second']);
   assert.deepEqual(plan.urls, ['https://example.com/watch?v=one#part', null]);
+  assert.deepEqual(plan.sources, [null, null]);
   // The title keeps the existing editor bound; the page keeps the page bound.
   assert.deepEqual(plan.remaining, []);
   const long = 'x'.repeat(80);
@@ -135,7 +139,6 @@ test('a two-column row that is not title TAB public HTTPS page stays verbatim', 
     'Plain\thttps://example.com/a b',
     'Plain\thttps://user:pass@example.com/',
     '\thttps://example.com/no-title',
-    'Three\thttps://example.com/one\thttps://example.com/two',
     `Long\thttps://example.com/${'x'.repeat(pageUrlLimit)}`,
   ];
   const plan = planNineList([...good, ...bad].join('\n'), [0, 1, 2, 3, 4, 5, 6, 7, 8]);
@@ -148,12 +151,87 @@ test('a two-column row that is not title TAB public HTTPS page stays verbatim', 
   assert.equal(plan.overflow.length, 0);
   assert.equal(
     nineListSummary(plan, 9),
-    '9 empty slots · 1 ready · 8 staying in the editor · 8 rows not placed, need title TAB public HTTPS page.',
+    '9 empty slots · 1 ready · 7 staying in the editor · 7 rows not placed, need title TAB public HTTPS page.',
   );
   assert.equal(
     nineListApplied(plan, 8),
-    'Filled 1 exhibit · 8 empty slots left · 1 page linked · 8 rows not placed, need title TAB public HTTPS page.',
+    'Filled 1 exhibit · 8 empty slots left · 1 page linked · 7 rows not placed, need title TAB public HTTPS page.',
   );
+});
+
+test('old two-column music addresses stay ordinary pages, never sources', () => {
+  const href = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
+  for (const raw of [`Old page\t${href}`, `Old page\t${href}\t`]) {
+    const plan = planNineList(raw, [0]);
+    assert.deepEqual(plan.titles, ['Old page']);
+    assert.deepEqual(plan.urls, [pageLink(href)]);
+    assert.deepEqual(plan.sources, [null]);
+    assert.deepEqual(plan.rows, [raw]);
+    assert.deepEqual(plan.invalid, []);
+  }
+});
+
+test('a third column keeps the title and page and canonicalises only official music sources', (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('planning a list must not fetch');
+  });
+  const page = 'https://Example.COM/watch?v=one#part';
+  const appleAlbum = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
+  const appleSong = 'https://music.apple.com/au/album/digital-love/697194953?i=697195633&uo=4';
+  const spotifyTrack = 'https://open.spotify.com/intl-au/track/2VEZx7NWsZ1D0eJ4uv5Fym?si=tracking';
+  const rows = [
+    `  Discovery \t\t ${appleAlbum} `,
+    `Digital Love\t${page}\t${spotifyTrack}`,
+    `Modal Soul\t\t${appleSong}`,
+    `No source\t${page}\t`,
+  ];
+  const plan = planNineList(rows.join('\n'), [4, 1, 7, 0]);
+  assert.deepEqual(plan.titles, ['Discovery', 'Digital Love', 'Modal Soul', 'No source']);
+  assert.deepEqual(plan.urls, [
+    null, 'https://example.com/watch?v=one#part', null, 'https://example.com/watch?v=one#part',
+  ]);
+  assert.deepEqual(plan.sources, [
+    'https://music.apple.com/au/album/697194953',
+    'https://open.spotify.com/track/2VEZx7NWsZ1D0eJ4uv5Fym',
+    'https://music.apple.com/au/album/697194953?i=697195633',
+    null,
+  ]);
+  assert.deepEqual(plan.rows, rows);
+  assert.deepEqual(plan.remaining, []);
+  assert.equal(plan.invalidMusic, 0);
+  assert.equal(
+    nineListApplied(plan, 5),
+    'Filled 4 exhibits · 5 empty slots left · 2 pages linked · 3 music links added.',
+  );
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('invalid third-column sources stay verbatim with corrective music help', () => {
+  const spotifyAlbum = 'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn';
+  const good = `Good\t\t${spotifyAlbum}`;
+  const bad = [
+    'Bad\t\thttps://example.test/not-music',
+    'Bad\t\thttps://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M',
+    'Bad\t\thttps://music.apple.com/au/album/not-an-id',
+    'Bad\t\thttps://open.spotify.com.example.test/album/6b08FpNaFFTjc1dJ9DSWfn',
+    'Bad\t\thttp://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn',
+    'Bad\t\thttps://user@open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn',
+    'Bad\thttp://example.com/page\thttps://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn',
+    `Bad\t\thttps://open.spotify.com/album/${'x'.repeat(musicUrlLimit)}`,
+    `Bad\t\t${spotifyAlbum}\textra`,
+    `\t\t${spotifyAlbum}`,
+  ];
+  const plan = planNineList([good, ...bad].join('\n'), [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  assert.deepEqual(plan.indexes, [0]);
+  assert.deepEqual(plan.titles, ['Good']);
+  assert.deepEqual(plan.urls, [null]);
+  assert.deepEqual(plan.sources, [spotifyAlbum]);
+  assert.deepEqual(plan.invalid, bad);
+  assert.deepEqual(plan.remaining, bad);
+  assert.equal(plan.invalidMusic, bad.length);
+  assert.equal(plan.overflow.length, 0);
+  assert.match(nineListSummary(plan, 9), /title TAB optional public HTTPS page TAB exact Apple Music or Spotify album\/track URL/);
+  assert.match(nineListApplied(plan, 8), /1 music link added/);
 });
 
 test('blank, unplaced and overflow rows keep their original order beside pages', () => {
@@ -169,6 +247,7 @@ test('blank, unplaced and overflow rows keep their original order beside pages',
   assert.deepEqual(plan.indexes, [3, 1]);
   assert.deepEqual(plan.titles, ['One', 'Plain two']);
   assert.deepEqual(plan.urls, ['https://example.com/one', null]);
+  assert.deepEqual(plan.sources, [null, null]);
   assert.deepEqual(plan.overflow, [rows[4], rows[5]]);
   assert.deepEqual(plan.invalid, [rows[3]]);
   assert.deepEqual(plan.remaining, [rows[3], rows[4], rows[5]]);
@@ -176,6 +255,7 @@ test('blank, unplaced and overflow rows keep their original order beside pages',
   const next = planNineList(plan.remaining.join('\n'), [0, 2]);
   assert.deepEqual(next.titles, ['Three', 'Hero']);
   assert.deepEqual(next.urls, ['https://example.com/three', 'https://example.com/four']);
+  assert.deepEqual(next.sources, [null, null]);
   assert.deepEqual(next.invalid, [rows[3]]);
 });
 
@@ -202,6 +282,27 @@ test('a page-filled board saves and an older page-free draft still fills', () =>
   assert.equal(filled.pages[0], null);
   assert.equal(filled.pages[1], 'https://example.com/alpha');
   assert.equal(filled.pages[2], null);
+});
+
+test('a music-filled row keeps its canonical source and page through the existing draft codec', () => {
+  const saved = storage();
+  const plan = planNineList(
+    'Digital Love\thttps://example.com/notes\thttps://open.spotify.com/intl-au/track/2VEZx7NWsZ1D0eJ4uv5Fym?si=tracking',
+    [2],
+  );
+  const items = Array(9).fill('');
+  const pages = Array(9).fill(null);
+  const hrefs = Array(9).fill(null);
+  plan.indexes.forEach((index, line) => {
+    items[index] = plan.titles[line];
+    pages[index] = plan.urls[line];
+    hrefs[index] = plan.sources[line];
+  });
+  assert.equal(writeNineDraft(saved, { title: 'Songs', items, pages, hrefs }), 'saved');
+  const restored = readNineDraft(saved);
+  assert.equal(restored.items[2], 'Digital Love');
+  assert.equal(restored.pages[2], 'https://example.com/notes');
+  assert.equal(restored.hrefs[2], 'https://open.spotify.com/track/2VEZx7NWsZ1D0eJ4uv5Fym');
 });
 
 test('Undo clears only the untouched title/page pairs and restores raw rows', () => {
@@ -238,6 +339,37 @@ test('Undo clears only the untouched title/page pairs and restores raw rows', ()
   assert.equal(attached.kept, 4);
 });
 
+test('Undo compares the exact music source as well as title and page', () => {
+  const apple = 'https://music.apple.com/au/album/697194953';
+  const spotify = 'https://open.spotify.com/track/2VEZx7NWsZ1D0eJ4uv5Fym';
+  const other = 'https://music.apple.com/au/album/1078914477';
+  const page = 'https://example.com/notes';
+  const filled = {
+    indexes: [0, 1, 2, 3, 4, 5, 6],
+    titles: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Echo', 'Foxtrot', 'Golf'],
+    urls: [page, null, page, page, null, null, null],
+    sources: [apple, spotify, apple, spotify, null, apple, spotify],
+    rows: ['Alpha raw', 'Beta raw', 'Gamma raw', 'Delta raw', 'Echo raw', 'Foxtrot raw', 'Golf raw'],
+  };
+  const current = ['Alpha', 'Beta', 'Gamma', 'Delta edited', 'Echo', 'Foxtrot', 'Golf'];
+  const currentPages = [page, null, 'https://example.com/replaced', page, null, null, null];
+  const currentSources = [apple, other, apple, spotify, spotify, null, spotify];
+  const plan = planNineListUndo(filled, current, (index) => index === 6, currentPages, currentSources);
+  assert.deepEqual(plan.clear, [0]);
+  assert.deepEqual(plan.restored, ['Alpha raw']);
+  assert.equal(plan.pages, 1);
+  assert.equal(plan.sources, 1);
+  assert.equal(plan.kept, 6);
+  // An older fill with no source field still compares every current slot as
+  // source-free, so a link added later remains the person's work.
+  const legacy = planNineListUndo(
+    { indexes: [0], titles: ['Alpha'], urls: [null], rows: ['Alpha raw'] },
+    ['Alpha'], () => false, [null], [apple],
+  );
+  assert.deepEqual(legacy.clear, []);
+  assert.equal(legacy.kept, 1);
+});
+
 test('the editor offers one compact paste affordance wired to the normal inputs', () => {
   const component = read('src/components/share-experiences/ShareExperience.astro');
   assert.match(component, /<details class="exhibit-list" data-list-panel>/);
@@ -258,13 +390,15 @@ test('the editor offers one compact paste affordance wired to the normal inputs'
   assert.doesNotMatch(read('src/lib/top-nine-list.ts'), /fetch\(|navigator\.|https?:\/\//);
 });
 
-test('the paste box explains the optional page column and holds nine full rows', () => {
+test('the paste box explains the optional page and music columns and holds nine full rows', () => {
   const component = read('src/components/share-experiences/ShareExperience.astro');
   assert.match(component, /add a tab and a public HTTPS page/i);
-  assert.match(component, /<label for="exhibit-list">Exhibit titles and optional pages<\/label>/);
+  assert.match(component, /another tab and an exact Apple Music or Spotify album or track link/i);
+  assert.match(component, /Leave the page column blank/i);
+  assert.match(component, /<label for="exhibit-list">Exhibit titles, optional pages and music links<\/label>/);
   assert.ok(
-    nineListLimit >= 9 * (nineItemLimit + 1 + pageUrlLimit),
-    'nine bounded titles plus full-length public pages fit in the paste box',
+    nineListLimit >= 9 * (nineItemLimit + 1 + pageUrlLimit + 1 + musicUrlLimit),
+    'nine bounded titles plus full-length public pages and music sources fit in the paste box',
   );
 
   const controller = read('src/browser/share-experiences.ts');
@@ -272,9 +406,12 @@ test('the paste box explains the optional page column and holds nine full rows',
   const block = controller.slice(start, controller.indexOf('cover.target.addEventListener', start));
   // The ordinary local page state, never a provider source, fetch or preview.
   assert.match(block, /plan\.urls\.forEach/);
+  assert.match(block, /plan\.sources\.forEach/);
+  assert.match(block, /hrefs\[plan\.indexes\[line\]\] = source/);
   assert.match(block, /pageLinks\[index\] = url/);
   assert.match(block, /pageTitles\[index\] = plan\.titles\[line\]/);
+  assert.match(block, /currentSources = hrefs\.slice\(\)/);
   assert.match(block, /plan\.remaining\.join\("\\n"\)/);
   assert.match(block, /hasFillBlocker/);
-  assert.doesNotMatch(block, /setLink\(|sourceLink\(|fetch\(|runSearch/);
+  assert.doesNotMatch(block, /fillSourceTitle|lookupApple|lookupSpotify|showPlayer|fetch\(|runSearch/);
 });

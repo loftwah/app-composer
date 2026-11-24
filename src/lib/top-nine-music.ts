@@ -21,13 +21,15 @@ const spotifyEmbedPath = /^\/embed\/(album|track)\/([a-zA-Z0-9]{22})$/;
 const spotifyOembed = "https://open.spotify.com/oembed";
 /** A provider title longer than this is not an album name worth filling. */
 const spotifyTitleLimit = 140;
+/** One pasted source is bounded before parsing; canonical links are no longer. */
+export const musicUrlLimit = 2_048;
 
 export function musicPreview(value: unknown): {
   href: string;
   embedUrl: string;
   provider: "Apple Music" | "Spotify";
 } | null {
-  if (typeof value !== "string" || value.length > 2_048) return null;
+  if (typeof value !== "string" || value.length > musicUrlLimit) return null;
   let url: URL;
   try {
     url = new URL(value);
@@ -187,7 +189,7 @@ export function spotifyTrackRef(value: unknown): { id: string } | null {
  * names a slot. Both the kind and the ID must match.
  */
 function spotifyEmbedId(value: unknown, kind: SpotifyMedia): string | null {
-  if (typeof value !== "string" || value.length > 2_048) return null;
+  if (typeof value !== "string" || value.length > musicUrlLimit) return null;
   let url: URL;
   try {
     url = new URL(value);

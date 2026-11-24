@@ -417,9 +417,9 @@ function mountNine(
   const dragType = "application/x-app-composer-top-nine-slot";
   const boardDragId = `top-nine-${++nineBoardCount}`;
   let activeDrag: { from: number; board: string } | null = null;
-  /** The slots and exact title/page pairs one pasted fill added, kept whole so
-   * Undo clears that fill in one step and returns its raw rows to the editor. */
-  let lastFill: { indexes: number[]; titles: string[]; urls: (string | null)[]; rows: string[] } | null = null;
+  /** The slots and exact title/page/music triples one pasted fill added, kept
+   * whole so Undo clears that fill in one step and returns its raw rows. */
+  let lastFill: { indexes: number[]; titles: string[]; urls: (string | null)[]; sources: (string | null)[]; rows: string[] } | null = null;
   /** One catalogue replacement waiting for the person's decision, bound to the
    * exact slot state the prompt named. A target change, new search, draft,
    * restore or any change to that slot clears it before it can apply. */
@@ -1568,10 +1568,10 @@ function mountNine(
     return Boolean(hrefs[index] || livePage(index) || covers[index]);
   }
 
-  /** Undo compares the filled page itself, so only a later source link or local
-   * cover blocks clearing; a page this fill attached is still its own. */
+  /** Undo compares the filled page and music source themselves, so only a local
+   * cover it could not have written blocks clearing an otherwise exact row. */
   function hasFillBlocker(index: number) {
-    return Boolean(hrefs[index] || covers[index]);
+    return Boolean(covers[index]);
   }
 
   function listSlots() {
@@ -1608,7 +1608,7 @@ function mountNine(
     const open = listSlots();
     const plan = planNineList(list.text.value, open);
     if (!plan.lines.length && !plan.invalid.length) {
-      list.status.textContent = "Paste at least one exhibit title, one per line. A second column can hold a public HTTPS page.";
+      list.status.textContent = "Paste at least one exhibit title, one per line. A second column can hold a public HTTPS page; a third can hold an exact Apple Music or Spotify album or track link.";
       list.text.focus();
       return;
     }
@@ -1625,16 +1625,23 @@ function mountNine(
       pageLinks[index] = url;
       pageTitles[index] = plan.titles[line];
     });
-    if (plan.urls.some(Boolean)) {
-      page.panel.open = true;
+    // Only the third column becomes a music source. Store its canonical href
+    // directly: a list fill never looks up a title, mounts a player or fetches.
+    plan.sources.forEach((source, line) => {
+      if (source) hrefs[plan.indexes[line]] = source;
+    });
+    if (plan.urls.some(Boolean) || plan.sources.some(Boolean)) {
+      if (plan.urls.some(Boolean)) page.panel.open = true;
+      if (plan.sources.some(Boolean)) music.panel.open = true;
       markPageTarget();
-      renderPages();
+      markTarget();
+      refreshLinks();
       renderPreview();
       update();
     }
     lastFill = {
       indexes: plan.indexes.slice(), titles: plan.titles.slice(),
-      urls: plan.urls.slice(), rows: plan.rows.slice(),
+      urls: plan.urls.slice(), sources: plan.sources.slice(), rows: plan.rows.slice(),
     };
     list.undo.disabled = false;
     // Unplaced and invalid rows stay in the editor, raw and ordered, for the next fill or an edit.
@@ -1648,18 +1655,20 @@ function mountNine(
     }
   });
   /** One Undo reverses the whole fill: every slot still holding the exact
-   * title and page this fill wrote is cleared, and those raw rows return to the
-   * paste box. A slot the person has since edited, retitled, relinked or added
-   * a cover or source link to keeps their work, and its row is not duplicated. */
+   * title, page and music source this fill wrote is cleared, and those raw rows
+   * return to the paste box. A slot the person has since edited, retitled,
+   * relinked or added a cover to keeps their work, and its row is not duplicated. */
   list.undo.addEventListener("click", () => {
     if (!lastFill) return;
     const filled = lastFill;
     const currentPages = objects.map((_, index) => livePage(index));
-    const plan = planNineListUndo(filled, objects.map((input) => input.value), hasFillBlocker, currentPages);
+    const currentSources = hrefs.slice();
+    const plan = planNineListUndo(filled, objects.map((input) => input.value), hasFillBlocker, currentPages, currentSources);
     plan.clear.forEach((index) => {
       if (replaceOffer?.slot === index) clearReplace();
       pageLinks[index] = null;
       pageTitles[index] = "";
+      if (hrefs[index]) setLink(index, null);
       setExhibit(index, "");
     });
     if (plan.clear.length) {
@@ -1672,7 +1681,7 @@ function mountNine(
     ).join("\n");
     discardFill();
     const cleared = plan.clear.length;
-    list.status.textContent = `Fill undone · ${cleared} exhibit${cleared === 1 ? "" : "s"} cleared${plan.pages ? ` · ${plan.pages} page${plan.pages === 1 ? "" : "s"} removed` : ""} · ${staying} empty slot${staying === 1 ? "" : "s"}${plan.kept ? ` · ${plan.kept} kept your later edit` : ""}.`;
+    list.status.textContent = `Fill undone · ${cleared} exhibit${cleared === 1 ? "" : "s"} cleared${plan.pages ? ` · ${plan.pages} page${plan.pages === 1 ? "" : "s"} removed` : ""}${plan.sources ? ` · ${plan.sources} music link${plan.sources === 1 ? "" : "s"} removed` : ""} · ${staying} empty slot${staying === 1 ? "" : "s"}${plan.kept ? ` · ${plan.kept} kept your later edit` : ""}.`;
     list.fill.disabled = planNineList(list.text.value, listSlots()).indexes.length === 0;
     list.text.focus({ preventScroll: true });
   });
