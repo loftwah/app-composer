@@ -6089,7 +6089,7 @@ export function mountShareExperience(root: HTMLElement) {
           URL.revokeObjectURL(href);
           return;
         }
-        const { width, height } = resultSizes[size];
+        const [width, height] = resultSizes[size];
         const formatLabel = format?.selectedOptions[0]?.textContent?.trim();
         ninePreviewCaption.textContent = "PNG preview · " + (formatLabel || width + " × " + height);
         ninePreviewImage.replaceChildren(image);
