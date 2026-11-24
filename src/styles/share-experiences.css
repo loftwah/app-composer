@@ -331,6 +331,7 @@
   max-inline-size: 25rem; margin-inline: auto;
 }
 .tq-card-meta { margin-block-start: .75rem; text-align: center; }
+[data-tq-downloads] .tq-card-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
 .tq-card-meta textarea:not([hidden]) {
   display: block; inline-size: 100%; margin-block: .5rem 0;
   color: #211a1b; background: #fff9ec;

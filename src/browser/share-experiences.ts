@@ -4950,6 +4950,8 @@ export function mountShareExperience(root: HTMLElement) {
         if (!current) return;
         // Portrait keeps its original filename; Story and Square name their canvas.
         const prefix = cardFormat === "portrait" ? "" : `${cardFormat}-`;
+        const version = cardVersion;
+        let copyingCard = false;
         cards.forEach((blob, index) => {
           // One Blob URL per card feeds both the preview and its save link, so
           // the PNG a creator inspects is the exact file the link downloads.
@@ -4969,6 +4971,33 @@ export function mountShareExperience(root: HTMLElement) {
           link.download = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;
           link.textContent = `Save card ${index + 1} of ${cards.length}`;
           meta.append(link);
+          if (imageClipboard) {
+            // Copy the exact Blob behind this card's preview and Save link,
+            // never a fresh render. Its version belongs to this prepared set:
+            // an answer edit, format or style change, replay, a new set or a
+            // page hide clears the set and retires a write still in flight.
+            const copyButton = document.createElement("button");
+            copyButton.type = "button";
+            copyButton.className = "button secondary";
+            copyButton.textContent = "Copy PNG";
+            copyButton.setAttribute("aria-label", `Copy card ${index + 1} of ${cards.length} PNG`);
+            copyButton.addEventListener("click", async () => {
+              if (copyingCard || version !== cardVersion) return;
+              copyingCard = true;
+              try {
+                await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+                if (version !== cardVersion) return;
+                status.textContent = `Card ${index + 1} image copied. Paste it where you want to share it.`;
+              } catch {
+                if (version !== cardVersion) return;
+                // The Save link in this figure stays available as the fallback.
+                status.textContent = `Clipboard unavailable. Use Save card ${index + 1} of ${cards.length} to keep this card.`;
+              } finally {
+                copyingCard = false;
+              }
+            });
+            meta.append(copyButton);
+          }
           figure.append(preview, meta);
           cardDownloads.append(figure);
         });

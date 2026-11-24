@@ -184,6 +184,31 @@ test('preview and download use the same local card URL', () => {
   assert.match(cards[1], /cardUrls\.push\(href\);/);
 });
 
+test('each prepared card copies its exact Blob with a named, version-guarded action', () => {
+  const controller = read('src/browser/share-experiences.ts');
+  const cards = controller.match(/cards\.forEach\(\(blob, index\) => \{([\s\S]*?)\n        \}\);/);
+  assert.ok(cards, 'the per-card builder exists');
+  const block = cards[1];
+
+  assert.ok(block.includes('if (imageClipboard) {'), 'the shared image clipboard capability gates the action');
+  assert.ok(
+    block.includes('copyButton.setAttribute("aria-label", `Copy card ${index + 1} of ${cards.length} PNG`)'),
+    'each card has its own concise accessible name',
+  );
+  assert.ok(block.includes('new ClipboardItem({ "image/png": blob })'), 'the exact per-card Blob is copied');
+  assert.ok(block.includes('await navigator.clipboard.write'));
+  assert.ok(block.includes('if (copyingCard || version !== cardVersion) return;'));
+  assert.equal(
+    (block.match(/version !== cardVersion/g) ?? []).length,
+    3,
+    'stale writes are dropped before the write, after success and after a denial',
+  );
+  assert.ok(block.includes('link.textContent = `Save card ${index + 1} of ${cards.length}`'), 'the Save link stays');
+  const handler = block.slice(block.indexOf('copyButton.addEventListener'));
+  assert.doesNotMatch(handler, /renderExperienceCards\(|renderExperienceResult\(|renderPersonaCard\(/, 'copying never renders a new image');
+  assert.doesNotMatch(handler, /fetch\(|resultLink\(|localStorage|sessionStorage|href|download|\.png/, 'no server, result link, storage or file path');
+});
+
 test('production permits local images on the three quiz card or photo routes only', () => {
   const middleware = read('src/middleware.ts');
   const block = middleware.split('twenty-one-questions')[1]?.split('X-Content-Type-Options')[0];
