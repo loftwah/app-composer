@@ -70,5 +70,33 @@ export const readyTasks = {
  },
 } as const;
 
+// A visitor's named host travels only as an allowlisted id through the existing
+// links: no idea, prompt, account or preference goes on the URL or into storage.
+export const handoffAgentParam = 'agent';
+
+export const handoffAgent = (value: string | null | undefined): HandoffAgent =>
+ typeof value === 'string' && Object.hasOwn(handoffAgents, value) ? value as HandoffAgent : 'any';
+
+// One value only: an unknown id or a repeated key falls back to the generic host.
+export const handoffAgentFromParams = (params: URLSearchParams): HandoffAgent => {
+ const values = params.getAll(handoffAgentParam);
+ return values.length === 1 ? handoffAgent(values[0]) : 'any';
+};
+
+// Canonical order: task first, then the optional host. Generic adds nothing, so
+// the original no-agent links keep their exact form and target anchors.
+export const handoffQuery = (task?: keyof typeof readyTasks, agent: HandoffAgent = 'any'): string => {
+ const params = new URLSearchParams();
+ if (task) params.set('task', task);
+ if (agent !== 'any') params.set(handoffAgentParam, agent);
+ const query = params.toString();
+ return query ? '?' + query : '';
+};
+
+export const browserCheckHref = (agent: HandoffAgent = 'any'): string => browserCheckPath + handoffQuery(undefined, agent);
+
+export const readyTaskHref = (task: 'browser' | 'setup', agent: HandoffAgent = 'any'): string =>
+ '/ready' + handoffQuery(task, agent) + '#agent-start';
+
 // Default consumers retain the complete setup handoff.
 export const readyHandoff = readyTasks.setup.prompt;

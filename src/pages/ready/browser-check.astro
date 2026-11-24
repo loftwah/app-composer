@@ -1,5 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { handoffAgentFromParams, readyTaskHref } from '../../lib/ready-handoff';
+const agent = handoffAgentFromParams(Astro.url.searchParams);
 ---
 <Base
   title="Website inspection practice"
@@ -7,7 +9,7 @@ import Base from '../../layouts/Base.astro';
   noindex
 >
   <div class="browser-practice">
-    <p><a href="/ready?task=browser#agent-start">Back to the browser check in Get Ready</a></p>
+    <p><a href={readyTaskHref('browser', agent)}>Back to the browser check in Get Ready</a></p>
     <h1>Website inspection practice</h1>
     <p class="lede">Use this sample to check whether your agent can read a public page, use its controls and describe a screenshot.</p>
 
@@ -27,7 +29,7 @@ import Base from '../../layouts/Base.astro';
       </div>
     </section>
     <noscript><p>JavaScript is required to open the sample and try its controls.</p></noscript>
-    <p><a class="button secondary" href="/ready?task=setup#agent-start">Continue to app setup</a></p>
+    <p><a class="button secondary" href={readyTaskHref('setup', agent)}>Continue to app setup</a></p>
   </div>
 </Base>
 
