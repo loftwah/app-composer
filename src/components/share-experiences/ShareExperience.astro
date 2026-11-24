@@ -115,9 +115,9 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     <details class="exhibit-list" data-list-panel>
       <summary>Paste a list</summary>
-      <p class="experience-note" id="exhibit-list-help">Enter one title per line. Only empty slots without attachments are filled.</p>
+      <p class="experience-note" id="exhibit-list-help">Enter one title per line. From a spreadsheet, add a tab and a public HTTPS page to link that title. Only empty slots without attachments are filled.</p>
       <form data-list-form>
-        <label for="exhibit-list">Exhibit titles</label>
+        <label for="exhibit-list">Exhibit titles and optional pages</label>
         <textarea id="exhibit-list" rows="4" maxlength={nineListLimit} autocomplete="off"
           aria-describedby="exhibit-list-help exhibit-list-status" data-list-text></textarea>
         <div class="exhibit-list-actions">
