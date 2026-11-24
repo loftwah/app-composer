@@ -710,9 +710,18 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note nine-download-requirement" role="status" data-status>Add a board title and nine favourites to download.</p>
     <div class="nine-download-row">
       <a class="button nine-make-own" data-nine-make-own href="/top-nine" hidden>Make your own</a>
+      <button type="button" data-nine-find-first>Find a favourite</button>
       <button type="button" class="secondary" data-nine-paste-shortcut>Paste a list</button>
-      <button type="button" data-download disabled>Download PNG</button>
     </div>
+    <div class="nine-download-row" role="group" aria-label="Save and share your board" data-nine-result-actions hidden>
+      <button type="button" data-download disabled>Save PNG</button>
+      <button type="button" class="secondary" data-copy-png disabled>Copy image</button>
+      <button type="button" class="secondary" data-copy disabled>Copy link</button>
+      <button type="button" class="secondary" data-prepare-png-share hidden disabled>Prepare PNG to share</button>
+      <button type="button" data-share-png hidden disabled>Share PNG</button>
+      <button type="button" class="secondary" data-share hidden disabled>Share link</button>
+    </div>
+    <input hidden readonly aria-label="Result link" data-manual-copy />
     <div class="nine-board-links">
       <button type="button" class="secondary nine-options-jump" data-nine-options-jump
         aria-controls="nine-image-options" disabled>Image and sharing options</button>
@@ -745,12 +754,24 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <details class="exhibit-music" data-music-panel>
         <summary>Search for titles</summary>
         <form class="music-search" data-music-form>
+          <p class="experience-note" data-nine-find-target>Find a favourite for tile 1.</p>
+          <div class="music-kind" role="group" aria-label="Search for">
+            <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
+            <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
+            <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
+            <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
+            <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
+            <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
+            <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
+            <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
+          </div>
           <div class="music-query-row">
             <label for="music-query" class="music-query"><span class="music-query-kind" data-music-kind-name aria-live="polite">Albums</span>
               <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
             </label>
             <button type="submit" data-music-submit>Search</button>
           </div>
+          <button type="button" class="quiet" data-nine-type-title>Type a title instead</button>
           <details class="music-options" data-music-options>
             <summary>Search options</summary>
             <div class="music-options-fields">
@@ -759,16 +780,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
                   {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
                 </select>
               </label>
-              <div class="music-kind" role="group" aria-label="Search for">
-                <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
-                <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
-                <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
-                <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
-                <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
-                <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
-                <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
-                <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
-              </div>
               <label for="music-game-platform" data-music-platform hidden>Game platform
                 <select id="music-game-platform" data-music-game-platform>
                   <option value="all">All games</option>
@@ -858,8 +869,26 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     <div class="nine-field-actions" data-nine-field-actions>
       <button type="button" class="secondary nine-all-fields" data-nine-all-fields aria-expanded="false">Show all titles</button>
+      <button type="button" class="secondary" data-nine-find-selected>Search for a title</button>
+      <button type="button" class="secondary" data-nine-custom-art>Add custom art</button>
       <button type="button" class="secondary nine-back-to-board" data-nine-back-to-board>Back to board</button>
     </div>
+    <details class="exhibit-covers" data-cover-panel>
+      <summary>Custom artwork</summary>
+      <div class="cover-pick">
+        <label for="cover-target">Cover exhibit
+          <select id="cover-target" data-cover-target-choice>
+            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+          </select>
+        </label>
+        <label for="cover-file" class="cover-file">Image from this device
+          <input id="cover-file" type="file" accept="image/png,image/jpeg,image/webp" data-cover-file />
+        </label>
+      </div>
+      <p class="experience-note" role="status" data-cover-status></p>
+      <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
+      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts. Each cover fills its cell; Fit beside it shows the whole artwork instead, letterboxed on the cell’s colour.</p>
+    </details>
   </section>}
 
   <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label={isNine ? "Image and sharing options" : "Personalise and share"}>
@@ -936,14 +965,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       {!isNine && <button type="button" data-download disabled={isDoor || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : isCourt ? "Download verdict card" : isTournament ? "Download winner card" : isCurse ? "Download curse card" : "Download result"}
       </button>}
-      {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
-      {isNine && <>
-        <button type="button" class="secondary" data-prepare-png-share hidden disabled>Prepare PNG to share</button>
-        <button type="button" data-share-png hidden disabled>Share PNG</button>
-      </>}
+      {isThis && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : isThis ? "tot-alt-note" : "local-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament}>Share result</button>
+      {!isNine && <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>Copy result link</button>}
+      {!isNine && <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament}>Share result</button>}
     </div>
     {isNine && <div class="persona-caption" data-nine-caption>
       <button type="button" class="secondary" data-nine-caption-copy disabled aria-describedby="nine-caption-note">Copy caption</button>
@@ -989,7 +1014,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       ? "Your card prints the result name, language, explanation and any byline. It never prints your answers or the quiz address; Copy result link above holds the answer-free link."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     {!isNine && <p class="experience-note" role="status" data-status></p>}
-    <input hidden readonly aria-label="Result link" data-manual-copy />
+    {!isNine && <input hidden readonly aria-label="Result link" data-manual-copy />}
     {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
@@ -1049,22 +1074,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-page-status></p>
       <ul class="music-linked" aria-label="Exhibits with web pages" hidden data-page-linked></ul>
       <p class="experience-note">For a title you type yourself. The exact public page opens in a new tab from the board and stays out of the PNG, its image description and every provider search.</p>
-    </details>
-    <details class="exhibit-covers" data-cover-panel>
-      <summary>Add cover art</summary>
-      <div class="cover-pick">
-        <label for="cover-target">Cover exhibit
-          <select id="cover-target" data-cover-target-choice>
-            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
-          </select>
-        </label>
-        <label for="cover-file" class="cover-file">Image from this device
-          <input id="cover-file" type="file" accept="image/png,image/jpeg,image/webp" data-cover-file />
-        </label>
-      </div>
-      <p class="experience-note" role="status" data-cover-status></p>
-      <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
-      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts. Each cover fills its cell; Fit beside it shows the whole artwork instead, letterboxed on the cell’s colour.</p>
     </details>
     <details class="nine-drafts">
       <summary>Drafts</summary>
