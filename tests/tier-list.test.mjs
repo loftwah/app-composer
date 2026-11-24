@@ -6,7 +6,7 @@ import {
 } from '../src/lib/share-experiences.ts';
 import {
   addTierListEntry, editTierListEntry, emptyTierListBoard, moveTierListEntry,
-  removeTierListEntry, startTierListBoard, tierListCount, tierListDefaultTitle,
+  moveTierListEntryWithinRow, removeTierListEntry, startTierListBoard, tierListCount, tierListDefaultTitle,
   tierListEntryLimit, tierListEntryTotal, tierListHasRoom, tierListRowEntryLimit,
   tierListRows, tierListSnapshot, tierListStarter, tierListTierCount, tierListTiers,
   tierListTitleLimit,
@@ -121,6 +121,47 @@ test('entries move explicitly to another row and never into a full one', () => {
   assert.equal(moveTierListEntry(full, 0, 0, 1), null, 'a full destination refuses the move');
   assert.equal(moveTierListEntry(board, 0, 9, 1), null);
   assert.equal(moveTierListEntry(board, 9, 0, 1), null);
+});
+
+test('entries move one place earlier or later without changing other rows', () => {
+  const board = [
+    ['First', 'Second', 'Third', 'Fourth'],
+    ['Other one', 'Other two'],
+    [],
+    ['Last'],
+  ];
+  const earlier = moveTierListEntryWithinRow(board, 0, 2, 'earlier');
+  assert.deepEqual(earlier.board, [
+    ['First', 'Third', 'Second', 'Fourth'],
+    ['Other one', 'Other two'],
+    [],
+    ['Last'],
+  ]);
+  assert.equal(earlier.index, 1, 'focus can follow the moved entry');
+  assert.deepEqual(earlier.board.slice(1), board.slice(1), 'other rows keep their exact order');
+
+  const later = moveTierListEntryWithinRow(earlier.board, 0, 1, 'later');
+  assert.deepEqual(later.board, board, 'moving later restores the exact adjacent order');
+  assert.equal(later.index, 2);
+  assert.deepEqual(later.board.slice(1), board.slice(1), 'other rows stay unchanged');
+  assert.deepEqual(board[0], ['First', 'Second', 'Third', 'Fourth'], 'the input board is not mutated');
+
+  const snapshot = tierListSnapshot(tierListDefaultTitle, earlier.board);
+  assert.deepEqual(snapshot.items, ['First', 'Third', 'Second', 'Fourth', 'Other one', 'Other two', 'Last']);
+  assert.deepEqual(tierListRows(snapshot.items, snapshot.tierSizes), earlier.board, 'result and card rows use the same order');
+
+  assert.equal(moveTierListEntryWithinRow(board, 0, 0, 'earlier'), null, 'the first entry cannot move earlier');
+  assert.equal(moveTierListEntryWithinRow(board, 0, 3, 'later'), null, 'the last entry cannot move later');
+  assert.equal(moveTierListEntryWithinRow(board, 3, 0, 'earlier'), null, 'a single-entry row has no earlier move');
+  assert.equal(moveTierListEntryWithinRow(board, 3, 0, 'later'), null, 'a single-entry row has no later move');
+  assert.equal(moveTierListEntryWithinRow(board, 2, 0, 'later'), null, 'an empty row has no entry to move');
+  assert.equal(moveTierListEntryWithinRow(board, -1, 0, 'later'), null);
+  assert.equal(moveTierListEntryWithinRow(board, tierListTierCount, 0, 'later'), null);
+  assert.equal(moveTierListEntryWithinRow(board, 0.5, 1, 'later'), null);
+  assert.equal(moveTierListEntryWithinRow(board, 0, -1, 'later'), null);
+  assert.equal(moveTierListEntryWithinRow(board, 0, 4, 'earlier'), null);
+  assert.equal(moveTierListEntryWithinRow(board, 0, 1.5, 'later'), null);
+  assert.equal(moveTierListEntryWithinRow(board, 0, 1, 'sideways'), null);
 });
 
 test('removal takes exactly one entry and leaves the rest in place', () => {

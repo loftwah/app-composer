@@ -65,7 +65,7 @@ import {
 } from "../lib/top-nine-cover.ts";
 import {
   addTierListEntry, editTierListEntry, emptyTierListBoard, moveTierListEntry,
-  removeTierListEntry, startTierListBoard, tierListCount, tierListDefaultTitle,
+  moveTierListEntryWithinRow, removeTierListEntry, startTierListBoard, tierListCount, tierListDefaultTitle,
   tierListEntryLimit, tierListEntryTotal, tierListExampleTitle, tierListHasRoom,
   tierListRowEntryLimit, tierListSnapshot, tierListTiers,
   type TierListBoard,
@@ -4050,10 +4050,10 @@ function mountPersona(root: HTMLElement, update: () => void, pack: PersonaPack):
   };
 }
 
-/** The four-row personal board. Entries are edited in place, moved between
- * rows with a labelled native select, and removed one at a time. The board
- * starts empty; the optional starter is original copy and never overwrites
- * typed work. Nothing here is saved, published or serialised into a link. */
+/** The four-row personal board. Entries are edited and reordered in place,
+ * moved between rows with a labelled native select, and removed one at a time.
+ * The board starts empty; the optional starter is original copy and never
+ * overwrites typed work. Nothing here is saved, published or serialised into a link. */
 function mountTierList(root: HTMLElement, update: () => void): Controller {
   const title = root.querySelector<HTMLInputElement>("[data-tier-title]")!;
   const starter = root.querySelector<HTMLButtonElement>("[data-tier-starter]")!;
@@ -4086,6 +4086,14 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
     )?.focus({ preventScroll: true });
   }
 
+  function focusOrder(row: number, index: number, direction: "earlier" | "later") {
+    const action = root.querySelector<HTMLButtonElement>(
+      `[data-tier-order="${direction}"][data-row="${row}"][data-index="${index}"]`,
+    );
+    if (action && !action.disabled) action.focus({ preventScroll: true });
+    else focusEntry(row, index);
+  }
+
   function render() {
     board.forEach((row, rowIndex) => {
       lists[rowIndex].replaceChildren(...row.map((text, index) => {
@@ -4100,11 +4108,12 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
         field.dataset.row = String(rowIndex);
         field.dataset.index = String(index);
         field.setAttribute("aria-label", `${tierListTiers[rowIndex].label} entry ${index + 1}`);
+        const label = text.trim() || "this empty entry";
         const move = document.createElement("select");
         move.dataset.tierMove = "";
         move.dataset.row = String(rowIndex);
         move.dataset.index = String(index);
-        move.setAttribute("aria-label", `Move ${text.trim() || "this empty entry"} to another row`);
+        move.setAttribute("aria-label", `Move ${label} to another row`);
         tierListTiers.forEach((tier, target) => {
           const option = document.createElement("option");
           option.value = String(target);
@@ -4113,6 +4122,19 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
           option.disabled = target !== rowIndex && board[target].length >= tierListRowEntryLimit;
           move.append(option);
         });
+        item.append(field, move);
+        for (const direction of ["earlier", "later"] as const) {
+          const order = document.createElement("button");
+          order.type = "button";
+          order.className = "secondary tier-order";
+          order.dataset.tierOrder = direction;
+          order.dataset.row = String(rowIndex);
+          order.dataset.index = String(index);
+          order.textContent = direction === "earlier" ? "Earlier" : "Later";
+          order.disabled = direction === "earlier" ? index === 0 : index === row.length - 1;
+          order.setAttribute("aria-label", `Move ${label} ${direction} in ${tierListTiers[rowIndex].label}`);
+          item.append(order);
+        }
         const remove = document.createElement("button");
         remove.type = "button";
         remove.className = "secondary";
@@ -4120,8 +4142,8 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
         remove.dataset.row = String(rowIndex);
         remove.dataset.index = String(index);
         remove.textContent = "Remove";
-        remove.setAttribute("aria-label", `Remove ${text.trim() || "this empty entry"} from ${tierListTiers[rowIndex].label}`);
-        item.append(field, move, remove);
+        remove.setAttribute("aria-label", `Remove ${label} from ${tierListTiers[rowIndex].label}`);
+        item.append(remove);
         return item;
       }));
     });
@@ -4138,6 +4160,12 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
     const item = field.closest(".tier-entry");
     item?.querySelector("[data-tier-move]")?.setAttribute("aria-label", `Move ${label} to another row`);
     item?.querySelector("[data-tier-remove]")?.setAttribute("aria-label", `Remove ${label} from ${tierListTiers[row].label}`);
+    item?.querySelectorAll<HTMLButtonElement>("[data-tier-order]").forEach((button) => {
+      const direction = button.dataset.tierOrder;
+      if (direction === "earlier" || direction === "later") {
+        button.setAttribute("aria-label", `Move ${label} ${direction} in ${tierListTiers[row].label}`);
+      }
+    });
     sync();
     update();
   });
@@ -4163,6 +4191,22 @@ function mountTierList(root: HTMLElement, update: () => void): Controller {
   });
 
   root.addEventListener("click", (event) => {
+    const order = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-tier-order]");
+    if (order) {
+      const row = Number(order.dataset.row);
+      const index = Number(order.dataset.index);
+      const direction = order.dataset.tierOrder;
+      if (direction !== "earlier" && direction !== "later") return;
+      const label = board[row]?.[index]?.trim() || "this empty entry";
+      const moved = moveTierListEntryWithinRow(board, row, index, direction);
+      if (!moved) return;
+      board = moved.board;
+      render();
+      update();
+      focusOrder(row, moved.index, direction);
+      status.textContent = `Moved ${label} ${direction} in ${tierListTiers[row].label}.`;
+      return;
+    }
     const remove = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-tier-remove]");
     if (!remove) return;
     const row = Number(remove.dataset.row);

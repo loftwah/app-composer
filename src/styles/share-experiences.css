@@ -508,8 +508,8 @@
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
 .nine-preview-cell a[data-nine-preview-caption][href] { text-decoration: underline; text-underline-offset: .14em; }
 /* The tier board is one bounded, browser-local list. Each row keeps its own
-   named surface; entries stay ordinary text fields with a labelled row menu
-   and removal button, so the keyboard and phone paths are the native ones. */
+   named surface; entries stay ordinary text fields with a labelled row menu,
+   compact order buttons and removal, so keyboard and phone paths stay native. */
 .tier-stage {
   margin-top: 1rem;
   padding: clamp(1rem, 3vw, 1.8rem);
@@ -550,6 +550,8 @@
   color: #211a1b; background: #fff9ec;
 }
 .tier-entry select, .tier-entry button { min-height: 44px; }
+.tier-entry .tier-order { flex: 0 0 auto; padding: 4px 8px; font-size: .86rem; }
+.tier-entry .tier-order:disabled { cursor: not-allowed; opacity: .55; }
 .tier-entry select { max-inline-size: 11rem; }
 .tier-entry select option { color: #211a1b; background: #fff9ec; }
 .share-experience .tier-entry input:focus-visible,

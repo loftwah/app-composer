@@ -98,6 +98,24 @@ export function moveTierListEntry(
   return { board: next, index: next[toRow].length - 1 };
 }
 
+/** Move one entry one place earlier or later within its current row. The
+ * caller gets the new index so focus can follow the same entry after render. */
+export function moveTierListEntryWithinRow(
+  board: readonly (readonly string[])[],
+  row: number,
+  index: number,
+  direction: "earlier" | "later",
+): { board: TierListBoard; index: number } | null {
+  if (!Number.isInteger(row) || row < 0 || row >= tierListTierCount || !board[row]) return null;
+  if (!Number.isInteger(index) || index < 0 || index >= board[row].length) return null;
+  if (direction !== "earlier" && direction !== "later") return null;
+  const nextIndex = direction === "earlier" ? index - 1 : index + 1;
+  if (nextIndex < 0 || nextIndex >= board[row].length) return null;
+  const next = board.map((entries) => [...entries]);
+  [next[row][index], next[row][nextIndex]] = [next[row][nextIndex], next[row][index]];
+  return { board: next, index: nextIndex };
+}
+
 export function removeTierListEntry(
   board: readonly (readonly string[])[],
   row: number,
