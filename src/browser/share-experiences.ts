@@ -70,6 +70,9 @@ import {
 } from "../lib/wrong-answers.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import {
+  oneMustGoAltText, tierListAltText, wrongAnswersAltText,
+} from "../lib/experience-alt-text.ts";
+import {
   normaliseSourceLinks, sourceLink,
   type SourceKind,
 } from "../lib/top-nine-source.ts";
@@ -4161,14 +4164,20 @@ export function mountShareExperience(root: HTMLElement) {
   alt?.addEventListener("click", async () => {
     const snapshot = result();
     if (!snapshot) return;
-    const text = game === "this-or-that" ? thisOrThatAltText(snapshot) : topNineAltText({
-      title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
-      ranked: snapshot.ranked === true,
-    });
+    const text = game === "this-or-that" ? thisOrThatAltText(snapshot)
+      : game === "tier-list" ? tierListAltText(snapshot)
+        : game === "one-must-go" ? oneMustGoAltText(snapshot)
+          : game === "wrong-answers" ? wrongAnswersAltText(snapshot)
+            : topNineAltText({
+              title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
+              ranked: snapshot.ranked === true,
+            });
     if (!text) {
       status.textContent = game === "this-or-that"
         ? "Answer every question to describe your result for alt text."
-        : "Enter a title and nine exhibits to describe them for alt text.";
+        : game === "top-nine"
+          ? "Enter a title and nine exhibits to describe them for alt text."
+          : "Make a result to describe it for alt text.";
       return;
     }
     manual.hidden = true;
@@ -4191,6 +4200,10 @@ export function mountShareExperience(root: HTMLElement) {
       }
     }
   });
+
+  // The byline is printed text too. Changing it retires a description offered
+  // after a denied copy, so the selected field can never hold last time's name.
+  if (alt) byline.addEventListener("input", clearAltFallback);
 
   // Twenty-one questions, one-must-go and wrong-answers have no result link to
   // hand over, and a persona result hands its answer-free link over in the
