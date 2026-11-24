@@ -336,6 +336,7 @@ function mountNine(
     text: root.querySelector<HTMLTextAreaElement>("[data-list-text]")!,
     fill: root.querySelector<HTMLButtonElement>("[data-list-fill]")!,
     undo: root.querySelector<HTMLButtonElement>("[data-list-undo]")!,
+    view: root.querySelector<HTMLButtonElement>("[data-list-view]")!,
     status: root.querySelector<HTMLElement>("[data-list-status]")!,
   };
   const music = {
@@ -380,6 +381,7 @@ function mountNine(
     linked: root.querySelector<HTMLUListElement>("[data-cover-linked]")!,
   };
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
+  const previewHeading = root.querySelector<HTMLHeadingElement>("[data-export-panel] h2")!;
   const previewCount = root.querySelector<HTMLElement>("[data-nine-count]");
   const previewTitle = root.querySelector<HTMLElement>("[data-nine-preview-title]");
   const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
@@ -805,9 +807,11 @@ function mountNine(
       previewSubtitle.textContent = line;
       previewSubtitle.hidden = !line;
     }
+    const filled = objects.filter((input) => entry(input.value, 54)).length;
     if (previewCount) {
-      previewCount.textContent = `${objects.filter((input) => entry(input.value, 54)).length} of 9 titles`;
+      previewCount.textContent = `${filled} of 9 titles`;
     }
+    list.view.hidden = !entry(title.value, 72) || filled !== objects.length;
     previewCells.forEach((cell, index) => {
       const slot = covers[index];
       const showRank = ranked && Boolean(objects[index].value.trim());
@@ -1632,6 +1636,11 @@ function mountNine(
   list.text.addEventListener("input", showListCount);
   list.panel.addEventListener("toggle", () => {
     if (list.panel.open) showListCount();
+  });
+  list.view.addEventListener("click", () => {
+    if (list.view.hidden) return;
+    previewHeading.focus({ preventScroll: true });
+    previewHeading.scrollIntoView({ behavior: "instant", block: "start" });
   });
   list.form.addEventListener("submit", (event) => {
     event.preventDefault();

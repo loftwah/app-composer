@@ -145,6 +145,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           <div class="exhibit-list-actions">
             <button type="submit" data-list-fill disabled>Add to empty slots</button>
             <button type="button" class="secondary" data-list-undo disabled>Undo fill</button>
+            <button type="button" class="secondary" data-list-view hidden>View board</button>
           </div>
         </form>
         <details class="exhibit-list-detail">
@@ -823,7 +824,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   </section>}
 
   <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label={isNine ? "Board preview and sharing" : "Personalise and share"}>
-    <h2>{isNine ? <span data-nine-preview-title>{exhibitionPrompts[0]}</span> : persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
+    <h2 class={isNine ? "jump-target" : undefined} tabindex={isNine ? -1 : undefined}>{isNine ? <span data-nine-preview-title>{exhibitionPrompts[0]}</span> : persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <p class="nine-preview-date" data-nine-preview-date hidden><time data-nine-preview-date-value></time></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
