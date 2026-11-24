@@ -23,6 +23,40 @@ test('rebuilds approved album and song links without tracking parameters', () =>
   assert.equal(musicPreview(spotify).embedUrl, 'https://open.spotify.com/embed/album/6b08FpNaFFTjc1dJ9DSWfn');
 });
 
+test('canonicalises exact legacy Apple album links without resolving redirects', () => {
+  const legacy = 'https://itunes.apple.com/us/album/discovery/id697194953';
+  const canonical = 'https://music.apple.com/us/album/697194953';
+  assert.deepEqual(musicPreview(legacy), {
+    href: canonical,
+    embedUrl: 'https://embed.music.apple.com/us/album/697194953',
+    provider: 'Apple Music',
+  });
+  assert.equal(musicPreview('https://itunes.apple.com/us/album/id697194953/').href, canonical);
+  assert.deepEqual(musicPreview(`${legacy}?i=697195156&uo=4`), {
+    href: `${canonical}?i=697195156`,
+    embedUrl: `https://embed.music.apple.com/us/album/697194953?i=697195156`,
+    provider: 'Apple Music',
+  });
+  for (const href of [
+    'http://itunes.apple.com/us/album/discovery/id697194953',
+    'https://user@itunes.apple.com/us/album/discovery/id697194953',
+    'https://itunes.apple.com:8443/us/album/discovery/id697194953',
+    'https://itunes.apple.com.example.test/us/album/discovery/id697194953',
+    'https://itunes.apple.com/usa/album/discovery/id697194953',
+    'https://itunes.apple.com/us/song/discovery/id697194953',
+    'https://itunes.apple.com/us/album/discovery/697194953',
+    'https://itunes.apple.com/us/album/discovery/id0',
+    'https://itunes.apple.com/us/album/discovery/id012345678901',
+    'https://itunes.apple.com/us/album/discovery/id1234567890123',
+    'https://itunes.apple.com/us/album/one/two/id697194953',
+    `${legacy}?i=0`,
+    `${legacy}?i=1&i=2`,
+    'https://music.apple.com/us/album/discovery/id697194953',
+  ]) {
+    assert.equal(musicPreview(href), null, href);
+  }
+});
+
 test('ignores spoofed, credentialed, conflicting and unsupported URLs', () => {
   for (const href of [
     'https://music.apple.com.example.test/au/album/697194953',

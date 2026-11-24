@@ -9,6 +9,7 @@ export type MusicPick = CataloguePick;
 type SpotifyMedia = "album" | "track";
 
 const applePath = /^\/([a-z]{2})\/(album|song)\/(?:[^/]+\/)?([1-9]\d{0,11})\/?$/;
+const legacyAppleAlbumPath = /^\/([a-z]{2})\/(album)\/(?:[^/]+\/)?id([1-9]\d{0,11})\/?$/;
 const spotifyPath = /^\/(?:intl-[a-z]{2}\/)?(album|track)\/([a-zA-Z0-9]{22})\/?$/;
 /** The two official player URLs the app emits, pasted back as a source. Only
  * these flat embed kinds are accepted: the ID is folded back onto the normal
@@ -38,8 +39,11 @@ export function musicPreview(value: unknown): {
   }
   if (url.protocol !== "https:" || url.port || url.username || url.password) return null;
 
-  if (url.hostname === "music.apple.com" || url.hostname === "embed.music.apple.com") {
-    const match = applePath.exec(url.pathname);
+  if (url.hostname === "music.apple.com" || url.hostname === "embed.music.apple.com"
+    || url.hostname === "itunes.apple.com") {
+    const match = url.hostname === "itunes.apple.com"
+      ? legacyAppleAlbumPath.exec(url.pathname)
+      : applePath.exec(url.pathname);
     const tracks = url.searchParams.getAll("i");
     if (!match || tracks.length > 1 || (tracks.length && !/^[1-9]\d{0,11}$/.test(tracks[0]))) return null;
     const [, country, kind, id] = match;
