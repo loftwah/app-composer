@@ -88,19 +88,20 @@ const exampleBoard = {
 const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ result: JSON.stringify(exampleBoard) }).toString()}`;
 ---
 
-<article class:list={["share-experience", `experience-${experience.theme}`]} data-experience={game}
+<article class:list={["share-experience", `experience-${experience.theme}`, { "nine-workspace": isNine }]} data-experience={game}
   data-background={art} data-skin="0">
   <nav class="experience-crumb" aria-label="Internet Workshop">
     <a href="/share?tag=internet-workshop">← App Composer Share</a>
   </nav>
-  <header class="experience-heading">
+  <header class:list={["experience-heading", { "experience-heading-nine": isNine }]}>
     <div>
       <h1>{isCloudflare ? "Which Cloudflare® service are you?" : isLanguage ? "Which programming language are you?" : experience.title}</h1>
-      <p data-tot-description>{experience.description}</p>
+      <p data-tot-description>{isNine ? "Add nine favourites, preview the grid and download a PNG." : experience.description}</p>
+      {isNine && <p class="nine-example"><a href={exampleBoardHref} target="_blank" rel="noopener noreferrer">Open an example board</a></p>}
     </div>
-    <picture>
+    {!isNine && <picture>
       <img src={art.replace(".jpg", "-480.webp")} width="480" height="480" alt={experience.imageDescription} fetchpriority="high" />
-    </picture>
+    </picture>}
   </header>
 
   <noscript><p>Enable JavaScript to play, customise and download your result.</p></noscript>
@@ -126,16 +127,23 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <button hidden type="button" class="secondary experience-reset" data-restart>Back to the doors</button>
   </section>}
 
-  {isNine && <section data-play-panel class="exhibition" aria-label="Edit your exhibition">
-    <div class="exhibition-heading">
-      <div>
-        <label for="exhibition-title">Exhibition title</label>
-        <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
-      </div>
-      <div>
-        <label for="exhibition-subtitle">Optional subtitle</label>
-        <input id="exhibition-subtitle" type="text" maxlength={nineSubtitleLimit} placeholder="A short line under the title" data-exhibition-subtitle />
-      </div>
+  {isNine && <section data-play-panel class="exhibition nine-editor" aria-labelledby="nine-editor-heading">
+    <h2 id="nine-editor-heading">Add your nine</h2>
+    <p class="nine-intro">Type, paste or search for your favourites.</p>
+    <div class="nine-title-field">
+      <label for="exhibition-title">Board title</label>
+      <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
+    </div>
+    <div class="exhibition-objects" data-exhibition-objects>
+      {Array.from({length: 9}, (_, index) => <label>
+        <span class="exhibit-heading" draggable="true" data-drag-slot={index} title="Drag onto another slot to swap exhibits">
+          <span class="exhibit-grip" aria-hidden="true"></span><span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em><span class="exhibit-number" aria-hidden="true">{index + 1}</span><em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
+        </span>
+        <input type="text" maxlength={nineItemLimit} data-object={index} aria-label={`Exhibit ${index + 1}`} />
+        <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
+        <span class="exhibit-page-state" data-page-slot-state={index} hidden></span>
+        <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
+      </label>)}
     </div>
     <details class="exhibit-list" data-list-panel>
       <summary>Paste a list</summary>
@@ -151,12 +159,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       </form>
       <p class="experience-note" role="status" aria-live="polite" id="exhibit-list-status" data-list-status></p>
     </details>
-    <label class="exhibition-ranked">
-      <input type="checkbox" data-nine-ranked />
-      Rank exhibits #1 to #9
-    </label>
     <details class="exhibit-music" data-music-panel>
-      <summary>Find albums, songs, books, apps, games, films, TV series and programming languages</summary>
+      <summary>Search for titles</summary>
       <form class="music-search" data-music-form>
         <label for="music-target">Fill exhibit
           <select id="music-target" data-music-target-choice>
@@ -250,87 +254,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       </section>
       <p class="experience-note" data-music-coverage hidden>Films, TV series, games and programming languages come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
     </details>
-    <details class="exhibit-covers" data-cover-panel>
-      <summary>Hang your own cover art</summary>
-      <div class="cover-pick">
-        <label for="cover-target">Cover exhibit
-          <select id="cover-target" data-cover-target-choice>
-            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
-          </select>
-        </label>
-        <label for="cover-file" class="cover-file">Image from this device
-          <input id="cover-file" type="file" accept="image/png,image/jpeg,image/webp" data-cover-file />
-        </label>
-      </div>
-      <p class="experience-note" role="status" data-cover-status></p>
-      <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
-      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts. Each cover fills its cell; Fit beside it shows the whole artwork instead, letterboxed on the cell’s colour.</p>
-    </details>
-    <div class="exhibition-objects" data-exhibition-objects>
-      {Array.from({length: 9}, (_, index) => <label>
-        <span class="exhibit-heading" draggable="true" data-drag-slot={index} title="Drag onto another slot to swap exhibits">
-          <span class="exhibit-grip" aria-hidden="true"></span><span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em> Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
-        </span>
-        <input type="text" maxlength={nineItemLimit} data-object={index} aria-label={`Exhibit ${index + 1}`} />
-        <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
-        <span class="exhibit-page-state" data-page-slot-state={index} hidden></span>
-        <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
-      </label>)}
-    </div>
-    <details class="exhibit-pages" data-page-panel>
-      <summary>Link a public web page to an exhibit</summary>
-      <form class="music-paste" data-page-form>
-        <label for="page-target">Page exhibit
-          <select id="page-target" data-page-target-choice>
-            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
-          </select>
-        </label>
-        <label for="page-url">Exact public HTTPS page</label>
-        <div class="music-paste-row">
-          <input id="page-url" type="url" inputmode="url" maxlength={pageUrlLimit} autocomplete="off"
-            placeholder="https://example.com/thing" data-page-url />
-          <button type="submit" class="secondary">Attach page</button>
-        </div>
-      </form>
-      <p class="experience-note" role="status" data-page-status></p>
-      <ul class="music-linked" aria-label="Exhibits with web pages" hidden data-page-linked></ul>
-      <p class="experience-note">For a title you type yourself. The exact public page opens in a new tab from the board and stays out of the PNG, its image description and every provider search.</p>
-    </details>
-    <div class="exhibition-order">
-      <label for="exhibit-order">Move exhibit</label>
-      <select id="exhibit-order" data-order-index>{Array.from({length: 9}, (_, index) =>
-        <option value={index}>{index + 1}</option>
-      )}</select>
-      <button class="secondary" type="button" data-move="-1">Move earlier</button>
-      <button class="secondary" type="button" data-move="1">Move later</button>
-      <label for="exhibit-swap-target">Swap selected exhibit with slot</label>
-      <select id="exhibit-swap-target" data-swap-target>{Array.from({length: 9}, (_, index) =>
-        <option value={index}>{index + 1}</option>
-      )}</select>
-      <button class="secondary" type="button" data-swap-slots disabled>Swap slots</button>
-      <button class="secondary" type="button" data-undo-move disabled>Undo last move</button>
-    </div>
-    <p class="experience-note">Drag an exhibit heading onto another slot to swap them. Move and Swap controls remain available for keyboard and touch.</p>
-    <label for="exhibition-theme">Try a title</label>
-    <select id="exhibition-theme" data-nine-preset>
-      <option value="">Choose a prompt</option>
-      {exhibitionPrompts.map((label) => <option>{label}</option>)}
-    </select>
-    <p class="experience-note"><a href={exampleBoardHref} target="_blank" rel="noopener noreferrer">Open an example board</a></p>
-    <div class="experience-actions exhibition-draft">
-      <button type="button" data-draft-save>Save draft</button>
-      <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
-      <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
-      <button type="button" class="secondary" data-draft-file-save disabled>Download draft file</button>
-      <label class="exhibition-file-open">Open draft file
-        <input type="file" accept="application/json,.json" data-draft-file disabled
-          aria-describedby="nine-draft-file-note" />
-      </label>
-    </div>
-    <p class="experience-note">Drafts keep your title, subtitle, date, exhibits, source links, profile link and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
-    <p class="experience-note" role="status" data-draft-status></p>
-    <p class="experience-note" id="nine-draft-file-note">A draft file is private JSON with board text, links and settings. Open it to replace the current board. Download a PNG to keep the cover images.</p>
-    <p class="experience-note" role="status" data-draft-file-status></p>
   </section>}
 
   {isBingo && <section class="bingo-stage" data-play-panel aria-label="Bingo board">
@@ -873,8 +796,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note persona-disclaimer">{persona.disclaimer}</p>
   </section>}
 
-  <section class="experience-export" data-export-panel aria-label="Personalise and share">
-    <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
+  <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label="Personalise and share">
+    <h2>{isNine ? "Preview your board" : persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <p class="nine-preview-date" data-nine-preview-date hidden><time data-nine-preview-date-value></time></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
@@ -888,6 +811,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <a data-nine-preview-profile-link target="_blank" rel="nofollow ugc noopener noreferrer"
         aria-label="Visit creator profile, opens in a new tab"></a>
     </p>}
+    {isNine && <>
+      <p class="nine-count"><span data-nine-count>0 of 9 titles</span></p>
+      <p class="experience-note nine-download-requirement" role="status" data-status>Add a board title and nine favourites to download.</p>
+      <div class="nine-download-row">
+        <button type="button" data-download disabled>Download PNG</button>
+      </div>
+      <a class="nine-options-link" href="#nine-image-options">Image and sharing options</a>
+    </>}
+    {isNine && <div id="nine-image-options" class="nine-image-options" aria-hidden="true"></div>}
     <div class="experience-fields">
       <label>Optional byline<input maxlength="48" data-byline placeholder="Your name or handle" /></label>
       {isNine && <label>Optional date
@@ -947,9 +879,9 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-persona-avatar-status></p>
     </div>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>
+      {!isNine && <button type="button" data-download disabled={isDoor || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : isCourt ? "Download verdict card" : isTournament ? "Download winner card" : isCurse ? "Download curse card" : "Download result"}
-      </button>
+      </button>}
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {isNine && <>
         <button type="button" class="secondary" data-prepare-png-share hidden disabled>Prepare PNG to share</button>
@@ -1001,10 +933,102 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       : isLanguage
       ? "Your card prints the result name, language, explanation and any byline. It never prints your answers or the quiz address; Copy result link above holds the answer-free link."
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
-    <p class="experience-note" role="status" data-status></p>
+    {!isNine && <p class="experience-note" role="status" data-status></p>}
     <input hidden readonly aria-label="Result link" data-manual-copy />
     {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
+
+  {isNine && <section class="nine-options" aria-label="More Top Nine options">
+    <details class="nine-board-details">
+      <summary>Subtitle and prompt</summary>
+      <label for="exhibition-subtitle">Optional subtitle
+        <input id="exhibition-subtitle" type="text" maxlength={nineSubtitleLimit} placeholder="A short line under the title" data-exhibition-subtitle />
+      </label>
+      <label for="exhibition-theme">Try a title
+        <select id="exhibition-theme" data-nine-preset>
+          <option value="">Choose a prompt</option>
+          {exhibitionPrompts.map((label) => <option>{label}</option>)}
+        </select>
+      </label>
+    </details>
+    <details class="nine-ranking">
+      <summary>Rank #1 to #9</summary>
+      <label class="exhibition-ranked">
+        <input type="checkbox" data-nine-ranked />
+        Rank exhibits #1 to #9
+      </label>
+    </details>
+    <details class="nine-reorder" data-reorder-panel>
+      <summary>Reorder exhibits</summary>
+      <div class="exhibition-order">
+        <label for="exhibit-order">Move exhibit</label>
+        <select id="exhibit-order" data-order-index>{Array.from({length: 9}, (_, index) =>
+          <option value={index}>{index + 1}</option>
+        )}</select>
+        <button class="secondary" type="button" data-move="-1">Move earlier</button>
+        <button class="secondary" type="button" data-move="1">Move later</button>
+        <label for="exhibit-swap-target">Swap selected exhibit with slot</label>
+        <select id="exhibit-swap-target" data-swap-target>{Array.from({length: 9}, (_, index) =>
+          <option value={index}>{index + 1}</option>
+        )}</select>
+        <button class="secondary" type="button" data-swap-slots disabled>Swap slots</button>
+        <button class="secondary" type="button" data-undo-move disabled>Undo last move</button>
+      </div>
+      <p class="experience-note">Drag an exhibit heading onto another slot to swap them. Move and Swap controls remain available for keyboard and touch.</p>
+    </details>
+    <details class="exhibit-pages" data-page-panel>
+      <summary>Link a public web page to an exhibit</summary>
+      <form class="music-paste" data-page-form>
+        <label for="page-target">Page exhibit
+          <select id="page-target" data-page-target-choice>
+            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+          </select>
+        </label>
+        <label for="page-url">Exact public HTTPS page</label>
+        <div class="music-paste-row">
+          <input id="page-url" type="url" inputmode="url" maxlength={pageUrlLimit} autocomplete="off"
+            placeholder="https://example.com/thing" data-page-url />
+          <button type="submit" class="secondary">Attach page</button>
+        </div>
+      </form>
+      <p class="experience-note" role="status" data-page-status></p>
+      <ul class="music-linked" aria-label="Exhibits with web pages" hidden data-page-linked></ul>
+      <p class="experience-note">For a title you type yourself. The exact public page opens in a new tab from the board and stays out of the PNG, its image description and every provider search.</p>
+    </details>
+    <details class="exhibit-covers" data-cover-panel>
+      <summary>Add cover art</summary>
+      <div class="cover-pick">
+        <label for="cover-target">Cover exhibit
+          <select id="cover-target" data-cover-target-choice>
+            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+          </select>
+        </label>
+        <label for="cover-file" class="cover-file">Image from this device
+          <input id="cover-file" type="file" accept="image/png,image/jpeg,image/webp" data-cover-file />
+        </label>
+      </div>
+      <p class="experience-note" role="status" data-cover-status></p>
+      <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
+      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts. Each cover fills its cell; Fit beside it shows the whole artwork instead, letterboxed on the cell’s colour.</p>
+    </details>
+    <details class="nine-drafts">
+      <summary>Drafts</summary>
+      <div class="experience-actions exhibition-draft">
+        <button type="button" data-draft-save>Save draft</button>
+        <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
+        <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
+        <button type="button" class="secondary" data-draft-file-save disabled>Download draft file</button>
+        <label class="exhibition-file-open">Open draft file
+          <input type="file" accept="application/json,.json" data-draft-file disabled
+            aria-describedby="nine-draft-file-note" />
+        </label>
+      </div>
+      <p class="experience-note">Drafts keep your title, subtitle, date, exhibits, source links, profile link and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
+      <p class="experience-note" role="status" data-draft-status></p>
+      <p class="experience-note" id="nine-draft-file-note">A draft file is private JSON with board text, links and settings. Open it to replace the current board. Download a PNG to keep the cover images.</p>
+      <p class="experience-note" role="status" data-draft-file-status></p>
+    </details>
+  </section>}
 
   {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !isWrong && !isCourt && !isTournament && !isCurse && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
