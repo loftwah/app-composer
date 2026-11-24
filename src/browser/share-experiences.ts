@@ -19,7 +19,7 @@ import {
 import {
   moveTwentyOne, readTwentyOnePrompts, readTwentyOnePromptFile, setTwentyOneAnswer, skipTwentyOne,
   twentyOneAnswered, twentyOneAnswerLimit, twentyOneAnswersFileName, twentyOneAnswersText,
-  twentyOneBlankPath, twentyOneCount, twentyOnePairs, twentyOnePromptFileLimit,
+  twentyOneBlankPath, twentyOneCount, twentyOnePairs, twentyOnePromptFileLimit, twentyOneShareFile,
   twentyOnePromptFileName, twentyOnePromptLimit,
   twentyOneStart, writeTwentyOnePromptFile,
   type TwentyOnePromptFileRead,
@@ -5066,9 +5066,11 @@ export function mountShareExperience(root: HTMLElement) {
   const cardDownloads = root.querySelector<HTMLElement>("[data-tq-downloads]");
   const cardUrls: string[] = [];
   let cardVersion = 0;
+  let sharingCard = false;
   function clearCardDownloads() {
     if (!cardDownloads) return;
     cardVersion += 1;
+    sharingCard = false;
     for (const href of cardUrls) URL.revokeObjectURL(href);
     cardUrls.length = 0;
     cardDownloads.replaceChildren();
@@ -5467,6 +5469,8 @@ export function mountShareExperience(root: HTMLElement) {
           // the PNG a creator inspects is the exact file the link downloads.
           const href = URL.createObjectURL(blob);
           cardUrls.push(href);
+          const filename = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;
+          const fileToShare = twentyOneShareFile(blob, filename, navigator);
           const figure = document.createElement("figure");
           figure.className = "tq-card";
           const preview = document.createElement("img");
@@ -5478,9 +5482,39 @@ export function mountShareExperience(root: HTMLElement) {
           const link = document.createElement("a");
           link.className = "button secondary";
           link.href = href;
-          link.download = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;
+          link.download = filename;
           link.textContent = `Save card ${index + 1} of ${cards.length}`;
           meta.append(link);
+          if (fileToShare) {
+            // Share the very Blob behind this preview and Save link, with the
+            // same filename and PNG type. No URL, title, text or result link is
+            // added, and the native call runs during the click without a render
+            // or other await. One lock covers every card in this prepared set.
+            const shareButton = document.createElement("button");
+            shareButton.type = "button";
+            shareButton.className = "button secondary";
+            shareButton.textContent = "Share PNG";
+            shareButton.setAttribute("aria-label", `Share card ${index + 1} of ${cards.length} PNG`);
+            shareButton.addEventListener("click", async () => {
+              if (sharingCard || version !== cardVersion) return;
+              sharingCard = true;
+              try {
+                await navigator.share({ files: [fileToShare] });
+                if (version !== cardVersion) return;
+                status.textContent = `Card ${index + 1} handed to your device’s share sheet.`;
+              } catch (error) {
+                if (version !== cardVersion) return;
+                // Cancelling is quiet. Save stays beside this exact card for any
+                // rejection; neither the Blob nor its filename is replaced.
+                status.textContent = error instanceof DOMException && error.name === "AbortError"
+                  ? ""
+                  : `Couldn’t share card ${index + 1}. Use Save card ${index + 1} of ${cards.length} to keep the PNG.`;
+              } finally {
+                if (version === cardVersion) sharingCard = false;
+              }
+            });
+            meta.append(shareButton);
+          }
           if (imageClipboard) {
             // Copy the exact Blob behind this card's preview and Save link,
             // never a fresh render. Its version belongs to this prepared set:

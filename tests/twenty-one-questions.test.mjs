@@ -197,7 +197,8 @@ test('private card downloads keep portrait and Story names and add Square', () =
   const controller = read('src/browser/share-experiences.ts');
   assert.ok(controller.includes('const cardFormat = size === "story" || size === "square" ? size : "portrait";'));
   assert.ok(controller.includes('const prefix = cardFormat === "portrait" ? "" : `${cardFormat}-`;'));
-  assert.ok(controller.includes('link.download = `${game}-${prefix}card-${index + 1}-of-${cards.length}.png`;'));
+  assert.ok(controller.includes('link.download = filename;'));
+  assert.match(controller, /const filename = `\$\{game\}-\$\{prefix\}card-\$\{index \+ 1\}-of-\$\{cards\.length\}\.png`;/);
 });
 
 test('preview and download use the same local card URL', () => {
@@ -224,13 +225,15 @@ test('each prepared card copies its exact Blob with a named, version-guarded act
   assert.ok(block.includes('new ClipboardItem({ "image/png": blob })'), 'the exact per-card Blob is copied');
   assert.ok(block.includes('await navigator.clipboard.write'));
   assert.ok(block.includes('if (copyingCard || version !== cardVersion) return;'));
+  const copyStart = block.indexOf('if (imageClipboard) {');
+  const copyBlock = block.slice(copyStart);
   assert.equal(
-    (block.match(/version !== cardVersion/g) ?? []).length,
+    (copyBlock.match(/version !== cardVersion/g) ?? []).length,
     3,
-    'stale writes are dropped before the write, after success and after a denial',
+    'stale copies are dropped before the write, after success and after a denial',
   );
   assert.ok(block.includes('link.textContent = `Save card ${index + 1} of ${cards.length}`'), 'the Save link stays');
-  const handler = block.slice(block.indexOf('copyButton.addEventListener'));
+  const handler = copyBlock.slice(copyBlock.indexOf('copyButton.addEventListener'));
   assert.doesNotMatch(handler, /renderExperienceCards\(|renderExperienceResult\(|renderPersonaCard\(/, 'copying never renders a new image');
   assert.doesNotMatch(handler, /fetch\(|resultLink\(|localStorage|sessionStorage|href|download|\.png/, 'no server, result link, storage or file path');
 });

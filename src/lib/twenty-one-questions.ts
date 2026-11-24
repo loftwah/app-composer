@@ -235,3 +235,19 @@ export function readTwentyOnePromptFile(raw: unknown): TwentyOnePromptFileRead {
   if (!read.prompts) return reject(read.reason ?? "shape", read.gap);
   return { prompts: read.prompts, fault: null, gap: -1 };
 }
+
+
+/** Probe native sharing with the same prepared file later handed to the device. */
+export function twentyOneShareFile(
+  blob: Blob,
+  filename: string,
+  api: Partial<Pick<Navigator, "share" | "canShare">>,
+): File | null {
+  if (typeof api.share !== "function" || typeof api.canShare !== "function" || typeof File !== "function") return null;
+  try {
+    const file = new File([blob], filename, { type: "image/png" });
+    return api.canShare({ files: [file] }) ? file : null;
+  } catch {
+    return null;
+  }
+}
