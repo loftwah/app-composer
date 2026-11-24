@@ -348,6 +348,7 @@ function mountNine(
     gameCoverage: root.querySelector<HTMLElement>("[data-music-game-coverage]")!,
     country: root.querySelector<HTMLSelectElement>("[data-music-country]")!,
     form: root.querySelector<HTMLFormElement>("[data-music-form]")!,
+    options: root.querySelector<HTMLDetailsElement>("[data-music-options]")!,
     query: root.querySelector<HTMLInputElement>("[data-music-query]")!,
     submit: root.querySelector<HTMLButtonElement>("[data-music-submit]")!,
     status: root.querySelector<HTMLElement>("[data-music-status]")!,
@@ -1296,6 +1297,7 @@ function mountNine(
       music.query.focus();
       return;
     }
+    music.options.open = false;
     const country = music.country.value;
     const store = storeName();
     const requestedKind: SourceKind = kind;

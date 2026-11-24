@@ -162,56 +162,61 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
             </label>
             <button type="submit" data-music-submit>Search</button>
           </div>
-          <label for="music-target">Fill exhibit
-            <select id="music-target" data-music-target-choice>
-              {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
-            </select>
-          </label>
-          <div class="music-kind" role="group" aria-label="Search for">
-            <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
-            <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
-            <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
-            <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
-            <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
-            <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
-            <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
-            <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
-          </div>
-          <label for="music-game-platform" data-music-platform hidden>Game platform
-            <select id="music-game-platform" data-music-game-platform>
-              <option value="all">All games</option>
-              <option value="pc">PC</option>
-              <option value="console">Console</option>
-            </select>
-          </label>
-          <label for="music-country" data-music-storefront>Storefront
-            <select id="music-country" data-music-country>
-              <option value="AU">Australia (AU)</option>
-              <option value="NZ">New Zealand (NZ)</option>
-              <option value="US">United States (US)</option>
-              <option value="GB">United Kingdom (GB)</option>
-              <option value="CA">Canada (CA)</option>
-              <option value="IE">Ireland (IE)</option>
-              <option value="DE">Germany (DE)</option>
-              <option value="FR">France (FR)</option>
-              <option value="SE">Sweden (SE)</option>
-              <option value="JP">Japan (JP)</option>
-              <option value="BR">Brazil (BR)</option>
-              <option value="MX">Mexico (MX)</option>
-              <option value="IN">India (IN)</option>
-              <option value="ZA">South Africa (ZA)</option>
-              <option value="TW">Taiwan (TW)</option>
-              <option value="HK">Hong Kong (HK)</option>
-              <option value="ES">Spain (ES)</option>
-              <option value="IT">Italy (IT)</option>
-              <option value="NL">Netherlands (NL)</option>
-              <option value="AM">Armenia (AM)</option>
-              <option value="PL">Poland (PL)</option>
-              <option value="SG">Singapore (SG)</option>
-            </select>
-          </label>
+          <details class="music-options" data-music-options>
+            <summary>Search options</summary>
+            <div class="music-options-fields">
+              <label for="music-target">Fill exhibit
+                <select id="music-target" data-music-target-choice>
+                  {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+                </select>
+              </label>
+              <div class="music-kind" role="group" aria-label="Search for">
+                <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
+                <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
+                <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
+                <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
+                <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
+                <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
+                <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
+                <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
+              </div>
+              <label for="music-game-platform" data-music-platform hidden>Game platform
+                <select id="music-game-platform" data-music-game-platform>
+                  <option value="all">All games</option>
+                  <option value="pc">PC</option>
+                  <option value="console">Console</option>
+                </select>
+              </label>
+              <label for="music-country" data-music-storefront>Storefront
+                <select id="music-country" data-music-country>
+                  <option value="AU">Australia (AU)</option>
+                  <option value="NZ">New Zealand (NZ)</option>
+                  <option value="US">United States (US)</option>
+                  <option value="GB">United Kingdom (GB)</option>
+                  <option value="CA">Canada (CA)</option>
+                  <option value="IE">Ireland (IE)</option>
+                  <option value="DE">Germany (DE)</option>
+                  <option value="FR">France (FR)</option>
+                  <option value="SE">Sweden (SE)</option>
+                  <option value="JP">Japan (JP)</option>
+                  <option value="BR">Brazil (BR)</option>
+                  <option value="MX">Mexico (MX)</option>
+                  <option value="IN">India (IN)</option>
+                  <option value="ZA">South Africa (ZA)</option>
+                  <option value="TW">Taiwan (TW)</option>
+                  <option value="HK">Hong Kong (HK)</option>
+                  <option value="ES">Spain (ES)</option>
+                  <option value="IT">Italy (IT)</option>
+                  <option value="NL">Netherlands (NL)</option>
+                  <option value="AM">Armenia (AM)</option>
+                  <option value="PL">Poland (PL)</option>
+                  <option value="SG">Singapore (SG)</option>
+                </select>
+              </label>
+              <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
+            </div>
+          </details>
         </form>
-        <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
         <p class="experience-note" role="status" data-music-status></p>
         <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
         <div class="music-replace" role="group" aria-label="Replace an exhibit" data-music-replace hidden>
