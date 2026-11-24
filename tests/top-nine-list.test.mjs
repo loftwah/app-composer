@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { appleBookRef } from '../src/lib/top-nine-books.ts';
 import {
   nineListApplied, nineListLimit, nineListSummary, planNineList, planNineListUndo,
 } from '../src/lib/top-nine-list.ts';
@@ -238,6 +239,53 @@ test('the repeatable nine-album fixture fills every empty slot with canonical of
     'https://music.apple.com/us/album/1660367299',
     'https://music.apple.com/am/album/1675375084',
   ]);
+  assert.deepEqual(plan.rows, rows);
+  assert.deepEqual(plan.overflow, []);
+  assert.deepEqual(plan.remaining, []);
+  assert.deepEqual(plan.invalid, []);
+  assert.equal(plan.invalidMusic, 0);
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('the repeatable nine-technical-book fixture keeps canonical Apple Books as ordinary pages', (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('planning the local technical book fixture must not fetch');
+  });
+  const fixture = read('tests/fixtures/top-nine-technical-books.tsv').trimEnd();
+  const rows = fixture.split('\n');
+  const empty = Array.from({ length: 9 }, (_, index) => index);
+  assert.equal(rows.length, 9);
+  assert.deepEqual(rows.map((row) => row.split('\t').length), Array(9).fill(2));
+
+  const plan = planNineList(fixture, empty);
+  assert.deepEqual(plan.indexes, empty);
+  assert.deepEqual(plan.titles, [
+    'SQL Antipatterns, Volume 1', 'The Art of Debugging with GDB, DDD, and Eclipse',
+    'Practical TLA+', 'The Algorithm Design Manual', 'Refactoring Databases',
+    'The Linux Programming Interface', 'The Art of Multiprocessor Programming',
+    'Systems Performance', 'Continuous Delivery',
+  ]);
+  assert.deepEqual(plan.urls, [
+    'https://books.apple.com/us/book/sql-antipatterns-volume-1/id6752626489',
+    'https://books.apple.com/us/book/the-art-of-debugging-with-gdb-ddd-and-eclipse/id1266461736',
+    'https://books.apple.com/us/book/practical-tla/id1438817914',
+    'https://books.apple.com/us/book/the-algorithm-design-manual/id498841695',
+    'https://books.apple.com/us/book/refactoring-databases/id401494431',
+    'https://books.apple.com/us/book/the-linux-programming-interface/id1266462069',
+    'https://books.apple.com/us/book/the-art-of-multiprocessor-programming/id945565021',
+    'https://books.apple.com/us/book/systems-performance/id1547166839',
+    'https://books.apple.com/us/book/continuous-delivery/id401000597',
+  ]);
+  const refs = plan.urls.map(appleBookRef);
+  assert.deepEqual(refs, [
+    { country: 'us', id: '6752626489' }, { country: 'us', id: '1266461736' },
+    { country: 'us', id: '1438817914' }, { country: 'us', id: '498841695' },
+    { country: 'us', id: '401494431' }, { country: 'us', id: '1266462069' },
+    { country: 'us', id: '945565021' }, { country: 'us', id: '1547166839' },
+    { country: 'us', id: '401000597' },
+  ]);
+  assert.equal(new Set(refs.map((ref) => ref.id)).size, 9);
+  assert.deepEqual(plan.sources, Array(9).fill(null));
   assert.deepEqual(plan.rows, rows);
   assert.deepEqual(plan.overflow, []);
   assert.deepEqual(plan.remaining, []);
