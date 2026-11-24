@@ -518,7 +518,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <button type="button" class="secondary" data-tt-undo disabled>Undo last pick</button>
       <button type="button" class="secondary" data-tt-reset disabled>Reset bracket</button>
       <a class="secondary" href={experiencePath("tech-tournament")} data-tt-fresh>Start a fresh bracket</a>
+      <button type="button" class="secondary" data-tt-copy disabled>Copy blank bracket link</button>
     </div>
+    <input hidden readonly aria-label="Blank bracket link" data-tt-copy-manual />
+    <p class="experience-note" role="status" aria-live="polite" data-tt-copy-status></p>
     <section hidden class="tt-result" data-tt-result aria-label="Your champion">
       <p class="tt-result-kicker">Your champion</p>
       <h2 tabindex="-1" data-tt-winner></h2>

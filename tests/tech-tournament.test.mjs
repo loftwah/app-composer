@@ -185,6 +185,10 @@ test('the stage guards every JS-only control until the bracket mounts', () => {
   assert.match(block, /data-tt-winner/);
   assert.match(block, /data-tt-runner/);
   assert.match(block, /data-tt-again disabled/);
+  assert.match(block, /data-tt-copy disabled/);
+  assert.match(block, /readonly aria-label="Blank bracket link" data-tt-copy-manual/);
+  assert.match(block, /data-tt-copy-status/);
+  assert.equal((block.match(/>Copy blank bracket link<\/button>/g) ?? []).length, 1);
   assert.match(block, /stays? in this tab/i);
   assert.match(block, /No account, vote, score or stored result/);
   assert.match(markup, /isTournament \? \["Fanzine orange", "Newsprint", "Floodlight"\]/);
@@ -210,7 +214,7 @@ test('the browser controller keeps the bracket local and never builds a link', (
   assert.ok(start > 0 && end > start);
   const block = controller.slice(start, end);
   assert.match(block, /let ready = false;/);
-  assert.match(block, /paint\(\);\s+ready = true;\s+return \{/);
+  assert.match(block, /paint\(\);\s+copy\.disabled = false;\s+ready = true;\s+return \{/);
   assert.match(block, /const refresh = \(\) => \{ if \(ready\) update\(\); \};/);
   assert.match(block, /picks = techTournamentUndo\(picks\)/);
   assert.match(block, /linksAllowed: \(\) => false/);
@@ -218,6 +222,32 @@ test('the browser controller keeps the bracket local and never builds a link', (
   for (const forbidden of ['localStorage', 'sessionStorage', 'fetch(', 'resultLink', 'draftKey', 'sendBeacon', 'score', 'ranking']) {
     assert.equal(block.includes(forbidden), false, `the bracket does not use ${forbidden}`);
   }
+});
+
+test('the bracket invite copies only the canonical blank route and retires stale replies', () => {
+  const controller = read('src/browser/share-experiences.ts');
+  const start = controller.indexOf('function mountTechTournament');
+  const end = controller.indexOf('function mountBingo', start);
+  assert.ok(start > 0 && end > start);
+  const block = controller.slice(start, end);
+  const copyStart = block.indexOf('copy.addEventListener("click"');
+  const copyEnd = block.indexOf('\n  });', copyStart);
+  assert.ok(copyStart > 0 && copyEnd > copyStart);
+  const handler = block.slice(copyStart, copyEnd);
+
+  assert.match(handler, /const href = new URL\(experiencePath\("tech-tournament"\), location\.origin\)\.href;/);
+  assert.doesNotMatch(handler, /location\.(?:href|search|hash)|byline|tournamentPicks|picks\s*=|restart\(/,
+    'the invite never reads or changes this tab’s bracket or address');
+  assert.match(handler, /clearCopyOffer\(\);\n\s+const attempt = copyAttempt;/);
+  assert.match(handler, /await navigator\.clipboard\.writeText\(href\)/);
+  assert.equal((handler.match(/if \(attempt !== copyAttempt\) return;/g) ?? []).length, 2,
+    'both a late success and a late denial are ignored');
+  assert.match(handler, /copyManual\.value = href;\n\s+copyManual\.hidden = false;\n\s+copyManual\.focus\(\);\n\s+copyManual\.select\(\);/);
+  assert.match(block, /const clearCopyOffer = \(\) => \{\n\s+copyAttempt \+= 1;/);
+  assert.match(block, /function paint\([^)]*\) \{\n\s+clearCopyOffer\(\);/,
+    'a bracket change retires the previous clipboard offer');
+  assert.match(block, /paint\(\);\n\s+copy\.disabled = false;\n\s+ready = true;/,
+    'the copy action stays disabled until the controller mounts');
 });
 
 test('the winner card draws the owned trophy crop and the exact outcome', () => {
