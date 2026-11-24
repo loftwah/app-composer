@@ -137,6 +137,18 @@ export function twentyOnePairs(
   return pairs;
 }
 
+/** The same ordered pairs as a private, readable plain-text summary. Each
+ * block keeps the prompt’s original question number, then its answer on the
+ * next line; skipped prompts never reach pairs, so none appear here. Both
+ * texts are the already-cleaned, bounded prompt and answer from the run, and
+ * no link, byline, result or file detail is added. */
+export function twentyOneAnswersText(pairs: readonly TwentyOnePair[]): string {
+  return pairs
+    .filter((pair) => pair.question !== "" && pair.answer !== "")
+    .map((pair) => `${pair.index + 1}. ${pair.question}\n${pair.answer}`)
+    .join("\n\n");
+}
+
 /** Splits pairs into card groups of at most `perCard`, keeping question
  * order, so a download is several readable 4:5 cards rather than one poster. */
 export function splitTwentyOneCards<T>(pairs: readonly T[], perCard = twentyOneCardSize): T[][] {
