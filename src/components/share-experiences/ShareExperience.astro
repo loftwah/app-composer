@@ -855,7 +855,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
       </label>)}
     </div>
-    <button type="button" class="secondary nine-all-fields" data-nine-all-fields aria-expanded="false">Show all titles</button>
+    <div class="nine-field-actions" data-nine-field-actions>
+      <button type="button" class="secondary nine-all-fields" data-nine-all-fields aria-expanded="false">Show all titles</button>
+      <button type="button" class="secondary nine-back-to-board" data-nine-back-to-board>Back to board</button>
+    </div>
   </section>}
 
   <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label={isNine ? "Image and sharing options" : "Personalise and share"}>
