@@ -1,5 +1,5 @@
 import {
-  agentBingo, developerBingo, doorEndings, experiences, internetBingo,
+  agentBingo, developerBingo, doorEndings, experiencePath, experiences, internetBingo,
   thisOrThatPacks, twentyOneQuestions, twentyOneResultTitle,
   type ExperienceId, type ThisOrThatPack,
 } from "../lib/share-experiences.ts";
@@ -4679,9 +4679,10 @@ function mountRedFlagCourt(root: HTMLElement, update: () => void): Controller {
 
 /** Seven ordered local picks through one fixed bracket. The current match is
  * the only one that can be played; undo walks back one or more picks through
- * the same bounded state. There is no link, account, vote, score, ranking,
- * provider call or stored value: the downloaded winner card is the only way a
- * champion leaves this tab. */
+ * the same bounded state. There is no result link, account, vote, score,
+ * ranking, provider call or stored value: one answer-free invite opens a fresh
+ * bracket, and the downloaded winner card is the only way a champion leaves
+ * this tab. */
 function mountTechTournament(root: HTMLElement, update: () => void): Controller {
   const buttons = elements<HTMLButtonElement>(root, "[data-tt-pick]");
   const names = elements<HTMLElement>(root, "[data-tt-name]");
@@ -4697,11 +4698,24 @@ function mountTechTournament(root: HTMLElement, update: () => void): Controller 
   const runnerName = root.querySelector<HTMLElement>("[data-tt-runner]")!;
   const runnerPair = root.querySelector<HTMLElement>("[data-tt-runner-pair]")!;
   const again = root.querySelector<HTMLButtonElement>("[data-tt-again]")!;
+  const copy = root.querySelector<HTMLButtonElement>("[data-tt-copy]")!;
+  const copyManual = root.querySelector<HTMLInputElement>("[data-tt-copy-manual]")!;
+  const copyStatus = root.querySelector<HTMLElement>("[data-tt-copy-status]")!;
   let picks: (TechTournamentPick | null)[] = techTournamentStart();
   let ready = false;
+  let copyAttempt = 0;
   const refresh = () => { if (ready) update(); };
+  // A bracket change retires the previous invite's selected fallback and any
+  // clipboard reply still in flight, so only the current view can report it.
+  const clearCopyOffer = () => {
+    copyAttempt += 1;
+    copyManual.hidden = true;
+    copyManual.value = "";
+    copyStatus.textContent = "";
+  };
 
   function paint(focus: "current" | "result" | null = null) {
+    clearCopyOffer();
     const current = techTournamentCurrent(picks);
     const made = techTournamentPickCountMade(picks);
     for (const match of techTournamentMatches) {
@@ -4789,7 +4803,29 @@ function mountTechTournament(root: HTMLElement, update: () => void): Controller 
     }
   });
 
+  // The invite is always the canonical bare route: no pick, result, byline,
+  // tracking query or fragment travels. Copying never changes this bracket; a
+  // denied clipboard selects the same link in a readonly field.
+  copy.addEventListener("click", async () => {
+    const href = new URL(experiencePath("tech-tournament"), location.origin).href;
+    clearCopyOffer();
+    const attempt = copyAttempt;
+    try {
+      await navigator.clipboard.writeText(href);
+      if (attempt !== copyAttempt) return;
+      copyStatus.textContent = "Blank bracket link copied. It opens a fresh eight-entrant bracket with no picks.";
+    } catch {
+      if (attempt !== copyAttempt) return;
+      copyStatus.textContent = "Clipboard access was denied. Copy the blank bracket link from this field.";
+      copyManual.value = href;
+      copyManual.hidden = false;
+      copyManual.focus();
+      copyManual.select();
+    }
+  });
+
   paint();
+  copy.disabled = false;
   ready = true;
 
   return {
