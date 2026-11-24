@@ -218,24 +218,25 @@ function drawRank(
   return height;
 }
 
-/** The publisher line every exported card carries: the approved mark, the
- * product name and site, and one optional byline. Shared by every experience
- * renderer so single images and card sets sign off identically. */
+/** Draw the shared footer. The approved mark carries the product name and site.
+ * Top Nine may hide that credit. The creator's byline is independent. */
 function signCard(
   ctx: CanvasRenderingContext2D,
-  mark: HTMLImageElement,
+  mark: HTMLImageElement | null,
   width: number,
   margin: number,
   footer: number,
   ink: string,
   byline: string,
 ) {
-  ctx.drawImage(mark, margin, footer, 36, 36);
   ctx.fillStyle = ink;
-  ctx.font = "700 24px system-ui";
-  ctx.fillText("Made with App Composer", margin + 47, footer + 16);
-  ctx.font = "600 18px system-ui";
-  ctx.fillText("composer.loftwah.com", margin + 47, footer + 40);
+  if (mark) {
+    ctx.drawImage(mark, margin, footer, 36, 36);
+    ctx.font = "700 24px system-ui";
+    ctx.fillText("Made with App Composer", margin + 47, footer + 16);
+    ctx.font = "600 18px system-ui";
+    ctx.fillText("composer.loftwah.com", margin + 47, footer + 40);
+  }
   if (byline) {
     ctx.textAlign = "right";
     ctx.font = "700 24px system-ui";
@@ -945,6 +946,7 @@ export async function renderExperienceResult(
   result: ShareExperienceResult,
   format: ResultFormat,
   covers?: readonly (ResultCoverSlot | null)[],
+  showCredit = true,
 ) {
   // The tier board, one-must-go's shared grid, the wrong-answer plate, the
   // courtroom verdict card, the tournament winner card and the curse card each
@@ -964,7 +966,12 @@ export async function renderExperienceResult(
   const [paper, ink, accent] = inks[result.game][result.skin] ?? inks[result.game][0];
   const margin = Math.round(Math.min(width, height) * .067);
   const wide = format === "wide";
-  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  // Only a Top Nine whose creator opted out drops the signature. Skipping it
+  // also skips fetching the mark; the default path still draws the exact
+  // established sign-off, so checked exports keep their previous bytes.
+  const mark = result.game !== "top-nine" || showCredit
+    ? await picture("/brand/composer-icon-20261022b-96.png")
+    : null;
   const footer = height - margin - 42;
   // A portrait Top Nine hangs a true square 3×3: the header cedes the frame's
   // extra height so each cell keeps its own width and square covers are not
