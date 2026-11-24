@@ -23,6 +23,7 @@ interface Props {
   canonical?: string;
   /** The launcher study mounts its own instance; the controller binds by ID. */
   launcher?: boolean;
+  focusedExperience?: boolean;
 }
 const {
   title,
@@ -35,6 +36,7 @@ const pageTitle = title.includes("App Composer")
 const canonical = Astro.props.canonical
   ? new URL(Astro.props.canonical)
   : publicPageCanonical(Astro.url.pathname);
+const focusedExperience = Astro.props.focusedExperience === true;
 const artwork = siteShareArtwork(canonical.pathname);
 const shareImage = new URL(Astro.props.shareImage ?? artwork.path, canonical);
 const shareAlt = Astro.props.shareAlt ?? artwork.alt;
@@ -97,12 +99,17 @@ Astro.csp?.insertScriptResource(
     <link rel="stylesheet" href="/brand/page-share.css" />
     <link rel="stylesheet" href="/brand/theme-control.css" />
   </head>
-  <body class:list={{ "home-shell": Astro.props.homePage }}>
+  <body class:list={{ "home-shell": Astro.props.homePage, "focused-experience": focusedExperience }}>
     <a class="skip" href="#main">
       Skip to content
     </a>
     <header class="site-header">
-      <a class="brand select-none" href="/">
+      {focusedExperience ? (
+        <a class="brand select-none" href="/">
+          <img src="/brand/composer-icon-tile-20261022b.svg" width="24" height="24" alt="" />
+          <span>App Composer</span>
+        </a>
+      ) : <a class="brand select-none" href="/">
         <img src="/brand/composer-icon-tile-20261022b.svg" width="38" height="38" alt="" />
         <span class="brand-copy">
           <span>App Composer</span>
@@ -110,8 +117,8 @@ Astro.csp?.insertScriptResource(
             <span class="instance-brand-context">{instance.owner}’s instance</span>
           )}
         </span>
-      </a>
-      <nav class="site-navigation" aria-label="Main navigation">
+      </a>}
+      {!focusedExperience && <nav class="site-navigation" aria-label="Main navigation">
         <a class="nav-direct" href="/learn">Learn</a>
         <a class="nav-direct" href="/demo">Demos</a>
         <a class="nav-direct" href="/media-studio">Media Studio</a>
@@ -148,9 +155,9 @@ Astro.csp?.insertScriptResource(
             </div>
           </div>
         </details>
-      </nav>
+      </nav>}
       <div class="header-utilities">
-        {Astro.props.launcher !== false && <AppLauncher />}
+        {!focusedExperience && Astro.props.launcher !== false && <AppLauncher />}
         <button
           type="button"
           class="theme-control secondary theme-toggle shrink-0"
@@ -192,11 +199,11 @@ Astro.csp?.insertScriptResource(
       </div>
     </header>
     <main id="main">
-      <BuilderContext />
+      {!focusedExperience && <BuilderContext />}
       <slot />
       <slot name="page-share" />
     </main>
-    <footer>
+    {focusedExperience ? <footer><a href="/privacy">Privacy</a></footer> : <footer>
       {!noindex && !Astro.slots.has("page-share") && (
         <div class="public-page-share" data-page-share hidden>
           <button type="button" class="secondary" data-page-native hidden>
@@ -233,7 +240,7 @@ Astro.csp?.insertScriptResource(
         <a href="/activity/portfolio">Analytics</a> · <a href="/privacy">Privacy</a> ·{" "}
         <a href="/release">Release evidence</a>
       </p>
-    </footer>
+    </footer>}
     <script>
       const toggle =
         document.querySelector<HTMLButtonElement>("#theme-toggle")!;
@@ -255,30 +262,43 @@ Astro.csp?.insertScriptResource(
         } catch {}
         label();
       });
-      const siteMenu = document.querySelector<HTMLDetailsElement>(".site-menu")!;
-      const menuSummary = siteMenu.querySelector("summary")!;
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && siteMenu.open) {
-          siteMenu.open = false;
-          menuSummary.focus();
-        }
-      });
-      document.addEventListener("click", (event) => {
-        if (event.target instanceof Node && !siteMenu.contains(event.target)) {
-          siteMenu.open = false;
-        }
-      });
-      siteMenu.addEventListener("focusout", (event) => {
-        if (event.relatedTarget instanceof Node && !siteMenu.contains(event.relatedTarget)) {
-          siteMenu.open = false;
-        }
-      });
-      document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main navigation"] a').forEach((a) => {
-        if (a.pathname === location.pathname)
-          a.setAttribute("aria-current", "page");
-      });
+      const siteMenu = document.querySelector<HTMLDetailsElement>(".site-menu");
+      if (siteMenu) {
+        const menuSummary = siteMenu.querySelector("summary")!;
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && siteMenu.open) {
+            siteMenu.open = false;
+            menuSummary.focus();
+          }
+        });
+        document.addEventListener("click", (event) => {
+          if (event.target instanceof Node && !siteMenu.contains(event.target)) {
+            siteMenu.open = false;
+          }
+        });
+        siteMenu.addEventListener("focusout", (event) => {
+          if (event.relatedTarget instanceof Node && !siteMenu.contains(event.relatedTarget)) {
+            siteMenu.open = false;
+          }
+        });
+        document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main navigation"] a').forEach((a) => {
+          if (a.pathname === location.pathname)
+            a.setAttribute("aria-current", "page");
+        });
+      }
     </script>
     <script is:inline type="module" src="/brand/page-performance.mjs"></script>
     <script is:inline type="module" src="/brand/page-share.mjs"></script>
   </body>
 </html>
+
+<style>
+  .focused-experience .site-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 56px;
+    padding: 6px max(18px, calc((100% - 1024px) / 2));
+  }
+  .focused-experience .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
+  .focused-experience .site-header .brand > img { width: 24px; height: 24px; }
+  .focused-experience #main { padding-block-start: .65rem; }
+</style>

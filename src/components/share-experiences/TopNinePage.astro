@@ -1,0 +1,17 @@
+---
+import Base from "../../layouts/Base.astro";
+import { noindexFor } from "../../lib/indexing.mjs";
+import { publicPageCanonical } from "../../lib/public-pages.mjs";
+import { experienceArt, experienceOg, experiences } from "../../lib/share-experiences.ts";
+import ShareExperience from "./ShareExperience.astro";
+
+const game = "top-nine";
+const experience = experiences[game];
+const canonical = publicPageCanonical("/top-nine").href;
+const noindex = noindexFor(Astro.url.hostname, Astro.url.pathname === "/top-nine");
+---
+
+<Base title={experience.title} description={experience.description} {canonical} {noindex}
+  shareImage={experienceOg(game)} shareType="image/jpeg" shareAlt={experience.imageDescription} focusedExperience>
+  <ShareExperience {game} {experience} art={experienceArt(game)} />
+</Base>

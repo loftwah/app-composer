@@ -1,5 +1,6 @@
 ---
 import Base from "../../../layouts/Base.astro";
+import TopNinePage from "../../../components/share-experiences/TopNinePage.astro";
 import ShareExperience from "../../../components/share-experiences/ShareExperience.astro";
 import { experienceArt, experienceOg, experiences, type ExperienceId } from "../../../lib/share-experiences.ts";
 import { cursedChoiceFromQuery } from "../../../lib/cursed-choices.ts";
@@ -17,7 +18,7 @@ const curseIndex = game === "cursed-choices" ? cursedChoiceFromQuery(Astro.url.s
 const mustGoRound = game === "one-must-go" ? oneMustGoRoundFromQuery(Astro.url.search) : oneMustGoStarter;
 ---
 
-<Base title={experience.title} description={experience.description} shareImage={experienceOg(game)}
+{game === "top-nine" ? <TopNinePage /> : <Base title={experience.title} description={experience.description} shareImage={experienceOg(game)}
   shareType="image/jpeg" shareAlt={experience.imageDescription}>
   <ShareExperience {game} experience={experience} art={experienceArt(game)} {curseIndex} {mustGoRound} />
-</Base>
+</Base>}

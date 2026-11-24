@@ -381,7 +381,7 @@ function mountNine(
     linked: root.querySelector<HTMLUListElement>("[data-cover-linked]")!,
   };
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
-  const previewHeading = root.querySelector<HTMLHeadingElement>("[data-export-panel] h2")!;
+  const previewHeading = root.querySelector<HTMLHeadingElement>("[data-nine-board-heading]")!;
   const previewCount = root.querySelector<HTMLElement>("[data-nine-count]");
   const previewTitle = root.querySelector<HTMLElement>("[data-nine-preview-title]");
   const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
@@ -817,8 +817,15 @@ function mountNine(
       const showRank = ranked && Boolean(objects[index].value.trim());
       const image = cell.querySelector<HTMLImageElement>("[data-nine-preview-cover]")!;
       const caption = cell.querySelector<HTMLAnchorElement>("[data-nine-preview-caption]")!;
-      const label = objects[index].value.trim() || "—";
+      const label = objects[index].value.trim();
       caption.textContent = label;
+      cell.toggleAttribute("data-filled", Boolean(label));
+      const edit = cell.querySelector<HTMLButtonElement>("[data-nine-edit-slot]");
+      if (edit) {
+        edit.setAttribute("aria-label", label ? `Edit item ${index + 1}: ${label}` : `Add item ${index + 1}`);
+        const mark = edit.querySelector("[data-nine-slot-mark]");
+        if (mark) mark.textContent = label ? "Edit" : "+";
+      }
       // A manually attached page makes the board title itself an ordinary
       // outbound link. No page means no href, so the caption stays plain text.
       const pageHref = livePage(index);
@@ -1641,6 +1648,35 @@ function mountNine(
     if (list.view.hidden) return;
     previewHeading.focus({ preventScroll: true });
     previewHeading.scrollIntoView({ behavior: "instant", block: "start" });
+  });
+  const allFields = root.querySelector<HTMLButtonElement>("[data-nine-all-fields]");
+  allFields?.addEventListener("click", () => {
+    const expanded = allFields.getAttribute("aria-expanded") !== "true";
+    allFields.setAttribute("aria-expanded", String(expanded));
+    allFields.textContent = expanded ? "Show selected title" : "Show all titles";
+    allFields.closest(".nine-editor")?.toggleAttribute("data-nine-active-field", !expanded);
+  });
+  objects.forEach((input, index) => {
+    input.addEventListener("focus", () => {
+      objects.forEach((field, slot) => field.closest("label")?.toggleAttribute("data-nine-current", slot === index));
+    });
+  });
+  elements<HTMLButtonElement>(root, "[data-nine-edit-slot]").forEach((button, index) => {
+    button.addEventListener("click", () => {
+      const input = objects[index];
+      if (!input) return;
+      target = index;
+      markTarget();
+      exhibitionBoard.querySelector("[data-nine-current]")?.removeAttribute("data-nine-current");
+      input.closest("label")?.setAttribute("data-nine-current", "");
+      input.focus({ preventScroll: true });
+      input.scrollIntoView({ behavior: "instant", block: "nearest" });
+    });
+  });
+  root.querySelector("[data-nine-paste-shortcut]")?.addEventListener("click", () => {
+    list.panel.open = true;
+    list.text.focus({ preventScroll: true });
+    list.text.scrollIntoView({ behavior: "instant", block: "nearest" });
   });
   const sharingOptions = root.querySelector<HTMLHeadingElement>("#nine-image-options");
   root.querySelector<HTMLAnchorElement>(".nine-options-link")?.addEventListener("click", (event) => {
@@ -5654,6 +5690,21 @@ export function mountShareExperience(root: HTMLElement) {
     pickSkin();
   } else if (shared.invalid) {
     status.textContent = "This result link could not be read. You can still start a new one.";
+  }
+  if (game === "top-nine" && shared.snapshot && controller.result()) {
+    const makeOwn = root.querySelector<HTMLAnchorElement>("[data-nine-make-own]");
+    const editBoard = root.querySelector<HTMLButtonElement>("[data-nine-edit-result]");
+    root.setAttribute("data-nine-recipient", "");
+    if (makeOwn) makeOwn.hidden = false;
+    if (editBoard) {
+      editBoard.hidden = false;
+      editBoard.addEventListener("click", () => {
+        root.removeAttribute("data-nine-recipient");
+        editBoard.hidden = true;
+        if (makeOwn) makeOwn.hidden = true;
+        root.querySelector<HTMLInputElement>("[data-exhibition-title]")?.focus();
+      });
+    }
   }
   controller.resumeDraft?.(Boolean(shared.snapshot));
   update();

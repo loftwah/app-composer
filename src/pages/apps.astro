@@ -26,7 +26,12 @@ const benchmarks = {
   description: 'Inspect test suites, recorded runs and compare results for models, App Composer and other applications.',
   href: '/benchmarks',
 } as const;
-const entries = [...apps.filter(app => app.id === 'media-studio'), ...apps.filter(app => app.id === 'showcase'), share, benchmarks,
+const topNine = {
+  id: 'top-nine', name: 'Your Top Nine', category: 'Creative',
+  description: 'Make a 3×3 board of your favourites and download it as an image.',
+  href: '/top-nine',
+} as const;
+const entries = [...apps.filter(app => app.id === 'media-studio'), ...apps.filter(app => app.id === 'showcase'), topNine, share, benchmarks,
   ...apps.filter(app => app.id !== 'media-studio' && app.id !== 'showcase'), widgets];
 const features = {
   'media-studio': { image: '/media-studio/brand/studio-launch-thumb.webp', title: 'Build your own media studio', label: 'Studio launch artwork', href: '/media-studio#made' },
@@ -36,7 +41,7 @@ const actions: Record<string, string> = {
   paperwork: 'Open PDF editor', 'launch-kit': 'Make a profile card', ldraw: 'Open drawing board',
   linkcheck: 'Check a link', guestbook: 'Visit guestbook', showcase: 'Visit profile',
   hello: 'Open starter app', state: 'Try the fictional vault', 'composer-widgets': 'Browse widgets',
-  benchmarks: 'Open Benchmarks Studio',
+  benchmarks: 'Open Benchmarks Studio', 'top-nine': 'Make a Top Nine board',
 };
 const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   'media-studio': 'Image Tools · clip and caption a video · subtitle a clip · SRT · WebVTT',
@@ -77,19 +82,20 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
       const isStudio = app.id === 'media-studio';
       const isWidgets = app.id === 'composer-widgets';
       const isBenchmarks = app.id === 'benchmarks';
+      const isTopNine = app.id === 'top-nine';
       const feature = isShare || isStudio ? features[app.id] : null;
       const support = appDeviceSupport(app.id);
       const deviceTokens = deviceFilterTokens(support);
       const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? paperworkSource.origin : app.href;
       const label = isStudio ? 'Open Media Studio' : isShare ? 'Browse artwork' : actions[app.id];
-      const details = isShare || isWidgets || isBenchmarks ? null : appDetails[app.id];
+      const details = isShare || isWidgets || isBenchmarks || isTopNine ? null : appDetails[app.id];
       return (
         <article id={app.id} class:list={['directory-entry', { featured: feature }]} data-app
           data-category={app.category} data-devices={deviceTokens}
           data-search={[app.name, app.description, app.category, label, feature?.title, taskSearch[app.id]].join(' ').toLowerCase()}>
           <div class="entry-body">
             <div class="entry-title">
-              {!feature && !isShare && !isWidgets && !isBenchmarks && <img src={app.thumbnail} width="52" height="52" alt="" loading="lazy" />}
+              {!feature && !isShare && !isWidgets && !isBenchmarks && !isTopNine && <img src={app.thumbnail} width="52" height="52" alt="" loading="lazy" />}
               <h2><a href={href}>{app.name}</a></h2>
             </div>
             <p>{isStudio ? 'Create stills, edit clips and mix sound in your own project.' : app.description}</p>
