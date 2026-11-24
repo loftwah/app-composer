@@ -137,21 +137,31 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <div class="nine-add-methods">
       <details class="exhibit-list" data-list-panel>
         <summary>Paste a list</summary>
-        <p class="experience-note" id="exhibit-list-help">Enter one title per line. From a spreadsheet, add a tab and a public HTTPS page, then optionally another tab and an exact Apple Music or Spotify album or track link. Leave the page column blank when there isn’t one. Only empty slots without attachments are filled.</p>
         <form data-list-form>
-          <label for="exhibit-list">Exhibit titles, optional pages and music links</label>
+          <label for="exhibit-list">Titles</label>
+          <p class="experience-note" id="exhibit-list-help">Enter one title per line. Adds only to empty slots.</p>
           <textarea id="exhibit-list" rows="4" maxlength={nineListLimit} autocomplete="off"
             aria-describedby="exhibit-list-help exhibit-list-status" data-list-text></textarea>
           <div class="exhibit-list-actions">
-            <button type="submit" data-list-fill disabled>Fill empty exhibits</button>
+            <button type="submit" data-list-fill disabled>Add to empty slots</button>
             <button type="button" class="secondary" data-list-undo disabled>Undo fill</button>
           </div>
         </form>
+        <details class="exhibit-list-detail">
+          <summary>Add pages or music links from a spreadsheet</summary>
+          <p class="experience-note">From a spreadsheet, add a tab and a public HTTPS page, then optionally another tab and an exact Apple Music or Spotify album or track link. Leave the page column blank when there isn’t one.</p>
+        </details>
         <p class="experience-note" role="status" aria-live="polite" id="exhibit-list-status" data-list-status></p>
       </details>
       <details class="exhibit-music" data-music-panel>
         <summary>Search for titles</summary>
         <form class="music-search" data-music-form>
+          <div class="music-query-row">
+            <label for="music-query" class="music-query"><span class="music-query-kind" data-music-kind-name aria-live="polite">Albums</span>
+              <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
+            </label>
+            <button type="submit" data-music-submit>Search</button>
+          </div>
           <label for="music-target">Fill exhibit
             <select id="music-target" data-music-target-choice>
               {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
@@ -200,10 +210,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
               <option value="SG">Singapore (SG)</option>
             </select>
           </label>
-          <label for="music-query" class="music-query">Album, song, book, app, game, film, TV series or programming language
-            <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
-          </label>
-          <button type="submit" data-music-submit>Search</button>
         </form>
         <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
         <p class="experience-note" role="status" data-music-status></p>

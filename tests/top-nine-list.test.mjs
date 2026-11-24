@@ -619,7 +619,7 @@ test('the paste box explains the optional page and music columns and holds nine 
   assert.match(component, /add a tab and a public HTTPS page/i);
   assert.match(component, /another tab and an exact Apple Music or Spotify album or track link/i);
   assert.match(component, /Leave the page column blank/i);
-  assert.match(component, /<label for="exhibit-list">Exhibit titles, optional pages and music links<\/label>/);
+  assert.match(component, /<label for="exhibit-list">Titles<\/label>/);
   assert.ok(
     nineListLimit >= 9 * (nineItemLimit + 1 + pageUrlLimit + 1 + musicUrlLimit),
     'nine bounded titles plus full-length public pages and music sources fit in the paste box',

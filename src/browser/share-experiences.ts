@@ -342,6 +342,7 @@ function mountNine(
     panel: root.querySelector<HTMLDetailsElement>("[data-music-panel]")!,
     target: root.querySelector<HTMLSelectElement>("[data-music-target-choice]")!,
     kind: elements<HTMLButtonElement>(root, "[data-music-kind]"),
+    kindName: root.querySelector<HTMLElement>("[data-music-kind-name]")!,
     platformField: root.querySelector<HTMLElement>("[data-music-platform]")!,
     platform: root.querySelector<HTMLSelectElement>("[data-music-game-platform]")!,
     gameCoverage: root.querySelector<HTMLElement>("[data-music-game-coverage]")!,
@@ -1747,6 +1748,7 @@ function mountNine(
         || next === "film" || next === "series" || next === "game"
         || next === "language" ? next : "album";
       music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
+      music.kindName.textContent = button.textContent?.trim() || "Albums";
       // Films, TV series, games and programming languages come from Wikidata,
       // so the storefront does not apply.
       const wiki = kind === "film" || kind === "series" || kind === "game"
