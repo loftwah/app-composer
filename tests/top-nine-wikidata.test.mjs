@@ -9,6 +9,9 @@ import { lookupWikidataTitle, searchWikidata, wikidataSource } from '../src/lib/
 
 const searchRow = (id, label, description) => ({ id, label, description });
 const claim = (id) => ({ mainsnak: { datavalue: { value: { id } } } });
+const deprecatedClaim = (id) => ({
+  rank: 'deprecated', mainsnak: { datavalue: { value: { id } } },
+});
 const time = (time, precision) => ({ mainsnak: { datavalue: { value: { time, precision } } } });
 const isbn = (value) => ({ mainsnak: { datavalue: { value } } });
 const ok = (body) => async () => new Response(JSON.stringify(body), { status: 200 });
@@ -436,6 +439,55 @@ test('game filters use recorded PC and console P400 IDs, and All stays the defau
   // The filter never reaches into other kinds: films keep their own search.
   assert.deepEqual(await searchWikidata('Platform', 'film'), []);
   assert.equal(fetch.mock.callCount(), 10);
+});
+
+// Current P400 values verified directly on 2026-11-24: Frostpunk 2
+// (Q109906111) records Windows, PlayStation 5, Xbox Series X/S and macOS; The
+// Precinct (Q126477307) records PlayStation 5, Xbox Series X/S and Windows.
+// Fictional variants carry the same supported IDs with deprecated rank.
+const currentConsoleSearch = { searchinfo: { search: 'Current consoles' }, search: [
+  searchRow('Q109906111', 'Frostpunk 2', '2023 city-building survival game'),
+  searchRow('Q126477307', 'The Precinct', '2025 police simulation game'),
+  searchRow('Q9006', 'Deprecated modern consoles', 'video game'),
+  searchRow('Q9007', 'Deprecated PC platforms', 'video game'),
+] };
+const currentConsoleEntities = { entities: {
+  Q109906111: { claims: { P31: [claim('Q7889')], P400: [
+    claim('Q1406'), claim('Q63184502'), claim('Q98973368'), claim('Q14116'),
+  ] } },
+  Q126477307: { claims: { P31: [claim('Q7889')], P400: [
+    claim('Q63184502'), claim('Q98973368'), claim('Q1406'),
+  ] } },
+  Q9006: { claims: { P31: [claim('Q7889')], P400: [
+    deprecatedClaim('Q63184502'), deprecatedClaim('Q98973368'),
+  ] } },
+  Q9007: { claims: { P31: [claim('Q7889')], P400: [
+    deprecatedClaim('Q1406'), deprecatedClaim('Q14116'),
+  ] } },
+} };
+
+test('current PlayStation 5 and Xbox Series X/S P400 claims display and classify; deprecated variants do not', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(currentConsoleSearch)()
+    : ok(currentConsoleEntities)());
+  const all = await searchWikidata('Current consoles', 'game');
+  assert.deepEqual(all, [
+    { title: 'Frostpunk 2', artist: '2023 city-building survival game',
+      href: 'https://www.wikidata.org/wiki/Q109906111',
+      platform: 'Windows · PlayStation 5 · Xbox Series X/S · macOS' },
+    { title: 'The Precinct', artist: '2025 police simulation game',
+      href: 'https://www.wikidata.org/wiki/Q126477307',
+      platform: 'PlayStation 5 · Xbox Series X/S · Windows' },
+    { title: 'Deprecated modern consoles', artist: 'video game',
+      href: 'https://www.wikidata.org/wiki/Q9006' },
+    { title: 'Deprecated PC platforms', artist: 'video game',
+      href: 'https://www.wikidata.org/wiki/Q9007' },
+  ]);
+  assert.deepEqual((await searchWikidata('Current consoles', 'game', undefined, 'pc'))
+    .map((pick) => pick.title), ['Frostpunk 2', 'The Precinct']);
+  assert.deepEqual((await searchWikidata('Current consoles', 'game', undefined, 'console'))
+    .map((pick) => pick.title), ['Frostpunk 2', 'The Precinct']);
+  assert.equal(fetch.mock.callCount(), 6);
 });
 
 test('a failed or cancelled search stays one request with no retries', async (t) => {

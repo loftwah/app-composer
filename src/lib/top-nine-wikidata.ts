@@ -90,16 +90,19 @@ const knownTypes = new Set([...filmTypes, ...seriesTypes, ...gameTypes, ...album
 
 /**
  * Platform names, resolved once from each platform item's own English label or
- * article title on 2026-11-22. A game whose platform items all appear here and
- * lists at most four gets its platforms; anything else shows the year only.
- * This curated set is a known limitation, stated in the picker panel.
+ * article title on 2026-11-22, with PlayStation 5 and Xbox Series X/S verified
+ * on 2026-11-24. A game whose current platform items all appear here and lists
+ * at most four gets its platforms; anything else shows the year only. This
+ * curated set is a known limitation, stated in the picker panel.
  */
 const platformNames: Record<string, string> = {
   Q94: "Android", Q48493: "iOS", Q388: "Linux", Q1406: "Windows", Q14116: "macOS",
   Q170434: "DOS", Q47604: "MS-DOS", Q13522376: "Classic Mac OS",
   Q10677: "PlayStation", Q10683: "PlayStation 3", Q5014725: "PlayStation 4",
+  Q63184502: "PlayStation 5",
   Q183259: "Super Nintendo Entertainment System",
   Q132020: "Xbox", Q48263: "Xbox 360", Q13361286: "Xbox One",
+  Q98973368: "Xbox Series X/S",
   Q19610114: "Nintendo Switch",
   Q10676: "Sega Genesis", Q200912: "Sega Saturn", Q188642: "Game Boy Advance",
   Q229429: "3DO", Q1063978: "32X", Q650601: "Atari Jaguar", Q471094: "Amiga 1200",
@@ -107,14 +110,16 @@ const platformNames: Record<string, string> = {
 
 /**
  * Games-only platform families, drawn explicitly from the curated names above.
- * A game belongs to PC or console only when its own P400 statements carry one
- * of these IDs. Mobile Android/iOS, absent or unknown platforms and the
- * ambiguous Amiga 1200 never infer a family, so those games stay under All.
+ * A game belongs to PC or console only when its own current, non-deprecated
+ * P400 statements carry one of these IDs. Mobile Android/iOS, absent or unknown
+ * platforms and the ambiguous Amiga 1200 never infer a family, so those games
+ * stay under All.
  */
 const pcPlatforms = new Set(["Q1406", "Q388", "Q14116", "Q170434", "Q47604", "Q13522376"]);
 const consolePlatforms = new Set([
-  "Q10677", "Q10683", "Q5014725", "Q183259", "Q132020", "Q48263", "Q13361286",
-  "Q19610114", "Q10676", "Q200912", "Q188642", "Q229429", "Q1063978", "Q650601",
+  "Q10677", "Q10683", "Q5014725", "Q63184502", "Q183259", "Q132020", "Q48263",
+  "Q13361286", "Q98973368", "Q19610114", "Q10676", "Q200912", "Q188642", "Q229429",
+  "Q1063978", "Q650601",
 ]);
 
 /** The Games platform filter; All is the original, unchanged game search. */
@@ -291,16 +296,16 @@ export async function lookupWikidataTitle(
   return year === undefined ? title : `${title} (${year})`;
 }
 
-/** Platform names when every P400 item is in the curated set and there are few. */
+/** Platform names when every current P400 item is curated and there are few. */
 function platform(claims: Claims | undefined): string | undefined {
-  const ids = [...new Set(itemIds(claims, "P400"))];
+  const ids = [...new Set(itemIds(claims, "P400", true))];
   if (!ids.length || ids.length > 4 || !ids.every((id) => platformNames[id])) return undefined;
   return ids.map((id) => platformNames[id]).join(" · ");
 }
 
-/** Which families a game's recorded P400 items evidence, if any. */
+/** Which families a game's current, non-deprecated P400 items evidence, if any. */
 function gameFamilies(claims: Claims | undefined): GamePlatformFilter[] {
-  const ids = itemIds(claims, "P400");
+  const ids = itemIds(claims, "P400", true);
   const families: GamePlatformFilter[] = [];
   if (ids.some((id) => pcPlatforms.has(id))) families.push("pc");
   if (ids.some((id) => consolePlatforms.has(id))) families.push("console");
@@ -334,8 +339,9 @@ function article(sitelinks: Sitelinks | undefined): string | undefined {
  * ISBN kept on the pick.
  *
  * For games, an optional platform filter narrows the same response to items
- * whose own P400 statements evidence that family. All keeps the unchanged
- * default, and no filter is inferred from descriptions, years or mobile IDs.
+ * whose own current, non-deprecated P400 statements evidence that family. All
+ * keeps the unchanged default, and no filter is inferred from descriptions,
+ * years or mobile IDs.
  */
 export async function searchWikidata(
   query: string,
