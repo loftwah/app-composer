@@ -2,6 +2,7 @@
 // Keys and payloads are versioned and bounded so an old, foreign or oversized
 // value is ignored instead of replacing what the creator is editing.
 
+import { normaliseApprovedCovers, type ApprovedCoverReference } from "./top-nine-approved-cover.ts";
 import { normaliseSourceLinks } from "./top-nine-source.ts";
 import { normalisePageLinks } from "./top-nine-pages.ts";
 import { profileUrl } from "./top-nine-profile.ts";
@@ -53,6 +54,7 @@ export interface NineDraft {
   ranked?: boolean;
   /** One optional canonical source link per exhibit, omitted when there are none. */
   hrefs?: (string | null)[];
+  approvedCovers?: (ApprovedCoverReference | null)[];
   /** One optional exact public web page per manually named exhibit, omitted
    * when there are none so older drafts keep their exact stored shape. */
   pages?: (string | null)[];
@@ -75,6 +77,7 @@ interface NineDraftInput {
   skin?: unknown;
   ranked?: unknown;
   hrefs?: unknown;
+  approvedCovers?: unknown;
   pages?: unknown;
 }
 
@@ -89,6 +92,7 @@ interface NineDraftFields {
   skin: number;
   ranked?: true;
   hrefs?: (string | null)[];
+  approvedCovers?: (ApprovedCoverReference | null)[];
   pages?: (string | null)[];
 }
 
@@ -113,6 +117,9 @@ function cleanNineDraft(draft: NineDraftInput): NineDraftFields | null {
   if (!title && !items.some(Boolean)) return null;
   const subtitle = cleanText(draft.subtitle, nineSubtitleLimit);
   const hrefs = cleanHrefs(draft.hrefs);
+  const approvedCovers = normaliseApprovedCovers(
+    draft.approvedCovers, (hrefs ?? []).map((href, index) => items[index] ? href : null),
+  );
   const pages = cleanPages(draft.pages, items);
   const profile = profileUrl(draft.profile) ?? "";
   const date = topNineDate(draft.date);
@@ -125,6 +132,7 @@ function cleanNineDraft(draft: NineDraftInput): NineDraftFields | null {
     skin: draft.skin === 1 || draft.skin === 2 ? draft.skin : 0,
     ...(draft.ranked === true ? { ranked: true } : {}),
     ...(hrefs ? { hrefs } : {}),
+    ...(approvedCovers.some(Boolean) ? { approvedCovers } : {}),
     ...(pages ? { pages } : {}),
   };
 }
@@ -173,7 +181,7 @@ export interface NineDraftFileRead {
 
 /** Every key a file may carry. Anything else is foreign and refused. */
 const draftFileKeys = [
-  "schema", "title", "items", "subtitle", "byline", "date", "profile", "skin", "ranked", "hrefs", "pages",
+  "schema", "title", "items", "subtitle", "byline", "date", "profile", "skin", "ranked", "hrefs", "approvedCovers", "pages",
 ] as const;
 
 /** The portable shape checked before any value is cleaned: nine string slots,
@@ -195,13 +203,22 @@ function draftFileShape(value: Record<string, unknown>): boolean {
     if (!Array.isArray(links) || links.length > 9) return false;
     if (links.some((link) => link !== null && typeof link !== "string")) return false;
   }
-  return true;
+  const covers = value.approvedCovers;
+  if (covers === undefined) return true;
+  if (!Array.isArray(covers) || covers.length !== 9) return false;
+  const titles = value.items;
+  const sources = normaliseSourceLinks(value.hrefs).map((href, index) =>
+    cleanText(titles[index], nineItemLimit) ? href : null);
+  const approved = normaliseApprovedCovers(covers, sources);
+  return covers.every((cover, index) => cover === null || (
+    Boolean(approved[index]) && Object.keys(cover).every((key) => key === "id" || key === "fit")
+  ));
 }
 
 /** The exact portable UTF-8 text for one board, or null when there is nothing
  * to write. Field order is fixed and the bytes are compact, so the same board
  * always produces the same file. Links, profile and pages pass through the same
- * validators a saved draft uses; covers have no field and never travel here. */
+ * validators a saved draft uses. Approved references carry no image bytes. */
 export function writeNineDraftFile(draft: NineDraft): string | null {
   const fields = cleanNineDraft(draft);
   if (!fields) return null;
