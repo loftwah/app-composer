@@ -23,7 +23,11 @@ const initialPrompt=taskId==='setup'&&selectedAgent!=='any'?agentContextLine(sel
   <label>Describe a first small feature
    <textarea data-ready-concept-input rows="4" maxlength={conceptInputLimit} wrap="soft" placeholder="Write an idea or paste a project brief."></textarea>
   </label>
-  <p class="small">Your idea is included when you copy or download the setup handoff.</p>
+  <label>Replace idea from a .txt or .md file
+   <input data-ready-concept-file type="file" accept=".txt,.md,text/plain,text/markdown">
+  </label>
+  <p class="small">Files are read on this device. Copy or download the handoff to include the idea.</p>
+  <p data-ready-concept-file-status class="small" role="status" aria-live="polite"></p>
  </details>}
  <div class="ready-actions">
   <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy agent handoff'}</span></button>
@@ -77,9 +81,17 @@ const initialPrompt=taskId==='setup'&&selectedAgent!=='any'?agentContextLine(sel
     border-radius: 8px;
     resize: vertical;
   }
-  details[data-ready-concept] textarea:focus-visible {
+  details[data-ready-concept] input[type=file] {
+    max-inline-size: 100%;
+    font: inherit;
+  }
+  details[data-ready-concept] textarea:focus-visible,
+  details[data-ready-concept] input[type=file]:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
+  }
+  details[data-ready-concept] [data-ready-concept-file-status]:empty {
+    margin: 0;
   }
   details[data-ready-concept] p.small {
     margin: 8px 0 0;
@@ -88,7 +100,7 @@ const initialPrompt=taskId==='setup'&&selectedAgent!=='any'?agentContextLine(sel
   }
 </style>
 <script>
-import {readyTasks,handoffAgent,agentContextLine,conceptContextBlock,browserCheckHref,readyTaskHref} from '../lib/ready-handoff';
+import {readyTasks,handoffAgent,agentContextLine,conceptContextBlock,browserCheckHref,readyTaskHref,conceptInputLimit} from '../lib/ready-handoff';
 import {setupPreferenceHandoff,assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
 import {currentAssistance} from '../lib/assistance';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
@@ -97,6 +109,8 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const agentChoice=container.querySelector<HTMLElement>('[data-ready-agent-choice]');
  const conceptDetail=container.querySelector<HTMLDetailsElement>('[data-ready-concept]');
  const conceptInput=container.querySelector<HTMLTextAreaElement>('[data-ready-concept-input]');
+ const conceptFile=container.querySelector<HTMLInputElement>('[data-ready-concept-file]');
+ const briefStatus=container.querySelector<HTMLElement>('[data-ready-concept-file-status]');
  const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
  const downloadButton=container.querySelector<HTMLButtonElement>('[data-download-ready]')!;
  const prompt=container.querySelector<HTMLElement>('[data-ready-prompt]')!;
@@ -109,7 +123,8 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  // A clipboard result only describes the request it started from. revision moves
  // whenever the generated text changes and attempt names the latest copy action,
  // so an older settlement cannot speak for a different or newer request.
- let revision=0,attempt=0,renderedText='',renderedTask='';
+ let revision=0,attempt=0,importRevision=0,renderedText='',renderedTask='';
+ const briefImportByteLimit=conceptInputLimit * 4;
  const started=(attemptId:number,startedAt:number,task:string,text:string)=>attemptId===attempt&&startedAt===revision&&selector.value===task&&prompt.textContent===text;
  // Copy and download share the same validity gate, including an invalid setup address.
  const setDisabled=(value:boolean)=>{button.disabled=value;downloadButton.disabled=value;};
@@ -157,9 +172,58 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  };
  // Reconcile browser-restored form state before enabling copy.
  selector.disabled=false;update();
- selector.addEventListener('change',update);
+ conceptFile?.addEventListener('change',async()=>{
+  const importId=++importRevision;
+  const file=conceptFile.files?.[0];
+  // Let the native picker select the same file again after success or failure.
+  conceptFile.value='';
+  if(!file || !conceptInput || !briefStatus || selector.value!=='setup') return;
+  const draft=conceptInput.value;
+  const current=()=>importId===importRevision && selector.value==='setup' && conceptInput.value===draft;
+  const fail=(text:string)=>{if(current()) briefStatus.textContent=text;};
+  briefStatus.textContent='';
+  if(!/\.(txt|md)$/i.test(file.name)){
+   fail('Choose a UTF-8 .txt or .md file.');
+   return;
+  }
+  if(file.size>briefImportByteLimit){
+   fail('The file exceeds 16,000 bytes.');
+   return;
+  }
+  let text:string;
+  try{
+   const buffer=await file.arrayBuffer();
+   if(!current())return;
+   if(buffer.byteLength>briefImportByteLimit){
+    fail('The file exceeds 16,000 bytes.');
+    return;
+   }
+   text=new TextDecoder('utf-8',{fatal:true}).decode(buffer).replace(/\r\n?/g,'\n');
+  }catch{
+   fail('Choose a file saved as UTF-8 text.');
+   return;
+  }
+  if(!current())return;
+  if(!text.trim() || text.includes('\0')){
+   fail('Choose a text file with an idea in it.');
+   return;
+  }
+  if(text.length>conceptInputLimit){
+   fail('The text exceeds 4,000 characters.');
+   return;
+  }
+  conceptInput.value=text;
+  update();
+  briefStatus.textContent='Brief imported into your idea.';
+ });
+ const updateAfterIdeaChange=()=>{
+  importRevision++;
+  if(briefStatus) briefStatus.textContent='';
+  update();
+ };
+ selector.addEventListener('change',updateAfterIdeaChange);
  agentSelector?.addEventListener('change',update);
- conceptInput?.addEventListener('input',update);
+ conceptInput?.addEventListener('input',updateAfterIdeaChange);
  // Native form restoration may finish after the module first executes.
  window.addEventListener('pageshow',update);
  window.addEventListener('composer:setup-choice',update);
