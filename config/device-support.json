@@ -48,6 +48,38 @@
           }
         }
       }
+    },
+    {
+      "id": "paperwork",
+      "revision": "130ebdd7d3c7fab2adbb27f8f93d25c4a3bd1e62",
+      "support": {
+        "version": 1,
+        "target": "unknown",
+        "activities": {
+          "core": {
+            "desktop": {
+              "status": "supported",
+              "note": "Verified in signed-out Chromium at 1440px. Physical devices, assistive technology and physical printing remain unchecked.",
+              "evidence": {
+                "revision": "130ebdd7d3c7fab2adbb27f8f93d25c4a3bd1e62",
+                "checked": "2026-11-24",
+                "method": "browser-emulation",
+                "journey": "Signed-out Chromium at 1440px: filled the fictional Garden form, downloaded and reopened the actual PDF, and verified editable text and checkbox. Paperwork #62 also verified signature placement/move/resize and save/reopen."
+              }
+            },
+            "phone": {
+              "status": "limited",
+              "note": "Limited to automated 390px CDP touch emulation. Physical mobile, assistive technology and physical printing remain unchecked.",
+              "evidence": {
+                "revision": "130ebdd7d3c7fab2adbb27f8f93d25c4a3bd1e62",
+                "checked": "2026-11-24",
+                "method": "browser-emulation",
+                "journey": "390px Chromium touch emulation: filled, downloaded and reopened the fictional Garden PDF with editable text and checkbox. Paperwork #62 also checked signature placement, movement, resizing and save/reopen."
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
