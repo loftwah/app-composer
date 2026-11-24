@@ -328,7 +328,7 @@ test('the reveal has one local Download PNG shortcut on the shared export path',
   );
   const reveal = source.match(/<section hidden class="door-result tot-result" data-tot-result[\s\S]*?<\/section>/);
   assert.ok(reveal, 'the This-or-That result section is present');
-  assert.match(reveal[0], /<h2 tabindex="-1" data-reveal-title><\/h2>\s*<div class="tot-reveal-download">\s*<button type="button" data-reveal-download disabled>Download PNG<\/button>/);
+  assert.match(reveal[0], /<h2 tabindex="-1" data-reveal-title><\/h2>\s*<div class="tot-result-actions">\s*<div class="tot-reveal-download">\s*<button type="button" data-reveal-download disabled>Download PNG<\/button>/);
   assert.match(reveal[0], /<span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note><\/span>/,
     'local feedback is visual only, leaving the existing status as the one live region');
   assert.equal((source.match(/\bdata-reveal-download(?=[\s>])/g) ?? []).length, 1, 'only one shortcut is added');
