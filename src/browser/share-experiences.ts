@@ -15,9 +15,11 @@ import {
   type ThisOrThatSide,
 } from "../lib/this-or-that.ts";
 import {
-  moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne,
+  moveTwentyOne, readTwentyOnePrompts, readTwentyOnePromptFile, setTwentyOneAnswer, skipTwentyOne,
   twentyOneAnswered, twentyOneAnswerLimit, twentyOneBlankPath, twentyOneCount,
-  twentyOnePairs, twentyOnePromptLimit, twentyOneStart,
+  twentyOnePairs, twentyOnePromptFileLimit, twentyOnePromptFileName, twentyOnePromptLimit,
+  twentyOneStart, writeTwentyOnePromptFile,
+  type TwentyOnePromptFileRead,
 } from "../lib/twenty-one-questions.ts";
 import { personaFor } from "../lib/persona-packs.ts";
 import {
@@ -2681,6 +2683,9 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   const customPrompts = root.querySelector<HTMLTextAreaElement>("[data-tq-custom-prompts]")!;
   const customStatus = root.querySelector<HTMLElement>("[data-tq-custom-status]")!;
   const customReset = root.querySelector<HTMLButtonElement>("[data-tq-custom-reset]")!;
+  const promptFileSave = root.querySelector<HTMLButtonElement>("[data-tq-prompts-file-save]")!;
+  const promptFileInput = root.querySelector<HTMLInputElement>("[data-tq-prompts-file]")!;
+  const promptFileStatus = root.querySelector<HTMLElement>("[data-tq-prompts-file-status]")!;
   let answers = twentyOneStart();
   let current = 0;
   let view: "questions" | "done" | "summary" = "questions";
@@ -2690,6 +2695,11 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   /** Whether the active set differs from the built-in starter, for the quiet
    * progress marker. */
   let authored = false;
+  /** A prompt file belongs to the editor text it was picked for. A later file
+   * pick, typed edit, Apply or Reset makes any slower read stale, so it can
+   * never replace newer text or disturb the active run. */
+  let promptFileAttempt = 0;
+  let promptRevision = 0;
 
   /** An invite belongs to one summary view. Leaving it, replaying or applying
    * a set retires any visible fallback field and an in-flight clipboard write. */
@@ -2883,6 +2893,8 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
    * replaces the current run: the frozen prompts, a fresh answer list and the
    * same stage, with no link, draft, request or stored copy. */
   function applyPrompts(prompts: readonly string[]) {
+    // Applying (or resetting) retires any prompt file still being read.
+    promptRevision += 1;
     activeQuestions = [...prompts];
     authored = activeQuestions.some((prompt, index) => prompt !== twentyOneQuestions[index]);
     customPrompts.value = activeQuestions.join("\n");
@@ -2907,6 +2919,101 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   });
 
   customReset.addEventListener("click", () => applyPrompts(twentyOneQuestions));
+
+  /** Every refusal names the reason and keeps the editor and the current run
+   * exactly as they were. No field in this file can carry an answer. */
+  function promptFileProblem(read: TwentyOnePromptFileRead): string {
+    const unchanged = " Your editor and current run are unchanged.";
+    if (read.fault === "oversized") return `That prompt file is larger than ${Math.round(twentyOnePromptFileLimit / 1024)} KB.${unchanged}`;
+    if (read.fault === "unreadable") return `That file is not valid JSON.${unchanged}`;
+    if (read.fault === "schema") return `That is not a Composer 21 Questions prompt file.${unchanged}`;
+    if (read.fault === "version") return `That prompt file uses a format this page does not know. Save a fresh one here, then open that.${unchanged}`;
+    if (read.fault === "shape") return `That file is missing its schema or its 21 prompt texts, or carries fields this editor cannot use.${unchanged}`;
+    if (read.fault === "count") return `That file does not hold exactly ${twentyOneCount} prompts.${unchanged}`;
+    if (read.fault === "empty") return `Prompt ${read.gap + 1} in that file is empty.${unchanged}`;
+    if (read.fault === "long") return `Prompt ${read.gap + 1} in that file is longer than ${twentyOnePromptLimit} characters.${unchanged}`;
+    if (read.fault === "duplicate") return `Prompt ${read.gap + 1} in that file repeats an earlier one.${unchanged}`;
+    return `That prompt file could not be opened.${unchanged}`;
+  }
+
+  /** Save writes only the validated editor text to one bounded, versioned,
+   * answer-free file on this device. Nothing is stored or sent. */
+  function savePromptFile() {
+    const read = readTwentyOnePrompts(customPrompts.value.split(/\r?\n/));
+    if (!read.prompts) {
+      promptFileStatus.textContent = promptProblem(read);
+      customPanel.open = true;
+      if (read.gap >= 0) selectPromptLine(read.gap);
+      else customPrompts.focus();
+      return;
+    }
+    const text = writeTwentyOnePromptFile(read.prompts);
+    // Read the exact bytes back first, so the download is the same bounded
+    // prompt-only shape this page accepts when a file is opened.
+    if (!readTwentyOnePromptFile(text).prompts) {
+      promptFileStatus.textContent = "These prompts are too large for one file. Shorten them, then save again.";
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json;charset=utf-8" }));
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = twentyOnePromptFileName;
+      link.rel = "noopener";
+      link.click();
+    } catch {
+      promptFileStatus.textContent = "This browser didn’t start the download. Your prompts are unchanged; try again.";
+      return;
+    } finally {
+      // Release the blob URL once the browser has had time to start the
+      // download, on success or failure, so the page never leaks one.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    promptFileStatus.textContent = "Prompt file ready. It holds only your 21 prompts — no answers or result.";
+  }
+
+  /** Opening a file fills the textarea only. It never starts a run, rewrites
+   * the address or touches the current answers, cards or built-in invite. */
+  promptFileInput.addEventListener("change", async () => {
+    const file = promptFileInput.files?.[0];
+    if (!file) return;
+    const attempt = ++promptFileAttempt;
+    const revision = promptRevision;
+    try {
+      // Refuse a runaway file before reading or parsing any of it.
+      if (!Number.isFinite(file.size) || file.size > twentyOnePromptFileLimit) {
+        promptFileStatus.textContent = `That prompt file is larger than ${Math.round(twentyOnePromptFileLimit / 1024)} KB. Your editor and current run are unchanged.`;
+        return;
+      }
+      const text = await file.text();
+      if (attempt !== promptFileAttempt) return;
+      // A read landing after a typed edit, Apply or Reset is stale: keep the
+      // newer editor text and the run as they are.
+      if (revision !== promptRevision) {
+        promptFileStatus.textContent = "The prompt file arrived after you changed the editor. Open it again to fill the editor.";
+        return;
+      }
+      const read = readTwentyOnePromptFile(text);
+      if (!read.prompts) {
+        promptFileStatus.textContent = promptFileProblem(read);
+        return;
+      }
+      customPrompts.value = read.prompts.join("\n");
+      customPanel.open = true;
+      promptFileStatus.textContent = "Prompt file opened. Review the 21 prompts, then choose Apply and start fresh to use them.";
+    } catch {
+      if (attempt !== promptFileAttempt) return;
+      promptFileStatus.textContent = "That file could not be read on this device. Your editor and current run are unchanged.";
+    } finally {
+      if (attempt === promptFileAttempt) promptFileInput.value = "";
+    }
+  });
+
+  // Any typed edit after a file was chosen outranks a slower read.
+  customPrompts.addEventListener("input", () => { promptRevision += 1; });
+  promptFileSave.addEventListener("click", savePromptFile);
+  // Like the other file controls, these are JavaScript-only and start disabled.
+  for (const control of [promptFileSave, promptFileInput]) control.disabled = false;
 
   showQuestion(0, false);
 

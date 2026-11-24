@@ -646,6 +646,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           <button type="button" class="secondary" data-tq-custom-reset>Reset to built-in</button>
         </div>
       </form>
+      <div class="tq-controls tq-file-actions">
+        <button type="button" class="secondary" data-tq-prompts-file-save disabled>Save prompts JSON</button>
+        <label class="tq-file-open">Open prompts JSON
+          <input type="file" accept="application/json,.json" data-tq-prompts-file
+            aria-describedby="tq-prompts-file-note" disabled />
+        </label>
+      </div>
+      <p class="experience-note" id="tq-prompts-file-note">The file holds only your 21 prompt texts and a version — never answers or a result. Opening one fills the editor; choose “Apply and start fresh” to use it.</p>
+      <p class="experience-note" role="status" data-tq-prompts-file-status></p>
     </details>
     <p class="experience-note tq-custom-status" role="status" data-tq-custom-status></p>
     <section class="tq-question" data-tq-stage>
