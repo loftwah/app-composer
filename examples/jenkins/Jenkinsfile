@@ -49,6 +49,12 @@ pipeline {
       }
     }
 
+    stage('Resource journal model') {
+      steps {
+        sh 'node --test tests/resource-journal-model.test.mjs'
+      }
+    }
+
     stage('Candidate delivery journey') {
       steps {
         sh '''
