@@ -629,6 +629,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <button type="submit" disabled>Play my questions</button>
         <p class="experience-note" role="status" data-custom-status></p>
       </form>
+      <div class="tot-controls">
+        <button type="button" class="secondary" data-tot-draft-file-save disabled>Save question draft (.json)</button>
+        <label class="tot-file-open">Open question draft (.json)
+          <input type="file" accept="application/json,.json" data-tot-draft-file
+            aria-describedby="tot-draft-file-note" disabled />
+        </label>
+      </div>
+      <p class="experience-note" id="tot-draft-file-note">The file holds question text and the selected length, including hidden rows. Opening a file replaces the editor. Choose Play my questions to play the opened draft.</p>
+      <p class="experience-note" role="status" data-tot-draft-file-status></p>
     </details>
     <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
     {Array.from({ length: 9 }, (_, index) => {
