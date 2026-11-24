@@ -528,6 +528,41 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         </select>
       </label>
     </div>
+    <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
+    {Array.from({ length: thisOrThatDraftRowCount }, (_, index) => {
+      const [prompt, left, right] = thisOrThatQuestions[index]
+        ?? (["Your question goes here.", "First option", "Second option"] as const);
+      return <section hidden={index > 0} class="tot-question" data-question={index}>
+        <h2 tabindex="-1">{prompt}</h2>
+        <img hidden class="tot-question-photo" alt="" data-tot-question-photo />
+        <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
+          <button type="button" data-choice="0" disabled>{left}</button>
+          <button type="button" data-choice="1" disabled>{right}</button>
+        </div>
+      </section>;
+    })}
+    <div class="tot-controls">
+      <button type="button" class="secondary" data-tot-undo disabled>Undo last choice</button>
+    </div>
+    <section hidden class="door-result tot-result" data-tot-result aria-label="Your choices">
+      <h2 tabindex="-1" data-reveal-title></h2>
+      <ol class="tot-picks" data-reveal-picks></ol>
+      <div class="tot-compare" data-tot-compare-panel hidden>
+        <button type="button" class="secondary" data-tot-compare>Compare your choices</button>
+        <p class="experience-note">Play the same five to see where your choices match. The comparison stays in this tab.</p>
+      </div>
+      <div class="tot-compare-result" data-tot-compare-result hidden role="status" aria-live="polite">
+        <h3 id="tot-compare-heading" tabindex="-1" data-tot-compare-summary></h3>
+        <ul class="tot-compare-rows" aria-labelledby="tot-compare-heading" data-tot-compare-rows></ul>
+      </div>
+      <p class="experience-note" data-tot-reveal-note>Every answer is yours — there’s no score and nothing is stored. Download your result, or copy a blank starter link to invite someone to play the same five from the start.</p>
+      <div class="tot-blank" data-tot-blank>
+        <button type="button" class="secondary" data-tot-blank-copy>Copy blank starter link</button>
+        <input hidden readonly aria-label="Blank starter link" data-tot-blank-manual />
+        <p class="experience-note" role="status" data-tot-blank-status></p>
+      </div>
+    </section>
+    <button hidden type="button" class="secondary experience-reset" data-restart>Play again</button>
     <details class="experience-custom tot-custom" data-tot-custom>
       <summary>Write your own questions</summary>
       <p class="experience-note">Your questions, answers and photos stay in this tab. The downloaded image lists your choices as text only.</p>
@@ -580,41 +615,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" id="tot-draft-file-note">The file holds question text and the selected length, including hidden rows. Opening a file replaces the editor. Choose Play my questions to play the opened draft.</p>
       <p class="experience-note" role="status" data-tot-draft-file-status></p>
     </details>
-    <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
-    {Array.from({ length: thisOrThatDraftRowCount }, (_, index) => {
-      const [prompt, left, right] = thisOrThatQuestions[index]
-        ?? (["Your question goes here.", "First option", "Second option"] as const);
-      return <section hidden={index > 0} class="tot-question" data-question={index}>
-        <h2 tabindex="-1">{prompt}</h2>
-        <img hidden class="tot-question-photo" alt="" data-tot-question-photo />
-        <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
-          <button type="button" data-choice="0" disabled>{left}</button>
-          <button type="button" data-choice="1" disabled>{right}</button>
-        </div>
-      </section>;
-    })}
-    <div class="tot-controls">
-      <button type="button" class="secondary" data-tot-undo disabled>Undo last choice</button>
-    </div>
-    <section hidden class="door-result tot-result" data-tot-result aria-label="Your choices">
-      <h2 tabindex="-1" data-reveal-title></h2>
-      <ol class="tot-picks" data-reveal-picks></ol>
-      <div class="tot-compare" data-tot-compare-panel hidden>
-        <button type="button" class="secondary" data-tot-compare>Compare your choices</button>
-        <p class="experience-note">Play the same five to see where your choices match. The comparison stays in this tab.</p>
-      </div>
-      <div class="tot-compare-result" data-tot-compare-result hidden role="status" aria-live="polite">
-        <h3 id="tot-compare-heading" tabindex="-1" data-tot-compare-summary></h3>
-        <ul class="tot-compare-rows" aria-labelledby="tot-compare-heading" data-tot-compare-rows></ul>
-      </div>
-      <p class="experience-note" data-tot-reveal-note>Every answer is yours — there’s no score and nothing is stored. Download your result, or copy a blank starter link to invite someone to play the same five from the start.</p>
-      <div class="tot-blank" data-tot-blank>
-        <button type="button" class="secondary" data-tot-blank-copy>Copy blank starter link</button>
-        <input hidden readonly aria-label="Blank starter link" data-tot-blank-manual />
-        <p class="experience-note" role="status" data-tot-blank-status></p>
-      </div>
-    </section>
-    <button hidden type="button" class="secondary experience-reset" data-restart>Play again</button>
   </section>}
 
   {isTwentyOne && <section data-play-panel class="door-stage" aria-label="Answer twenty-one questions">
