@@ -6096,7 +6096,8 @@ export function mountShareExperience(root: HTMLElement) {
         ninePreviewSave.href = href;
         ninePreviewSave.download = "top-nine-" + size + ".png";
         ninePreview.hidden = false;
-        ninePreviewCaption.focus();
+        ninePreviewCaption.focus({ preventScroll: true });
+        ninePreview.scrollIntoView({ behavior: "instant", block: "start" });
         return;
       }
       let file = blob;
