@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { appleAppRef, appSource } from '../src/lib/top-nine-apps.ts';
 import { appleBookRef } from '../src/lib/top-nine-books.ts';
 import {
   nineListApplied, nineListLimit, nineListSummary, planNineList, planNineListUndo,
@@ -13,6 +14,11 @@ import {
 } from '../src/lib/share-experience-draft.ts';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+const wikidataKey = (href) => href.slice(href.lastIndexOf('/') + 1);
+const appleAuAppKey = (href) => {
+  const ref = appleAppRef(href);
+  return ref?.country === 'au' ? ref.id : null;
+};
 const storage = () => {
   const values = new Map();
   return {
@@ -341,22 +347,35 @@ test('the repeatable nine-film and series fixture keeps distinct official Wikida
   assert.equal(fetch.mock.callCount(), 0);
 });
 
-for (const platform of ['pc', 'console']) {
-  test(`the repeatable nine-${platform}-game fixture keeps ordinary Wikidata pages in paste order`, (t) => {
+// The fixtures use canonical metadata pages. No lookup or artwork is needed
+// when the creator supplied both the title and the source.
+const ninePageFixtures = [
+  { name: 'pc-game', file: 'top-nine-pc-games.tsv', canonical: wikidataSource, key: wikidataKey },
+  { name: 'console-game', file: 'top-nine-console-games.tsv', canonical: wikidataSource, key: wikidataKey },
+  { name: 'app', file: 'top-nine-apps.tsv', canonical: appSource, key: appleAuAppKey },
+  { name: 'programming-language', file: 'top-nine-languages.tsv', canonical: wikidataSource, key: wikidataKey },
+];
+
+for (const source of ninePageFixtures) {
+  test(`the repeatable nine-${source.name} fixture keeps unique ordinary canonical pages and keys in paste order`, (t) => {
     const fetch = t.mock.method(globalThis, 'fetch', async () => {
-      throw new Error(`planning the local ${platform} game fixture must not fetch`);
+      throw new Error(`planning the local ${source.name} fixture must not fetch`);
     });
-    const fixture = read(`tests/fixtures/top-nine-${platform}-games.tsv`).trimEnd();
+    const fixture = read(`tests/fixtures/${source.file}`).trimEnd();
     const rows = fixture.split('\n');
     const columns = rows.map((row) => row.split('\t'));
     const empty = Array.from({ length: 9 }, (_, index) => index);
     const titles = columns.map(([title]) => title);
     const pages = columns.map(([, page]) => page);
+    const keys = pages.map(source.key);
     assert.equal(rows.length, 9);
     assert.deepEqual(columns.map((row) => row.length), Array(9).fill(2));
+    assert.ok(titles.every(Boolean));
+    assert.ok(keys.every(Boolean));
     assert.equal(new Set(titles).size, 9);
     assert.equal(new Set(pages).size, 9);
-    assert.deepEqual(pages.map(wikidataSource), pages);
+    assert.equal(new Set(keys).size, 9);
+    assert.deepEqual(pages.map(source.canonical), pages);
 
     const plan = planNineList(fixture, empty);
     assert.deepEqual(plan.indexes, empty);
