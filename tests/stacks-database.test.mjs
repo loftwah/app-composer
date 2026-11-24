@@ -353,6 +353,8 @@ test('forward repair preserves draft/archive state and existing history, skippin
     assert.equal((await publicStack(db, first.slug)).publishedAt, '2026-10-16 12:00:00');
     for (const [name] of entries) assert.equal(await publicStack(db, name.toLowerCase().replaceAll(' ', '-')), null);
     db.migrate(migration('0006_stack_resources.sql'));
+    db.migrate(migration('0007_resource_moderation.sql'));
+    db.migrate(migration('0009_private_outcomes.sql'));
     db.migrate(migration('0024_resource_operation_recovery.sql'));
     const removed = await deleteStack(db, workspaceId, first.id, first.revision);
     assert.equal(removed.removedPublications, true);

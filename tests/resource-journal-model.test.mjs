@@ -95,3 +95,33 @@ test('the same journal lets distinct resources hold open operations concurrently
   assert.equal(result.maxOpen, 2);
   t.diagnostic(`${result.visited} distinct states explored`);
 });
+
+test('journal upgrades preserve the exact linked outcome intents', () => {
+  const db = new DatabaseSync(':memory:');
+  try {
+    db.exec(stackSchema({ recovery: false }));
+    db.exec(`
+      INSERT INTO creator_workspaces (id,name) VALUES ('workspace','Fictional');
+      INSERT INTO creator_stacks (id,workspace_id,slug,name,draft_json)
+        VALUES ('stack','workspace','fictional','Fictional','{}');
+      INSERT INTO creator_app_resources (id,workspace_id,app,account_id,environment,target)
+        VALUES ('resource','workspace','guestbook','fixture','test','https://example.test');
+      INSERT INTO creator_resource_operations
+        (id,resource_id,stack_id,instance_id,action,state,source_revision,request_json)
+        VALUES ('operation','resource','stack','instance','moderate','unknown','source','{}');
+      INSERT INTO creator_outcome_intents
+        (operation_id,workspace_id,stack_id,instance_id,event,expected_version,request_digest)
+        VALUES ('operation','workspace','stack','instance','postcard_approved',7,printf('%064d',15));
+    `);
+    const intents = db.prepare('SELECT * FROM creator_outcome_intents');
+    const before = intents.all();
+    assert.equal(before.length, 1);
+    db.exec(migration(recovery));
+    assert.deepEqual(intents.all(), before, 'the journal rebuild cascaded away the outcome intent');
+    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(), []);
+    db.exec("DELETE FROM creator_resource_operations WHERE id='operation'");
+    assert.deepEqual(intents.all(), [], 'a real operation deletion still cascades to its intent');
+  } finally {
+    db.close();
+  }
+});
