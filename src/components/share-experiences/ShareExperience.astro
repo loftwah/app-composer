@@ -440,7 +440,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
     <div class="tot-packs">
       <label for="tot-pack">Starter
-        <select id="tot-pack" data-tot-pack>
+        <select id="tot-pack" data-tot-pack disabled>
           <option value="maker">Maker rhythm</option>
           <option value="food">Sweet or spicy</option>
           <option value="games">Games</option>
@@ -491,7 +491,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
             </div>
           </fieldset>
         ))}
-        <button type="submit">Play my questions</button>
+        <button type="submit" disabled>Play my questions</button>
         <p class="experience-note" role="status" data-custom-status></p>
       </form>
     </details>
@@ -503,8 +503,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <h2 tabindex="-1">{prompt}</h2>
         <img hidden class="tot-question-photo" alt="" data-tot-question-photo />
         <div class="tot-options" role="group" aria-label={prompt} data-tot-options>
-          <button type="button" data-choice="0">{left}</button>
-          <button type="button" data-choice="1">{right}</button>
+          <button type="button" data-choice="0" disabled>{left}</button>
+          <button type="button" data-choice="1" disabled>{right}</button>
         </div>
       </section>;
     })}

@@ -296,10 +296,29 @@ test('the native starter selector offers every registry pack plus the written fi
     new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url),
     'utf8',
   );
-  const select = source.match(/<select id="tot-pack" data-tot-pack>([\s\S]*?)<\/select>/);
+  const select = source.match(/<select id="tot-pack" data-tot-pack[^>]*>([\s\S]*?)<\/select>/);
   assert.ok(select, 'the This or That starter selector is present');
   const values = [...select[1].matchAll(/<option value="([^"]+)"/g)].map((match) => match[1]);
   assert.deepEqual(values, [...registryKeys, 'custom']);
+});
+
+test('initial This or That controls are disabled in markup until one safe mount entry releases them', async () => {
+  const source = await readFile(
+    new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url),
+    'utf8',
+  );
+  assert.match(source, /<select id="tot-pack" data-tot-pack disabled>/);
+  assert.match(source, /<button type="button" data-choice="0" disabled>/);
+  assert.match(source, /<button type="button" data-choice="1" disabled>/);
+  assert.match(source, /<button type="submit" disabled>Play my questions<\/button>/);
+  const controller = await readFile(
+    new URL('../src/browser/share-experiences.ts', import.meta.url),
+    'utf8',
+  );
+  assert.match(controller, /activate\?\(\): void/);
+  assert.match(controller, /packSelect\.disabled = false;/);
+  assert.match(controller, /elements<HTMLButtonElement>\(root, "\[data-choice\]"\)[\s\S]{0,120}button\.disabled = false/);
+  assert.match(controller, /controller\.activate\?\.\(\);/);
 });
 
 test('a shared starter is explicit and version-safe; old links stay maker', () => {
