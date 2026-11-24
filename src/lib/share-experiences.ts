@@ -347,3 +347,48 @@ export const twentyOneQuestions = [
   "Finish it: the internet is…",
 ] as const;
 export const twentyOneResultTitle = "Your internet specimen";
+
+/** #1064 Creative life: twenty-one original, medium-neutral prompts about the
+ * tools, habits, detours and small victories behind making things. Every prompt
+ * is authored text sized for the existing question stage and result cards. */
+export const creativeLifeQuestions = [
+  "What’s the first thing you made that you still keep?",
+  "Which tool would you replace before any other?",
+  "Where does an idea usually begin for you?",
+  "What’s within arm’s reach while you make something?",
+  "Name a material, sound or phrase that keeps returning to your work.",
+  "What do you do with the first rough version?",
+  "Which unfinished piece keeps pulling you back?",
+  "What do you make when nobody is watching?",
+  "Who gives you feedback you can actually use?",
+  "What’s the smallest useful step you take when stuck?",
+  "Which mistake taught you something worth keeping?",
+  "What’s a small making ritual you won’t skip?",
+  "What do you do in the ten minutes before you start?",
+  "Which constraint helps you make better work?",
+  "When do you know a piece is finished?",
+  "What do you remove before you call something done?",
+  "Which project changed the way you work?",
+  "What’s one reference you return to, and why?",
+  "How do you keep track of ideas you might lose?",
+  "Which collaboration made the work better?",
+  "Finish it: my best work begins with…",
+] as const;
+
+/** Both 21 Questions starters share one controller and one private answer
+ * contract. The original internet specimen remains the bare-route default. */
+export const twentyOnePacks = {
+  internet: {
+    name: "Life online",
+    questions: twentyOneQuestions,
+    title: twentyOneResultTitle,
+    description: experiences["twenty-one-questions"].description,
+  },
+  "creative-life": {
+    name: "Creative life",
+    questions: creativeLifeQuestions,
+    title: "Your creative life",
+    description: "Twenty-one original prompts about the tools, habits, detours and small victories behind making things.",
+  },
+} as const;
+export type TwentyOnePack = keyof typeof twentyOnePacks;

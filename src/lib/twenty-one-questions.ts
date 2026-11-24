@@ -1,4 +1,6 @@
-import { experiencePath, twentyOneQuestions } from "./share-experiences.ts";
+import {
+  experiencePath, twentyOnePacks, twentyOneQuestions, type TwentyOnePack,
+} from "./share-experiences.ts";
 import { cleanText } from "./share-experience-draft.ts";
 
 /** One #1064 twenty-one-questions run. Answers are plain text held only in
@@ -10,10 +12,49 @@ export type TwentyOneAnswers = readonly string[];
 
 export const twentyOneCount = twentyOneQuestions.length;
 export const twentyOneAnswerLimit = 80;
-/** The invite to the blank built-in game is the bare canonical route on this
- * origin: no query, fragment, answers, byline, result, authored prompts or
- * saved state ever travel with it. */
+/** The default invite stays the bare canonical route on this origin. An
+ * alternate built-in may add one exact pack fragment; answers, bylines, results,
+ * authored prompts and saved state never travel with either form. */
 export const twentyOneBlankPath = experiencePath("twenty-one-questions");
+export const twentyOneDefaultPack: TwentyOnePack = "internet";
+
+/** Only the two authored starters can be selected. Unknown values keep the
+ * original internet specimen, including a custom run with no built-in identity. */
+export function restoreTwentyOnePack(value: unknown): TwentyOnePack {
+  return typeof value === "string" && Object.hasOwn(twentyOnePacks, value)
+    ? value as TwentyOnePack
+    : twentyOneDefaultPack;
+}
+
+/** A copied alternate challenge carries only its allowlisted id. The raw
+ * fragment must be exactly `#pack=<simple-id>`: repeated, encoded, mixed or
+ * malformed values fall back to the old bare default. */
+export function twentyOnePackFromHash(hash: string): TwentyOnePack {
+  const match = /^#pack=([a-z0-9-]+)$/.exec(hash);
+  return match ? restoreTwentyOnePack(match[1]) : twentyOneDefaultPack;
+}
+
+/** A built-in invite names the starter actually being played. The default and
+ * any custom run keep the established bare URL; Creative life adds only its
+ * exact fragment, never prompt or answer text. */
+export function twentyOneBlankLink(pack: TwentyOnePack | null): string {
+  const selected = pack === null ? twentyOneDefaultPack : restoreTwentyOnePack(pack);
+  return selected === twentyOneDefaultPack
+    ? twentyOneBlankPath
+    : `${twentyOneBlankPath}#pack=${selected}`;
+}
+
+/** Applying an unchanged authored set restores its built-in identity; any
+ * edited or imported variation remains custom and copies the default starter. */
+export function twentyOnePackForPrompts(prompts: readonly string[]): TwentyOnePack | null {
+  for (const pack of Object.keys(twentyOnePacks) as TwentyOnePack[]) {
+    const questions = twentyOnePacks[pack].questions;
+    if (questions.length === prompts.length && questions.every((question, index) => question === prompts[index])) {
+      return pack;
+    }
+  }
+  return null;
+}
 /** Answers per downloaded 4:5 card, chosen so a full twenty-one answer run
  * stays readable at large type across several cards. */
 export const twentyOneCardSize = 6;

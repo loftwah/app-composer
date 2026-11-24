@@ -1,7 +1,7 @@
 import {
   agentBingo, developerBingo, doorEndings, experiencePath, experiences, internetBingo,
-  thisOrThatPacks, twentyOneQuestions, twentyOneResultTitle,
-  type ExperienceId, type ThisOrThatPack,
+  thisOrThatPacks, twentyOnePacks, twentyOneQuestions, twentyOneResultTitle,
+  type ExperienceId, type ThisOrThatPack, type TwentyOnePack,
 } from "../lib/share-experiences.ts";
 import {
   pickThisOrThat, restoreThisOrThatLength, restoreThisOrThatPack, restoreThisOrThatPicks,
@@ -19,8 +19,9 @@ import {
 import {
   moveTwentyOne, readTwentyOnePrompts, readTwentyOnePromptFile, setTwentyOneAnswer, skipTwentyOne,
   twentyOneAnswered, twentyOneAnswerLimit, twentyOneAnswersFileName, twentyOneAnswersText,
-  twentyOneBlankPath, twentyOneCount, twentyOnePairs, twentyOnePromptFileLimit, twentyOneShareFile,
-  twentyOnePromptFileName, twentyOnePromptLimit,
+  twentyOneBlankLink, twentyOneCount, twentyOneDefaultPack, twentyOnePackForPrompts,
+  twentyOnePackFromHash, twentyOnePairs, twentyOnePromptFileLimit, twentyOneShareFile,
+  twentyOnePromptFileName, twentyOnePromptLimit, restoreTwentyOnePack,
   twentyOneStart, writeTwentyOnePromptFile,
   type TwentyOnePromptFileRead,
 } from "../lib/twenty-one-questions.ts";
@@ -3008,7 +3009,9 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   // One invite action for the built-in game, wherever the summary is shown.
   const blankCopy = root.querySelector<HTMLButtonElement>("[data-tq-blank-copy]")!;
   const blankManual = root.querySelector<HTMLInputElement>("[data-tq-blank-manual]")!;
+  const blankNote = root.querySelector<HTMLElement>("[data-tq-blank-note]")!;
   const blankStatus = root.querySelector<HTMLElement>("[data-tq-blank-status]")!;
+  const description = root.querySelector<HTMLElement>("[data-tot-description]");
   let blankCopyAttempt = 0;
   const restarts = elements<HTMLButtonElement>(root, "[data-restart]");
   const finishes = elements<HTMLButtonElement>(root, "[data-tq-finish]");
@@ -3017,17 +3020,25 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   const customPrompts = root.querySelector<HTMLTextAreaElement>("[data-tq-custom-prompts]")!;
   const customStatus = root.querySelector<HTMLElement>("[data-tq-custom-status]")!;
   const customReset = root.querySelector<HTMLButtonElement>("[data-tq-custom-reset]")!;
+  const packSelect = root.querySelector<HTMLSelectElement>("[data-tq-pack]")!;
+  const packApply = root.querySelector<HTMLButtonElement>("[data-tq-pack-apply]")!;
   const promptFileSave = root.querySelector<HTMLButtonElement>("[data-tq-prompts-file-save]")!;
   const promptFileInput = root.querySelector<HTMLInputElement>("[data-tq-prompts-file]")!;
   const promptFileStatus = root.querySelector<HTMLElement>("[data-tq-prompts-file-status]")!;
   let answers = twentyOneStart();
   let current = 0;
   let view: "questions" | "done" | "summary" = "questions";
-  /** The prompts this run asks. Only Apply or Reset changes them, so the
-   * editor stays a draft and an active run is never retexted mid-answer. */
-  let activeQuestions: readonly string[] = twentyOneQuestions;
-  /** Whether the active set differs from the built-in starter, for the quiet
-   * progress marker. */
+  /** A fresh invite may select one exact built-in pack. No hash ever restores
+   * answers, and every other fragment keeps the original bare-route starter. */
+  const initialPack = twentyOnePackFromHash(location.hash);
+  /** The prompts this run asks. Only an explicit Apply, pack action or Reset
+   * changes them, so the editor stays a draft and an active run is never
+   * retexted mid-answer. */
+  let activeQuestions: readonly string[] = twentyOnePacks[initialPack].questions;
+  /** Null means a custom set. Its invitation is always the default bare URL. */
+  let activePack: TwentyOnePack | null = initialPack;
+  /** Whether the active set differs from either built-in starter, for the
+   * quiet progress marker. */
   let authored = false;
   /** A prompt file belongs to the editor text it was picked for. A later file
    * pick, typed edit, Apply or Reset makes any slower read stale, so it can
@@ -3057,9 +3068,37 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     saveAnswersStatus.textContent = "";
   }
 
+  function syncStarterEditor() {
+    const selected = restoreTwentyOnePack(packSelect.value);
+    packApply.textContent = `Use ${twentyOnePacks[selected].name} and clear answers`;
+  }
+
+  function activeTitle(): string {
+    return activePack ? twentyOnePacks[activePack].title : twentyOneResultTitle;
+  }
+
+  function syncDescription() {
+    if (!description) return;
+    description.textContent = activePack
+      ? twentyOnePacks[activePack].description
+      : experiences["twenty-one-questions"].description;
+  }
+
+  function syncBlankNote() {
+    blankNote.textContent = activePack === null
+      ? "Copies the default built-in starter. Your edited questions and answers stay in this tab."
+      : activePack === twentyOneDefaultPack
+      ? "Copies the built-in 21 Questions starter with no answers."
+      : `Copies the ${twentyOnePacks[activePack].name} starter with no answers.`;
+  }
+
   function syncProgress() {
     const answered = twentyOneAnswered(answers);
-    const source = authored ? " · your prompts" : "";
+    const source = authored
+      ? " · your prompts"
+      : activePack && activePack !== twentyOneDefaultPack
+      ? ` · ${twentyOnePacks[activePack].name}`
+      : "";
     progress.textContent = view === "questions"
       ? `Question ${current + 1} of ${twentyOneCount} · ${answered} answered${source}`
       : view === "done"
@@ -3115,7 +3154,8 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     summary.hidden = false;
     clearBlankOffer();
     clearCopyAnswers();
-    summaryTitle.textContent = twentyOneResultTitle;
+    summaryTitle.textContent = activeTitle();
+    syncBlankNote();
     list.replaceChildren();
     const pairs = twentyOnePairs(answers, activeQuestions);
     // The copy and the file save exist only when this summary has a response.
@@ -3194,20 +3234,23 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     update();
   });
 
-  // The invite is the bare built-in route on this origin: no answer, result,
-  // byline, authored prompt or saved state travels with it. No result link is
-  // created, and an authored set still never becomes one of its own.
+  // The invite names only the built-in starter on stage. The default and any
+  // custom run keep the bare route; Creative life adds only its exact pack
+  // fragment. No answer, result, byline, authored prompt or saved state travels.
   blankCopy.addEventListener("click", async () => {
     if (view !== "summary") return;
-    const href = new URL(twentyOneBlankPath, location.origin).href;
+    const pack = activePack;
+    const href = new URL(twentyOneBlankLink(pack), location.origin).href;
     clearBlankOffer();
     const attempt = blankCopyAttempt;
     try {
       await navigator.clipboard.writeText(href);
       if (attempt !== blankCopyAttempt) return;
-      blankStatus.textContent = authored
-        ? "Built-in starter link copied. Your edited questions and answers stay in this tab."
-        : "Built-in starter link copied. It opens the built-in 21 questions with no answers.";
+      blankStatus.textContent = pack === null
+        ? "Default built-in starter link copied. Your edited questions and answers stay in this tab."
+        : pack === twentyOneDefaultPack
+        ? "Built-in starter link copied. It opens the built-in 21 questions with no answers."
+        : `${twentyOnePacks[pack].name} starter link copied. It opens ${twentyOnePacks[pack].name} with no answers.`;
     } catch {
       if (attempt !== blankCopyAttempt) return;
       blankStatus.textContent = "Clipboard access was denied. Copy the built-in starter link from this field.";
@@ -3305,13 +3348,21 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   /** A written set lives only in this tab. Applying is the one action that
    * replaces the current run: the frozen prompts, a fresh answer list and the
    * same stage, with no link, draft, request or stored copy. */
-  function applyPrompts(prompts: readonly string[]) {
-    // Applying (or resetting) retires a previous run's copied text as well as
-    // any prompt file still being read.
+  function applyPrompts(
+    prompts: readonly string[],
+    pack: TwentyOnePack | null = twentyOnePackForPrompts(prompts),
+  ) {
+    // Applying, switching or resetting retires a previous run's copied text as
+    // well as any prompt file still being read, then deliberately clears every
+    // answer for the fresh run.
     clearCopyAnswers();
     promptRevision += 1;
     activeQuestions = [...prompts];
-    authored = activeQuestions.some((prompt, index) => prompt !== twentyOneQuestions[index]);
+    activePack = pack;
+    authored = activePack === null;
+    packSelect.value = activePack ?? twentyOneDefaultPack;
+    syncStarterEditor();
+    syncDescription();
     customPrompts.value = activeQuestions.join("\n");
     answers = twentyOneStart();
     customPanel.open = false;
@@ -3333,7 +3384,24 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     applyPrompts(read.prompts);
   });
 
-  customReset.addEventListener("click", () => applyPrompts(twentyOneQuestions));
+  customReset.addEventListener("click", () => applyPrompts(twentyOneQuestions, twentyOneDefaultPack));
+
+  // Selection only replaces the editor draft. The active prompts, title and
+  // answers stay untouched until the separately labelled clear-answers action.
+  packSelect.addEventListener("change", () => {
+    const selected = restoreTwentyOnePack(packSelect.value);
+    const name = twentyOnePacks[selected].name;
+    customPrompts.value = twentyOnePacks[selected].questions.join("\n");
+    promptRevision += 1;
+    promptFileStatus.textContent = "";
+    syncStarterEditor();
+    customStatus.textContent = `${name} is ready in the editor. Your current run and answers are unchanged. Choose “Use ${name} and clear answers” to switch.`;
+  });
+
+  packApply.addEventListener("click", () => {
+    const selected = restoreTwentyOnePack(packSelect.value);
+    applyPrompts(twentyOnePacks[selected].questions, selected);
+  });
 
   /** Every refusal names the reason and keeps the editor and the current run
    * exactly as they were. No field in this file can carry an answer. */
@@ -3428,6 +3496,10 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   customPrompts.addEventListener("input", () => { promptRevision += 1; });
   promptFileSave.addEventListener("click", savePromptFile);
 
+  packSelect.value = initialPack;
+  customPrompts.value = activeQuestions.join("\n");
+  syncStarterEditor();
+  syncDescription();
   showQuestion(0, false);
 
   return {
@@ -3435,7 +3507,7 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     // run asked. Preview and both formats draw from this one copy.
     result: () => view !== "summary" || twentyOneAnswered(answers) === 0
       ? null
-      : { title: twentyOneResultTitle, items: [...answers], questions: [...activeQuestions] },
+      : { title: activeTitle(), items: [...answers], questions: [...activeQuestions] },
     // Private answers never become a public link: URL sharing stays off for
     // the whole run, with the downloaded cards as the way out.
     linksAllowed: () => false,
@@ -3453,6 +3525,8 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
       if (submit) submit.disabled = false;
       customPrompts.disabled = false;
       customReset.disabled = false;
+      packSelect.disabled = false;
+      packApply.disabled = false;
       // The prompt file controls are JavaScript-only too. Releasing them here
       // keeps one held module from leaving any of them apparently usable.
       for (const control of [promptFileSave, promptFileInput]) control.disabled = false;

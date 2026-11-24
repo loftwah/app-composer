@@ -2,14 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import {
-  experienceArt, experienceOg, experiences, twentyOneQuestions,
+  experienceArt, experienceOg, experiences, twentyOnePacks, twentyOneQuestions,
   twentyOneResultTitle,
 } from '../src/lib/share-experiences.ts';
 import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
   twentyOneAnswerLimit, twentyOneAnswered, twentyOneAnswersFileName, twentyOneAnswersText,
-  twentyOneBlankPath, twentyOneCount,
+  twentyOneBlankLink, twentyOneBlankPath, twentyOneCount, twentyOneDefaultPack,
+  twentyOnePackForPrompts, twentyOnePackFromHash,
   twentyOnePairs, twentyOneProgress, twentyOnePromptLimit, twentyOneStart, twentyOneSquareCardSize,
 } from '../src/lib/twenty-one-questions.ts';
 
@@ -35,16 +36,23 @@ test('the registry entry reuses the owned specimen artwork without new assets', 
   assert.ok(existsSync(new URL(`../public${webp}`, import.meta.url)), 'the 480w stage art exists');
 });
 
-test('the starter is twenty-one authored natural prompts, each usable on a card', () => {
+test('each built-in starter is twenty-one authored prompts usable on a card', () => {
   assert.equal(twentyOneQuestions.length, 21);
   assert.equal(twentyOneCount, 21);
-  assert.equal(new Set(twentyOneQuestions).size, 21, 'no question is repeated');
-  for (const question of twentyOneQuestions) {
-    assert.ok(question.trim() === question && question.length > 0, 'questions carry their own wording');
-    assert.ok(question.length <= 72, 'a question fits its card row');
+  assert.deepEqual(Object.keys(twentyOnePacks), ['internet', 'creative-life']);
+  for (const [id, pack] of Object.entries(twentyOnePacks)) {
+    assert.equal(pack.questions.length, 21, `${id} has twenty-one prompts`);
+    assert.equal(new Set(pack.questions).size, 21, `${id} repeats no question`);
+    for (const question of pack.questions) {
+      assert.ok(question.trim() === question && question.length > 0, `${id} prompts carry their own wording`);
+      assert.ok(question.length <= 72, `${id} prompts fit their card row`);
+    }
+    assert.deepEqual(readTwentyOnePrompts(pack.questions).prompts, [...pack.questions], `${id} passes the editor validator`);
+    assert.match(pack.title, /\S/);
+    assert.ok(pack.title.length <= 72);
   }
-  assert.match(twentyOneResultTitle, /\S/);
-  assert.ok(twentyOneResultTitle.length <= 72);
+  assert.equal(twentyOneResultTitle, 'Your internet specimen', 'the original heading is unchanged');
+  assert.equal(twentyOnePacks['creative-life'].title, 'Your creative life');
 });
 
 test('a run starts empty and records only cleaned, capped answers', () => {
@@ -168,7 +176,7 @@ test('the built-in invite is the bare canonical route, with no answers or result
   }
 
   const controller = read('src/browser/share-experiences.ts');
-  assert.match(controller, /new URL\(twentyOneBlankPath, location\.origin\)\.href/);
+  assert.match(controller, /new URL\(twentyOneBlankLink\(pack\), location\.origin\)\.href/);
   assert.match(controller, /if \(view !== "summary"\) return;/, 'only the summary offers the invite');
   assert.match(controller, /blankManual\.focus\(\);\s*blankManual\.select\(\);/, 'denied clipboard selects the readonly fallback');
   assert.match(controller, /Your edited questions and answers stay in this tab/, 'an authored set is called out in the status');
@@ -181,6 +189,59 @@ test('the built-in invite is the bare canonical route, with no answers or result
   assert.match(block[1], /Copy built-in starter link<\/button>/);
   assert.match(block[1], /readonly aria-label="Built-in starter link" data-tq-blank-manual/);
   assert.match(block[1], /role="status" data-tq-blank-status/);
+});
+
+test('an alternate invite carries only its exact pack id and custom runs stay bare', () => {
+  const alternate = twentyOneBlankLink('creative-life');
+  assert.equal(alternate, `${twentyOneBlankPath}#pack=creative-life`);
+  assert.equal(twentyOneBlankLink(twentyOneDefaultPack), twentyOneBlankPath);
+  assert.equal(twentyOneBlankLink(null), twentyOneBlankPath, 'a custom run copies the old default');
+
+  const url = new URL(alternate, 'https://composer.example');
+  assert.equal(url.origin, 'https://composer.example');
+  assert.equal(url.search, '');
+  assert.equal(url.hash, '#pack=creative-life');
+  for (const word of ['result', 'answer', 'byline', 'question=', 'prompt', 'draft', 'custom']) {
+    assert.equal(url.href.toLowerCase().includes(word), false, `no ${word} travels with the alternate invite`);
+  }
+
+  assert.equal(twentyOnePackFromHash('#pack=creative-life'), 'creative-life');
+  for (const hash of [
+    '', '#', '#pack=', '#pack=unknown', '#pack=custom', '#pack=Creative-life',
+    '#pack=%63reative-life', '#pack=creative-life&pack=creative-life',
+    '#pack=creative-life&extra=1', '#result=%7B%22answer%22%3A%22private%22%7D',
+    'pack=creative-life',
+  ]) {
+    assert.equal(twentyOnePackFromHash(hash), twentyOneDefaultPack, `${hash || 'empty'} keeps the bare default`);
+  }
+
+  const creative = twentyOnePacks['creative-life'].questions;
+  assert.equal(twentyOnePackForPrompts(creative), 'creative-life');
+  const custom = [...creative];
+  custom[0] = `${custom[0]} Edited.`;
+  assert.equal(twentyOnePackForPrompts(custom), null);
+  assert.equal(twentyOneBlankLink(twentyOnePackForPrompts(custom)), twentyOneBlankPath);
+
+  const controller = read('src/browser/share-experiences.ts');
+  const mount = controller.slice(controller.indexOf('function mountTwentyQuestions'), controller.indexOf('function mountPersona'));
+  assert.match(mount, /twentyOnePackFromHash\(location\.hash\)/);
+  assert.doesNotMatch(mount, /location\.hash\s*=|history\.replaceState/, 'no pack selection is written into the address');
+});
+
+test('starter selection only stages text until the explicit clear-answers action', () => {
+  const controller = read('src/browser/share-experiences.ts');
+  const mount = controller.slice(controller.indexOf('function mountTwentyQuestions'), controller.indexOf('function mountPersona'));
+  const changeStart = mount.indexOf('packSelect.addEventListener("change"');
+  const applyStart = mount.indexOf('packApply.addEventListener("click"');
+  const changeEnd = mount.indexOf('/** Every refusal names the reason', applyStart);
+  assert.ok(changeStart > 0 && applyStart > changeStart && changeEnd > applyStart, 'separate selection and apply handlers exist');
+  const change = mount.slice(changeStart, applyStart);
+  assert.match(change, /customPrompts\.value = twentyOnePacks\[selected\]\.questions\.join\("\\n"\);/);
+  assert.match(change, /Your current run and answers are unchanged/);
+  assert.doesNotMatch(change, /answers\s*=|applyPrompts|showQuestion/, 'changing the picker never clears or restarts answers');
+  const apply = mount.slice(applyStart, changeEnd);
+  assert.match(apply, /applyPrompts\(twentyOnePacks\[selected\]\.questions, selected\)/);
+  assert.match(mount, /answers = twentyOneStart\(\);/, 'the deliberate apply path starts a fresh answer state');
 });
 
 test('private cards offer portrait, Story and Square, with portrait first', () => {
