@@ -391,6 +391,7 @@
 .music-query-kind { font-weight: 700; }
 .music-query-row .music-query input { display: block; inline-size: 100%; min-width: 0; min-height: 44px; margin: 0; }
 .music-results { list-style: none; padding: 0; margin: .7rem 0 0; display: grid; gap: .35rem; }
+.exhibit-music .music-results { margin-block-start: .25rem; }
 .share-experience .music-results button {
   display: flex; flex-direction: column; align-items: flex-start; gap: .15rem;
   inline-size: 100%; text-align: start; font-weight: 400;
