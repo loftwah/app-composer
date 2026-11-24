@@ -80,7 +80,6 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
       const feature = isShare || isStudio ? features[app.id] : null;
       const support = appDeviceSupport(app.id);
       const deviceTokens = deviceFilterTokens(support);
-      const knownSupport = deviceTokens !== 'unknown';
       const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? paperworkSource.origin : app.href;
       const label = isStudio ? 'Open Media Studio' : isShare ? 'Browse artwork' : actions[app.id];
       const details = isShare || isWidgets || isBenchmarks ? null : appDetails[app.id];
@@ -94,7 +93,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
               <h2><a href={href}>{app.name}</a></h2>
             </div>
             <p>{isStudio ? 'Create stills, edit clips and mix sound in your own project.' : app.description}</p>
-            {knownSupport && <DeviceSupport support={support} compact />}
+            {details && <DeviceSupport support={support} compact />}
             <div class="entry-actions">
               <a class:list={['entry-open', {button: feature}]} href={href}>{label} <ArrowRight size={16} aria-hidden="true" /></a>
               {isWidgets && <a href="/widgets#bubbles-listening-card">Bubbles listening card</a>}
@@ -126,7 +125,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
             <ul>{details.features.map(feature => <li>{feature}</li>)}</ul>
             <p><strong>Make it yours.</strong> {details.configuration}</p>
             <p><strong>Works with.</strong> {details.connection}</p>
-            <DeviceSupport support={support} hideSummary={knownSupport} />
+            <DeviceSupport support={support} hideSummary />
           </details>}
         </article>
       );
