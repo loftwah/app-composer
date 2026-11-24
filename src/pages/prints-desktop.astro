@@ -1,0 +1,175 @@
+---
+import Base from '../layouts/Base.astro';
+import { ArrowDownToLine, ArrowUpRight, CirclePlay } from '@lucide/astro';
+
+const release = 'https://github.com/loftwah/prints-desktop/releases/tag/v0.1.0';
+const download = 'https://github.com/loftwah/prints-desktop/releases/download/v0.1.0/prints-desktop-0.1.0-macos-arm64.zip';
+const screenshot = '/prints-desktop/afterlight-workspace-v0.1.0.jpg';
+const site = 'https://github.com/loftwah/prints-desktop';
+---
+<Base
+  title="Prints Desktop"
+  description="Open Afterlight, a collection of six speculative landscapes, in a standalone Rust and Rune creative workspace. Browse, shortlist and keep the original files."
+  shareImage="/prints-desktop/afterlight-share-v0.1.0.jpg"
+  shareAlt="The Last Horizon from the Prints Desktop Afterlight collection, with an orange sun framed by a concrete ring on a volcanic coast."
+>
+  <article class="prints">
+    <header class="prints-hero">
+      <div class="hero-heading">
+        <img class="prints-mark" src="/prints-desktop/aperture-96.png" width="64" height="64" alt="" />
+        <h1>Prints Desktop</h1>
+        <p>A native creative workspace for discovering images, finding your favourites and keeping the files you came for.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="download" href={download}><ArrowDownToLine size={18} aria-hidden="true" /> Download for Apple Silicon</a>
+        <span>v0.1.0 preview · Free to explore offline</span>
+        <a class="quiet-link" href="#walkthrough"><CirclePlay size={17} aria-hidden="true" /> Watch the walkthrough</a>
+      </div>
+    </header>
+
+    <figure class="workspace">
+      <a href={screenshot} aria-label="Open the Prints Desktop workspace screenshot at full size">
+        <img src={screenshot} width="1440" height="885" alt="Prints Desktop with The Last Horizon selected. The concrete ring and orange sun fill the central image, with the contact sheet below and the image inspector on the right." fetchpriority="high" decoding="async" />
+      </a>
+      <figcaption><strong>Afterlight</strong> <span>The bundled sample collection running in the macOS app.</span></figcaption>
+    </figure>
+
+    <section class="prints-section" id="walkthrough" aria-labelledby="walkthrough-title">
+      <div class="section-copy">
+        <h2 id="walkthrough-title">From contact sheet to full frame.</h2>
+        <p>Open Afterlight on first launch. Pick a print, read its creative brief, and download the bundled JPEG through your system’s Save dialog.</p>
+        <a class="quiet-link" href={site}>Explore the source <ArrowUpRight size={16} aria-hidden="true" /></a>
+      </div>
+      <figure class="walkthrough">
+        <video controls playsinline preload="none" poster={screenshot} aria-label="Silent Prints Desktop walkthrough">
+          <source src="/prints-desktop/afterlight-walkthrough-v0.1.0.mp4" type="video/mp4" />
+        </video>
+        <figcaption>Silent walkthrough recorded with Rune. Select and preview a print, then return to the contact sheet.</figcaption>
+      </figure>
+    </section>
+
+    <section class="prints-section setup" aria-labelledby="setup-title">
+      <div class="section-copy">
+        <h2 id="setup-title">Run it on your Mac.</h2>
+        <p>Download the ZIP, extract it and open Prints Desktop. The preview was verified on an Apple Silicon Mac.</p>
+        <a class="quiet-link" href={release}>Release notes and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
+      </div>
+      <dl>
+        <dt>Install the preview</dt>
+        <dd>The Apple Silicon package is ad-hoc signed and awaits Apple notarisation. macOS may block a copy downloaded from the web. See the release notes for verification and installation details.</dd>
+        <dt>Explore without an account</dt>
+        <dd>Afterlight and local image work stay on your device. Exploring the preview uses no Cloudflare resources or model credits.</dd>
+        <dt>Run your own Prints setup</dt>
+        <dd>Fungi publishes a guide to deploying Oyster and running Prints with Workers AI. Infrastructure, storage and inference depend on your setup. <a href="https://docs.fungi.computer/apps/prints">Read the upstream setup guide <ArrowUpRight size={14} aria-hidden="true" /></a></dd>
+        <dt>Preview scope</dt>
+        <dd>Gallery, favourites, local imports, editable prompt drafts and original-file export are the preview focus. See the release for portable builds and their verification status. Hosted generation and job recovery are tracked in the build record.</dd>
+      </dl>
+    </section>
+
+    <footer class="prints-credit">
+      <p>Built by Loftwah with Rust and Anomaly’s Rune. Prints, Oyster and Darkroom are projects from the Fungi ecosystem. Afterlight is original ImageGen artwork made for this preview.</p>
+      <a class="quiet-link" href="https://github.com/loftwah/app-composer/issues/1292">Follow the build <ArrowUpRight size={16} aria-hidden="true" /></a>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .prints { --prints-accent: #ffb08c; }
+  :global([data-theme="light"]) .prints { --prints-accent: #a83920; }
+
+  .prints-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 32px;
+    padding: clamp(12px, 2vw, 28px) 0 34px;
+  }
+
+  .hero-heading { position: relative; }
+  .prints-mark { display: block; width: 56px; height: 56px; margin-left: -6px; }
+  .hero-heading h1 {
+    margin: 8px 0 14px;
+    max-width: none;
+    font-size: clamp(2.8rem, 7.3vw, 6.35rem);
+    font-weight: 600;
+    letter-spacing: -.036em;
+    text-wrap: balance;
+  }
+
+  .hero-heading p { max-width: 51ch; margin: 0; color: var(--color-muted); font-size: clamp(1.02rem, 1.8vw, 1.25rem); }
+  .hero-actions { display: flex; align-items: flex-start; flex-direction: column; gap: 9px; padding-bottom: 2px; }
+  .hero-actions span { color: var(--color-muted); font-size: .86rem; }
+  .download, .quiet-link, dd a { display: inline-flex; gap: 8px; align-items: center; }
+  .download {
+    min-height: 48px;
+    justify-content: center;
+    padding: 9px 15px;
+    border-radius: 8px;
+    color: #19141b;
+    background: #ffc3a7;
+    font-size: .94rem;
+  }
+
+  .download:hover { background: #ffae88; }
+  .quiet-link, dd a { color: var(--prints-accent); }
+  .quiet-link { min-height: 44px; font-size: .93rem; }
+  .quiet-link:hover, dd a:hover { color: var(--color-foreground); }
+  .workspace, .walkthrough { margin: 0; }
+  .workspace a { display: block; border-radius: 14px; }
+  .workspace img, .walkthrough video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+    border: 1px solid var(--color-border);
+    background: #181622;
+  }
+
+  .workspace figcaption, .walkthrough figcaption {
+    display: flex;
+    gap: 8px 14px;
+    flex-wrap: wrap;
+    margin-top: 11px;
+    color: var(--color-muted);
+    font-size: .9rem;
+  }
+
+  .workspace strong { color: var(--color-foreground); }
+  .prints-section {
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+    align-items: start;
+    gap: clamp(24px, 5vw, 66px);
+    margin-top: clamp(46px, 7vw, 92px);
+    padding-top: clamp(25px, 4vw, 45px);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .prints-section h2 { margin: 0 0 14px; text-wrap: balance; }
+  .section-copy p, .prints-credit p { margin: 0 0 6px; color: var(--color-muted); }
+  .setup dl { margin: 0; }
+  .setup dt { font-weight: 650; }
+  .setup dd { margin: 2px 0 16px; color: var(--color-muted); }
+  .setup dd:last-child { margin-bottom: 0; }
+
+  .prints-credit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 26px;
+    margin-top: clamp(40px, 6vw, 68px);
+    padding-top: 21px;
+    border-top: 1px solid var(--color-border);
+    font-size: .9rem;
+  }
+
+  @media (max-width: 760px) {
+    .prints-hero, .prints-section { grid-template-columns: 1fr; }
+    .prints-hero { gap: 18px; padding-bottom: 24px; }
+  }
+
+  @media (max-width: 390px) {
+    .download { width: 100%; }
+  }
+</style>

@@ -1,0 +1,11 @@
+{
+  "release": "https://github.com/loftwah/prints-desktop/releases/tag/v0.1.0",
+  "source": "86f8660341f5592bf0211f5f68819e3bbb27c299",
+  "artwork": "https://github.com/loftwah/prints-desktop/blob/v0.1.0/assets/README.md",
+  "assets": {
+    "afterlight-workspace-v0.1.0.jpg": "Screen capture of the packaged Apple Silicon app on macOS 26.6.2, cropped to its content view.",
+    "afterlight-walkthrough-v0.1.0.mp4": "Rune input replay of the native Afterlight workspace on Apple Silicon macOS.",
+    "afterlight-share-v0.1.0.jpg": "Public crop of The Last Horizon, an original ImageGen study in the Afterlight collection.",
+    "aperture-96.png": "Reduced copy of the original Prints Desktop aperture mark."
+  }
+}
