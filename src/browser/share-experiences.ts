@@ -16,7 +16,7 @@ import {
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, readTwentyOnePrompts, readTwentyOnePromptFile, setTwentyOneAnswer, skipTwentyOne,
-  twentyOneAnswered, twentyOneAnswerLimit, twentyOneBlankPath, twentyOneCount,
+  twentyOneAnswered, twentyOneAnswerLimit, twentyOneAnswersText, twentyOneBlankPath, twentyOneCount,
   twentyOnePairs, twentyOnePromptFileLimit, twentyOnePromptFileName, twentyOnePromptLimit,
   twentyOneStart, writeTwentyOnePromptFile,
   type TwentyOnePromptFileRead,
@@ -2754,6 +2754,13 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
   const list = summary.querySelector<HTMLElement>("[data-tq-list]")!;
   const empty = summary.querySelector<HTMLElement>("[data-tq-empty]")!;
   const resume = root.querySelector<HTMLButtonElement>("[data-tq-resume]")!;
+  // The private summary's text copy: one gesture writes the exact ordered
+  // pairs; a denied write offers the same text in a selected readonly field.
+  const copyAnswers = root.querySelector<HTMLButtonElement>("[data-tq-copy-answers]")!;
+  const copyAnswersManual = root.querySelector<HTMLTextAreaElement>("[data-tq-copy-answers-manual]")!;
+  const copyAnswersStatus = root.querySelector<HTMLElement>("[data-tq-copy-answers-status]")!;
+  let copyAnswersAttempt = 0;
+  let copyingAnswers = false;
   // One invite action for the built-in game, wherever the summary is shown.
   const blankCopy = root.querySelector<HTMLButtonElement>("[data-tq-blank-copy]")!;
   const blankManual = root.querySelector<HTMLInputElement>("[data-tq-blank-manual]")!;
@@ -2793,6 +2800,18 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     blankStatus.textContent = "";
   }
 
+  /** One copy belongs to one summary view. Leaving it, answering, editing,
+   * replaying, applying prompts or starting another attempt retires both the
+   * status and the fallback text and strands any slower clipboard result, so
+   * an earlier answer can never reappear as current. */
+  function clearCopyAnswers() {
+    copyAnswersAttempt += 1;
+    copyingAnswers = false;
+    copyAnswersManual.hidden = true;
+    copyAnswersManual.value = "";
+    copyAnswersStatus.textContent = "";
+  }
+
   function syncProgress() {
     const answered = twentyOneAnswered(answers);
     const source = authored ? " · your prompts" : "";
@@ -2813,6 +2832,8 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     done.hidden = true;
     summary.hidden = true;
     clearBlankOffer();
+    clearCopyAnswers();
+    copyAnswers.disabled = true;
     const question = activeQuestions[current];
     prompt.textContent = question;
     answer.value = answers[current];
@@ -2828,6 +2849,8 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     done.hidden = false;
     summary.hidden = true;
     clearBlankOffer();
+    clearCopyAnswers();
+    copyAnswers.disabled = true;
     const answered = twentyOneAnswered(answers);
     doneNote.textContent = answered === 0
       ? "You skipped every question. You can still go back and answer any of them."
@@ -2844,9 +2867,12 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     done.hidden = true;
     summary.hidden = false;
     clearBlankOffer();
+    clearCopyAnswers();
     summaryTitle.textContent = twentyOneResultTitle;
     list.replaceChildren();
     const pairs = twentyOnePairs(answers, activeQuestions);
+    // The copy exists only when this private summary has a response.
+    copyAnswers.disabled = pairs.length === 0;
     empty.hidden = pairs.length > 0;
     for (const pair of pairs) {
       const item = document.createElement("li");
@@ -2883,6 +2909,8 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     const recorded = setTwentyOneAnswer(answers, current, answer.value);
     if (!recorded) return;
     answers = recorded;
+    // Answering or editing supersedes any text a previous summary copied.
+    clearCopyAnswers();
     syncProgress();
     update();
   });
@@ -2942,6 +2970,33 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
     }
   });
 
+  // A deliberate click copies the private summary as plain text. The pairs
+  // are read fresh from this run's frozen prompts and answers, so an earlier
+  // attempt, a prompt draft or a result cannot change what is written.
+  copyAnswers.addEventListener("click", async () => {
+    if (view !== "summary" || copyAnswers.disabled || copyingAnswers) return;
+    const pairs = twentyOnePairs(answers, activeQuestions);
+    if (pairs.length === 0) return;
+    const text = twentyOneAnswersText(pairs);
+    clearCopyAnswers();
+    const attempt = copyAnswersAttempt;
+    copyingAnswers = true;
+    try {
+      await navigator.clipboard.writeText(text);
+      if (attempt !== copyAnswersAttempt) return;
+      copyAnswersStatus.textContent = "Answers copied. Paste them where you want to keep them.";
+    } catch {
+      if (attempt !== copyAnswersAttempt) return;
+      copyAnswersStatus.textContent = "Clipboard access was denied. Your answers are selected below — copy them with your device’s copy shortcut.";
+      copyAnswersManual.value = text;
+      copyAnswersManual.hidden = false;
+      copyAnswersManual.focus();
+      copyAnswersManual.select();
+    } finally {
+      if (attempt === copyAnswersAttempt) copyingAnswers = false;
+    }
+  });
+
   restarts.forEach((button) => button.addEventListener("click", () => {
     // A replay asks the run’s active prompts again — written or built-in —
     // with fresh answers, until Reset returns to the built-in starter.
@@ -2976,7 +3031,9 @@ function mountTwentyQuestions(root: HTMLElement, update: () => void): Controller
    * replaces the current run: the frozen prompts, a fresh answer list and the
    * same stage, with no link, draft, request or stored copy. */
   function applyPrompts(prompts: readonly string[]) {
-    // Applying (or resetting) retires any prompt file still being read.
+    // Applying (or resetting) retires a previous run's copied text as well as
+    // any prompt file still being read.
+    clearCopyAnswers();
     promptRevision += 1;
     activeQuestions = [...prompts];
     authored = activeQuestions.some((prompt, index) => prompt !== twentyOneQuestions[index]);

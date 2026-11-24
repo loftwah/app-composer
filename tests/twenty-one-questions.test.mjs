@@ -8,8 +8,8 @@ import {
 import { resultSizes } from '../src/browser/share-experience-image.ts';
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne, splitTwentyOneCards,
-  twentyOneAnswerLimit, twentyOneAnswered, twentyOneBlankPath, twentyOneCount, twentyOnePairs,
-  twentyOneProgress, twentyOnePromptLimit, twentyOneStart, twentyOneSquareCardSize,
+  twentyOneAnswerLimit, twentyOneAnswered, twentyOneAnswersText, twentyOneBlankPath, twentyOneCount,
+  twentyOnePairs, twentyOneProgress, twentyOnePromptLimit, twentyOneStart, twentyOneSquareCardSize,
 } from '../src/lib/twenty-one-questions.ts';
 
 // The #1064 twenty-one-questions starter: one authored interview about a
@@ -99,6 +99,31 @@ test('the summary is made of exactly the nonempty answers, in question order', (
   assert.equal(pairs[0].question, twentyOneQuestions[5]);
   assert.equal(pairs[0].answer, 'a kettle and one lamp');
   assert.equal(pairs[1].question, twentyOneQuestions[19]);
+});
+
+test('copied answers keep authored prompt order, original numbers and no skips', () => {
+  const authored = twentyOneQuestions.map((prompt, index) =>
+    index === 0 ? 'Fictional first prompt' : index === 20 ? 'Fictional last prompt' : prompt);
+  let answers = twentyOneStart();
+  answers = setTwentyOneAnswer(answers, 0, 'a fictional early answer');
+  answers = setTwentyOneAnswer(answers, 20, 'a fictional late answer');
+  const pairs = twentyOnePairs(answers, authored);
+  assert.deepEqual(pairs.map((pair) => pair.index), [0, 20], 'skipped prompts are absent and order stays original');
+  for (const pair of pairs) {
+    assert.ok(pair.question.length <= twentyOnePromptLimit, 'the prompt is already bounded');
+    assert.ok(pair.answer.length <= twentyOneAnswerLimit, 'the answer is already bounded');
+  }
+  assert.equal(
+    twentyOneAnswersText(pairs),
+    '1. Fictional first prompt\na fictional early answer\n\n21. Fictional last prompt\na fictional late answer',
+    'each block is numbered with its own question, then its answer',
+  );
+  assert.equal(twentyOneAnswersText([]), '', 'an empty summary copies nothing');
+  assert.equal(
+    twentyOneAnswersText([{ index: 4, question: '', answer: 'orphan' }, { index: 5, question: 'A prompt', answer: '' }]),
+    '',
+    'a missing prompt or answer never becomes a block',
+  );
 });
 
 test('the export splits into several readable 4:5 cards in question order', () => {
@@ -207,6 +232,41 @@ test('each prepared card copies its exact Blob with a named, version-guarded act
   const handler = block.slice(block.indexOf('copyButton.addEventListener'));
   assert.doesNotMatch(handler, /renderExperienceCards\(|renderExperienceResult\(|renderPersonaCard\(/, 'copying never renders a new image');
   assert.doesNotMatch(handler, /fetch\(|resultLink\(|localStorage|sessionStorage|href|download|\.png/, 'no server, result link, storage or file path');
+});
+
+test('the signed-out summary copy writes only current pairs and retires stale results', () => {
+  const controller = read('src/browser/share-experiences.ts');
+  const mount = controller.slice(
+    controller.indexOf('function mountTwentyQuestions'),
+    controller.indexOf('/** The shared “Which X are you?” player'),
+  );
+  assert.ok(mount.includes('function mountTwentyQuestions'), 'the private controller was found');
+  assert.ok(mount.includes('const copyAnswers = root.querySelector<HTMLButtonElement>("[data-tq-copy-answers]")!'));
+  assert.ok(mount.includes('const copyAnswersManual = root.querySelector<HTMLTextAreaElement>("[data-tq-copy-answers-manual]")!'));
+  assert.ok(mount.includes('const copyAnswersStatus = root.querySelector<HTMLElement>("[data-tq-copy-answers-status]")!'));
+
+  const clear = mount.match(/function clearCopyAnswers\(\) \{([\s\S]*?)\n  \}/);
+  assert.ok(clear, 'one retirement helper');
+  assert.match(clear[1], /copyAnswersAttempt \+= 1/);
+  assert.match(clear[1], /copyAnswersManual\.hidden = true;\s*copyAnswersManual\.value = "";\s*copyAnswersStatus\.textContent = "";/);
+  assert.equal((mount.match(/clearCopyAnswers\(\);/g) ?? []).length, 6, 'every view, edit, apply and attempt retires it');
+  assert.ok(mount.includes('copyAnswers.disabled = pairs.length === 0;'), 'no response means no usable copy');
+
+  const handler = mount.slice(mount.indexOf('copyAnswers.addEventListener'), mount.indexOf('restarts.forEach'));
+  assert.match(handler, /if \(view !== "summary" \|\| copyAnswers\.disabled \|\| copyingAnswers\) return;/);
+  assert.match(handler, /const pairs = twentyOnePairs\(answers, activeQuestions\)/);
+  assert.match(handler, /const text = twentyOneAnswersText\(pairs\)/);
+  assert.match(handler, /await navigator\.clipboard\.writeText\(text\)/);
+  assert.equal((handler.match(/attempt !== copyAnswersAttempt/g) ?? []).length, 2, 'success and denial are both guarded');
+  assert.match(handler, /copyAnswersManual\.value = text;\s*copyAnswersManual\.hidden = false;\s*copyAnswersManual\.focus\(\);\s*copyAnswersManual\.select\(\);/);
+  assert.doesNotMatch(handler, /fetch\(|localStorage|sessionStorage|new URL|\.href|resultLink|download|ClipboardItem|analytics/, 'no link, storage, server, file or analytics path');
+
+  const markup = read('src/components/share-experiences/ShareExperience.astro');
+  const block = markup.match(/<div class="tot-blank tq-copy-answers">([\s\S]*?)<\/div>/);
+  assert.ok(block, 'one copy block in the private summary');
+  assert.match(block[1], /<button type="button" class="secondary" data-tq-copy-answers disabled>Copy answers as text<\/button>/);
+  assert.match(block[1], /<textarea hidden readonly rows="8" aria-label="Your answers as text" data-tq-copy-answers-manual><\/textarea>/);
+  assert.match(block[1], /role="status" data-tq-copy-answers-status/);
 });
 
 test('production permits local images on the three quiz card or photo routes only', () => {

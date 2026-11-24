@@ -241,6 +241,12 @@
 .tq-pick-question { flex-basis: 100%; font-size: .88rem; opacity: .78; }
 .tq-picks strong { font-size: 1.06rem; }
 .tq-picks .secondary { min-height: 44px; padding: 4px 12px; font-size: .86rem; }
+/* The denied-clipboard fallback keeps the same readable ink as the prompt
+   editor and sits full width beside its copy action. */
+.tq-copy-answers textarea:not([hidden]) {
+  flex: 1 1 100%; min-inline-size: 0; margin-block: .5rem 0;
+  color: #211a1b; background: #fff9ec;
+}
 .exhibition, .bingo-stage, .experience-export, .experience-custom {
   border: 1px solid var(--border, #77757b);
   padding: clamp(.85rem, 3vw, 1.8rem);
