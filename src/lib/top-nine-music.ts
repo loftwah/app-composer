@@ -134,6 +134,23 @@ export function appleAlbumRef(value: unknown): { country: string; id: string } |
 }
 
 /**
+ * The storefront, track ID and — for an album `?i=` link — album ID carried by
+ * one canonical Apple Music song link. A plain album link is not a song choice,
+ * so it never seeds a song lookup. The canonical source form is the only input.
+ */
+export function appleSongRef(value: unknown): { country: string; id: string; album?: string } | null {
+  const preview = musicPreview(value);
+  if (preview?.provider !== "Apple Music") return null;
+  const url = new URL(preview.href);
+  const match = applePath.exec(url.pathname);
+  if (!match) return null;
+  const [, country, kind, id] = match;
+  const track = url.searchParams.get("i");
+  if (kind === "song") return track ? null : { country, id };
+  return track ? { country, id: track, album: id } : null;
+}
+
+/**
  * The album ID carried by one canonical Spotify album link. A track, playlist
  * or shortened link is not an album choice, so it never seeds an album lookup;
  * only the ID parsed from the exact open.spotify.com album path is reused.
@@ -205,6 +222,41 @@ export async function lookupAppleAlbum(
       if (canonical?.provider !== "Apple Music") return null;
       if (appleAlbumRef(canonical.href)?.id !== album.id) return null;
       const title = catalogueText(row.collectionName);
+      const artist = catalogueText(row.artistName);
+      return title && artist ? { title, artist, href: canonical.href } : null;
+    },
+  });
+  return found ? { title: found.title, artist: found.artist } : null;
+}
+
+/**
+ * One bounded public /lookup for the exact song behind a pasted Apple Music
+ * link, in that link's own storefront. Only the row's own track ID, title,
+ * artist and canonical track link are used; an album `?i=` link also demands
+ * the same album ID on the row and in that link. A search miss, a different
+ * edition or any ambiguity falls back to manual title entry. Artwork and audio
+ * previews are never read.
+ */
+export async function lookupAppleSong(
+  value: unknown,
+  signal?: AbortSignal,
+): Promise<{ title: string; artist: string } | null> {
+  const song = appleSongRef(value);
+  if (!song) return null;
+  const found = await lookupCatalogue({
+    id: song.id,
+    country: song.country,
+    signal,
+    label: "Music",
+    pick: (row) => {
+      if (row.kind !== "song" || String(row.trackId) !== song.id) return null;
+      if (song.album && String(row.collectionId) !== song.album) return null;
+      const canonical = musicPreview(row.trackViewUrl);
+      if (canonical?.provider !== "Apple Music") return null;
+      const parsed = appleSongRef(canonical.href);
+      if (!parsed || parsed.id !== song.id || parsed.country !== song.country) return null;
+      if (song.album && parsed.album !== song.album) return null;
+      const title = catalogueText(row.trackName);
       const artist = catalogueText(row.artistName);
       return title && artist ? { title, artist, href: canonical.href } : null;
     },
