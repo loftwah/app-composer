@@ -988,7 +988,7 @@ function mountNine(
 
   /** Fetch only a reviewed, versioned same-origin asset after a catalogue pick.
    * The exact slot must still own the request after both fetch and decode. */
-  async function hangApprovedCover(index: number, href: string, fit: CoverFit = "cover") {
+  async function hangApprovedCover(index: number, href: string, fit?: CoverFit) {
     const approved = approvedCoverForSource(href);
     if (!approved) return;
     const request = new AbortController();
@@ -1004,7 +1004,7 @@ function mountNine(
       const bytes = await response.blob();
       if (!applies()) return;
       if (bytes.size !== approved.bytes) throw new Error("Artwork size changed.");
-      await hangCoverImage(bytes, index, applies, approved, fit);
+      await hangCoverImage(bytes, index, applies, approved, fit ?? approved.defaultFit);
     } catch {
       if (applies()) coverNote("Artwork couldn’t load. You can add custom art.");
     } finally {
