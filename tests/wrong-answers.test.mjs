@@ -5,16 +5,17 @@ import {
   experienceArt, experienceOg, experiencePath, experiences,
 } from '../src/lib/share-experiences.ts';
 import {
-  wrongAnswerCount, wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle,
-  wrongAnswerPrompts, wrongAnswerStart,
+  readWrongAnswerDraftFile, wrongAnswerCount, wrongAnswerDraftFileLimit, wrongAnswerDraftFileName,
+  wrongAnswerDraftFileSchema, wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle,
+  wrongAnswerPrompts, wrongAnswerStart, writeWrongAnswerDraftFile,
 } from '../src/lib/wrong-answers.ts';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 // #1074 wrong-answers slice: ten authored questions, one bounded answer field,
-// per-question drafts held only in this tab, and one deliberate PNG download.
-// The signed-out phone/desktop journey is checked in a browser; these tests
-// cover the prompt set, the exact printed plate and the privacy wiring.
+// per-question drafts plus an explicit local JSON download, and one deliberate
+// PNG download. The signed-out phone/desktop journey is checked in a browser;
+// these tests cover the draft contract, printed plate and privacy wiring.
 
 test('the registry entry reuses the owned textbook cover without a new asset', () => {
   const experience = experiences['wrong-answers'];
@@ -62,6 +63,86 @@ test('every question starts with an empty answer and no stored value', () => {
   for (const forbidden of ['localStorage', 'sessionStorage', 'fetch(', 'XMLHttpRequest']) {
     assert.equal(source.includes(forbidden), false, `the sheet does not use ${forbidden}`);
   }
+});
+
+test('v1 answers drafts round-trip all ten raw rows and the selected prompt', () => {
+  const answers = Array.from({ length: wrongAnswerCount }, (_, index) =>
+    `  Answer ${index + 1}\nsecond line\t🙂  `);
+  answers[3] = '';
+  answers[6] = ' \n\t';
+  answers[9] = '🙂'.repeat(wrongAnswerLimit / 2);
+
+  for (const prompt of [0, 9]) {
+    const text = writeWrongAnswerDraftFile(answers, prompt);
+    assert.equal(typeof text, 'string');
+    assert.equal(writeWrongAnswerDraftFile(answers, prompt), text, 'the same draft always writes the same bytes');
+    assert.ok(Buffer.byteLength(text, 'utf8') <= wrongAnswerDraftFileLimit);
+    assert.equal(wrongAnswerDraftFileLimit, 16 * 1024);
+    assert.equal(wrongAnswerDraftFileSchema, 'composer.wrong-answers-draft/1');
+    assert.equal(wrongAnswerDraftFileName, 'wrong-answers-draft.json');
+
+    const file = JSON.parse(text);
+    assert.deepEqual(Object.keys(file), ['schema', 'answers', 'prompt']);
+    assert.deepEqual(file.answers, answers, 'newlines, Unicode, whitespace and blank rows stay raw');
+    assert.equal(file.prompt, prompt, 'the selected prompt is 0-based');
+    assert.deepEqual(readWrongAnswerDraftFile(text), {
+      draft: { answers, prompt }, fault: null, gap: -1,
+    });
+  }
+
+  const blank = wrongAnswerStart();
+  assert.deepEqual(readWrongAnswerDraftFile(writeWrongAnswerDraftFile(blank, 0)).draft,
+    { answers: blank, prompt: 0 }, 'an entirely blank unfinished draft is saveable');
+  assert.equal(wrongAnswerPlate(wrongAnswerPrompts[0].question, answers[0]).answer,
+    'Answer 1 second line 🙂', 'only the printed plate cleans the raw draft text');
+
+  const widest = Array.from({ length: wrongAnswerCount }, () => '\u0000'.repeat(wrongAnswerLimit));
+  const text = writeWrongAnswerDraftFile(widest, 9);
+  assert.ok(text, 'the widest escaped answer set still fits');
+  assert.ok(Buffer.byteLength(text, 'utf8') <= wrongAnswerDraftFileLimit);
+  assert.deepEqual(readWrongAnswerDraftFile(text).draft, { answers: widest, prompt: 9 });
+});
+
+test('malformed, oversized, foreign, wrong-shape and overlong answer drafts return no replacement', () => {
+  const valid = JSON.parse(writeWrongAnswerDraftFile(wrongAnswerStart(), 0));
+  const check = (value) => readWrongAnswerDraftFile(typeof value === 'string' ? value : JSON.stringify(value));
+  const withAnswer = (index, answer) => {
+    const answers = [...valid.answers];
+    answers[index] = answer;
+    return { ...valid, answers };
+  };
+
+  for (const value of [null, undefined, 5, {}, [], 'not json']) {
+    assert.equal(check(value).draft, null);
+  }
+  assert.equal(check('not json').fault, 'unreadable');
+  assert.equal(check([]).fault, 'unreadable');
+  assert.equal(check({}).fault, 'schema');
+  assert.equal(check({ ...valid, schema: 'composer.wrong-answers-draft/2' }).fault, 'version');
+  assert.equal(check({ ...valid, schema: 'composer.this-or-that-draft/1' }).fault, 'schema');
+  assert.equal(check({ ...valid, answers: valid.answers.slice(0, 9) }).fault, 'shape');
+  assert.equal(check({ ...valid, answers: [...valid.answers, ''] }).fault, 'shape');
+  assert.deepEqual({ fault: check(withAnswer(7, 3)).fault, gap: check(withAnswer(7, 3)).gap },
+    { fault: 'shape', gap: 7 });
+  assert.deepEqual({ fault: check(withAnswer(8, 'x'.repeat(wrongAnswerLimit + 1))).fault,
+    gap: check(withAnswer(8, 'x'.repeat(wrongAnswerLimit + 1))).gap },
+  { fault: 'long', gap: 8 });
+  for (const prompt of [-1, 10, 1.5, '0', null, true]) {
+    assert.equal(check({ ...valid, prompt }).fault, 'prompt');
+  }
+  for (const field of ['result', 'byline', 'picks', 'photos', 'url', 'storage', 'request']) {
+    assert.equal(check({ ...valid, [field]: [] }).fault, 'shape', `${field} is not part of the owned schema`);
+  }
+
+  assert.equal(writeWrongAnswerDraftFile(valid.answers.slice(0, 9), 0), null);
+  assert.equal(writeWrongAnswerDraftFile([...valid.answers, ''], 0), null);
+  assert.equal(writeWrongAnswerDraftFile(withAnswer(0, 3).answers, 0), null);
+  assert.equal(writeWrongAnswerDraftFile(withAnswer(0, 'x'.repeat(wrongAnswerLimit + 1)).answers, 0), null);
+  for (const prompt of [-1, 10, 1.5]) assert.equal(writeWrongAnswerDraftFile(valid.answers, prompt), null);
+
+  // Bytes, not characters, are bounded before JSON.parse.
+  assert.equal(check('é'.repeat(wrongAnswerDraftFileLimit / 2 + 1)).fault, 'oversized');
+  assert.equal(check('x'.repeat(wrongAnswerDraftFileLimit + 1)).fault, 'oversized');
 });
 
 test('the printed plate keeps the exact cleaned prompt and answer', () => {
@@ -116,6 +197,34 @@ test('the browser controller keeps every draft in this tab and never builds a li
   for (const forbidden of ['localStorage', 'sessionStorage', 'fetch(', 'resultLink', 'draftKey', 'sendBeacon']) {
     assert.equal(block.includes(forbidden), false, `the sheet does not use ${forbidden}`);
   }
+
+  assert.match(block, /const attempt = \+\+draftFileAttempt;/);
+  assert.match(block, /const revision = draftRevision;/);
+  assert.match(block, /function show\([\s\S]*?draftRevision \+= 1;/);
+  assert.match(block, /answer\.addEventListener\("input"[\s\S]*?draftRevision \+= 1;/);
+  assert.match(block, /draftFileSave\.disabled = false;/);
+  assert.match(block, /draftFileInput\.disabled = false;/);
+  const handlersStart = block.indexOf('function draftFileProblem');
+  const handlersEnd = block.indexOf('draftFileSave.addEventListener', handlersStart);
+  assert.ok(handlersStart > 0 && handlersEnd > handlersStart);
+  const handlers = block.slice(handlersStart, handlersEnd);
+  const sizeGuard = handlers.indexOf('file.size > wrongAnswerDraftFileLimit');
+  const fileRead = handlers.indexOf('await file.arrayBuffer()');
+  assert.ok(sizeGuard >= 0 && sizeGuard < fileRead, 'the 16 KiB bound is checked before any read');
+  assert.ok(handlers.indexOf('readWrongAnswerDraftFile(text)') < handlers.indexOf('window.confirm'),
+    'the whole file validates before confirmation or replacement');
+  assert.match(handlers, /answers\.some\(\(text\) => text !== ""\) && !window\.confirm\(/);
+  assert.match(handlers, /if \(attempt !== draftFileAttempt\) return;/);
+  assert.match(handlers, /if \(revision !== draftRevision\)/);
+  assert.match(handlers, /answers\.splice\(0, answers\.length, \.\.\.draft\.answers\);/);
+  assert.match(handlers, /current = draft\.prompt;[\s\S]*?sync\(\);\s*refresh\(\);/,
+    'opening restores the selected prompt through the existing render and export update');
+  assert.match(handlers, /writeWrongAnswerDraftFile\(draftAnswers, current\)/);
+  assert.match(handlers, /link\.download = wrongAnswerDraftFileName;/);
+  assert.match(handlers, /URL\.revokeObjectURL\(url\)/);
+  for (const forbidden of ['localStorage', 'sessionStorage', 'fetch(', 'XMLHttpRequest', 'sendBeacon', 'upload']) {
+    assert.equal(handlers.includes(forbidden), false, `the draft file never touches ${forbidden}`);
+  }
 });
 
 test('the stage starts every JS-only control disabled until the sheet mounts', () => {
@@ -130,6 +239,12 @@ test('the stage starts every JS-only control disabled until the sheet mounts', (
   assert.match(block, /data-wa-back disabled/);
   assert.match(block, /data-wa-next disabled/);
   assert.match(block, /data-wa-clear disabled/);
+  assert.match(block, /data-wa-draft-file-save disabled>Download answers draft/);
+  assert.match(block, /accept="application\/json,\.json" data-wa-draft-file/);
+  assert.match(block, /aria-describedby="wa-draft-file-note" disabled/);
+  assert.match(block, /role="status" data-wa-draft-file-status/);
+  assert.match(block, /wrongAnswerDraftFileName\} contains all ten answers and the selected question/);
+  assert.match(block, /Opening it replaces your current answers/);
   assert.match(block, /maxlength=\{wrongAnswerLimit\}/);
   assert.match(block, /aria-describedby="wa-local wa-count"/);
   assert.match(block, /wrongAnswerCount/);
@@ -137,7 +252,7 @@ test('the stage starts every JS-only control disabled until the sheet mounts', (
   assert.doesNotMatch(block, /localStorage|sessionStorage|result link/i);
   assert.match(markup, /isWrong \? \["Saffron page", "Faded copy", "Night school"\]/);
   assert.match(markup, /The PNG includes the selected question, your answer and any byline/);
-  assert.match(markup, /Your drafts stay in this tab\. Download a PNG to keep your answer/);
+  assert.match(markup, /Your answers stay in this tab\. Download an answers draft to keep all ten, or a PNG to keep the selected answer/);
   assert.match(markup, /data-download disabled=\{isDoor[^}]*isWrong/);
   assert.match(markup, /data-copy hidden=\{isTwentyOne[^}]*isWrong/);
 });

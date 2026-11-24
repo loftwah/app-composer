@@ -29,7 +29,7 @@ import {
   oneMustGoRoundNote, oneMustGoStarter, type OneMustGoRound,
 } from "../../lib/one-must-go.ts";
 import {
-  wrongAnswerCount, wrongAnswerLimit, wrongAnswerPrompts,
+  wrongAnswerCount, wrongAnswerDraftFileName, wrongAnswerLimit, wrongAnswerPrompts,
 } from "../../lib/wrong-answers.ts";
 import {
   redFlagCourtCases, redFlagCourtCount, redFlagCourtSubtitle,
@@ -442,14 +442,21 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <textarea id="wa-answer" rows="3" maxlength={wrongAnswerLimit} autocomplete="off" spellcheck="true"
         enterkeyhint="next" aria-describedby="wa-local wa-count" data-wa-answer disabled></textarea>
       <div class="wa-meta">
-        <p class="wa-local" id="wa-local">Your drafts stay in this tab. Download a PNG to keep your answer.</p>
+        <p class="wa-local" id="wa-local">Your answers stay in this tab. Download an answers draft to keep all ten, or a PNG to keep the selected answer.</p>
         <p class="wa-count" id="wa-count" data-wa-count>0 / {wrongAnswerLimit}</p>
       </div>
       <div class="wa-controls">
         <button type="button" class="secondary" data-wa-back disabled>Previous question</button>
         <button type="button" data-wa-next disabled>Next question</button>
         <button type="button" class="secondary" data-wa-clear disabled>Clear this answer</button>
+        <button type="button" class="secondary" data-wa-draft-file-save disabled>Download answers draft</button>
+        <label class="exhibition-file-open">Open answers draft
+          <input type="file" accept="application/json,.json" data-wa-draft-file
+            aria-describedby="wa-draft-file-note" disabled />
+        </label>
       </div>
+      <p class="experience-note" id="wa-draft-file-note">{wrongAnswerDraftFileName} contains all ten answers and the selected question. Opening it replaces your current answers.</p>
+      <p class="experience-note" role="status" data-wa-draft-file-status></p>
     </div>
     <p class="experience-note wa-status" role="status" aria-live="polite" data-wa-status></p>
   </section>}

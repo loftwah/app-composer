@@ -77,8 +77,9 @@ import {
   type OneMustGoBuiltinId, type OneMustGoRound,
 } from "../lib/one-must-go.ts";
 import {
-  wrongAnswerCount, wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle,
-  wrongAnswerPrompts, wrongAnswerStart,
+  readWrongAnswerDraftFile, wrongAnswerCount, wrongAnswerDraftFileLimit, wrongAnswerDraftFileName,
+  wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle, wrongAnswerPrompts, wrongAnswerStart,
+  writeWrongAnswerDraftFile, type WrongAnswerDraftFileRead,
 } from "../lib/wrong-answers.ts";
 import {
   readRedFlagVerdict, redFlagCourtAltText, redFlagCourtCalled, redFlagCourtCase,
@@ -142,7 +143,8 @@ interface ResultSnapshot {
   /** The frozen authored prompts a private 21-questions card export draws. */
   questions?: string[];
   /** Wrong Answers Only: the exact question and private answer the downloaded
-   * plate prints. Held only in memory and never serialised into a result link. */
+   * plate prints. Never serialised into a result link; the separate local draft
+   * file preserves all ten raw answers only when the maker downloads it. */
   prompt?: string;
   answer?: string;
   /** Red Flag Court: the current docket position and the participant's call.
@@ -4473,9 +4475,9 @@ function mountOneMustGo(root: HTMLElement, update: () => void, initialRound: One
 }
 
 /** Ten authored questions, one bounded answer at a time. Each prompt keeps its
- * own draft only in this tab, so switching never discards typed words. There is
- * no score, correction, link, public result or stored value: the deliberately
- * downloaded PNG is the only way an answer leaves. */
+ * own draft in this tab, so switching never discards typed words. An explicit
+ * local JSON file can preserve all ten raw answers and the selected question.
+ * There is no score, correction, link, public result or stored value. */
 function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
   const promptButtons = elements<HTMLButtonElement>(root, "[data-wa-prompt]");
   const question = root.querySelector<HTMLElement>("[data-wa-question]")!;
@@ -4486,8 +4488,15 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
   const back = root.querySelector<HTMLButtonElement>("[data-wa-back]")!;
   const next = root.querySelector<HTMLButtonElement>("[data-wa-next]")!;
   const clear = root.querySelector<HTMLButtonElement>("[data-wa-clear]")!;
+  const draftFileSave = root.querySelector<HTMLButtonElement>("[data-wa-draft-file-save]")!;
+  const draftFileInput = root.querySelector<HTMLInputElement>("[data-wa-draft-file]")!;
+  const draftFileStatus = root.querySelector<HTMLElement>("[data-wa-draft-file-status]")!;
   const answers = wrongAnswerStart();
   let current = 0;
+  /** A local read belongs to the answer state it started from. A newer file
+   * pick, question change or edit makes any slower read stale. */
+  let draftFileAttempt = 0;
+  let draftRevision = 0;
   // The outer share bar calls update() once after this controller returns. No
   // stage change before that point may reach it, so the generic controller is
   // never read while it is still undefined.
@@ -4511,6 +4520,7 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
    * the destination's own draft without rewriting any other answer. */
   function show(index: number, focus = true) {
     if (!Number.isInteger(index) || index < 0 || index >= wrongAnswerCount) return;
+    draftRevision += 1;
     answers[current] = answer.value.slice(0, wrongAnswerLimit);
     current = index;
     answer.value = answers[current];
@@ -4550,6 +4560,7 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
       return;
     }
     if (target.closest("[data-wa-clear]")) {
+      draftRevision += 1;
       answers[current] = "";
       answer.value = "";
       sync();
@@ -4560,13 +4571,106 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
   });
 
   answer.addEventListener("input", () => {
+    draftRevision += 1;
     answers[current] = answer.value.slice(0, wrongAnswerLimit);
     sync();
     refresh();
   });
 
+  function draftFileProblem(read: WrongAnswerDraftFileRead): string {
+    const unchanged = " Your answers are unchanged.";
+    if (read.fault === "oversized") return `That answers draft is larger than ${Math.round(wrongAnswerDraftFileLimit / 1024)} KB.${unchanged}`;
+    if (read.fault === "unreadable") return `That file is not valid JSON.${unchanged}`;
+    if (read.fault === "schema") return `That is not a Composer Wrong Answers Only draft.${unchanged}`;
+    if (read.fault === "version") return `That answers draft uses a format this page does not know. Save a fresh one here, then open that.${unchanged}`;
+    if (read.fault === "shape") return `That file must hold exactly ten answer strings, with no other fields.${unchanged}`;
+    if (read.fault === "long") return `Answer ${read.gap + 1} is longer than ${wrongAnswerLimit} characters.${unchanged}`;
+    if (read.fault === "prompt") return `That draft’s selected question is invalid.${unchanged}`;
+    return `That answers draft could not be opened.${unchanged}`;
+  }
+
+  /** Save every raw answer and the selected question to one bounded local
+   * file. Blank rows survive; the PNG still cleans only the selected plate. */
+  function saveAnswersDraft() {
+    const draftAnswers = answers.map((text, index) => index === current ? answer.value : text);
+    const text = writeWrongAnswerDraftFile(draftAnswers, current);
+    if (!text) {
+      draftFileStatus.textContent = "This draft could not be saved. Check that all ten answers fit the answer limit.";
+      return;
+    }
+    let url = "";
+    try {
+      url = URL.createObjectURL(new Blob([text], { type: "application/json;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = wrongAnswerDraftFileName;
+      link.rel = "noopener";
+      link.click();
+    } catch {
+      draftFileStatus.textContent = "This browser didn’t start the download. Your answers are unchanged; try again.";
+      return;
+    } finally {
+      if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    draftFileStatus.textContent = "Answers draft ready. It contains all ten answers and the selected question.";
+  }
+
+  /** Opening replaces all answers only after the entire file validates and any
+   * existing work is confirmed. The selected prompt then renders through the
+   * same state and update path as a manual question change. */
+  draftFileInput.addEventListener("change", async () => {
+    const file = draftFileInput.files?.[0];
+    if (!file) return;
+    const attempt = ++draftFileAttempt;
+    const revision = draftRevision;
+    try {
+      // Refuse a runaway file before reading or parsing any of it.
+      if (!Number.isFinite(file.size) || file.size > wrongAnswerDraftFileLimit) {
+        draftFileStatus.textContent = `That answers draft is larger than ${Math.round(wrongAnswerDraftFileLimit / 1024)} KB. Your answers are unchanged.`;
+        return;
+      }
+      const bytes = await file.arrayBuffer();
+      if (attempt !== draftFileAttempt) return;
+      if (revision !== draftRevision) {
+        draftFileStatus.textContent = "The answers draft arrived after you changed a question or answer. Open it again to replace your answers.";
+        return;
+      }
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      const read = readWrongAnswerDraftFile(text);
+      const draft = read.draft;
+      if (!draft) {
+        draftFileStatus.textContent = draftFileProblem(read);
+        return;
+      }
+      if (answers.some((text) => text !== "") && !window.confirm(
+        "Replace all ten answers with this draft? Your current answers will be cleared.",
+      )) {
+        draftFileStatus.textContent = "Open cancelled. Your answers are unchanged.";
+        return;
+      }
+      if (attempt !== draftFileAttempt || revision !== draftRevision) return;
+      answers.splice(0, answers.length, ...draft.answers);
+      current = draft.prompt;
+      answer.value = answers[current];
+      draftRevision += 1;
+      sync();
+      refresh();
+      question.focus({ preventScroll: true });
+      draftFileStatus.textContent = `Answers draft opened. Question ${current + 1} is selected.`;
+    } catch {
+      if (attempt !== draftFileAttempt) return;
+      draftFileStatus.textContent = "That file could not be read on this device. Your answers are unchanged.";
+    } finally {
+      if (attempt === draftFileAttempt) draftFileInput.value = "";
+    }
+  });
+
+  draftFileSave.addEventListener("click", saveAnswersDraft);
+
   sync();
   for (const control of [...promptButtons, answer]) control.disabled = false;
+  draftFileSave.disabled = false;
+  draftFileInput.disabled = false;
   sync();
   ready = true;
 
