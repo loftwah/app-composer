@@ -84,7 +84,7 @@ const packageData = JSON.stringify({
         </form>
       </details>
     ) : (
-      <div class="gallery-account gallery-feedback"><strong>Signed out</strong><a href={feedbackSignIn}>Sign in to give feedback</a></div>
+      <div class="gallery-account gallery-feedback"><span>Private feedback is for invited collaborators.</span> <a href={feedbackSignIn}>Invited sign-in</a></div>
     )}
     <div class="gallery-piece-actions">
       <button class="secondary" type="button" data-gallery-package={packageData} hidden><Package size={16} aria-hidden="true" /> Download post package (ZIP)</button>

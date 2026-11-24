@@ -78,7 +78,7 @@ const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
       ))}
     </ul>
     <p><a href={`${studioPublicationOrigin}/gallery`}>Browse the Media Studio gallery</a></p>
-    {canReview ? <ShareFilmFeedback /> : <p><a href="/_emdash/admin/login?redirect=/media-studio/films">Sign in to give private film feedback</a></p>}
+    {canReview ? <ShareFilmFeedback /> : <p>Private feedback is for invited collaborators. <a href="/_emdash/admin/login?redirect=/media-studio/films">Invited sign-in</a></p>}
   </section>
 
   <section class="film-library" id="studio-showcase-films" aria-labelledby="showcase-films-title">
