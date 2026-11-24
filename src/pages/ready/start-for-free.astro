@@ -32,12 +32,27 @@ const [title] = getHeadings();
   const status = document.querySelector<HTMLElement>('[data-copy-guide-status]');
   if (button && source && status) {
     button.hidden = false;
+    // A clipboard result only speaks for the attempt that started it. A denied
+    // write that settles late must not overwrite the status of a newer copy.
+    let attempt = 0;
     button.addEventListener('click', async () => {
+      const attemptId = ++attempt;
+      const text = source.textContent ?? '';
       try {
-        await navigator.clipboard.writeText(source.textContent ?? '');
+        await navigator.clipboard.writeText(text);
+        if (attemptId !== attempt) return;
         status.textContent = 'Markdown copied.';
       } catch {
-        status.textContent = 'Copy was blocked. Download the Markdown or select the source below.';
+        if (attemptId !== attempt) return;
+        status.textContent = "Markdown selected. Use your device's copy command.";
+        const details = source.closest('details');
+        if (details) details.open = true;
+        source.focus();
+        const range = document.createRange();
+        range.selectNodeContents(source);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
       }
     });
   }
