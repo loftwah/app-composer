@@ -1691,13 +1691,14 @@ function mountNine(
     list.text.scrollIntoView({ behavior: "instant", block: "nearest" });
   });
   const sharingOptions = root.querySelector<HTMLHeadingElement>("#nine-image-options");
-  root.querySelector<HTMLAnchorElement>(".nine-options-link")?.addEventListener("click", (event) => {
-    if (!sharingOptions || event.defaultPrevented || event.button !== 0
-      || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-    event.preventDefault();
-    sharingOptions.focus({ preventScroll: true });
-    sharingOptions.scrollIntoView({ behavior: "instant", block: "start" });
-  });
+  const sharingOptionsJump = root.querySelector<HTMLButtonElement>("[data-nine-options-jump]");
+  if (sharingOptions && sharingOptionsJump) {
+    sharingOptionsJump.addEventListener("click", () => {
+      sharingOptions.focus({ preventScroll: true });
+      sharingOptions.scrollIntoView({ behavior: "instant", block: "start" });
+    });
+    sharingOptionsJump.disabled = false;
+  }
   list.form.addEventListener("submit", (event) => {
     event.preventDefault();
     const open = listSlots();

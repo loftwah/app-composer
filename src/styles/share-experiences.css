@@ -688,11 +688,12 @@
 .nine-download-requirement { min-height: 1.4em; margin-block: .2rem 0; font-size: .88rem; }
 .nine-download-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
 .nine-download-row :is(button, a) { min-height: 44px; }
-.nine-options-link {
-  display: inline-flex; align-items: center; min-height: 44px;
-  color: var(--accent); font-weight: 700;
+.nine-board-links .nine-options-jump {
+  min-height: 44px; padding: 0;
+  background: transparent; border-color: transparent;
+  color: var(--accent); font: inherit; font-weight: 700;
 }
-.nine-options-link:hover { color: var(--stage-ink); }
+.nine-board-links .nine-options-jump:hover { color: var(--stage-ink); }
 .nine-image-options {
   margin: .8rem 0 0; padding-top: .8rem; scroll-margin-top: 1rem;
   color: inherit; font-size: 1rem;
