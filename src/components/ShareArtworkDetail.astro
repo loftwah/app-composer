@@ -129,7 +129,7 @@ const packageData = JSON.stringify({
         {artwork.kitUrl && <a href={artwork.kitUrl}>Open social kit <ArrowUpRight size={14} /></a>}
         {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source record <ArrowUpRight size={14} /></a>}
         {artwork.projectUrl && artwork.sourceUrl && (
-          <a href={shareCalendarHref}>{signedIn ? 'Prepare in Share calendar' : 'Sign in to prepare in Share calendar'} <ArrowUpRight size={14} aria-hidden="true" /></a>
+          <a href={shareCalendarHref}>{signedIn ? 'Prepare in Share calendar' : 'Prepare in Share calendar (invited access)'} <ArrowUpRight size={14} aria-hidden="true" /></a>
         )}
         <button class="secondary" type="button" data-gallery-copy-alt hidden><Copy size={16} aria-hidden="true" /> Copy image alt text</button>
         <a class="button secondary" href={postTextDownload} download={postTextFileName}><Download size={16} aria-hidden="true" /> Download post text (TXT)</a>
