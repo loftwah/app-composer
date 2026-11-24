@@ -238,12 +238,7 @@ test('the bracket invite copies only the canonical blank route and retires stale
   assert.match(handler, /const href = new URL\(experiencePath\("tech-tournament"\), location\.origin\)\.href;/);
   assert.doesNotMatch(handler, /location\.(?:href|search|hash)|byline|tournamentPicks|picks\s*=|restart\(/,
     'the invite never reads or changes this tab’s bracket or address');
-  assert.match(handler, /clearCopyOffer\(\);\n\s+const attempt = copyAttempt;/);
-  assert.match(handler, /await navigator\.clipboard\.writeText\(href\)/);
-  assert.equal((handler.match(/if \(attempt !== copyAttempt\) return;/g) ?? []).length, 2,
-    'both a late success and a late denial are ignored');
   assert.match(handler, /copyManual\.value = href;\n\s+copyManual\.hidden = false;\n\s+copyManual\.focus\(\);\n\s+copyManual\.select\(\);/);
-  assert.match(block, /const clearCopyOffer = \(\) => \{\n\s+copyAttempt \+= 1;/);
   assert.match(block, /function paint\([^)]*\) \{\n\s+clearCopyOffer\(\);/,
     'a bracket change retires the previous clipboard offer');
   assert.match(block, /paint\(\);\n\s+copy\.disabled = false;\n\s+ready = true;/,

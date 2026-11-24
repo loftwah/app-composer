@@ -1,3 +1,4 @@
+import { currentClipboard } from "../lib/current-clipboard.ts";
 import {
   agentBingo, developerBingo, doorEndings, experiencePath, experiences, internetBingo,
   thisOrThatPacks, twentyOnePacks, twentyOneQuestions, twentyOneResultTitle,
@@ -4405,7 +4406,7 @@ function mountOneMustGo(root: HTMLElement, update: () => void, initialRound: One
   const copyStatus = root.querySelector<HTMLElement>("[data-omg-copy-status]")!;
   let round: OneMustGoRound = initialRound;
   let gone: number | null = null;
-  let copyAttempt = 0;
+  const clipboard = currentClipboard();
 
   function paintChoices() {
     labels.forEach((label, index) => { label.textContent = round.choices[index]; });
@@ -4426,12 +4427,9 @@ function mountOneMustGo(root: HTMLElement, update: () => void, initialRound: One
     survivors.replaceChildren();
   }
 
-  /** A new round always retires the previous elimination, the selected-round
-   * buttons and any clipboard field still describing the old round. Typed
-   * custom input is deliberately left untouched. */
   function showRound(next: OneMustGoRound) {
     round = next;
-    copyAttempt += 1;
+    clipboard.invalidate();
     copyManual.hidden = true;
     copyManual.value = "";
     clearResult();
@@ -4523,29 +4521,24 @@ function mountOneMustGo(root: HTMLElement, update: () => void, initialRound: One
     status.textContent = "The poster round is back. Choose the one that goes.";
   });
 
-  // The link is the canonical route for this built-in round: no choice, result,
-  // byline or custom text. Moving or writing a round retires a clipboard write
-  // still in flight, and a denied clipboard selects the same link in a field.
   copy.addEventListener("click", async () => {
     const path = oneMustGoRoundPath(round);
     if (!path) return;
     const href = new URL(path, location.origin).href;
-    copyAttempt += 1;
-    const attempt = copyAttempt;
     copyManual.hidden = true;
     copyManual.value = "";
-    try {
-      await navigator.clipboard.writeText(href);
-      if (attempt !== copyAttempt) return;
-      copyStatus.textContent = "Challenge link copied. It opens this round with no choice made.";
-    } catch {
-      if (attempt !== copyAttempt) return;
-      copyStatus.textContent = "Clipboard access was denied. Copy the challenge link from this field.";
-      copyManual.value = href;
-      copyManual.hidden = false;
-      copyManual.focus();
-      copyManual.select();
-    }
+    await clipboard.write(href, {
+      copied() {
+        copyStatus.textContent = "Challenge link copied. It opens this round with no choice made.";
+      },
+      denied() {
+        copyStatus.textContent = "Clipboard access was denied. Copy the challenge link from this field.";
+        copyManual.value = href;
+        copyManual.hidden = false;
+        copyManual.focus();
+        copyManual.select();
+      },
+    });
   });
 
   paintRound();
@@ -4807,16 +4800,14 @@ function mountCursedChoices(root: HTMLElement, update: () => void, requested: nu
   const picks: (CursedChoice | null)[] = cursedChoiceStart();
   let current = cursedChoicePrompt(requested) ? requested : 0;
   let ready = false;
-  let copyAttempt = 0;
+  const clipboard = currentClipboard();
   const refresh = () => { if (ready) update(); };
   const sideLine = (side: CursedChoice | null) => {
     const entry = cursedChoicePrompt(current);
     return side === null || !entry ? "no side" : entry.choices[side];
   };
-  // Moving curses retires any visible fallback and any clipboard write still
-  // in flight, so a late result cannot describe a curse no longer on stage.
   const clearCopyOffer = () => {
-    copyAttempt += 1;
+    clipboard.invalidate();
     copyStatus.textContent = "";
     copyManual.hidden = true;
     copyManual.value = "";
@@ -4894,26 +4885,21 @@ function mountCursedChoices(root: HTMLElement, update: () => void, requested: nu
     }
   });
 
-  // The invite is the canonical route plus only this curse's ordinal. It opens
-  // the exact prompt unplayed: no side, consequence, byline, answer, draft,
-  // result fragment or other query. A denied clipboard selects the same link
-  // in a readonly field; moving curses retires it.
   copy.addEventListener("click", async () => {
     const href = new URL(cursedChoiceInvitePath(current), location.origin).href;
     clearCopyOffer();
-    const attempt = copyAttempt;
-    try {
-      await navigator.clipboard.writeText(href);
-      if (attempt !== copyAttempt) return;
-      copyStatus.textContent = `Challenge link copied. It opens curse ${current + 1} with no choices.`;
-    } catch {
-      if (attempt !== copyAttempt) return;
-      copyStatus.textContent = "Clipboard access was denied. Copy the challenge link from this field.";
-      copyManual.value = href;
-      copyManual.hidden = false;
-      copyManual.focus();
-      copyManual.select();
-    }
+    await clipboard.write(href, {
+      copied() {
+        copyStatus.textContent = `Challenge link copied. It opens curse ${current + 1} with no choices.`;
+      },
+      denied() {
+        copyStatus.textContent = "Clipboard access was denied. Copy the challenge link from this field.";
+        copyManual.value = href;
+        copyManual.hidden = false;
+        copyManual.focus();
+        copyManual.select();
+      },
+    });
   });
 
   for (const control of [...promptButtons, ...choiceButtons, copy]) control.disabled = false;
@@ -5061,12 +5047,10 @@ function mountTechTournament(root: HTMLElement, update: () => void): Controller 
   const copyStatus = root.querySelector<HTMLElement>("[data-tt-copy-status]")!;
   let picks: (TechTournamentPick | null)[] = techTournamentStart();
   let ready = false;
-  let copyAttempt = 0;
+  const clipboard = currentClipboard();
   const refresh = () => { if (ready) update(); };
-  // A bracket change retires the previous invite's selected fallback and any
-  // clipboard reply still in flight, so only the current view can report it.
   const clearCopyOffer = () => {
-    copyAttempt += 1;
+    clipboard.invalidate();
     copyManual.hidden = true;
     copyManual.value = "";
     copyStatus.textContent = "";
@@ -5161,25 +5145,21 @@ function mountTechTournament(root: HTMLElement, update: () => void): Controller 
     }
   });
 
-  // The invite is always the canonical bare route: no pick, result, byline,
-  // tracking query or fragment travels. Copying never changes this bracket; a
-  // denied clipboard selects the same link in a readonly field.
   copy.addEventListener("click", async () => {
     const href = new URL(experiencePath("tech-tournament"), location.origin).href;
     clearCopyOffer();
-    const attempt = copyAttempt;
-    try {
-      await navigator.clipboard.writeText(href);
-      if (attempt !== copyAttempt) return;
-      copyStatus.textContent = "Blank bracket link copied. It opens a fresh eight-entrant bracket with no picks.";
-    } catch {
-      if (attempt !== copyAttempt) return;
-      copyStatus.textContent = "Clipboard access was denied. Copy the blank bracket link from this field.";
-      copyManual.value = href;
-      copyManual.hidden = false;
-      copyManual.focus();
-      copyManual.select();
-    }
+    await clipboard.write(href, {
+      copied() {
+        copyStatus.textContent = "Blank bracket link copied. It opens a fresh eight-entrant bracket with no picks.";
+      },
+      denied() {
+        copyStatus.textContent = "Clipboard access was denied. Copy the blank bracket link from this field.";
+        copyManual.value = href;
+        copyManual.hidden = false;
+        copyManual.focus();
+        copyManual.select();
+      },
+    });
   });
 
   paint();

@@ -1,3 +1,4 @@
+import { currentClipboard } from './current-clipboard';
 import { promptModules, promptModule, renderPrompt, readPromptDraft, promptStorageKey, type PromptValues } from './prompt-library';
 
 const root = document.querySelector<HTMLElement>('[data-prompt-library]');
@@ -5,7 +6,7 @@ if (root) {
   const drafts: Record<string, PromptValues> = {};
   let selected = '';
   let sharedProject = '';
-  let copyGeneration = 0;
+  const clipboard = currentClipboard();
   const get = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
   const all = <T extends HTMLElement>(selector: string) => [...root.querySelectorAll<T>(selector)];
   const search = get<HTMLInputElement>('#prompt-search');
@@ -21,7 +22,7 @@ if (root) {
     return result;
   }
   function select(id: string, focus: boolean) {
-    copyGeneration++;
+    clipboard.invalidate();
     if (!promptModule(id)) id = 'setup';
     selected = id;
     for (const article of all<HTMLElement>('[data-prompt-job]')) article.hidden = article.dataset.promptJob !== id;
@@ -50,7 +51,7 @@ if (root) {
     get<HTMLElement>('#prompt-count').textContent = `${count} ${count === 1 ? 'job' : 'jobs'}${query ? ' found' : ' to choose from'}`;
   }
   function applyDrafts() {
-    copyGeneration++;
+    clipboard.invalidate();
     for (const form of all<HTMLFormElement>('[data-prompt-fields]')) {
       const id = form.dataset.promptFields!;
       for (const field of form.querySelectorAll<HTMLTextAreaElement>('textarea')) field.value = drafts[id]?.[field.name] ?? '';
@@ -72,35 +73,35 @@ if (root) {
     return result;
   }
   async function copy(id: string, template: boolean) {
-    const generation = ++copyGeneration;
+    clipboard.invalidate();
     const result = template ? showPreview(id, true) : validCompleted(id);
     if (!result) return;
     const copyStatus = get<HTMLElement>(`[data-copy-status="${id}"]`);
-    try {
-      await navigator.clipboard.writeText(result.text);
-      if (generation !== copyGeneration) return;
-      copyStatus.textContent = template ? 'Template copied. Replace its bracketed details in your agent.' : 'Prompt copied. Paste it into your agent to begin.';
-      get<HTMLElement>(`[data-manual="${id}"]`).hidden = true;
-    } catch {
-      if (generation !== copyGeneration) return;
-      copyStatus.textContent = 'Your browser could not copy this. Select the complete prompt below and copy it manually.';
-      get<HTMLElement>(`[data-manual="${id}"]`).hidden = false;
-      const manual = get<HTMLTextAreaElement>(`[data-manual="${id}"] textarea`);
-      manual.focus(); manual.select();
-    }
+    await clipboard.write(result.text, {
+      copied() {
+        copyStatus.textContent = template ? 'Template copied. Replace its bracketed details in your agent.' : 'Prompt copied. Paste it into your agent to begin.';
+        get<HTMLElement>(`[data-manual="${id}"]`).hidden = true;
+      },
+      denied() {
+        copyStatus.textContent = 'Your browser could not copy this. Select the complete prompt below and copy it manually.';
+        get<HTMLElement>(`[data-manual="${id}"]`).hidden = false;
+        const manual = get<HTMLTextAreaElement>(`[data-manual="${id}"] textarea`);
+        manual.focus();
+        manual.select();
+      },
+    });
   }
   for (const element of all<HTMLElement>('[data-enhanced]')) element.hidden = false;
   root.dataset.enhanced = 'true';
   for (const form of all<HTMLFormElement>('[data-prompt-fields]')) {
     form.addEventListener('submit', event => event.preventDefault());
     form.addEventListener('input', event => {
-      copyGeneration++;
+      clipboard.invalidate();
       const field = event.target;
       if (!(field instanceof HTMLTextAreaElement)) return;
       const id = form.dataset.promptFields!;
       drafts[id] ??= {};
       drafts[id][field.name] = field.value;
-      // Reuse the project reference only in otherwise untouched module fields.
       if (field.name === 'project') for (const item of promptModules) {
         drafts[item.id] ??= {};
         if (!drafts[item.id].project || drafts[item.id].project === sharedProject) {
