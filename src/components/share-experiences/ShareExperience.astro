@@ -939,6 +939,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : isCourt ? "Download verdict card" : isTournament ? "Download winner card" : isCurse ? "Download curse card" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
+      {isNine && <>
+        <button type="button" class="secondary" data-prepare-png-share hidden disabled>Prepare PNG to share</button>
+        <button type="button" data-share-png hidden disabled>Share PNG</button>
+      </>}
       {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : isThis ? "tot-alt-note" : "local-alt-note"}>Copy image description</button>}
       <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>Copy result link</button>
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament}>Share result</button>

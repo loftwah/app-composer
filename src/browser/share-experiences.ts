@@ -5141,6 +5141,24 @@ export function mountShareExperience(root: HTMLElement) {
   const exportPanel = root.querySelector<HTMLElement>("[data-export-panel]");
   const download = root.querySelector<HTMLButtonElement>("[data-download]")!;
   const copyPng = root.querySelector<HTMLButtonElement>("[data-copy-png]");
+  const preparePngShare = root.querySelector<HTMLButtonElement>("[data-prepare-png-share]");
+  const sharePng = root.querySelector<HTMLButtonElement>("[data-share-png]");
+  const nativePngShare = typeof navigator.share === "function" && typeof navigator.canShare === "function";
+  if (preparePngShare) preparePngShare.hidden = !nativePngShare;
+  if (sharePng) sharePng.hidden = true;
+  let pngShareVersion = 0;
+  let preparedPngShare: { version: number; file: File } | null = null;
+  let preparingPngShare = false;
+  let sharingPngShare = false;
+  function retirePngShare() {
+    if (!sharePng) return;
+    pngShareVersion += 1;
+    preparedPngShare = null;
+    if (sharePng) {
+      sharePng.hidden = true;
+      sharePng.disabled = true;
+    }
+  }
   // Transient export preference for Top Nine only: read straight from the
   // control when a PNG is made, never copied into the result, link, draft,
   // caption or description. Absent on other games, so they keep the default.
@@ -5302,6 +5320,10 @@ export function mountShareExperience(root: HTMLElement) {
     altManual.value = "";
   };
   const update = () => {
+    // Every board update retires a prepared file, including asynchronous cover
+    // changes and draft restoration. A slower render or share-sheet completion
+    // keeps its own revision and cannot replace the current board's status.
+    retirePngShare();
     const canShare = Boolean(controller.result());
     // A photo already chosen stays with the next result; only a decode still in
     // flight from the previous result is retired, so it can never appear later.
@@ -5334,6 +5356,7 @@ export function mountShareExperience(root: HTMLElement) {
     if (alt) alt.disabled = !canShare || !exportable;
     nativeShare.disabled = !links || !canShare || !exportable || sharing;
     if (nineCaptionCopy) nineCaptionCopy.disabled = busy || !canShare || !exportable;
+    refreshPngShareControls();
     clearAltFallback();
     clearNineCaption();
     if (shareNote && game === "this-or-that") shareNote.textContent = links
@@ -5363,6 +5386,17 @@ export function mountShareExperience(root: HTMLElement) {
     } else if (!canShare) status.textContent = "Find an ending to share.";
     else status.textContent = "";
   };
+  function refreshPngShareControls() {
+    if (!preparePngShare || !sharePng) return;
+    const available = nativePngShare;
+    const ready = Boolean(controller.result()) && (controller.exportAllowed?.() ?? true) && !avatarPending;
+    preparePngShare.hidden = !available;
+    preparePngShare.disabled = !available || busy || preparingPngShare || sharingPngShare || !ready;
+    preparePngShare.textContent = preparingPngShare ? "Preparing PNG…" : "Prepare PNG to share";
+    const prepared = preparedPngShare !== null;
+    sharePng.hidden = !available || !prepared;
+    sharePng.disabled = !available || !prepared || sharingPngShare || !ready;
+  }
   const pickSkin = () => { root.dataset.skin = chooseSkin.value; };
   controller = game === "pick-a-door" ? mountDoor(root, update)
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
@@ -5380,8 +5414,14 @@ export function mountShareExperience(root: HTMLElement) {
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
     pickSkin();
-    if (cardDownloads || personaPreview) update();
+    if (cardDownloads || personaPreview || preparePngShare) update();
   });
+  if (preparePngShare) {
+    format?.addEventListener("change", update);
+    byline.addEventListener("input", update);
+    nineCredit?.addEventListener("change", update);
+    window.addEventListener("pagehide", retirePngShare);
+  }
   if (cardDownloads || personaPreview) {
     // Changing format retires the old set at once: update() revokes its links
     // and bumps the version, so a render already in flight from the previous
@@ -5716,6 +5756,74 @@ export function mountShareExperience(root: HTMLElement) {
       update();
     }
     status.textContent = message;
+  });
+
+  // Top Nine can prepare the exact Download PNG, then hand that same File to
+  // the native share sheet from a second click. No result URL or publication
+  // is involved, and every board update retires the prepared file.
+  preparePngShare?.addEventListener("click", async () => {
+    const snapshot = result();
+    if (!snapshot || busy || preparingPngShare || sharingPngShare || !nativePngShare || controller.exportAllowed?.() === false) return;
+    const { hrefs: _links, profile: _profile, pages: _pages, ...drawn } = snapshot;
+    const formatValue = format?.value;
+    const size = formatValue && Object.hasOwn(resultSizes, formatValue) ? formatValue as ResultFormat : "portrait";
+    preparingPngShare = true;
+    retirePngShare();
+    const version = pngShareVersion;
+    refreshPngShareControls();
+    status.textContent = "Preparing PNG…";
+    let file: File | null = null;
+    let message = "";
+    try {
+      const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined, nineCredit?.checked ?? true);
+      if (version === pngShareVersion) {
+        const candidate = new File([blob], `${game}-${size}.png`, { type: "image/png" });
+        let supported = false;
+        try {
+          supported = navigator.canShare({ files: [candidate] });
+        } catch {
+          supported = false;
+        }
+        if (supported) {
+          file = candidate;
+          message = "PNG ready. Choose Share PNG to open your device’s share sheet.";
+        } else {
+          message = "This PNG can’t be shared from this browser. Use Download result to save it.";
+        }
+      }
+    } catch {
+      if (version === pngShareVersion) message = "Couldn’t prepare the PNG. Try again, or use Download result.";
+    }
+    preparingPngShare = false;
+    if (version === pngShareVersion) {
+      if (file) preparedPngShare = { version, file };
+      status.textContent = message;
+    }
+    refreshPngShareControls();
+  });
+
+  sharePng?.addEventListener("click", async () => {
+    const prepared = preparedPngShare;
+    if (!prepared || prepared.version !== pngShareVersion || sharingPngShare || !controller.result() || controller.exportAllowed?.() === false) return;
+    sharingPngShare = true;
+    refreshPngShareControls();
+    status.textContent = "Opening share sheet…";
+    try {
+      await navigator.share({ files: [prepared.file] });
+      if (prepared.version === pngShareVersion) {
+        preparedPngShare = null;
+        status.textContent = "PNG handed to your share sheet.";
+      }
+    } catch (error) {
+      if (prepared.version === pngShareVersion) {
+        status.textContent = (error as { name?: string } | null)?.name === "AbortError"
+          ? "Sharing cancelled. Your PNG is still ready."
+          : "Couldn’t share the PNG. Try Share PNG again, or use Download result.";
+      }
+    } finally {
+      sharingPngShare = false;
+      refreshPngShareControls();
+    }
   });
 
   copy.addEventListener("click", async () => {

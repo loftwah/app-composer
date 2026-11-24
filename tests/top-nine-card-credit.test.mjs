@@ -117,12 +117,12 @@ test('the export settings show one checked Top Nine-only checkbox', () => {
   assert.ok(panel.includes('data-nine-credit'), 'it lives inside the existing export settings');
 });
 
-test('both PNG actions read the preference at action time and stay transient', () => {
+test('all PNG actions read the preference at action time and stay transient', () => {
   const controller = source('src/browser/share-experiences.ts');
   assert.equal([...controller.matchAll(/data-nine-credit/g)].length, 1, 'one control query');
   assert.match(controller, /const nineCredit = root\.querySelector<HTMLInputElement>\("\[data-nine-credit\]"\)/);
   const calls = [...controller.matchAll(/renderExperienceResult\(drawn, size, controller\.exportCovers\?\.\(\) \?\? undefined, nineCredit\?\.checked \?\? true\)/g)];
-  assert.equal(calls.length, 2, 'Download result and Copy image capture the same preference');
+  assert.equal(calls.length, 3, "Download, copy and native sharing capture the same preference");
 
   // No persistence or publication surface absorbs the choice.
   for (const forbidden of ['data-nine-credit'] ) {
