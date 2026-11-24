@@ -56,6 +56,9 @@ const gameTypes = new Set(["Q7889"]);
  */
 const albumTypes = new Set(["Q482994", "Q20853847"]);
 
+/** Every instance type accepted by the picker and the exact-link title fill. */
+const knownTypes = new Set([...filmTypes, ...seriesTypes, ...gameTypes, ...albumTypes]);
+
 /**
  * Platform names, resolved once from each platform item's own English label or
  * article title on 2026-11-22. A game whose platform items all appear here and
@@ -171,6 +174,46 @@ function releaseYear(claims: Claims | undefined): number | undefined {
     return year >= 1000 && year <= 2999 ? [year] : [];
   });
   return years.length ? Math.min(...years) : undefined;
+}
+
+/**
+ * One bounded public wbgetentities read for the exact item behind a pasted
+ * Wikidata link. Only an item whose own P31 is a current film, TV-series, game
+ * or album type can name a slot, and only its own English or common-language
+ * label plus a reliable P577 year is used — no description, sitelink, image or
+ * guessed type. A wrong ID, unknown type, missing label or malformed response
+ * returns null, leaving the link with its manual title. The request reuses
+ * request(): one Action API call with the same abort, timeout and auth
+ * defaults, never a search and never a retry.
+ */
+export async function lookupWikidataTitle(
+  value: unknown,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  const canonical = wikidataSource(value);
+  if (!canonical) return null;
+  const match = entityPath.exec(new URL(canonical).pathname);
+  if (!match) return null;
+  const qid = match[2];
+
+  const data = await request(new URLSearchParams({
+    action: "wbgetentities", props: "labels|claims", languages: "en|mul", ids: qid,
+  }), "entity lookup", signal);
+  const entities = record(data.entities);
+  const item = record(entities?.[qid]);
+  if (!item) return null;
+  if (item.type !== undefined && item.type !== "item") return null;
+  if (item.id !== undefined && item.id !== qid) return null;
+
+  const claims = record(item.claims) as Claims | undefined;
+  if (!itemIds(claims, "P31").some((id) => knownTypes.has(id))) return null;
+
+  const labels = record(item.labels);
+  const title = catalogueText(record(labels?.en)?.value)
+    || catalogueText(record(labels?.mul)?.value);
+  if (!title) return null;
+  const year = releaseYear(claims);
+  return year === undefined ? title : `${title} (${year})`;
 }
 
 /** Platform names when every P400 item is in the curated set and there are few. */

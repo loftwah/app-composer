@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { searchWikidata, wikidataSource } from '../src/lib/top-nine-wikidata.ts';
+import { lookupWikidataTitle, searchWikidata, wikidataSource } from '../src/lib/top-nine-wikidata.ts';
 
 // Real Wikidata Action API responses, captured 2026-11-22 with
 // Api-User-Agent 'App Composer/1.0 (https://composer.loftwah.com)' and
@@ -456,4 +456,135 @@ test('a failed or cancelled search stays one request with no retries', async (t)
   assert.deepEqual(await searchWikidata('  ', 'album'), []);
   assert.deepEqual(await searchWikidata('x'.repeat(101), 'album'), []);
   assert.equal(fetch.mock.callCount(), 2);
+});
+
+// Exact-link fill: one wbgetentities read for the one QID in a pasted item
+// link. The two verified samples below use the real current response shape —
+// Q60834962 carries only a mul (common-language) label, Q3317763 an en label.
+const read = (entities) => ok({ entities });
+const filmLink = 'https://www.wikidata.org/wiki/Q60834962?uselang=en';
+const albumLink = 'https://www.wikidata.org/wiki/Q3317763';
+
+test('an exact film link fills its common-language label and reliable year in one bounded read', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://www.wikidata.org');
+    assert.equal(url.pathname, '/w/api.php');
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      action: 'wbgetentities', props: 'labels|claims', languages: 'en|mul',
+      ids: 'Q60834962', format: 'json', origin: '*',
+    });
+    assert.equal(init.credentials, 'omit');
+    assert.equal(init.redirect, 'error');
+    assert.equal(init.referrerPolicy, 'no-referrer');
+    assert.equal(init.headers['Api-User-Agent'], 'App Composer/1.0 (https://composer.loftwah.com)');
+    return read({
+      Q60834962: {
+        type: 'item', id: 'Q60834962',
+        labels: { mul: { language: 'mul', value: 'Dune' } },
+        claims: {
+          P31: [claim('Q11424')],
+          P577: [time('+2021-12-02T00:00:00Z', 11), time('+2021-09-03T00:00:00Z', 11)],
+        },
+      },
+    })();
+  });
+  assert.equal(await lookupWikidataTitle(filmLink), 'Dune (2021)');
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('an exact album link prefers the English label and keeps its year', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    assert.equal(url.searchParams.get('ids'), 'Q3317763');
+    assert.equal(url.searchParams.get('languages'), 'en|mul');
+    return read({
+      Q3317763: {
+        type: 'item', id: 'Q3317763',
+        labels: { en: { language: 'en', value: 'Modal Soul' }, mul: { language: 'mul', value: 'other' } },
+        claims: { P31: [claim('Q482994')], P577: [time('+2005-11-11T00:00:00Z', 11)] },
+      },
+    })();
+  });
+  assert.equal(await lookupWikidataTitle(albumLink), 'Modal Soul (2005)');
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('only the current film, series, game and album instance types fill a title', async (t) => {
+  let type = 'Q11424';
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    const qid = url.searchParams.get('ids');
+    return read({ [qid]: {
+      type: 'item', id: qid,
+      labels: { en: { language: 'en', value: 'Known' } },
+      claims: { P31: [claim(type)] },
+    } })();
+  });
+  for (type of ['Q11424', 'Q20650540', 'Q5398426', 'Q1259759', 'Q7889', 'Q482994', 'Q20853847']) {
+    assert.equal(await lookupWikidataTitle(filmLink), 'Known');
+  }
+  for (type of ['Q5', 'Q343301', 'Q21191270', 'Q3464665', 'Q277759']) {
+    assert.equal(await lookupWikidataTitle(filmLink), null);
+  }
+  assert.equal(fetch.mock.callCount(), 12);
+});
+
+test('a wrong ID, missing label, coarse year or malformed entity keeps the link manual', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => read({ Q999: {
+    type: 'item', id: 'Q999',
+    labels: { en: { language: 'en', value: 'Wrong' } }, claims: { P31: [claim('Q11424')] },
+  } })());
+  // The API did not return the requested item.
+  assert.equal(await lookupWikidataTitle(filmLink), null);
+  // A non-item entity, an ID mismatch, or a label in neither language is not usable.
+  fetch.mock.mockImplementation(async () => read({ Q60834962: {
+    type: 'property', id: 'Q60834962', labels: { en: { value: 'Dune' } }, claims: { P31: [claim('Q11424')] },
+  } })());
+  assert.equal(await lookupWikidataTitle(filmLink), null);
+  fetch.mock.mockImplementation(async () => read({ Q60834962: {
+    type: 'item', id: 'Q6083497', labels: { en: { value: 'Dune' } }, claims: { P31: [claim('Q11424')] },
+  } })());
+  assert.equal(await lookupWikidataTitle(filmLink), null);
+  for (const labels of [{}, { en: { value: '   ' } }, { en: 'Dune', mul: [] }, []]) {
+    fetch.mock.mockImplementation(async () => read({ Q60834962: {
+      type: 'item', id: 'Q60834962', labels, claims: { P31: [claim('Q11424')] },
+    } })());
+    assert.equal(await lookupWikidataTitle(filmLink), null);
+  }
+  // A coarse P577 precision is not a reliable year; the label still applies.
+  fetch.mock.mockImplementation(async () => read({ Q60834962: {
+    type: 'item', id: 'Q60834962', labels: { en: { value: 'Dune' } },
+    claims: { P31: [claim('Q11424')], P577: [time('+2021-00-00T00:00:00Z', 8)] },
+  } })());
+  assert.equal(await lookupWikidataTitle(filmLink), 'Dune');
+  // Malformed bodies never crash or invent a title.
+  for (const body of [{ entities: [] }, { entities: 'no' }, { entities: { Q60834962: null } },
+    { entities: { Q60834962: { claims: { P31: 'Q11424' }, labels: { en: { value: 'Dune' } } } } }]) {
+    fetch.mock.mockImplementation(async () => ok(body)());
+    assert.equal(await lookupWikidataTitle(filmLink), null);
+  }
+});
+
+test('an exact-link lookup never fetches for a non-item or spoofed link', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('a lookup must not run for this link');
+  });
+  for (const href of [
+    'https://www.wikipedia.org/wiki/Q60834962',
+    'https://www.wikidata.org.example.test/wiki/Q60834962',
+    'https://www.wikidata.org/wiki/Special:Search?search=Dune',
+    'https://music.apple.com/us/album/discovery/697194953',
+    '', null,
+  ]) {
+    assert.equal(await lookupWikidataTitle(href), null);
+  }
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('a failed or cancelled exact-link lookup makes one request with no retries', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', { status: 429 }));
+  await assert.rejects(lookupWikidataTitle(filmLink), /429/);
+  assert.equal(fetch.mock.callCount(), 1);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(lookupWikidataTitle(filmLink, controller.signal), { name: 'AbortError' });
+  assert.equal(fetch.mock.callCount(), 1);
 });
