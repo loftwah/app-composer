@@ -1,4 +1,4 @@
-// Film, TV-series, video-game, album and programming-language picks from
+// Film, TV-series, video-game, album, book and programming-language picks from
 // Wikidata's public Action API, used by the Top Nine "Find titles" panel.
 // Browser-direct with credentials omitted: no proxy, no key, no autoplay, no
 // polling and no retries — one search request plus at most one batched entity
@@ -13,9 +13,11 @@ export interface WikidataPick extends CataloguePick {
   article?: string;
   /** Platform names, shown only when every platform item is in the curated set. */
   platform?: string;
+  /** The item's own verified source ISBN-13, shown so an edition is distinguishable. */
+  isbn?: string;
 }
 
-export type WikidataKind = "film" | "series" | "game" | "album" | "language";
+export type WikidataKind = "film" | "series" | "game" | "album" | "book" | "language";
 
 const api = "https://www.wikidata.org/w/api.php";
 const userAgent = "App Composer/1.0 (https://composer.loftwah.com)";
@@ -56,6 +58,24 @@ const gameTypes = new Set(["Q7889"]);
  */
 const albumTypes = new Set(["Q482994", "Q20853847"]);
 /**
+ * Book fallback, offered only as an explicit action from the Books panel's
+ * recovery area. Apple Books stays the default search; this is never automatic.
+ * An item qualifies from its own non-deprecated P31: Q571 book, or Q3331189
+ * version, edition or translation only when that same item also carries an
+ * active, checksum-valid ISBN-13 (P212). A version statement alone can be a
+ * film cut or software release, so it never proves a book edition; the item's
+ * own ISBN does. Broad literary work (Q7725634) and non-fiction literary work
+ * (Q20540385) never qualify, and no class is inferred from another. Verified
+ * live on 2026-11-24: SICP JavaScript Edition Q108597673 is Q571; the SICP
+ * paperback Q126707955 (978-0-262-51087-5) and ebook Q138335500
+ * (978-0-262-36762-2) are Q3331189 with ISBN-13 values; the generic work
+ * Q1249747 is Q7725634 and the untyped adaptation Q85803794 has no P31. Results
+ * stay metadata-only: the pick links the item page and shows its source ISBN
+ * when one is verified. No cover, playback or provider ID is inferred.
+ */
+const bookTypes = new Set(["Q571", "Q3331189"]);
+const bookType = "Q571";
+/**
  * Programming language, accepted only when the item's own non-deprecated P31
  * carries Q9143. Verified against live responses on 2026-11-24: Rust Q575650,
  * C++ Q2407, Python Q28865 and Java Q251 include Q9143, while Node.js Q756100
@@ -65,7 +85,7 @@ const albumTypes = new Set(["Q482994", "Q20853847"]);
 const languageType = "Q9143";
 const languageTypes = new Set([languageType]);
 
-/** Every non-language instance type accepted by the picker and exact-link title fill. */
+/** Every non-language, non-book instance type accepted by the picker and exact-link title fill. */
 const knownTypes = new Set([...filmTypes, ...seriesTypes, ...gameTypes, ...albumTypes]);
 
 /**
@@ -148,6 +168,44 @@ function itemIds(claims: Claims | undefined, property: string, currentOnly = fal
   });
 }
 
+/**
+ * One active, checksum-valid ISBN-13 from the item's own P212, returned as the
+ * source wrote it so the pick can show the recorded edition ISBN. Digits and
+ * hyphens (and incidental spaces) are normalised before the checksum check; a
+ * deprecated statement, an ISBN-10, a malformed value or a bad checksum never
+ * counts. Verified live 2026-11-24: Q126707955 records 978-0-262-51087-5.
+ */
+function bookIsbn(claims: Claims | undefined): string | undefined {
+  for (const claim of claimsFor(claims, "P212")) {
+    if (claim?.rank === "deprecated") continue;
+    const value = claim?.mainsnak?.datavalue?.value;
+    if (typeof value !== "string" || value.length > 32) continue;
+    const source = value.trim();
+    const digits = source.replace(/[-\s]/g, "");
+    if (!/^97[89]\d{10}$/.test(digits)) continue;
+    let sum = 0;
+    for (let index = 0; index < 12; index += 1) {
+      sum += Number(digits[index]) * (index % 2 ? 3 : 1);
+    }
+    if ((10 - (sum % 10)) % 10 === Number(digits[12])) return source;
+  }
+  return undefined;
+}
+
+/**
+ * The one shared verified book rule for search and exact-link lookup: a current
+ * Q571 book, or a current Q3331189 edition that also carries a valid active
+ * ISBN-13. Broad work classes are never promoted into a book and no class is
+ * inferred from another.
+ */
+function bookRecord(claims: Claims | undefined): { isbn?: string } | null {
+  const current = itemIds(claims, "P31", true);
+  if (!current.some((id) => bookTypes.has(id))) return null;
+  const isbn = bookIsbn(claims);
+  if (!current.includes(bookType) && !isbn) return null;
+  return { isbn };
+}
+
 /** Run one bounded Action API request and return its parsed JSON body. */
 async function request(params: URLSearchParams, what: string, signal?: AbortSignal) {
   params.set("format", "json");
@@ -190,13 +248,14 @@ function releaseYear(claims: Claims | undefined): number | undefined {
 /**
  * One bounded public wbgetentities read for the exact item behind a pasted
  * Wikidata link. Only an item whose own P31 is a current film, TV-series, game,
- * album or non-deprecated programming-language type can name a slot, and only
- * its own English or common-language label plus a reliable P577 year is used —
- * no description, sitelink, image or guessed type. A language keeps its bare
- * label, with no date inferred. A wrong ID, unknown type, missing label or
- * malformed response returns null, leaving the link with its manual title. The
- * request reuses request(): one Action API call with the same abort, timeout
- * and auth defaults, never a search and never a retry.
+ * album, verified book or non-deprecated programming-language type can name a
+ * slot, and only its own English or common-language label plus a reliable P577
+ * year is used — no description, sitelink, image or guessed type. The book rule
+ * is the same one search uses: Q571, or Q3331189 with a valid active ISBN-13.
+ * A language keeps its bare label, with no date inferred. A wrong ID, unknown
+ * type, missing label or malformed response returns null, leaving the link with
+ * its manual title. The request reuses request(): one Action API call with the
+ * same abort, timeout and auth defaults, never a search and never a retry.
  */
 export async function lookupWikidataTitle(
   value: unknown,
@@ -219,7 +278,8 @@ export async function lookupWikidataTitle(
 
   const claims = record(item.claims) as Claims | undefined;
   const language = itemIds(claims, "P31", true).includes(languageType);
-  if (!language && !itemIds(claims, "P31").some((id) => knownTypes.has(id))) return null;
+  const book = language ? null : bookRecord(claims);
+  if (!language && !book && !itemIds(claims, "P31").some((id) => knownTypes.has(id))) return null;
 
   const labels = record(item.labels);
   const title = catalogueText(record(labels?.en)?.value)
@@ -266,10 +326,12 @@ function article(sitelinks: Sitelinks | undefined): string | undefined {
 
 /**
  * One search plus one batched read, filtered to the exact known film, series,
- * game, album or programming-language types. Items typed only as a narrower or
- * different class are not offered; the panel states that coverage is partial.
- * Programming languages accept Q9143 only from a non-deprecated P31 and never
- * infer a year.
+ * game, album, verified book or programming-language types. Items typed only as
+ * a narrower or different class are not offered; the panel states that coverage
+ * is partial. Programming languages accept Q9143 only from a non-deprecated P31
+ * and never infer a year. Books use bookRecord(): a current Q571 book, or a
+ * current Q3331189 edition carrying a valid active ISBN-13, with the source
+ * ISBN kept on the pick.
  *
  * For games, an optional platform filter narrows the same response to items
  * whose own P400 statements evidence that family. All keeps the unchanged
@@ -287,6 +349,7 @@ export async function searchWikidata(
     : kind === "series" ? seriesTypes
     : kind === "game" ? gameTypes
     : kind === "language" ? languageTypes
+    : kind === "book" ? bookTypes
     : albumTypes;
 
   const search = await request(new URLSearchParams({
@@ -316,14 +379,16 @@ export async function searchWikidata(
   for (const hit of hits) {
     const item = record(entities?.[hit.id]);
     const claims = record(item?.claims) as Claims | undefined;
-    const types = itemIds(claims, "P31", kind === "language");
-    if (!types.some((id) => accepted.has(id))) continue;
+    const book = kind === "book" ? bookRecord(claims) : null;
+    const types = itemIds(claims, "P31", kind === "language" || kind === "book");
+    if (kind === "book" ? !book : !types.some((id) => accepted.has(id))) continue;
     if (kind === "game" && platformFilter !== "all" && !gameFamilies(claims).includes(platformFilter)) continue;
     const pick: WikidataPick = {
       title: hit.label,
       artist: hit.description,
       href: `https://www.wikidata.org/wiki/${hit.id}`,
     };
+    if (book?.isbn) pick.isbn = book.isbn;
     const year = kind === "language" ? undefined : releaseYear(claims);
     if (year !== undefined) pick.year = year;
     const platforms = platform(claims);
