@@ -147,3 +147,76 @@ export function splitTwentyOneCards<T>(pairs: readonly T[], perCard = twentyOneC
   }
   return cards;
 }
+
+/** One #1064 portable prompt file: a versioned schema and exactly the
+ * twenty-one authored texts. Answers, bylines, results, identity and links have
+ * no field, so the file cannot carry anything from a run. */
+export const twentyOnePromptFileSchema = "composer.twenty-one-prompts/1";
+export const twentyOnePromptFileName = "composer-21-questions-prompts.json";
+/** Bytes, not characters: the same bound covers what this page writes and what
+ * it opens, and is checked before the browser parses anything. */
+export const twentyOnePromptFileLimit = 8_192;
+
+/** The first reason a prompt file cannot fill the editor. The four text faults
+ * are the ones the shared prompt validator already reports. */
+export type TwentyOnePromptFileFault =
+  | "oversized"
+  | "unreadable"
+  | "schema"
+  | "version"
+  | "shape"
+  | "count"
+  | "empty"
+  | "long"
+  | "duplicate";
+
+export interface TwentyOnePromptFileRead {
+  /** The exact validated prompts to fill the editor, or null on any fault. */
+  readonly prompts: readonly string[] | null;
+  readonly fault: TwentyOnePromptFileFault | null;
+  /** The failing prompt index for a text fault, otherwise -1. */
+  readonly gap: number;
+}
+
+/** Writes one already-validated set to fixed, deterministic bytes. Field order
+ * and indentation never vary, so the same prompts always produce the same
+ * file and the exact bytes can be read back before download. */
+export function writeTwentyOnePromptFile(prompts: readonly string[]): string {
+  const value = { schema: twentyOnePromptFileSchema, prompts: [...prompts] };
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+/** Reads one prompt file against this page's exact schema and validator. The
+ * byte bound is checked before JSON.parse, the schema before any content, and
+ * only the two known fields are accepted — an `answers` field or any other
+ * extra key is refused before the editor is touched. Every fault hands back
+ * no prompts, so the caller keeps its text and its active run. */
+export function readTwentyOnePromptFile(raw: unknown): TwentyOnePromptFileRead {
+  const reject = (fault: TwentyOnePromptFileFault, gap = -1): TwentyOnePromptFileRead =>
+    ({ prompts: null, fault, gap });
+  if (typeof raw !== "string") return reject("unreadable");
+  if (new TextEncoder().encode(raw).length > twentyOnePromptFileLimit) return reject("oversized");
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return reject("unreadable");
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) return reject("unreadable");
+  const file = value as Record<string, unknown>;
+  if (typeof file.schema !== "string") return reject("schema");
+  if (file.schema !== twentyOnePromptFileSchema) {
+    return reject(/^composer\.twenty-one-prompts\/\d+$/.test(file.schema) ? "version" : "schema");
+  }
+  const keys = Object.keys(file);
+  if (keys.length !== 2 || !keys.includes("schema") || !keys.includes("prompts")) return reject("shape");
+  if (!Array.isArray(file.prompts) || file.prompts.some((prompt) => typeof prompt !== "string")) {
+    return reject("shape");
+  }
+  if (file.prompts.length !== twentyOneCount) return reject("count");
+  // The same count, blank, length and distinctness checks the Apply button
+  // uses: a file can only carry prompts the editor itself would accept.
+  const read = readTwentyOnePrompts(file.prompts);
+  if (!read.prompts) return reject(read.reason ?? "shape", read.gap);
+  return { prompts: read.prompts, fault: null, gap: -1 };
+}
