@@ -684,6 +684,7 @@
 .nine-export .experience-note { color: inherit; }
 .nine-png-export { margin-block-start: .8rem; }
 .nine-png-preview {
+  scroll-margin-block-start: .75rem;
   display: grid;
   justify-items: start;
   gap: .6rem;
