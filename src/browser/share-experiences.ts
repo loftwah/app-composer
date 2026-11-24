@@ -41,6 +41,7 @@ import {
   readNineDraftFile, writeNineDraft, writeNineDraftFile,
   type DraftStorage, type NineDraft, type NineDraftFileRead,
 } from "../lib/share-experience-draft.ts";
+import { readDeviceDraft, writeDeviceDraft, type DeviceCover } from "./top-nine-device-draft.ts";
 import { profileUrl } from "../lib/top-nine-profile.ts";
 import { topNineDate, topNineDateLabel } from "../lib/top-nine-date.ts";
 import { nineListApplied, nineListSummary, planNineList, planNineListUndo } from "../lib/top-nine-list.ts";
@@ -402,6 +403,11 @@ function mountNine(
   const storage: DraftStorage = (() => {
     try { return localStorage; } catch { return blockedStorage; }
   })();
+  const deviceStore = (() => {
+    try { return window.indexedDB ?? null; } catch { return null; }
+  })();
+  let draftBusy = false;
+  let draftRevision = 0;
   let hrefs: (string | null)[] = objects.map(() => null);
   /** Exact public pages for manually named exhibits, each remembered with the
    * title it was attached to so a retitled exhibit never keeps a stale link. */
@@ -613,7 +619,7 @@ function mountNine(
     refreshLinks();
   }
 
-  function cancelApprovedCover(index: number) {
+  function cancelCoverLoad(index: number) {
     pendingCovers.get(index)?.abort();
     pendingCovers.delete(index);
   }
@@ -621,12 +627,12 @@ function mountNine(
   /** Stop a pending pasted-link lookup for one exhibit, or every exhibit. */
   function cancelLookup(index?: number) {
     if (index === undefined) {
-      for (const slot of pendingCovers.keys()) cancelApprovedCover(slot);
+      for (const slot of pendingCovers.keys()) cancelCoverLoad(slot);
       for (const controller of pendingLookups.values()) controller.abort();
       pendingLookups.clear();
       return;
     }
-    cancelApprovedCover(index);
+    cancelCoverLoad(index);
     pendingLookups.get(index)?.abort();
     pendingLookups.delete(index);
   }
@@ -914,9 +920,9 @@ function mountNine(
     bytes: Blob,
     index: number,
     applies: () => boolean,
-    approved?: ApprovedCover,
-    fit: CoverFit = "cover",
+    options: { approved?: ApprovedCover; fit?: CoverFit; fromDraft?: boolean } = {},
   ) {
+    const { approved, fit = "cover", fromDraft = false } = options;
     const fail = (text: string) => { if (applies()) coverNote(approved ? "Artwork couldn’t load. You can add custom art." : text); };
     if (bytes.size > coverFileLimit) {
       fail(`That image is ${Math.round(bytes.size / 1_048_576)} MB. Covers can be up to ${coverFileLimit / 1_048_576} MB.`);
@@ -927,6 +933,10 @@ function mountNine(
     const sniffed = sniffCover(head);
     if (!sniffed) {
       fail("That file isn’t a readable PNG, JPEG or WebP image. Pick a photo or artwork from your device.");
+      return;
+    }
+    if (fromDraft && (sniffed.kind !== "png" || Math.max(sniffed.width, sniffed.height) > coverWorkingMax)) {
+      fail("A saved cover couldn’t be restored. You can add it again from this device.");
       return;
     }
     if (sniffed.width * sniffed.height > coverPixelLimit) {
@@ -971,19 +981,46 @@ function mountNine(
     covers[index] = { url, art, kind: sniffed.kind, fit, ...(approved ? { approved } : {}) };
     renderCovers();
     renderPreview();
-    coverNote(approved
-      ? `Catalogue artwork added to tile ${index + 1}.`
-      : `Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
+    if (!fromDraft) {
+      coverNote(approved
+        ? `Catalogue artwork added to tile ${index + 1}.`
+        : `Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
+    }
   }
 
-  function hangCover(file: File) {
+  function finishCoverLoad(index: number, request: AbortController) {
+    if (pendingCovers.get(index) !== request) return;
+    pendingCovers.delete(index);
+    update();
+  }
+
+  async function hangCover(file: File) {
     const index = coverTarget;
-    if (pendingCovers.has(index)) {
-      cancelApprovedCover(index);
-      update();
-    }
+    cancelCoverLoad(index);
     const run = ++coverRun;
-    return hangCoverImage(file, index, () => run === coverRun);
+    const request = new AbortController();
+    pendingCovers.set(index, request);
+    update();
+    try {
+      await hangCoverImage(file, index, () => run === coverRun && pendingCovers.get(index) === request);
+    } catch {
+      if (pendingCovers.get(index) === request) coverNote("This file couldn’t be read. Choose it again.");
+    } finally {
+      finishCoverLoad(index, request);
+    }
+  }
+
+  async function restoreDeviceCover(index: number, cover: DeviceCover) {
+    const request = new AbortController();
+    pendingCovers.set(index, request);
+    const applies = () => pendingCovers.get(index) === request;
+    try {
+      await hangCoverImage(cover.blob, index, applies, { fit: cover.fit, fromDraft: true });
+    } catch {
+      if (applies()) coverNote("A saved cover couldn’t be restored. You can add it again from this device.");
+    } finally {
+      finishCoverLoad(index, request);
+    }
   }
 
   /** Fetch only a reviewed, versioned same-origin asset after a catalogue pick.
@@ -1004,14 +1041,11 @@ function mountNine(
       const bytes = await response.blob();
       if (!applies()) return;
       if (bytes.size !== approved.bytes) throw new Error("Artwork size changed.");
-      await hangCoverImage(bytes, index, applies, approved, fit ?? approved.defaultFit);
+      await hangCoverImage(bytes, index, applies, { approved, fit: fit ?? approved.defaultFit });
     } catch {
       if (applies()) coverNote("Artwork couldn’t load. You can add custom art.");
     } finally {
-      if (pendingCovers.get(index) === request) {
-        pendingCovers.delete(index);
-        update();
-      }
+      finishCoverLoad(index, request);
     }
   }
 
@@ -1502,7 +1536,7 @@ function mountNine(
     });
   }
 
-  function applyDraft(draft: NineDraft) {
+  function applyDraft(draft: NineDraft, deviceCovers?: readonly (DeviceCover | null)[]) {
     // A local image stays on an exact unchanged exhibit. An explicit saved
     // catalogue cover replaces it, while an absent reference drops catalogue art.
     const restoredItems = objects.map((_, index) => draft.items[index] ?? "");
@@ -1520,7 +1554,7 @@ function mountNine(
           current.fit = saved.fit;
           return;
         }
-        if (!saved && !current.approved) return;
+        if (!saved && !current.approved && !deviceCovers) return;
       }
       disposeCover(index);
       cleared += 1;
@@ -1543,6 +1577,9 @@ function mountNine(
     clearReplace();
     hrefs = restoredHrefs;
     restoreApprovedCovers(restoredCovers);
+    deviceCovers?.forEach((cover, index) => {
+      if (cover && restoredItems[index] && !restoredCovers[index]) void restoreDeviceCover(index, cover);
+    });
     pageLinks = trimPages(draft.pages);
     pageTitles = objects.map((input) => input.value.trim());
     if (hrefs.some(Boolean)) music.panel.open = true;
@@ -2126,7 +2163,7 @@ function mountNine(
       update();
     });
     input.addEventListener("input", () => {
-      cancelApprovedCover(index);
+      cancelCoverLoad(index);
       if (covers[index]?.approved) {
         disposeCover(index);
         renderCovers();
@@ -2174,48 +2211,117 @@ function mountNine(
     approvedCovers: approvedReferences(),
     pages: objects.map((_, index) => livePage(index)),
   });
-  saveDraft.addEventListener("click", () => {
-    const outcome = writeNineDraft(storage, boardDraft());
-    if (outcome === "saved") {
+  async function loadSavedDraft(): Promise<{ board: NineDraft; covers?: (DeviceCover | null)[] } | null> {
+    if (deviceStore) {
+      const saved = await readDeviceDraft(deviceStore);
+      if (saved === null) return null;
+      if (saved) {
+        const { draft } = readNineDraftFile(saved.file);
+        if (!draft) throw new Error("Invalid saved board");
+        return { board: draft, covers: saved.covers };
+      }
+    }
+    const board = readNineDraft(storage);
+    return board ? { board } : null;
+  }
+
+  function coverForDevice(cover: CoverSlot | null): Promise<DeviceCover | null> {
+    if (!cover || cover.approved) return Promise.resolve(null);
+    return new Promise((resolve, reject) => {
+      const fit = cover.fit;
+      cover.art.toBlob((blob) => {
+        if (blob) resolve({ blob, fit });
+        else reject(new Error("Could not encode custom artwork"));
+      }, "image/png");
+    });
+  }
+
+  saveDraft.addEventListener("click", async () => {
+    if (draftBusy || pendingCovers.size) return;
+    const board = boardDraft();
+    const raw = writeNineDraftFile(board);
+    if (!raw) {
+      draftStatus.textContent = "Enter a title or a favourite before saving.";
+      return;
+    }
+    if (!readNineDraftFile(raw).draft) {
+      draftStatus.textContent = "This draft is too long to save here. Shorten a title or link and try again.";
+      return;
+    }
+    draftBusy = true;
+    draftRevision += 1;
+    draftStatus.textContent = "Saving draft on this device…";
+    try {
+      if (deviceStore) {
+        const artwork = await Promise.all(covers.map(coverForDevice));
+        await writeDeviceDraft(deviceStore, { file: raw, covers: artwork });
+      } else {
+        if (covers.some((cover) => cover && !cover.approved) || writeNineDraft(storage, board) !== "saved") {
+          throw new Error("Device storage unavailable");
+        }
+      }
       openDraft.hidden = true;
-      const rawProfile = profile?.value.trim() ?? "";
-      const noProfile = rawProfile && !profileUrl(rawProfile);
-      const customArt = covers.some((cover) => cover && !cover.approved);
-      draftStatus.textContent = [
-        noProfile ? "Saved on this device without the invalid profile link." : "Draft saved on this device.",
-        customArt ? "Save a PNG to keep your custom artwork." : "",
-      ].filter(Boolean).join(" ");
-    } else if (outcome === "empty") {
-      draftStatus.textContent = "Enter a title or an exhibit before saving.";
-    } else if (outcome === "too-large") {
-      draftStatus.textContent = "This draft is too long to save here. Shorten an exhibit, then save again.";
-    } else {
-      draftStatus.textContent = "This browser blocked local storage, so nothing was saved. Keep this tab open to finish.";
+      const invalidProfile = board.profile?.trim() && !profileUrl(board.profile);
+      draftStatus.textContent = invalidProfile
+        ? "Draft saved on this device without the invalid profile link."
+        : "Draft saved on this device.";
+    } catch {
+      draftStatus.textContent = "This browser couldn’t save the draft. Your board is still here. Save a PNG to keep a copy.";
+    } finally {
+      draftBusy = false;
     }
   });
-  openDraft.addEventListener("click", () => {
-    const draft = readNineDraft(storage);
-    openDraft.hidden = true;
-    if (!draft) {
-      draftStatus.textContent = "That saved draft is no longer on this device.";
-      return;
+
+  openDraft.addEventListener("click", async () => {
+    if (draftBusy) return;
+    draftBusy = true;
+    draftRevision += 1;
+    const signature = boardSignature();
+    try {
+      const saved = await loadSavedDraft();
+      if (!saved) {
+        openDraft.hidden = true;
+        draftStatus.textContent = "That saved draft is no longer on this device.";
+        return;
+      }
+      if (boardSignature() !== signature) {
+        draftStatus.textContent = "Your board changed while the draft opened. Choose Open saved draft to try again.";
+        return;
+      }
+      applyDraft(saved.board, saved.covers);
+      openDraft.hidden = true;
+      draftStatus.textContent = "Saved draft opened.";
+      if (root.hasAttribute("data-nine-recipient")) {
+        root.querySelector<HTMLButtonElement>("[data-nine-edit-result]")?.click();
+      }
+      returnToBoard(0);
+    } catch {
+      draftStatus.textContent = "This browser couldn’t open the saved draft. Your board is still here.";
+    } finally {
+      draftBusy = false;
     }
-    applyDraft(draft);
-    draftStatus.textContent = "Saved draft opened. The shared result stays in the link you followed.";
-    if (root.hasAttribute("data-nine-recipient")) {
-      root.querySelector<HTMLButtonElement>("[data-nine-edit-result]")?.click();
-    }
-    returnToBoard(0);
   });
-  clearDraft.addEventListener("click", () => {
-    if (!clearNineDraft(storage)) {
-      draftStatus.textContent = "This browser would not clear the saved draft. Your exhibition is unchanged.";
-      return;
+
+  clearDraft.addEventListener("click", async () => {
+    if (draftBusy) return;
+    draftBusy = true;
+    draftRevision += 1;
+    try {
+      if (deviceStore) {
+        await writeDeviceDraft(deviceStore, null);
+        clearNineDraft(storage);
+      } else if (!clearNineDraft(storage)) {
+        throw new Error("Device storage unavailable");
+      }
+      openDraft.hidden = true;
+      discardMove();
+      clearReplace();
+      draftStatus.textContent = "Saved draft cleared from this device. Your board is still here.";
+    } catch {
+      draftStatus.textContent = "This browser couldn’t clear the saved draft. Your board is still here.";
+    } finally {
+      draftBusy = false;
     }
-    openDraft.hidden = true;
-    discardMove();
-    clearReplace();
-    draftStatus.textContent = "Saved draft cleared from this device. Your exhibition is still here.";
   });
 
   const boardSignature = () => JSON.stringify({
@@ -2380,15 +2486,21 @@ function mountNine(
       update();
     },
     resumeDraft(protectShared) {
-      const draft = readNineDraft(storage);
-      if (!draft) return;
-      if (protectShared) {
-        openDraft.hidden = false;
-        draftStatus.textContent = "Open your saved draft to return to your own exhibition.";
-        return;
-      }
-      applyDraft(draft);
-      draftStatus.textContent = "Draft from this device restored. Save again to update it.";
+      const revision = draftRevision;
+      const signature = boardSignature();
+      void loadSavedDraft().then((saved) => {
+        if (!saved || revision !== draftRevision) return;
+        if (protectShared || signature !== boardSignature()) {
+          openDraft.hidden = false;
+          draftStatus.textContent = "Open your saved draft to return to your board.";
+          return;
+        }
+        applyDraft(saved.board, saved.covers);
+        draftStatus.textContent = "Draft from this device restored.";
+      }).catch(() => {
+        if (revision !== draftRevision) return;
+        draftStatus.textContent = "This browser couldn’t open its saved draft. You can still build a board here.";
+      });
     },
   };
 }

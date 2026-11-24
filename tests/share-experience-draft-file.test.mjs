@@ -190,8 +190,8 @@ test('the file controls are local, bounded and leave the browser draft path inta
   assert.match(stage, /data-draft-file-save disabled>Download draft file</);
   assert.match(stage, /accept="application\/json,\.json" data-draft-file disabled/);
   assert.match(stage, /role="status" data-draft-file-status/);
-  assert.match(stage, /id="nine-draft-file-note">A draft file keeps your board, links, and approved cover references/);
-  assert.match(stage, /Save a PNG to keep artwork you added from this device/);
+  assert.match(stage, /id="nine-draft-file-note">A draft file keeps your board, links and approved covers/);
+  assert.match(stage, /Save a PNG if you want to share your custom artwork/);
 
   const controller = source('src/browser/share-experiences.ts');
   const start = controller.indexOf('function mountNine');
