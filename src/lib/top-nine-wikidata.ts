@@ -104,6 +104,7 @@ const platformNames: Record<string, string> = {
   Q132020: "Xbox", Q48263: "Xbox 360", Q13361286: "Xbox One",
   Q98973368: "Xbox Series X/S",
   Q19610114: "Nintendo Switch",
+  Q184839: "Nintendo 64", Q182172: "Nintendo GameCube", Q8079: "Wii", Q56942: "Wii U",
   Q10676: "Sega Genesis", Q200912: "Sega Saturn", Q188642: "Game Boy Advance",
   Q229429: "3DO", Q1063978: "32X", Q650601: "Atari Jaguar", Q471094: "Amiga 1200",
 };
@@ -118,8 +119,8 @@ const platformNames: Record<string, string> = {
 const pcPlatforms = new Set(["Q1406", "Q388", "Q14116", "Q170434", "Q47604", "Q13522376"]);
 const consolePlatforms = new Set([
   "Q10677", "Q10683", "Q5014725", "Q63184502", "Q183259", "Q132020", "Q48263",
-  "Q13361286", "Q98973368", "Q19610114", "Q10676", "Q200912", "Q188642", "Q229429",
-  "Q1063978", "Q650601",
+  "Q13361286", "Q98973368", "Q19610114", "Q184839", "Q182172", "Q8079", "Q56942",
+  "Q10676", "Q200912", "Q188642", "Q229429", "Q1063978", "Q650601",
 ]);
 
 /** The Games platform filter; All is the original, unchanged game search. */

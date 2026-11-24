@@ -538,6 +538,45 @@ test('current PlayStation 5 and Xbox Series X/S P400 claims display and classify
   assert.equal(fetch.mock.callCount(), 6);
 });
 
+// Production Console regressions: Super Mario 64 and Metroid Prime. The
+// verified P400 IDs also cover Wii and Wii U. A synthetic PC-only row
+// shares the search but must never become a console match.
+const nintendoSearch = { search: [
+  searchRow('Q216995', 'Super Mario 64', '1996 platform game'),
+  searchRow('Q1765733', 'Metroid Prime', '2002 action-adventure game'),
+  searchRow('Q9008', 'Nintendo PC lookalike', 'PC platform game'),
+] };
+const nintendoEntities = { entities: {
+  Q216995: { claims: { P31: [claim('Q7889')], P400: [
+    claim('Q184839'), claim('Q56942'),
+  ] } },
+  Q1765733: { claims: { P31: [claim('Q7889')], P400: [
+    claim('Q182172'), claim('Q8079'),
+  ] } },
+  Q9008: { claims: { P31: [claim('Q7889')], P400: [claim('Q1406')] } },
+} };
+
+test('Nintendo P400 IDs display and match Console while a PC-only lookalike stays PC', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(nintendoSearch)()
+    : ok(nintendoEntities)());
+  assert.deepEqual(await searchWikidata('Nintendo', 'game'), [
+    { title: 'Super Mario 64', artist: '1996 platform game',
+      href: 'https://www.wikidata.org/wiki/Q216995',
+      platform: 'Nintendo 64 · Wii U' },
+    { title: 'Metroid Prime', artist: '2002 action-adventure game',
+      href: 'https://www.wikidata.org/wiki/Q1765733',
+      platform: 'Nintendo GameCube · Wii' },
+    { title: 'Nintendo PC lookalike', artist: 'PC platform game',
+      href: 'https://www.wikidata.org/wiki/Q9008', platform: 'Windows' },
+  ]);
+  assert.deepEqual((await searchWikidata('Nintendo', 'game', undefined, 'console'))
+    .map((pick) => pick.title), ['Super Mario 64', 'Metroid Prime']);
+  assert.deepEqual((await searchWikidata('Nintendo', 'game', undefined, 'pc'))
+    .map((pick) => pick.title), ['Nintendo PC lookalike']);
+  assert.equal(fetch.mock.callCount(), 6);
+});
+
 test('a failed or cancelled search stays one request with no retries', async (t) => {
   const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', { status: 429 }));
   await assert.rejects(searchWikidata('Dune', 'film'), /429/);
