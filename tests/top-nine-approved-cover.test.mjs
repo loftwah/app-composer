@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import {
-  approvedCoverForSource, approvedOpenGoldbergCover, normaliseApprovedCovers,
+  approvedAnarchCover, approvedCoverForSource, approvedOpenGoldbergCover, normaliseApprovedCovers,
 } from "../src/lib/top-nine-approved-cover.ts";
 
 const album = "https://music.apple.com/us/album/bach-goldberg-variations/1162185845";
@@ -17,10 +17,21 @@ test("approved artwork matches the exact album across storefronts", () => {
   assert.equal(approvedCoverForSource("Open Goldberg Variations"), null);
 });
 
-test("only the pinned Commons image is shipped", async () => {
-  const artwork = await readFile(new URL("../public" + approvedOpenGoldbergCover.src, import.meta.url));
-  assert.equal(artwork.byteLength, approvedOpenGoldbergCover.bytes);
-  assert.equal(createHash("sha256").update(artwork).digest("hex"), approvedOpenGoldbergCover.sha256);
+test("each approved file matches its reviewed bytes", async () => {
+  for (const cover of [approvedOpenGoldbergCover, approvedAnarchCover]) {
+    const artwork = await readFile(new URL("../public" + cover.src, import.meta.url));
+    assert.equal(artwork.byteLength, cover.bytes);
+    assert.equal(createHash("sha256").update(artwork).digest("hex"), cover.sha256);
+  }
+});
+
+test("game artwork is attached only to its exact Wikidata identity and defaults to whole image", () => {
+  assert.equal(approvedCoverForSource(approvedAnarchCover.entity), approvedAnarchCover);
+  assert.equal(approvedCoverForSource("https://www.wikidata.org/entity/Q114540914"), approvedAnarchCover);
+  assert.equal(approvedCoverForSource("https://www.wikidata.org/wiki/Q4751684"), null);
+  assert.equal(approvedCoverForSource("https://www.wikidata.org/wiki/Q16410283"), null);
+  assert.equal(approvedCoverForSource("https://example.com/wiki/Q114540914"), null);
+  assert.equal(approvedAnarchCover.defaultFit, "contain");
 });
 
 test("shared cover references require a pinned ID, its matching album, and an explicit fit", () => {
