@@ -405,6 +405,7 @@ function mountNine(
   let pageTitles: string[] = objects.map(() => "");
   let covers: (CoverSlot | null)[] = objects.map(() => null);
   let target = 0;
+  let returnAfterPick = false;
   let coverTarget = 0;
   let coverRun = 0;
   let kind: SourceKind = "album";
@@ -508,8 +509,10 @@ function mountNine(
     return objects.map((input, index) => (input.value.trim() ? restored[index] ?? null : null));
   }
 
+  const findTarget = root.querySelector<HTMLElement>("[data-nine-find-target]");
   function markTarget() {
     music.target.value = String(target);
+    if (findTarget) findTarget.textContent = "Find a favourite for tile " + (target + 1) + ".";
     objects.forEach((input, index) => {
       const active = music.panel.open && index === target;
       input.closest("label")?.toggleAttribute("data-music-target", active);
@@ -1194,6 +1197,11 @@ function mountNine(
         : ""
     }`);
     update();
+    if (returnAfterPick) {
+      returnAfterPick = false;
+      music.panel.open = false;
+      returnToBoard(slot);
+    }
   }
 
   function fillFromPick(pick: SearchPick, button: HTMLButtonElement | null = null) {
@@ -1658,31 +1666,64 @@ function mountNine(
     allFields.closest(".nine-editor")?.toggleAttribute("data-nine-active-field", !expanded);
   });
   const fieldActions = root.querySelector<HTMLElement>("[data-nine-field-actions]");
-  root.querySelector<HTMLButtonElement>("[data-nine-back-to-board]")?.addEventListener("click", () => {
-    // Read the current slot from the DOM so any entered tile returns to itself
-    // without a second source of truth, leaving every title and the hash alone.
-    const currentInput = exhibitionBoard.querySelector<HTMLInputElement>("[data-nine-current] [data-object]");
-    const index = Number(currentInput?.dataset.object ?? 0);
-    const tile = root.querySelector<HTMLButtonElement>(`[data-nine-edit-slot="${index}"]`);
-    (tile ?? previewHeading).focus({ preventScroll: true });
+  const tiles = elements<HTMLButtonElement>(root, "[data-nine-edit-slot]");
+  function currentSlot() {
+    const current = exhibitionBoard.querySelector<HTMLInputElement>("[data-nine-current] [data-object]");
+    return Number(current?.dataset.object ?? 0);
+  }
+  function selectSlot(index: number) {
+    exhibitionBoard.querySelector("[data-nine-current]")?.removeAttribute("data-nine-current");
+    objects[index].closest("label")?.setAttribute("data-nine-current", "");
+  }
+  function returnToBoard(index: number) {
+    (tiles[index] ?? previewHeading).focus({ preventScroll: true });
     previewHeading.scrollIntoView({ behavior: "instant", block: "start" });
+  }
+  function openFinder(index: number) {
+    selectSlot(index);
+    target = index;
+    returnAfterPick = true;
+    list.panel.open = false;
+    music.panel.open = true;
+    music.query.value = "";
+    clearSearch();
+    markTarget();
+    music.query.focus({ preventScroll: true });
+    music.form.scrollIntoView({ behavior: "instant", block: "start" });
+  }
+  function editTitle(index: number) {
+    selectSlot(index);
+    target = index;
+    markTarget();
+    const input = objects[index];
+    input.focus({ preventScroll: true });
+    (fieldActions ?? input).scrollIntoView({ behavior: "instant", block: "nearest" });
+  }
+  root.querySelector("[data-nine-back-to-board]")?.addEventListener("click", () => returnToBoard(currentSlot()));
+  root.querySelector("[data-nine-find-first]")?.addEventListener("click", () => {
+    const next = firstEmpty();
+    openFinder(next >= 0 ? next : currentSlot());
+  });
+  root.querySelector("[data-nine-find-selected]")?.addEventListener("click", () => openFinder(currentSlot()));
+  root.querySelector("[data-nine-type-title]")?.addEventListener("click", () => {
+    returnAfterPick = false;
+    music.panel.open = false;
+    editTitle(target);
+  });
+  root.querySelector("[data-nine-custom-art]")?.addEventListener("click", () => {
+    coverTarget = currentSlot();
+    cover.target.value = String(coverTarget);
+    cover.panel.open = true;
+    markCoverTarget();
+    cover.file.click();
   });
   objects.forEach((input, index) => {
-    input.addEventListener("focus", () => {
-      objects.forEach((field, slot) => field.closest("label")?.toggleAttribute("data-nine-current", slot === index));
-    });
+    input.addEventListener("focus", () => selectSlot(index));
   });
-  elements<HTMLButtonElement>(root, "[data-nine-edit-slot]").forEach((button, index) => {
+  tiles.forEach((button, index) => {
     button.addEventListener("click", () => {
-      const input = objects[index];
-      if (!input) return;
-      target = index;
-      markTarget();
-      exhibitionBoard.querySelector("[data-nine-current]")?.removeAttribute("data-nine-current");
-      input.closest("label")?.setAttribute("data-nine-current", "");
-      input.focus({ preventScroll: true });
-      // Align the tapped field with its actions so Back to board stays reachable.
-      (fieldActions ?? input).scrollIntoView({ behavior: "instant", block: "nearest" });
+      if (objects[index].value.trim()) editTitle(index);
+      else openFinder(index);
     });
   });
   root.querySelector("[data-nine-paste-shortcut]")?.addEventListener("click", () => {
@@ -1863,6 +1904,7 @@ function mountNine(
   });
   music.panel.addEventListener("toggle", () => {
     if (!music.panel.open) {
+      returnAfterPick = false;
       closePreview(false);
       clearReplace();
     }
@@ -5399,6 +5441,8 @@ export function mountShareExperience(root: HTMLElement) {
   // denied-clipboard fallback belong to the heading fields they were made
   // from: an edit or a board change retires both and any write still in flight.
   const ninePackage = root.querySelector<HTMLButtonElement>("[data-nine-package]");
+  const nineResultActions = root.querySelector<HTMLElement>("[data-nine-result-actions]");
+  const nineFindFirst = root.querySelector<HTMLButtonElement>("[data-nine-find-first]");
   const ninePreviewButton = root.querySelector<HTMLButtonElement>("[data-nine-png-preview-button]");
   const ninePreview = root.querySelector<HTMLElement>("[data-nine-png-preview]");
   const ninePreviewCaption = root.querySelector<HTMLElement>("[data-nine-png-preview-caption]");
@@ -5589,6 +5633,10 @@ export function mountShareExperience(root: HTMLElement) {
     if (!links) {
       manual.hidden = true;
       manual.value = "";
+    }
+    if (nineResultActions) {
+      nineResultActions.hidden = !canShare || !exportable;
+      if (nineFindFirst) nineFindFirst.hidden = canShare;
     }
     download.disabled = busy || avatarPending || !canShare || !exportable;
     if (revealDownload) revealDownload.disabled = download.disabled;
