@@ -193,7 +193,7 @@ test('a failed or cancelled book lookup makes one request and is not retried', a
   assert.equal(fetch.mock.callCount(), 1);
 });
 
-test('the editor submits the book lookup only for an empty exhibit, reusing the album guards', () => {
+test('the editor submits exact-ID lookups only for an empty exhibit, reusing the shared guards', () => {
   const controller = readFileSync(new URL('../src/browser/share-experiences.ts', import.meta.url), 'utf8');
   assert.match(controller, /if \(!typed\) void fillSourceTitle\(slot, source\.href\);/);
   const start = controller.indexOf('async function fillSourceTitle(');
@@ -201,12 +201,16 @@ test('the editor submits the book lookup only for an empty exhibit, reusing the 
   assert.match(block, /pendingLookups\.get\(slot\)\?\.abort\(\)/);
   assert.match(block, /pendingLookups\.set\(slot, controller\)/);
   assert.match(block, /albumTitleApplies\(/);
+  assert.match(block, /appleAppRef\(href\)/);
   assert.match(block, /lookupAppleBook\(href, controller\.signal\)/);
   assert.match(block, /lookupAppleAlbum\(href, controller\.signal\)/);
+  assert.match(block, /lookupAppleApp\(href, controller\.signal\)/);
   assert.match(block, /lookupSpotifyAlbumTitle\(href, controller\.signal\)/);
   // No parallel async state: one bounded lookup per paste, through the shared map.
   assert.equal((block.match(/new Map</g) ?? []).length, 0);
-  const books = readFileSync(new URL('../src/lib/top-nine-books.ts', import.meta.url), 'utf8');
-  assert.match(books, /lookupCatalogue\(\{/);
-  assert.doesNotMatch(books, /new Map<|AbortController|fetch\(/);
+  for (const file of ['top-nine-books.ts', 'top-nine-apps.ts']) {
+    const lib = readFileSync(new URL(`../src/lib/${file}`, import.meta.url), 'utf8');
+    assert.match(lib, /lookupCatalogue\(\{/);
+    assert.doesNotMatch(lib, /new Map<|AbortController|fetch\(/);
+  }
 });
