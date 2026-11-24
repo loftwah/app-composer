@@ -206,6 +206,46 @@ test('a third column keeps the title and page and canonicalises only official mu
   assert.equal(fetch.mock.callCount(), 0);
 });
 
+test('the repeatable nine-album fixture fills every empty slot with canonical official sources', (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('planning the local album fixture must not fetch');
+  });
+  const fixture = read('tests/fixtures/top-nine-albums.tsv').trimEnd();
+  const rows = fixture.split('\n');
+  const empty = Array.from({ length: 9 }, (_, index) => index);
+  assert.equal(rows.length, 9);
+  assert.deepEqual(rows.map((row) => row.split('\t')[1]), Array(9).fill(''));
+  // Keep both the legacy US URL and the Armenia storefront in the repeatable input.
+  assert.equal(rows[0], 'Discovery — Daft Punk\t\thttps://itunes.apple.com/us/album/discovery/id697194953');
+  assert.equal(rows[8], 'Hounds of Love — Kate Bush\t\thttps://music.apple.com/am/album/hounds-of-love/1675375084');
+
+  const plan = planNineList(fixture, empty);
+  assert.deepEqual(plan.indexes, empty);
+  assert.deepEqual(plan.titles, [
+    'Discovery — Daft Punk', 'Lemonade — Beyoncé', 'Jubilee — Japanese Breakfast',
+    'Kind of Blue — Miles Davis', 'Madvillainy — Madvillain',
+    'Blackstar — David Bowie', 'Donuts — J Dilla', 'Endtroducing (Deluxe Edition) — DJ Shadow', 'Hounds of Love — Kate Bush',
+  ]);
+  assert.deepEqual(plan.urls, Array(9).fill(null));
+  assert.deepEqual(plan.sources, [
+    'https://music.apple.com/us/album/697194953',
+    'https://music.apple.com/us/album/1460473526',
+    'https://music.apple.com/us/album/1553364590',
+    'https://music.apple.com/us/album/268443092',
+    'https://music.apple.com/us/album/887699504',
+    'https://music.apple.com/us/album/1676286487',
+    'https://music.apple.com/us/album/108233171',
+    'https://music.apple.com/us/album/1660367299',
+    'https://music.apple.com/am/album/1675375084',
+  ]);
+  assert.deepEqual(plan.rows, rows);
+  assert.deepEqual(plan.overflow, []);
+  assert.deepEqual(plan.remaining, []);
+  assert.deepEqual(plan.invalid, []);
+  assert.equal(plan.invalidMusic, 0);
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
 test('invalid third-column sources stay verbatim with corrective music help', () => {
   const spotifyAlbum = 'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn';
   const good = `Good\t\t${spotifyAlbum}`;
