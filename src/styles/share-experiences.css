@@ -376,6 +376,11 @@
 .music-search input, .music-search select { margin-block: .3rem 0; }
 .music-query-row { display: flex; align-items: end; gap: .5rem; flex: 1 1 100%; }
 .music-query-row > button[type="submit"] { flex: 0 0 auto; min-height: 44px; }
+.music-options { flex: 1 1 100%; min-inline-size: 0; }
+.nine-editor .music-options { border-top: 0; }
+.music-options-fields { display: flex; flex-wrap: wrap; align-items: end; gap: .55rem; }
+.music-options-fields .experience-note { flex-basis: 100%; margin: 0; }
+.exhibit-music [data-music-status] { margin-block: .4rem 0; }
 .music-kind { display: flex; flex-wrap: wrap; gap: .3rem; }
 .share-experience .music-kind button {
   min-height: 44px; padding: 8px 14px;
@@ -386,6 +391,7 @@
 .music-query-kind { font-weight: 700; }
 .music-query-row .music-query input { display: block; inline-size: 100%; min-width: 0; min-height: 44px; margin: 0; }
 .music-results { list-style: none; padding: 0; margin: .7rem 0 0; display: grid; gap: .35rem; }
+.exhibit-music .music-results { margin-block-start: .25rem; }
 .share-experience .music-results button {
   display: flex; flex-direction: column; align-items: flex-start; gap: .15rem;
   inline-size: 100%; text-align: start; font-weight: 400;
