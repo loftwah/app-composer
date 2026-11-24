@@ -236,9 +236,14 @@ async function request(params: URLSearchParams, what: string, signal?: AbortSign
   return data as Record<string, unknown>;
 }
 
-/** The publication year of an item: the earliest full year among P577 values. */
-function releaseYear(claims: Claims | undefined): number | undefined {
-  const years = claimsFor(claims, "P577").flatMap((claim): number[] => {
+/** The earliest full year among one property's values, optionally excluding deprecated claims. */
+function earliestYear(
+  claims: Claims | undefined,
+  property: string,
+  currentOnly = false,
+): number | undefined {
+  const years = claimsFor(claims, property).flatMap((claim): number[] => {
+    if (currentOnly && claim?.rank === "deprecated") return [];
     const value = record(claim?.mainsnak?.datavalue?.value);
     const time = value?.time;
     const precision = value?.precision;
@@ -250,12 +255,19 @@ function releaseYear(claims: Claims | undefined): number | undefined {
   return years.length ? Math.min(...years) : undefined;
 }
 
+/** P577 stays first; only a current series may fall back to its recorded P580 start. */
+function displayYear(claims: Claims | undefined, series: boolean): number | undefined {
+  return earliestYear(claims, "P577")
+    ?? (series ? earliestYear(claims, "P580", true) : undefined);
+}
+
 /**
  * One bounded public wbgetentities read for the exact item behind a pasted
  * Wikidata link. Only an item whose own P31 is a current film, TV-series, game,
  * album, verified book or non-deprecated programming-language type can name a
  * slot, and only its own English or common-language label plus a reliable P577
- * year is used — no description, sitelink, image or guessed type. The book rule
+ * year (or, for a current series/miniseries without one, a reliable P580 start
+ * year) is used — no description, sitelink, image or guessed type. The book rule
  * is the same one search uses: Q571, or Q3331189 with a valid active ISBN-13.
  * A language keeps its bare label, with no date inferred. A wrong ID, unknown
  * type, missing label or malformed response returns null, leaving the link with
@@ -282,7 +294,8 @@ export async function lookupWikidataTitle(
   if (item.id !== undefined && item.id !== qid) return null;
 
   const claims = record(item.claims) as Claims | undefined;
-  const language = itemIds(claims, "P31", true).includes(languageType);
+  const currentTypes = itemIds(claims, "P31", true);
+  const language = currentTypes.includes(languageType);
   const book = language ? null : bookRecord(claims);
   if (!language && !book && !itemIds(claims, "P31").some((id) => knownTypes.has(id))) return null;
 
@@ -292,7 +305,8 @@ export async function lookupWikidataTitle(
   if (!title) return null;
   // A language's own label is the whole title: no year is invented from
   // unrelated or ambiguous dates.
-  const year = language ? undefined : releaseYear(claims);
+  const series = currentTypes.some((id) => seriesTypes.has(id));
+  const year = language ? undefined : displayYear(claims, series);
   return year === undefined ? title : `${title} (${year})`;
 }
 
@@ -336,7 +350,8 @@ function article(sitelinks: Sitelinks | undefined): string | undefined {
  * is partial. Programming languages accept Q9143 only from a non-deprecated P31
  * and never infer a year. Books use bookRecord(): a current Q571 book, or a
  * current Q3331189 edition carrying a valid active ISBN-13, with the source
- * ISBN kept on the pick.
+ * ISBN kept on the pick. A current series/miniseries without a usable P577
+ * uses the earliest valid non-deprecated P580 start year.
  *
  * For games, an optional platform filter narrows the same response to items
  * whose own current, non-deprecated P400 statements evidence that family. All
@@ -386,7 +401,8 @@ export async function searchWikidata(
     const item = record(entities?.[hit.id]);
     const claims = record(item?.claims) as Claims | undefined;
     const book = kind === "book" ? bookRecord(claims) : null;
-    const types = itemIds(claims, "P31", kind === "language" || kind === "book");
+    const currentTypes = itemIds(claims, "P31", true);
+    const types = kind === "language" || kind === "book" ? currentTypes : itemIds(claims, "P31");
     if (kind === "book" ? !book : !types.some((id) => accepted.has(id))) continue;
     if (kind === "game" && platformFilter !== "all" && !gameFamilies(claims).includes(platformFilter)) continue;
     const pick: WikidataPick = {
@@ -395,7 +411,8 @@ export async function searchWikidata(
       href: `https://www.wikidata.org/wiki/${hit.id}`,
     };
     if (book?.isbn) pick.isbn = book.isbn;
-    const year = kind === "language" ? undefined : releaseYear(claims);
+    const series = kind === "series" && currentTypes.some((id) => seriesTypes.has(id));
+    const year = kind === "language" ? undefined : displayYear(claims, series);
     if (year !== undefined) pick.year = year;
     const platforms = platform(claims);
     if (platforms) pick.platform = platforms;
