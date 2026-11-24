@@ -5537,12 +5537,44 @@ export function mountShareExperience(root: HTMLElement) {
         preview.alt = description;
         const meta = document.createElement("figcaption");
         meta.className = "tq-card-meta";
+        const filename = `${game}-${outcome}-${cardFormat}.png`;
+        const personaFileToShare = twentyOneShareFile(blob, filename, navigator);
         const link = document.createElement("a");
         link.className = "button secondary";
         link.href = href;
-        link.download = `${game}-${outcome}-${cardFormat}.png`;
+        link.download = filename;
         link.textContent = `Save ${cardFormat} PNG`;
         meta.append(link);
+        if (personaFileToShare) {
+          // Share the exact Blob behind this preview and Save link, with the
+          // same filename and PNG type. No URL, title, text, fields or remix
+          // data is added, and the native call runs during the click without
+          // a render or other await. Cancellation or denial keeps Save beside it.
+          let sharingPersona = false;
+          const shareButton = document.createElement("button");
+          shareButton.type = "button";
+          shareButton.className = "button secondary";
+          shareButton.textContent = "Share PNG";
+          shareButton.setAttribute("aria-label", `Share ${cardFormat} PNG`);
+          shareButton.addEventListener("click", async () => {
+            if (sharingPersona || version !== personaVersion) return;
+            sharingPersona = true;
+            try {
+              await navigator.share({ files: [personaFileToShare] });
+              if (version !== personaVersion) return;
+              status.textContent = "Card PNG handed to your device’s share sheet.";
+            } catch (error) {
+              if (version !== personaVersion) return;
+              // Keep the prepared card available for another tap or Save.
+              status.textContent = error instanceof DOMException && error.name === "AbortError"
+                ? "Sharing cancelled. Your card is still ready."
+                : `Couldn’t share the card PNG. Use Save ${cardFormat} PNG to keep it.`;
+            } finally {
+              sharingPersona = false;
+            }
+          });
+          meta.append(shareButton);
+        }
         if (imageClipboard) {
           // Copy the very Blob behind this preview and Save link, not a new
           // render or its URL. Both this and the description below belong to
