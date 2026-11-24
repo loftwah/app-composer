@@ -626,7 +626,7 @@
 .nine-canvas .nine-preview-cell[data-covered]:has(a[href]) .nine-tile-edit { inset-block: 0 auto; }
 .nine-board-links { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
 .nine-workspace:not([data-nine-recipient]) [data-nine-preview-title],
-.nine-workspace[data-nine-recipient] :is([data-exhibition-title], [data-nine-edit-slot], [data-nine-find-first], [data-nine-paste-shortcut], .nine-editor) { display: none; }
+.nine-workspace[data-nine-recipient] :is([data-exhibition-title], [data-nine-edit-slot], [data-nine-find-first], [data-nine-paste-shortcut], [data-draft-save], .nine-editor) { display: none; }
 .nine-workspace[data-nine-recipient] :is(.nine-canvas, .nine-export) {
   width: min(100%, 34rem);
   justify-self: center;
@@ -706,6 +706,7 @@
 .nine-download-requirement { min-height: 1.4em; margin-block: .2rem 0; font-size: .88rem; }
 .nine-download-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
 .nine-download-row :is(button, a) { min-height: 44px; }
+.nine-canvas [data-draft-status]:empty { margin: 0; }
 .nine-canvas [data-manual-copy] { width: 100%; margin-block-start: .55rem; }
 .nine-editor .music-kind { margin-block: .3rem .6rem; }
 .nine-editor .music-search { scroll-margin-block-start: .85rem; }

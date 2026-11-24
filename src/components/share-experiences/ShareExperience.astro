@@ -723,10 +723,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     <input hidden readonly aria-label="Result link" data-manual-copy />
     <div class="nine-board-links">
+      <button type="button" class="secondary nine-options-jump" data-draft-save>Save draft</button>
       <button type="button" class="secondary nine-options-jump" data-nine-options-jump
         aria-controls="nine-image-options" disabled>Image and sharing options</button>
       <button type="button" class="quiet" data-nine-edit-result hidden>Edit this board</button>
     </div>
+    <p class="experience-note" role="status" data-draft-status></p>
   </section>}
 
   {isNine && <section data-play-panel class="exhibition nine-editor" data-nine-active-field aria-labelledby="nine-editor-heading">
@@ -887,7 +889,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       </div>
       <p class="experience-note" role="status" data-cover-status></p>
       <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
-      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts. Each cover fills its cell; Fit beside it shows the whole artwork instead, letterboxed on the cell’s colour.</p>
+      <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Your artwork stays in this tab and in the images you save. Use Fit to show the whole cover.</p>
     </details>
   </section>}
 
@@ -1078,7 +1080,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <details class="nine-drafts">
       <summary>Drafts</summary>
       <div class="experience-actions exhibition-draft">
-        <button type="button" data-draft-save>Save draft</button>
         <button type="button" class="secondary" data-draft-open hidden>Open saved draft</button>
         <button type="button" class="secondary" data-draft-clear>Clear saved draft</button>
         <button type="button" class="secondary" data-draft-file-save disabled>Download draft file</button>
@@ -1087,9 +1088,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
             aria-describedby="nine-draft-file-note" />
         </label>
       </div>
-      <p class="experience-note">Drafts keep your title, subtitle, date, exhibits, source links, profile link and ranked setting in this browser. Cover images aren’t saved — download your result image to keep them.</p>
-      <p class="experience-note" role="status" data-draft-status></p>
-      <p class="experience-note" id="nine-draft-file-note">A draft file is private JSON with board text, links and settings. Open it to replace the current board. Download a PNG to keep the cover images.</p>
+      <p class="experience-note">Drafts keep your board and approved catalogue covers. Save a PNG to keep artwork you added from this device.</p>
+      <p class="experience-note" id="nine-draft-file-note">A draft file keeps your board, links, and approved cover references. Opening it replaces the current board.</p>
       <p class="experience-note" role="status" data-draft-file-status></p>
     </details>
     <p><a href="/share?tag=internet-workshop">Explore the Internet Workshop</a></p>

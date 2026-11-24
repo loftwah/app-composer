@@ -1488,25 +1488,45 @@ function mountNine(
     }
   }
 
+  function approvedReferences(): (ApprovedCoverReference | null)[] | undefined {
+    const references = covers.map((cover) => cover?.approved
+      ? { id: cover.approved.id, fit: cover.fit }
+      : null);
+    return references.some(Boolean) ? references : undefined;
+  }
+
+  function restoreApprovedCovers(references: readonly (ApprovedCoverReference | null)[]) {
+    references.forEach((reference, index) => {
+      const href = hrefs[index];
+      if (href && reference && !covers[index]) void hangApprovedCover(index, href, reference.fit);
+    });
+  }
+
   function applyDraft(draft: NineDraft) {
-    // Covers are browser-only, so a draft restore has to decide which local
-    // covers still belong to the exhibits it brings back. Compare before the
-    // inputs change: an exact title and canonical source match keeps its cover.
+    // A local image stays on an exact unchanged exhibit. An explicit saved
+    // catalogue cover replaces it, while an absent reference drops catalogue art.
     const restoredItems = objects.map((_, index) => draft.items[index] ?? "");
     const restoredHrefs = normaliseSourceLinks(draft.hrefs);
+    const restoredCovers = normaliseApprovedCovers(draft.approvedCovers, restoredHrefs);
     // A decode still running for the previous board must not land on this one.
     coverRun += 1;
     let cleared = 0;
     objects.forEach((input, index) => {
-      if (!covers[index]) return;
-      if (input.value === restoredItems[index] && hrefs[index] === restoredHrefs[index]) return;
+      const current = covers[index];
+      if (!current) return;
+      const saved = restoredCovers[index];
+      if (input.value === restoredItems[index] && hrefs[index] === restoredHrefs[index]) {
+        if (saved && current.approved?.id === saved.id) {
+          current.fit = saved.fit;
+          return;
+        }
+        if (!saved && !current.approved) return;
+      }
       disposeCover(index);
       cleared += 1;
     });
-    if (cleared) {
-      renderCovers();
-      coverNote(`Covers cleared from ${cleared} exhibit${cleared === 1 ? "" : "s"} whose title or source changed with the draft.`);
-    }
+    renderCovers();
+    if (cleared) coverNote(`Draft restored. Artwork changed on ${cleared} tile${cleared === 1 ? "" : "s"}.`);
     title.value = draft.title;
     subtitle.value = draft.subtitle ?? "";
     objects.forEach((input, index) => { input.value = restoredItems[index]; });
@@ -1522,6 +1542,7 @@ function mountNine(
     closePreview(false);
     clearReplace();
     hrefs = restoredHrefs;
+    restoreApprovedCovers(restoredCovers);
     pageLinks = trimPages(draft.pages);
     pageTitles = objects.map((input) => input.value.trim());
     if (hrefs.some(Boolean)) music.panel.open = true;
@@ -2150,6 +2171,7 @@ function mountNine(
     skin: Number(chooseSkin.value),
     ranked: rankedBox.checked ? true : undefined,
     hrefs: hrefs.slice(),
+    approvedCovers: approvedReferences(),
     pages: objects.map((_, index) => livePage(index)),
   });
   saveDraft.addEventListener("click", () => {
@@ -2157,9 +2179,12 @@ function mountNine(
     if (outcome === "saved") {
       openDraft.hidden = true;
       const rawProfile = profile?.value.trim() ?? "";
-      draftStatus.textContent = rawProfile && !profileUrl(rawProfile)
-        ? "Saved on this device without the profile link, which isn’t a public HTTPS profile address."
-        : "Saved on this device. It opens next time you visit in this browser.";
+      const noProfile = rawProfile && !profileUrl(rawProfile);
+      const customArt = covers.some((cover) => cover && !cover.approved);
+      draftStatus.textContent = [
+        noProfile ? "Saved on this device without the invalid profile link." : "Draft saved on this device.",
+        customArt ? "Save a PNG to keep your custom artwork." : "",
+      ].filter(Boolean).join(" ");
     } else if (outcome === "empty") {
       draftStatus.textContent = "Enter a title or an exhibit before saving.";
     } else if (outcome === "too-large") {
@@ -2177,6 +2202,10 @@ function mountNine(
     }
     applyDraft(draft);
     draftStatus.textContent = "Saved draft opened. The shared result stays in the link you followed.";
+    if (root.hasAttribute("data-nine-recipient")) {
+      root.querySelector<HTMLButtonElement>("[data-nine-edit-result]")?.click();
+    }
+    returnToBoard(0);
   });
   clearDraft.addEventListener("click", () => {
     if (!clearNineDraft(storage)) {
@@ -2212,8 +2241,8 @@ function mountNine(
     return "That draft file could not be opened. This board is unchanged.";
   }
 
-  /** Download the current board as one bounded, versioned private file. Nothing
-   * is stored or sent; covers stay out because they belong to this session. */
+  /** Download board settings and approved asset references as a private file.
+   * No image bytes leave the tab through this export. */
   saveDraftFile.addEventListener("click", () => {
     const text = writeNineDraftFile(boardDraft());
     if (!text) {
@@ -2300,9 +2329,7 @@ function mountNine(
       if (!heading || !items.every(Boolean)) return null;
       const line = entry(subtitle.value, nineSubtitleLimit);
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
-      const approvedCovers = covers.map((cover) => cover?.approved
-        ? { id: cover.approved.id, fit: cover.fit }
-        : null);
+      const approvedCovers = approvedReferences();
       const pageOut = objects.map((_, index) => livePage(index));
       const profileHref = profile ? profileUrl(profile.value) : null;
       const date = topNineDate(dateInput.value);
@@ -2310,7 +2337,7 @@ function mountNine(
         title: heading, items,
         ...(line ? { subtitle: line } : {}),
         ...(links ? { hrefs: links } : {}),
-        ...(approvedCovers.some(Boolean) ? { approvedCovers } : {}),
+        ...(approvedCovers ? { approvedCovers } : {}),
         ...(pageOut.some(Boolean) ? { pages: pageOut } : {}),
         ...(profileHref ? { profile: profileHref } : {}),
         ...(date ? { date } : {}),
@@ -2340,10 +2367,7 @@ function mountNine(
       closePreview(false);
       clearReplace();
       hrefs = trimHrefs(snapshot.hrefs);
-      normaliseApprovedCovers(snapshot.approvedCovers, hrefs).forEach((ref, index) => {
-        const href = hrefs[index];
-        if (href && ref) void hangApprovedCover(index, href, ref.fit);
-      });
+      restoreApprovedCovers(normaliseApprovedCovers(snapshot.approvedCovers, hrefs));
       pageLinks = trimPages(snapshot.pages);
       pageTitles = objects.map((input) => input.value.trim());
       if (hrefs.some(Boolean)) music.panel.open = true;
@@ -5541,6 +5565,9 @@ export function mountShareExperience(root: HTMLElement) {
   const ninePackage = root.querySelector<HTMLButtonElement>("[data-nine-package]");
   const nineResultActions = root.querySelector<HTMLElement>("[data-nine-result-actions]");
   const nineFindFirst = root.querySelector<HTMLButtonElement>("[data-nine-find-first]");
+  const nineDraftSavers = game === "top-nine"
+    ? elements<HTMLButtonElement>(root, "[data-draft-save], [data-draft-file-save]")
+    : [];
   const ninePreviewButton = root.querySelector<HTMLButtonElement>("[data-nine-png-preview-button]");
   const ninePreview = root.querySelector<HTMLElement>("[data-nine-png-preview]");
   const ninePreviewCaption = root.querySelector<HTMLElement>("[data-nine-png-preview-caption]");
@@ -5719,6 +5746,7 @@ export function mountShareExperience(root: HTMLElement) {
     // hiding the share panel also keeps a remix from being mistaken for the
     // original quiz's export.
     const exportable = controller.exportAllowed?.() ?? true;
+    for (const button of nineDraftSavers) button.disabled = !exportable;
     if (exportPanel && game !== "top-nine") exportPanel.hidden = !exportable;
     if (ninePreviewButton) ninePreviewButton.disabled = !canShare || !exportable || busy;
     if (personaCardActions) personaCardActions.hidden = !exportable || !canShare;

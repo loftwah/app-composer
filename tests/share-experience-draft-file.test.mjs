@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { approvedOpenGoldbergCover } from '../src/lib/top-nine-approved-cover.ts';
 import {
   draftFileLimit, draftFileName, draftFileSchema, draftKey, draftVersion,
   readNineDraft, readNineDraftFile, writeNineDraft, writeNineDraftFile,
@@ -183,14 +184,14 @@ test('unsafe links drop from a file exactly as they drop from a stored draft', (
 
 test('the file controls are local, bounded and leave the browser draft path intact', () => {
   const stage = source('src/components/share-experiences/ShareExperience.astro');
-  assert.match(stage, /type="button" data-draft-save>Save draft</);
+  assert.match(stage, /class="nine-board-links">\s+<button type="button"[^>]+data-draft-save>Save draft</);
   assert.match(stage, /class="secondary" data-draft-open hidden>Open saved draft</);
   assert.match(stage, /class="secondary" data-draft-clear>Clear saved draft</);
   assert.match(stage, /data-draft-file-save disabled>Download draft file</);
   assert.match(stage, /accept="application\/json,\.json" data-draft-file disabled/);
   assert.match(stage, /role="status" data-draft-file-status/);
-  assert.match(stage, /id="nine-draft-file-note">A draft file is private JSON/);
-  assert.match(stage, /a PNG to keep the cover images/);
+  assert.match(stage, /id="nine-draft-file-note">A draft file keeps your board, links, and approved cover references/);
+  assert.match(stage, /Save a PNG to keep artwork you added from this device/);
 
   const controller = source('src/browser/share-experiences.ts');
   const start = controller.indexOf('function mountNine');
@@ -217,4 +218,23 @@ test('the file controls are local, bounded and leave the browser draft path inta
   for (const forbidden of ['localStorage', 'fetch(', 'XMLHttpRequest', 'sessionStorage', 'covers[']) {
     assert.equal(handlers.includes(forbidden), false, `a draft file never touches ${forbidden}`);
   }
+});
+
+test('saved and portable drafts preserve only approved cover references and their fit', () => {
+  const album = 'https://music.apple.com/us/album/open-goldberg/1162185845';
+  const ref = { id: approvedOpenGoldbergCover.id, fit: 'contain' };
+  const approvedCovers = [ref, ...Array(8).fill(null)];
+  const draft = { ...board, hrefs: [album, ...Array(8).fill(null)], approvedCovers };
+  const local = storage();
+  assert.equal(writeNineDraft(local, draft), 'saved');
+  assert.deepEqual(readNineDraft(local).approvedCovers, approvedCovers);
+  assert.deepEqual(readNineDraftFile(writeNineDraftFile(draft)).draft.approvedCovers, approvedCovers);
+  const withoutTitle = { ...draft, items: ['', ...draft.items.slice(1)] };
+  assert.equal(JSON.parse(writeNineDraftFile(withoutTitle)).approvedCovers, undefined);
+  const file = JSON.parse(writeNineDraftFile(draft));
+  file.approvedCovers[0].url = 'https://example.com/art.png';
+  assert.equal(readNineDraftFile(JSON.stringify(file)).fault, 'shape');
+  delete file.approvedCovers[0].url;
+  file.hrefs[0] = spotify;
+  assert.equal(readNineDraftFile(JSON.stringify(file)).fault, 'shape');
 });
