@@ -44,7 +44,7 @@ const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&next=browser'
   )}
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
-  <a href="/ready" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>
+  <a href="/ready#agent-start" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>
   <a href="/me"><strong>My profile &amp; apps</strong><span>Invitation-only: your profile, workspace and shared app tools.</span></a>
   <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Give teams approved ways to build, release and run.</span></a>
   <a href="/docs/how-it-works#run-your-own-composer"><strong>Run my own Composer</strong><span>See what a separate installation involves.</span></a>
