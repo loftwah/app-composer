@@ -1,0 +1,125 @@
+{
+  "schema": "voxel-film-01-fixture/v1",
+  "id": "VOXEL-FILM-01",
+  "classification": "fictional-contract-only",
+  "description": "Synthetic five-tile, ten-light example. No actual Studio/agent/GPU run, render or real artwork.",
+  "projectId": "fictional-world",
+  "seed": 1387,
+  "timeline": {
+    "fps": 24,
+    "durationSeconds": 10,
+    "expectedFrames": 240
+  },
+  "tileSize": {
+    "x": 16,
+    "z": 16
+  },
+  "tiles": [
+    {
+      "id": "tile-00",
+      "origin": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "tile-01",
+      "origin": {
+        "x": 16,
+        "z": 0
+      }
+    },
+    {
+      "id": "tile-02",
+      "origin": {
+        "x": 32,
+        "z": 0
+      }
+    },
+    {
+      "id": "tile-03",
+      "origin": {
+        "x": 48,
+        "z": 0
+      }
+    },
+    {
+      "id": "tile-04",
+      "origin": {
+        "x": 64,
+        "z": 0
+      }
+    }
+  ],
+  "lights": [
+    {
+      "id": "lamp-00-0",
+      "tileId": "tile-00",
+      "onFrame": 60,
+      "offFrame": 85
+    },
+    {
+      "id": "lamp-00-1",
+      "tileId": "tile-00",
+      "onFrame": 62,
+      "offFrame": 87
+    },
+    {
+      "id": "lamp-01-0",
+      "tileId": "tile-01",
+      "onFrame": 72,
+      "offFrame": 97
+    },
+    {
+      "id": "lamp-01-1",
+      "tileId": "tile-01",
+      "onFrame": 74,
+      "offFrame": 99
+    },
+    {
+      "id": "lamp-02-0",
+      "tileId": "tile-02",
+      "onFrame": 84,
+      "offFrame": 109
+    },
+    {
+      "id": "lamp-02-1",
+      "tileId": "tile-02",
+      "onFrame": 86,
+      "offFrame": 111
+    },
+    {
+      "id": "lamp-03-0",
+      "tileId": "tile-03",
+      "onFrame": 96,
+      "offFrame": 121
+    },
+    {
+      "id": "lamp-03-1",
+      "tileId": "tile-03",
+      "onFrame": 98,
+      "offFrame": 123
+    },
+    {
+      "id": "lamp-04-0",
+      "tileId": "tile-04",
+      "onFrame": 108,
+      "offFrame": 133
+    },
+    {
+      "id": "lamp-04-1",
+      "tileId": "tile-04",
+      "onFrame": 110,
+      "offFrame": 135
+    }
+  ],
+  "probeFrames": [
+    0,
+    72,
+    96,
+    120,
+    144,
+    239
+  ],
+  "reference": "https://github.com/loftwah/composer-media-studio/issues/532"
+}
