@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
-  albumTitleApplies, appleAlbumRef, lookupAppleAlbum, lookupSpotifyAlbumTitle,
-  musicPreview, musicSearchLinks, normaliseMusicPicks, searchMusic, spotifyAlbumRef,
+  albumTitleApplies, appleAlbumRef, appleSongRef, lookupAppleAlbum, lookupAppleSong,
+  lookupSpotifyAlbumTitle, musicPreview, musicSearchLinks, normaliseMusicPicks,
+  searchMusic, spotifyAlbumRef,
 } from '../src/lib/top-nine-music.ts';
 
 const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
@@ -304,4 +306,146 @@ test('a failed or cancelled Spotify lookup makes one request and is not retried'
   controller.abort();
   await assert.rejects(lookupSpotifyAlbumTitle(spotifyAlbum, controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
+});
+
+// Verified live in the AU storefront: /lookup?id=697195633&country=au returns
+// one song row — track 697195633, collection 697194953, "Digital Love" by
+// Daft Punk, with trackViewUrl .../album/digital-love/697194953?i=697195633.
+// The old 697194960 fixture now returns zero results, so it is only used below
+// as a wrong-ID case, never as a working song.
+const auSong = 'https://music.apple.com/au/song/digital-love/697195633?uo=4';
+const auAlbumSong = 'https://music.apple.com/au/album/digital-love/697194953?i=697195633&uo=4';
+const songRow = {
+  wrapperType: 'track', kind: 'song', trackId: 697195633, collectionId: 697194953,
+  trackName: 'Digital Love', artistName: 'Daft Punk', collectionName: 'Discovery',
+  trackViewUrl: 'https://music.apple.com/au/album/digital-love/697194953?i=697195633&uo=4',
+  artworkUrl100: 'https://example.test/art.jpg', previewUrl: 'https://example.test/track.m4a',
+};
+
+test('keeps the canonical link and inline preview for both exact song link forms', () => {
+  assert.deepEqual(musicPreview(auSong), {
+    href: 'https://music.apple.com/au/song/697195633',
+    embedUrl: 'https://embed.music.apple.com/au/song/697195633',
+    provider: 'Apple Music',
+  });
+  assert.deepEqual(musicPreview(auAlbumSong), {
+    href: 'https://music.apple.com/au/album/697194953?i=697195633',
+    embedUrl: 'https://embed.music.apple.com/au/album/697194953?i=697195633',
+    provider: 'Apple Music',
+  });
+  // Album-only parsing is untouched: neither exact song form seeds it.
+  assert.deepEqual(appleAlbumRef('https://music.apple.com/au/album/discovery/697194953'),
+    { country: 'au', id: '697194953' });
+  assert.equal(appleAlbumRef(auSong), null);
+  assert.equal(appleAlbumRef(auAlbumSong), null);
+});
+
+test('reads one exact song link as its own storefront, track ID and album ID', () => {
+  assert.deepEqual(appleSongRef(auSong), { country: 'au', id: '697195633' });
+  assert.deepEqual(appleSongRef(auAlbumSong), { country: 'au', id: '697195633', album: '697194953' });
+  assert.deepEqual(appleSongRef('https://music.apple.com/tw/song/123456789'),
+    { country: 'tw', id: '123456789' });
+  // Plain albums, Spotify, spoofed hosts and malformed IDs are not song choices.
+  for (const href of [
+    'https://music.apple.com/au/album/discovery/697194953',
+    'https://open.spotify.com/track/3KkXRkHbMCARz0aVfEt68P',
+    spotify,
+    'https://example.test/au/song/697195633',
+    'https://music.apple.com/au/song/not-a-number',
+    'https://music.apple.com/au/song/697195633?i=697194960',
+    '', null,
+  ]) {
+    assert.equal(appleSongRef(href), null);
+  }
+});
+
+test('looks up one exact song by link storefront and track ID, never by search', async (t) => {
+  const fetches = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://itunes.apple.com');
+    assert.equal(url.pathname, '/lookup');
+    assert.deepEqual(Object.fromEntries(url.searchParams), { id: '697195633', country: 'au' });
+    assert.equal(init.credentials, 'omit');
+    assert.equal(init.referrerPolicy, 'no-referrer');
+    assert.equal(init.redirect, 'error');
+    return Response.json({ resultCount: 1, results: [songRow] });
+  });
+  assert.deepEqual(await lookupAppleSong(auSong), { title: 'Digital Love', artist: 'Daft Punk' });
+  assert.equal(fetches.mock.callCount(), 1);
+});
+
+test('requires the same album ID on an album+track link, in the row and its track URL', async (t) => {
+  let row = songRow;
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ results: [row] }));
+  assert.deepEqual(await lookupAppleSong(auAlbumSong), { title: 'Digital Love', artist: 'Daft Punk' });
+  for (const variant of [
+    { ...songRow, collectionId: 697194954 },
+    { ...songRow, trackViewUrl: 'https://music.apple.com/au/album/discovery/697194954?i=697195633&uo=4' },
+  ]) {
+    row = variant;
+    assert.equal(await lookupAppleSong(auAlbumSong), null);
+  }
+});
+
+test('only the exact song row behind a canonical track link can name an exhibit', async (t) => {
+  let row = songRow;
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ results: [row] }));
+  for (const variant of [
+    { ...songRow, trackId: 697194960 },
+    { ...songRow, kind: 'music-video' },
+    { ...songRow, trackViewUrl: 'https://music.apple.com/us/song/697195633' },
+    { ...songRow, trackViewUrl: 'https://music.apple.com/au/song/digital-love/697194960' },
+    { ...songRow, trackViewUrl: 'https://example.test/au/album/697194953?i=697195633' },
+    { ...songRow, trackViewUrl: 'https://music.apple.com/au/album/discovery/697194953' },
+    { ...songRow, trackName: '' },
+    { ...songRow, artistName: '   ' },
+  ]) {
+    row = variant;
+    assert.equal(await lookupAppleSong(auSong), null);
+  }
+});
+
+test('an empty song result keeps the link and offers no title', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ resultCount: 0, results: [] }));
+  assert.equal(await lookupAppleSong(auSong), null);
+  assert.equal(await lookupAppleSong(auAlbumSong), null);
+});
+
+test('a pasted-song lookup never fetches for a non-song link', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('a lookup must not run for this link');
+  });
+  for (const href of [
+    'https://music.apple.com/au/album/discovery/697194953',
+    'https://open.spotify.com/track/3KkXRkHbMCARz0aVfEt68P',
+    spotify, '', null,
+  ]) {
+    assert.equal(await lookupAppleSong(href), null);
+  }
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('a failed or cancelled song lookup makes one request and is not retried', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', { status: 500 }));
+  await assert.rejects(lookupAppleSong(auSong), /500/);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(lookupAppleSong(auSong, controller.signal), { name: 'AbortError' });
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('a late song title only lands on the same link in a still-empty slot', () => {
+  const href = 'https://music.apple.com/au/album/697194953?i=697195633';
+  assert.equal(albumTitleApplies({ href, title: '' }, href), true);
+  assert.equal(albumTitleApplies({ href, title: '   ' }, href), true);
+  assert.equal(albumTitleApplies({ href, title: 'Digital Love · Daft Punk' }, href), false);
+  assert.equal(albumTitleApplies({ href: null, title: '' }, href), false);
+  assert.equal(albumTitleApplies({ href: 'https://music.apple.com/au/song/697195633', title: '' }, href), false);
+});
+
+test('the song lookup reads only text fields through one bounded catalogue lookup', () => {
+  const lib = readFileSync(new URL('../src/lib/top-nine-music.ts', import.meta.url), 'utf8');
+  const start = lib.indexOf('export async function lookupAppleSong(');
+  const block = lib.slice(start, lib.indexOf('\n}', start) + 2);
+  assert.match(block, /lookupCatalogue\(\{/);
+  assert.doesNotMatch(block, /searchCatalogue|fetch\(|AbortController|artworkUrl|previewUrl|retry/);
 });

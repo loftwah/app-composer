@@ -48,6 +48,7 @@ import {
 import {
   musicPreview, musicSearchLinks, searchMusic,
   albumTitleApplies, appleAlbumRef, lookupAppleAlbum,
+  appleSongRef, lookupAppleSong,
   lookupSpotifyAlbumTitle, spotifyAlbumRef,
 } from "../lib/top-nine-music.ts";
 import {
@@ -1158,12 +1159,12 @@ function mountNine(
     applyPick(slot, pick, source, label);
   }
 
-  /** A deliberate paste of an Apple Music, Spotify album, Apple Books, App
-   * Store app or exact Wikidata item link keeps the canonical link (and, for
-   * music, its preview) immediately, then restores the public title from that
-   * exact ID; Apple Music, Apple Books and the App Store also carry the
-   * artist/author/developer, while Wikidata supplies a known media type's own
-   * label and reliable year. It reuses the one-controller-per-slot
+  /** A deliberate paste of an Apple Music song or album, Spotify album, Apple
+   * Books, App Store app or exact Wikidata item link keeps the canonical link
+   * (and, for music, its preview) immediately, then restores the public title
+   * from that exact ID. Apple Music, Apple Books and the App Store also carry
+   * the artist/author/developer, while Wikidata supplies a known media type's
+   * own label and reliable year. It reuses the one-controller-per-slot
    * pendingLookups state above, so a replaced link, move, Undo or rebuilt board
    * cancels the same in-flight request and no parallel async state is needed.
    * A miss, an unsupported link or a failure leaves the link and manual title
@@ -1171,12 +1172,13 @@ function mountNine(
    * typed title, a replaced link, a moved exhibit or a rebuilt board. */
   async function fillSourceTitle(slot: number, href: string) {
     const apple = appleAlbumRef(href);
+    const appleSong = appleSongRef(href);
     const spotify = spotifyAlbumRef(href);
     const book = appleBookRef(href);
     const app = appleAppRef(href);
     const wiki = wikidataSource(href);
-    if (!apple && !spotify && !book && !app && !wiki) return;
-    const provider = book ? "Apple Books" : apple ? "Apple Music" : app ? "App Store"
+    if (!apple && !appleSong && !spotify && !book && !app && !wiki) return;
+    const provider = book ? "Apple Books" : apple || appleSong ? "Apple Music" : app ? "App Store"
       : wiki ? "Wikidata" : "Spotify";
     const attachment = book || app || wiki ? "link" : "link and preview";
     const controller = new AbortController();
@@ -1192,6 +1194,8 @@ function mountNine(
         ? await lookupAppleBook(href, controller.signal)
         : apple
         ? await lookupAppleAlbum(href, controller.signal)
+        : appleSong
+        ? await lookupAppleSong(href, controller.signal)
         : app
         ? await lookupAppleApp(href, controller.signal)
         : wiki
