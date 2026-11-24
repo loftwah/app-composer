@@ -95,6 +95,9 @@ import {
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
+  approvedCoverForSource, type ApprovedCover,
+} from "../lib/top-nine-approved-cover.ts";
+import {
   oneMustGoAltText, techTournamentAltText, thisOrThatAltText, tierListAltText, wrongAnswersAltText,
 } from "../lib/experience-alt-text.ts";
 import {
@@ -162,14 +165,14 @@ interface ResultSnapshot {
   curseChoice?: CursedChoice;
 }
 
-/** One cover a person picked from their device: session-only, never uploaded.
- * Its fit is chosen per cover and shares the slot's whole life — it moves with
- * a reorder, swap or undo, and a removed or replaced cover takes it along. */
+/** A local file or an approved catalogue cover. Its fit and artwork move
+ * with the exhibit, and its pixels are drawn into the same PNG renderer. */
 interface CoverSlot {
   url: string;
   art: HTMLCanvasElement;
   kind: "png" | "jpeg" | "webp";
   fit: CoverFit;
+  approved?: ApprovedCover;
 }
 
 interface Controller {
@@ -404,6 +407,7 @@ function mountNine(
   let pageLinks: (string | null)[] = objects.map(() => null);
   let pageTitles: string[] = objects.map(() => "");
   let covers: (CoverSlot | null)[] = objects.map(() => null);
+  const pendingCovers = new Map<number, AbortController>();
   let target = 0;
   let returnAfterPick = false;
   let coverTarget = 0;
@@ -590,24 +594,38 @@ function mountNine(
   }
 
   function setLink(index: number, href: string | null) {
-    if (hrefs[index] !== href) {
+    const changed = hrefs[index] !== href;
+    const dropsApprovedCover = changed && Boolean(covers[index]?.approved);
+    if (changed) {
       cancelLookup(index);
       // A source link changed under an open replacement prompt: the prompt no
       // longer describes this slot, so it closes before the write lands.
       if (replaceOffer?.slot === index) clearReplace();
     }
     hrefs[index] = href;
+    if (dropsApprovedCover) {
+      disposeCover(index);
+      renderCovers();
+      renderPreview();
+    }
     if (previewIndex === index) closePreview(false);
     refreshLinks();
+  }
+
+  function cancelApprovedCover(index: number) {
+    pendingCovers.get(index)?.abort();
+    pendingCovers.delete(index);
   }
 
   /** Stop a pending pasted-link lookup for one exhibit, or every exhibit. */
   function cancelLookup(index?: number) {
     if (index === undefined) {
+      for (const slot of pendingCovers.keys()) cancelApprovedCover(slot);
       for (const controller of pendingLookups.values()) controller.abort();
       pendingLookups.clear();
       return;
     }
+    cancelApprovedCover(index);
     pendingLookups.get(index)?.abort();
     pendingLookups.delete(index);
   }
@@ -632,14 +650,27 @@ function mountNine(
       const state = root.querySelector<HTMLElement>(`[data-cover-slot-state="${index}"]`);
       if (!state) return;
       state.hidden = !slot;
-      state.textContent = slot ? `${kindLabel[slot.kind]} cover` : "";
+      state.textContent = slot
+        ? slot.approved ? "Catalogue artwork" : `${kindLabel[slot.kind]} cover`
+        : "";
     });
     cover.linked.replaceChildren();
     covers.forEach((slot, index) => {
       if (!slot) return;
       const row = document.createElement("li");
       const label = document.createElement("span");
-      label.textContent = `Exhibit ${index + 1} · ${kindLabel[slot.kind]}`;
+      label.textContent = `Exhibit ${index + 1} · ${slot.approved ? "Catalogue artwork" : kindLabel[slot.kind]}`;
+      if (slot.approved) {
+        const credit = document.createElement("small");
+        credit.className = "cover-credit";
+        const source = document.createElement("a");
+        source.href = slot.approved.sourceUrl;
+        source.target = "_blank";
+        source.rel = "noopener noreferrer nofollow";
+        source.textContent = `${slot.approved.attribution} Source and licence`;
+        credit.append(source);
+        label.append(credit);
+      }
       // The one labelled, compact fit choice for this cover. It edits the
       // slot in place, so the preview and every export follow at once.
       const fitField = document.createElement("label");
@@ -873,17 +904,22 @@ function mountNine(
     renderDate();
   }
 
-  /** One device image onto one exhibit: bounded, decoded locally, never uploaded. */
-  async function hangCover(file: File) {
-    const index = coverTarget;
-    const run = ++coverRun;
-    const fail = (text: string) => { if (run === coverRun) coverNote(text); };
-    if (file.size > coverFileLimit) {
-      fail(`That image is ${Math.round(file.size / 1_048_576)} MB. Covers can be up to ${coverFileLimit / 1_048_576} MB.`);
+  /** The one bounded local image path for a device file or the pinned approved
+   * asset. Bytes are sniffed before decode, then resized into the same canvas the
+   * preview and PNG export already use. Nothing is uploaded or fetched remotely. */
+  async function hangCoverImage(
+    bytes: Blob,
+    index: number,
+    applies: () => boolean,
+    approved?: ApprovedCover,
+  ) {
+    const fail = (text: string) => { if (applies()) coverNote(approved ? "Artwork couldn’t load. You can add custom art." : text); };
+    if (bytes.size > coverFileLimit) {
+      fail(`That image is ${Math.round(bytes.size / 1_048_576)} MB. Covers can be up to ${coverFileLimit / 1_048_576} MB.`);
       return;
     }
-    const head = new Uint8Array(await file.slice(0, coverHeadLimit).arrayBuffer());
-    if (run !== coverRun) return;
+    const head = new Uint8Array(await bytes.slice(0, coverHeadLimit).arrayBuffer());
+    if (!applies()) return;
     const sniffed = sniffCover(head);
     if (!sniffed) {
       fail("That file isn’t a readable PNG, JPEG or WebP image. Pick a photo or artwork from your device.");
@@ -893,7 +929,7 @@ function mountNine(
       fail(`That image is ${sniffed.width.toLocaleString()} × ${sniffed.height.toLocaleString()} pixels. Covers can be up to ${coverPixelLimit / 1_000_000} megapixels.`);
       return;
     }
-    const url = URL.createObjectURL(file);
+    const url = URL.createObjectURL(bytes);
     const source = new Image();
     source.src = url;
     try {
@@ -903,7 +939,7 @@ function mountNine(
       fail("That image couldn’t be decoded. Export it as PNG or JPEG, then pick it again.");
       return;
     }
-    if (run !== coverRun) {
+    if (!applies()) {
       URL.revokeObjectURL(url);
       return;
     }
@@ -927,11 +963,47 @@ function mountNine(
     if (replaceOffer?.slot === index) clearReplace();
     disposeCover(index);
     // A fresh cover starts at the current cropped default; any fit chosen for
-    // the art it replaces went with that slot.
-    covers[index] = { url, art, kind: sniffed.kind, fit: "cover" };
+    // the art it replaced went with that slot.
+    covers[index] = { url, art, kind: sniffed.kind, fit: "cover", ...(approved ? { approved } : {}) };
     renderCovers();
     renderPreview();
-    coverNote(`Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
+    coverNote(approved
+      ? `Catalogue artwork added to tile ${index + 1}.`
+      : `Cover added to exhibit ${index + 1}. It moves with the exhibit and appears in your downloaded image.`);
+    if (approved) update();
+  }
+
+  function hangCover(file: File) {
+    const index = coverTarget;
+    cancelApprovedCover(index);
+    const run = ++coverRun;
+    return hangCoverImage(file, index, () => run === coverRun);
+  }
+
+  /** Fetch only a reviewed, versioned same-origin asset after a catalogue pick.
+   * The exact slot must still own the request after both fetch and decode. */
+  async function hangApprovedCover(index: number, href: string) {
+    const approved = approvedCoverForSource(href);
+    if (!approved) return;
+    const request = new AbortController();
+    pendingCovers.set(index, request);
+    const applies = () => pendingCovers.get(index) === request && hrefs[index] === href && !covers[index];
+    try {
+      const response = await fetch(approved.src, {
+        credentials: "omit",
+        redirect: "error",
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(5000)]),
+      });
+      if (!response.ok) throw new Error("Artwork request failed.");
+      const bytes = await response.blob();
+      if (!applies()) return;
+      if (bytes.size !== approved.bytes) throw new Error("Artwork size changed.");
+      await hangCoverImage(bytes, index, applies, approved);
+    } catch {
+      if (applies()) coverNote("Artwork couldn’t load. You can add custom art.");
+    } finally {
+      if (pendingCovers.get(index) === request) pendingCovers.delete(index);
+    }
   }
 
   const previewHeight = { "Apple Music": "450", Spotify: "352" } as const;
@@ -1197,6 +1269,7 @@ function mountNine(
         : ""
     }`);
     update();
+    void hangApprovedCover(slot, source.href);
     if (returnAfterPick) {
       returnAfterPick = false;
       music.panel.open = false;
@@ -2023,6 +2096,13 @@ function mountNine(
       update();
     });
     input.addEventListener("input", () => {
+      cancelApprovedCover(index);
+      if (covers[index]?.approved) {
+        disposeCover(index);
+        renderCovers();
+        renderPreview();
+        update();
+      }
       // Typing in the slot the prompt named changes the exhibit it described.
       if (replaceOffer?.slot === index) clearReplace();
       // A page belongs to the exact title it was attached to. Changing that
