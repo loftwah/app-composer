@@ -40,6 +40,7 @@ import {
   type DraftStorage, type NineDraft, type NineDraftFileRead,
 } from "../lib/share-experience-draft.ts";
 import { profileUrl } from "../lib/top-nine-profile.ts";
+import { topNineDate, topNineDateLabel } from "../lib/top-nine-date.ts";
 import { nineListApplied, nineListSummary, planNineList, planNineListUndo } from "../lib/top-nine-list.ts";
 import { normalisePageLinks, pageLink } from "../lib/top-nine-pages.ts";
 import {
@@ -134,6 +135,9 @@ interface ResultSnapshot {
   /** One optional public HTTPS profile link. Interactive preview, draft and
    * result link only; absent when empty and never part of an export. */
   profile?: string;
+  /** Top Nine only: one intentional calendar day beside the byline. Absent
+   * keeps legacy results and undated exports exactly unchanged. */
+  date?: string;
   /** The frozen authored prompts a private 21-questions card export draws. */
   questions?: string[];
   /** Wrong Answers Only: the exact question and private answer the downloaded
@@ -292,6 +296,8 @@ function mountNine(
   const title = root.querySelector<HTMLInputElement>("[data-exhibition-title]")!;
   const subtitle = root.querySelector<HTMLInputElement>("[data-exhibition-subtitle]")!;
   const profile = root.querySelector<HTMLInputElement>("[data-profile]");
+  const dateInput = root.querySelector<HTMLInputElement>("[data-nine-date]")!;
+  const dateStatus = root.querySelector<HTMLElement>("[data-nine-date-status]");
   const profileStatus = root.querySelector<HTMLElement>("[data-profile-status]");
   const profileRow = root.querySelector<HTMLElement>("[data-nine-preview-profile]");
   const profileLink = root.querySelector<HTMLAnchorElement>("[data-nine-preview-profile-link]");
@@ -370,6 +376,8 @@ function mountNine(
   };
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
   const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
+  const previewDate = root.querySelector<HTMLElement>("[data-nine-preview-date]");
+  const previewDateValue = root.querySelector<HTMLTimeElement>("[data-nine-preview-date-value]");
   const previewCells = elements<HTMLElement>(root, "[data-nine-preview-cell]");
   const replace = {
     group: root.querySelector<HTMLElement>("[data-music-replace]")!,
@@ -688,6 +696,26 @@ function mountNine(
     profileLink.textContent = "";
   }
 
+  /** The optional date is a calendar day, never today's date or an instant.
+   * Invalid native input is explained beside the field and omitted everywhere
+   * else; the preview uses the same fixed readable label as the PNG. */
+  function renderDate() {
+    const value = topNineDate(dateInput.value);
+    const invalid = dateInput.validity?.badInput === true || Boolean(dateInput.value && !value);
+    if (invalid) dateInput.setAttribute("aria-invalid", "true");
+    else dateInput.removeAttribute("aria-invalid");
+    const message = invalid
+      ? "Use a real calendar date from 0001-01-01 to 9999-12-31, or leave it blank."
+      : "";
+    if (dateStatus && dateStatus.textContent !== message) dateStatus.textContent = message;
+    if (!previewDate || !previewDateValue) return;
+    const label = topNineDateLabel(value);
+    previewDateValue.textContent = label;
+    previewDate.hidden = !label;
+    if (value) previewDateValue.dateTime = value;
+    else previewDateValue.removeAttribute("datetime");
+  }
+
   /** The exact page for one exhibit, only while its title is still the one the
    * page was attached to. An edit, a provider fill or an empty slot never
    * leaves an old address hanging from a different title. */
@@ -816,6 +844,7 @@ function mountNine(
       image.hidden = false;
     });
     renderProfile();
+    renderDate();
   }
 
   /** One device image onto one exhibit: bounded, decoded locally, never uploaded. */
@@ -1368,6 +1397,7 @@ function mountNine(
     subtitle.value = draft.subtitle ?? "";
     objects.forEach((input, index) => { input.value = restoredItems[index]; });
     byline.value = draft.byline ?? "";
+    dateInput.value = draft.date ?? "";
     if (profile) profile.value = draft.profile ?? "";
     if (profileStatus) profileStatus.textContent = "";
     chooseSkin.value = String(draft.skin ?? 0);
@@ -1877,6 +1907,7 @@ function mountNine(
     subtitle: subtitle.value,
     items: objects.map((input) => input.value),
     byline: byline.value,
+    date: dateInput.value,
     profile: profile?.value,
     skin: Number(chooseSkin.value),
     ranked: rankedBox.checked ? true : undefined,
@@ -2033,12 +2064,14 @@ function mountNine(
       const links = hrefs.some(Boolean) ? hrefs.slice() : undefined;
       const pageOut = objects.map((_, index) => livePage(index));
       const profileHref = profile ? profileUrl(profile.value) : null;
+      const date = topNineDate(dateInput.value);
       return {
         title: heading, items,
         ...(line ? { subtitle: line } : {}),
         ...(links ? { hrefs: links } : {}),
         ...(pageOut.some(Boolean) ? { pages: pageOut } : {}),
         ...(profileHref ? { profile: profileHref } : {}),
+        ...(date ? { date } : {}),
         ...(rankedBox.checked ? { ranked: true } : {}),
       };
     },
@@ -2052,6 +2085,7 @@ function mountNine(
       title.value = heading;
       subtitle.value = entry(snapshot.subtitle, nineSubtitleLimit);
       objects.forEach((input, index) => { input.value = entry(items[index], 54); });
+      dateInput.value = topNineDate(snapshot.date);
       rankedBox.checked = snapshot.ranked === true;
       // A shared hash is untrusted input: only a validated HTTPS profile
       // address restores, and an unsafe one leaves the field empty.
@@ -5658,7 +5692,7 @@ export function mountShareExperience(root: HTMLElement) {
               : game === "tech-tournament" ? techTournamentAltText(snapshot)
                 : game === "cursed-choices" ? cursedChoicesAltText(snapshot)
                 : topNineAltText({
-              title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
+              title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, date: snapshot.date, items: snapshot.items ?? [],
               ranked: snapshot.ranked === true,
             });
     if (!text) {

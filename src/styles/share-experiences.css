@@ -258,6 +258,12 @@
 .exhibition-heading label { margin-block: .5rem .15rem; }
 .exhibition-heading input { margin-block: .3rem .3rem; }
 .exhibition-heading + .exhibition-ranked { margin-top: .6rem; }
+/* The optional Top Nine day stays a native control, with a phone-readable
+   sixteen-pixel field and the host theme's invalid/focus treatment. */
+.experience-fields [data-nine-date] {
+  display: block; inline-size: 100%; min-inline-size: 0; min-height: 44px; font-size: 16px;
+}
+.experience-fields [data-nine-date][aria-invalid="true"] { border-color: var(--color-accent); }
 .exhibition-objects {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(.35rem, 1.3vw, .9rem);
   margin: 1rem 0;
@@ -471,6 +477,7 @@
   outline: 2px dashed var(--accent); outline-offset: 3px; border-radius: 4px;
 }
 .nine-preview-subtitle { margin: .9rem 0 -.25rem; font-weight: 700; font-size: .95rem; color: inherit; max-width: 46ch; }
+.nine-preview-date { margin: .65rem 0 -.25rem; font-size: .9rem; font-weight: 600; color: inherit; font-variant-numeric: tabular-nums; }
 .nine-preview-profile { margin: -.35rem 0 .9rem; overflow-wrap: anywhere; }
 .nine-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: .9rem 0 1rem; }
 .nine-preview-cell { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--stage-ink); color: var(--stage); }

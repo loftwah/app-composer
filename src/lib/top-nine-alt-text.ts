@@ -11,14 +11,16 @@
  */
 
 import { cleanText, nineSubtitleLimit } from "./share-experience-draft.ts";
+import { topNineDateLabel } from "./top-nine-date.ts";
 
 /** One sentence, without doubling a title's own closing punctuation. */
 const sentence = (value: string) => (/[.!?…]$/.test(value) ? value : `${value}.`);
 
-export function topNineAltText(input: { title: string; subtitle?: string; byline?: string; items: readonly string[]; ranked?: boolean }): string {
+export function topNineAltText(input: { title: string; subtitle?: string; byline?: string; date?: string; items: readonly string[]; ranked?: boolean }): string {
   const title = cleanText(input.title, 72);
   const subtitle = cleanText(input.subtitle, nineSubtitleLimit);
   const byline = cleanText(input.byline, 48);
+  const date = topNineDateLabel(input.date);
   const items = input.items.map((item) => cleanText(item, 54));
   if (!title || items.length !== 9 || items.some((item) => !item)) return "";
   const labelled = input.ranked === true ? items.map((item, index) => `#${index + 1} ${item}`) : items;
@@ -26,5 +28,5 @@ export function topNineAltText(input: { title: string; subtitle?: string; byline
     const [first, second, third] = labelled.slice(index * 3, index * 3 + 3);
     return sentence(`${label} has ${first}, ${second} and ${third}`);
   });
-  return [sentence(title), ...(subtitle ? [sentence(subtitle)] : []), ...(byline ? [sentence(`By ${byline}`)] : []), ...rows].join(" ");
+  return [sentence(title), ...(subtitle ? [sentence(subtitle)] : []), ...(byline ? [sentence(`By ${byline}`)] : []), ...(date ? [sentence(`Dated ${date}`)] : []), ...rows].join(" ");
 }

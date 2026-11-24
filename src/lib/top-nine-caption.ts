@@ -6,6 +6,7 @@
 
 import { experiencePath } from "./share-experiences.ts";
 import { cleanText, nineSubtitleLimit } from "./share-experience-draft.ts";
+import { topNineDateLabel } from "./top-nine-date.ts";
 
 /** The invite is the bare canonical route on this origin, with no query,
  * fragment, result or state. It is the same path the editor itself uses. */
@@ -19,18 +20,20 @@ export const topNineBlankPath = experiencePath("top-nine");
  * base origin, so the invite can only be the canonical path.
  */
 export function topNineCaption(
-  board: { title: unknown; subtitle?: unknown; byline?: unknown },
+  board: { title: unknown; subtitle?: unknown; byline?: unknown; date?: unknown },
   origin: string,
 ): string {
   const title = cleanText(board.title, 72);
   const subtitle = cleanText(board.subtitle, nineSubtitleLimit);
   const byline = cleanText(board.byline, 48);
+  const date = topNineDateLabel(board.date);
   if (!title) return "";
   const href = new URL(topNineBlankPath, origin).href;
   return [
     title,
     ...(subtitle ? [subtitle] : []),
     ...(byline ? [`By ${byline}`] : []),
+    ...(date ? [date] : []),
     `Make your own Top Nine at ${href}`,
   ].join("\n");
 }
