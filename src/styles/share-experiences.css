@@ -246,6 +246,11 @@
 }
 .tq-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
 .tq-quiet { margin-top: .5rem; }
+@media (max-width: 480px) {
+  .tq-question h2 { margin-block-end: .6rem; }
+  .tq-navigation { gap: .5rem; }
+  .share-experience .tq-navigation button { padding-inline: .65rem; }
+}
 .tq-done p, .tq-summary p { color: inherit; max-width: 44ch; }
 .tq-picks { margin: .4rem 0 0; padding-inline-start: 1.5rem; }
 .tq-picks li {
