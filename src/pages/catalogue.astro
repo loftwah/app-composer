@@ -1,24 +1,77 @@
 ---
 import DeviceSupport from '../components/DeviceSupport.astro';
 import {appDeviceSupport} from '../lib/app-device-support';
+import {deviceFilterTokens} from '../lib/device-support.mjs';
 import {reviewLabel} from '../lib/date-label.mjs';
 import Base from '../layouts/Base.astro';
 import {getEmDashCollection} from 'emdash';
+
+const deviceOptions = [
+  ['', 'All assessments'],
+  ['desktop', 'Desktop supported'],
+  ['phone', 'Phone supported'],
+  ['tablet', 'Tablet supported'],
+  ['limited', 'Limited support'],
+  ['unknown', 'Not checked yet'],
+] as const;
+const deviceValues = Astro.url.searchParams.getAll('device');
+const deviceFilter = deviceValues.length === 1
+  ? deviceOptions.find(([value]) => value === deviceValues[0])?.[0] ?? ''
+  : '';
+
 const {entries,error}=await getEmDashCollection('catalogue',{limit:20});
 const reviewed=new Map((entries??[]).map(entry=>[entry.id,reviewLabel(entry.data?.reviewed)]));
+const catalogueEntries=(entries??[]).map(entry=>{
+  const support=appDeviceSupport(entry.data.slug ?? entry.id);
+  return {entry,support};
+});
+const visibleEntries=deviceFilter
+  ? catalogueEntries.filter(({support})=>deviceFilterTokens(support).split(' ').includes(deviceFilter))
+  : catalogueEntries;
 if(error)Astro.response.status=503;
 ---
 <Base title="Independent mini-app catalogue" description="The EmDash-managed catalogue of independently maintained App Composer mini-apps, with source ownership and current boundaries.">
-{error ? (
- <>
-  <h1>The catalogue is unavailable.</h1>
-  <p class="lede">We couldn’t load the published mini-app catalogue. You can still browse the app library that comes with this site.</p>
-  <div class="actions"><a class="button" href="/catalogue">Try the catalogue again</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
-  <p class="small">The apps run separately and are unaffected by this catalogue outage.</p>
- </>
-) : (
- <>
-  <h1>Choose your mini-apps.</h1><p class="lede">Collect photos, review contributions and curate a showcase. Each app has its own source and deployment.</p>{entries.map(entry=><section class="route-row"><h2><a href={'/catalogue/'+entry.id}>{entry.data.title}</a></h2><div><p>{entry.data.description}</p><p class="small">{reviewed.get(entry.id)?'Reviewed '+reviewed.get(entry.id):'Review date not recorded'}</p><a href={entry.data.source}>Independent GitHub source</a></div><div><DeviceSupport support={appDeviceSupport(entry.data.slug ?? entry.id)} compact/><a class="button" href={entry.data.href}>Open app</a></div></section>)}<p class="small">Published entries: {entries.length}.</p><a href="/init">Configure a supported preset</a> · <a href="/blueprints">Take a versioned blueprint</a>
- </>
-)}
+  {error ? (
+    <>
+      <h1>The catalogue is unavailable.</h1>
+      <p class="lede">We couldn’t load the published mini-app catalogue. You can still browse the app library that comes with this site.</p>
+      <div class="actions"><a class="button" href="/catalogue">Try the catalogue again</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
+      <p class="small">The apps run separately and are unaffected by this catalogue outage.</p>
+    </>
+  ) : (
+    <>
+      <h1>Choose your mini-apps.</h1>
+      <p class="lede">Collect photos, review contributions and curate a showcase. Each app has its own source and deployment.</p>
+      <form class="catalogue-filter" method="get" action="/catalogue">
+        <label for="catalogue-device">Device support</label>
+        <select id="catalogue-device" name="device">
+          {deviceOptions.map(([value,label])=><option value={value} selected={deviceFilter===value}>{label}</option>)}
+        </select>
+        <button type="submit" class="button secondary">Apply filter</button>
+        {deviceFilter && <a href="/catalogue">Clear device filter</a>}
+      </form>
+      {visibleEntries.map(({entry,support})=>(
+        <section class="route-row">
+          <h2><a href={'/catalogue/'+entry.id}>{entry.data.title}</a></h2>
+          <div>
+            <p>{entry.data.description}</p>
+            <p class="small">{reviewed.get(entry.id)?'Reviewed '+reviewed.get(entry.id):'Review date not recorded'}</p>
+            <a href={entry.data.source}>Independent GitHub source</a>
+          </div>
+          <div><DeviceSupport support={support} compact/><a class="button" href={entry.data.href}>Open app</a></div>
+        </section>
+      ))}
+      {deviceFilter && visibleEntries.length === 0 && (
+        <p class="catalogue-empty">No published mini-apps match this device assessment.</p>
+      )}
+      <p class="small" role="status">{deviceFilter ? `Matching published entries: ${visibleEntries.length} of ${entries.length}.` : `Published entries: ${entries.length}.`}</p>
+      <a href="/init">Configure a supported preset</a> · <a href="/blueprints">Take a versioned blueprint</a>
+    </>
+  )}
 </Base>
+
+<style>
+  .catalogue-filter { display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin:1.5rem 0; }
+  .catalogue-filter select { flex:1 1 12rem; max-width:20rem; }
+  .catalogue-empty { border-top:1px solid var(--color-border); padding:1rem 0; }
+</style>
