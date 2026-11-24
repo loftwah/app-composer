@@ -134,6 +134,117 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <label for="exhibition-title">Board title</label>
       <input id="exhibition-title" type="text" maxlength="72" value={exhibitionPrompts[0]} data-exhibition-title />
     </div>
+    <div class="nine-add-methods">
+      <details class="exhibit-list" data-list-panel>
+        <summary>Paste a list</summary>
+        <p class="experience-note" id="exhibit-list-help">Enter one title per line. From a spreadsheet, add a tab and a public HTTPS page, then optionally another tab and an exact Apple Music or Spotify album or track link. Leave the page column blank when there isn’t one. Only empty slots without attachments are filled.</p>
+        <form data-list-form>
+          <label for="exhibit-list">Exhibit titles, optional pages and music links</label>
+          <textarea id="exhibit-list" rows="4" maxlength={nineListLimit} autocomplete="off"
+            aria-describedby="exhibit-list-help exhibit-list-status" data-list-text></textarea>
+          <div class="exhibit-list-actions">
+            <button type="submit" data-list-fill disabled>Fill empty exhibits</button>
+            <button type="button" class="secondary" data-list-undo disabled>Undo fill</button>
+          </div>
+        </form>
+        <p class="experience-note" role="status" aria-live="polite" id="exhibit-list-status" data-list-status></p>
+      </details>
+      <details class="exhibit-music" data-music-panel>
+        <summary>Search for titles</summary>
+        <form class="music-search" data-music-form>
+          <label for="music-target">Fill exhibit
+            <select id="music-target" data-music-target-choice>
+              {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
+            </select>
+          </label>
+          <div class="music-kind" role="group" aria-label="Search for">
+            <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
+            <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
+            <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
+            <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
+            <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
+            <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
+            <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
+            <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
+          </div>
+          <label for="music-game-platform" data-music-platform hidden>Game platform
+            <select id="music-game-platform" data-music-game-platform>
+              <option value="all">All games</option>
+              <option value="pc">PC</option>
+              <option value="console">Console</option>
+            </select>
+          </label>
+          <label for="music-country" data-music-storefront>Storefront
+            <select id="music-country" data-music-country>
+              <option value="AU">Australia (AU)</option>
+              <option value="NZ">New Zealand (NZ)</option>
+              <option value="US">United States (US)</option>
+              <option value="GB">United Kingdom (GB)</option>
+              <option value="CA">Canada (CA)</option>
+              <option value="IE">Ireland (IE)</option>
+              <option value="DE">Germany (DE)</option>
+              <option value="FR">France (FR)</option>
+              <option value="SE">Sweden (SE)</option>
+              <option value="JP">Japan (JP)</option>
+              <option value="BR">Brazil (BR)</option>
+              <option value="MX">Mexico (MX)</option>
+              <option value="IN">India (IN)</option>
+              <option value="ZA">South Africa (ZA)</option>
+              <option value="TW">Taiwan (TW)</option>
+              <option value="HK">Hong Kong (HK)</option>
+              <option value="ES">Spain (ES)</option>
+              <option value="IT">Italy (IT)</option>
+              <option value="NL">Netherlands (NL)</option>
+              <option value="AM">Armenia (AM)</option>
+              <option value="PL">Poland (PL)</option>
+              <option value="SG">Singapore (SG)</option>
+            </select>
+          </label>
+          <label for="music-query" class="music-query">Album, song, book, app, game, film, TV series or programming language
+            <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
+          </label>
+          <button type="submit" data-music-submit>Search</button>
+        </form>
+        <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
+        <p class="experience-note" role="status" data-music-status></p>
+        <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
+        <div class="music-replace" role="group" aria-label="Replace an exhibit" data-music-replace hidden>
+          <p class="experience-note" id="music-replace-note" data-music-replace-note></p>
+          <div class="music-replace-actions">
+            <button type="button" class="secondary" data-music-replace-keep aria-describedby="music-replace-note">Keep current exhibit</button>
+            <button type="button" data-music-replace-confirm aria-describedby="music-replace-note">Replace exhibit</button>
+          </div>
+        </div>
+        <button type="button" class="secondary" hidden data-music-more>Show more results</button>
+        <div class="music-recovery" data-music-recovery hidden>
+          <p class="experience-note" data-music-recovery-note>Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.</p>
+          <div class="music-recovery-links">
+            <a data-music-recovery-apple target="_blank" rel="noopener noreferrer nofollow">Search this on Apple Music</a>
+            <a data-music-recovery-spotify target="_blank" rel="noopener noreferrer nofollow">Search this on Spotify</a>
+            <a data-music-recovery-wikidata target="_blank" rel="noopener noreferrer nofollow" hidden>Search this on Wikidata</a>
+            <button type="button" class="secondary" data-music-recovery-wikidata-albums hidden>Search Wikidata albums</button>
+            <button type="button" class="secondary" data-music-recovery-wikidata-books hidden>Search Wikidata books</button>
+          </div>
+        </div>
+        <form class="music-paste" data-music-paste-form>
+          <label for="music-paste">Or paste an Apple Music, Spotify, Apple Books, App Store or Wikidata link</label>
+          <div class="music-paste-row">
+            <input id="music-paste" type="url" inputmode="url" autocomplete="off" placeholder="https://music.apple.com/…" data-music-paste />
+            <button type="submit" class="secondary">Use link</button>
+          </div>
+        </form>
+        <ul class="music-linked" aria-label="Exhibits with source links" hidden data-music-linked></ul>
+        <section class="music-preview" aria-label="Music preview" hidden data-music-preview>
+          <div class="music-preview-head">
+            <h3 tabindex="-1" data-music-preview-title></h3>
+            <button type="button" class="secondary" data-music-preview-close>Close preview</button>
+          </div>
+          <div class="music-preview-frame" data-music-preview-frame></div>
+          <p class="experience-note"><a data-music-preview-source target="_blank" rel="noopener noreferrer nofollow">Open in the music app</a></p>
+        </section>
+        <p class="experience-note" data-music-coverage hidden>Films, TV series, games and programming languages come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
+      </details>
+    </div>
     <div class="exhibition-objects" data-exhibition-objects>
       {Array.from({length: 9}, (_, index) => <label>
         <span class="exhibit-heading" draggable="true" data-drag-slot={index} title="Drag onto another slot to swap exhibits">
@@ -145,115 +256,6 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
       </label>)}
     </div>
-    <details class="exhibit-list" data-list-panel>
-      <summary>Paste a list</summary>
-      <p class="experience-note" id="exhibit-list-help">Enter one title per line. From a spreadsheet, add a tab and a public HTTPS page, then optionally another tab and an exact Apple Music or Spotify album or track link. Leave the page column blank when there isn’t one. Only empty slots without attachments are filled.</p>
-      <form data-list-form>
-        <label for="exhibit-list">Exhibit titles, optional pages and music links</label>
-        <textarea id="exhibit-list" rows="4" maxlength={nineListLimit} autocomplete="off"
-          aria-describedby="exhibit-list-help exhibit-list-status" data-list-text></textarea>
-        <div class="exhibit-list-actions">
-          <button type="submit" data-list-fill disabled>Fill empty exhibits</button>
-          <button type="button" class="secondary" data-list-undo disabled>Undo fill</button>
-        </div>
-      </form>
-      <p class="experience-note" role="status" aria-live="polite" id="exhibit-list-status" data-list-status></p>
-    </details>
-    <details class="exhibit-music" data-music-panel>
-      <summary>Search for titles</summary>
-      <form class="music-search" data-music-form>
-        <label for="music-target">Fill exhibit
-          <select id="music-target" data-music-target-choice>
-            {Array.from({length: 9}, (_, index) => <option value={index}>{index + 1}</option>)}
-          </select>
-        </label>
-        <div class="music-kind" role="group" aria-label="Search for">
-          <button type="button" data-music-kind="album" aria-pressed="true">Albums</button>
-          <button type="button" data-music-kind="song" aria-pressed="false">Songs</button>
-          <button type="button" data-music-kind="book" aria-pressed="false">Books</button>
-          <button type="button" data-music-kind="app" aria-pressed="false">Apps</button>
-          <button type="button" data-music-kind="film" aria-pressed="false">Films</button>
-          <button type="button" data-music-kind="series" aria-pressed="false">TV series</button>
-          <button type="button" data-music-kind="game" aria-pressed="false">Games</button>
-          <button type="button" data-music-kind="language" aria-pressed="false">Programming languages</button>
-        </div>
-        <label for="music-game-platform" data-music-platform hidden>Game platform
-          <select id="music-game-platform" data-music-game-platform>
-            <option value="all">All games</option>
-            <option value="pc">PC</option>
-            <option value="console">Console</option>
-          </select>
-        </label>
-        <label for="music-country" data-music-storefront>Storefront
-          <select id="music-country" data-music-country>
-            <option value="AU">Australia (AU)</option>
-            <option value="NZ">New Zealand (NZ)</option>
-            <option value="US">United States (US)</option>
-            <option value="GB">United Kingdom (GB)</option>
-            <option value="CA">Canada (CA)</option>
-            <option value="IE">Ireland (IE)</option>
-            <option value="DE">Germany (DE)</option>
-            <option value="FR">France (FR)</option>
-            <option value="SE">Sweden (SE)</option>
-            <option value="JP">Japan (JP)</option>
-            <option value="BR">Brazil (BR)</option>
-            <option value="MX">Mexico (MX)</option>
-            <option value="IN">India (IN)</option>
-            <option value="ZA">South Africa (ZA)</option>
-            <option value="TW">Taiwan (TW)</option>
-            <option value="HK">Hong Kong (HK)</option>
-            <option value="ES">Spain (ES)</option>
-            <option value="IT">Italy (IT)</option>
-            <option value="NL">Netherlands (NL)</option>
-            <option value="AM">Armenia (AM)</option>
-            <option value="PL">Poland (PL)</option>
-            <option value="SG">Singapore (SG)</option>
-          </select>
-        </label>
-        <label for="music-query" class="music-query">Album, song, book, app, game, film, TV series or programming language
-          <input id="music-query" type="search" maxlength="80" autocomplete="off" enterkeyhint="search" data-music-query />
-        </label>
-        <button type="submit" data-music-submit>Search</button>
-      </form>
-      <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
-      <p class="experience-note" role="status" data-music-status></p>
-      <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
-      <div class="music-replace" role="group" aria-label="Replace an exhibit" data-music-replace hidden>
-        <p class="experience-note" id="music-replace-note" data-music-replace-note></p>
-        <div class="music-replace-actions">
-          <button type="button" class="secondary" data-music-replace-keep aria-describedby="music-replace-note">Keep current exhibit</button>
-          <button type="button" data-music-replace-confirm aria-describedby="music-replace-note">Replace exhibit</button>
-        </div>
-      </div>
-      <button type="button" class="secondary" hidden data-music-more>Show more results</button>
-      <div class="music-recovery" data-music-recovery hidden>
-        <p class="experience-note" data-music-recovery-note>Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.</p>
-        <div class="music-recovery-links">
-          <a data-music-recovery-apple target="_blank" rel="noopener noreferrer nofollow">Search this on Apple Music</a>
-          <a data-music-recovery-spotify target="_blank" rel="noopener noreferrer nofollow">Search this on Spotify</a>
-          <a data-music-recovery-wikidata target="_blank" rel="noopener noreferrer nofollow" hidden>Search this on Wikidata</a>
-          <button type="button" class="secondary" data-music-recovery-wikidata-albums hidden>Search Wikidata albums</button>
-          <button type="button" class="secondary" data-music-recovery-wikidata-books hidden>Search Wikidata books</button>
-        </div>
-      </div>
-      <form class="music-paste" data-music-paste-form>
-        <label for="music-paste">Or paste an Apple Music, Spotify, Apple Books, App Store or Wikidata link</label>
-        <div class="music-paste-row">
-          <input id="music-paste" type="url" inputmode="url" autocomplete="off" placeholder="https://music.apple.com/…" data-music-paste />
-          <button type="submit" class="secondary">Use link</button>
-        </div>
-      </form>
-      <ul class="music-linked" aria-label="Exhibits with source links" hidden data-music-linked></ul>
-      <section class="music-preview" aria-label="Music preview" hidden data-music-preview>
-        <div class="music-preview-head">
-          <h3 tabindex="-1" data-music-preview-title></h3>
-          <button type="button" class="secondary" data-music-preview-close>Close preview</button>
-        </div>
-        <div class="music-preview-frame" data-music-preview-frame></div>
-        <p class="experience-note"><a data-music-preview-source target="_blank" rel="noopener noreferrer nofollow">Open in the music app</a></p>
-      </section>
-      <p class="experience-note" data-music-coverage hidden>Films, TV series, games and programming languages come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
-    </details>
   </section>}
 
   {isBingo && <section class="bingo-stage" data-play-panel aria-label="Bingo board">
@@ -796,8 +798,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="experience-note persona-disclaimer">{persona.disclaimer}</p>
   </section>}
 
-  <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label="Personalise and share">
-    <h2>{isNine ? "Preview your board" : persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
+  <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label={isNine ? "Board preview and sharing" : "Personalise and share"}>
+    <h2>{isNine ? <span data-nine-preview-title>{exhibitionPrompts[0]}</span> : persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <p class="nine-preview-date" data-nine-preview-date hidden><time data-nine-preview-date-value></time></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
