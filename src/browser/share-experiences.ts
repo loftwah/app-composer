@@ -7,10 +7,12 @@ import {
   pickThisOrThat, restoreThisOrThatLength, restoreThisOrThatPack, restoreThisOrThatPicks,
   checkThisOrThatPhoto, cleanThisOrThatAlt, customThisOrThatOptionLimit,
   customThisOrThatTitle, freezeThisOrThatPhotos,
-  moveThisOrThatCustom, readThisOrThatCustom,
+  moveThisOrThatCustom, readThisOrThatCustom, readThisOrThatComparisonOffer,
+  compareThisOrThatChoices,
   thisOrThatBlankLink, thisOrThatComplete, thisOrThatCount, thisOrThatPackFromQuery,
   thisOrThatProgress, thisOrThatStart, thisOrThatSummary, undoThisOrThat,
-  type ThisOrThatLength, type ThisOrThatPromptPhoto,
+  type ThisOrThatComparison, type ThisOrThatLength, type ThisOrThatPromptPhoto,
+  type ThisOrThatSide,
 } from "../lib/this-or-that.ts";
 import {
   moveTwentyOne, readTwentyOnePrompts, setTwentyOneAnswer, skipTwentyOne,
@@ -1732,7 +1734,11 @@ interface DraftPhotoRow {
   run: number;
 }
 
-function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
+function mountThisOrThat(
+  root: HTMLElement,
+  update: () => void,
+  dropSharedByline: () => void,
+): Controller {
   const panels = elements<HTMLElement>(root, "[data-question]");
   const progress = root.querySelector<HTMLElement>("[data-tot-progress]")!;
   const packSelect = root.querySelector<HTMLSelectElement>("[data-tot-pack]")!;
@@ -1743,6 +1749,17 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   const revealPicks = result.querySelector<HTMLElement>("[data-reveal-picks]")!;
   const revealNote = result.querySelector<HTMLElement>("[data-tot-reveal-note]");
   const revealNoteBuiltin = revealNote?.textContent ?? "";
+  const comparePanel = result.querySelector<HTMLElement>("[data-tot-compare-panel]");
+  const compareButton = result.querySelector<HTMLButtonElement>("[data-tot-compare]");
+  const compareResult = result.querySelector<HTMLElement>("[data-tot-compare-result]");
+  const compareSummary = result.querySelector<HTMLElement>("[data-tot-compare-summary]");
+  const compareRows = result.querySelector<HTMLElement>("[data-tot-compare-rows]");
+  /** The validated prior choices of one shared built-in result, held only in
+   * this tab. Any starter change, custom play, restart or restore clears it,
+   * so a count can never describe two different runs. */
+  let comparison: { pack: ThisOrThatPack; picks: ThisOrThatSide[] } | null = null;
+  /** True only during the replay started by the explicit compare action. */
+  let comparing = false;
   const blank = root.querySelector<HTMLElement>("[data-tot-blank]")!;
   const blankCopy = root.querySelector<HTMLButtonElement>("[data-tot-blank-copy]")!;
   const blankManual = root.querySelector<HTMLInputElement>("[data-tot-blank-manual]")!;
@@ -1820,9 +1837,66 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     }
   }
 
+  /** Remove the comparison result and every count it held. The prior picks are
+   * separate: they live only while one exact replay is still being offered. */
+  function clearComparisonResult() {
+    if (compareResult) compareResult.hidden = true;
+    if (compareSummary) compareSummary.textContent = "";
+    compareRows?.replaceChildren();
+  }
+
+  /** Drop the offer, the held prior choices and any count. Called wherever a
+   * run, starter or mode changes, so a comparison cannot survive one. */
+  function clearComparison() {
+    comparison = null;
+    comparing = false;
+    if (comparePanel) comparePanel.hidden = true;
+    clearComparisonResult();
+  }
+
+  /** Show the concrete counts and the small per-question breakdown. Every row
+   * is one actual shared position of the same built-in starter; nothing is
+   * scored and no preference is implied. */
+  function renderComparison(summary: ThisOrThatComparison) {
+    if (!compareResult || !compareSummary || !compareRows) return;
+    if (comparePanel) comparePanel.hidden = true;
+    compareSummary.textContent = summary.total === 1
+      ? `Same choice on ${summary.same} of ${summary.total} question. Different choice on ${summary.different}.`
+      : `Same choice on ${summary.same} of ${summary.total} questions. Different choice on ${summary.different} of ${summary.total}.`;
+    compareRows.replaceChildren();
+    summary.rows.forEach((row) => {
+      const item = document.createElement("li");
+      const prompt = document.createElement("span");
+      prompt.className = "tot-compare-question";
+      prompt.textContent = row.prompt;
+      const answer = document.createElement("strong");
+      answer.textContent = row.same
+        ? `Same choice: ${row.own}`
+        : `Different choices: your run picked ${row.own}; the shared result picked ${row.shared}`;
+      item.append(prompt, answer);
+      compareRows.append(item);
+    });
+    compareResult.hidden = false;
+    compareSummary.focus({ preventScroll: true });
+  }
+
+  /** Count the completed replay against the held shared choices, once. The
+   * prior picks are released whether or not a count was possible, so a replay,
+   * a reload or a later run can never show it again. */
+  function finishComparison() {
+    const prior = comparison;
+    comparing = false;
+    comparison = null;
+    if (!prior || custom || pack !== prior.pack) return;
+    if (picks.length !== prior.picks.length) return;
+    const summary = compareThisOrThatChoices(prior.picks, picks, thisOrThatPacks[prior.pack].questions);
+    if (summary) renderComparison(summary);
+  }
+
   /** Swapping starters only retexts the panels it will ask: one controller, the
    * same choice, undo, focus and replay behaviour, no second quiz. */
   function applyPack(next: ThisOrThatPack) {
+    clearComparison();
     custom = null;
     releaseAppliedPhotos();
     pack = next;
@@ -1996,6 +2070,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     panels.forEach((panel, at) => { panel.hidden = at !== index; });
     result.hidden = true;
     restart.hidden = true;
+    clearComparisonResult();
     clearBlankOffer();
     syncProgress();
     undo.disabled = answered() === 0;
@@ -2019,8 +2094,10 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
   }
 
   function advance(focus: boolean) {
-    if (thisOrThatComplete(picks, activeQuestions().length)) showReveal(focus);
-    else showQuestion(thisOrThatProgress(picks).question - 1, focus);
+    if (thisOrThatComplete(picks, activeQuestions().length)) {
+      showReveal(focus);
+      if (comparing) finishComparison();
+    } else showQuestion(thisOrThatProgress(picks).question - 1, focus);
     update();
   }
 
@@ -2140,7 +2217,26 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     }
   });
 
+  // The comparison is an explicit, local replay of the exact shared built-in
+  // starter. It holds the validated prior choices only in this tab, clears any
+  // untouched byline that belonged to the shared result, and never reads the
+  // custom editor, writes storage or changes the address.
+  compareButton?.addEventListener("click", () => {
+    const prior = comparison;
+    if (!prior || custom || result.hidden) return;
+    dropSharedByline();
+    picks = thisOrThatStart();
+    applyPack(prior.pack);
+    comparison = prior;
+    comparing = true;
+    showQuestion(0, false);
+    panels[0].querySelector<HTMLButtonElement>("[data-choice]")?.focus({ preventScroll: true });
+    update();
+  });
+
   restart.addEventListener("click", () => {
+    // Replay is a fresh run: it never inherits a comparison or its counts.
+    clearComparison();
     // Replay keeps the run on stage: a written nine replays nine questions,
     // a written five or a built-in starter replays five.
     picks = thisOrThatStart(activeQuestions().length);
@@ -2193,6 +2289,7 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
     }
     releaseAppliedPhotos();
     appliedPhotos = photos;
+    clearComparison();
     custom = read.questions;
     picks = thisOrThatStart(customLength);
     heading = customThisOrThatTitle;
@@ -2285,9 +2382,14 @@ function mountThisOrThat(root: HTMLElement, update: () => void): Controller {
       const sides = restoreThisOrThatPicks(snapshot.marked);
       const title = entry(snapshot.title, 72);
       if (!sides || !title) return;
+      // Only one complete, known built-in five can offer the local comparison.
+      const offer = readThisOrThatComparisonOffer(snapshot.marked, snapshot.pack);
       applyPack(restoreThisOrThatPack(snapshot.pack));
       picks = sides;
       heading = title;
+      clearComparisonResult();
+      comparison = offer;
+      if (comparePanel) comparePanel.hidden = !offer;
       showReveal(false);
     },
   };
@@ -3792,6 +3894,10 @@ export function mountShareExperience(root: HTMLElement) {
   if (copyPng && !imageClipboard) copyPng.hidden = true;
   let busy = false;
   let sharing = false;
+  /** The byline printed by the shared result this page restored, if any. It
+   * belongs to that result, so starting a comparison clears it while the field
+   * still holds it untouched; a byline the participant types is their own. */
+  let restoredByline = "";
   let controller: Controller;
   let altCopyAttempt = 0;
   // One manual caption for a board that can be exported. Its text and any
@@ -3990,7 +4096,9 @@ export function mountShareExperience(root: HTMLElement) {
   const pickSkin = () => { root.dataset.skin = chooseSkin.value; };
   controller = game === "pick-a-door" ? mountDoor(root, update)
     : game === "top-nine" ? mountNine(root, update, byline, chooseSkin, pickSkin)
-    : game === "this-or-that" ? mountThisOrThat(root, update)
+    : game === "this-or-that" ? mountThisOrThat(root, update, () => {
+      if (byline.value === restoredByline) byline.value = "";
+    })
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
     : game === "tier-list" ? mountTierList(root, update)
     : game === "one-must-go" ? mountOneMustGo(root, update)
@@ -4028,7 +4136,8 @@ export function mountShareExperience(root: HTMLElement) {
     const snapshot = shared.snapshot;
     const skin = snapshot.skin;
     chooseSkin.value = skin === 1 || skin === 2 ? String(skin) : "0";
-    byline.value = entry(snapshot.byline, 48);
+    restoredByline = entry(snapshot.byline, 48);
+    byline.value = restoredByline;
     controller.restore(snapshot);
     pickSkin();
   } else if (shared.invalid) {

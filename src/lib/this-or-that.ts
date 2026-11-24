@@ -135,6 +135,69 @@ export function restoreThisOrThatPicks(value: unknown): ThisOrThatSide[] | null 
   return picks;
 }
 
+/** The one prior run a shared built-in result may be compared against: exactly
+ * one explicit pick for every question of one known built-in starter. A
+ * written set, an unknown or crafted pack, a partial fragment and any other
+ * length never qualify, so no offer appears for something this build cannot
+ * replay exactly. */
+export function readThisOrThatComparisonOffer(
+  marked: unknown,
+  pack: unknown,
+): { pack: ThisOrThatPack; picks: ThisOrThatSide[] } | null {
+  const picks = restoreThisOrThatPicks(marked);
+  if (!picks) return null;
+  // An absent pack is a pre-pack maker link; anything present must name a real
+  // built-in starter. A claimed "custom" or unknown pack is not comparable.
+  if (pack !== undefined && !(typeof pack === "string" && Object.hasOwn(thisOrThatPacks, pack))) {
+    return null;
+  }
+  const selected = restoreThisOrThatPack(pack);
+  if (thisOrThatPacks[selected].questions.length !== picks.length) return null;
+  return { pack: selected, picks };
+}
+
+export interface ThisOrThatComparisonRow {
+  /** The exact built-in prompt both runs answered. */
+  prompt: string;
+  /** The exact choice the shared result made. */
+  shared: string;
+  /** The exact choice this participant's replay made. */
+  own: string;
+  same: boolean;
+}
+
+export interface ThisOrThatComparison {
+  same: number;
+  different: number;
+  total: number;
+  rows: readonly ThisOrThatComparisonRow[];
+}
+
+/** Counts same and different choices over the positions both runs actually
+ * share: one exact complete run of the same built-in questions. A partial,
+ * longer or different set is not comparable and returns null, so no count is
+ * ever invented across mismatched prompts or lengths. */
+export function compareThisOrThatChoices(
+  shared: ThisOrThatPicks,
+  own: ThisOrThatPicks,
+  questions: readonly (readonly [string, string, string])[] = thisOrThatQuestions,
+): ThisOrThatComparison | null {
+  if (!thisOrThatComplete(shared, questions.length)) return null;
+  if (!thisOrThatComplete(own, questions.length)) return null;
+  const rows = questions.map(([prompt, left, right], index) => {
+    const sharedSide = shared[index] as ThisOrThatSide;
+    const ownSide = own[index] as ThisOrThatSide;
+    return {
+      prompt,
+      shared: sharedSide === 0 ? left : right,
+      own: ownSide === 0 ? left : right,
+      same: sharedSide === ownSide,
+    };
+  });
+  const same = rows.filter((row) => row.same).length;
+  return { same, different: rows.length - same, total: rows.length, rows };
+}
+
 /** A custom set is authored for one tab only: the same panels retext, the
  * same result image downloads, and no link or route is ever produced. These
  * bounds keep a written set — the built-in five or one optional nine — inside
