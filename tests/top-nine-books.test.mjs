@@ -204,6 +204,8 @@ test('the editor submits exact-ID lookups only for an empty exhibit, reusing the
   assert.match(block, /appleAppRef\(href\)/);
   assert.match(block, /lookupAppleBook\(href, controller\.signal\)/);
   assert.match(block, /lookupAppleAlbum\(href, controller\.signal\)/);
+  assert.match(block, /appleSongRef\(href\)/);
+  assert.match(block, /lookupAppleSong\(href, controller\.signal\)/);
   assert.match(block, /lookupAppleApp\(href, controller\.signal\)/);
   assert.match(block, /wikidataSource\(href\)/);
   assert.match(block, /lookupWikidataTitle\(href, controller\.signal\)/);
