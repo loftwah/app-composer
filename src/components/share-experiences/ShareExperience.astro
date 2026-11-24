@@ -687,7 +687,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <h2 class="jump-target" data-nine-board-heading tabindex="-1">
         <span data-nine-preview-title>{exhibitionPrompts[0]}</span>
         <input aria-label="Board title" id="exhibition-title" type="text" maxlength="72"
-          value={exhibitionPrompts[0]} data-exhibition-title />
+          value="My Top Nine" data-exhibition-title />
       </h2>
       <p class="nine-count"><span data-nine-count>0 of 9 titles</span></p>
     </div>
@@ -844,8 +844,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <p class="experience-note" data-music-coverage hidden>Films, TV series, games and programming languages come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
       </details>
     </div>
-    <div class="exhibition-objects" data-exhibition-objects>
-      {Array.from({length: 9}, (_, index) => <label>
+    <div class="exhibition-objects" data-exhibition-objects data-nine-active-field>
+      {Array.from({length: 9}, (_, index) => <label data-nine-current={index === 0 ? "" : undefined}>
         <span class="exhibit-heading" draggable="true" data-drag-slot={index} title="Drag onto another slot to swap exhibits">
           <span class="exhibit-grip" aria-hidden="true"></span><span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em><span class="exhibit-number" aria-hidden="true">{index + 1}</span><em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
         </span>
@@ -855,6 +855,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <span class="exhibit-cover-state" data-cover-slot-state={index} hidden></span>
       </label>)}
     </div>
+    <button type="button" class="secondary nine-all-fields" data-nine-all-fields aria-expanded="false">Show all titles</button>
   </section>}
 
   <section class:list={["experience-export", { "nine-export": isNine }]} data-export-panel aria-label={isNine ? "Image and sharing options" : "Personalise and share"}>

@@ -1649,12 +1649,26 @@ function mountNine(
     previewHeading.focus({ preventScroll: true });
     previewHeading.scrollIntoView({ behavior: "instant", block: "start" });
   });
+  const allFields = root.querySelector<HTMLButtonElement>("[data-nine-all-fields]");
+  allFields?.addEventListener("click", () => {
+    const expanded = allFields.getAttribute("aria-expanded") !== "true";
+    allFields.setAttribute("aria-expanded", String(expanded));
+    allFields.textContent = expanded ? "Show selected title" : "Show all titles";
+    exhibitionBoard.toggleAttribute("data-nine-active-field", !expanded);
+  });
+  objects.forEach((input, index) => {
+    input.addEventListener("focus", () => {
+      objects.forEach((field, slot) => field.closest("label")?.toggleAttribute("data-nine-current", slot === index));
+    });
+  });
   elements<HTMLButtonElement>(root, "[data-nine-edit-slot]").forEach((button, index) => {
     button.addEventListener("click", () => {
       const input = objects[index];
       if (!input) return;
       target = index;
       markTarget();
+      exhibitionBoard.querySelector("[data-nine-current]")?.removeAttribute("data-nine-current");
+      input.closest("label")?.setAttribute("data-nine-current", "");
       input.focus({ preventScroll: true });
       input.scrollIntoView({ behavior: "instant", block: "nearest" });
     });
