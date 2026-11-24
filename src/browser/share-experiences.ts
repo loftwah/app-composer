@@ -441,7 +441,7 @@ function mountNine(
         `https://www.wikidata.org/wiki/Special:Search?search=${encodeURIComponent(query.toWellFormed())}`;
       music.recoveryWikidata.hidden = false;
       music.recoveryNote.textContent =
-        "Wrong match? Search Wikidata, open the exact film, TV series or game, copy its link and paste it below.";
+        "Wrong match? Search Wikidata, open the exact film, TV series, game or programming language, copy its link and paste it below.";
     } else {
       const links = musicSearchLinks(query, country);
       music.recoveryApple.href = links.apple;
@@ -1163,8 +1163,8 @@ function mountNine(
    * track, Apple Books, App Store app or exact Wikidata item link keeps the canonical link
    * (and, for music, its preview) immediately, then restores the public title
    * from that exact ID. Apple Music, Apple Books and the App Store also carry
-   * the artist/author/developer, while Wikidata supplies a known media type's
-   * own label and reliable year. It reuses the one-controller-per-slot
+   * the artist/author/developer, while Wikidata supplies a known item's own
+   * label and, for media, a reliable year. It reuses the one-controller-per-slot
    * pendingLookups state above, so a replaced link, move, Undo or rebuilt board
    * cancels the same in-flight request and no parallel async state is needed.
    * A miss, an unsupported link or a failure leaves the link and manual title
@@ -1249,11 +1249,12 @@ function mountNine(
     const store = storeName();
     const requestedKind: SourceKind = kind;
     const wiki = wikiAlbums || requestedKind === "film" || requestedKind === "series"
-      || requestedKind === "game";
+      || requestedKind === "game" || requestedKind === "language";
     const kindLabel =
       requestedKind === "album" ? "albums" : requestedKind === "song" ? "songs"
       : requestedKind === "book" ? "books" : requestedKind === "app" ? "apps"
-      : requestedKind === "film" ? "films" : requestedKind === "series" ? "TV series" : "games";
+      : requestedKind === "film" ? "films" : requestedKind === "series" ? "TV series"
+      : requestedKind === "game" ? "games" : "programming languages";
     // Games alone carry the platform filter, read from the selector beside the
     // Games button. All is the original search; any other kind always uses All.
     const platform: GamePlatformFilter = requestedKind === "game"
@@ -1288,6 +1289,7 @@ function mountNine(
         : wikiAlbums
         ? await searchWikidata(query, "album", controller.signal)
         : requestedKind === "film" || requestedKind === "series" || requestedKind === "game"
+          || requestedKind === "language"
         ? await searchWikidata(query, requestedKind, controller.signal, platform)
         : await searchMusic(query, requestedKind, country, controller.signal);
       if (run !== searchRun || controller.signal.aborted) return;
@@ -1668,10 +1670,13 @@ function mountNine(
     button.addEventListener("click", () => {
       const next = button.dataset.musicKind;
       kind = next === "song" || next === "book" || next === "app"
-        || next === "film" || next === "series" || next === "game" ? next : "album";
+        || next === "film" || next === "series" || next === "game"
+        || next === "language" ? next : "album";
       music.kind.forEach((each) => each.setAttribute("aria-pressed", String(each.dataset.musicKind === kind)));
-      // Films, TV series and games come from Wikidata, so the storefront does not apply.
-      const wiki = kind === "film" || kind === "series" || kind === "game";
+      // Films, TV series, games and programming languages come from Wikidata,
+      // so the storefront does not apply.
+      const wiki = kind === "film" || kind === "series" || kind === "game"
+        || kind === "language";
       music.storefront.hidden = wiki;
       music.coverage.hidden = !wiki;
       // The platform filter belongs to Games alone; every other kind hides it

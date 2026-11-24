@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { lookupWikidataTitle, searchWikidata, wikidataSource } from '../src/lib/top-nine-wikidata.ts';
 
 // Real Wikidata Action API responses, captured 2026-11-22 with
@@ -508,7 +509,7 @@ test('an exact album link prefers the English label and keeps its year', async (
   assert.equal(fetch.mock.callCount(), 1);
 });
 
-test('only the current film, series, game and album instance types fill a title', async (t) => {
+test('only the current film, series, game, album and language instance types fill a title', async (t) => {
   let type = 'Q11424';
   const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
     const qid = url.searchParams.get('ids');
@@ -518,13 +519,13 @@ test('only the current film, series, game and album instance types fill a title'
       claims: { P31: [claim(type)] },
     } })();
   });
-  for (type of ['Q11424', 'Q20650540', 'Q5398426', 'Q1259759', 'Q7889', 'Q482994', 'Q20853847']) {
+  for (type of ['Q11424', 'Q20650540', 'Q5398426', 'Q1259759', 'Q7889', 'Q482994', 'Q20853847', 'Q9143']) {
     assert.equal(await lookupWikidataTitle(filmLink), 'Known');
   }
-  for (type of ['Q5', 'Q343301', 'Q21191270', 'Q3464665', 'Q277759']) {
+  for (type of ['Q5', 'Q343301', 'Q21191270', 'Q3464665', 'Q277759', 'Q756637']) {
     assert.equal(await lookupWikidataTitle(filmLink), null);
   }
-  assert.equal(fetch.mock.callCount(), 12);
+  assert.equal(fetch.mock.callCount(), 14);
 });
 
 test('a wrong ID, missing label, coarse year or malformed entity keeps the link manual', async (t) => {
@@ -587,4 +588,179 @@ test('a failed or cancelled exact-link lookup makes one request with no retries'
   controller.abort();
   await assert.rejects(lookupWikidataTitle(filmLink, controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
+});
+
+// Programming-language sample: the live "Rust" search ranks the language above
+// the 2018 survival game, and the language item carries real P577 values that
+// must not become a release year. "Node.js" is the runtime that is not Q9143.
+const rustLanguageSearch = { searchinfo: { search: 'Rust' }, search: [
+  searchRow('Q575650', 'Rust', 'memory-safe programming language without garbage collection'),
+  searchRow('Q184197', 'rust', 'type of iron oxide'),
+  searchRow('Q259214', 'Rust', 'city in Austria'),
+  searchRow('Q15304961', 'Rust', '2018 survival video game'),
+] };
+const rustLanguageEntities = { entities: {
+  Q575650: {
+    claims: {
+      P31: [claim('Q9143'), claim('Q3839507'), claim('Q12772052')],
+      P577: [time('+2010-07-07T00:00:00Z', 11), time('+2010-06-16T00:00:00Z', 11)],
+    },
+  },
+  Q184197: { claims: {} },
+  Q259214: { claims: { P31: [claim('Q262882')] } },
+  Q15304961: {
+    claims: { P31: [claim('Q7889')], P577: [time('+2018-02-08T00:00:00Z', 11)] },
+  },
+} };
+
+test('programming-language search keeps only its own Q9143 item and adds no year', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    if (url.searchParams.get('action') === 'wbsearchentities') {
+      assert.deepEqual(Object.fromEntries(url.searchParams), {
+        action: 'wbsearchentities', search: 'Rust', language: 'en', uselang: 'en',
+        type: 'item', limit: '30', format: 'json', origin: '*',
+      });
+      return ok(rustLanguageSearch)();
+    }
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      action: 'wbgetentities', props: 'claims|sitelinks',
+      ids: 'Q575650|Q184197|Q259214|Q15304961', format: 'json', origin: '*',
+    });
+    return ok(rustLanguageEntities)();
+  });
+  assert.deepEqual(await searchWikidata('Rust', 'language'), [{
+    title: 'Rust',
+    artist: 'memory-safe programming language without garbage collection',
+    href: 'https://www.wikidata.org/wiki/Q575650',
+  }]);
+  assert.equal(fetch.mock.callCount(), 2);
+  // The same Rust game is still offered by the unchanged Games kind.
+  assert.deepEqual(await searchWikidata('Rust', 'game'), [{
+    title: 'Rust', artist: '2018 survival video game', year: 2018,
+    href: 'https://www.wikidata.org/wiki/Q15304961',
+  }]);
+  assert.equal(fetch.mock.callCount(), 4);
+});
+
+// Verified language items and one runtime from live responses on 2026-11-24.
+const languageSearch = { searchinfo: { search: 'Language' }, search: [
+  searchRow('Q2407', 'C++', 'general-purpose programming language'),
+  searchRow('Q28865', 'Python', 'general-purpose programming language'),
+  searchRow('Q251', 'Java', 'object-oriented programming language'),
+  searchRow('Q756100', 'Node.js', 'JavaScript runtime environment'),
+  searchRow('Q18975775', 'io.js', 'JavaScript runtime for server-side programming, a node.js fork'),
+] };
+const languageEntities = { entities: {
+  Q2407: { claims: { P31: [claim('Q9143'), claim('Q899523')] } },
+  Q28865: { claims: { P31: [claim('Q899523'), claim('Q9143'), claim('Q7397')] } },
+  // Java records a real P577 (1995), which a language never turns into a title year.
+  Q251: { claims: { P31: [claim('Q56062429'), claim('Q9143')], P577: [time('+1995-05-23T00:00:00Z', 11)] } },
+  Q756100: { claims: { P31: [claim('Q756637'), claim('Q506883'), claim('Q1004415')] } },
+  Q18975775: { claims: { P31: [claim('Q506883')] } },
+} };
+
+test('verified C++, Python and Java languages are offered; Node.js and io.js runtimes are not', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(languageSearch)()
+    : ok(languageEntities)());
+  assert.deepEqual(await searchWikidata('Language', 'language'), [
+    { title: 'C++', artist: 'general-purpose programming language',
+      href: 'https://www.wikidata.org/wiki/Q2407' },
+    { title: 'Python', artist: 'general-purpose programming language',
+      href: 'https://www.wikidata.org/wiki/Q28865' },
+    { title: 'Java', artist: 'object-oriented programming language',
+      href: 'https://www.wikidata.org/wiki/Q251' },
+  ]);
+  assert.equal(fetch.mock.callCount(), 2);
+  // A runtime-only query ends with the same bounded two-call shape and no pick.
+  fetch.mock.mockImplementation(async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok({ searchinfo: { search: 'Node.js' }, search: [
+      searchRow('Q756100', 'Node.js', 'JavaScript runtime environment'),
+    ] })()
+    : ok({ entities: { Q756100: languageEntities.entities.Q756100 } })());
+  assert.deepEqual(await searchWikidata('Node.js', 'language'), []);
+  assert.equal(fetch.mock.callCount(), 4);
+});
+
+test('a deprecated Q9143 statement does not make an item a language', async (t) => {
+  const search = { searchinfo: { search: 'Deprecated' }, search: [
+    searchRow('Q900100', 'Formerly a language', 'software project'),
+    searchRow('Q900101', 'Still a language', 'programming language'),
+  ] };
+  const entities = { entities: {
+    Q900100: { claims: { P31: [
+      { rank: 'deprecated', mainsnak: { datavalue: { value: { id: 'Q9143' } } } },
+      claim('Q7397'),
+    ] } },
+    Q900101: { claims: { P31: [
+      { rank: 'normal', mainsnak: { datavalue: { value: { id: 'Q9143' } } } },
+    ] } },
+  } };
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => url.searchParams.get('action') === 'wbsearchentities'
+    ? ok(search)()
+    : ok(entities)());
+  assert.deepEqual(await searchWikidata('Deprecated', 'language'), [{
+    title: 'Still a language', artist: 'programming language',
+    href: 'https://www.wikidata.org/wiki/Q900101',
+  }]);
+  assert.equal(fetch.mock.callCount(), 2);
+});
+
+test('an exact programming-language link fills its bare label in one bounded read', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async (url) => {
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      action: 'wbgetentities', props: 'labels|claims', languages: 'en|mul',
+      ids: 'Q575650', format: 'json', origin: '*',
+    });
+    return read({
+      Q575650: {
+        type: 'item', id: 'Q575650',
+        labels: { en: { language: 'en', value: 'Rust' } },
+        claims: { P31: [claim('Q9143'), claim('Q3839507')],
+          P577: [time('+2010-07-07T00:00:00Z', 11)] },
+      },
+    })();
+  });
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q575650'), 'Rust');
+  assert.equal(fetch.mock.callCount(), 1);
+  // A runtime and an item whose only Q9143 statement is deprecated stay manual.
+  fetch.mock.mockImplementation(async () => read({
+    Q756100: {
+      type: 'item', id: 'Q756100',
+      labels: { en: { language: 'en', value: 'Node.js' } },
+      claims: { P31: [claim('Q756637')] },
+    },
+  })());
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q756100'), null);
+  fetch.mock.mockImplementation(async () => read({
+    Q900100: {
+      type: 'item', id: 'Q900100',
+      labels: { en: { language: 'en', value: 'Formerly a language' } },
+      claims: { P31: [
+        { rank: 'deprecated', mainsnak: { datavalue: { value: { id: 'Q9143' } } } },
+      ] },
+    },
+  })());
+  assert.equal(await lookupWikidataTitle('https://www.wikidata.org/wiki/Q900100'), null);
+  assert.equal(fetch.mock.callCount(), 3);
+});
+
+test('the Find titles panel adds one language choice without claiming playback or images', () => {
+  const component = readFileSync(
+    new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url), 'utf8');
+  const controller = readFileSync(
+    new URL('../src/browser/share-experiences.ts', import.meta.url), 'utf8');
+  // Exactly one added choice, next to the unchanged Games choice and platform filter.
+  assert.equal((component.match(/data-music-kind="language"/g) ?? []).length, 1);
+  assert.match(component, /data-music-kind="game" aria-pressed="false">Games</);
+  assert.match(component, /data-music-kind="language" aria-pressed="false">Programming languages</);
+  assert.match(component, /data-music-game-platform/);
+  assert.match(component, /Films, TV series, games and programming languages come from Wikidata/);
+  // The controller routes the language kind through the same bounded Wikidata
+  // search, hides the storefront, and never mounts the music preview for it.
+  assert.match(controller, /requestedKind === "language"/);
+  assert.match(controller, /next === "language" \? next : "album"/);
+  assert.match(controller, /searchWikidata\(query, requestedKind, controller\.signal, platform\)/);
+  assert.match(controller, /kind === "film" \|\| kind === "series" \|\| kind === "game"\s*\n\s*\|\| kind === "language"/);
+  assert.match(controller, /open the exact film, TV series, game or programming language/);
 });
