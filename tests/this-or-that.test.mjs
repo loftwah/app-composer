@@ -16,6 +16,7 @@ import {
   thisOrThatLengths, thisOrThatProgress, thisOrThatStart, thisOrThatSummary,
   readThisOrThatCustom, undoThisOrThat,
   thisOrThatBlankLink, thisOrThatBlankPath, thisOrThatPackFromQuery,
+  compareThisOrThatChoices, readThisOrThatComparisonOffer,
 } from '../src/lib/this-or-that.ts';
 import { resultColumns } from '../src/browser/share-experience-image.ts';
 
@@ -137,6 +138,72 @@ test('a restored run produces the same exact ending as the original', () => {
   const summary = thisOrThatSummary(sides);
   const chosen = thisOrThatQuestions.map(([, left, right], index) => (sides[index] === 0 ? left : right));
   assert.equal(summary.subtitle, chosen.join(' · '));
+});
+
+// #1064: one optional, local comparison offered only from a validated complete
+// built-in shared result. It counts actual shared positions of one exact
+// replay, keeps the prior picks in tab memory and never becomes a link value.
+test('a local comparison counts one exact complete built-in replay only', async () => {
+  const prior = restoreThisOrThatPicks([0, 1, 0, 1, 0]);
+  const current = [0, 1, 1, 1, 0];
+  const compared = compareThisOrThatChoices(prior, current);
+  assert.ok(compared);
+  assert.equal(compared.same, 4);
+  assert.equal(compared.different, 1);
+  assert.equal(compared.total, 5);
+  assert.deepEqual(compared.rows.map((row) => row.same), [true, true, false, true, true]);
+  const questions = thisOrThatPacks.maker.questions;
+  assert.deepEqual(compared.rows.map((row) => row.prompt), questions.map(([prompt]) => prompt),
+    'every row is one real question both runs answered');
+  assert.equal(compared.rows[2].shared, questions[2][1], 'the shared side is its exact chosen text');
+  assert.equal(compared.rows[2].own, questions[2][2], 'the replay side is its exact chosen text');
+
+  // Partial, longer, or different-length runs are never comparable.
+  assert.equal(compareThisOrThatChoices(prior, [0, 1, 0, 1]), null);
+  assert.equal(compareThisOrThatChoices([0, 1, 0, 1, null], current), null);
+  assert.equal(compareThisOrThatChoices(prior, current, nineQuestions), null);
+  assert.equal(compareThisOrThatChoices(thisOrThatStart(), current), null);
+
+  // Only a complete, known built-in five offers a comparison.
+  assert.deepEqual(
+    readThisOrThatComparisonOffer([1, 0, 1, 0, 1], 'food'),
+    { pack: 'food', picks: [1, 0, 1, 0, 1] },
+  );
+  assert.deepEqual(
+    readThisOrThatComparisonOffer([0, 1, 0, 1, 0], undefined),
+    { pack: 'maker', picks: [0, 1, 0, 1, 0] },
+    'an older maker link still offers the same safe comparison',
+  );
+  for (const pack of ['custom', 'unknown', '', 5, null, {}, ['food']]) {
+    assert.equal(readThisOrThatComparisonOffer([0, 1, 0, 1, 0], pack), null, `${JSON.stringify(pack)} is not a built-in pack`);
+  }
+  for (const marked of [
+    [], [0, 1, 0, 1], [0, 1, 0, 1, 0, 1], [0, 1, 0, 1, null],
+    [1, 0, 1, 0, 1, 0, 1, 0, 1], '01010',
+  ]) {
+    assert.equal(readThisOrThatComparisonOffer(marked, 'maker'), null, 'a partial or other-length fragment never qualifies');
+  }
+
+  // The action is explicit, hidden until a shared built-in result, and the
+  // count is a live status list — not an input, link or saved value.
+  const component = await readFile(
+    new URL('../src/components/share-experiences/ShareExperience.astro', import.meta.url),
+    'utf8',
+  );
+  assert.match(component, /<button type="button" class="secondary" data-tot-compare>Compare your choices<\/button>/);
+  assert.match(component, /data-tot-compare-panel hidden/);
+  assert.match(component, /data-tot-compare-result hidden role="status" aria-live="polite"/);
+  const controller = await readFile(
+    new URL('../src/browser/share-experiences.ts', import.meta.url),
+    'utf8',
+  );
+  assert.match(controller, /readThisOrThatComparisonOffer\(snapshot\.marked, snapshot\.pack\)/,
+    'the offer is decided by the validated shared snapshot only');
+  assert.match(controller, /compareThisOrThatChoices\(prior\.picks, picks/);
+  assert.match(controller, /dropSharedByline\(\);/, 'the earlier byline is cleared before the replay starts');
+  assert.match(controller, /function clearComparison\(\)/);
+  assert.match(controller, /restart\.addEventListener\("click", \(\) => \{[\s\S]{0,120}clearComparison\(\);/,
+    'a fresh replay drops the comparison');
 });
 
 test('the food starter is five original sweet-or-spicy choices from one point of view', () => {

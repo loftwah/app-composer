@@ -198,6 +198,17 @@
 .tot-blank { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1rem; }
 .tot-blank input { flex: 1 1 100%; min-height: 44px; }
 .tot-blank .experience-note { flex-basis: 100%; margin: 0; }
+.tot-compare { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1rem; }
+.tot-compare[hidden], .tot-compare-result[hidden] { display: none; }
+.tot-compare .experience-note { flex-basis: 100%; margin: 0; }
+.tot-compare-result {
+  margin-top: 1rem; padding-top: .9rem;
+  border-top: 1px solid currentColor;
+}
+.tot-compare-result h3 { color: inherit; margin: .2rem 0 .4rem; font-size: clamp(1.1rem, 2.6vw, 1.5rem); }
+.tot-compare-rows { margin: .4rem 0 0; padding-inline-start: 1.5rem; }
+.tot-compare-rows li { margin-block: .55rem; max-width: 46ch; color: inherit; }
+.tot-compare-question { display: block; font-size: .88rem; opacity: .78; margin-block-end: .1rem; }
 .tq-progress { margin: 1.25rem 0 0; font-weight: 700; }
 .tq-question {
   padding: clamp(1.5rem, 4vw, 3.25rem) 0 1rem;
