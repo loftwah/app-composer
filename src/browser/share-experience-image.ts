@@ -8,6 +8,9 @@ import type { PersonaCardPrint } from "../lib/persona-quiz.ts";
 import {
   tierListDefaultTitle, tierListRows, tierListTierCount, tierListTiers,
 } from "../lib/tier-list.ts";
+import {
+  wrongAnswerCount, wrongAnswerPlate,
+} from "../lib/wrong-answers.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -52,6 +55,9 @@ export interface ShareExperienceResult {
   /** Frozen authored prompts for a private twenty-one-questions run. Card
    * exports only: results never travel in a link, so this stays in the tab. */
   questions?: string[];
+  /** The selected prompt and private answer for a Wrong Answers Only export. */
+  prompt?: string;
+  answer?: string;
   byline: string;
   skin: number;
   background: string;
@@ -87,6 +93,9 @@ const inks = {
   // Noir orange, white relief and warm paper, matching the owned one-must-go
   // awards stage.
   "one-must-go": [["#171310", "#fbeee2", "#f07022"], ["#b84317", "#fff3e6", "#ffd9a8"], ["#efe2cf", "#22170f", "#a63817"]],
+  // The owned wrong-answers textbook: saffron blueprint ink on aged paper,
+  // a faded copy, and a night-school page for the dark skin.
+  "wrong-answers": [["#efe0bd", "#3a2412", "#8a4a08"], ["#f7f1e5", "#2a2319", "#7b3f10"], ["#1d1913", "#f4e6c7", "#e6ad3c"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -205,6 +214,299 @@ function signCard(
   }
 }
 
+const wrongAnswerFace = "Space, system-ui";
+
+/** Wrap one printed plate line. Unlike the established games' wrapper this also
+ * breaks a single over-long word, so a 240-character answer can never run off
+ * the page at the fit floor. */
+function plateWrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    const next = line ? `${line} ${word}` : word;
+    if (ctx.measureText(next).width <= width) {
+      line = next;
+      continue;
+    }
+    if (line) {
+      lines.push(line);
+      line = "";
+    }
+    if (ctx.measureText(word).width <= width) {
+      line = word;
+      continue;
+    }
+    let chunk = "";
+    for (const character of word) {
+      if (chunk && ctx.measureText(chunk + character).width > width) {
+        lines.push(chunk);
+        chunk = character;
+      } else chunk += character;
+    }
+    line = chunk;
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [""];
+}
+
+function plateFit(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  width: number,
+  height: number,
+  initial: number,
+  lineHeight = 1.06,
+) {
+  let size = Math.max(12, initial);
+  let lines: string[] = [];
+  do {
+    ctx.font = `700 ${size}px ${wrongAnswerFace}`;
+    lines = plateWrap(ctx, text, width);
+    if (lines.length * size * lineHeight <= height) break;
+    size -= 2;
+  } while (size > 12);
+  return { size, lines, lineHeight };
+}
+
+/** Draw the answer at the top of its panel and return its printed height. */
+function drawPlateText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  initial: number,
+) {
+  const { size, lines, lineHeight } = plateFit(ctx, text, width, height, initial);
+  lines.forEach((line, index) => {
+    ctx.fillText(line, x, y + size + index * size * lineHeight, width);
+  });
+  return lines.length * size * lineHeight;
+}
+
+/** Draw the question centred in its page area, so a short poster question and
+ * a long one both sit deliberately between the masthead and the answer panel. */
+function drawPlateCentred(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  initial: number,
+) {
+  const { size, lines, lineHeight } = plateFit(ctx, text, width, height, initial);
+  const block = lines.length * size * lineHeight;
+  const top = y + Math.max(0, (height - block) / 2);
+  lines.forEach((line, index) => {
+    ctx.fillText(line, x, top + size + index * size * lineHeight, width);
+  });
+  return block;
+}
+
+function trackedWidth(ctx: CanvasRenderingContext2D, text: string, size: number, tracking: number) {
+  ctx.save();
+  ctx.font = `800 ${size}px system-ui`;
+  let width = 0;
+  for (const character of text) width += ctx.measureText(character).width + tracking;
+  ctx.restore();
+  return Math.max(0, width - tracking);
+}
+
+/** Small caps with drawn letter spacing, matching the label rhythm of the
+ * printed campaign rather than relying on canvas letterSpacing support. */
+function drawTracked(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  colour: string,
+  tracking = Math.max(1, Math.round(size * .12)),
+) {
+  ctx.save();
+  ctx.font = `800 ${size}px system-ui`;
+  ctx.fillStyle = colour;
+  let cursor = x;
+  for (const character of text) {
+    ctx.fillText(character, cursor, y);
+    cursor += ctx.measureText(character).width + tracking;
+  }
+  ctx.restore();
+}
+
+/** The poster's own rubber stamp, drawn as an outlined saffron mark. */
+function drawWrongStamp(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  accent: string,
+) {
+  const label = "WRONG ANSWERS ONLY";
+  const tracking = Math.max(1, Math.round(size * .14));
+  const padX = Math.round(size * .65);
+  const padY = Math.round(size * .42);
+  const width = trackedWidth(ctx, label, size, tracking) + padX * 2;
+  const height = size + padY * 2;
+  ctx.save();
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = Math.max(2, Math.round(size * .13));
+  ctx.strokeRect(x + 1.5, y + 1.5, width - 3, height - 3);
+  ctx.restore();
+  ctx.save();
+  ctx.font = `800 ${size}px system-ui`;
+  ctx.fillStyle = accent;
+  ctx.textBaseline = "middle";
+  let cursor = x + padX;
+  for (const character of label) {
+    ctx.fillText(character, cursor, y + height / 2 + Math.round(size * .02));
+    cursor += ctx.measureText(character).width + tracking;
+  }
+  ctx.restore();
+  return { width, height };
+}
+
+/** The index tab at the top-right of the sheet, carrying the question number. */
+function drawWrongTab(
+  ctx: CanvasRenderingContext2D,
+  number: number,
+  x: number,
+  y: number,
+  size: number,
+  paper: string,
+  accent: string,
+) {
+  ctx.save();
+  ctx.fillStyle = accent;
+  ctx.fillRect(x, y, size, size);
+  ctx.fillStyle = paper;
+  ctx.font = `800 ${Math.round(size * .38)}px system-ui`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(String(number).padStart(2, "0"), x + size / 2, y + size / 2 + 1);
+  ctx.restore();
+}
+
+/** One local wrong-answer plate: the owned textbook page, the poster stamp, the
+ * exact selected question, the exact typed answer, and the same publisher
+ * sign-off every card carries. Wide is an open two-page spread; the upright
+ * formats stack the question above a correction slip. */
+async function renderWrongAnswers(result: ShareExperienceResult, format: ResultFormat): Promise<Blob> {
+  const plate = wrongAnswerPlate(result.prompt, result.answer);
+  if (!plate) throw new Error("No wrong answer to export");
+  const [width, height] = resultSizes[format];
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  await document.fonts?.ready;
+  const palette = inks["wrong-answers"];
+  const [paper, ink, accent] = palette[result.skin] ?? palette[0];
+  const wide = format === "wide";
+  const square = format === "square";
+  const story = format === "story";
+  const margin = Math.round(Math.min(width, height) * .067);
+  const safeTop = story ? Math.round(height * .13) : 0;
+  const safeBottom = story ? Math.round(height * .17) : 0;
+  const top = margin + safeTop;
+  const footer = height - safeBottom - margin - 42;
+  const inner = width - margin * 2;
+  const contentBottom = footer - (wide ? 54 : 104);
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = accent;
+  ctx.fillRect(margin, top, inner, 4);
+
+  const stampTop = top + (wide ? 18 : 26);
+  const stamp = drawWrongStamp(ctx, margin, stampTop, wide ? 14 : story ? 18 : 20, accent);
+  const tabSize = wide ? 0 : square ? 58 : story ? 70 : 62;
+  if (!wide && plate.number) {
+    drawWrongTab(ctx, plate.number, width - margin - tabSize, stampTop, tabSize, paper, accent);
+  }
+  const metaSize = wide ? 13 : 19;
+  const metaY = stampTop + stamp.height + (wide ? 30 : 42);
+  const meta = plate.number
+    ? `QUESTION ${String(plate.number).padStart(2, "0")} / ${wrongAnswerCount}${plate.tab ? ` · ${plate.tab.toUpperCase()}` : ""}`
+    : "YOUR PROMPT";
+  drawTracked(ctx, meta, margin, metaY, metaSize, accent);
+
+  const labelSize = wide ? 13 : 19;
+  const panelPadding = wide ? 24 : square ? 28 : story ? 42 : 36;
+
+  if (wide) {
+    const leftWidth = Math.round(inner * .44);
+    const gutter = Math.round(inner * .04);
+    const rightX = margin + leftWidth + gutter;
+    const rightWidth = margin + inner - rightX;
+    const promptY = metaY + 30;
+    ctx.fillStyle = ink;
+    drawPlateCentred(ctx, plate.prompt, margin, promptY, leftWidth, contentBottom - promptY, 58);
+    ctx.save();
+    ctx.globalAlpha = .32;
+    ctx.fillStyle = ink;
+    ctx.fillRect(margin + leftWidth + gutter / 2, stampTop, 2, contentBottom - stampTop);
+    ctx.restore();
+
+    const panelX = rightX;
+    const panelY = stampTop;
+    const panelW = rightWidth;
+    const panelH = contentBottom - panelY;
+    ctx.save();
+    ctx.globalAlpha = .1;
+    ctx.fillStyle = accent;
+    ctx.fillRect(panelX, panelY, panelW, panelH);
+    ctx.restore();
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(panelX + .75, panelY + .75, panelW - 1.5, panelH - 1.5);
+    ctx.fillStyle = accent;
+    ctx.fillRect(panelX, panelY, 7, panelH);
+    drawTracked(ctx, "YOUR ANSWER", panelX + panelPadding, panelY + panelPadding + labelSize, labelSize, accent);
+    const answerTop = panelY + panelPadding + labelSize + Math.round(labelSize * 1.1);
+    ctx.fillStyle = ink;
+    drawPlateText(
+      ctx, plate.answer, panelX + panelPadding, answerTop,
+      panelW - panelPadding * 2, contentBottom - panelPadding - answerTop, 34,
+    );
+  } else {
+    const promptY = metaY + 34;
+    const promptHeight = square ? 200 : story ? 360 : 302;
+    ctx.fillStyle = ink;
+    drawPlateCentred(ctx, plate.prompt, margin, promptY, inner, promptHeight, square ? 78 : story ? 96 : 92);
+
+    const panelY = promptY + promptHeight + 26;
+    const panelH = contentBottom - panelY;
+    ctx.save();
+    ctx.globalAlpha = .1;
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, panelY, inner, panelH);
+    ctx.restore();
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(margin + .75, panelY + .75, inner - 1.5, panelH - 1.5);
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, panelY, 8, panelH);
+    drawTracked(ctx, "YOUR ANSWER", margin + panelPadding, panelY + panelPadding + labelSize, labelSize, accent);
+    const answerTop = panelY + panelPadding + labelSize + Math.round(labelSize * 1.1);
+    ctx.fillStyle = ink;
+    drawPlateText(
+      ctx, plate.answer, margin + panelPadding, answerTop,
+      inner - panelPadding * 2, contentBottom - panelPadding - answerTop,
+      square ? 44 : story ? 62 : 60,
+    );
+  }
+
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
+}
+
 /** One local tier-list PNG: the title, four named rows and their entries in
  * reading order, then the same publisher sign-off every card carries. Rows are
  * fixed, so the same board always draws the same text in the same position. */
@@ -286,9 +588,11 @@ export async function renderExperienceResult(
   format: ResultFormat,
   covers?: readonly (ResultCoverSlot | null)[],
 ) {
-  // The tier board has its own fixed four-row drawing; every other game keeps
-  // the established title-and-grid renderer exactly as it was.
+  // The tier board, one-must-go's shared grid and the wrong-answer plate each
+  // keep their own drawing; every other game keeps the established
+  // title-and-grid renderer exactly as it was.
   if (result.game === "tier-list") return renderTierList(result, format);
+  if (result.game === "wrong-answers") return renderWrongAnswers(result, format);
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
   canvas.width = width;

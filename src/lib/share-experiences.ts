@@ -68,13 +68,23 @@ export const experiences = {
   },
   "one-must-go": {
     title: "One Must Go",
-    description: "Play the poster round or write your own four choices.",
+    description: "Eliminate one of four choices from the poster round or write your own. Your round stays in this tab.",
     // The stage reuses the owned Internet Workshop “one-must-go” poster and its
     // Music · Games · Code · The Web round; see
     // public/campaign/internet-workshop-20261122/provenance.json.
     slug: "one-must-go",
     imageDescription: "A noir-orange awards stage where four spotlit objects — a dial-up modem, a music player, a code editor and a game console — stand under the words “One must go.” and “Music · Games · Code · The Web”.",
     theme: "noir",
+  },
+  "wrong-answers": {
+    title: "Wrong Answers Only",
+    description: "Give a deliberately wrong answer to one of ten workshop questions. Answers stay in this tab.",
+    // The stage reuses the owned Internet Workshop “wrong-answers” textbook
+    // cover and its saffron blueprint direction; see
+    // public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "wrong-answers",
+    imageDescription: "A vintage textbook cover holds a serious diagram of tiny chairs and a kettle inside a database cabinet, stamped “Wrong Answers Only”.",
+    theme: "textbook",
   },
 } as const;
 
@@ -83,9 +93,10 @@ export const experiencePath = (id: ExperienceId) => `/share/experiences/${id}`;
 export const experienceArt = (id: ExperienceId) =>
   `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`;
 export const experienceOg = (id: ExperienceId) =>
-  // The tier-list and one-must-go posters are already the 1200 × 630 artwork
-  // used for their social cards; no additional file is introduced.
-  id === "tier-list" || id === "one-must-go"
+  // The tier-list, one-must-go and wrong-answers posters are already the
+  // 1200 × 630 artwork used for their social cards; no additional file is
+  // introduced.
+  id === "tier-list" || id === "one-must-go" || id === "wrong-answers"
     ? `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`
     : `/campaign/internet-workshop-20261122/${experiences[id].slug}-og-v1.jpg`;
 

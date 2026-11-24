@@ -26,6 +26,9 @@ import {
 import {
   oneMustGoChoiceCount, oneMustGoChoiceLimit, oneMustGoStarterChoices,
 } from "../../lib/one-must-go.ts";
+import {
+  wrongAnswerCount, wrongAnswerLimit, wrongAnswerPrompts,
+} from "../../lib/wrong-answers.ts";
 
 interface Props {
   game: ExperienceId;
@@ -42,6 +45,7 @@ const isCloudflare = game === "developer-type";
 const isLanguage = game === "language-type";
 const isTier = game === "tier-list";
 const isMustGo = game === "one-must-go";
+const isWrong = game === "wrong-answers";
 const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
@@ -373,6 +377,33 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </details>
   </section>}
 
+  {isWrong && <section data-play-panel class="wa-stage" aria-label="Write a wrong answer">
+    <div class="wa-index" role="group" aria-label="Choose a question">
+      {wrongAnswerPrompts.map((prompt, index) => <button type="button" class="wa-index-tab" data-wa-prompt={index}
+        aria-label={`Question ${index + 1}: ${prompt.question}`} aria-controls="wa-question"
+        aria-pressed={index === 0 ? "true" : "false"} disabled>
+        <span class="wa-index-name">{prompt.tab}</span>
+      </button>)}
+    </div>
+    <div class="wa-sheet">
+      <p class="wa-folio" data-wa-folio>Question 1 of {wrongAnswerCount}</p>
+      <h2 id="wa-question" class="wa-question" tabindex="-1" data-wa-question>{wrongAnswerPrompts[0].question}</h2>
+      <label class="wa-answer-label" for="wa-answer">Your wrong answer</label>
+      <textarea id="wa-answer" rows="3" maxlength={wrongAnswerLimit} autocomplete="off" spellcheck="true"
+        enterkeyhint="next" aria-describedby="wa-local wa-count" data-wa-answer disabled></textarea>
+      <div class="wa-meta">
+        <p class="wa-local" id="wa-local">Your drafts stay in this tab. Download a PNG to keep your answer.</p>
+        <p class="wa-count" id="wa-count" data-wa-count>0 / {wrongAnswerLimit}</p>
+      </div>
+      <div class="wa-controls">
+        <button type="button" class="secondary" data-wa-back disabled>Previous question</button>
+        <button type="button" data-wa-next disabled>Next question</button>
+        <button type="button" class="secondary" data-wa-clear disabled>Clear this answer</button>
+      </div>
+    </div>
+    <p class="experience-note wa-status" role="status" aria-live="polite" data-wa-status></p>
+  </section>}
+
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
     <div class="tot-packs">
       <label for="tot-pack">Starter
@@ -644,6 +675,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isLanguage ? ["Canyon dawn", "Warm paper", "Night archive"]
           : isTier ? ["Wine press", "Marble and cobalt", "Cobalt night"]
           : isMustGo ? ["Noir orange", "Stamp orange", "Paper and ink"]
+          : isWrong ? ["Saffron page", "Faded copy", "Night school"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
@@ -671,13 +703,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-persona-avatar-status></p>
     </div>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo}>
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong}>
         {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : "tot-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo}>Copy result link</button>
-      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo}>Share result</button>
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong}>Copy result link</button>
+      <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong}>Share result</button>
     </div>
     {isTwentyOne && <div class="experience-actions" data-tq-downloads hidden></div>}
     {persona && <div class="experience-actions" data-persona-preview hidden></div>}
@@ -687,6 +719,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       ? "Download the PNG to keep this board. There is no result link, public board or vote, and your entries are never serialised into a URL."
       : isMustGo
       ? "Download the PNG to keep this elimination. There is no result link, public vote or percentage, and a private round never travels in a URL."
+      : isWrong
+      ? "The PNG includes the selected question, your answer and any byline."
       : isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
@@ -701,7 +735,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {(isNine || isThis) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !persona && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !isWrong && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">
