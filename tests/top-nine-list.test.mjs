@@ -6,6 +6,7 @@ import {
   nineListApplied, nineListLimit, nineListSummary, planNineList, planNineListUndo,
 } from '../src/lib/top-nine-list.ts';
 import { pageLink, pageUrlLimit } from '../src/lib/top-nine-pages.ts';
+import { wikidataSource } from '../src/lib/top-nine-wikidata.ts';
 import { musicUrlLimit } from '../src/lib/top-nine-music.ts';
 import {
   draftKey, nineItemLimit, readNineDraft, writeNineDraft,
@@ -285,6 +286,52 @@ test('the repeatable nine-technical-book fixture keeps canonical Apple Books as 
     { country: 'us', id: '401000597' },
   ]);
   assert.equal(new Set(refs.map((ref) => ref.id)).size, 9);
+  assert.deepEqual(plan.sources, Array(9).fill(null));
+  assert.deepEqual(plan.rows, rows);
+  assert.deepEqual(plan.overflow, []);
+  assert.deepEqual(plan.remaining, []);
+  assert.deepEqual(plan.invalid, []);
+  assert.equal(plan.invalidMusic, 0);
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('the repeatable nine-film and series fixture keeps distinct official Wikidata pages in paste order', (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('planning the local film and series fixture must not fetch');
+  });
+  const fixture = read('tests/fixtures/top-nine-films-and-series.tsv').trimEnd();
+  const rows = fixture.split('\n');
+  const columns = rows.map((row) => row.split('\t'));
+  const empty = Array.from({ length: 9 }, (_, index) => index);
+  const titles = [
+    'Dune (1984)', 'Dune (2021)', 'Solaris (1972)', 'Solaris (2002)',
+    'The Thing (1982)', 'The Thing (2011)', 'Stalker (1979 film)',
+    'Stalker (2014 TV series)', 'Aniara (2018)',
+  ];
+  const pages = [
+    'https://www.wikidata.org/wiki/Q114819',
+    'https://www.wikidata.org/wiki/Q60834962',
+    'https://www.wikidata.org/wiki/Q125772',
+    'https://www.wikidata.org/wiki/Q673195',
+    'https://www.wikidata.org/wiki/Q210756',
+    'https://www.wikidata.org/wiki/Q909749',
+    'https://www.wikidata.org/wiki/Q200437',
+    'https://www.wikidata.org/wiki/Q16893352',
+    'https://www.wikidata.org/wiki/Q27996429',
+  ];
+  assert.equal(rows.length, 9);
+  assert.deepEqual(columns.map((row) => row.length), Array(9).fill(2));
+  assert.deepEqual(columns.map(([title]) => title), titles);
+  assert.deepEqual(columns.map(([, page]) => page), pages);
+  assert.equal(new Set(titles).size, 9);
+  assert.equal(new Set(pages).size, 9);
+
+  const plan = planNineList(fixture, empty);
+  assert.deepEqual(plan.indexes, empty);
+  assert.deepEqual(plan.titles, titles);
+  assert.deepEqual(plan.urls, pages);
+  assert.deepEqual(plan.urls, pages.map(pageLink));
+  assert.deepEqual(plan.urls, pages.map(wikidataSource));
   assert.deepEqual(plan.sources, Array(9).fill(null));
   assert.deepEqual(plan.rows, rows);
   assert.deepEqual(plan.overflow, []);
