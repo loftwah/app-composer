@@ -68,6 +68,11 @@ import {
   wrongAnswerCount, wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle,
   wrongAnswerPrompts, wrongAnswerStart,
 } from "../lib/wrong-answers.ts";
+import {
+  readRedFlagVerdict, redFlagCourtAltText, redFlagCourtCalled, redFlagCourtCase,
+  redFlagCourtCases, redFlagCourtCount, redFlagCourtPrintTitle,
+  type RedFlagVerdict,
+} from "../lib/red-flag-court.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
@@ -109,6 +114,10 @@ interface ResultSnapshot {
    * plate prints. Held only in memory and never serialised into a result link. */
   prompt?: string;
   answer?: string;
+  /** Red Flag Court: the current docket position and the participant's call.
+   * Held only in memory and never serialised into a result link. */
+  courtCase?: number;
+  verdict?: RedFlagVerdict;
 }
 
 /** One cover a person picked from their device: session-only, never uploaded.
@@ -3488,6 +3497,106 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+/** The ten-case docket. Each case keeps its own call for this tab only, and
+ * choosing the other flag changes it. There is no score, result link, public
+ * vote, provider or stored value: the downloaded card prints just the current
+ * case and its verdict. */
+function mountRedFlagCourt(root: HTMLElement, update: () => void): Controller {
+  const caseButtons = elements<HTMLButtonElement>(root, "[data-rfc-case]");
+  const indexVerdicts = elements<HTMLElement>(root, "[data-rfc-index-verdict]");
+  const caseHeading = root.querySelector<HTMLElement>("[data-rfc-heading]")!;
+  const folio = root.querySelector<HTMLElement>("[data-rfc-folio]")!;
+  const verdictButtons = elements<HTMLButtonElement>(root, "[data-rfc-verdict]");
+  const status = root.querySelector<HTMLElement>("[data-rfc-status]")!;
+  const prev = root.querySelector<HTMLButtonElement>("[data-rfc-prev]")!;
+  const next = root.querySelector<HTMLButtonElement>("[data-rfc-next]")!;
+  const verdicts: (RedFlagVerdict | null)[] = Array.from(
+    { length: redFlagCourtCount }, () => null,
+  );
+  let current = 0;
+  let ready = false;
+  const refresh = () => { if (ready) update(); };
+  const callLine = (call: RedFlagVerdict | null) =>
+    call === "green" ? "green flag" : call === "red" ? "red flag" : "no verdict";
+
+  function paint(focus = false) {
+    const entry = redFlagCourtCase(current)!;
+    caseHeading.textContent = entry.habit;
+    folio.textContent = `Case ${String(current + 1).padStart(2, "0")} of ${redFlagCourtCount} · ${redFlagCourtCalled(verdicts)} called`;
+    caseButtons.forEach((button, index) => {
+      const call = verdicts[index];
+      button.setAttribute("aria-pressed", String(index === current));
+      button.setAttribute("aria-label",
+        `Case ${index + 1}: ${redFlagCourtCases[index].tab}${call ? `, ${callLine(call)}` : ""}`);
+      const mark = indexVerdicts[index];
+      mark.hidden = call === null;
+      mark.textContent = call === "green" ? "G" : "R";
+      button.classList.toggle("is-green", call === "green");
+      button.classList.toggle("is-red", call === "red");
+    });
+    for (const button of verdictButtons) {
+      button.setAttribute("aria-pressed", String(button.dataset.rfcVerdict === verdicts[current]));
+    }
+    prev.disabled = current === 0;
+    next.disabled = current === redFlagCourtCount - 1;
+    if (focus) caseHeading.focus();
+    refresh();
+  }
+
+  function show(index: number, focus = true) {
+    if (!Number.isInteger(index) || index < 0 || index >= redFlagCourtCount) return;
+    current = index;
+    paint(focus);
+    status.textContent = `Case ${current + 1} of ${redFlagCourtCount}. ${verdicts[current]
+      ? `${callLine(verdicts[current])} stands. Change it any time.`
+      : "No verdict yet."}`;
+  }
+
+  root.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    const caseButton = target.closest<HTMLButtonElement>("[data-rfc-case]");
+    if (caseButton) {
+      show(Number(caseButton.dataset.rfcCase));
+      return;
+    }
+    const verdictButton = target.closest<HTMLButtonElement>("[data-rfc-verdict]");
+    if (verdictButton) {
+      const call = readRedFlagVerdict(verdictButton.dataset.rfcVerdict);
+      if (!call) return;
+      verdicts[current] = call;
+      paint();
+      status.textContent = `Case ${current + 1} of ${redFlagCourtCount}: ${callLine(call)}. Change it any time.`;
+      return;
+    }
+    if (target.closest("[data-rfc-prev]")) {
+      if (current > 0) show(current - 1);
+      return;
+    }
+    if (target.closest("[data-rfc-next]")) {
+      if (current < redFlagCourtCount - 1) show(current + 1);
+    }
+  });
+
+  paint();
+  for (const control of [...caseButtons, ...verdictButtons, prev, next]) control.disabled = false;
+  paint();
+  ready = true;
+
+  return {
+    result() {
+      const call = verdicts[current];
+      return call
+        ? { title: redFlagCourtPrintTitle, courtCase: current, verdict: call }
+        : null;
+    },
+    linksAllowed: () => false,
+    restore() {
+      // The docket never travels in a result link; a crafted fragment cannot
+      // fill or replace the verdicts this tab is making.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -3871,6 +3980,8 @@ export function mountShareExperience(root: HTMLElement) {
       status.textContent = "Eliminate one choice to download your result.";
     } else if (!canShare && game === "wrong-answers") {
       status.textContent = "Write a wrong answer to download your plate.";
+    } else if (!canShare && game === "red-flag-court") {
+      status.textContent = "Call the current case red or green to download your verdict card.";
     } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
@@ -3884,6 +3995,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "tier-list" ? mountTierList(root, update)
     : game === "one-must-go" ? mountOneMustGo(root, update)
     : game === "wrong-answers" ? mountWrongAnswers(root, update)
+    : game === "red-flag-court" ? mountRedFlagCourt(root, update)
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
@@ -3905,11 +4017,11 @@ export function mountShareExperience(root: HTMLElement) {
     });
   }
 
-  // Twenty-one questions, the tier list, one-must-go and wrong-answers never
-  // produce result links, and a persona result link is the answer-free
-  // `#result=<id>` fragment the quiz reads itself: none is the generic JSON
-  // snapshot, so a crafted hash restores nothing.
-  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers"
+  // Twenty-one questions, the tier list, one-must-go, wrong-answers and the
+  // Red Flag Court docket never produce result links, and a persona result link
+  // is the answer-free `#result=<id>` fragment the quiz reads itself: none is
+  // the generic JSON snapshot, so a crafted hash restores nothing.
+  const shared = game === "red-flag-court" || game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -4215,7 +4327,8 @@ export function mountShareExperience(root: HTMLElement) {
       : game === "tier-list" ? tierListAltText(snapshot)
         : game === "one-must-go" ? oneMustGoAltText(snapshot)
           : game === "wrong-answers" ? wrongAnswersAltText(snapshot)
-            : topNineAltText({
+            : game === "red-flag-court" ? redFlagCourtAltText(snapshot)
+              : topNineAltText({
               title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
               ranked: snapshot.ranked === true,
             });
@@ -4252,10 +4365,11 @@ export function mountShareExperience(root: HTMLElement) {
   // after a denied copy, so the selected field can never hold last time's name.
   if (alt) byline.addEventListener("input", clearAltFallback);
 
-  // Twenty-one questions, one-must-go and wrong-answers have no result link to
-  // hand over, and a persona result hands its answer-free link over in the
-  // result panel instead. The native share sheet stays off for all of them.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && !persona) {
+  // Twenty-one questions, one-must-go, wrong-answers and the Red Flag Court
+  // docket have no result link to hand over, and a persona result hands its
+  // answer-free link over in the result panel instead. The native share sheet
+  // stays off for all of them.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && game !== "red-flag-court" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;

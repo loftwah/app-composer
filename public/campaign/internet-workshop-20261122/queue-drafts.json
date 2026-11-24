@@ -676,7 +676,7 @@
       "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/red-flag-court-v1.jpg",
       "imageSha256": "86c78554e1ffc154d67b18d96921764848d9e3d6228161eddca6a001fa161221",
       "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-20-red-flag-court",
-      "link": "https://composer.loftwah.com/share/artwork/composer-internet-20-red-flag-court",
+      "link": "https://composer.loftwah.com/share/experiences/red-flag-court",
       "placement": "draft",
       "scheduledAt": null,
       "dimensions": [
@@ -687,7 +687,7 @@
       "alt": "A lurid tabloid courtroom asks for a ruling on 47 browser tabs. App Composer Internet Workshop.",
       "stillFormat": "story",
       "shortBrief": "Two beats of evidence, one gavel, then leave viewers room to explain their ruling.",
-      "status": "Social prompt or concept",
+      "status": "Playable",
       "alternateImages": {
         "wide": {
           "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/red-flag-court-og-v1.jpg",
