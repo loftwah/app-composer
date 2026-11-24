@@ -20,6 +20,9 @@
 .experience-textbook[data-skin="2"] { --stage: #1d1913; --stage-ink: #f4e6c7; --accent: #e6ad3c; }
 /* The owned tabloid courtroom: warm court paper and red ink, a late edition,
    and a cooler newsprint sheet. */
+.experience-tournament { --stage: #171310; --stage-ink: #fbeee2; --accent: #f07022; }
+.experience-tournament[data-skin="1"] { --stage: #efe6d3; --stage-ink: #211b16; --accent: #b1461c; }
+.experience-tournament[data-skin="2"] { --stage: #0e1b26; --stage-ink: #e9f4ff; --accent: #ffb347; }
 .experience-tabloid { --stage: #f3e4c7; --stage-ink: #1c1511; --accent: #a3151f; }
 .experience-tabloid[data-skin="1"] { --stage: #17120f; --stage-ink: #f6ead2; --accent: #e0604f; }
 .experience-tabloid[data-skin="2"] { --stage: #e9e4d8; --stage-ink: #1d1b18; --accent: #7a1a1f; }
@@ -888,6 +891,126 @@
 .share-experience .rfc-controls button:focus-visible,
 .share-experience .rfc-controls a:focus-visible {
   outline: 3px dashed var(--accent); outline-offset: 2px;
+}
+/* Internet World Cup: a three-column local bracket of seven native-button
+   matches. The owned poster's sodium orange, black and cream carry the stage;
+   the current match is the only one that can be played, and every pick can be
+   undone. No score, vote, link or stored bracket is drawn here. */
+.tt-stage {
+  margin-top: 1rem;
+  padding: clamp(1rem, 3vw, 1.8rem);
+  background: var(--stage);
+  color: var(--stage-ink);
+  border-top: 12px solid var(--accent);
+}
+.tt-stage .experience-note { color: inherit; }
+.tt-masthead {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: .3rem 1rem; padding-bottom: .6rem;
+  border-bottom: 4px double var(--stage-ink);
+}
+.tt-title {
+  margin: 0; color: inherit;
+  font-size: clamp(1.8rem, 4.6vw, 3rem); line-height: .96; letter-spacing: -.035em;
+}
+.tt-progress {
+  margin: 0; color: var(--accent);
+  font-size: .78rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; font-variant-numeric: tabular-nums;
+}
+.tt-local-note { max-width: 72ch; margin-block: .65rem 0; }
+.tt-bracket {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.7rem, 2vw, 1.2rem); align-items: start; margin-top: 1rem;
+}
+.tt-column { display: grid; gap: .75rem; align-content: start; }
+.tt-column-title {
+  margin: 0; padding-bottom: .28rem;
+  color: var(--accent);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+}
+.tt-match {
+  padding: .55rem;
+  border: 1px solid color-mix(in srgb, var(--stage-ink) 42%, transparent);
+  background: color-mix(in srgb, var(--stage-ink) 5%, transparent);
+}
+.tt-match-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: .2rem .5rem; margin: 0 0 .45rem;
+  font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+}
+.tt-match-state { color: var(--accent); }
+.tt-sides { display: grid; gap: .4rem; }
+.share-experience .tt-side {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .12rem;
+  inline-size: 100%; min-height: 62px; padding: .55rem .65rem;
+  background: transparent; color: inherit; border-radius: 0;
+  border: 2px solid color-mix(in srgb, var(--stage-ink) 45%, transparent);
+  font: inherit; text-align: start;
+}
+.share-experience .tt-side:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  border-color: var(--accent);
+}
+.share-experience .tt-side:focus-visible {
+  outline: 3px dashed var(--accent); outline-offset: 2px;
+}
+.share-experience .tt-side:disabled { cursor: default; opacity: .72; }
+.share-experience .tt-side.is-winner {
+  background: var(--accent); color: var(--stage); border-color: var(--accent); opacity: 1;
+}
+.share-experience .tt-side.is-loser { opacity: .45; }
+.share-experience .tt-side.is-loser .tt-side-name { text-decoration: line-through; text-decoration-thickness: 2px; }
+.tt-side-name {
+  font-size: clamp(1rem, 1.8vw, 1.16rem); font-weight: 800; line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.tt-side-pair { font-size: .78rem; line-height: 1.3; opacity: .88; }
+.tt-status { min-height: 1.35em; margin-block: .8rem 0; }
+.tt-controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .4rem; }
+.share-experience .tt-controls button,
+.share-experience .tt-controls a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: .45rem .85rem;
+}
+.share-experience .tt-controls button.secondary,
+.share-experience .tt-controls a.secondary {
+  color: var(--stage-ink); border: 1px solid var(--stage-ink); background: transparent;
+  font-weight: 700; text-decoration: none;
+}
+.share-experience .tt-controls a.secondary:hover {
+  background: color-mix(in srgb, var(--stage-ink) 10%, transparent);
+}
+.share-experience .tt-controls button:focus-visible,
+.share-experience .tt-controls a:focus-visible {
+  outline: 3px dashed var(--accent); outline-offset: 2px;
+}
+.tt-result { margin-top: 1.2rem; padding-top: 1rem; border-top: 2px solid var(--accent); }
+.tt-result-kicker {
+  margin: 0; color: var(--accent);
+  font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+}
+.tt-result h2 {
+  margin: .1rem 0 0; color: inherit;
+  font-size: clamp(2.6rem, 9vw, 4.8rem); line-height: .95; letter-spacing: -.035em;
+}
+.tt-result h2:focus-visible { outline: 3px dashed var(--accent); outline-offset: 4px; }
+.tt-result-pair {
+  margin: .15rem 0 0; color: var(--accent);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem); font-weight: 700;
+}
+.tt-runner-note { margin: .9rem 0 0; font-size: 1rem; line-height: 1.4; }
+.share-experience .tt-result > button {
+  margin-top: .9rem; min-height: 44px; padding: .55rem 1rem;
+  background: var(--accent); color: var(--stage); border: 2px solid var(--accent);
+  font-weight: 800;
+}
+.share-experience .tt-result > button:focus-visible {
+  outline: 3px dashed var(--stage-ink); outline-offset: 3px;
+}
+@media (max-width: 780px) {
+  .tt-bracket { grid-template-columns: 1fr; }
+  .tt-column { gap: .6rem; }
 }
 @media (max-width: 720px) {
   .rfc-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }

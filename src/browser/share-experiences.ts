@@ -78,8 +78,16 @@ import {
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
-  oneMustGoAltText, tierListAltText, wrongAnswersAltText,
+  oneMustGoAltText, techTournamentAltText, tierListAltText, wrongAnswersAltText,
 } from "../lib/experience-alt-text.ts";
+import {
+  techTournamentComplete, techTournamentCurrent, techTournamentMatchLabel,
+  techTournamentMatches, techTournamentOutcome, techTournamentParticipants,
+  techTournamentPick, techTournamentPickCount, techTournamentPickCountMade,
+  techTournamentPlaceholder, techTournamentStart, techTournamentTitle,
+  techTournamentUndo, techTournamentWinner,
+  type TechTournamentPick,
+} from "../lib/tech-tournament.ts";
 import {
   normaliseSourceLinks, sourceLink,
   type SourceKind,
@@ -120,6 +128,9 @@ interface ResultSnapshot {
    * Held only in memory and never serialised into a result link. */
   courtCase?: number;
   verdict?: RedFlagVerdict;
+  /** Internet World Cup: the seven ordered local picks the winner card draws.
+   * Held only in memory; this bracket never becomes a result link or payload. */
+  tournamentPicks?: (TechTournamentPick | null)[];
 }
 
 /** One cover a person picked from their device: session-only, never uploaded.
@@ -3749,6 +3760,135 @@ function mountRedFlagCourt(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+/** Seven ordered local picks through one fixed bracket. The current match is
+ * the only one that can be played; undo walks back one or more picks through
+ * the same bounded state. There is no link, account, vote, score, ranking,
+ * provider call or stored value: the downloaded winner card is the only way a
+ * champion leaves this tab. */
+function mountTechTournament(root: HTMLElement, update: () => void): Controller {
+  const buttons = elements<HTMLButtonElement>(root, "[data-tt-pick]");
+  const names = elements<HTMLElement>(root, "[data-tt-name]");
+  const pairs = elements<HTMLElement>(root, "[data-tt-pair]");
+  const matchStates = elements<HTMLElement>(root, "[data-tt-match-state]");
+  const progress = root.querySelector<HTMLElement>("[data-tt-progress]")!;
+  const status = root.querySelector<HTMLElement>("[data-tt-status]")!;
+  const undo = root.querySelector<HTMLButtonElement>("[data-tt-undo]")!;
+  const reset = root.querySelector<HTMLButtonElement>("[data-tt-reset]")!;
+  const result = root.querySelector<HTMLElement>("[data-tt-result]")!;
+  const winnerName = root.querySelector<HTMLElement>("[data-tt-winner]")!;
+  const winnerPair = root.querySelector<HTMLElement>("[data-tt-winner-pair]")!;
+  const runnerName = root.querySelector<HTMLElement>("[data-tt-runner]")!;
+  const runnerPair = root.querySelector<HTMLElement>("[data-tt-runner-pair]")!;
+  const again = root.querySelector<HTMLButtonElement>("[data-tt-again]")!;
+  let picks: (TechTournamentPick | null)[] = techTournamentStart();
+  let ready = false;
+  const refresh = () => { if (ready) update(); };
+
+  function paint(focus: "current" | "result" | null = null) {
+    const current = techTournamentCurrent(picks);
+    const made = techTournamentPickCountMade(picks);
+    for (const match of techTournamentMatches) {
+      const participants = techTournamentParticipants(picks, match.id);
+      const winner = techTournamentWinner(picks, match.id);
+      for (const side of [0, 1] as const) {
+        const at = match.id * 2 + side;
+        const button = buttons[at];
+        if (!button) continue;
+        const entrant = participants?.[side] ?? null;
+        names[at].textContent = entrant?.name ?? techTournamentPlaceholder(match.id, side);
+        pairs[at].textContent = entrant?.pair
+          ?? (match.entrants ? "" : "Waits for the winner above");
+        button.disabled = match.id !== current;
+        button.classList.toggle("is-winner", Boolean(entrant && winner?.id === entrant.id));
+        button.classList.toggle("is-loser", Boolean(entrant && winner && winner.id !== entrant.id));
+        button.setAttribute("aria-pressed", String(entrant !== null && picks[match.id] === side));
+        button.setAttribute("aria-label", `${techTournamentMatchLabel(match.id)}: ${entrant?.name ?? techTournamentPlaceholder(match.id, side)}${entrant ? `, ${entrant.pair}` : ""}`);
+      }
+      matchStates[match.id].hidden = picks[match.id] === null;
+      matchStates[match.id].textContent = winner ? `${winner.name} through` : "Chosen";
+    }
+    const outcome = techTournamentOutcome(picks);
+    result.hidden = outcome === null;
+    if (outcome) {
+      winnerName.textContent = outcome.winner.name;
+      winnerPair.textContent = `${outcome.winner.pair}.`;
+      runnerName.textContent = outcome.runnerUp.name;
+      runnerPair.textContent = outcome.runnerUp.pair;
+      progress.textContent = `${techTournamentPickCount} of ${techTournamentPickCount} picks · champion chosen`;
+    } else if (current !== null) {
+      progress.textContent = `${techTournamentMatchLabel(current)} · ${made} of ${techTournamentPickCount} picks`;
+    }
+    undo.disabled = made === 0;
+    reset.disabled = made === 0;
+    again.disabled = outcome === null;
+    if (focus === "result" && outcome) winnerName.focus();
+    else if (focus === "current" && current !== null) buttons[current * 2]?.focus();
+    refresh();
+  }
+
+  function restart(nextStatus: string) {
+    picks = techTournamentStart();
+    paint("current");
+    status.textContent = nextStatus;
+  }
+
+  root.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    const button = target.closest<HTMLButtonElement>("[data-tt-pick]");
+    if (button && !button.disabled) {
+      const [index, side] = (button.dataset.ttPick ?? "").split(":").map(Number);
+      const before = picks;
+      const next = techTournamentPick(picks, index, side);
+      if (next.every((value, at) => value === before[at])) return;
+      picks = next;
+      const winner = techTournamentWinner(picks, index);
+      const outcome = techTournamentOutcome(picks);
+      if (outcome) {
+        paint("result");
+        status.textContent = `${outcome.winner.name} is your champion. ${outcome.runnerUp.name} is the runner-up.`;
+        return;
+      }
+      paint("current");
+      const upcoming = techTournamentCurrent(picks);
+      const participants = upcoming === null ? null : techTournamentParticipants(picks, upcoming);
+      status.textContent = winner
+        ? `${winner.name} goes through. ${upcoming === null ? "" : `${techTournamentMatchLabel(upcoming)}: ${participants?.[0].name ?? "winner"} versus ${participants?.[1].name ?? "winner"}.`}`
+        : "Pick a winner.";
+      return;
+    }
+    if (target.closest("[data-tt-undo]")) {
+      const before = picks;
+      picks = techTournamentUndo(picks);
+      if (picks.every((value, at) => value === before[at])) return;
+      paint("current");
+      const upcoming = techTournamentCurrent(picks);
+      status.textContent = upcoming === null
+        ? "The bracket is empty. Start with the first quarter-final."
+        : `One pick undone. ${techTournamentMatchLabel(upcoming)} is next.`;
+      return;
+    }
+    if (target.closest("[data-tt-reset]") || target.closest("[data-tt-again]")) {
+      restart("Bracket reset. First quarter-final: Terminal versus GUI.");
+    }
+  });
+
+  paint();
+  ready = true;
+
+  return {
+    result() {
+      return techTournamentComplete(picks)
+        ? { title: techTournamentTitle, tournamentPicks: [...picks] }
+        : null;
+    },
+    linksAllowed: () => false,
+    restore() {
+      // A bracket never travels in a result link; a crafted fragment cannot
+      // fill or replace the picks this tab is making.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -4138,6 +4278,8 @@ export function mountShareExperience(root: HTMLElement) {
       status.textContent = "Write a wrong answer to download your plate.";
     } else if (!canShare && game === "red-flag-court") {
       status.textContent = "Call the current case red or green to download your verdict card.";
+    } else if (!canShare && game === "tech-tournament") {
+      status.textContent = "Pick a winner in all seven matches to download your winner card.";
     } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
@@ -4154,6 +4296,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "one-must-go" ? mountOneMustGo(root, update)
     : game === "wrong-answers" ? mountWrongAnswers(root, update)
     : game === "red-flag-court" ? mountRedFlagCourt(root, update)
+    : game === "tech-tournament" ? mountTechTournament(root, update)
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
@@ -4175,11 +4318,12 @@ export function mountShareExperience(root: HTMLElement) {
     });
   }
 
-  // Twenty-one questions, the tier list, one-must-go, wrong-answers and the
-  // Red Flag Court docket never produce result links, and a persona result link
-  // is the answer-free `#result=<id>` fragment the quiz reads itself: none is
-  // the generic JSON snapshot, so a crafted hash restores nothing.
-  const shared = game === "red-flag-court" || game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers"
+  // Twenty-one questions, the tier list, one-must-go, wrong-answers, the Red
+  // Flag Court docket and the Internet World Cup bracket never produce result
+  // links, and a persona result link is the answer-free `#result=<id>` fragment
+  // the quiz reads itself: none is the generic JSON snapshot, so a crafted hash
+  // restores nothing.
+  const shared = game === "red-flag-court" || game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers" || game === "tech-tournament"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -4488,7 +4632,8 @@ export function mountShareExperience(root: HTMLElement) {
         : game === "one-must-go" ? oneMustGoAltText(snapshot)
           : game === "wrong-answers" ? wrongAnswersAltText(snapshot)
             : game === "red-flag-court" ? redFlagCourtAltText(snapshot)
-              : topNineAltText({
+              : game === "tech-tournament" ? techTournamentAltText(snapshot)
+                : topNineAltText({
               title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
               ranked: snapshot.ranked === true,
             });
@@ -4529,7 +4674,7 @@ export function mountShareExperience(root: HTMLElement) {
   // docket have no result link to hand over, and a persona result hands its
   // answer-free link over in the result panel instead. The native share sheet
   // stays off for all of them.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && game !== "red-flag-court" && !persona) {
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && game !== "red-flag-court" && game !== "tech-tournament" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;

@@ -1063,18 +1063,18 @@
       "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-v1.jpg",
       "imageSha256": "b11a0984f25b1788ad38357a3099866f502fa6e039ffd1c081b3d55634073b44",
       "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-31-tech-tournament",
-      "link": "https://composer.loftwah.com/share/artwork/composer-internet-31-tech-tournament",
+      "link": "https://composer.loftwah.com/share/experiences/tech-tournament",
       "placement": "draft",
       "scheduledAt": null,
       "dimensions": [
         1200,
         630
       ],
-      "caption": "Terminal or GUI. The final match is “restore the thing at 2 am.” Back your champion and name the job.",
+      "caption": "Terminal or GUI. Eight familiar tools, seven picks, one local champion. Back your champion and see who survives.",
       "alt": "A cable-connector trophy presides over Terminal versus GUI. App Composer Internet Workshop.",
       "stillFormat": "wide",
-      "shortBrief": "Set sound to a muted crowd swell, hold on both names, end with a practical final-round job.",
-      "status": "Social prompt or concept",
+      "shortBrief": "Set sound to a muted crowd swell, hold on both names, then let viewers play the seven-match bracket.",
+      "status": "Playable",
       "alternateImages": {
         "square": {
           "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-square-v1.jpg",

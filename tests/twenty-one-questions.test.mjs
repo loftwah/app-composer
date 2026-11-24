@@ -125,7 +125,9 @@ test('the browser keeps twenty-one answers local: no link, no stored draft', () 
   // controller never allows a result link, and a crafted hash never restores.
   const controller = read('src/browser/share-experiences.ts');
   assert.match(controller, /linksAllowed: \(\) => false/);
-  assert.match(controller, /game === "twenty-one-questions" \|\| game === "developer-type" \|\| game === "language-type" \|\| game === "tier-list" \|\| game === "one-must-go" \|\| game === "wrong-answers"\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
+  const privateSnapshot = controller.match(/const shared = ([^\n]+)\n\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
+  assert.ok(privateSnapshot, 'private games skip the generic snapshot reader');
+  assert.match(privateSnapshot[1], /game === "twenty-one-questions"/);
   assert.doesNotMatch(controller, /draftKey\("twenty-one-questions"\)/, 'no draft storage exists for private answers');
 });
 

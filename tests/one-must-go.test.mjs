@@ -95,7 +95,9 @@ test('the browser round never becomes a link, draft, vote or public write', () =
   const controller = read('src/browser/share-experiences.ts');
   assert.match(controller, /game === "one-must-go" \? mountOneMustGo/);
   assert.match(controller, /linksAllowed: \(\) => false/);
-  assert.match(controller, /game === "tier-list" \|\| game === "one-must-go" \|\| game === "wrong-answers"\s*\?/);
+  const privateSnapshot = controller.match(/const shared = ([^\n]+)\n\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
+  assert.ok(privateSnapshot, 'private games skip the generic snapshot reader');
+  assert.match(privateSnapshot[1], /game === "one-must-go"/);
   assert.match(controller, /game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go"/);
   assert.doesNotMatch(controller, /draftKey\("one-must-go"\)/, 'no draft storage exists for a round');
 
@@ -111,8 +113,10 @@ test('the browser round never becomes a link, draft, vote or public write', () =
 test('the stage starts every JS-only control disabled until the round mounts', () => {
   const markup = read('src/components/share-experiences/ShareExperience.astro');
   const start = markup.indexOf('class="omg-stage"');
-  const block = markup.slice(start, markup.indexOf('{isThis &&', start));
-  assert.ok(start > 0 && block.includes('data-omg-form'), 'the elimination stage exists');
+  const end = markup.indexOf('\n  </section>}', start);
+  assert.ok(start > 0 && end > start, 'the elimination stage exists');
+  const block = markup.slice(start, end);
+  assert.match(block, /data-omg-form/);
   assert.match(block, /data-omg-choice=\{index\} disabled/);
   assert.match(block, /data-omg-input disabled/);
   assert.match(block, /data-omg-again disabled/);

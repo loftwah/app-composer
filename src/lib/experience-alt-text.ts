@@ -17,6 +17,9 @@ import {
   oneMustGoRemainingLine, oneMustGoTitle,
 } from "./one-must-go.ts";
 import { wrongAnswerPlate, wrongAnswerPrintTitle } from "./wrong-answers.ts";
+import {
+  techTournamentOutcome, techTournamentPickCount, techTournamentTitle,
+} from "./tech-tournament.ts";
 
 /** One sentence, without doubling a line's own closing punctuation. */
 const sentence = (value: string) => /[.!?…]$/.test(value) ? value : `${value}.`;
@@ -92,5 +95,23 @@ export function wrongAnswersAltText(input: { byline?: string; prompt?: string; a
     ...(byline ? [byline] : []),
     sentence(plate.prompt),
     sentence(`The answer reads ${plate.answer}`),
+  ].join(" ");
+}
+
+/** The Internet World Cup winner card: the exact champion and runner-up the
+ * PNG prints, each with its original paired name, plus an optional byline.
+ * Nothing about the other five matches or any score reaches the description. */
+export function techTournamentAltText(input: {
+  byline?: string;
+  tournamentPicks?: readonly unknown[];
+}): string {
+  const outcome = techTournamentOutcome(input.tournamentPicks);
+  if (!outcome) return "";
+  const byline = bylineLine(input.byline);
+  return [
+    sentence(`${techTournamentTitle} winner card`),
+    ...(byline ? [byline] : []),
+    sentence(`${outcome.winner.name}, ${outcome.winner.pair}, is your champion after ${techTournamentPickCount} local picks`),
+    sentence(`${outcome.runnerUp.name}, ${outcome.runnerUp.pair}, is the runner-up`),
   ].join(" ");
 }
