@@ -24,7 +24,8 @@ import {
   tierListRowEntryLimit, tierListTiers, tierListTitleLimit,
 } from "../../lib/tier-list.ts";
 import {
-  oneMustGoChoiceCount, oneMustGoChoiceLimit, oneMustGoStarterChoices,
+  oneMustGoBuiltinIds, oneMustGoBuiltinRounds, oneMustGoChoiceCount, oneMustGoChoiceLimit,
+  oneMustGoRoundNote, oneMustGoStarter, type OneMustGoRound,
 } from "../../lib/one-must-go.ts";
 import {
   wrongAnswerCount, wrongAnswerLimit, wrongAnswerPrompts,
@@ -46,8 +47,10 @@ interface Props {
   art: string;
   /** Validated 0-based docket index from an answer-free challenge link. */
   curseIndex?: number;
+  /** Validated built-in round from an answer-free One Must Go link. */
+  mustGoRound?: OneMustGoRound;
 }
-const { game, experience, art, curseIndex = 0 } = Astro.props;
+const { game, experience, art, curseIndex = 0, mustGoRound = oneMustGoStarter } = Astro.props;
 const isDoor = game === "pick-a-door";
 const isNine = game === "top-nine";
 const isBingo = game === "tech-bingo";
@@ -57,6 +60,10 @@ const isCloudflare = game === "developer-type";
 const isLanguage = game === "language-type";
 const isTier = game === "tier-list";
 const isMustGo = game === "one-must-go";
+const mustGoBuiltins = oneMustGoBuiltinIds.map((id) => oneMustGoBuiltinRounds[id]);
+const mustGoActiveId = mustGoRound.source === "builtin"
+  ? mustGoRound.id
+  : mustGoRound.source === "starter" ? "poster" : "";
 const isWrong = game === "wrong-answers";
 const isCourt = game === "red-flag-court";
 const isTournament = game === "tech-tournament";
@@ -375,10 +382,16 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   {isMustGo && <section data-play-panel class="omg-stage" aria-label="One must go">
     <div class="omg-head">
       <h2 id="omg-prompt">Which one would you drop?</h2>
-      <p class="omg-round-note" data-omg-round-note>Poster round</p>
+      <p class="omg-round-note" data-omg-round-note>{oneMustGoRoundNote(mustGoRound)}</p>
+    </div>
+    <div class="omg-rounds tot-controls" role="group" aria-label="Built-in rounds">
+      <button type="button" class="secondary" data-omg-round="poster"
+        aria-pressed={mustGoActiveId === "poster" ? "true" : "false"} disabled>Poster round</button>
+      {mustGoBuiltins.map((entry) => <button type="button" class="secondary" data-omg-round={entry.id}
+        aria-pressed={mustGoActiveId === entry.id ? "true" : "false"} disabled>{entry.label}</button>)}
     </div>
     <div class="omg-choices" role="group" aria-labelledby="omg-prompt">
-      {oneMustGoStarterChoices.map((choice, index) => <button type="button" class="omg-choice" data-omg-choice={index} disabled>
+      {mustGoRound.choices.map((choice, index) => <button type="button" class="omg-choice" data-omg-choice={index} disabled>
         <span class="omg-choice-label" data-omg-choice-label>{choice}</span>
         <span class="omg-choice-state" data-omg-choice-state hidden>Gone</span>
       </button>)}
@@ -406,6 +419,11 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <button type="button" class="secondary" data-omg-starter disabled hidden>Back to the poster round</button>
       </div>
     </details>
+    <div class="omg-invite tot-controls">
+      <button type="button" class="secondary" data-omg-copy disabled>Copy challenge link</button>
+      <input hidden readonly aria-label="Challenge link to copy" data-omg-copy-manual />
+    </div>
+    <p class="experience-note" role="status" aria-live="polite" data-omg-copy-status></p>
   </section>}
 
   {isWrong && <section data-play-panel class="wa-stage" aria-label="Write a wrong answer">

@@ -5,8 +5,10 @@ import {
   experienceArt, experienceOg, experiences,
 } from '../src/lib/share-experiences.ts';
 import {
-  oneMustGoChoiceCount, oneMustGoChoiceLimit, oneMustGoOutcome,
-  oneMustGoRemainingLine, oneMustGoStarter, oneMustGoStarterChoices, oneMustGoTitle,
+  oneMustGoBlankPath, oneMustGoBuiltinIds, oneMustGoBuiltinRounds,
+  oneMustGoChoiceCount, oneMustGoChoiceLimit, oneMustGoOutcome, oneMustGoQueryKey,
+  oneMustGoRemainingLine, oneMustGoRoundFromQuery, oneMustGoRoundNote, oneMustGoRoundPath,
+  oneMustGoStarter, oneMustGoStarterChoices, oneMustGoTitle,
   readOneMustGoChoices,
 } from '../src/lib/one-must-go.ts';
 import { resultColumns } from '../src/browser/share-experience-image.ts';
@@ -45,6 +47,76 @@ test('the starter is exactly the poster round, in order, with four distinct choi
     assert.match(choice, /\S/);
     assert.ok(choice.length <= oneMustGoChoiceLimit);
   }
+});
+
+test('two authored built-in rounds offer friendly Workshop subjects', () => {
+  assert.deepEqual([...oneMustGoBuiltinIds], ['weekend', 'web-tools']);
+  assert.deepEqual(Object.keys(oneMustGoBuiltinRounds), ['weekend', 'web-tools']);
+  const labels = [];
+  for (const id of oneMustGoBuiltinIds) {
+    const round = oneMustGoBuiltinRounds[id];
+    assert.equal(round.id, id);
+    assert.equal(round.source, 'builtin');
+    assert.equal(round.choices.length, oneMustGoChoiceCount);
+    assert.equal(new Set(round.choices.map((choice) => choice.toLowerCase())).size, oneMustGoChoiceCount);
+    for (const choice of round.choices) {
+      assert.match(choice, /\S/);
+      assert.ok(choice.length <= oneMustGoChoiceLimit);
+    }
+    labels.push(round.label);
+  }
+  assert.deepEqual(labels, ['Weekend plans', 'Web tools']);
+  assert.notDeepEqual(
+    [...oneMustGoBuiltinRounds.weekend.choices],
+    [...oneMustGoStarterChoices],
+    'the original poster round stays the default',
+  );
+});
+
+test('a challenge link carries one allowlisted built-in id and opens it unplayed', () => {
+  assert.equal(oneMustGoQueryKey, 'round');
+  assert.equal(oneMustGoBlankPath, '/share/experiences/one-must-go');
+  assert.equal(oneMustGoRoundPath(oneMustGoStarter), oneMustGoBlankPath);
+  assert.equal(oneMustGoRoundPath(oneMustGoBuiltinRounds.weekend), `${oneMustGoBlankPath}?round=weekend`);
+  assert.equal(oneMustGoRoundPath(oneMustGoBuiltinRounds['web-tools']), `${oneMustGoBlankPath}?round=web-tools`);
+  assert.equal(
+    oneMustGoRoundPath(readOneMustGoChoices(['One', 'Two', 'Three', 'Four']).round),
+    null,
+    'a private authored round never becomes a link',
+  );
+  for (const [id, round] of Object.entries(oneMustGoBuiltinRounds)) {
+    const path = oneMustGoRoundPath(round);
+    const url = new URL(path, 'https://composer.loftwah.com');
+    assert.equal(url.pathname, '/share/experiences/one-must-go');
+    assert.equal(url.hash, '');
+    assert.equal(url.search, `?round=${id}`);
+    assert.equal(oneMustGoRoundFromQuery(url.search), round, 'the link round-trips');
+    assert.doesNotMatch(
+      path.slice(oneMustGoBlankPath.length),
+      /result|byline|answer|choice|draft|&|#/i,
+    );
+  }
+  assert.equal(oneMustGoRoundFromQuery(''), oneMustGoStarter);
+  assert.equal(oneMustGoRoundFromQuery('?round=weekend'), oneMustGoBuiltinRounds.weekend);
+  assert.equal(oneMustGoRoundFromQuery('?round=web-tools'), oneMustGoBuiltinRounds['web-tools']);
+  for (const bad of [
+    '?round=poster', '?round=starter', '?round=unknown', '?round=Weekend',
+    '?round=weekend&round=weekend', '?round=weekend&pack=food', '?pack=food&round=weekend',
+    '?other=weekend', '?ROUND=weekend', '?round=', '?round=%77eekend', '?round=weekend ',
+    '?round=weekend#result=1', '?round=weekend&', '??round=weekend',
+  ]) {
+    assert.equal(oneMustGoRoundFromQuery(bad), oneMustGoStarter, `${bad} falls back to the poster round`);
+  }
+});
+
+test('the stage note names the round without inventing a title', () => {
+  assert.equal(oneMustGoRoundNote(oneMustGoStarter), 'Poster round');
+  assert.equal(oneMustGoRoundNote(oneMustGoBuiltinRounds.weekend), 'Weekend plans round');
+  assert.equal(oneMustGoRoundNote(oneMustGoBuiltinRounds['web-tools']), 'Web tools round');
+  assert.equal(
+    oneMustGoRoundNote({ choices: ['One', 'Two', 'Three', 'Four'], source: 'custom' }),
+    'Your round, kept in this tab',
+  );
 });
 
 test('an authored round is exactly four cleaned, nonempty, distinct choices', () => {
@@ -91,10 +163,13 @@ test('the survivor sentence names three choices in readable order', () => {
   assert.equal(oneMustGoRemainingLine([]), '');
 });
 
-test('the browser round never becomes a link, draft, vote or public write', () => {
+test('the browser round shares only an answer-free built-in challenge link', () => {
   const controller = read('src/browser/share-experiences.ts');
-  assert.match(controller, /game === "one-must-go" \? mountOneMustGo/);
-  assert.match(controller, /linksAllowed: \(\) => false/);
+  assert.match(
+    controller,
+    /game === "one-must-go" \? mountOneMustGo\(root, update, oneMustGoRoundFromQuery\(location\.search\)\)/,
+  );
+  assert.match(controller, /linksAllowed: \(\) => false/, 'no generic result link is ever produced');
   const privateSnapshot = controller.match(/const shared = ([^\n]+)\n\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
   assert.ok(privateSnapshot, 'private games skip the generic snapshot reader');
   assert.match(privateSnapshot[1], /game === "one-must-go"/);
@@ -105,9 +180,47 @@ test('the browser round never becomes a link, draft, vote or public write', () =
   const end = controller.indexOf('\n}\n', start);
   assert.ok(start > 0 && end > start);
   const block = controller.slice(start, end);
+  assert.match(block, /function showRound\(next: OneMustGoRound\)/, 'every stage switch goes through one reset');
+  assert.match(block, /clearResult\(\);/);
+  assert.match(block, /copyAttempt \+= 1;/);
+  assert.match(block, /starter\.hidden = round\.source !== "custom"/);
+  assert.match(block, /oneMustGoRoundPath\(round\)/);
+  assert.match(block, /if \(!path\) return;/, 'a private authored round has no challenge link');
+  assert.match(block, /await navigator\.clipboard\.writeText\(href\)/);
+  assert.match(block, /if \(attempt !== copyAttempt\) return;/, 'a late clipboard result cannot describe a moved round');
+  assert.match(
+    block,
+    /copyManual\.value = href;[\s\S]*?copyManual\.hidden = false;[\s\S]*?copyManual\.focus\(\);[\s\S]*?copyManual\.select\(\);/,
+  );
+  const showStart = block.indexOf('function showRound');
+  const showEnd = block.indexOf('function paintRound', showStart);
+  assert.ok(showStart > 0 && showEnd > showStart);
+  assert.doesNotMatch(
+    block.slice(showStart, showEnd),
+    /input\.value\s*=|inputs\.forEach/,
+    'switching rounds leaves typed custom choices in place',
+  );
   for (const forbidden of ['vote', 'percentage', 'localStorage', 'sessionStorage', 'fetch(', 'resultLink']) {
     assert.equal(block.toLowerCase().includes(forbidden.toLowerCase()), false, `the round does not use ${forbidden}`);
   }
+});
+
+test('a copied built-in link server-renders the exact authored round without JS', () => {
+  const page = read('src/pages/share/experiences/[game].astro');
+  assert.match(
+    page,
+    /const mustGoRound = game === "one-must-go" \? oneMustGoRoundFromQuery\(Astro\.url\.search\) : oneMustGoStarter;/,
+  );
+  assert.match(page, /\{mustGoRound\}/);
+  const markup = read('src/components/share-experiences/ShareExperience.astro');
+  assert.match(markup, /mustGoRound = oneMustGoStarter/);
+  assert.match(markup, /\{oneMustGoRoundNote\(mustGoRound\)\}/);
+  assert.match(markup, /\{mustGoRound\.choices\.map/);
+  assert.match(markup, /data-omg-round="poster"/);
+  assert.match(markup, /mustGoBuiltins\.map/);
+  assert.match(markup, /data-omg-copy disabled/);
+  assert.match(markup, /readonly aria-label="Challenge link to copy" data-omg-copy-manual/);
+  assert.match(markup, /data-omg-copy-status/);
 });
 
 test('the stage starts every JS-only control disabled until the round mounts', () => {
@@ -120,6 +233,9 @@ test('the stage starts every JS-only control disabled until the round mounts', (
   assert.match(block, /data-omg-choice=\{index\} disabled/);
   assert.match(block, /data-omg-input disabled/);
   assert.match(block, /data-omg-again disabled/);
+  assert.match(block, /data-omg-round="poster"[\s\S]*?disabled/);
+  assert.match(block, /aria-pressed=\{mustGoActiveId === entry\.id \? "true" : "false"\}/);
+  assert.match(block, /data-omg-copy disabled/);
   assert.match(block, /data-omg-starter disabled hidden/);
   assert.match(block, /<button type="submit" disabled>Play my round<\/button>/);
   assert.match(block, /oneMustGoChoiceCount/);
