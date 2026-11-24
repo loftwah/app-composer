@@ -145,7 +145,8 @@ test('the card offers one local photo picker with a clear removal', () => {
   assert.match(avatarBlock, /data-persona-avatar-remove hidden>Remove photo/, 'removal is an explicit control');
   assert.match(avatarBlock, /id="persona-avatar-note"[^>]*>Optional:/);
   assert.doesNotMatch(avatarBlock, /type="url"|inputmode="url"/, 'there is no address field');
-  assert.ok(start < component.indexOf('data-download'), 'the picker is in the existing card controls');
+  const download = component.indexOf('data-download', start);
+  assert.ok(download > start && download < component.indexOf('</section>', start), 'the picker precedes download in the same panel');
 });
 
 test('the avatar circle uses shared layout bounds and is drawn only when chosen', () => {

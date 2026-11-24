@@ -507,6 +507,127 @@
 }
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
 .nine-preview-cell a[data-nine-preview-caption][href] { text-decoration: underline; text-underline-offset: .14em; }
+/* Top Nine opens on the work: nine ordinary fields, the real grid beside them
+   on desktop, and optional tools after the first task. The markup stays in this
+   order at every width; no control is visually reordered ahead of its focus. */
+.nine-workspace {
+  display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; row-gap: 1rem;
+}
+.nine-workspace .experience-heading-nine {
+  min-height: 0; grid-template-columns: minmax(0, 1fr); align-items: start;
+  padding: .82rem 1rem; gap: .3rem;
+}
+.experience-heading-nine h1 {
+  margin: 0 0 .35rem; font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1.05;
+}
+.experience-heading-nine p { max-width: 46ch; font-size: 1rem; }
+.experience-heading-nine .nine-example { margin: .15rem 0 0; }
+.nine-workspace .experience-crumb { margin-block-end: 0; }
+.nine-example a, .nine-options-link { text-decoration: none; }
+.nine-example a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  color: var(--accent); font-weight: 700;
+}
+.nine-example a:hover { color: var(--stage-ink); }
+.nine-editor {
+  margin-top: 0; padding: 1rem 0 0; background: transparent; color: inherit;
+  border: 0; border-top: 1px solid var(--color-border);
+}
+.nine-editor h2 { margin: 0; font-size: 1.55rem; }
+.nine-intro { margin: .35rem 0 .8rem; color: var(--color-muted); max-width: 48ch; }
+.nine-title-field label { display: block; margin: 0; font-weight: 700; }
+.nine-title-field input {
+  display: block; inline-size: 100%; min-height: 44px; margin-block: .3rem .8rem;
+  color: #211a1b; background: #fff7ea; font-size: 16px;
+}
+.nine-editor .exhibition-objects {
+  grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem .55rem;
+  margin: .4rem 0 .8rem; padding: 0; background: transparent; color: inherit;
+}
+.nine-editor .exhibition-objects label {
+  display: grid; align-content: start; gap: .2rem;
+  min-width: 0; margin: 0; padding: .12rem 0;
+  color: inherit; font-size: .92rem;
+}
+.nine-editor .exhibit-heading {
+  justify-content: start; min-height: 1.2rem;
+  color: var(--color-muted); font-weight: 700;
+}
+.nine-editor .exhibit-grip { display: none; }
+.nine-workspace:has(.nine-reorder[open]) .exhibit-grip { display: inline-block; }
+.nine-editor .exhibit-number { font-variant-numeric: tabular-nums; }
+.nine-editor .exhibit-rank { margin-inline-end: .2rem; }
+.nine-editor .exhibit-heading:has(.exhibit-rank:not([hidden])) .exhibit-number { display: none; }
+.nine-editor .exhibit-filling { font-size: .68rem; white-space: nowrap; }
+.nine-editor .exhibition-objects input {
+  inline-size: 100%; min-width: 0; min-height: 44px; margin: 0;
+  color: #211a1b; background: #fff7ea; font-size: 16px;
+}
+.nine-editor .exhibit-link-state,
+.nine-editor .exhibit-page-state,
+.nine-editor .exhibit-cover-state { margin: 0; }
+.nine-editor details { margin: 0; padding: 0; border-top: 1px solid var(--color-border); }
+.nine-editor summary, .nine-options summary {
+  display: list-item; box-sizing: border-box; min-height: 44px; padding-block: .65rem;
+  cursor: pointer; font-weight: 700;
+}
+.nine-export {
+  margin-top: 0; padding: clamp(1rem, 2.5vw, 1.4rem);
+  background: var(--stage); color: var(--stage-ink); border: 0; align-self: start;
+}
+.nine-export h2 { margin: 0; font-size: 1.4rem; }
+.nine-export .experience-note { color: inherit; }
+.nine-export .nine-preview { margin-block: .8rem .6rem; }
+.nine-count {
+  margin: .6rem 0 0; font-size: .86rem; font-variant-numeric: tabular-nums; opacity: .88;
+}
+.nine-download-requirement { min-height: 1.4em; margin-block: .2rem 0; font-size: .88rem; }
+.nine-download-row { display: flex; margin-top: .75rem; }
+.nine-download-row button { min-height: 44px; }
+.nine-options-link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  color: var(--accent); font-weight: 700;
+}
+.nine-options-link:hover { color: var(--stage-ink); }
+.nine-image-options {
+  margin-top: .8rem; padding-top: .8rem; scroll-margin-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--stage-ink) 38%, transparent);
+}
+.nine-export button.secondary {
+  color: var(--stage-ink); border-color: var(--stage-ink); background: transparent;
+}
+.nine-export .exhibition-ranked { color: inherit; }
+.nine-options {
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  margin-top: .5rem; padding-top: .4rem; border-top: 1px solid var(--color-border);
+}
+.nine-options details { border-bottom: 1px solid var(--color-border); }
+.nine-board-details label { display: block; margin-block: .7rem .3rem; font-weight: 700; }
+.nine-board-details input, .nine-board-details select {
+  display: block; inline-size: 100%; min-height: 44px; margin-block: .3rem .7rem; font-size: 16px;
+}
+.nine-ranking .exhibition-ranked { margin-block: .7rem 1rem; }
+.nine-reorder .exhibition-order { margin-block: .8rem .5rem; }
+.nine-options .exhibit-pages, .nine-options .exhibit-covers {
+  margin-top: .6rem; padding-top: .6rem; border-top: 1px solid var(--color-border);
+}
+.nine-drafts .exhibition-draft { margin-top: .8rem; }
+.nine-options .experience-note { max-width: 62ch; }
+@media (min-width: 760px) {
+  .nine-options { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; }
+}
+@media (min-width: 900px) {
+  .nine-workspace {
+    grid-template-columns: minmax(0, 1.08fr) minmax(20rem, .92fr);
+    column-gap: clamp(1.25rem, 3vw, 2rem);
+  }
+  .nine-workspace > :not(.nine-editor):not(.nine-export) { grid-column: 1 / -1; }
+  .nine-editor { grid-column: 1; }
+  .nine-export { grid-column: 2; }
+}
+@media (max-width: 450px) {
+  .nine-editor .exhibition-objects { gap: .35rem .45rem; }
+}
 /* The tier board is one bounded, browser-local list. Each row keeps its own
    named surface; entries stay ordinary text fields with a labelled row menu,
    compact order buttons and removal, so keyboard and phone paths stay native. */

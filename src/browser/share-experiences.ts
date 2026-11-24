@@ -378,6 +378,7 @@ function mountNine(
     linked: root.querySelector<HTMLUListElement>("[data-cover-linked]")!,
   };
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
+  const previewCount = root.querySelector<HTMLElement>("[data-nine-count]");
   const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
   const previewDate = root.querySelector<HTMLElement>("[data-nine-preview-date]");
   const previewDateValue = root.querySelector<HTMLTimeElement>("[data-nine-preview-date-value]");
@@ -799,6 +800,9 @@ function mountNine(
     if (previewSubtitle) {
       previewSubtitle.textContent = line;
       previewSubtitle.hidden = !line;
+    }
+    if (previewCount) {
+      previewCount.textContent = `${objects.filter((input) => entry(input.value, 54)).length} of 9 titles`;
     }
     previewCells.forEach((cell, index) => {
       const slot = covers[index];
@@ -5498,7 +5502,7 @@ export function mountShareExperience(root: HTMLElement) {
       ? shareNoteBuiltin
       : "Links and sharing are off for your own questions. Download the text-only image to keep the choices — photos stay in this tab.";
     if (!exportable) status.textContent = "";
-    else if (!canShare && game === "top-nine") status.textContent = "Enter a title and nine exhibits to share.";
+    else if (!canShare && game === "top-nine") status.textContent = "Add a board title and nine favourites to download.";
     else if (!canShare && game === "this-or-that") status.textContent = links
       ? "Answer every question to share your result."
       : "Answer every question to download your result.";
