@@ -5399,6 +5399,22 @@ export function mountShareExperience(root: HTMLElement) {
   // denied-clipboard fallback belong to the heading fields they were made
   // from: an edit or a board change retires both and any write still in flight.
   const ninePackage = root.querySelector<HTMLButtonElement>("[data-nine-package]");
+  const ninePreviewButton = root.querySelector<HTMLButtonElement>("[data-nine-png-preview-button]");
+  const ninePreview = root.querySelector<HTMLElement>("[data-nine-png-preview]");
+  const ninePreviewCaption = root.querySelector<HTMLElement>("[data-nine-png-preview-caption]");
+  const ninePreviewImage = root.querySelector<HTMLElement>("[data-nine-png-preview-image]");
+  const ninePreviewSave = root.querySelector<HTMLAnchorElement>("[data-nine-png-preview-save]");
+  const ninePreviewStatus = root.querySelector<HTMLElement>("[data-nine-png-preview-status]");
+  function clearNinePreview() {
+    if (!ninePreview) return;
+    const href = ninePreviewSave?.getAttribute("href");
+    if (href) URL.revokeObjectURL(href);
+    ninePreviewSave?.removeAttribute("href");
+    ninePreviewImage?.replaceChildren();
+    ninePreview.hidden = true;
+    if (ninePreviewStatus) ninePreviewStatus.textContent = "";
+  }
+  if (ninePreview) window.addEventListener("pagehide", clearNinePreview);
   const nineCaptionCopy = root.querySelector<HTMLButtonElement>("[data-nine-caption-copy]");
   const nineCaptionManual = root.querySelector<HTMLTextAreaElement>("[data-nine-caption-manual]");
   const nineCaptionStatus = root.querySelector<HTMLElement>("[data-nine-caption-status]");
@@ -5545,6 +5561,7 @@ export function mountShareExperience(root: HTMLElement) {
     // changes and draft restoration. A slower render or share-sheet completion
     // keeps its own revision and cannot replace the current board's status.
     retirePngShare();
+    clearNinePreview();
     const canShare = Boolean(controller.result());
     // A photo already chosen stays with the next result; only a decode still in
     // flight from the previous result is retired, so it can never appear later.
@@ -5561,6 +5578,7 @@ export function mountShareExperience(root: HTMLElement) {
     // original quiz's export.
     const exportable = controller.exportAllowed?.() ?? true;
     if (exportPanel) exportPanel.hidden = !exportable;
+    if (ninePreviewButton) ninePreviewButton.disabled = !canShare || !exportable || busy;
     if (personaCardActions) personaCardActions.hidden = !exportable || !canShare;
     clearCardDownloads();
     clearPersonaPreview();
@@ -5725,7 +5743,10 @@ export function mountShareExperience(root: HTMLElement) {
   /** The one PNG export path, shared by the detailed Download result control
    * and the quiz reveal shortcut. Both read the same captured snapshot,
    * format, skin, byline and renderer, and the one `busy` lock covers both. */
-  const runDownload = async (fromReveal = false, packageTopNine = false) => {
+  const runDownload = async (action: "download" | "reveal" | "package" | "preview" = "download") => {
+    const fromReveal = action === "reveal";
+    const packageTopNine = action === "package";
+    const previewTopNine = action === "preview";
     const revealNote = (message: string) => {
       if (fromReveal && revealDownloadNote) revealDownloadNote.textContent = message;
     };
@@ -5738,7 +5759,8 @@ export function mountShareExperience(root: HTMLElement) {
     const packageNote = (message: string) => {
       if (nineCaptionStatus) nineCaptionStatus.textContent = message;
     };
-    if (packageTopNine) packageNote("Preparing your sharing ZIP…");
+    if (previewTopNine && ninePreviewStatus) ninePreviewStatus.textContent = "Preparing preview…";
+    else if (packageTopNine) packageNote("Preparing your sharing ZIP…");
     else status.textContent = personaOutcome
       ? "Preparing your card…"
       : cardDownloads ? "Preparing your cards…" : "Preparing your image…";
@@ -6049,6 +6071,35 @@ export function mountShareExperience(root: HTMLElement) {
         return;
       }
       const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined, nineCredit?.checked ?? true);
+      if (previewTopNine) {
+        const href = URL.createObjectURL(blob);
+        const image = new Image();
+        image.alt = topNineAltText({ ...snapshot, items: snapshot.items ?? [] });
+        image.src = href;
+        try {
+          await image.decode();
+        } catch {
+          URL.revokeObjectURL(href);
+          throw new Error("PNG preview could not be decoded");
+        }
+        const current = packageAttempt === pngShareVersion;
+        busy = false;
+        update();
+        if (!current || !ninePreview || !ninePreviewCaption || !ninePreviewImage || !ninePreviewSave) {
+          URL.revokeObjectURL(href);
+          return;
+        }
+        const [width, height] = resultSizes[size];
+        const formatLabel = format?.selectedOptions[0]?.textContent?.trim();
+        ninePreviewCaption.textContent = "PNG preview · " + (formatLabel || width + " × " + height);
+        ninePreviewImage.replaceChildren(image);
+        ninePreviewSave.href = href;
+        ninePreviewSave.download = "top-nine-" + size + ".png";
+        ninePreview.hidden = false;
+        ninePreviewCaption.focus({ preventScroll: true });
+        ninePreview.scrollIntoView({ behavior: "instant", block: "start" });
+        return;
+      }
       let file = blob;
       let filename = `${game}-${size}.png`;
       if (packageTopNine) {
@@ -6087,8 +6138,15 @@ export function mountShareExperience(root: HTMLElement) {
         revealNote("Your image is ready.");
       }
     } catch {
+      const current = packageAttempt === pngShareVersion;
       busy = false;
       update();
+      if (previewTopNine) {
+        if (current && ninePreviewStatus) {
+          ninePreviewStatus.textContent = "Couldn’t show the PNG preview. Try again or use Download PNG.";
+        }
+        return;
+      }
       if (packageTopNine) {
         packageNote("Couldn’t prepare the sharing ZIP. Try again, or use Download PNG and Copy caption.");
         return;
@@ -6105,8 +6163,9 @@ export function mountShareExperience(root: HTMLElement) {
   };
 
   download.addEventListener("click", () => { void runDownload(); });
-  revealDownload?.addEventListener("click", () => { void runDownload(true); });
-  ninePackage?.addEventListener("click", () => { void runDownload(false, true); });
+  revealDownload?.addEventListener("click", () => { void runDownload("reveal"); });
+  ninePackage?.addEventListener("click", () => { void runDownload("package"); });
+  ninePreviewButton?.addEventListener("click", () => { void runDownload("preview"); });
 
   // Paste the very PNG Download result renders, from the same snapshot,
   // format, skin, byline and local cover pixels. No upload or save.
