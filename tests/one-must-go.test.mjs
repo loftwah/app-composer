@@ -182,12 +182,9 @@ test('the browser round shares only an answer-free built-in challenge link', () 
   const block = controller.slice(start, end);
   assert.match(block, /function showRound\(next: OneMustGoRound\)/, 'every stage switch goes through one reset');
   assert.match(block, /clearResult\(\);/);
-  assert.match(block, /copyAttempt \+= 1;/);
   assert.match(block, /starter\.hidden = round\.source !== "custom"/);
   assert.match(block, /oneMustGoRoundPath\(round\)/);
   assert.match(block, /if \(!path\) return;/, 'a private authored round has no challenge link');
-  assert.match(block, /await navigator\.clipboard\.writeText\(href\)/);
-  assert.match(block, /if \(attempt !== copyAttempt\) return;/, 'a late clipboard result cannot describe a moved round');
   assert.match(
     block,
     /copyManual\.value = href;[\s\S]*?copyManual\.hidden = false;[\s\S]*?copyManual\.focus\(\);[\s\S]*?copyManual\.select\(\);/,

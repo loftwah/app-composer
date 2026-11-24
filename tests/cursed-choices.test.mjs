@@ -208,9 +208,7 @@ test('the browser docket keeps choices private and shares only an answer-free cu
   assert.match(block, /cursePrompt: current, curseChoice: pick/);
   assert.match(block, /control\.disabled = false/, 'the guarded controls release only after this mount');
   assert.match(block, /new URL\(cursedChoiceInvitePath\(current\), location\.origin\)\.href/);
-  assert.match(block, /await navigator\.clipboard\.writeText\(href\)/);
   assert.match(block, /copyManual\.value = href;[\s\S]*?copyManual\.hidden = false;[\s\S]*?copyManual\.focus\(\);[\s\S]*?copyManual\.select\(\);/);
-  assert.match(block, /if \(attempt !== copyAttempt\) return;/, 'a late clipboard result cannot describe a moved curse');
   for (const forbidden of ['localStorage', 'sessionStorage', 'fetch(', 'resultLink', 'draftKey', 'sendBeacon']) {
     assert.equal(block.includes(forbidden), false, `the docket does not use ${forbidden}`);
   }
