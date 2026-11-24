@@ -379,6 +379,7 @@ function mountNine(
   };
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
   const previewCount = root.querySelector<HTMLElement>("[data-nine-count]");
+  const previewTitle = root.querySelector<HTMLElement>("[data-nine-preview-title]");
   const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
   const previewDate = root.querySelector<HTMLElement>("[data-nine-preview-date]");
   const previewDateValue = root.querySelector<HTMLTimeElement>("[data-nine-preview-date-value]");
@@ -795,6 +796,7 @@ function mountNine(
    * title on top, in the exhibition's own cell colours. An explicitly ranked
    * board also numbers every occupied slot here, exactly as the export does. */
   function renderPreview() {
+    if (previewTitle) previewTitle.textContent = entry(title.value, 72) || "Untitled board";
     const ranked = rankedBox.checked;
     const line = entry(subtitle.value, nineSubtitleLimit);
     if (previewSubtitle) {
@@ -1438,6 +1440,7 @@ function mountNine(
   });
   preset.addEventListener("change", () => {
     if (preset.value) title.value = preset.value;
+    renderPreview();
     if (preset.value === "Nine albums I took everywhere") {
       music.panel.open = true;
       music.query.focus();
