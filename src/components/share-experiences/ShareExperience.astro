@@ -846,7 +846,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       </div>
       <a class="nine-options-link" href="#nine-image-options">Image and sharing options</a>
     </>}
-    {isNine && <div id="nine-image-options" class="nine-image-options" aria-hidden="true"></div>}
+    {isNine && <h3 id="nine-image-options" class="nine-image-options" tabindex="-1">Image and sharing options</h3>}
     <div class="experience-fields">
       <label>Optional byline<input maxlength="48" data-byline placeholder="Your name or handle" /></label>
       {isNine && <label>Optional date

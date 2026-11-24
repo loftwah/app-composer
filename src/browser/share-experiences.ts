@@ -1642,6 +1642,14 @@ function mountNine(
     previewHeading.focus({ preventScroll: true });
     previewHeading.scrollIntoView({ behavior: "instant", block: "start" });
   });
+  const sharingOptions = root.querySelector<HTMLHeadingElement>("#nine-image-options");
+  root.querySelector<HTMLAnchorElement>(".nine-options-link")?.addEventListener("click", (event) => {
+    if (!sharingOptions || event.defaultPrevented || event.button !== 0
+      || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault();
+    sharingOptions.focus({ preventScroll: true });
+    sharingOptions.scrollIntoView({ behavior: "instant", block: "start" });
+  });
   list.form.addEventListener("submit", (event) => {
     event.preventDefault();
     const open = listSlots();

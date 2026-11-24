@@ -625,7 +625,8 @@
 }
 .nine-options-link:hover { color: var(--stage-ink); }
 .nine-image-options {
-  margin-top: .8rem; padding-top: .8rem; scroll-margin-top: 1rem;
+  margin: .8rem 0 0; padding-top: .8rem; scroll-margin-top: 1rem;
+  color: inherit; font-size: 1rem;
   border-top: 1px solid color-mix(in srgb, var(--stage-ink) 38%, transparent);
 }
 .nine-export button.secondary {
