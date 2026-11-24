@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { bookSource, searchBooks } from '../src/lib/top-nine-books.ts';
+import { appleBookRef, bookSource, lookupAppleBook, searchBooks } from '../src/lib/top-nine-books.ts';
 
 const book = 'https://books.apple.com/us/book/a-wizard-of-earthsea/id1602695834?uo=4';
 const graphic = 'https://books.apple.com/us/book/a-wizard-of-earthsea-a-graphic-novel/id6526483806?uo=4';
@@ -94,4 +95,118 @@ test('distinguishes a failed or cancelled search from an empty catalogue result'
   await assert.rejects(searchBooks('Earthsea', 'US', controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
   assert.deepEqual(await searchBooks(' ', 'US'), []);
+});
+
+// Verified from the public /lookup response on 24 November 2026: id 431617578
+// in the us storefront returns this ebook, title and author. Only these fields
+// are read; the cover, description and preview URLs in that response are not.
+const steveJobs = 'https://books.apple.com/us/book/steve-jobs/id431617578?uo=4';
+function steveJobsRow() {
+  return {
+    kind: 'ebook', trackId: 431617578, trackName: 'Steve Jobs',
+    artistName: 'Walter Isaacson', trackViewUrl: steveJobs,
+    artworkUrl100: 'https://example.test/cover.jpg',
+    description: '<b>never read</b>',
+  };
+}
+
+test('reads one exact Apple Books link as its own storefront and ebook ID', () => {
+  assert.deepEqual(appleBookRef(steveJobs), { country: 'us', id: '431617578' });
+  assert.deepEqual(appleBookRef('https://books.apple.com/gb/book/the-lathe-of-heaven/id6443080858?si=share'),
+    { country: 'gb', id: '6443080858' });
+  // A tracker-bearing link still resolves to the same canonical book ID, while
+  // another provider, a spoofed host, a malformed page or no link never seeds it.
+  for (const href of [
+    'https://books.apple.com.example.test/us/book/steve-jobs/id431617578',
+    'https://user@books.apple.com/us/book/steve-jobs/id431617578',
+    'http://books.apple.com/us/book/steve-jobs/id431617578',
+    'https://books.apple.com:8443/us/book/steve-jobs/id431617578',
+    'https://itunes.apple.com/us/book/steve-jobs/id431617578',
+    'https://music.apple.com/us/album/discovery/697194953',
+    'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn',
+    'https://books.apple.com/us/book/steve-jobs',
+    'https://books.apple.com/us/book/steve-jobs/id0',
+    'https://books.apple.com/us/book/id431617578',
+    '', null,
+  ]) {
+    assert.equal(appleBookRef(href), null);
+  }
+});
+
+test('looks up one exact ebook by link storefront and ID, never by search', async (t) => {
+  const fetches = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://itunes.apple.com');
+    assert.equal(url.pathname, '/lookup');
+    assert.deepEqual(Object.fromEntries(url.searchParams), { id: '431617578', country: 'us' });
+    assert.equal(init.credentials, 'omit');
+    assert.equal(init.referrerPolicy, 'no-referrer');
+    assert.equal(init.redirect, 'error');
+    return Response.json({ resultCount: 1, results: [steveJobsRow()] });
+  });
+  assert.deepEqual(await lookupAppleBook(steveJobs), { title: 'Steve Jobs', artist: 'Walter Isaacson' });
+  assert.equal(fetches.mock.callCount(), 1);
+});
+
+test('applies only an ebook with the matching track ID and canonical source', async (t) => {
+  let row = steveJobsRow();
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ resultCount: 1, results: [row] }));
+  for (const variant of [
+    { ...steveJobsRow(), kind: 'album' },
+    { ...steveJobsRow(), kind: undefined },
+    { ...steveJobsRow(), trackId: 431617579 },
+    { ...steveJobsRow(), trackId: '431617579' },
+    { ...steveJobsRow(), trackViewUrl: 'https://books.apple.com/us/book/steve-jobs/id431617579' },
+    { ...steveJobsRow(), trackViewUrl: 'https://example.test/us/book/steve-jobs/id431617578' },
+    { ...steveJobsRow(), trackViewUrl: 'https://books.apple.com/gb/book/steve-jobs/id431617578' },
+    { ...steveJobsRow(), trackViewUrl: 'https://music.apple.com/us/album/steve-jobs/id431617578' },
+    { ...steveJobsRow(), trackName: '' },
+    { ...steveJobsRow(), artistName: '   ' },
+  ]) {
+    row = variant;
+    assert.equal(await lookupAppleBook(steveJobs), null);
+  }
+});
+
+test('an empty book result keeps the link and offers no title', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => Response.json({ resultCount: 0, results: [] }));
+  assert.equal(await lookupAppleBook(steveJobs), null);
+});
+
+test('a pasted-book lookup never fetches for a non-book link', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('a lookup must not run for this link');
+  });
+  assert.equal(await lookupAppleBook('https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn'), null);
+  assert.equal(await lookupAppleBook('https://music.apple.com/us/album/discovery/697194953'), null);
+  assert.equal(await lookupAppleBook('https://books.apple.com/us/book/steve-jobs'), null);
+  assert.equal(await lookupAppleBook(''), null);
+  assert.equal(await lookupAppleBook(null), null);
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('a failed or cancelled book lookup makes one request and is not retried', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('', { status: 500 }));
+  await assert.rejects(lookupAppleBook(steveJobs), /500/);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(lookupAppleBook(steveJobs, controller.signal), { name: 'AbortError' });
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test('the editor submits the book lookup only for an empty exhibit, reusing the album guards', () => {
+  const controller = readFileSync(new URL('../src/browser/share-experiences.ts', import.meta.url), 'utf8');
+  assert.match(controller, /if \(!typed\) void fillSourceTitle\(slot, source\.href\);/);
+  const start = controller.indexOf('async function fillSourceTitle(');
+  const block = controller.slice(start, controller.indexOf('async function runSearch(', start));
+  assert.match(block, /pendingLookups\.get\(slot\)\?\.abort\(\)/);
+  assert.match(block, /pendingLookups\.set\(slot, controller\)/);
+  assert.match(block, /albumTitleApplies\(/);
+  assert.match(block, /lookupAppleBook\(href, controller\.signal\)/);
+  assert.match(block, /lookupAppleAlbum\(href, controller\.signal\)/);
+  assert.match(block, /lookupSpotifyAlbumTitle\(href, controller\.signal\)/);
+  // No parallel async state: one bounded lookup per paste, through the shared map.
+  assert.equal((block.match(/new Map</g) ?? []).length, 0);
+  const books = readFileSync(new URL('../src/lib/top-nine-books.ts', import.meta.url), 'utf8');
+  assert.match(books, /lookupCatalogue\(\{/);
+  assert.doesNotMatch(books, /new Map<|AbortController|fetch\(/);
 });

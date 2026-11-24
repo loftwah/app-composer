@@ -38,7 +38,7 @@ import { profileUrl } from "../lib/top-nine-profile.ts";
 import { nineListApplied, nineListSummary, planNineList, planNineListUndo } from "../lib/top-nine-list.ts";
 import { normalisePageLinks, pageLink } from "../lib/top-nine-pages.ts";
 import {
-  searchBooks,
+  appleBookRef, lookupAppleBook, searchBooks,
 } from "../lib/top-nine-books.ts";
 import {
   searchApps,
@@ -1024,26 +1024,34 @@ function mountNine(
     update();
   }
 
-  /** A deliberate paste of an Apple Music or Spotify album link keeps the
-   * canonical link and its preview immediately, then restores the public title
-   * from that exact album ID; Apple Music also carries its artist. A miss, a
-   * non-album link or a failure leaves the link and manual title entry alone,
-   * and only the same still-empty slot can be filled — never a typed title, a
-   * replaced link, a moved exhibit or a rebuilt board. */
-  async function fillAlbumTitle(slot: number, href: string) {
+  /** A deliberate paste of an Apple Music, Spotify album or Apple Books link
+   * keeps the canonical link (and, for music, its preview) immediately, then
+   * restores the public title from that exact ID; Apple Music and Apple Books
+   * also carry the artist/author. It reuses the one-controller-per-slot
+   * pendingLookups state above, so a replaced link, move, Undo or rebuilt board
+   * cancels the same in-flight request and no parallel async state is needed.
+   * A miss, an unsupported link or a failure leaves the link and manual title
+   * entry alone, and only the same still-empty slot can be filled — never a
+   * typed title, a replaced link, a moved exhibit or a rebuilt board. */
+  async function fillSourceTitle(slot: number, href: string) {
     const apple = appleAlbumRef(href);
-    if (!apple && !spotifyAlbumRef(href)) return;
-    const provider = apple ? "Apple Music" : "Spotify";
+    const spotify = spotifyAlbumRef(href);
+    const book = appleBookRef(href);
+    if (!apple && !spotify && !book) return;
+    const provider = book ? "Apple Books" : apple ? "Apple Music" : "Spotify";
+    const attachment = book ? "link" : "link and preview";
     const controller = new AbortController();
     pendingLookups.get(slot)?.abort();
     pendingLookups.set(slot, controller);
     const filled = slot + 1;
     const untouched = () => albumTitleApplies({ href: hrefs[slot], title: objects[slot].value }, href);
     const offer = () => {
-      if (untouched()) note(`Exhibit ${filled} keeps its ${provider} link and preview. Type its title, or search for it.`);
+      if (untouched()) note(`Exhibit ${filled} keeps its ${provider} ${attachment}. Type its title, or search for it.`);
     };
     try {
-      const found = apple
+      const found = book
+        ? await lookupAppleBook(href, controller.signal)
+        : apple
         ? await lookupAppleAlbum(href, controller.signal)
         : await lookupSpotifyAlbumTitle(href, controller.signal);
       if (pendingLookups.get(slot) !== controller) return;
@@ -1066,7 +1074,7 @@ function mountNine(
         if (empty >= 0) target = empty;
         markTarget();
       }
-      note(`Exhibit ${filled} is ${label}. Its ${provider} link and preview stay.`);
+      note(`Exhibit ${filled} is ${label}. Its ${provider} ${attachment} ${book ? "stays" : "stay"}.`);
       update();
     } catch {
       if (pendingLookups.get(slot) !== controller) return;
@@ -1498,12 +1506,12 @@ function mountNine(
       if (empty >= 0) target = empty;
       markTarget();
     }
-    note(`Exhibit ${filled} has a ${source.provider} link. ${typed ? "Its title stays as you typed it." : "Add its title."}`);
+    note(`${source.provider} link added to exhibit ${filled}. ${typed ? "Its title stays as you typed it." : "Add its title."}`);
     update();
-    // Only an empty exhibit needs a title; one deliberate Apple Music or
-    // Spotify album paste gets one bounded exact-ID lookup after the link and
-    // preview exist.
-    if (!typed) void fillAlbumTitle(slot, source.href);
+    // Only an empty exhibit needs a title. One deliberate Apple Music, Spotify
+    // or Apple Books paste gets one bounded exact-ID lookup after the link and
+    // any music preview exist; a typed title keeps exactly what was written.
+    if (!typed) void fillSourceTitle(slot, source.href);
   });
   /** Attach one exact public page to a title the person typed. Replacing an
    * existing page is a second deliberate submit; nothing is fetched or embedded. */
