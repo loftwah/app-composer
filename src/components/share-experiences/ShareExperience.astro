@@ -557,14 +557,16 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
     <section hidden class="door-result tot-result" data-tot-result aria-label="Your choices">
       <h2 tabindex="-1" data-reveal-title></h2>
-      <div class="tot-reveal-download">
-        <button type="button" data-reveal-download disabled>Download PNG</button>
-        <span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note></span>
-      </div>
-      <div class="tot-blank" data-tot-blank>
-        <button type="button" class="secondary" data-tot-blank-copy>Copy blank starter link</button>
-        <input hidden readonly aria-label="Blank starter link" data-tot-blank-manual />
-        <p class="experience-note" role="status" data-tot-blank-status></p>
+      <div class="tot-result-actions">
+        <div class="tot-reveal-download">
+          <button type="button" data-reveal-download disabled>Download PNG</button>
+          <span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note></span>
+        </div>
+        <div class="tot-blank" data-tot-blank>
+          <button type="button" class="secondary" data-tot-blank-copy>Copy blank starter link</button>
+          <input hidden readonly aria-label="Blank starter link" data-tot-blank-manual />
+          <p class="experience-note" role="status" data-tot-blank-status></p>
+        </div>
       </div>
       <ol class="tot-picks" data-reveal-picks></ol>
       <div class="tot-compare" data-tot-compare-panel hidden>

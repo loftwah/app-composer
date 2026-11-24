@@ -202,6 +202,18 @@
 .tot-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .8rem; }
 .tot-reveal-download { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .8rem; }
 .tot-reveal-download-note { font-size: .88rem; }
+.tot-result-actions {
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: .6rem; margin-top: .8rem;
+}
+.tot-result-actions > .tot-reveal-download,
+.tot-result-actions > .tot-blank { min-width: 0; margin-top: 0; }
+.tot-result-actions > .tot-blank:has(input:not([hidden])) { flex-basis: 100%; }
+.tot-result-actions .tot-blank input { min-inline-size: 0; }
+.tot-result-actions .tot-reveal-download-note:empty { display: none; }
+@media (max-width: 450px) {
+  .tot-result-actions { gap: .5rem; }
+  .share-experience .tot-result-actions button { padding-inline: .5rem; font-size: .9rem; }
+}
 .tot-result ol { margin: .4rem 0 0; padding-inline-start: 1.5rem; }
 .tot-result li { margin-block: .5rem; max-width: 46ch; color: inherit; }
 .tot-pick-question { display: block; font-size: .88rem; opacity: .78; margin-block-end: .1rem; }
