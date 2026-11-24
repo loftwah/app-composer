@@ -95,7 +95,7 @@ test('the browser round never becomes a link, draft, vote or public write', () =
   const controller = read('src/browser/share-experiences.ts');
   assert.match(controller, /game === "one-must-go" \? mountOneMustGo/);
   assert.match(controller, /linksAllowed: \(\) => false/);
-  assert.match(controller, /game === "tier-list" \|\| game === "one-must-go"\s*\?/);
+  assert.match(controller, /game === "tier-list" \|\| game === "one-must-go" \|\| game === "wrong-answers"\s*\?/);
   assert.match(controller, /game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go"/);
   assert.doesNotMatch(controller, /draftKey\("one-must-go"\)/, 'no draft storage exists for a round');
 

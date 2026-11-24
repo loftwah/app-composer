@@ -64,6 +64,10 @@ import {
   readOneMustGoChoices,
   type OneMustGoRound,
 } from "../lib/one-must-go.ts";
+import {
+  wrongAnswerCount, wrongAnswerLimit, wrongAnswerPlate, wrongAnswerPrintTitle,
+  wrongAnswerPrompts, wrongAnswerStart,
+} from "../lib/wrong-answers.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import {
   normaliseSourceLinks, sourceLink,
@@ -97,6 +101,10 @@ interface ResultSnapshot {
   profile?: string;
   /** The frozen authored prompts a private 21-questions card export draws. */
   questions?: string[];
+  /** Wrong Answers Only: the exact question and private answer the downloaded
+   * plate prints. Held only in memory and never serialised into a result link. */
+  prompt?: string;
+  answer?: string;
 }
 
 /** One cover a person picked from their device: session-only, never uploaded.
@@ -3362,6 +3370,120 @@ function mountOneMustGo(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+/** Ten authored questions, one bounded answer at a time. Each prompt keeps its
+ * own draft only in this tab, so switching never discards typed words. There is
+ * no score, correction, link, public result or stored value: the deliberately
+ * downloaded PNG is the only way an answer leaves. */
+function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
+  const promptButtons = elements<HTMLButtonElement>(root, "[data-wa-prompt]");
+  const question = root.querySelector<HTMLElement>("[data-wa-question]")!;
+  const answer = root.querySelector<HTMLTextAreaElement>("[data-wa-answer]")!;
+  const count = root.querySelector<HTMLElement>("[data-wa-count]")!;
+  const folio = root.querySelector<HTMLElement>("[data-wa-folio]")!;
+  const status = root.querySelector<HTMLElement>("[data-wa-status]")!;
+  const back = root.querySelector<HTMLButtonElement>("[data-wa-back]")!;
+  const next = root.querySelector<HTMLButtonElement>("[data-wa-next]")!;
+  const clear = root.querySelector<HTMLButtonElement>("[data-wa-clear]")!;
+  const answers = wrongAnswerStart();
+  let current = 0;
+  // The outer share bar calls update() once after this controller returns. No
+  // stage change before that point may reach it, so the generic controller is
+  // never read while it is still undefined.
+  let ready = false;
+  const refresh = () => { if (ready) update(); };
+
+  function sync() {
+    const prompt = wrongAnswerPrompts[current];
+    question.textContent = prompt.question;
+    folio.textContent = `Question ${current + 1} of ${wrongAnswerCount}`;
+    count.textContent = `${answer.value.length} / ${wrongAnswerLimit}`;
+    promptButtons.forEach((button, index) => {
+      button.setAttribute("aria-pressed", String(index === current));
+    });
+    back.disabled = current === 0;
+    next.disabled = current === wrongAnswerCount - 1;
+    clear.disabled = answer.value.trim() === "";
+  }
+
+  /** Store the exact field value under the question it belongs to, then load
+   * the destination's own draft without rewriting any other answer. */
+  function show(index: number, focus = true) {
+    if (!Number.isInteger(index) || index < 0 || index >= wrongAnswerCount) return;
+    answers[current] = answer.value.slice(0, wrongAnswerLimit);
+    current = index;
+    answer.value = answers[current];
+    sync();
+    if (focus) question.focus();
+    refresh();
+  }
+
+  root.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    const promptButton = target.closest<HTMLButtonElement>("[data-wa-prompt]");
+    if (promptButton) {
+      const index = Number(promptButton.dataset.waPrompt);
+      if (index === current) {
+        question.focus();
+        return;
+      }
+      const kept = answer.value.trim() !== "";
+      show(index);
+      status.textContent = kept
+        ? `Question ${current + 1}. Your previous answer is kept in this tab.`
+        : `Question ${current + 1}.`;
+      return;
+    }
+    if (target.closest("[data-wa-back]")) {
+      if (current > 0) {
+        show(current - 1);
+        status.textContent = `Question ${current + 1}.`;
+      }
+      return;
+    }
+    if (target.closest("[data-wa-next]")) {
+      if (current < wrongAnswerCount - 1) {
+        show(current + 1);
+        status.textContent = `Question ${current + 1}.`;
+      }
+      return;
+    }
+    if (target.closest("[data-wa-clear]")) {
+      answers[current] = "";
+      answer.value = "";
+      sync();
+      refresh();
+      answer.focus();
+      status.textContent = `Answer cleared for question ${current + 1}.`;
+    }
+  });
+
+  answer.addEventListener("input", () => {
+    answers[current] = answer.value.slice(0, wrongAnswerLimit);
+    sync();
+    refresh();
+  });
+
+  sync();
+  for (const control of [...promptButtons, answer]) control.disabled = false;
+  sync();
+  ready = true;
+
+  return {
+    result() {
+      const prompt = wrongAnswerPrompts[current].question;
+      const plate = wrongAnswerPlate(prompt, answer.value);
+      return plate
+        ? { title: wrongAnswerPrintTitle, prompt: plate.prompt, answer: plate.answer }
+        : null;
+    },
+    linksAllowed: () => false,
+    restore() {
+      // A sheet never travels in a result link; a crafted fragment cannot fill
+      // or replace the answers this tab is writing.
+    },
+  };
+}
+
 function mountBingo(root: HTMLElement): Controller {
   const tiles = elements<HTMLButtonElement>(root, "[data-tile]");
   const grid = root.querySelector<HTMLElement>("[data-bingo-grid]")!;
@@ -3725,6 +3847,8 @@ export function mountShareExperience(root: HTMLElement) {
       status.textContent = "Add at least one entry to download your board.";
     } else if (!canShare && game === "one-must-go") {
       status.textContent = "Eliminate one choice to download your result.";
+    } else if (!canShare && game === "wrong-answers") {
+      status.textContent = "Write a wrong answer to download your plate.";
     } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
@@ -3737,6 +3861,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "twenty-one-questions" ? mountTwentyQuestions(root, update)
     : game === "tier-list" ? mountTierList(root, update)
     : game === "one-must-go" ? mountOneMustGo(root, update)
+    : game === "wrong-answers" ? mountWrongAnswers(root, update)
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
@@ -3758,11 +3883,11 @@ export function mountShareExperience(root: HTMLElement) {
     });
   }
 
-  // Twenty-one questions, the tier list and one-must-go never produce result
-  // links, and a persona result link is the answer-free `#result=<id>` fragment
-  // the quiz reads itself: none is the generic JSON snapshot, so a crafted hash
-  // restores nothing.
-  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go"
+  // Twenty-one questions, the tier list, one-must-go and wrong-answers never
+  // produce result links, and a persona result link is the answer-free
+  // `#result=<id>` fragment the quiz reads itself: none is the generic JSON
+  // snapshot, so a crafted hash restores nothing.
+  const shared = game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -4067,10 +4192,10 @@ export function mountShareExperience(root: HTMLElement) {
     }
   });
 
-  // Twenty-one questions and one-must-go have no result link to hand over, and
-  // a persona result hands its answer-free link over in the result panel
-  // instead. The native share sheet stays off for all of them.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && !persona) {
+  // Twenty-one questions, one-must-go and wrong-answers have no result link to
+  // hand over, and a persona result hands its answer-free link over in the
+  // result panel instead. The native share sheet stays off for all of them.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;
