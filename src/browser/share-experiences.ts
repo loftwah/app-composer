@@ -275,6 +275,8 @@ function mountDoor(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+let nineBoardCount = 0;
+
 function mountNine(
   root: HTMLElement,
   update: () => void,
@@ -297,6 +299,8 @@ function mountNine(
     linked: root.querySelector<HTMLUListElement>("[data-page-linked]")!,
   };
   const objects = elements<HTMLInputElement>(root, "[data-object]");
+  const exhibitionBoard = root.querySelector<HTMLElement>("[data-exhibition-objects]")!;
+  const dragHandles = elements<HTMLElement>(root, "[data-drag-slot]");
   const order = root.querySelector<HTMLSelectElement>("[data-order-index]")!;
   const swapTarget = root.querySelector<HTMLSelectElement>("[data-swap-target]")!;
   const swapSlots = root.querySelector<HTMLButtonElement>("[data-swap-slots]")!;
@@ -392,6 +396,12 @@ function mountNine(
   let previewOpener: HTMLElement | null = null;
   /** One local undo for the most recent move, cleared when a draft or result replaces the exhibits. */
   let lastMove: { from: number; to: number } | null = null;
+  /** A drop is honoured only while a drag from this board's own heading is
+   * live. Nothing in the drag payload is read: the private type just keeps
+   * foreign links, text and files out of the editor's state. */
+  const dragType = "application/x-app-composer-top-nine-slot";
+  const boardDragId = `top-nine-${++nineBoardCount}`;
+  let activeDrag: { from: number; board: string } | null = null;
   /** The slots and exact title/page pairs one pasted fill added, kept whole so
    * Undo clears that fill in one step and returns its raw rows to the editor. */
   let lastFill: { indexes: number[]; titles: string[]; urls: (string | null)[]; rows: string[] } | null = null;
@@ -1407,8 +1417,9 @@ function mountNine(
     swapSlots.disabled = order.value === swapTarget.value;
   }
 
-  function moveExhibit(to: number) {
-    const from = Number(order.value);
+  /** Every reorder — buttons, selects and the drag handle — takes this one
+   * path, so bounds, attachments, status and the single undo stay identical. */
+  function moveExhibit(from: number, to: number) {
     if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || from >= objects.length || to < 0 || to >= objects.length || from === to) return;
     swapExhibits(from, to);
     rememberMove(from, to);
@@ -1416,11 +1427,11 @@ function mountNine(
   }
 
   elements<HTMLButtonElement>(root, "[data-move]").forEach((button) => {
-    button.addEventListener("click", () => moveExhibit(Number(order.value) + Number(button.dataset.move)));
+    button.addEventListener("click", () => moveExhibit(Number(order.value), Number(order.value) + Number(button.dataset.move)));
   });
   order.addEventListener("change", updateSwapButton);
   swapTarget.addEventListener("change", updateSwapButton);
-  swapSlots.addEventListener("click", () => moveExhibit(Number(swapTarget.value)));
+  swapSlots.addEventListener("click", () => moveExhibit(Number(order.value), Number(swapTarget.value)));
   undoMove.addEventListener("click", () => {
     if (!lastMove) return;
     const { from, to } = lastMove;
@@ -1428,6 +1439,67 @@ function mountNine(
     discardMove();
     order.focus({ preventScroll: true });
     draftStatus.textContent = `Move undone. Exhibit ${from + 1} is back in slot ${from + 1}.`;
+  });
+
+  const slotLabels = objects.map((input) => input.closest<HTMLElement>("label")!);
+  function markDropSlot(label: HTMLElement | null) {
+    slotLabels.forEach((slot) => {
+      if (slot === label) slot.setAttribute("data-drop-slot", "");
+      else slot.removeAttribute("data-drop-slot");
+    });
+  }
+  function clearDrag() {
+    activeDrag = null;
+    markDropSlot(null);
+  }
+  function draggedSlot(event: DragEvent) {
+    const target = event.target;
+    if (!(target instanceof Element)) return null;
+    return target.closest<HTMLElement>("label")?.querySelector<HTMLInputElement>("[data-object]") ?? null;
+  }
+
+  dragHandles.forEach((handle) => {
+    handle.addEventListener("dragstart", (event) => {
+      const from = Number(handle.dataset.dragSlot);
+      const data = event.dataTransfer;
+      if (!data || !Number.isInteger(from) || from < 0 || from >= objects.length) return;
+      activeDrag = { from, board: boardDragId };
+      data.effectAllowed = "move";
+      // A private type with a harmless board token: no link, text or file is
+      // read from the payload, and no foreign drag can match this board.
+      data.setData(dragType, boardDragId);
+    });
+    handle.addEventListener("dragend", clearDrag);
+  });
+
+  exhibitionBoard.addEventListener("dragover", (event) => {
+    const data = event.dataTransfer;
+    if (!data || !data.types.includes(dragType)) return;
+    if (!activeDrag || activeDrag.board !== boardDragId) return;
+    const slot = draggedSlot(event);
+    if (!slot) return;
+    const to = Number(slot.dataset.object);
+    if (!Number.isInteger(to) || to === activeDrag.from) return;
+    event.preventDefault();
+    data.dropEffect = "move";
+    markDropSlot(slot.closest<HTMLElement>("label"));
+  });
+
+  exhibitionBoard.addEventListener("dragleave", (event) => {
+    if (!exhibitionBoard.contains(event.relatedTarget as Node | null)) markDropSlot(null);
+  });
+
+  exhibitionBoard.addEventListener("drop", (event) => {
+    const data = event.dataTransfer;
+    const drag = activeDrag;
+    clearDrag();
+    if (!data || !data.types.includes(dragType)) return;
+    if (!drag || drag.board !== boardDragId) return;
+    const slot = draggedSlot(event);
+    if (!slot) return;
+    const to = Number(slot.dataset.object);
+    if (!Number.isInteger(to) || to === drag.from) return;
+    moveExhibit(drag.from, to);
   });
 
   /** Slots a pasted list may claim: no visible title and no staged source

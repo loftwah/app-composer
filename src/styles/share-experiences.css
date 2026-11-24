@@ -449,6 +449,21 @@
 .share-experience .cover-linked button { min-height: 44px; padding: 6px 12px; font-size: .86rem; }
 .share-experience .cover-linked .cover-fit select { min-height: 44px; width: auto; }
 .exhibit-cover-state { display: block; font-size: .72rem; line-height: 1.35; margin-top: -.25rem; color: var(--accent); }
+/* The visible slot heading is the desktop drag handle. The grip only adds an
+   affordance: typing, touch targets and the keyboard controls stay as they
+   were; the dashed outline marks the slot a current board drag can reach. */
+.exhibition-objects [data-drag-slot] {
+  display: inline-flex; align-items: baseline; gap: .3rem;
+  cursor: grab; user-select: none;
+}
+.exhibition-objects [data-drag-slot]:active { cursor: grabbing; }
+.exhibit-grip {
+  flex: none; inline-size: .42rem; block-size: .78rem; color: var(--accent);
+  background: radial-gradient(circle, currentColor 1px, transparent 1.4px) 0 0 / .21rem .26rem repeat;
+}
+.exhibition-objects label[data-drop-slot] {
+  outline: 2px dashed var(--accent); outline-offset: 3px; border-radius: 4px;
+}
 .nine-preview-subtitle { margin: .9rem 0 -.25rem; font-weight: 700; font-size: .95rem; color: inherit; max-width: 46ch; }
 .nine-preview-profile { margin: -.35rem 0 .9rem; overflow-wrap: anywhere; }
 .nine-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: .9rem 0 1rem; }

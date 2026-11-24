@@ -246,9 +246,11 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <ul class="cover-linked" aria-label="Exhibits with covers" hidden data-cover-linked></ul>
       <p class="experience-note">PNG, JPEG or WebP up to 20 MB. Covers stay in this browser — they go into your downloaded image, not into result links or drafts. Each cover fills its cell; Fit beside it shows the whole artwork instead, letterboxed on the cell’s colour.</p>
     </details>
-    <div class="exhibition-objects">
+    <div class="exhibition-objects" data-exhibition-objects>
       {Array.from({length: 9}, (_, index) => <label>
-        <span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em> Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
+        <span class="exhibit-heading" draggable="true" data-drag-slot={index} title="Drag onto another slot to swap exhibits">
+          <span class="exhibit-grip" aria-hidden="true"></span><span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em> Exhibit {index + 1} <em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>
+        </span>
         <input type="text" maxlength={nineItemLimit} data-object={index} aria-label={`Exhibit ${index + 1}`} />
         <span class="exhibit-link-state" data-music-slot-state={index} hidden></span>
         <span class="exhibit-page-state" data-page-slot-state={index} hidden></span>
@@ -288,6 +290,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <button class="secondary" type="button" data-swap-slots disabled>Swap slots</button>
       <button class="secondary" type="button" data-undo-move disabled>Undo last move</button>
     </div>
+    <p class="experience-note">Drag an exhibit heading onto another slot to swap them. Move and Swap controls remain available for keyboard and touch.</p>
     <label for="exhibition-theme">Try a title</label>
     <select id="exhibition-theme" data-nine-preset>
       <option value="">Choose a prompt</option>
