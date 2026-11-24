@@ -9,7 +9,7 @@ const member = Boolean(Astro.locals.user);
 ---
 <div class="app-launcher">
  <button type="button" class="secondary apps-trigger" data-open-apps aria-label="Open apps" title="Apps and shortcuts (Ctrl/Cmd+K)" aria-haspopup="dialog"><Grid3x3 size={20} aria-hidden="true"/><span>Apps</span><kbd>⌘K / Ctrl K</kbd></button>
- <noscript><a class="apps-fallback" href="/apps">Browse all apps</a></noscript>
+ <noscript><a class="apps-fallback" href="/apps" aria-label="Browse all apps"><Grid3x3 size={20} aria-hidden="true"/><span>Browse all apps</span></a></noscript>
  <dialog data-composer-home="/" id="app-navigation" aria-labelledby="app-navigation-title" data-viewer={member ? 'member' : 'public'} data-launcher-recents={member ? '/api/launcher/recents' : undefined}>
   <div class="dialog-heading">
    <h2 id="app-navigation-title">Apps and shortcuts</h2>
@@ -21,4 +21,15 @@ const member = Boolean(Astro.locals.user);
   <a class="launcher-all" href="/apps">Browse all apps <ArrowRight size={18} aria-hidden="true"/></a>
  </dialog>
 </div>
+<style>
+  /* JS off: the noscript anchor is real DOM and replaces the dead trigger. */
+  .app-launcher:has(> noscript > .apps-fallback) > [data-open-apps] {
+    display: none;
+  }
+
+  .apps-fallback {
+    gap: 8px;
+    justify-content: center;
+  }
+</style>
 <script is:inline src="/brand/launcher.js" defer></script>

@@ -195,6 +195,7 @@
   .site-navigation .nav-direct,
   .site-menu .menu-word,
   .site-menu .menu-chevron,
+  .site-header .apps-fallback > span,
   .site-header [data-open-apps] > span {
     display: none;
   }
@@ -230,6 +231,7 @@
   }
 
   .site-header .header-utilities [data-open-apps],
+  .site-header .header-utilities .apps-fallback,
   .site-header .theme-toggle {
     width: 44px;
     min-width: 44px;
