@@ -341,6 +341,37 @@ test('the repeatable nine-film and series fixture keeps distinct official Wikida
   assert.equal(fetch.mock.callCount(), 0);
 });
 
+for (const platform of ['pc', 'console']) {
+  test(`the repeatable nine-${platform}-game fixture keeps ordinary Wikidata pages in paste order`, (t) => {
+    const fetch = t.mock.method(globalThis, 'fetch', async () => {
+      throw new Error(`planning the local ${platform} game fixture must not fetch`);
+    });
+    const fixture = read(`tests/fixtures/top-nine-${platform}-games.tsv`).trimEnd();
+    const rows = fixture.split('\n');
+    const columns = rows.map((row) => row.split('\t'));
+    const empty = Array.from({ length: 9 }, (_, index) => index);
+    const titles = columns.map(([title]) => title);
+    const pages = columns.map(([, page]) => page);
+    assert.equal(rows.length, 9);
+    assert.deepEqual(columns.map((row) => row.length), Array(9).fill(2));
+    assert.equal(new Set(titles).size, 9);
+    assert.equal(new Set(pages).size, 9);
+    assert.deepEqual(pages.map(wikidataSource), pages);
+
+    const plan = planNineList(fixture, empty);
+    assert.deepEqual(plan.indexes, empty);
+    assert.deepEqual(plan.titles, titles);
+    assert.deepEqual(plan.urls, pages.map(pageLink));
+    assert.deepEqual(plan.sources, Array(9).fill(null));
+    assert.deepEqual(plan.rows, rows);
+    assert.deepEqual(plan.overflow, []);
+    assert.deepEqual(plan.remaining, []);
+    assert.deepEqual(plan.invalid, []);
+    assert.equal(plan.invalidMusic, 0);
+    assert.equal(fetch.mock.callCount(), 0);
+  });
+}
+
 test('invalid third-column sources stay verbatim with corrective music help', () => {
   const spotifyAlbum = 'https://open.spotify.com/album/6b08FpNaFFTjc1dJ9DSWfn';
   const good = `Good\t\t${spotifyAlbum}`;
