@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  oneMustGoAltText, tierListAltText, wrongAnswersAltText,
+  oneMustGoAltText, tierListAltText, thisOrThatAltText, wrongAnswersAltText,
 } from '../src/lib/experience-alt-text.ts';
 import { startTierListBoard, tierListDefaultTitle } from '../src/lib/tier-list.ts';
 import { oneMustGoStarterChoices, oneMustGoTitle } from '../src/lib/one-must-go.ts';
@@ -60,6 +60,24 @@ test('wrong answers describes only the selected question and its answer', () => 
   assert.equal(wrongAnswersAltText({ ...waInput, answer: '   ' }), '', 'a blank plate has no description');
   assert.equal(wrongAnswersAltText({ prompt: waInput.prompt }), '', 'no answer has no description');
   assert.doesNotMatch(wrongAnswersAltText(waInput), /Where do deleted files go\?/, 'no other prompt leaks in');
+});
+
+test('this or that describes every chosen row for five, nine and eleven, with no private prompt or link', () => {
+  for (const length of [5, 9, 11]) {
+    const items = Array.from({ length }, (_, index) => `Chosen option ${index + 1}`);
+    assert.equal(
+      thisOrThatAltText({ title: 'Your this or that', byline: ' Mina ', items }),
+      ['Your this or that.', 'By Mina.', ...items.map((item) => `${item}.`)].join(' '),
+    );
+  }
+  const eleven = Array.from({ length: 11 }, (_, index) => `Chosen option ${index + 1}`);
+  assert.equal(thisOrThatAltText({ title: 'Your this or that', items: eleven.slice(0, 10) }), '');
+  assert.equal(thisOrThatAltText({ title: 'Your this or that', items: [...eleven, 'Twelve'] }), '');
+  assert.equal(thisOrThatAltText({ title: 'Your this or that', items: [...eleven.slice(0, 10), ' '] }), '');
+  assert.doesNotMatch(thisOrThatAltText({
+    title: 'Your this or that', byline: 'Mina', items: eleven,
+    prompt: 'Secret prompt', hrefs: ['https://example.com/private'],
+  }), /Secret prompt|example\.com/);
 });
 
 test('a byline appears only when the chosen export prints one', () => {

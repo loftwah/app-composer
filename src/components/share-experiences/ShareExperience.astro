@@ -7,6 +7,7 @@ import {
 } from "../../lib/share-experiences.ts";
 import {
   customThisOrThatAltLimit, customThisOrThatOptionLimit, customThisOrThatPromptLimit,
+  thisOrThatDraftRowCount,
 } from "../../lib/this-or-that.ts";
 import {
   personaFor,
@@ -607,12 +608,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           <select id="tot-length" data-tot-length>
             <option value="5">Five questions</option>
             <option value="9">Nine questions</option>
+            <option value="11">Eleven questions</option>
           </select>
         </label>
         <p class="experience-note">Switching length keeps everything you’ve typed. Hidden rows hold their drafts until you play.</p>
       </div>
       <form data-tot-custom-form autocomplete="off">
-        {Array.from({ length: 9 }, (_, index) => (
+        {Array.from({ length: thisOrThatDraftRowCount }, (_, index) => (
           <fieldset hidden={index >= thisOrThatQuestions.length}>
             <legend>Question {index + 1}</legend>
             <label>Prompt<input type="text" maxlength={customThisOrThatPromptLimit} data-tot-custom-prompt /></label>
@@ -620,7 +622,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
             <label>Second option<input type="text" maxlength={customThisOrThatOptionLimit} data-tot-custom-right /></label>
             <div class="tot-move">
               <button type="button" class="secondary" data-tot-move="up" aria-label={`Move question ${index + 1} up`} disabled={index === 0}>Move up</button>
-              <button type="button" class="secondary" data-tot-move="down" aria-label={`Move question ${index + 1} down`} disabled={index === thisOrThatQuestions.length - 1 || index === 8}>Move down</button>
+              <button type="button" class="secondary" data-tot-move="down" aria-label={`Move question ${index + 1} down`} disabled={index === thisOrThatQuestions.length - 1 || index === thisOrThatDraftRowCount - 1}>Move down</button>
             </div>
             <div class="tot-photo">
               <input hidden type="file" accept="image/png,image/jpeg,image/webp"
@@ -651,7 +653,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-tot-draft-file-status></p>
     </details>
     <p class="tot-progress" role="status" data-tot-progress>Question 1 of {thisOrThatQuestions.length}</p>
-    {Array.from({ length: 9 }, (_, index) => {
+    {Array.from({ length: thisOrThatDraftRowCount }, (_, index) => {
       const [prompt, left, right] = thisOrThatQuestions[index]
         ?? (["Your question goes here.", "First option", "Second option"] as const);
       return <section hidden={index > 0} class="tot-question" data-question={index}>

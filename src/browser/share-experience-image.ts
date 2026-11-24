@@ -28,17 +28,17 @@ export const resultSizes = {
 export type ResultFormat = keyof typeof resultSizes;
 
 /** Grid columns for an items export. A five keeps its single full-width column
- * — the built-in This or That drawing is unchanged — while an authored nine
- * reuses the 3 × 3 grid the Top Nine exhibition already prints for exactly
- * nine short texts. One column at nine would squeeze portrait cells to about
- * a third of their height (and far less on square and landscape), dropping
- * option text toward the fit floor; the grid keeps every choice at the same
- * starting size the five uses, in taller cells than the five-row layout.
+ * — the built-in This or That drawing is unchanged — while an authored nine or
+ * eleven reuses the 3 × 3 grid the Top Nine exhibition already prints for short
+ * texts. Eleven uses the same grid with a fourth row and a compact cell treatment
+ * so every chosen option keeps readable room. One column at nine or eleven would
+ * squeeze portrait cells to about a third of their height (and far less on square
+ * and landscape), dropping option text toward the fit floor.
  * One-must-go prints its four stage choices as a clear 2 × 2. */
 export function resultColumns(game: ExperienceId, itemCount: number): 1 | 2 | 3 | 5 {
   if (game === "tech-bingo") return 5;
   if (game === "one-must-go") return 2;
-  if (game === "this-or-that") return itemCount === 9 ? 3 : 1;
+  if (game === "this-or-that") return itemCount === 9 || itemCount === 11 ? 3 : 1;
   return 3;
 }
 export interface ShareExperienceResult {
@@ -138,10 +138,25 @@ function picture(path: string): Promise<HTMLImageElement> {
   return image.decode().then(() => image);
 }
 
-function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
+function wrap(ctx: CanvasRenderingContext2D, text: string, width: number, breakWords = false) {
   const lines: string[] = [];
   let line = "";
   for (const word of text.split(/\s+/)) {
+    if (breakWords && ctx.measureText(word).width > width) {
+      if (line) {
+        lines.push(line);
+        line = "";
+      }
+      let chunk = "";
+      for (const character of word) {
+        if (chunk && ctx.measureText(chunk + character).width > width) {
+          lines.push(chunk);
+          chunk = character;
+        } else chunk += character;
+      }
+      line = chunk;
+      continue;
+    }
     const next = line ? line + " " + word : word;
     if (line && ctx.measureText(next).width > width) {
       lines.push(line);
@@ -162,13 +177,13 @@ function fitText(
   width: number,
   height: number,
   initial: number,
-  { family = "system-ui", weight = 700, lineHeight = 1.14 }: { family?: string; weight?: number; lineHeight?: number } = {},
+  { family = "system-ui", weight = 700, lineHeight = 1.14, breakWords = false }: { family?: string; weight?: number; lineHeight?: number; breakWords?: boolean } = {},
 ) {
   let size = initial;
   let lines: string[] = [];
   do {
     ctx.font = `${weight} ${size}px ${family}`;
-    lines = wrap(ctx, text, width);
+    lines = wrap(ctx, text, width, breakWords);
     if (lines.length * size * lineHeight <= height) break;
     size -= 2;
   } while (size > 12);
@@ -183,7 +198,7 @@ function drawFit(
   width: number,
   height: number,
   initial: number,
-  options: { family?: string; weight?: number; lineHeight?: number } = {},
+  options: { family?: string; weight?: number; lineHeight?: number; breakWords?: boolean } = {},
 ) {
   const { size, lines } = fitText(ctx, text, width, height, initial, options);
   const lineHeight = options.lineHeight ?? 1.14;
@@ -1027,7 +1042,10 @@ export async function renderExperienceResult(
     const cols = resultColumns(result.game, result.items.length);
     const rows = Math.ceil(result.items.length / cols);
     const rowY = margin + header + 12;
-    const gap = wide ? 6 : 9;
+    // Only the private eleven-row This or That export compacts the established
+    // grid. Five and nine keep their exact gap, inset and starting type size.
+    const compactEleven = result.game === "this-or-that" && result.items.length === 11;
+    const gap = compactEleven ? (wide ? 4 : 6) : wide ? 6 : 9;
     const cellW = (width - margin * 2 - (cols - 1) * gap) / cols;
     const cellH = (footer - rowY - (rows - 1) * gap - 18) / rows;
     // An explicitly ranked Top Nine numbers each occupied slot in every
@@ -1044,7 +1062,7 @@ export async function renderExperienceResult(
         && Boolean(result.marked?.includes(index));
       const slot = result.game === "top-nine" ? covers?.[index] : undefined;
       const cover = slot?.art;
-      const inset = wide ? 9 : 15;
+      const inset = compactEleven ? (wide ? 7 : 10) : wide ? 9 : 15;
       const rank = rankFor(caption, index);
       ctx.fillStyle = marked ? accent : ink;
       ctx.fillRect(x, y, cellW, cellH);
@@ -1058,7 +1076,11 @@ export async function renderExperienceResult(
           top += used;
           room -= used;
         }
-        drawFit(ctx, caption || "—", x + inset, top, cellW - inset * 2, Math.max(room, rankSize), wide ? 24 : cols === 5 ? 28 : 43);
+        drawFit(
+          ctx, caption || "—", x + inset, top, cellW - inset * 2, Math.max(room, rankSize),
+          compactEleven ? (wide ? 22 : 38) : wide ? 24 : cols === 5 ? 28 : 43,
+          { breakWords: compactEleven },
+        );
       } else if (wide) {
         // Landscape strips are shallow: contain the art in a matted square and
         // keep the readable title beside it.

@@ -14,17 +14,25 @@ export type ThisOrThatPicks = readonly (ThisOrThatSide | null)[];
 
 export const thisOrThatCount = thisOrThatQuestions.length;
 
-/** The two authored lengths: the built-in five every starter plays, and one
- * optional nine for a locally written set. Nothing else — no eleven and no
- * twenty-one — is ever offered or accepted. */
-export const thisOrThatLengths = [thisOrThatCount, 9] as const;
+/** The three authored lengths: the built-in five every starter plays, the
+ * optional nine, and the private/local eleven. Nothing else — no twenty-one —
+ * is ever offered or accepted. */
+export const thisOrThatLengths = [thisOrThatCount, 9, 11] as const;
 export type ThisOrThatLength = (typeof thisOrThatLengths)[number];
 
-/** The length selector offers exactly the two authored lengths; any other
- * value keeps the default five, so a crafted input never widens the game. */
+/** The length selector offers exactly the authored lengths; any other value
+ * keeps the default five, so a crafted input never widens the game. */
 export function restoreThisOrThatLength(value: unknown): ThisOrThatLength {
   return thisOrThatLengths.find((length) => String(length) === value) ?? thisOrThatCount;
 }
+
+export function isThisOrThatLength(value: unknown): value is ThisOrThatLength {
+  return thisOrThatLengths.some((length) => length === value);
+}
+
+/** Every editor and draft carries all eleven rows. Five/nine toggles only hide
+ * rows; they never discard the drafts held in the wider tail. */
+export const thisOrThatDraftRowCount = 11;
 
 export const thisOrThatStart = (count: number = thisOrThatCount): (ThisOrThatSide | null)[] =>
   Array.from({ length: count }, () => null);
@@ -71,8 +79,8 @@ export function thisOrThatComplete(
 
 /** The real ending: the exact chosen text of every question, exposed as
  * ordered items for the PNG and side indices for the result link. Null until
- * every question of the set on stage — the built-in five or a written nine —
- * has its one pick. */
+ * every question of the set on stage — the built-in five or a written five,
+ * nine or eleven — has its one pick. */
 export function thisOrThatSummary(
   picks: ThisOrThatPicks,
   questions: readonly (readonly [string, string, string])[] = thisOrThatQuestions,
@@ -200,8 +208,8 @@ export function compareThisOrThatChoices(
 
 /** A custom set is authored for one tab only: the same panels retext, the
  * same result image downloads, and no link or route is ever produced. These
- * bounds keep a written set — the built-in five or one optional nine — inside
- * the same contract as the built-in starters: short prompts, and chosen texts
+ * bounds keep a written set — the built-in five, nine or eleven — inside the
+ * same contract as the built-in starters: short prompts, and chosen texts
  * whose listing stays short. */
 export const customThisOrThatPromptLimit = 72;
 export const customThisOrThatOptionLimit = 45;
@@ -265,17 +273,17 @@ export function freezeThisOrThatPhotos(
 export interface ThisOrThatCustomRead {
   /** The bounded, sanitised set, or null while any row is unusable. */
   questions: readonly (readonly [string, string, string])[] | null;
-  /** The first row needing attention: 0–8, or -1 when the set is usable. */
+  /** The first row needing attention: 0–10, or -1 when the set is usable. */
   gap: number;
   /** Why the gap row fails: something is missing, or both options match. */
   reason: "empty" | "same" | null;
 }
 
 /** Reads one custom set of the chosen length from raw editor values — five
- * rows by default, nine for the optional length — each row of prompt, left
- * and right. Every value passes through the same visible-text sanitisation
- * as the built-in starters, and a row plays only with a prompt and two
- * genuinely different options — case included — so a half-written or
+ * rows by default, nine or eleven for the optional lengths — each row of
+ * prompt, left and right. Every value passes through the same visible-text
+ * sanitisation as the built-in starters, and a row plays only with a prompt and
+ * two genuinely different options — case included — so a half-written or
  * duplicated set never reaches the stage. Rows beyond the length are never
  * read: they keep whatever draft text they hold until the editor widens. */
 export function readThisOrThatCustom(
@@ -297,10 +305,13 @@ export function readThisOrThatCustom(
   return { questions, gap: -1, reason: null };
 }
 
-/** One local question-draft file. It carries the editor only: all nine rows,
- * including hidden and unfinished ones, plus the active five/nine length. Picks,
- * photos, descriptions, links and run state have no field and never travel. */
-export const thisOrThatDraftFileSchema = "composer.this-or-that-draft/1";
+/** One local question-draft file. It carries the editor only: all eleven rows,
+ * including hidden and unfinished ones, plus the active five/nine/eleven
+ * length. Picks, photos, descriptions, links and run state have no field and
+ * never travel. New writes are strict v2; the exact previously downloaded v1
+ * nine-row shape remains readable and gains two blank rows in memory. */
+export const thisOrThatDraftFileSchema = "composer.this-or-that-draft/2";
+export const thisOrThatLegacyDraftFileSchema = "composer.this-or-that-draft/1";
 export const thisOrThatDraftFileName = "composer-this-or-that-draft.json";
 /** Bytes, not characters: the same fixed bound covers writes and opens, and is
  * checked before JSON.parse. It matches the 21 Questions local-file bound. */
@@ -338,21 +349,21 @@ interface ThisOrThatDraftRowsRead {
   field: ThisOrThatDraftField | null;
 }
 
-/** Clean all nine rows without asking whether they are playable. Blank and
- * half-written rows are valid drafts; only the exact row shape and the shared
- * per-field bounds apply. One extra character exposes an overlong value instead
- * of silently truncating what the person wrote. */
-function readThisOrThatDraftRows(value: unknown): ThisOrThatDraftRowsRead {
+/** Clean the exact owned row count without asking whether rows are playable.
+ * Blank and half-written rows are valid drafts; only the exact row shape and
+ * the shared per-field bounds apply. One extra character exposes an overlong
+ * value instead of silently truncating what the person wrote. */
+function readThisOrThatDraftRows(value: unknown, count: number): ThisOrThatDraftRowsRead {
   const reject = (
     fault: ThisOrThatDraftFileFault,
     gap = -1,
     field: ThisOrThatDraftField | null = null,
   ): ThisOrThatDraftRowsRead => ({ rows: null, fault, gap, field });
-  if (!Array.isArray(value) || value.length !== 9) return reject("shape");
+  if (!Array.isArray(value) || value.length !== count) return reject("shape");
   const fields = ["prompt", "left", "right"] as const;
   const limits = [customThisOrThatPromptLimit, customThisOrThatOptionLimit, customThisOrThatOptionLimit] as const;
   const rows: ThisOrThatDraftRow[] = [];
-  for (let index = 0; index < 9; index += 1) {
+  for (let index = 0; index < count; index += 1) {
     const row = value[index];
     if (!Array.isArray(row) || row.length !== 3 || row.some((text) => typeof text !== "string")) {
       return reject("shape", index);
@@ -368,21 +379,24 @@ function readThisOrThatDraftRows(value: unknown): ThisOrThatDraftRowsRead {
   return { rows, fault: null, gap: -1, field: null };
 }
 
-/** Write one already-bounded editor draft to deterministic local bytes. The
- * exact saved shape is accepted by the reader below, including blank rows. */
+/** Write one already-bounded editor draft to deterministic local bytes. Every
+ * new write is v2 with exactly eleven rows; the reader below accepts only that
+ * strict shape or the exact bounded v1 nine-row predecessor. */
 export function writeThisOrThatDraftFile(
   rows: readonly (readonly [unknown, unknown, unknown])[],
   length: ThisOrThatLength,
 ): string | null {
-  const read = readThisOrThatDraftRows(rows);
-  if (!read.rows || (length !== 5 && length !== 9)) return null;
+  const read = readThisOrThatDraftRows(rows, thisOrThatDraftRowCount);
+  if (!read.rows || !isThisOrThatLength(length)) return null;
   const text = `${JSON.stringify({ schema: thisOrThatDraftFileSchema, rows: read.rows, length }, null, 2)}\n`;
   return new TextEncoder().encode(text).length <= thisOrThatDraftFileLimit ? text : null;
 }
 
-/** Read one owned v1 draft. Bytes are bounded before parsing, the schema and
- * exact three-key shape before content, and every row then uses the same
- * visible-text cleaning and limits as the editor. No fault returns a draft. */
+/** Read one owned v1 or v2 draft. Bytes are bounded before parsing, the schema
+ * and exact three-key shape before content, and every row then uses the same
+ * visible-text cleaning and limits as the editor. V1 accepts exactly nine rows
+ * and a five/nine length; its two new rows restore blank. V2 accepts exactly
+ * eleven rows and a five/nine/eleven length. No fault returns a draft. */
 export function readThisOrThatDraftFile(raw: unknown): ThisOrThatDraftFileRead {
   const reject = (
     fault: ThisOrThatDraftFileFault,
@@ -400,17 +414,24 @@ export function readThisOrThatDraftFile(raw: unknown): ThisOrThatDraftFileRead {
   if (!value || typeof value !== "object" || Array.isArray(value)) return reject("unreadable");
   const file = value as Record<string, unknown>;
   if (typeof file.schema !== "string") return reject("schema");
-  if (file.schema !== thisOrThatDraftFileSchema) {
+  const legacy = file.schema === thisOrThatLegacyDraftFileSchema;
+  if (!legacy && file.schema !== thisOrThatDraftFileSchema) {
     return reject(/^composer\.this-or-that-draft\/\d+$/.test(file.schema) ? "version" : "schema");
   }
   const keys = Object.keys(file);
   if (keys.length !== 3 || !keys.includes("schema") || !keys.includes("rows") || !keys.includes("length")) {
     return reject("shape");
   }
-  const rows = readThisOrThatDraftRows(file.rows);
+  const rows = readThisOrThatDraftRows(file.rows, legacy ? 9 : thisOrThatDraftRowCount);
   if (!rows.rows) return reject(rows.fault ?? "shape", rows.gap, rows.field);
-  if (file.length !== 5 && file.length !== 9) return reject("length");
-  return { draft: { rows: rows.rows, length: file.length }, fault: null, gap: -1, field: null };
+  const acceptedLength = legacy
+    ? file.length === 5 || file.length === 9
+    : isThisOrThatLength(file.length);
+  if (!acceptedLength) return reject("length");
+  const restoredRows = legacy
+    ? [...rows.rows, ...Array.from({ length: thisOrThatDraftRowCount - 9 }, () => ["", "", ""] as const)]
+    : rows.rows;
+  return { draft: { rows: restoredRows, length: file.length as ThisOrThatLength }, fault: null, gap: -1, field: null };
 }
 
 /** Move one draft row a single step inside the edited length, carrying the
