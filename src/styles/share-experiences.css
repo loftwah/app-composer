@@ -534,7 +534,9 @@
   font-size: clamp(.72rem, 2.2vw, .95rem); line-height: 1.14; font-weight: 700;
 }
 .nine-preview-cell[data-covered] [data-nine-preview-caption] {
-  inset-block-start: auto; inset-block-end: 0; padding: .45rem .5rem;
+  inset-block-start: auto; inset-block-end: 0;
+  box-sizing: border-box; max-block-size: calc(2lh + .6rem);
+  padding: .3rem .42rem; -webkit-line-clamp: 2;
   background: color-mix(in srgb, var(--stage-ink) 85%, transparent);
 }
 .nine-preview-cell[data-ranked]:not([data-covered]) [data-nine-preview-caption] { inset-block-start: 2.05rem; }
