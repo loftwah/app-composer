@@ -906,6 +906,15 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <option value="wide">Landscape · 1200 × 630</option>
       </select></label>}
     </div>
+    {isNine && <div class="nine-png-export">
+      <button type="button" class="secondary" data-nine-png-preview-button disabled>Preview PNG</button>
+      <p class="experience-note" role="status" data-nine-png-preview-status></p>
+      <figure class="nine-png-preview" data-nine-png-preview hidden>
+        <figcaption data-nine-png-preview-caption tabindex="-1"></figcaption>
+        <div data-nine-png-preview-image></div>
+        <a class="button secondary" data-nine-png-preview-save download>Save PNG</a>
+      </figure>
+    </div>}
     {isNine && <p class="experience-note" id="nine-date-note">Choose one calendar day. It appears beside your byline as a written date and never shifts with your timezone.</p>}
     {isNine && <p class="experience-note" role="status" data-nine-date-status></p>}
     {isNine && <label class="exhibition-ranked">

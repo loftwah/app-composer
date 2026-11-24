@@ -682,6 +682,20 @@
   background: transparent; color: inherit; border: 1px solid var(--color-border); align-self: start;
 }
 .nine-export .experience-note { color: inherit; }
+.nine-png-export { margin-block-start: .8rem; }
+.nine-png-preview {
+  display: grid;
+  justify-items: start;
+  gap: .6rem;
+  margin: .6rem 0 0;
+}
+.nine-png-preview figcaption { font-weight: 700; }
+.nine-png-preview img {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: min(28rem, 60vh);
+  object-fit: contain;
+}
 .nine-count {
   margin: .6rem 0 0; font-size: .86rem; font-variant-numeric: tabular-nums; opacity: .88;
 }
