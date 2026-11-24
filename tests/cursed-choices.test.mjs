@@ -5,8 +5,9 @@ import {
   experienceArt, experienceOg, experiencePath, experiences,
 } from '../src/lib/share-experiences.ts';
 import {
-  cursedChoiceCard, cursedChoiceCount, cursedChoiceMade, cursedChoicePrompt,
-  cursedChoices, cursedChoicesAltText, cursedChoiceStart, readCursedChoice,
+  cursedChoiceCard, cursedChoiceCount, cursedChoiceFromQuery, cursedChoiceInvitePath,
+  cursedChoiceMade, cursedChoicePrompt, cursedChoiceQueryKey, cursedChoices,
+  cursedChoicesAltText, cursedChoiceStart, readCursedChoice,
 } from '../src/lib/cursed-choices.ts';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -118,6 +119,36 @@ test('a side starts empty, changes per prompt and never leaves its prompt', () =
   assert.equal(cursedChoicePrompt('0'), null);
 });
 
+test('a challenge link carries only one validated ordinal and reopens that curse unplayed', () => {
+  assert.equal(cursedChoiceQueryKey, 'curse');
+  assert.equal(cursedChoiceInvitePath(0), '/share/experiences/cursed-choices');
+  assert.equal(cursedChoiceInvitePath(1), '/share/experiences/cursed-choices?curse=2');
+  assert.equal(cursedChoiceInvitePath(9), '/share/experiences/cursed-choices?curse=10');
+  assert.equal(cursedChoiceInvitePath('2'), '/share/experiences/cursed-choices', 'a string is not an ordinal');
+  assert.equal(cursedChoiceInvitePath(10), '/share/experiences/cursed-choices');
+  assert.equal(cursedChoiceInvitePath(null), '/share/experiences/cursed-choices');
+  for (let index = 0; index < cursedChoiceCount; index += 1) {
+    const path = cursedChoiceInvitePath(index);
+    const url = new URL(path, 'https://composer.loftwah.com');
+    assert.equal(url.pathname, '/share/experiences/cursed-choices');
+    assert.equal(url.hash, '');
+    assert.ok(url.search === '' || url.search === `?curse=${index + 1}`);
+    assert.equal(cursedChoiceFromQuery(url.search), index, 'the invite round-trips');
+    assert.doesNotMatch(path.slice('/share/experiences/cursed-choices'.length), /result|byline|answer|choice|side|draft|&|#/i);
+  }
+  assert.equal(cursedChoiceFromQuery(''), 0);
+  assert.equal(cursedChoiceFromQuery('?curse=1'), 0, 'the first curse is the bare route');
+  assert.equal(cursedChoiceFromQuery('?curse=4'), 3);
+  assert.equal(cursedChoiceFromQuery('?curse=10'), 9);
+  for (const bad of [
+    '', '?curse=0', '?curse=11', '?curse=-1', '?curse=01', '?curse=+4',
+    '?curse=4.0', '?curse=%34', '?curse=4 ', '?curse=4&curse=4',
+    '?curse=4&pack=food', '?pack=food&curse=4', '?other=4', '?CURSE=4', '?curse=',
+  ]) {
+    assert.equal(cursedChoiceFromQuery(bad), 0, `${bad} falls back to curse one`);
+  }
+});
+
 test('the printed card keeps the exact prompt, chosen constraint and consequence', () => {
   assert.deepEqual(cursedChoiceCard(0, 0), {
     number: 1,
@@ -157,9 +188,9 @@ test('the card description names only the current curse and its side', () => {
   assert.equal(cursedChoicesAltText({ cursePrompt: 12, curseChoice: 0 }), '');
 });
 
-test('the browser docket keeps choices in memory and never builds a link', () => {
+test('the browser docket keeps choices private and shares only an answer-free curse invite', () => {
   const controller = read('src/browser/share-experiences.ts');
-  assert.match(controller, /game === "cursed-choices" \? mountCursedChoices\(root, update\)/);
+  assert.match(controller, /game === "cursed-choices" \? mountCursedChoices\(root, update, cursedChoiceFromQuery\(location\.search\)\)/);
   assert.match(controller, /const shared = game === "red-flag-court"[^;]*game === "cursed-choices"/);
   assert.match(controller, /status\.textContent = "Pick a side for the current curse to download your card\."/);
   assert.match(controller, /game !== "cursed-choices"/);
@@ -176,6 +207,10 @@ test('the browser docket keeps choices in memory and never builds a link', () =>
   assert.match(block, /linksAllowed: \(\) => false/);
   assert.match(block, /cursePrompt: current, curseChoice: pick/);
   assert.match(block, /control\.disabled = false/, 'the guarded controls release only after this mount');
+  assert.match(block, /new URL\(cursedChoiceInvitePath\(current\), location\.origin\)\.href/);
+  assert.match(block, /await navigator\.clipboard\.writeText\(href\)/);
+  assert.match(block, /copyManual\.value = href;[\s\S]*?copyManual\.hidden = false;[\s\S]*?copyManual\.focus\(\);[\s\S]*?copyManual\.select\(\);/);
+  assert.match(block, /if \(attempt !== copyAttempt\) return;/, 'a late clipboard result cannot describe a moved curse');
   for (const forbidden of ['localStorage', 'sessionStorage', 'fetch(', 'resultLink', 'draftKey', 'sendBeacon']) {
     assert.equal(block.includes(forbidden), false, `the docket does not use ${forbidden}`);
   }
@@ -187,9 +222,10 @@ test('the stage starts every JS-only control disabled until the docket mounts', 
   const block = markup.slice(start, markup.indexOf('{isThis &&', start));
   assert.ok(start > 0 && block.length > 0, 'the curse stage exists');
   assert.match(block, /data-cc-folio/);
+  assert.match(block, /Curse \{String\(activeIndex \+ 1\)\.padStart\(2, "0"\)\}/);
   assert.match(block, /data-cc-heading/);
   assert.match(block, /data-cc-prompt=\{index\}/);
-  assert.match(block, /aria-pressed=\{index === 0 \? "true" : "false"\}/);
+  assert.match(block, /aria-pressed=\{index === activeIndex \? "true" : "false"\}/);
   assert.match(block, /aria-controls="cc-curse"/);
   assert.match(block, /data-cc-prompt=\{index\}[\s\S]*?disabled>/);
   assert.match(block, /data-cc-choice=\{index\} aria-pressed="false" disabled/);
@@ -200,7 +236,11 @@ test('the stage starts every JS-only control disabled until the docket mounts', 
   assert.match(block, /data-cc-next disabled/);
   assert.match(block, /data-cc-clear disabled/);
   assert.match(block, /href=\{experiencePath\("cursed-choices"\)\} data-cc-fresh/);
-  assert.match(block, /cursedChoices\[0\]\.prompt/);
+  assert.match(block, /data-cc-copy disabled/);
+  assert.match(block, /readonly aria-label="Challenge link to copy" data-cc-copy-manual/);
+  assert.match(block, /data-cc-copy-status/);
+  assert.match(block, /\{activeCurse\.prompt\}/);
+  assert.match(block, /\{activeCurse\.choices\.map/);
   assert.match(block, /stay in this tab/i);
   assert.match(markup, /isCurse \? \["Game show gold", "Library green", "Modem magenta"\]/);
   assert.match(markup, /\{isCourt \|\| isTournament \|\| isCurse \? <label>Format<select data-format>/);
@@ -214,7 +254,8 @@ test('the protected route serves only registered games and restores no result st
   const page = read('src/pages/share/experiences/[game].astro');
   assert.match(page, /const id = Astro\.params\.game \?\? "";/);
   assert.match(page, /if \(!Object\.hasOwn\(experiences, id\)\) return new Response\("Experience not found", \{ status: 404 \}\);/);
-  assert.match(page, /<ShareExperience \{game\} experience=\{experience\} art=\{experienceArt\(game\)\} \/>/);
+  assert.match(page, /<ShareExperience \{game\} experience=\{experience\} art=\{experienceArt\(game\)\} \{curseIndex\} \/>/);
+  assert.match(page, /const curseIndex = game === "cursed-choices" \? cursedChoiceFromQuery\(Astro\.url\.search\) : 0;/);
   const controller = read('src/browser/share-experiences.ts');
   const guard = controller.match(/const shared = ([^;]+)\n\s*\?\s*\{ snapshot: null[^}]*invalid: false \}\s*:\s*sharedResult\(game\)/);
   assert.ok(guard, 'private games skip the generic snapshot reader');

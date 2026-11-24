@@ -37,15 +37,17 @@ import {
   techTournamentPickCount, techTournamentPlaceholder,
 } from "../../lib/tech-tournament.ts";
 import {
-  cursedChoices, cursedChoicesSubtitle, cursedChoiceCount,
+  cursedChoices, cursedChoicesSubtitle, cursedChoiceCount, cursedChoicePrompt,
 } from "../../lib/cursed-choices.ts";
 
 interface Props {
   game: ExperienceId;
   experience: (typeof experiences)[ExperienceId];
   art: string;
+  /** Validated 0-based docket index from an answer-free challenge link. */
+  curseIndex?: number;
 }
-const { game, experience, art } = Astro.props;
+const { game, experience, art, curseIndex = 0 } = Astro.props;
 const isDoor = game === "pick-a-door";
 const isNine = game === "top-nine";
 const isBingo = game === "tech-bingo";
@@ -59,6 +61,10 @@ const isWrong = game === "wrong-answers";
 const isCourt = game === "red-flag-court";
 const isTournament = game === "tech-tournament";
 const isCurse = game === "cursed-choices";
+// Server-render the requested prompt, still unplayed, so a slow or absent
+// script shows the same curse the mounted docket will select.
+const activeIndex = cursedChoicePrompt(curseIndex) ? Number(curseIndex) : 0;
+const activeCurse = cursedChoices[activeIndex];
 const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
@@ -506,11 +512,11 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   {isCurse && <section data-play-panel class="cc-stage" aria-label="Pick your curse docket">
     <div class="cc-masthead">
       <p class="cc-kicker">{cursedChoicesSubtitle} · Internet Workshop</p>
-      <p class="cc-folio" data-cc-folio>Curse 01 of {cursedChoiceCount} · 0 chosen</p>
+      <p class="cc-folio" data-cc-folio>Curse {String(activeIndex + 1).padStart(2, "0")} of {cursedChoiceCount} · 0 chosen</p>
     </div>
     <div class="cc-index" role="group" aria-label="Choose a curse">
       {cursedChoices.map((entry, index) => <button type="button" data-cc-prompt={index}
-        aria-label={`Curse ${index + 1}: ${entry.prompt}`} aria-pressed={index === 0 ? "true" : "false"}
+        aria-label={`Curse ${index + 1}: ${entry.prompt}`} aria-pressed={index === activeIndex ? "true" : "false"}
         aria-controls="cc-curse" disabled>
         <span class="cc-index-number">{String(index + 1).padStart(2, "0")}</span>
         <span class="cc-index-name">{entry.tab}</span>
@@ -518,9 +524,9 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       </button>)}
     </div>
     <div class="cc-sheet">
-      <h2 id="cc-curse" class="cc-curse" tabindex="-1" data-cc-heading>{cursedChoices[0].prompt}</h2>
+      <h2 id="cc-curse" class="cc-curse" tabindex="-1" data-cc-heading>{activeCurse.prompt}</h2>
       <div class="cc-choices" role="group" aria-labelledby="cc-curse">
-        {cursedChoices[0].choices.map((choice, index) =>
+        {activeCurse.choices.map((choice, index) =>
           <button type="button" data-cc-choice={index} aria-pressed="false" disabled>
             <span class="cc-choice-side" aria-hidden="true">{index === 0 ? "A" : "B"}</span>
             <span class="cc-choice-text" data-cc-choice-text={index}>{choice}</span>
@@ -537,6 +543,11 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <button type="button" class="secondary" data-cc-next disabled>Next curse</button>
         <button type="button" class="secondary" data-cc-clear disabled>Clear this curse</button>
         <a class="secondary" href={experiencePath("cursed-choices")} data-cc-fresh aria-label="Start a fresh curse docket and clear every choice in this tab">Start a fresh docket</a>
+        <button type="button" class="secondary" data-cc-copy disabled>Copy this curse</button>
+      </div>
+      <div class="cc-invite" data-cc-invite>
+        <input hidden readonly aria-label="Challenge link to copy" data-cc-copy-manual />
+        <p class="experience-note" role="status" aria-live="polite" data-cc-copy-status></p>
       </div>
     </div>
   </section>}

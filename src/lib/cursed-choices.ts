@@ -1,11 +1,13 @@
 import { cleanText } from "./share-experience-draft.ts";
+import { experiencePath } from "./share-experiences.ts";
 
 /** One bounded “Pick your curse” game-show docket for the Internet Workshop,
  * reusing the owned split library/modems poster. Ten brief, fictional
  * either-or constraints; the participant keeps one side per prompt in this
  * tab and the stage reveals that side's own consequence. No vote, comparison,
- * score, account, provider, saved history or result link exists. The
- * downloaded portrait or wide card prints only the current curse: its exact
+ * score, account, provider, saved history or result link exists; the only link
+ * is an answer-free invite to one unplayed curse. The downloaded portrait or
+ * wide card prints only the current curse: its exact
  * prompt, the chosen constraint and that consequence. Kept pure so the
  * docket, the local picks and the exact printed card can be checked without a
  * browser. */
@@ -160,6 +162,35 @@ export function cursedChoicePrompt(index: unknown): CursedPrompt | null {
 /** How many of the ten prompts have a side, for the quiet progress line. */
 export function cursedChoiceMade(picks: readonly (CursedChoice | null)[]): number {
   return picks.slice(0, cursedChoiceCount).filter((pick) => pick !== null).length;
+}
+
+/** The only query key an answer-free curse invite may carry. */
+export const cursedChoiceQueryKey = "curse";
+
+/** The bare canonical route: no query, fragment or carried state. */
+export const cursedChoiceBlankPath = experiencePath("cursed-choices");
+
+/** One answer-free invite for a built-in curse. The first curse keeps the bare
+ * route; every later curse carries exactly one canonical 1-based ordinal. No
+ * side, consequence, byline, answer, result, draft or other query travels. */
+export function cursedChoiceInvitePath(index: unknown): string {
+  if (!cursedChoicePrompt(index)) return cursedChoiceBlankPath;
+  const ordinal = Number(index) + 1;
+  return ordinal === 1 ? cursedChoiceBlankPath : `${cursedChoiceBlankPath}?${cursedChoiceQueryKey}=${ordinal}`;
+}
+
+/** Reads the one ordinal a challenge link may carry, as a 0-based docket index.
+ * Only a single canonical decimal 1–10 on its own key counts. A missing,
+ * duplicated, encoded, signed, padded, extra-key or out-of-range value opens
+ * the first curse. The server route and the controller share this validator so
+ * the no-JS prompt and the mounted docket always select the same curse, still
+ * unplayed, with no restore state. */
+export function cursedChoiceFromQuery(search: string): number {
+  const raw = search.startsWith("?") ? search.slice(1) : search;
+  const match = /^curse=([1-9]|10)$/.exec(raw);
+  if (!match) return 0;
+  const index = Number(match[1]) - 1;
+  return cursedChoicePrompt(index) ? index : 0;
 }
 
 export interface CursedChoiceCard {
