@@ -1,20 +1,22 @@
 ---
-import { browserCheckPath, handoffAgents, readyTasks, conceptInputLimit } from '../lib/ready-handoff';
+import { browserCheckHref, handoffAgentFromParams, agentContextLine, handoffAgents, readyTasks, conceptInputLimit } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
 const { preferences=false }=Astro.props;
 const selected=Astro.url.searchParams.get('task');
 const taskId=selected&&Object.hasOwn(readyTasks,selected)?selected as keyof typeof readyTasks:'setup';
 const initial=readyTasks[taskId];
 const browserTask=taskId==='browser';
+const selectedAgent=preferences?handoffAgentFromParams(Astro.url.searchParams):'any';
+const initialPrompt=taskId==='setup'&&selectedAgent!=='any'?agentContextLine(selectedAgent)+'\n\n'+initial.prompt:initial.prompt;
 ---
 <div data-ready-handoff data-use-setup-preferences={preferences ? "true" : undefined}>
  <label>What should the agent do?
   <select data-ready-task disabled>{Object.entries(readyTasks).map(([id,task])=><option value={id} selected={id===taskId}>{task.label}</option>)}</select>
  </label>
  <p data-ready-help class="small" role="status">{initial.help}</p>
- <p class="small" data-browser-check-link hidden={!browserTask}><a href={browserCheckPath}>Open the practice page</a></p>
+ <p class="small" data-browser-check-link hidden={!browserTask}><a href={browserCheckHref(selectedAgent)}>Open the practice page</a></p>
  {preferences && <label data-ready-agent-choice hidden>Which coding agent do you use?
-  <select data-ready-agent>{Object.entries(handoffAgents).map(([id,agent])=><option value={id} selected={id==='any'}>{agent.label}</option>)}</select>
+  <select data-ready-agent>{Object.entries(handoffAgents).map(([id,agent])=><option value={id} selected={id===selectedAgent}>{agent.label}</option>)}</select>
  </label>}
  {preferences && <details data-ready-concept hidden>
   <summary>Use an idea I already have</summary>
@@ -25,7 +27,7 @@ const browserTask=taskId==='browser';
  </details>}
  <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy agent handoff'}</span></button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
- <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
+ <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initialPrompt}</pre></details>
  <noscript><p class="small">Open the handoff above, select its text and paste it into your coding agent. Without JavaScript, it contains the selected request.</p></noscript>
 </div>
 <style>
@@ -77,7 +79,7 @@ const browserTask=taskId==='browser';
   }
 </style>
 <script>
-import {readyTasks,handoffAgents,agentContextLine,conceptContextBlock} from '../lib/ready-handoff';
+import {readyTasks,handoffAgent,agentContextLine,conceptContextBlock,browserCheckHref,readyTaskHref} from '../lib/ready-handoff';
 import {setupPreferenceHandoff,assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
 import {currentAssistance} from '../lib/assistance';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
@@ -92,6 +94,8 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const help=container.querySelector<HTMLElement>('[data-ready-help]')!;
  const copyLabel=container.querySelector<HTMLElement>('[data-ready-copy-label]')!;
  const browserCheckLink=container.querySelector<HTMLElement>('[data-browser-check-link]')!;
+ const browserCheckAnchor=browserCheckLink.querySelector<HTMLAnchorElement>('a')!;
+ const browserTaskAnchor=container.closest('#agent-start')?.querySelector<HTMLAnchorElement>('[data-ready-browser-task-link]');
  // A clipboard result only describes the request it started from. revision moves
  // whenever the generated text changes and attempt names the latest copy action,
  // so an older settlement cannot speak for a different or newer request.
@@ -100,13 +104,14 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const update=()=>{
   const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
   const browserTask=task===readyTasks.browser;
-  const selectedAgent=agentSelector?.value??'any';
-  const agentId=Object.hasOwn(handoffAgents,selectedAgent)?selectedAgent as keyof typeof handoffAgents:'any';
+  const agentId=handoffAgent(agentSelector?.value);
   let text=task.prompt,failure='';
   button.disabled=false;
   help.textContent=task.help;
   copyLabel.textContent=browserTask?'Copy browser check':'Copy agent handoff';
   browserCheckLink.hidden=!browserTask;
+  browserCheckAnchor.href=browserCheckHref(agentId);
+  if(browserTaskAnchor)browserTaskAnchor.href=readyTaskHref('browser',agentId);
   if(agentChoice)agentChoice.hidden=task!==readyTasks.setup;
   if(conceptDetail)conceptDetail.hidden=task!==readyTasks.setup;
   if(task===readyTasks.setup){
