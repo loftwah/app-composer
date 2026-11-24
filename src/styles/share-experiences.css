@@ -389,6 +389,18 @@
   color: var(--color-accent); font-size: .86rem;
   text-decoration: underline; text-underline-offset: .2em;
 }
+/* One inline, keyboard-accessible decision before a catalogue result replaces
+   an exhibit that already carries a title, source, page or local cover. */
+.music-replace {
+  margin-top: .7rem; padding: .7rem .8rem;
+  border: 1px solid var(--color-control-border);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: 4px;
+  background: var(--color-surface);
+}
+.music-replace .experience-note { margin: 0; }
+.music-replace-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .6rem; }
+.music-replace-actions button { min-height: 44px; }
 .music-recovery { margin-top: .7rem; }
 .music-recovery .experience-note { margin: 0 0 .4rem; color: var(--color-muted); }
 .music-recovery-links { display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; }

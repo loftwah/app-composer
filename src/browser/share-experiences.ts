@@ -95,8 +95,11 @@ import {
 } from "../lib/tech-tournament.ts";
 import {
   normaliseSourceLinks, sourceLink,
-  type SourceKind,
+  type SourceKind, type SourceProvider,
 } from "../lib/top-nine-source.ts";
+import {
+  replaceAttachmentList, replaceOfferApplies, replacePrompt, type ReplaceSlotSnapshot,
+} from "../lib/top-nine-replace.ts";
 import type { CataloguePick } from "../lib/itunes-catalogue.ts";
 
 type SearchPick = CataloguePick | WikidataPick;
@@ -355,6 +358,12 @@ function mountNine(
   const previewGrid = root.querySelector<HTMLElement>("[data-nine-preview]");
   const previewSubtitle = root.querySelector<HTMLElement>("[data-nine-preview-subtitle]");
   const previewCells = elements<HTMLElement>(root, "[data-nine-preview-cell]");
+  const replace = {
+    group: root.querySelector<HTMLElement>("[data-music-replace]")!,
+    note: root.querySelector<HTMLElement>("[data-music-replace-note]")!,
+    confirm: root.querySelector<HTMLButtonElement>("[data-music-replace-confirm]")!,
+    keep: root.querySelector<HTMLButtonElement>("[data-music-replace-keep]")!,
+  };
   const storage: DraftStorage = (() => {
     try { return localStorage; } catch { return blockedStorage; }
   })();
@@ -383,6 +392,15 @@ function mountNine(
   /** The slots and exact title/page pairs one pasted fill added, kept whole so
    * Undo clears that fill in one step and returns its raw rows to the editor. */
   let lastFill: { indexes: number[]; titles: string[]; urls: (string | null)[]; rows: string[] } | null = null;
+  /** One catalogue replacement waiting for the person's decision, bound to the
+   * exact slot state the prompt named. A target change, new search, draft,
+   * restore or any change to that slot clears it before it can apply. */
+  let replaceOffer: (ReplaceSlotSnapshot & {
+    pick: SearchPick;
+    source: { href: string; provider: SourceProvider };
+    label: string;
+    button: HTMLButtonElement | null;
+  }) | null = null;
   /** Album lookups still in flight for a pasted link, one per exhibit. */
   const pendingLookups = new Map<number, AbortController>();
 
@@ -526,7 +544,12 @@ function mountNine(
   }
 
   function setLink(index: number, href: string | null) {
-    if (hrefs[index] !== href) cancelLookup(index);
+    if (hrefs[index] !== href) {
+      cancelLookup(index);
+      // A source link changed under an open replacement prompt: the prompt no
+      // longer describes this slot, so it closes before the write lands.
+      if (replaceOffer?.slot === index) clearReplace();
+    }
     hrefs[index] = href;
     if (previewIndex === index) closePreview(false);
     refreshLinks();
@@ -603,6 +626,7 @@ function mountNine(
       remove.textContent = "Remove cover";
       remove.setAttribute("aria-label", `Remove the cover from exhibit ${index + 1}`);
       remove.addEventListener("click", () => {
+        if (replaceOffer?.slot === index) clearReplace();
         disposeCover(index);
         renderCovers();
         renderPreview();
@@ -695,6 +719,7 @@ function mountNine(
       remove.textContent = "Remove page";
       remove.setAttribute("aria-label", `Remove the web page link from exhibit ${index + 1}`);
       remove.addEventListener("click", () => {
+        if (replaceOffer?.slot === index) clearReplace();
         pageLinks[index] = null;
         pageTitles[index] = "";
         page.status.textContent = `Exhibit ${index + 1} keeps its title. Its web page link was removed.`;
@@ -819,6 +844,7 @@ function mountNine(
     }
     artCtx.imageSmoothingQuality = "high";
     artCtx.drawImage(source, 0, 0, art.width, art.height);
+    if (replaceOffer?.slot === index) clearReplace();
     disposeCover(index);
     // A fresh cover starts at the current cropped default; any fit chosen for
     // the art it replaces went with that slot.
@@ -937,7 +963,7 @@ function mountNine(
       detail.textContent = [artist, year, platform, source.provider].filter(Boolean).join(" · ")
         || `Unlisted · ${source.provider}`;
       button.append(heading, detail);
-      button.addEventListener("click", () => fillFromPick(pick));
+      button.addEventListener("click", () => fillFromPick(pick, button));
       row.append(button);
       if (!firstChoice) firstChoice = button;
       if (playable) {
@@ -988,6 +1014,9 @@ function mountNine(
   }
 
   function clearResults() {
+    // A new search, typed query or kind change retires any pending replacement:
+    // its result row is about to leave the panel.
+    clearReplace();
     resultPicks = [];
     shownResults = 0;
     music.more.hidden = true;
@@ -996,7 +1025,100 @@ function mountNine(
     closeSearchPreview();
   }
 
-  function fillFromPick(pick: SearchPick) {
+  /** Close the one pending replacement. When it held focus, or a caller asks,
+   * focus returns to the pick that opened it, else the next usable catalogue
+   * control — never a control that no longer exists. */
+  function clearReplace(restoreFocus = false) {
+    const offer = replaceOffer;
+    if (!offer) return;
+    const heldFocus = replace.group.contains(document.activeElement);
+    replaceOffer = null;
+    replace.group.hidden = true;
+    replace.note.textContent = "";
+    replace.confirm.textContent = "Replace exhibit";
+    if (!restoreFocus && !heldFocus) return;
+    const button = offer.button?.isConnected
+      ? offer.button
+      : music.results.querySelector<HTMLButtonElement>("li > button:not(.music-preview-open)");
+    const fallback = button ?? music.panel.querySelector<HTMLElement>("summary") ?? music.query;
+    fallback?.focus({ preventScroll: true });
+  }
+
+  /** One result onto an occupied or already attached exhibit: say which
+   * exhibit, name both titles, plainly warn what is removed, and wait. */
+  function offerReplace(
+    slot: number,
+    pick: SearchPick,
+    source: { href: string; provider: SourceProvider },
+    label: string,
+    button: HTMLButtonElement | null,
+  ) {
+    // One decision at a time: a second result replaces the first prompt.
+    if (replaceOffer) clearReplace();
+    const attached = [
+      hrefs[slot] ? `${sourceLink(hrefs[slot])?.provider ?? "Source"} source link` : "",
+      livePage(slot) ? "web page" : "",
+      covers[slot] ? "cover art" : "",
+    ].filter(Boolean);
+    replaceOffer = {
+      slot, pick, source, label, button,
+      title: objects[slot].value,
+      href: hrefs[slot],
+      page: livePage(slot),
+      cover: covers[slot],
+    };
+    replace.confirm.textContent = `Replace exhibit ${slot + 1}`;
+    replace.note.textContent = replacePrompt(slot, entry(objects[slot].value, 54), label, attached);
+    replace.group.hidden = false;
+    replace.keep.focus();
+    note(`Exhibit ${slot + 1} already has content.`);
+  }
+
+  /** Write one catalogue result into one exhibit through the same title field,
+   * source link, page and cover state as every other edit. A replacement also
+   * releases the old page and local cover, because they belonged to the exhibit
+   * being replaced; every other slot keeps its own content. */
+  function applyPick(
+    slot: number,
+    pick: SearchPick,
+    source: { href: string; provider: SourceProvider },
+    label: string,
+  ) {
+    const filled = slot + 1;
+    const removed = [
+      hrefs[slot] ? `${sourceLink(hrefs[slot])?.provider ?? "Source"} source link` : "",
+      livePage(slot) ? "web page" : "",
+      covers[slot] ? "cover art" : "",
+    ].filter(Boolean);
+    const replaced = Boolean(objects[slot].value.trim() || removed.length);
+    cancelLookup(slot);
+    if (covers[slot]) {
+      disposeCover(slot);
+      renderCovers();
+    }
+    if (pageLinks[slot]) {
+      pageLinks[slot] = null;
+      pageTitles[slot] = "";
+    }
+    objects[slot].value = label;
+    setLink(slot, source.href);
+    const empty = firstEmpty();
+    if (empty >= 0) target = empty;
+    markTarget();
+    renderPreview();
+    note(`${entry(pick.title, 54)} ${replaced ? "replaced" : "added to"} exhibit ${filled}.${
+      removed.length
+        ? ` The previous ${replaceAttachmentList(removed)} ${removed.length === 1 ? "was" : "were"} removed.`
+        : ""
+    }${empty >= 0 ? ` Next pick fills exhibit ${target + 1}.` : ""}${
+      albumWikiSearch && source.provider === "Wikidata"
+        ? " The Wikidata link is release details only — paste an Apple Music or Spotify link for playback."
+        : ""
+    }`);
+    update();
+  }
+
+  function fillFromPick(pick: SearchPick, button: HTMLButtonElement | null = null) {
     const source = sourceLink(pick.href);
     const name = entry(pick.title, 54);
     if (!source || !name) {
@@ -1005,23 +1127,22 @@ function mountNine(
     }
     const artist = entry(pick.artist, 48);
     const year = yearOf(pick.year);
-    const filled = target + 1;
+    const slot = target;
     // Films, TV series and games read as "Dune (2021)"; the description is
     // shown in the result row, not typed into the exhibit. Wikidata album
     // picks get the same title/year and one metadata-only note: playback needs
     // a real Apple Music or Spotify link, never an inferred provider ID.
-    objects[target].value = entry(source.provider === "Wikidata"
+    const label = entry(source.provider === "Wikidata"
       ? year ? `${name} (${year})` : name
       : artist ? `${name} · ${artist}` : name, 54);
-    setLink(target, source.href);
-    const empty = firstEmpty();
-    if (empty >= 0) target = empty;
-    markTarget();
-    note(`${name} added to exhibit ${filled}.${empty >= 0 ? ` Next pick fills exhibit ${target + 1}.` : ""}${
-      albumWikiSearch && source.provider === "Wikidata"
-        ? " The Wikidata link is release details only — paste an Apple Music or Spotify link for playback."
-        : ""}`);
-    update();
+    // An occupied exhibit, or one already carrying a source link, page or local
+    // cover, is never overwritten by one tap. The panel names both titles and
+    // waits for an explicit choice; an empty, unattached slot keeps its fill.
+    if (objects[slot].value.trim() || hasExhibitAttachment(slot)) {
+      offerReplace(slot, pick, source, label, button);
+      return;
+    }
+    applyPick(slot, pick, source, label);
   }
 
   /** A deliberate paste of an Apple Music, Spotify album or Apple Books link
@@ -1064,6 +1185,7 @@ function mountNine(
         ? entry(found, 54)
         : entry(found.artist ? `${found.title} · ${found.artist}` : found.title, 54);
       if (!objects[slot].isConnected || !label || !untouched()) return;
+      if (replaceOffer?.slot === slot) clearReplace();
       objects[slot].value = label;
       refreshLinks();
       renderPreview();
@@ -1203,6 +1325,7 @@ function mountNine(
     discardFill();
     cancelLookup();
     closePreview(false);
+    clearReplace();
     hrefs = restoredHrefs;
     pageLinks = trimPages(draft.pages);
     pageTitles = objects.map((input) => input.value.trim());
@@ -1236,6 +1359,7 @@ function mountNine(
 
   /** One swap keeps an exhibit's title, canonical source link and local cover together. */
   function swapExhibits(from: number, to: number) {
+    if (replaceOffer && (replaceOffer.slot === from || replaceOffer.slot === to)) clearReplace();
     cancelLookup(from);
     cancelLookup(to);
     const first = objects[from].value;
@@ -1389,6 +1513,7 @@ function mountNine(
     const currentPages = objects.map((_, index) => livePage(index));
     const plan = planNineListUndo(filled, objects.map((input) => input.value), hasFillBlocker, currentPages);
     plan.clear.forEach((index) => {
+      if (replaceOffer?.slot === index) clearReplace();
       pageLinks[index] = null;
       pageTitles[index] = "";
       setExhibit(index, "");
@@ -1473,12 +1598,49 @@ function mountNine(
     note(music.platform.value === "all" ? "" : "Platform filter set. Search again to apply it.");
   });
   music.target.addEventListener("change", () => {
+    // Choosing another exhibit is navigation away from the prompt's target.
+    clearReplace();
     target = Number(music.target.value);
     markTarget();
   });
   music.panel.addEventListener("toggle", () => {
-    if (!music.panel.open) closePreview(false);
+    if (!music.panel.open) {
+      closePreview(false);
+      clearReplace();
+    }
     markTarget();
+  });
+  replace.keep.addEventListener("click", () => {
+    const slot = replaceOffer?.slot;
+    clearReplace(true);
+    if (slot !== undefined) note(`Exhibit ${slot + 1} kept as it is.`);
+  });
+  replace.confirm.addEventListener("click", () => {
+    const offer = replaceOffer;
+    if (!offer) return;
+    const slot = offer.slot;
+    const current = {
+      slot,
+      title: objects[slot].value,
+      href: hrefs[slot],
+      page: livePage(slot),
+      cover: covers[slot],
+    };
+    // The prompt is worth nothing if its slot is no longer the target or has
+    // changed since it was read: close it and leave the board alone.
+    const applies = slot === target && Number(music.target.value) === slot
+      && objects[slot].isConnected && replaceOfferApplies(offer, current);
+    clearReplace(true);
+    if (!applies) {
+      note(`Exhibit ${slot + 1} changed after you read that prompt, so nothing was replaced. Choose the result again to replace it.`);
+      return;
+    }
+    applyPick(slot, offer.pick, offer.source, offer.label);
+  });
+  replace.group.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    replace.keep.click();
   });
   music.previewClose.addEventListener("click", () => closePreview());
   music.preview.addEventListener("keydown", (event) => {
@@ -1532,6 +1694,7 @@ function mountNine(
       return;
     }
     const previous = livePage(slot);
+    if (replaceOffer?.slot === slot) clearReplace();
     pageLinks[slot] = href;
     pageTitles[slot] = name;
     page.input.value = "";
@@ -1559,6 +1722,8 @@ function mountNine(
       update();
     });
     input.addEventListener("input", () => {
+      // Typing in the slot the prompt named changes the exhibit it described.
+      if (replaceOffer?.slot === index) clearReplace();
       // A page belongs to the exact title it was attached to. Changing that
       // title detaches it explicitly instead of leaving a stale address.
       if (pageLinks[index] && pageTitles[index] !== input.value.trim()) {
@@ -1629,6 +1794,7 @@ function mountNine(
     }
     openDraft.hidden = true;
     discardMove();
+    clearReplace();
     draftStatus.textContent = "Saved draft cleared from this device. Your exhibition is still here.";
   });
 
@@ -1773,6 +1939,7 @@ function mountNine(
       discardFill();
       cancelLookup();
       closePreview(false);
+      clearReplace();
       hrefs = trimHrefs(snapshot.hrefs);
       pageLinks = trimPages(snapshot.pages);
       pageTitles = objects.map((input) => input.value.trim());

@@ -195,6 +195,13 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" data-music-game-coverage hidden>PC and Console use platforms recorded on Wikidata. Games with no recorded platform, or only other platforms, stay under All games.</p>
       <p class="experience-note" role="status" data-music-status></p>
       <ul class="music-results" aria-label="Search results" hidden data-music-results></ul>
+      <div class="music-replace" role="group" aria-label="Replace an exhibit" data-music-replace hidden>
+        <p class="experience-note" id="music-replace-note" data-music-replace-note></p>
+        <div class="music-replace-actions">
+          <button type="button" class="secondary" data-music-replace-keep aria-describedby="music-replace-note">Keep current exhibit</button>
+          <button type="button" data-music-replace-confirm aria-describedby="music-replace-note">Replace exhibit</button>
+        </div>
+      </div>
       <button type="button" class="secondary" hidden data-music-more>Show more results</button>
       <div class="music-recovery" data-music-recovery hidden>
         <p class="experience-note" data-music-recovery-note>Wrong match? Search Apple Music or Spotify, select the exact album or song, copy its link and paste it below.</p>
