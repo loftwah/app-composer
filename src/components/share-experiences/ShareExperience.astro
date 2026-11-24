@@ -719,7 +719,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </div>
   </section>}
 
-  {isNine && <section data-play-panel class="exhibition nine-editor" aria-labelledby="nine-editor-heading">
+  {isNine && <section data-play-panel class="exhibition nine-editor" data-nine-active-field aria-labelledby="nine-editor-heading">
     <h2 id="nine-editor-heading">Add or edit titles</h2>
     <div class="nine-add-methods">
       <details class="exhibit-list" data-list-panel>
@@ -844,7 +844,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
         <p class="experience-note" data-music-coverage hidden>Films, TV series, games and programming languages come from Wikidata (CC0 data). Coverage is partial, and each result links to its item page.</p>
       </details>
     </div>
-    <div class="exhibition-objects" data-exhibition-objects data-nine-active-field>
+    <div class="exhibition-objects" data-exhibition-objects>
       {Array.from({length: 9}, (_, index) => <label data-nine-current={index === 0 ? "" : undefined}>
         <span class="exhibit-heading" draggable="true" data-drag-slot={index} title="Drag onto another slot to swap exhibits">
           <span class="exhibit-grip" aria-hidden="true"></span><span><em class="exhibit-rank" id={`exhibit-rank-${index}`} data-exhibit-rank={index} hidden>#{index + 1}</em><span class="exhibit-number" aria-hidden="true">{index + 1}</span><em class="exhibit-filling" data-exhibit-filling={index} aria-hidden="true" hidden>· filling</em></span>

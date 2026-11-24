@@ -1654,7 +1654,7 @@ function mountNine(
     const expanded = allFields.getAttribute("aria-expanded") !== "true";
     allFields.setAttribute("aria-expanded", String(expanded));
     allFields.textContent = expanded ? "Show selected title" : "Show all titles";
-    exhibitionBoard.toggleAttribute("data-nine-active-field", !expanded);
+    allFields.closest(".nine-editor")?.toggleAttribute("data-nine-active-field", !expanded);
   });
   objects.forEach((input, index) => {
     input.addEventListener("focus", () => {

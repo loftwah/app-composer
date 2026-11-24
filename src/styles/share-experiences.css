@@ -642,9 +642,9 @@
   min-width: 0; margin: 0; padding: .12rem 0;
   color: inherit; font-size: .92rem;
 }
-.nine-editor [data-nine-active-field] { grid-template-columns: minmax(0, 1fr); }
-.nine-editor [data-nine-active-field] label:not([data-nine-current]) { display: none; }
-.nine-editor [data-nine-active-field] .exhibit-number::before { content: "Item "; }
+.nine-editor[data-nine-active-field] .exhibition-objects { grid-template-columns: minmax(0, 1fr); }
+.nine-editor[data-nine-active-field] .exhibition-objects label:not([data-nine-current]) { display: none; }
+.nine-editor[data-nine-active-field] .exhibit-number::before { content: "Item "; }
 .nine-canvas [data-download]:disabled {
   background: transparent;
   border-color: var(--color-border);
