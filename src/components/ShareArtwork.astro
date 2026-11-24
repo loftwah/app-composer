@@ -111,7 +111,7 @@ const options = {
     </div>
     <nav class="gallery-related" aria-label="More to explore">
       {tag === "computer-club" && <a href="/share/experiences/computer-club">Play Computer Club <ArrowUpRight size={13} aria-hidden="true" /></a>}
-      <a href={shareCalendarHref}>Share calendar <ArrowUpRight size={13} aria-hidden="true" /></a>
+      <a href={shareCalendarHref}>{signedIn ? 'Share calendar' : 'Share calendar (invited access)'} <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="/share?view=films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
       <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={13} aria-hidden="true" /></a>
