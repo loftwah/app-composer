@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { appleBookRef } from '../src/lib/top-nine-books.ts';
 import { normaliseSourceLinks, sourceLink } from '../src/lib/top-nine-source.ts';
 
 const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
@@ -62,6 +63,19 @@ test('unsupported, insecure and spoofed URLs stay rejected across providers', ()
   ]) {
     assert.equal(sourceLink(href), null);
   }
+});
+
+test('the verified exact-ID book link keeps one canonical source and ebook ID', () => {
+  const pasted = 'https://books.apple.com/us/book/steve-jobs/id431617578?uo=4&si=share';
+  assert.deepEqual(sourceLink(pasted), {
+    href: 'https://books.apple.com/us/book/steve-jobs/id431617578',
+    provider: 'Apple Books',
+  });
+  assert.deepEqual(appleBookRef(pasted), { country: 'us', id: '431617578' });
+  assert.deepEqual(normaliseSourceLinks([pasted]), [
+    'https://books.apple.com/us/book/steve-jobs/id431617578',
+    ...Array(8).fill(null),
+  ]);
 });
 
 test('normalised links keep nine positional slots and drop unsupported entries', () => {

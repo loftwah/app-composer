@@ -254,7 +254,7 @@ test('the editor offers one compact paste affordance wired to the normal inputs'
   // The ordinary input path: no parallel store, no search, no clipboard read.
   assert.match(block, /dispatchEvent\(new Event\("input", \{ bubbles: true \}\)\)/);
   assert.match(block, /planNineListUndo\(/);
-  assert.doesNotMatch(block, /fetch\(|navigator\.|clipboard|runSearch|fillAlbumTitle/);
+  assert.doesNotMatch(block, /fetch\(|navigator\.|clipboard|runSearch|fillSourceTitle/);
   assert.doesNotMatch(read('src/lib/top-nine-list.ts'), /fetch\(|navigator\.|https?:\/\//);
 });
 
