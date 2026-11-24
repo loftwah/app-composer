@@ -106,6 +106,16 @@ export const experiences = {
     imageDescription: "A screenprinted tournament bracket: a trophy shaped from two mirrored cable connectors stands between Terminal and GUI under the words “Internet World Cup”.",
     theme: "tournament",
   },
+  "cursed-choices": {
+    title: "Cursed Choices",
+    description: "Ten either-or curses. Pick a side, meet its consequence, and keep the card. Choices stay in this tab.",
+    // The stage reuses the owned Internet Workshop “cursed-choices” split
+    // poster and its library-versus-modems dilemma; see
+    // public/campaign/internet-workshop-20261122/provenance.json.
+    slug: "cursed-choices",
+    imageDescription: "A split game-show poster sets a green library against a wall of magenta modems under marquee lights.",
+    theme: "gameshow",
+  },
 } as const;
 
 export type ExperienceId = keyof typeof experiences;
@@ -113,10 +123,10 @@ export const experiencePath = (id: ExperienceId) => `/share/experiences/${id}`;
 export const experienceArt = (id: ExperienceId) =>
   `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`;
 export const experienceOg = (id: ExperienceId) =>
-  // The tier-list, one-must-go, wrong-answers and tech-tournament posters are
-  // already the 1200 × 630 artwork used for their social cards; no additional
-  // file is introduced.
-  id === "tier-list" || id === "one-must-go" || id === "wrong-answers" || id === "tech-tournament"
+  // The tier-list, one-must-go, wrong-answers, tech-tournament and cursed-choices
+  // posters are already the 1200 × 630 artwork used for their social cards; no
+  // additional file is introduced.
+  id === "tier-list" || id === "one-must-go" || id === "wrong-answers" || id === "tech-tournament" || id === "cursed-choices"
     ? `/campaign/internet-workshop-20261122/${experiences[id].slug}-v1.jpg`
     : `/campaign/internet-workshop-20261122/${experiences[id].slug}-og-v1.jpg`;
 

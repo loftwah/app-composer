@@ -501,18 +501,18 @@
       "asset": "https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-v1.jpg",
       "imageSha256": "e33b7daa327a2b414aaeb9126da7b691161c7388e9daacea33563a741b92328c",
       "artworkUrl": "https://composer.loftwah.com/share/artwork/composer-internet-15-cursed-choices",
-      "link": "https://composer.loftwah.com/share/artwork/composer-internet-15-cursed-choices",
+      "link": "https://composer.loftwah.com/share/experiences/cursed-choices",
       "placement": "draft",
       "scheduledAt": null,
       "dimensions": [
         1200,
         630
       ],
-      "caption": "Unlimited tokens without internet, or unlimited internet without AI. Pick one. Explain what you’d build with the one you kept.",
+      "caption": "Unlimited tokens without internet, or unlimited internet without AI. Pick one, meet its tiny consequence and keep your curse card.",
       "alt": "Split game-show poster sets a library against a wall of modems. App Composer Internet Workshop.",
       "stillFormat": "wide",
       "shortBrief": "Both sides appear at once. Use a one-second blackout between two replies, never flash rapidly.",
-      "status": "Social prompt or concept",
+      "status": "Playable",
       "alternateImages": {
         "square": {
           "url": "https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-square-v1.jpg",

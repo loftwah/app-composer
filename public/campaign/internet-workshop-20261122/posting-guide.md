@@ -245,19 +245,19 @@ A panel of Roman judges ranks a rubber duck in an arena. App Composer Internet W
 **Short-form treatment**  
 Slow zoom on the duck. Stamp an S on a separate title frame. Leave time for a reply.
 
-### [Pick your curse](https://composer.loftwah.com/share/artwork/composer-internet-15-cursed-choices)
+### [Pick your curse](https://composer.loftwah.com/share/experiences/cursed-choices)
 
-X · Social prompt or concept · 1200 × 630
+X · Playable · 1200 × 630
 
-Unlimited tokens without internet, or unlimited internet without AI. Pick one. Explain what you’d build with the one you kept.
+Unlimited tokens without internet, or unlimited internet without AI. Pick one, meet its tiny consequence and keep your curse card.
 
-[Post image](https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-v1.jpg) · [Destination](https://composer.loftwah.com/share/artwork/composer-internet-15-cursed-choices)
+[Post image](https://composer.loftwah.com/campaign/internet-workshop-20261122/cursed-choices-v1.jpg) · [Destination](https://composer.loftwah.com/share/experiences/cursed-choices)
 
 **Alt text**  
 Split game-show poster sets a library against a wall of modems. App Composer Internet Workshop.
 
 **Short-form treatment**  
-Both sides appear at once. Use a one-second blackout between two replies, never flash rapidly.
+Both sides appear at once. Play the ten-curse docket, then use a one-second blackout between two replies, never flash rapidly.
 
 ### [The nine realms of dev](https://composer.loftwah.com/share/artwork/composer-internet-16-alignment)
 

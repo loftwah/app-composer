@@ -75,6 +75,11 @@ import {
   redFlagCourtCases, redFlagCourtCount, redFlagCourtPrintTitle,
   type RedFlagVerdict,
 } from "../lib/red-flag-court.ts";
+import {
+  cursedChoiceCount, cursedChoiceMade, cursedChoicePrompt, cursedChoiceStart,
+  cursedChoices, cursedChoicesAltText, cursedChoicesPrintTitle, readCursedChoice,
+  type CursedChoice,
+} from "../lib/cursed-choices.ts";
 import { topNineAltText } from "../lib/top-nine-alt-text.ts";
 import { topNineCaption } from "../lib/top-nine-caption.ts";
 import {
@@ -131,6 +136,11 @@ interface ResultSnapshot {
   /** Internet World Cup: the seven ordered local picks the winner card draws.
    * Held only in memory; this bracket never becomes a result link or payload. */
   tournamentPicks?: (TechTournamentPick | null)[];
+  /** Cursed Choices: the current docket position and the side picked for it.
+   * Held only in memory; the card prints exactly these two and never becomes a
+   * result link or payload. */
+  cursePrompt?: number;
+  curseChoice?: CursedChoice;
 }
 
 /** One cover a person picked from their device: session-only, never uploaded.
@@ -3671,6 +3681,123 @@ function mountWrongAnswers(root: HTMLElement, update: () => void): Controller {
   };
 }
 
+/** The ten-curse docket. Each prompt keeps its own side for this tab only, and
+ * choosing the other side changes it. There is no score, comparison, result
+ * link, public vote, provider or stored value: the downloaded card prints just
+ * the current curse — its exact prompt, the chosen constraint and that side's
+ * consequence. */
+function mountCursedChoices(root: HTMLElement, update: () => void): Controller {
+  const promptButtons = elements<HTMLButtonElement>(root, "[data-cc-prompt]");
+  const indexMarks = elements<HTMLElement>(root, "[data-cc-index-pick]");
+  const heading = root.querySelector<HTMLElement>("[data-cc-heading]")!;
+  const folio = root.querySelector<HTMLElement>("[data-cc-folio]")!;
+  const choiceButtons = elements<HTMLButtonElement>(root, "[data-cc-choice]");
+  const choiceTexts = elements<HTMLElement>(root, "[data-cc-choice-text]");
+  const reveal = root.querySelector<HTMLElement>("[data-cc-reveal]")!;
+  const consequence = root.querySelector<HTMLElement>("[data-cc-consequence]")!;
+  const status = root.querySelector<HTMLElement>("[data-cc-status]")!;
+  const prev = root.querySelector<HTMLButtonElement>("[data-cc-prev]")!;
+  const next = root.querySelector<HTMLButtonElement>("[data-cc-next]")!;
+  const clear = root.querySelector<HTMLButtonElement>("[data-cc-clear]")!;
+  const picks: (CursedChoice | null)[] = cursedChoiceStart();
+  let current = 0;
+  let ready = false;
+  const refresh = () => { if (ready) update(); };
+  const sideLine = (side: CursedChoice | null) => {
+    const entry = cursedChoicePrompt(current);
+    return side === null || !entry ? "no side" : entry.choices[side];
+  };
+
+  function paint(focus = false) {
+    const entry = cursedChoicePrompt(current)!;
+    const pick = picks[current];
+    heading.textContent = entry.prompt;
+    folio.textContent = `Curse ${String(current + 1).padStart(2, "0")} of ${cursedChoiceCount} · ${cursedChoiceMade(picks)} chosen`;
+    promptButtons.forEach((button, index) => {
+      const chosen = picks[index];
+      button.setAttribute("aria-pressed", String(index === current));
+      button.setAttribute("aria-label",
+        `Curse ${index + 1}: ${cursedChoices[index].prompt}${chosen === null ? "" : `, ${cursedChoices[index].choices[chosen]}`}`);
+      const mark = indexMarks[index];
+      mark.hidden = chosen === null;
+      mark.textContent = chosen === null ? "" : chosen === 0 ? "A" : "B";
+      button.classList.toggle("is-a", chosen === 0);
+      button.classList.toggle("is-b", chosen === 1);
+    });
+    choiceButtons.forEach((button, index) => {
+      const side = readCursedChoice(index);
+      choiceTexts[index].textContent = entry.choices[index];
+      button.setAttribute("aria-pressed", String(side !== null && side === pick));
+    });
+    reveal.hidden = pick === null;
+    if (pick !== null) consequence.textContent = entry.consequences[pick];
+    prev.disabled = current === 0;
+    next.disabled = current === cursedChoiceCount - 1;
+    clear.disabled = pick === null;
+    if (focus) heading.focus();
+    refresh();
+  }
+
+  function show(index: number, focus = true) {
+    if (!Number.isInteger(index) || index < 0 || index >= cursedChoiceCount) return;
+    current = index;
+    paint(focus);
+    status.textContent = `Curse ${current + 1} of ${cursedChoiceCount}. ${picks[current] === null
+      ? "No side picked yet."
+      : `${sideLine(picks[current])} stands. Change it any time.`}`;
+  }
+
+  root.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    const promptButton = target.closest<HTMLButtonElement>("[data-cc-prompt]");
+    if (promptButton) {
+      show(Number(promptButton.dataset.ccPrompt));
+      return;
+    }
+    const choiceButton = target.closest<HTMLButtonElement>("[data-cc-choice]");
+    if (choiceButton) {
+      const side = readCursedChoice(Number(choiceButton.dataset.ccChoice));
+      if (side === null) return;
+      picks[current] = side;
+      paint();
+      status.textContent = `Curse ${current + 1}: ${sideLine(side)}. What it costs is on the stage and the card.`;
+      return;
+    }
+    if (target.closest("[data-cc-prev]")) {
+      if (current > 0) show(current - 1);
+      return;
+    }
+    if (target.closest("[data-cc-next]")) {
+      if (current < cursedChoiceCount - 1) show(current + 1);
+      return;
+    }
+    if (target.closest("[data-cc-clear]")) {
+      picks[current] = null;
+      paint();
+      heading.focus();
+      status.textContent = `Curse ${current + 1} cleared. Every other choice in this tab stays.`;
+    }
+  });
+
+  for (const control of [...promptButtons, ...choiceButtons]) control.disabled = false;
+  paint();
+  ready = true;
+
+  return {
+    result() {
+      const pick = picks[current];
+      return pick === null
+        ? null
+        : { title: cursedChoicesPrintTitle, cursePrompt: current, curseChoice: pick };
+    },
+    linksAllowed: () => false,
+    restore() {
+      // A curse never travels in a result link; a crafted fragment cannot fill
+      // or replace the picks this tab is making.
+    },
+  };
+}
+
 /** The ten-case docket. Each case keeps its own call for this tab only, and
  * choosing the other flag changes it. There is no score, result link, public
  * vote, provider or stored value: the downloaded card prints just the current
@@ -4291,6 +4418,8 @@ export function mountShareExperience(root: HTMLElement) {
       status.textContent = "Call the current case red or green to download your verdict card.";
     } else if (!canShare && game === "tech-tournament") {
       status.textContent = "Pick a winner in all seven matches to download your winner card.";
+    } else if (!canShare && game === "cursed-choices") {
+      status.textContent = "Pick a side for the current curse to download your card.";
     } else if (!canShare && persona) {
       status.textContent = "Answer all eight questions to make your result card.";
     } else if (!canShare) status.textContent = "Find an ending to share.";
@@ -4308,6 +4437,7 @@ export function mountShareExperience(root: HTMLElement) {
     : game === "wrong-answers" ? mountWrongAnswers(root, update)
     : game === "red-flag-court" ? mountRedFlagCourt(root, update)
     : game === "tech-tournament" ? mountTechTournament(root, update)
+    : game === "cursed-choices" ? mountCursedChoices(root, update)
     : persona ? mountPersona(root, update, persona)
     : mountBingo(root);
   chooseSkin.addEventListener("change", () => {
@@ -4330,11 +4460,11 @@ export function mountShareExperience(root: HTMLElement) {
   }
 
   // Twenty-one questions, the tier list, one-must-go, wrong-answers, the Red
-  // Flag Court docket and the Internet World Cup bracket never produce result
-  // links, and a persona result link is the answer-free `#result=<id>` fragment
-  // the quiz reads itself: none is the generic JSON snapshot, so a crafted hash
-  // restores nothing.
-  const shared = game === "red-flag-court" || game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers" || game === "tech-tournament"
+  // Flag Court docket, the Internet World Cup bracket and the Cursed Choices
+  // docket never produce result links, and a persona result link is the
+  // answer-free `#result=<id>` fragment the quiz reads itself: none is the
+  // generic JSON snapshot, so a crafted hash restores nothing.
+  const shared = game === "red-flag-court" || game === "twenty-one-questions" || game === "developer-type" || game === "language-type" || game === "tier-list" || game === "one-must-go" || game === "wrong-answers" || game === "tech-tournament" || game === "cursed-choices"
     ? { snapshot: null as Record<string, unknown> | null, invalid: false }
     : sharedResult(game);
   if (shared.snapshot) {
@@ -4644,6 +4774,7 @@ export function mountShareExperience(root: HTMLElement) {
           : game === "wrong-answers" ? wrongAnswersAltText(snapshot)
             : game === "red-flag-court" ? redFlagCourtAltText(snapshot)
               : game === "tech-tournament" ? techTournamentAltText(snapshot)
+                : game === "cursed-choices" ? cursedChoicesAltText(snapshot)
                 : topNineAltText({
               title: snapshot.title, subtitle: snapshot.subtitle, byline: snapshot.byline, items: snapshot.items ?? [],
               ranked: snapshot.ranked === true,
@@ -4681,11 +4812,11 @@ export function mountShareExperience(root: HTMLElement) {
   // after a denied copy, so the selected field can never hold last time's name.
   if (alt) byline.addEventListener("input", clearAltFallback);
 
-  // Twenty-one questions, one-must-go, wrong-answers and the Red Flag Court
-  // docket have no result link to hand over, and a persona result hands its
-  // answer-free link over in the result panel instead. The native share sheet
-  // stays off for all of them.
-  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && game !== "red-flag-court" && game !== "tech-tournament" && !persona) {
+  // Twenty-one questions, one-must-go, wrong-answers, the Red Flag Court
+  // docket, the Internet World Cup bracket and Cursed Choices have no result
+  // link to hand over, and a persona result hands its answer-free link over in
+  // the result panel instead. The native share sheet stays off for all of them.
+  if (typeof navigator.share === "function" && game !== "twenty-one-questions" && game !== "tier-list" && game !== "one-must-go" && game !== "wrong-answers" && game !== "red-flag-court" && game !== "cursed-choices" && game !== "tech-tournament" && !persona) {
     nativeShare.hidden = false;
     nativeShare.addEventListener("click", async () => {
       if (sharing) return;

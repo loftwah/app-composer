@@ -19,6 +19,7 @@ import {
   techTournamentOutcome, techTournamentPickCount,
   type TechTournamentPick,
 } from "../lib/tech-tournament.ts";
+import { cursedChoiceCard, cursedChoiceCount, type CursedChoice } from "../lib/cursed-choices.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -72,6 +73,10 @@ export interface ShareExperienceResult {
   /** Internet World Cup: seven ordered local picks. Memory only; the winner
    * card is drawn from these and this bracket never becomes a link. */
   tournamentPicks?: (TechTournamentPick | null)[];
+  /** Cursed Choices: the current docket position and its chosen side. Memory
+   * only; the card is drawn from exactly these two and never becomes a link. */
+  cursePrompt?: number;
+  curseChoice?: CursedChoice;
   byline: string;
   skin: number;
   background: string;
@@ -117,6 +122,10 @@ const inks = {
   // newsprint sheet, and a colder floodlight page. All three keep the trophy
   // crop from the same poster.
   "tech-tournament": [["#171310", "#fbeee2", "#f07022"], ["#efe6d3", "#211b16", "#b1461c"], ["#0e1b26", "#e9f4ff", "#ffb347"]],
+  // The owned split game-show poster: cream house lights and maroon ink, a
+  // library-green sheet and a modem-magenta sheet. The chosen side's own panel
+  // stays deep green or deep magenta in every skin.
+  "cursed-choices": [["#f4e6cf", "#2a1417", "#a8761f"], ["#e7efdd", "#14251a", "#1f5a34"], ["#f1e0e7", "#2a1019", "#7a1f47"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -819,19 +828,133 @@ async function renderTechTournament(result: ShareExperienceResult, format: Resul
   });
 }
 
+/** One local Cursed Choices card: the owned split game-show docket, the current
+ * curse's exact either-or prompt, the chosen constraint in that side's own
+ * library-green or modem-magenta panel, and the consequence the stage revealed.
+ * Portrait stacks the prompt above the panel and its cost; the wide card sets
+ * the prompt and the panel side by side. No new artwork is introduced. */
+async function renderCursedChoices(result: ShareExperienceResult, format: ResultFormat): Promise<Blob> {
+  const card = cursedChoiceCard(result.cursePrompt, result.curseChoice);
+  if (!card) throw new Error("No curse to export");
+  // Only the two promised shapes print; a crafted select value falls back to the
+  // portrait rather than inventing another card shape.
+  const layout: ResultFormat = format === "wide" ? "wide" : "portrait";
+  const [width, height] = resultSizes[layout];
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  await document.fonts?.ready;
+  const palette = inks["cursed-choices"];
+  const [paper, ink, accent] = palette[result.skin] ?? palette[0];
+  // The poster's two halves become the two panels: a deep library green for side
+  // A and deep modem magenta for side B, both carrying the same warm cream text.
+  const sides = [
+    { fill: "#1f5a34", text: "#f4f0e0" },
+    { fill: "#6d1c3f", text: "#f7e9f0" },
+  ];
+  const side = sides[card.choice] ?? sides[0];
+  const wide = layout === "wide";
+  const margin = Math.round(Math.min(width, height) * .06);
+  const footer = height - margin - 42;
+  const inner = width - margin * 2;
+
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+
+  // Marquee rule, the docket name and this curse's position.
+  ctx.fillStyle = accent;
+  ctx.fillRect(margin, margin, inner, wide ? 8 : 12);
+  const headSize = wide ? 15 : 22;
+  const headY = margin + (wide ? 32 : 48);
+  const tracking = wide ? 2 : 3;
+  drawTracked(ctx, "PICK YOUR CURSE", margin, headY, headSize, ink, tracking);
+  const position = `CURSE ${String(card.number).padStart(2, "0")} / ${cursedChoiceCount}`;
+  drawTracked(ctx, position, margin + inner - trackedWidth(ctx, position, headSize, tracking), headY, headSize, accent, tracking);
+  ctx.fillStyle = ink;
+  ctx.fillRect(margin, headY + (wide ? 14 : 20), inner, 2);
+
+  const contentTop = headY + (wide ? 50 : 74);
+  const contentBottom = footer - (wide ? 20 : 26);
+
+  if (wide) {
+    const gutter = Math.round(inner * .05);
+    const leftWidth = Math.round(inner * .46);
+    const rightX = margin + leftWidth + gutter;
+    const rightWidth = margin + inner - rightX;
+    drawTracked(ctx, `THE CURSE · ${card.tab.toUpperCase()}`, margin, contentTop + 12, 14, accent, 2);
+    ctx.fillStyle = ink;
+    drawFit(ctx, card.prompt, margin, contentTop + 30, leftWidth, contentBottom - contentTop - 30, 50, {
+      family: "Space, system-ui", weight: 800, lineHeight: 1.02,
+    });
+
+    const panelY = contentTop;
+    const panelH = contentBottom - panelY;
+    ctx.fillStyle = side.fill;
+    ctx.fillRect(rightX, panelY, rightWidth, panelH);
+    ctx.strokeStyle = side.text;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(rightX + 8.5, panelY + 8.5, rightWidth - 17, panelH - 17);
+    drawTracked(ctx, "YOUR CURSE", rightX + 26, panelY + 40, 14, side.text, 2);
+    ctx.fillStyle = side.text;
+    drawFit(ctx, card.choiceLabel.toUpperCase(), rightX + 26, panelY + 58, rightWidth - 52, 120, 62, {
+      family: "Space, system-ui", weight: 800, lineHeight: .98,
+    });
+    drawTracked(ctx, "WHAT IT COSTS", rightX + 26, panelY + 198, 14, side.text, 2);
+    drawFit(ctx, card.consequence, rightX + 26, panelY + 218, rightWidth - 52, panelH - 242, 30, {
+      weight: 600, lineHeight: 1.16,
+    });
+  } else {
+    const promptHeight = Math.round((contentBottom - contentTop) * .33);
+    drawTracked(ctx, `THE CURSE · ${card.tab.toUpperCase()}`, margin, contentTop + 10, 18, accent, 3);
+    ctx.fillStyle = ink;
+    drawFit(ctx, card.prompt, margin, contentTop + 34, inner, promptHeight - 34, 74, {
+      family: "Space, system-ui", weight: 800, lineHeight: 1.03,
+    });
+
+    const panelY = contentTop + promptHeight + 18;
+    const panelH = Math.round((contentBottom - panelY) * .34);
+    ctx.fillStyle = side.fill;
+    ctx.fillRect(margin, panelY, inner, panelH);
+    ctx.strokeStyle = side.text;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(margin + 9, panelY + 9, inner - 18, panelH - 18);
+    drawTracked(ctx, "YOUR CURSE", margin + 30, panelY + 44, 18, side.text, 3);
+    ctx.fillStyle = side.text;
+    drawFit(ctx, card.choiceLabel.toUpperCase(), margin + 30, panelY + 64, inner - 60, panelH - 92, 58, {
+      family: "Space, system-ui", weight: 800, lineHeight: .98,
+    });
+
+    const costY = panelY + panelH + 26;
+    drawTracked(ctx, "WHAT IT COSTS", margin, costY, 18, accent, 3);
+    ctx.fillStyle = ink;
+    drawFit(ctx, card.consequence, margin, costY + 24, inner, contentBottom - costY - 30, 40, {
+      weight: 600, lineHeight: 1.16,
+    });
+  }
+
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
+}
+
 export async function renderExperienceResult(
   result: ShareExperienceResult,
   format: ResultFormat,
   covers?: readonly (ResultCoverSlot | null)[],
 ) {
   // The tier board, one-must-go's shared grid, the wrong-answer plate, the
-  // courtroom verdict card and the tournament winner card each keep their own
-  // drawing; every other game keeps the established title-and-grid renderer
-  // exactly as it was.
+  // courtroom verdict card, the tournament winner card and the curse card each
+  // keep their own drawing; every other game keeps the established
+  // title-and-grid renderer exactly as it was.
   if (result.game === "tier-list") return renderTierList(result, format);
   if (result.game === "wrong-answers") return renderWrongAnswers(result, format);
   if (result.game === "red-flag-court") return renderRedFlagCourt(result, format);
   if (result.game === "tech-tournament") return renderTechTournament(result, format);
+  if (result.game === "cursed-choices") return renderCursedChoices(result, format);
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
   canvas.width = width;
