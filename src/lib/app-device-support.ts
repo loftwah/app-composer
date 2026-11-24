@@ -2,6 +2,7 @@ import composition from "../../composition.lock.json" with { type: "json" };
 import assessments from "../../config/device-support.json" with { type: "json" };
 import ldraw from "../../lib/ldraw/source.json" with { type: "json" };
 import ldrawManifest from "../../lib/ldraw/app.manifest.json" with { type: "json" };
+import paperwork from "../../lib/paperwork/source.json" with { type: "json" };
 import { readDeviceSupport, releaseDeviceSupport } from "./device-support.mjs";
 
 // Support checks live outside the app's own commit, avoiding a self-referential
@@ -9,6 +10,13 @@ import { readDeviceSupport, releaseDeviceSupport } from "./device-support.mjs";
 export function appDeviceSupport(id: string) {
   const app = composition.apps.find((app) => app.id === id);
   if (!app) {
+    if (id === "paperwork")
+      return releaseDeviceSupport(
+        id,
+        paperwork.commit,
+        undefined,
+        assessments,
+      );
     if (id === "ldraw")
       return releaseDeviceSupport(
         id,
