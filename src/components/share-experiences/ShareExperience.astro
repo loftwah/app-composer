@@ -2,7 +2,7 @@
 import "../../styles/share-experiences.css";
 import {
   developerBingo, doorChoices, doorRooms, exhibitionPrompts,
-  experiencePath, experiences, thisOrThatQuestions, twentyOneQuestions,
+  experiencePath, experiences, thisOrThatQuestions, twentyOnePacks, twentyOneQuestions,
   twentyOneResultTitle, type ExperienceId,
 } from "../../lib/share-experiences.ts";
 import {
@@ -684,7 +684,16 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     <p class="tq-progress" role="status" data-tq-progress>Question 1 of {twentyOneQuestions.length} · 0 answered</p>
     <details class="experience-custom tq-custom" data-tq-custom>
       <summary>Edit the 21 prompts</summary>
-      <p class="experience-note" id="tq-custom-help">Enter 21 prompts, one per line, up to {twentyOnePromptLimit} characters each. Applying or restoring the starter clears the current answers.</p>
+      <p class="experience-note" id="tq-custom-help">Enter 21 prompts, one per line, up to {twentyOnePromptLimit} characters each. Applying, switching or restoring a starter clears the current answers.</p>
+      <div class="tq-packs">
+        <label for="tq-pack">Built-in starter
+          <select id="tq-pack" data-tq-pack disabled aria-describedby="tq-pack-help">
+            {Object.entries(twentyOnePacks).map(([id, pack]) => <option value={id}>{pack.name}</option>)}
+          </select>
+        </label>
+        <button type="button" data-tq-pack-apply disabled aria-describedby="tq-pack-help">Use selected starter and clear answers</button>
+        <p class="experience-note" id="tq-pack-help">Changing the selection only fills the editor. Your current run and answers stay active until you choose the clear-answers action.</p>
+      </div>
       <form data-tq-custom-form autocomplete="off">
         <label for="tq-custom-prompts">Prompts</label>
         <textarea id="tq-custom-prompts" rows={twentyOneQuestions.length} maxlength="2000" aria-describedby="tq-custom-help" data-tq-custom-prompts disabled>{twentyOneQuestions.join("\n")}</textarea>
@@ -745,6 +754,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <div class="tot-blank" data-tq-blank>
         <button type="button" class="secondary" data-tq-blank-copy>Copy built-in starter link</button>
         <input hidden readonly aria-label="Built-in starter link" data-tq-blank-manual />
+        <p class="experience-note" data-tq-blank-note>Copies the built-in 21 Questions starter with no answers.</p>
         <p class="experience-note" role="status" data-tq-blank-status></p>
       </div>
     </section>
