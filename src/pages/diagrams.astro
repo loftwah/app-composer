@@ -1,7 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import DeviceSupport from '../components/DeviceSupport.astro';
 import DiagramCollection from '../components/DiagramCollection.astro';
 import DiagramFigure from '../components/DiagramFigure.astro';
+import { appDeviceSupport } from '../lib/app-device-support';
 import { ArrowDownToLine, ArrowUpRight } from '@lucide/astro';
 import { diagramAtlas, engineeringDiagrams } from '../lib/diagram-atlas';
 import collections from '../lib/diagram-collections.json';
@@ -48,6 +50,7 @@ const artwork = [
     <header class="atlas-heading">
       <h1>Diagrams</h1>
       <p class="lede">Browse our system diagrams, workshop boards and AI artwork. Open a full-size drawing or download the editable scene and make it your own.</p>
+      <DeviceSupport support={appDeviceSupport('ldraw')} compact />
       <div class="atlas-actions">
         <a href={engineeringAtlasArchive} download><ArrowDownToLine size={18} aria-hidden="true" /> Download the 31-diagram pack</a>
         <a href="https://ldraw.loftwah.com">Open LDraw <ArrowUpRight size={16} aria-hidden="true" /></a>
