@@ -5362,6 +5362,7 @@ export function mountShareExperience(root: HTMLElement) {
   // One manual caption for a board that can be exported. Its text and any
   // denied-clipboard fallback belong to the heading fields they were made
   // from: an edit or a board change retires both and any write still in flight.
+  const ninePackage = root.querySelector<HTMLButtonElement>("[data-nine-package]");
   const nineCaptionCopy = root.querySelector<HTMLButtonElement>("[data-nine-caption-copy]");
   const nineCaptionManual = root.querySelector<HTMLTextAreaElement>("[data-nine-caption-manual]");
   const nineCaptionStatus = root.querySelector<HTMLElement>("[data-nine-caption-status]");
@@ -5545,6 +5546,7 @@ export function mountShareExperience(root: HTMLElement) {
     if (alt) alt.disabled = !canShare || !exportable;
     nativeShare.disabled = !links || !canShare || !exportable || sharing;
     if (nineCaptionCopy) nineCaptionCopy.disabled = busy || !canShare || !exportable;
+    if (ninePackage) ninePackage.disabled = download.disabled;
     refreshPngShareControls();
     clearAltFallback();
     clearNineCaption();
@@ -5672,7 +5674,7 @@ export function mountShareExperience(root: HTMLElement) {
   /** The one PNG export path, shared by the detailed Download result control
    * and the quiz reveal shortcut. Both read the same captured snapshot,
    * format, skin, byline and renderer, and the one `busy` lock covers both. */
-  const runDownload = async (fromReveal = false) => {
+  const runDownload = async (fromReveal = false, packageTopNine = false) => {
     const revealNote = (message: string) => {
       if (fromReveal && revealDownloadNote) revealDownloadNote.textContent = message;
     };
@@ -5682,11 +5684,16 @@ export function mountShareExperience(root: HTMLElement) {
     busy = true;
     update();
     revealNote("Preparing PNG…");
-    status.textContent = personaOutcome
+    const packageNote = (message: string) => {
+      if (nineCaptionStatus) nineCaptionStatus.textContent = message;
+    };
+    if (packageTopNine) packageNote("Preparing your sharing ZIP…");
+    else status.textContent = personaOutcome
       ? "Preparing your card…"
       : cardDownloads ? "Preparing your cards…" : "Preparing your image…";
     const attempt = cardVersion;
     const personaAttempt = personaVersion;
+    const packageAttempt = pngShareVersion;
     try {
       // Links, web pages and the optional profile belong to the interactive
       // result and result link; the image stays text-only.
@@ -5945,19 +5952,50 @@ export function mountShareExperience(root: HTMLElement) {
         return;
       }
       const blob = await renderExperienceResult(drawn, size, controller.exportCovers?.() ?? undefined, nineCredit?.checked ?? true);
-      const href = URL.createObjectURL(blob);
+      let file = blob;
+      let filename = `${game}-${size}.png`;
+      if (packageTopNine) {
+        const { buildTopNineSharingPackage } = await import("../lib/top-nine-sharing-package.ts");
+        const archive = await buildTopNineSharingPackage({
+          png: blob,
+          filename,
+          format: size,
+          dimensions: resultSizes[size],
+          caption: topNineCaption(snapshot, location.origin),
+          description: topNineAltText({ ...snapshot, items: snapshot.items ?? [] }),
+        });
+        const current = packageAttempt === pngShareVersion;
+        if (!current || !archive) {
+          busy = false;
+          update();
+          packageNote(current
+            ? "This image is too large for a ZIP. Use Download PNG and Copy caption."
+            : "Your board changed. Download the sharing ZIP again.");
+          return;
+        }
+        file = archive;
+        filename = `top-nine-${size}-sharing.zip`;
+      }
+      const href = URL.createObjectURL(file);
       const link = document.createElement("a");
       link.href = href;
-      link.download = `${game}-${size}.png`;
+      link.download = filename;
       link.click();
       setTimeout(() => URL.revokeObjectURL(href), 1000);
       busy = false;
       update();
-      status.textContent = "Your image is ready.";
-      revealNote("Your image is ready.");
+      if (packageTopNine) packageNote("Sharing ZIP ready. It includes your PNG, caption and image description.");
+      else {
+        status.textContent = "Your image is ready.";
+        revealNote("Your image is ready.");
+      }
     } catch {
       busy = false;
       update();
+      if (packageTopNine) {
+        packageNote("Couldn’t prepare the sharing ZIP. Try again, or use Download PNG and Copy caption.");
+        return;
+      }
       status.textContent = personaOutcome
         ? "Couldn’t prepare the card. Try again."
         : cardDownloads
@@ -5971,6 +6009,7 @@ export function mountShareExperience(root: HTMLElement) {
 
   download.addEventListener("click", () => { void runDownload(); });
   revealDownload?.addEventListener("click", () => { void runDownload(true); });
+  ninePackage?.addEventListener("click", () => { void runDownload(false, true); });
 
   // Paste the very PNG Download result renders, from the same snapshot,
   // format, skin, byline and local cover pixels. No upload or save.

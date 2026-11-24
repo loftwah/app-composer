@@ -341,7 +341,7 @@ test('the reveal has one local Download PNG shortcut on the shared export path',
     new URL('../src/browser/share-experiences.ts', import.meta.url),
     'utf8',
   );
-  assert.match(controller, /const runDownload = async \(fromReveal = false\) => \{/);
+  assert.match(controller, /const runDownload = async \(fromReveal = false, packageTopNine = false\) => \{/);
   assert.match(controller, /download\.addEventListener\("click", \(\) => \{ void runDownload\(\); \}\);/);
   assert.match(controller, /revealDownload\?\.addEventListener\("click", \(\) => \{ void runDownload\(true\); \}\);/);
   assert.match(controller, /if \(revealDownload\) revealDownload\.disabled = download\.disabled;/);
