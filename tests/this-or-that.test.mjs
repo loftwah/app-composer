@@ -191,8 +191,10 @@ test('a local comparison counts one exact complete built-in replay only', async 
     'utf8',
   );
   assert.match(component, /<button type="button" class="secondary" data-tot-compare>Compare your choices<\/button>/);
-  assert.match(component, /data-tot-compare-panel hidden/);
-  assert.match(component, /data-tot-compare-result hidden role="status" aria-live="polite"/);
+  assert.match(component,
+    /<h2 tabindex="-1" data-reveal-title><\/h2>\s*<div class="tot-compare" data-tot-compare-panel hidden>[\s\S]*?<\/div>\s*<div class="tot-compare-result" data-tot-compare-result hidden role="status" aria-live="polite">[\s\S]*?<\/div>\s*<div class="tot-result-actions">/,
+    'the hidden shared comparison blocks follow the reveal heading and precede result actions',
+  );
   const controller = await readFile(
     new URL('../src/browser/share-experiences.ts', import.meta.url),
     'utf8',
@@ -328,7 +330,7 @@ test('the reveal has one local Download PNG shortcut on the shared export path',
   );
   const reveal = source.match(/<section hidden class="door-result tot-result" data-tot-result[\s\S]*?<\/section>/);
   assert.ok(reveal, 'the This-or-That result section is present');
-  assert.match(reveal[0], /<h2 tabindex="-1" data-reveal-title><\/h2>\s*<div class="tot-result-actions">\s*<div class="tot-reveal-download">\s*<button type="button" data-reveal-download disabled>Download PNG<\/button>/);
+  assert.match(reveal[0], /<div class="tot-result-actions">\s*<div class="tot-reveal-download">\s*<button type="button" data-reveal-download disabled>Download PNG<\/button>/);
   assert.match(reveal[0], /<span class="tot-reveal-download-note" aria-hidden="true" data-reveal-download-note><\/span>/,
     'local feedback is visual only, leaving the existing status as the one live region');
   assert.equal((source.match(/\bdata-reveal-download(?=[\s>])/g) ?? []).length, 1, 'only one shortcut is added');
