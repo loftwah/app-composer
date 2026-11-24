@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   albumTitleApplies, appleAlbumRef, appleSongRef, lookupAppleAlbum, lookupAppleSong,
-  lookupSpotifyAlbumTitle, musicPreview, musicSearchLinks, normaliseMusicPicks,
-  searchMusic, spotifyAlbumRef,
+  lookupSpotifyAlbumTitle, lookupSpotifyTrackTitle, musicPreview, musicSearchLinks, normaliseMusicPicks,
+  searchMusic, spotifyAlbumRef, spotifyTrackRef,
 } from '../src/lib/top-nine-music.ts';
 
 const apple = 'https://music.apple.com/au/album/discovery/697194953?uo=4';
@@ -306,6 +306,94 @@ test('a failed or cancelled Spotify lookup makes one request and is not retried'
   controller.abort();
   await assert.rejects(lookupSpotifyAlbumTitle(spotifyAlbum, controller.signal), { name: 'AbortError' });
   assert.equal(fetch.mock.callCount(), 1);
+});
+
+// The real oEmbed response for track 2VEZx7NWsZ1D0eJ4uv5Fym reports
+// provider_name Spotify, title "Digital Love" and a track embed frame. The
+// title autofill must accept it with the same exactness as an album lookup.
+const spotifyTrack = 'https://open.spotify.com/intl-au/track/2VEZx7NWsZ1D0eJ4uv5Fym?si=tracking';
+const spotifyTrackId = '2VEZx7NWsZ1D0eJ4uv5Fym';
+const spotifyTrackPayload = {
+  html: '<iframe title="Spotify Embed: Digital Love"></iframe>',
+  iframe_url: `https://open.spotify.com/embed/track/${spotifyTrackId}?utm_source=oembed`,
+  width: 456, height: 352, version: '1.0',
+  provider_name: 'Spotify', provider_url: 'https://spotify.com', type: 'rich',
+  title: 'Digital Love',
+  thumbnail_url: 'https://image-cdn-fa.spotifycdn.com/image/example',
+};
+
+test('reads a pasted Spotify track link as its own canonical track ID', () => {
+  assert.deepEqual(spotifyTrackRef(spotifyTrack), { id: spotifyTrackId });
+  assert.deepEqual(spotifyTrackRef(`https://open.spotify.com/track/${spotifyTrackId}`),
+    { id: spotifyTrackId });
+  assert.deepEqual(spotifyTrackRef(`https://open.spotify.com/embed/track/${spotifyTrackId}`),
+    { id: spotifyTrackId });
+  // Albums, playlists, malformed or spoofed links and other providers never
+  // seed a track lookup, and the album ref keeps its original edge semantics.
+  for (const href of [
+    `https://open.spotify.com/album/${spotifyTrackId}`,
+    'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M',
+    `https://open.spotify.com/track/too-short`,
+    'https://spotify.link/abc123',
+    `https://open.spotify.com.example.test/track/${spotifyTrackId}`,
+    apple, '', null,
+  ]) {
+    assert.equal(spotifyTrackRef(href), null);
+  }
+  assert.equal(spotifyAlbumRef(spotifyTrack), null);
+});
+
+test('looks up one exact Spotify track through official oEmbed, never by search', async (t) => {
+  const fetches = t.mock.method(globalThis, 'fetch', async (url, init) => {
+    assert.equal(url.origin, 'https://open.spotify.com');
+    assert.equal(url.pathname, '/oembed');
+    // Only the parsed canonical track URL reaches the provider; share and
+    // tracking parameters on the pasted link are discarded.
+    assert.deepEqual(Object.fromEntries(url.searchParams), {
+      url: `https://open.spotify.com/track/${spotifyTrackId}`,
+    });
+    assert.equal(init.credentials, 'omit');
+    assert.equal(init.referrerPolicy, 'no-referrer');
+    assert.equal(init.redirect, 'error');
+    return Response.json(spotifyTrackPayload);
+  });
+  assert.equal(await lookupSpotifyTrackTitle(spotifyTrack), 'Digital Love');
+  assert.equal(fetches.mock.callCount(), 1);
+});
+
+test('a track title needs the provider, the track kind and the same ID', async (t) => {
+  let payload = spotifyTrackPayload;
+  t.mock.method(globalThis, 'fetch', async () => Response.json(payload));
+  for (const variant of [
+    { ...spotifyTrackPayload, provider_name: 'Example' },
+    { ...spotifyTrackPayload, provider_name: undefined },
+    { ...spotifyTrackPayload, iframe_url: undefined },
+    { ...spotifyTrackPayload, iframe_url: 'https://example.test/embed/track/2VEZx7NWsZ1D0eJ4uv5Fym' },
+    { ...spotifyTrackPayload, iframe_url: `https://open.spotify.com/embed/album/${spotifyTrackId}?utm_source=oembed` },
+    { ...spotifyTrackPayload, iframe_url: `https://open.spotify.com/embed/track/0VEZx7NWsZ1D0eJ4uv5Fym?utm_source=oembed` },
+    { ...spotifyTrackPayload, iframe_url: `https://open.spotify.com/embed/track/${spotifyTrackId}?si=tracking` },
+    { ...spotifyTrackPayload, title: '' },
+    { ...spotifyTrackPayload, title: '   ' },
+    { ...spotifyTrackPayload, title: 'x'.repeat(141) },
+    { ...spotifyTrackPayload, title: 42 },
+  ]) {
+    payload = variant;
+    assert.equal(await lookupSpotifyTrackTitle(spotifyTrack), null);
+  }
+  // The documented utm_source=oembed marker is accepted, but not required.
+  payload = { ...spotifyTrackPayload, iframe_url: `https://open.spotify.com/embed/track/${spotifyTrackId}` };
+  assert.equal(await lookupSpotifyTrackTitle(spotifyTrack), 'Digital Love');
+});
+
+test('a track lookup never fetches for a non-track Spotify link', async (t) => {
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('a lookup must not run for this link');
+  });
+  assert.equal(await lookupSpotifyTrackTitle(spotifyAlbum), null);
+  assert.equal(await lookupSpotifyTrackTitle('https://spotify.link/abc123'), null);
+  assert.equal(await lookupSpotifyTrackTitle(modalSoul), null);
+  assert.equal(await lookupSpotifyTrackTitle(''), null);
+  assert.equal(fetch.mock.callCount(), 0);
 });
 
 // Verified live in the AU storefront: /lookup?id=697195633&country=au returns

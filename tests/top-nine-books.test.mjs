@@ -210,6 +210,8 @@ test('the editor submits exact-ID lookups only for an empty exhibit, reusing the
   assert.match(block, /wikidataSource\(href\)/);
   assert.match(block, /lookupWikidataTitle\(href, controller\.signal\)/);
   assert.match(block, /lookupSpotifyAlbumTitle\(href, controller\.signal\)/);
+  assert.match(block, /spotifyTrackRef\(href\)/);
+  assert.match(block, /lookupSpotifyTrackTitle\(href, controller\.signal\)/);
   // No parallel async state: one bounded lookup per paste, through the shared map.
   assert.equal((block.match(/new Map</g) ?? []).length, 0);
   for (const file of ['top-nine-books.ts', 'top-nine-apps.ts']) {

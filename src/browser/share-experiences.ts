@@ -49,7 +49,7 @@ import {
   musicPreview, musicSearchLinks, searchMusic,
   albumTitleApplies, appleAlbumRef, lookupAppleAlbum,
   appleSongRef, lookupAppleSong,
-  lookupSpotifyAlbumTitle, spotifyAlbumRef,
+  lookupSpotifyAlbumTitle, lookupSpotifyTrackTitle, spotifyAlbumRef, spotifyTrackRef,
 } from "../lib/top-nine-music.ts";
 import {
   lookupWikidataTitle, searchWikidata, wikidataSource,
@@ -1159,8 +1159,8 @@ function mountNine(
     applyPick(slot, pick, source, label);
   }
 
-  /** A deliberate paste of an Apple Music song or album, Spotify album, Apple
-   * Books, App Store app or exact Wikidata item link keeps the canonical link
+  /** A deliberate paste of an Apple Music song or album, Spotify album or
+   * track, Apple Books, App Store app or exact Wikidata item link keeps the canonical link
    * (and, for music, its preview) immediately, then restores the public title
    * from that exact ID. Apple Music, Apple Books and the App Store also carry
    * the artist/author/developer, while Wikidata supplies a known media type's
@@ -1174,10 +1174,11 @@ function mountNine(
     const apple = appleAlbumRef(href);
     const appleSong = appleSongRef(href);
     const spotify = spotifyAlbumRef(href);
+    const spotifyTrack = spotifyTrackRef(href);
     const book = appleBookRef(href);
     const app = appleAppRef(href);
     const wiki = wikidataSource(href);
-    if (!apple && !appleSong && !spotify && !book && !app && !wiki) return;
+    if (!apple && !appleSong && !spotify && !spotifyTrack && !book && !app && !wiki) return;
     const provider = book ? "Apple Books" : apple || appleSong ? "Apple Music" : app ? "App Store"
       : wiki ? "Wikidata" : "Spotify";
     const attachment = book || app || wiki ? "link" : "link and preview";
@@ -1200,7 +1201,9 @@ function mountNine(
         ? await lookupAppleApp(href, controller.signal)
         : wiki
         ? await lookupWikidataTitle(href, controller.signal)
-        : await lookupSpotifyAlbumTitle(href, controller.signal);
+        : spotify
+        ? await lookupSpotifyAlbumTitle(href, controller.signal)
+        : await lookupSpotifyTrackTitle(href, controller.signal);
       if (pendingLookups.get(slot) !== controller) return;
       pendingLookups.delete(slot);
       if (!found) {

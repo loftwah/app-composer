@@ -5,6 +5,8 @@ import {
 
 export type MusicKind = "album" | "song";
 export type MusicPick = CataloguePick;
+/** The two exact Spotify player kinds whose oEmbed title can fill a slot. */
+type SpotifyMedia = "album" | "track";
 
 const applePath = /^\/([a-z]{2})\/(album|song)\/(?:[^/]+\/)?([1-9]\d{0,11})\/?$/;
 const spotifyPath = /^\/(?:intl-[a-z]{2}\/)?(album|track)\/([a-zA-Z0-9]{22})\/?$/;
@@ -12,7 +14,7 @@ const spotifyPath = /^\/(?:intl-[a-z]{2}\/)?(album|track)\/([a-zA-Z0-9]{22})\/?$
  * these flat embed kinds are accepted: the ID is folded back onto the normal
  * album/track path so every consumer sees one canonical source form. */
 const spotifyEmbedInputPath = /^\/embed\/(album|track)\/([a-zA-Z0-9]{22})\/?$/;
-const spotifyEmbedPath = /^\/embed\/album\/([a-zA-Z0-9]{22})$/;
+const spotifyEmbedPath = /^\/embed\/(album|track)\/([a-zA-Z0-9]{22})$/;
 /** The one official Spotify oEmbed endpoint; it answers JSON with
  * `access-control-allow-origin: *`, so the browser reads it directly with no
  * proxy or shortening step. */
@@ -151,26 +153,40 @@ export function appleSongRef(value: unknown): { country: string; id: string; alb
 }
 
 /**
- * The album ID carried by one canonical Spotify album link. A track, playlist
- * or shortened link is not an album choice, so it never seeds an album lookup;
- * only the ID parsed from the exact open.spotify.com album path is reused.
+ * The ID carried by one canonical Spotify link of the requested kind. A
+ * different kind, a playlist or a shortened link is not that choice, so it
+ * never seeds a lookup; only the ID parsed from the exact open.spotify.com
+ * path is reused.
  */
-export function spotifyAlbumRef(value: unknown): { id: string } | null {
+function spotifyRef(value: unknown, kind: SpotifyMedia): { id: string } | null {
   const preview = musicPreview(value);
   if (preview?.provider !== "Spotify") return null;
   const url = new URL(preview.href);
   if (url.search) return null;
   const match = spotifyPath.exec(url.pathname);
-  if (!match || match[1] !== "album") return null;
+  if (!match || match[1] !== kind) return null;
   return { id: match[2] };
 }
 
+/** The album ID carried by one canonical Spotify album link. Tracks and other
+ * kinds never seed an album lookup. */
+export function spotifyAlbumRef(value: unknown): { id: string } | null {
+  return spotifyRef(value, "album");
+}
+
+/** The track ID carried by one canonical Spotify track link. Albums and other
+ * kinds never seed a track lookup. */
+export function spotifyTrackRef(value: unknown): { id: string } | null {
+  return spotifyRef(value, "track");
+}
+
 /**
- * The album ID in one canonical Spotify embed URL, and nothing else. The
- * oEmbed payload is only trusted when its own frame points at the same album
- * the person pasted, so a redirected or mismatched embed never names a slot.
+ * The ID in one canonical Spotify embed URL of the requested kind, and nothing
+ * else. The oEmbed payload is only trusted when its own frame points at the
+ * same media the person pasted, so a redirected or mismatched embed never
+ * names a slot. Both the kind and the ID must match.
  */
-function spotifyEmbedAlbumId(value: unknown): string | null {
+function spotifyEmbedId(value: unknown, kind: SpotifyMedia): string | null {
   if (typeof value !== "string" || value.length > 2_048) return null;
   let url: URL;
   try {
@@ -181,11 +197,11 @@ function spotifyEmbedAlbumId(value: unknown): string | null {
   if (url.protocol !== "https:" || url.hostname !== "open.spotify.com"
     || url.port || url.username || url.password || url.hash) return null;
   const match = spotifyEmbedPath.exec(url.pathname);
-  if (!match) return null;
+  if (!match || match[1] !== kind) return null;
   const params = [...url.searchParams];
   const documented = params.length === 0
     || (params.length === 1 && params[0][0] === "utm_source" && params[0][1] === "oembed");
-  return documented ? match[1] : null;
+  return documented ? match[2] : null;
 }
 
 /**
@@ -265,22 +281,24 @@ export async function lookupAppleSong(
 }
 
 /**
- * One bounded official Spotify oEmbed request for the exact album behind a
- * pasted link. The response's provider and canonical embed album URL must both
- * match the parsed album ID before its title can fill an empty exhibit. Remote
- * HTML, artwork and audio are never read and no artist is inferred, so a
- * search miss or a different release can never rename the exhibit.
+ * One bounded official Spotify oEmbed request for the exact album or track
+ * behind a pasted link. The response's provider and canonical embed URL must
+ * match both the requested kind and the parsed ID before its title can fill an
+ * empty exhibit. Remote HTML, artwork and audio are never read and no artist
+ * is inferred, so a search miss or a different release can never rename the
+ * exhibit.
  */
-export async function lookupSpotifyAlbumTitle(
+async function lookupSpotifyTitle(
   value: unknown,
+  kind: SpotifyMedia,
   signal?: AbortSignal,
 ): Promise<string | null> {
-  const album = spotifyAlbumRef(value);
-  if (!album) return null;
+  const media = spotifyRef(value, kind);
+  if (!media) return null;
   const url = new URL(spotifyOembed);
-  // Build the request from the parsed ID alone, so share and tracking
+  // Build the request from the parsed kind and ID alone, so share and tracking
   // parameters on the pasted link can never reach the provider.
-  url.search = new URLSearchParams({ url: new URL(`/album/${album.id}`, spotifyOembed).href }).toString();
+  url.search = new URLSearchParams({ url: new URL(`/${kind}/${media.id}`, spotifyOembed).href }).toString();
 
   signal?.throwIfAborted();
   const timeout = AbortSignal.timeout(6_000);
@@ -297,9 +315,25 @@ export async function lookupSpotifyAlbumTitle(
 
   const payload = data as Record<string, unknown>;
   if (payload.provider_name !== "Spotify") return null;
-  if (spotifyEmbedAlbumId(payload.iframe_url) !== album.id) return null;
-  // The provider's own album name, collapsed and bounded. Nothing else in the
+  if (spotifyEmbedId(payload.iframe_url, kind) !== media.id) return null;
+  // The provider's own name, collapsed and bounded. Nothing else in the
   // payload is used: no HTML, thumbnail, audio or implied artist.
   const title = typeof payload.title === "string" ? payload.title.trim().replace(/\s+/g, " ") : "";
   return title && title.length <= spotifyTitleLimit ? title : null;
+}
+
+/** The bounded exact-album lookup kept for existing callers. */
+export function lookupSpotifyAlbumTitle(
+  value: unknown,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  return lookupSpotifyTitle(value, "album", signal);
+}
+
+/** The bounded exact-track lookup for a pasted Spotify track link. */
+export function lookupSpotifyTrackTitle(
+  value: unknown,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  return lookupSpotifyTitle(value, "track", signal);
 }
