@@ -37,13 +37,16 @@ const options = {
     <div class="gallery-intro">
       <p>Artwork, sketches and posters from our projects.</p>
       <p class="gallery-account">
+        <a href="/share?view=films">Watch the films <ArrowUpRight size={13} aria-hidden="true" /></a>
+        {tag !== 'internet-workshop' && <a href="/share?tag=internet-workshop">Play in the Internet Workshop <ArrowUpRight size={13} aria-hidden="true" /></a>}
+      </p>
+      <p class="gallery-account">
         {signedIn ? (
           <><strong>Signed in</strong><span>Open any artwork to give private feedback.</span></>
         ) : (
           <><span>Private feedback is for invited collaborators.</span> <a href={signIn}>Invited sign-in</a></>
         )}
       </p>
-      <p class="gallery-account"><a href="/share?view=films">Watch the films <ArrowUpRight size={13} aria-hidden="true" /></a></p>
     </div>
     <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a>
   </header>
