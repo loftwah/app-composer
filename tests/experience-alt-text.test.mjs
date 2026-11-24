@@ -75,9 +75,9 @@ test('a byline appears only when the chosen export prints one', () => {
 test('the export panel reuses one disabled copy control and one selectable fallback', () => {
   const astro = read('src/components/share-experiences/ShareExperience.astro');
   assert.match(astro, /data-copy-alt disabled aria-describedby=\{isNine \? "nine-alt-note" : isThis \? "tot-alt-note" : "local-alt-note"\}/);
-  assert.match(astro, /\(isNine \|\| isThis \|\| isTier \|\| isMustGo \|\| isWrong\) && <button[^>]*data-copy-alt disabled/);
-  assert.match(astro, /\(isNine \|\| isThis \|\| isTier \|\| isMustGo \|\| isWrong\) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt><\/textarea>/);
-  assert.match(astro, /\(isTier \|\| isMustGo \|\| isWrong\) && <p class="experience-note" id="local-alt-note">/);
+  assert.match(astro, /\(isNine \|\| isThis \|\| isTier \|\| isMustGo \|\| isWrong \|\| isCourt \|\| isTournament \|\| isCurse\) && <button[^>]*data-copy-alt disabled/);
+  assert.match(astro, /\(isNine \|\| isThis \|\| isTier \|\| isMustGo \|\| isWrong \|\| isCourt \|\| isTournament \|\| isCurse\) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt><\/textarea>/);
+  assert.match(astro, /\(isTier \|\| isMustGo \|\| isWrong \|\| isCourt \|\| isTournament \|\| isCurse\) && <p class="experience-note" id="local-alt-note">/);
   assert.match(astro, /four named rows in order/);
   assert.match(astro, /the choice crossed out and the three that stay in stage order/);
   assert.match(astro, /the selected question, your answer and any byline/);
@@ -87,9 +87,9 @@ test('the shared clipboard text and denied-permission fallback stay intact', () 
   const source = read('src/browser/share-experiences.ts');
   const start = source.indexOf('alt?.addEventListener("click"');
   assert.ok(start > 0, 'the export panel copy handler exists');
-  const handler = source.slice(start, source.indexOf('// Twenty-one questions, one-must-go and wrong-answers', start));
-
-  assert.match(source, /oneMustGoAltText, tierListAltText, wrongAnswersAltText/);
+  const end = source.indexOf('\n  });', start);
+  assert.ok(end > start, 'the copy handler boundary exists');
+  const handler = source.slice(start, end);
   assert.match(handler, /game === "tier-list" \? tierListAltText\(snapshot\)/);
   assert.match(handler, /game === "one-must-go" \? oneMustGoAltText\(snapshot\)/);
   assert.match(handler, /game === "wrong-answers" \? wrongAnswersAltText\(snapshot\)/);
@@ -99,6 +99,9 @@ test('the shared clipboard text and denied-permission fallback stay intact', () 
   assert.match(handler, /altManual\.value = text;[\s\S]*?altManual\.hidden = false;[\s\S]*?altManual\.focus\(\);[\s\S]*?altManual\.select\(\);/);
   assert.match(handler, /altCopyAttempt/, 'a stale copy cannot update the status');
   assert.doesNotMatch(handler, /href|resultLink\(|new ClipboardItem|renderExperienceResult/, 'the text path carries no link or image');
-  assert.match(source, /clearAltFallback\(\);\s*\n\s*if \(shareNote/, 'every state update retires the stale fallback');
+  const updateStart = source.indexOf('const update = () => {', source.indexOf('const clearAltFallback'));
+  const updateEnd = source.indexOf('\n  };', updateStart);
+  assert.ok(updateStart > 0 && updateEnd > updateStart, 'the shared state update exists');
+  assert.match(source.slice(updateStart, updateEnd), /clearAltFallback\(\);/, 'every state update retires the stale fallback');
   assert.match(source, /if \(alt\) byline\.addEventListener\("input", clearAltFallback\)/, 'a byline edit retires it too');
 });

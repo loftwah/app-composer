@@ -36,6 +36,9 @@ import {
   techTournamentEntries, techTournamentMatchLabel, techTournamentMatches,
   techTournamentPickCount, techTournamentPlaceholder,
 } from "../../lib/tech-tournament.ts";
+import {
+  cursedChoices, cursedChoicesSubtitle, cursedChoiceCount,
+} from "../../lib/cursed-choices.ts";
 
 interface Props {
   game: ExperienceId;
@@ -55,6 +58,7 @@ const isMustGo = game === "one-must-go";
 const isWrong = game === "wrong-answers";
 const isCourt = game === "red-flag-court";
 const isTournament = game === "tech-tournament";
+const isCurse = game === "cursed-choices";
 const persona = personaFor(game);
 const cells = [...developerBingo.slice(0, 12), "Free space", ...developerBingo.slice(12)];
 // A text-only, unranked example board built from the current Top Nine result
@@ -489,6 +493,44 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     </section>
   </section>}
 
+  {isCurse && <section data-play-panel class="cc-stage" aria-label="Pick your curse docket">
+    <div class="cc-masthead">
+      <p class="cc-kicker">{cursedChoicesSubtitle} · Internet Workshop</p>
+      <p class="cc-folio" data-cc-folio>Curse 01 of {cursedChoiceCount} · 0 chosen</p>
+    </div>
+    <div class="cc-index" role="group" aria-label="Choose a curse">
+      {cursedChoices.map((entry, index) => <button type="button" data-cc-prompt={index}
+        aria-label={`Curse ${index + 1}: ${entry.prompt}`} aria-pressed={index === 0 ? "true" : "false"}
+        aria-controls="cc-curse" disabled>
+        <span class="cc-index-number">{String(index + 1).padStart(2, "0")}</span>
+        <span class="cc-index-name">{entry.tab}</span>
+        <span class="cc-index-pick" data-cc-index-pick={index} hidden></span>
+      </button>)}
+    </div>
+    <div class="cc-sheet">
+      <h2 id="cc-curse" class="cc-curse" tabindex="-1" data-cc-heading>{cursedChoices[0].prompt}</h2>
+      <div class="cc-choices" role="group" aria-labelledby="cc-curse">
+        {cursedChoices[0].choices.map((choice, index) =>
+          <button type="button" data-cc-choice={index} aria-pressed="false" disabled>
+            <span class="cc-choice-side" aria-hidden="true">{index === 0 ? "A" : "B"}</span>
+            <span class="cc-choice-text" data-cc-choice-text={index}>{choice}</span>
+          </button>
+        )}
+      </div>
+      <section hidden class="cc-reveal" data-cc-reveal aria-label="Consequence">
+        <p class="cc-reveal-label">What it costs</p>
+        <p class="cc-consequence" data-cc-consequence></p>
+      </section>
+      <p class="experience-note" role="status" aria-live="polite" data-cc-status>Pick a side to reveal its consequence. Choices stay in this tab.</p>
+      <div class="cc-controls">
+        <button type="button" class="secondary" data-cc-prev disabled>Previous curse</button>
+        <button type="button" class="secondary" data-cc-next disabled>Next curse</button>
+        <button type="button" class="secondary" data-cc-clear disabled>Clear this curse</button>
+        <a class="secondary" href={experiencePath("cursed-choices")} data-cc-fresh aria-label="Start a fresh curse docket and clear every choice in this tab">Start a fresh docket</a>
+      </div>
+    </div>
+  </section>}
+
   {isThis && <section data-play-panel class="door-stage tot-stage" aria-label="Answer this-or-that choices">
     <div class="tot-packs">
       <label for="tot-pack">Starter
@@ -740,7 +782,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
   </section>}
 
   <section class="experience-export" data-export-panel aria-label="Personalise and share">
-    <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : "Your share image"}</h2>
+    <h2>{persona ? "Your result card" : isTwentyOne ? "Your share cards" : isCourt ? "Your verdict card" : isTournament ? "Your winner card" : isCurse ? "Your curse card" : "Your share image"}</h2>
     {isNine && <p class="nine-preview-subtitle" data-nine-preview-subtitle hidden></p>}
     {isNine && <div class="nine-preview" data-nine-preview hidden aria-label="Live preview of your exhibition grid">
       {Array.from({length: 9}, (_, index) => <div class="nine-preview-cell" data-nine-preview-cell={index}>
@@ -771,11 +813,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
           : isWrong ? ["Saffron page", "Faded copy", "Night school"]
           : isCourt ? ["Court paper", "Late edition", "Newsprint"]
           : isTournament ? ["Fanzine orange", "Newsprint", "Floodlight"]
+          : isCurse ? ["Game show gold", "Library green", "Modem magenta"]
           : ["Gig flyer", "Bingo hall", "Photocopy"]).map((label, index) =>
             <option value={index}>{label}</option>
           )}
       </select></label>
-      {isCourt || isTournament ? <label>Format<select data-format>
+      {isCourt || isTournament || isCurse ? <label>Format<select data-format>
         <option value="portrait">Portrait · 1080 × 1350</option>
         <option value="wide">Landscape · 1200 × 630</option>
       </select></label> : (isTwentyOne || isCloudflare || isLanguage) ? <label>Format<select data-format>
@@ -801,12 +844,12 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       <p class="experience-note" role="status" data-persona-avatar-status></p>
     </div>}
     <div class="experience-actions">
-      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament}>
-        {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : isCourt ? "Download verdict card" : isTournament ? "Download winner card" : "Download result"}
+      <button type="button" data-download disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>
+        {isCloudflare ? "Prepare card" : isLanguage ? "Prepare card" : isTwentyOne ? "Prepare cards" : isCourt ? "Download verdict card" : isTournament ? "Download winner card" : isCurse ? "Download curse card" : "Download result"}
       </button>
       {(isNine || isThis) && <button type="button" class="secondary" data-copy-png disabled>Copy PNG</button>}
-      {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : isThis ? "tot-alt-note" : "local-alt-note"}>Copy image description</button>}
-      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament}>Copy result link</button>
+      {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <button type="button" class="secondary" data-copy-alt disabled aria-describedby={isNine ? "nine-alt-note" : isThis ? "tot-alt-note" : "local-alt-note"}>Copy image description</button>}
+      <button type="button" class="secondary" data-copy hidden={isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse} disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse}>Copy result link</button>
       <button type="button" class="secondary" data-share hidden disabled={isDoor || isNine || isThis || isTwentyOne || isCloudflare || isLanguage || isTier || isMustGo || isWrong || isCourt || isTournament}>Share result</button>
     </div>
     {isNine && <div class="persona-caption" data-nine-caption>
@@ -819,7 +862,7 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
     {persona && <div class="experience-actions" data-persona-preview hidden></div>}
     {isNine && <p class="experience-note" id="nine-alt-note">A plain-text image description made from your title, optional subtitle and byline, and your nine exhibit titles in top, middle and bottom rows. A ranked board announces each exhibit with its #1 to #9 position.</p>}
     {isThis && <p class="experience-note" id="tot-alt-note">A plain-text image description made from your title, optional byline and your chosen options, in question order.</p>}
-    {(isTier || isMustGo || isWrong || isCourt || isTournament) && <p class="experience-note" id="local-alt-note">{isTier
+    {(isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <p class="experience-note" id="local-alt-note">{isTier
       ? "A plain-text image description made from your list title, optional byline and the four named rows in order, with their entries."
       : isMustGo
       ? "A plain-text image description made from the title, the choice crossed out and the three that stay in stage order, plus any byline."
@@ -827,6 +870,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       ? "A plain-text image description made from the current case number, its exact wording, your verdict and any byline."
       : isTournament
       ? "A plain-text image description made from the exact champion, the runner-up, their paired names and any byline."
+      : isCurse
+      ? "A plain-text image description made from the current curse number, its exact wording, your chosen constraint and its consequence, plus any byline."
       : "A plain-text image description made from the selected question, your answer and any byline."}</p>}
     <p class="experience-note" data-share-note>{isTier
       ? "Download the PNG to keep this board. There is no result link, public board or vote, and your entries are never serialised into a URL."
@@ -838,6 +883,8 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       ? "The card prints the current case, its exact wording, your red or green flag and any byline. There is no result link, public verdict or stored docket."
       : isTournament
       ? "The card prints your exact champion, the runner-up and their paired names, plus any byline. There is no result link, public vote, score, ranking or stored bracket."
+      : isCurse
+      ? "The card prints the current curse, its exact prompt, the constraint you picked and its consequence, plus any byline. There is no result link, public vote, comparison or stored history."
       : isTwentyOne
       ? "Your answers stay in this tab. Save your cards to keep a copy."
       : isNine
@@ -849,10 +896,10 @@ const exampleBoardHref = `${experiencePath("top-nine")}#${new URLSearchParams({ 
       : "A result link includes the result and any byline you enter. Downloads stay on your device."}</p>
     <p class="experience-note" role="status" data-status></p>
     <input hidden readonly aria-label="Result link" data-manual-copy />
-    {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
+    {(isNine || isThis || isTier || isMustGo || isWrong || isCourt || isTournament || isCurse) && <textarea hidden readonly rows="4" aria-label="Image description text" data-manual-alt></textarea>}
   </section>
 
-  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !isWrong && !isCourt && !isTournament && !persona && <details class="experience-custom">
+  {!isNine && !isThis && !isTwentyOne && !isTier && !isMustGo && !isWrong && !isCourt && !isTournament && !isCurse && !persona && <details class="experience-custom">
     <summary>{isDoor ? "Write your own endings" : "Write your own bingo squares"}</summary>
     <form data-custom-form>
       <label for="experience-custom">

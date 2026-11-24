@@ -188,7 +188,8 @@ test('the stage guards every JS-only control until the bracket mounts', () => {
   assert.match(block, /stays? in this tab/i);
   assert.match(block, /No account, vote, score or stored result/);
   assert.match(markup, /isTournament \? \["Fanzine orange", "Newsprint", "Floodlight"\]/);
-  assert.match(markup, /\{isCourt \|\| isTournament \? <label>Format<select data-format>/);
+  const formatGames = markup.match(/\{([^{}]+) \? <label>Format<select data-format>/);
+  assert.match(formatGames?.[1] ?? "", /\bisTournament\b/);
   assert.match(markup, /The card prints your exact champion, the runner-up and their paired names/);
   assert.match(markup, /exact champion, the runner-up, their paired names and any byline/);
   assert.match(markup, /data-download disabled=\{isDoor[^}]*isTournament/);
@@ -200,7 +201,8 @@ test('the browser controller keeps the bracket local and never builds a link', (
   assert.match(controller, /game === "tech-tournament" \? mountTechTournament\(root, update\)/);
   assert.match(controller, /const shared = game === "red-flag-court" \|\| game === "twenty-one-questions"[^;]*game === "tech-tournament"/);
   assert.match(controller, /status\.textContent = "Pick a winner in all seven matches to download your winner card\."/);
-  assert.match(controller, /game !== "tech-tournament" && !persona/);
+  const nativeShare = controller.match(/if \(typeof navigator\.share === "function"([^\n]+)\) \{/);
+  assert.match(nativeShare?.[1] ?? "", /&& game !== "tech-tournament"/);
   assert.match(controller, /game === "tech-tournament" \? techTournamentAltText\(snapshot\)/);
 
   const start = controller.indexOf('function mountTechTournament');
