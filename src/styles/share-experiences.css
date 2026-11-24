@@ -374,13 +374,17 @@
 .music-search { display: flex; flex-wrap: wrap; align-items: end; gap: .55rem; margin-top: .8rem; }
 .music-search label, .music-paste label { margin: 0; color: inherit; }
 .music-search input, .music-search select { margin-block: .3rem 0; }
+.music-query-row { display: flex; align-items: end; gap: .5rem; flex: 1 1 100%; }
+.music-query-row > button[type="submit"] { flex: 0 0 auto; min-height: 44px; }
 .music-kind { display: flex; flex-wrap: wrap; gap: .3rem; }
 .share-experience .music-kind button {
   min-height: 44px; padding: 8px 14px;
   background: transparent; color: inherit; border: 1px solid var(--color-control-border);
 }
 .share-experience .music-kind button[aria-pressed="true"] { background: var(--stage); color: var(--stage-ink); border-color: var(--stage-ink); }
-.music-query { flex: 1 1 13rem; }
+.music-query { flex: 1 1 auto; min-width: 0; }
+.music-query-kind { font-weight: 700; }
+.music-query-row .music-query input { display: block; inline-size: 100%; min-width: 0; min-height: 44px; margin: 0; }
 .music-results { list-style: none; padding: 0; margin: .7rem 0 0; display: grid; gap: .35rem; }
 .share-experience .music-results button {
   display: flex; flex-direction: column; align-items: flex-start; gap: .15rem;
@@ -449,6 +453,8 @@
 .exhibit-list-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .6rem; }
 .exhibit-list-actions button { min-height: 44px; }
 .exhibit-list [data-list-status] { margin-block: .5rem 0; }
+.exhibit-list .exhibit-list-detail { margin-top: .6rem; padding-top: 0; border-top: 0; }
+.exhibit-list .exhibit-list-detail summary { min-height: 44px; padding-block: .35rem; font-size: .9rem; font-weight: 400; }
 .share-experience .exhibit-pages summary { cursor: pointer; padding-block: .35rem; }
 .exhibit-pages select { margin-block: .3rem 0; }
 .exhibit-covers { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--color-control-border); }
@@ -1329,7 +1335,7 @@
   .exhibition-heading { grid-template-columns: 1fr; }
   .exhibition-objects input, .tq-answer { font-size: 16px; padding-inline: .3rem; }
   .exhibit-list textarea { font-size: 16px; }
-  .music-kind, .music-search label, .music-search > button[type="submit"],
+  .music-kind, .music-search label:not(.music-query),
   .cover-pick label { flex: 1 1 100%; }
   .share-experience .bingo-grid button { padding-inline: .14rem; }
   .persona-options { grid-template-columns: 1fr; }
