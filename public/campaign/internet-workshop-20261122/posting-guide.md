@@ -469,19 +469,19 @@ Industrial stamping machine prints a hot take about meetings and README files. A
 **Short-form treatment**  
 Show a blank page turning into one plain record: owner, decision, next move.
 
-### [Internet World Cup](https://composer.loftwah.com/share/artwork/composer-internet-31-tech-tournament)
+### [Internet World Cup](https://composer.loftwah.com/share/experiences/tech-tournament)
 
-Discord · Social prompt or concept · 1200 × 630
+Discord · Playable · 1200 × 630
 
-Terminal or GUI. The final match is “restore the thing at 2 am.” Back your champion and name the job.
+Terminal or GUI. Eight familiar tools, seven picks, one local champion. Back your champion and see who survives.
 
-[Post image](https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-v1.jpg) · [Destination](https://composer.loftwah.com/share/artwork/composer-internet-31-tech-tournament)
+[Post image](https://composer.loftwah.com/campaign/internet-workshop-20261122/tech-tournament-v1.jpg) · [Destination](https://composer.loftwah.com/share/experiences/tech-tournament)
 
 **Alt text**  
 A cable-connector trophy presides over Terminal versus GUI. App Composer Internet Workshop.
 
 **Short-form treatment**  
-Set sound to a muted crowd swell, hold on both names, end with a practical final-round job.
+Set sound to a muted crowd swell, hold on both names, then let viewers play the seven-match bracket.
 
 ### [The million-dollar question](https://composer.loftwah.com/share/artwork/composer-internet-32-million-question)
 

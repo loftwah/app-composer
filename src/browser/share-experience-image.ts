@@ -15,6 +15,10 @@ import {
   redFlagCourtCard, redFlagCourtCount, redFlagCourtSubtitle,
   type RedFlagVerdict,
 } from "../lib/red-flag-court.ts";
+import {
+  techTournamentOutcome, techTournamentPickCount,
+  type TechTournamentPick,
+} from "../lib/tech-tournament.ts";
 
 export const resultSizes = {
   portrait: [1080, 1350], story: [1080, 1920], square: [1080, 1080], wide: [1200, 630],
@@ -65,6 +69,9 @@ export interface ShareExperienceResult {
   /** Red Flag Court: current docket position and verdict. Memory only, never a link. */
   courtCase?: number;
   verdict?: RedFlagVerdict;
+  /** Internet World Cup: seven ordered local picks. Memory only; the winner
+   * card is drawn from these and this bracket never becomes a link. */
+  tournamentPicks?: (TechTournamentPick | null)[];
   byline: string;
   skin: number;
   background: string;
@@ -106,6 +113,10 @@ const inks = {
   // The owned tabloid courtroom: warm court paper and red ink, a late edition,
   // and a cooler newsprint sheet. The verdict block stays red or green.
   "red-flag-court": [["#f3e4c7", "#1c1511", "#a3151f"], ["#17120f", "#f6ead2", "#d8343f"], ["#e9e4d8", "#1d1b18", "#7a1a1f"]],
+  // The owned screenprinted cup: late-night black and sodium orange, an aged
+  // newsprint sheet, and a colder floodlight page. All three keep the trophy
+  // crop from the same poster.
+  "tech-tournament": [["#171310", "#fbeee2", "#f07022"], ["#efe6d3", "#211b16", "#b1461c"], ["#0e1b26", "#e9f4ff", "#ffb347"]],
 } as const;
 
 function picture(path: string): Promise<HTMLImageElement> {
@@ -686,17 +697,141 @@ async function renderRedFlagCourt(result: ShareExperienceResult, format: ResultF
   });
 }
 
+/** One local Internet World Cup winner card. Both the faithful portrait and
+ * the wide card print the exact champion and runner-up chosen by the seven
+ * picks, each with its original paired name. The trophy is a crop of the owned
+ * tech-tournament poster — no new artwork is introduced. */
+async function renderTechTournament(result: ShareExperienceResult, format: ResultFormat): Promise<Blob> {
+  const outcome = techTournamentOutcome(result.tournamentPicks);
+  if (!outcome) throw new Error("No champion to export");
+  // Only the two promised shapes print; a crafted select value falls back to
+  // the portrait rather than inventing another card.
+  const layout: ResultFormat = format === "wide" ? "wide" : "portrait";
+  const [width, height] = resultSizes[layout];
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  await document.fonts?.ready;
+  const palette = inks["tech-tournament"];
+  const [paper, ink, accent] = palette[result.skin] ?? palette[0];
+  const wide = layout === "wide";
+  const margin = Math.round(Math.min(width, height) * .06);
+  const footer = height - margin - 42;
+  const inner = width - margin * 2;
+  const art = await picture(result.background);
+  const cup = { x: art.width * .43, y: art.height * .07, width: art.width * .32, height: art.height * .82 };
+
+  const drawCup = (x: number, y: number, w: number, h: number) => {
+    const target = w / h;
+    let sourceW = cup.width;
+    let sourceH = cup.height;
+    if (sourceW / sourceH > target) sourceW = sourceH * target;
+    else sourceH = sourceW / target;
+    const sourceX = cup.x + (cup.width - sourceW) / 2;
+    const sourceY = cup.y + (cup.height - sourceH) / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.clip();
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(art, sourceX, sourceY, sourceW, sourceH, x, y, w, h);
+    ctx.restore();
+  };
+
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = accent;
+  ctx.fillRect(margin, margin, inner, wide ? 8 : 12);
+
+  const headSize = wide ? 15 : 22;
+  const headY = margin + (wide ? 32 : 48);
+  const tracking = wide ? 2 : 3;
+  drawTracked(ctx, "INTERNET WORLD CUP", margin, headY, headSize, ink, tracking);
+  const picks = `${techTournamentPickCount} LOCAL PICKS`;
+  drawTracked(ctx, picks, margin + inner - trackedWidth(ctx, picks, headSize, tracking), headY, headSize, accent, tracking);
+  ctx.fillStyle = ink;
+  ctx.fillRect(margin, headY + (wide ? 14 : 20), inner, 2);
+
+  if (wide) {
+    const panelY = margin + 68;
+    const panelH = footer - panelY - 10;
+    const panelW = Math.round(inner * .32);
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, panelY, panelW, panelH);
+    drawCup(margin + 12, panelY + 12, panelW - 24, panelH - 24);
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(margin + 12.5, panelY + 12.5, panelW - 25, panelH - 25);
+
+    const textX = margin + panelW + Math.round(inner * .055);
+    const textW = margin + inner - textX;
+    drawTracked(ctx, "YOUR CHAMPION", textX, panelY + 22, 16, accent, 2);
+    ctx.fillStyle = ink;
+    drawFit(ctx, outcome.winner.name, textX, panelY + 42, textW, 128, 126, {
+      family: "Space, system-ui", weight: 800, lineHeight: .96,
+    });
+    drawFit(ctx, outcome.winner.pair, textX, panelY + 172, textW, 48, 36, { weight: 600 });
+    ctx.fillStyle = accent;
+    ctx.fillRect(textX, panelY + 230, textW, 4);
+    drawTracked(ctx, "RUNNER-UP", textX, panelY + 266, 14, accent, 2);
+    ctx.fillStyle = ink;
+    drawFit(ctx, outcome.runnerUp.name, textX, panelY + 286, textW, 86, 72, {
+      family: "Space, system-ui", weight: 800, lineHeight: .98,
+    });
+    drawFit(ctx, outcome.runnerUp.pair, textX, panelY + 374, textW, 40, 30, { weight: 600 });
+  } else {
+    const panelY = margin + 82;
+    const panelH = Math.round((footer - panelY) * .38);
+    const panelW = Math.round(inner * .68);
+    const panelX = margin + Math.round((inner - panelW) / 2);
+    ctx.fillStyle = accent;
+    ctx.fillRect(panelX - 10, panelY + 10, panelW + 20, panelH);
+    ctx.fillStyle = paper;
+    ctx.fillRect(panelX, panelY, panelW, panelH);
+    drawCup(panelX + 16, panelY + 10, panelW - 32, panelH - 20);
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(panelX + .5, panelY + .5, panelW, panelH);
+
+    const belowCup = panelY + panelH + 46;
+    drawTracked(ctx, "YOUR CHAMPION", margin, belowCup, 22, accent, 3);
+    ctx.fillStyle = ink;
+    drawFit(ctx, outcome.winner.name, margin, belowCup + 26, inner, 156, 168, {
+      family: "Space, system-ui", weight: 800, lineHeight: .94,
+    });
+    drawFit(ctx, outcome.winner.pair, margin, belowCup + 194, inner, 58, 44, { weight: 600 });
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, belowCup + 270, inner, 5);
+    drawTracked(ctx, "RUNNER-UP", margin, belowCup + 314, 20, accent, 3);
+    ctx.fillStyle = ink;
+    drawFit(ctx, outcome.runnerUp.name, margin, belowCup + 340, inner, 96, 92, {
+      family: "Space, system-ui", weight: 800, lineHeight: .98,
+    });
+    drawFit(ctx, outcome.runnerUp.pair, margin, belowCup + 446, inner, 46, 34, { weight: 600 });
+  }
+
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
+}
+
 export async function renderExperienceResult(
   result: ShareExperienceResult,
   format: ResultFormat,
   covers?: readonly (ResultCoverSlot | null)[],
 ) {
-  // The tier board, one-must-go's shared grid and the wrong-answer plate each
-  // keep their own drawing; every other game keeps the established
-  // title-and-grid renderer exactly as it was.
+  // The tier board, one-must-go's shared grid, the wrong-answer plate, the
+  // courtroom verdict card and the tournament winner card each keep their own
+  // drawing; every other game keeps the established title-and-grid renderer
+  // exactly as it was.
   if (result.game === "tier-list") return renderTierList(result, format);
   if (result.game === "wrong-answers") return renderWrongAnswers(result, format);
   if (result.game === "red-flag-court") return renderRedFlagCourt(result, format);
+  if (result.game === "tech-tournament") return renderTechTournament(result, format);
   const [width, height] = resultSizes[format];
   const canvas = document.createElement("canvas");
   canvas.width = width;

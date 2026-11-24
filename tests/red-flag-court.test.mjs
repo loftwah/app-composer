@@ -157,7 +157,7 @@ test('the stage starts every JS-only control disabled until the docket mounts', 
   assert.match(block, /redFlagCourtCases\[0\]\.habit/);
   assert.match(block, /stay in this tab/i);
   assert.match(markup, /isCourt \? \["Court paper", "Late edition", "Newsprint"\]/);
-  assert.match(markup, /isCourt \? <label>Format<select data-format>/);
+  assert.match(markup, /isCourt \|\| isTournament \? <label>Format<select data-format>/);
   assert.match(markup, /<option value="wide">Landscape · 1200 × 630<\/option>/);
   assert.match(markup, /The card prints the current case, its exact wording, your red or green flag and any byline/);
   assert.match(markup, /data-download disabled=\{isDoor[^}]*isCourt/);
