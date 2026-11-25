@@ -26,5 +26,19 @@
       "originalSha256": "cd00371152f7caf075d89250ddbfe5f10ce7f148866ea3bc06dcf0788ec4d61a",
       "displaySha256": "cf9737b38f792343ab87721ecde4f47fd21e76f6becb2ef3e7638aa0fd13969e"
     }
-  ]
+  ],
+  "localTrial": {
+    "recordedOn": "2026-11-25",
+    "node": "24.20.0",
+    "oyster": "0.59.0",
+    "printsRevision": "3475e6e4075f",
+    "displayImage": "oyster-local-prints.webp",
+    "displaySha256": "c9c622b8025a8d7cc2729d69a983d571ca9294f59f84d0ba5e505f5240a90582",
+    "verified": [
+      "Oyster booted and Prints opened in the local browser",
+      "MCP 2025-11-25 exposed execute and returned 4 from the sandbox"
+    ],
+    "observed": "The local Prints page showed that media generation is disabled. With no gallery folder selected, listOutputs returned library_unavailable.",
+    "inferenceCalls": 0
+  }
 }
