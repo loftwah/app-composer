@@ -216,12 +216,12 @@
       ],
       "projectUrl": "https://prints.loftwah.com/",
       "sourceUrl": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/provenance.json",
-      "previewUrl": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/feed.jpg",
-      "thumbnailUrl": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/feed-480.webp",
+      "previewUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/workshop-home-feed.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/workshop-home-feed-480.webp",
       "thumbnailWidth": 480,
       "thumbnailHeight": 600,
       "original": {
-        "url": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/feed.jpg",
+        "url": "https://composer.loftwah.com/campaign/prints-desktop-20261125/workshop-home-feed.jpg",
         "label": "Portrait JPG",
         "width": 1080,
         "height": 1350,
@@ -230,13 +230,13 @@
       },
       "formats": [
         {
-          "url": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/wide.jpg",
+          "url": "https://composer.loftwah.com/campaign/prints-desktop-20261125/workshop-home-wide.jpg",
           "label": "Wide JPG",
           "width": 1200,
           "height": 630
         },
         {
-          "url": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/story.jpg",
+          "url": "https://composer.loftwah.com/campaign/prints-desktop-20261125/workshop-home-story.jpg",
           "label": "Story JPG",
           "width": 1080,
           "height": 1920

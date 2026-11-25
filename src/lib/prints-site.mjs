@@ -18,6 +18,7 @@ export const printsFieldKitDownloads = [
 export const printsWorkshopShareFolder = '/prints-desktop/workshop-share-home-20261125/';
 export const printsDownloadShareFolder = '/prints-desktop/download-share-home-20261125/';
 export const printsWorkflowShareFolder = '/prints-desktop/workflow-share-home-20261125/';
+export const printsPosterStudy = '/prints-desktop/last-train-home-20261125/';
 export const printsIcon = '/prints-desktop/icons/aperture-32-20261125.png';
 export const printsShare = printsWorkshopShareFolder + 'wide.jpg';
 export const printsShareAlt = 'Prints Desktop. Make a poster. Keep the original. A machined orange camera aperture opens onto a white coastline.';

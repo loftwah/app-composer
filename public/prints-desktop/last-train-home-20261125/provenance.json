@@ -1,0 +1,23 @@
+{
+  "title": "Last Train Home",
+  "date": "2026-11-25",
+  "generator": "OpenAI ImageGen",
+  "homepage": "https://prints.loftwah.com/",
+  "method": "A separate complete render per layout, with image and title generated together. Export work is sizing, crop and JPEG compression.",
+  "layouts": [
+    {
+      "file": "feed.jpg",
+      "width": 1080,
+      "height": 1350,
+      "prompt": "Create the COMPLETE print-ready art including integrated lettering, a serious independent designer's finished poster for an imaginary late-night rail service. Format: vertical 4:5 independent cinema poster, stronger graphic framing and moderately generous safe margins, scene should fill the composition. A small off-white railway ticket curls at a single fold into the shape of an actual tidal coastline. The narrow orange beam of one signal lamp catches its fibrous paper edge from high right. Black asphalt aggregate, white surf drawn from delicate tears in the paper, restrained burnt orange single light with no rainbow. Tactile miniature photography from a practical art-directed set, on a quiet late-night train platform. Sparse conceptual image with wit and one well-observed material illusion, rich blacks and no fantasy scenery, no extraneous subjects, no train, no figures, no holograms, no awkward mockup or empty template frame. Premium independent cinema sleeve, genuine depth and natural shadows, a single memorable silhouette. Finish all typography inside the body of the image in a modern broadly spaced bold cream grotesk. Exact and ONLY text “LAST TRAIN HOME”. No legible ticket markings. Art and type drawn together in one ImageGen render. Film grain can be subtle; preserve optical contrast and keep text legible down to feed thumbnail. No plates, layered artwork, UI cards, icon or logo. Output the actual finished image.",
+      "sha256": "c9fff2bde99219fcc2fc13e99c2926d955828ac742efb325ed3da5a312bec6e9"
+    },
+    {
+      "file": "wide.jpg",
+      "width": 1200,
+      "height": 630,
+      "prompt": "Create the COMPLETE print-ready art including integrated lettering, a serious independent designer's finished poster for an imaginary late-night rail service. Format: wide 1.91:1 editorial digital release cover, the same story in a deliberately wide composition, use the empty left third for type and keep all lettering safe. A small off-white railway ticket curls at a single fold into the shape of an actual tidal coastline. The narrow orange beam of one signal lamp catches its fibrous paper edge from high right. Black asphalt aggregate, white surf drawn from delicate tears in the paper, restrained burnt orange single light with no rainbow. Tactile miniature photography from a practical art-directed set, on a quiet late-night train platform. Sparse conceptual image with wit and one well-observed material illusion, rich blacks and no fantasy scenery, no extraneous subjects, no train, no figures, no holograms, no awkward mockup or empty template frame. Premium independent cinema sleeve, genuine depth and natural shadows, a single memorable silhouette. Finish all typography inside the body of the image in a modern broadly spaced bold cream grotesk. Exact and ONLY text “LAST TRAIN HOME”. No legible ticket markings. Art and type drawn together in one ImageGen render. Film grain can be subtle; preserve optical contrast and keep text legible down to feed thumbnail. No plates, layered artwork, UI cards, icon or logo. Output the actual finished image.",
+      "sha256": "d2e413061e0b1e766fe479223450a924e7033fbdda2ee013a63277e1cf1edde0"
+    }
+  ]
+}

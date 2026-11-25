@@ -1,38 +1,9 @@
 ---
-import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { ArrowDownToLine, ArrowRight } from '@lucide/astro';
 import { isPrintsHost, printsIcon } from '../lib/prints-site.mjs';
 
-const { guide, watch } = Astro.props;
+const { guide, watch, compare } = Astro.props;
 const printsProduct = isPrintsHost(Astro.url);
-const entries = [
-  {
-    title: 'Before the Bell',
-    project: 'Fighter',
-    source: 'https://media.loftwah.com/p/yFSN93LOFy1ja4j0',
-    image: '/prints-desktop/archive-v1/before-the-bell.webp',
-    alt: 'Three fighters face the crowd in a boxing ring under a single amber spotlight.',
-    width: 1000,
-    height: 1000,
-  },
-  {
-    title: 'The Last Lift',
-    project: 'LoftwahFM',
-    source: 'https://fm.loftwah.com/album/higher-than-before/#album-booklet',
-    image: '/prints-desktop/archive-v1/the-last-lift.webp',
-    alt: 'An empty tiled swimming pool with a single lit doorway at the far end.',
-    width: 1000,
-    height: 667,
-  },
-  {
-    title: 'Relay Station',
-    project: 'Afterlight',
-    source: '#afterlight',
-    image: '/prints-desktop/afterlight-v0.3.1/relay-station-hero.webp',
-    alt: 'A dark relay tower rises above red sand dunes in a dust storm.',
-    width: 720,
-    height: 480,
-  },
-];
 ---
 <header class="archive" id="archive" tabindex="-1" aria-labelledby="archive-title">
   <div class="archive-intro">
@@ -49,16 +20,15 @@ const entries = [
       <a href="#afterlight">Play Afterlight</a>
     </div>
   </div>
-  <div class="proof-sheet" aria-label="Selected Loftwah artwork">
-    {entries.map(({ title, project, source, image, alt, width, height }, index) => (
-      <figure>
-        <a href={source} aria-label={`${title} · ${project}`}>
-          <img src={image} alt={alt} width={width} height={height} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" fetchpriority={index === 0 ? 'high' : 'auto'} />
-        </a>
-        <figcaption><span>{title} <small>{project}</small></span><ArrowUpRight size={16} aria-hidden="true" /></figcaption>
-      </figure>
-    ))}
-  </div>
+  <figure class="compare-proof">
+    <a href={compare} aria-label="View the full-size Prints Desktop comparison screenshot">
+      <img src={compare} width="1280" height="790" alt="Prints Desktop shows LoftwahFM’s square Higher Than Before cover and tall release poster side by side." fetchpriority="high" decoding="async" />
+    </a>
+    <figcaption>
+      <span><strong>Higher Than Before</strong> · Cover and release poster</span>
+      <span>Captured in Prints Desktop on macOS</span>
+    </figcaption>
+  </figure>
 </header>
 
 <style>
@@ -74,19 +44,12 @@ const entries = [
   .download:hover { background: #ff9a43; color: #171717; }
   .archive-links a { color: var(--color-muted); }
   .archive-links a:hover { color: var(--color-foreground); }
-  .proof-sheet { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; padding: 6px; border-radius: 12px; background: #191919; color: #fff0da; }
-  .proof-sheet figure { position: relative; margin: 0; min-width: 0; }
-  .proof-sheet figure:first-child { grid-column: 1 / -1; }
-  .proof-sheet a { position: relative; display: block; height: 100%; overflow: hidden; border-radius: 5px; background: #252525; color: inherit; }
-  .proof-sheet img { width: 100%; height: auto; aspect-ratio: 1.65; object-fit: cover; display: block; }
-  .proof-sheet figure:first-child img { aspect-ratio: 1.83; object-position: 50% 32%; }
-  .proof-sheet figcaption { display: flex; justify-content: space-between; align-items: center; gap: 8px; position: absolute; pointer-events: none; inset: auto 7px 7px; width: fit-content; max-width: calc(100% - 14px); min-height: 39px; padding: 5px 9px; border-radius: 5px; background: #191919; color: #fff0da; line-height: 1.16; font-weight: 700; font-size: clamp(.84rem,1.5vw,1rem); }
-  .proof-sheet figcaption small { display: block; color: #ebcdbd; font-size: .71rem; font-weight: 400; }
-  .proof-sheet figcaption svg { flex: none; }
-  .proof-sheet a:hover + figcaption { background: #f48120; color: #171717; }
-  .proof-sheet a:hover + figcaption small { color: #332211; }
-  .archive a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
-  .proof-sheet a:focus-visible { outline: 2px solid #f48120; outline-offset: -3px; }
+  .compare-proof { min-width: 0; margin: 0; }
+  .compare-proof a { display: block; border-radius: 10px; border: 1px solid var(--color-border); background: #191919; overflow: hidden; }
+  .compare-proof img { display: block; width: 100%; height: auto; }
+  .compare-proof figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 3px 12px; margin-top: 8px; color: var(--color-muted); font-size: .85rem; }
+  .compare-proof figcaption strong { color: var(--color-foreground); }
+  .archive a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
   @media(max-width: 780px) {
     .archive { grid-template-columns: minmax(0,1fr); gap: 16px; }
     .archive h1 { max-width: 15ch; }
@@ -99,10 +62,5 @@ const entries = [
   }
   @media(max-width: 360px) {
     .archive-actions a:not(.download) svg { display: none; }
-  }
-  @media(max-width: 460px) {
-    .proof-sheet figure:first-child img { aspect-ratio: 1.44; }
-    .proof-sheet figure:not(:first-child) img { aspect-ratio: 1.21; }
-    .proof-sheet figcaption { inset-inline: 4px; bottom: 4px; max-width: calc(100% - 8px); padding-inline: 5px; }
   }
 </style>
