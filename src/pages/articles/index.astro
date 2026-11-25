@@ -1,0 +1,49 @@
+---
+import Base from "../../layouts/Base.astro";
+import { frontmatter as releaseArt } from "./picking-release-art.md";
+import { frontmatter as original } from "./workers-ai-to-original.md";
+
+interface ArticleSummary {
+  title: string;
+  description: string;
+  cover: string;
+}
+
+const articles = [
+  { frontmatter: releaseArt as ArticleSummary, href: "/articles/picking-release-art" },
+  { frontmatter: original as ArticleSummary, href: "/articles/workers-ai-to-original" },
+];
+---
+
+<Base title="Articles" description="Field notes from building and using App Composer projects.">
+  <section class="articles" aria-labelledby="articles-title">
+    <header>
+      <h1 id="articles-title">Articles</h1>
+      <p>Field notes from building and using App Composer projects.</p>
+    </header>
+    <ul>
+      {articles.map(({ frontmatter: { title, description, cover }, href }) => (
+        <li>
+          <a href={href}>
+            <img src={cover} width="1200" height="630" alt="" />
+            <div><h2>{title}</h2><p>{description}</p></div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .articles { max-width: 930px; margin-inline: auto; }
+  header { margin-bottom: 2rem; }
+  h1 { font-size: clamp(2.4rem,6vw,4rem); margin-bottom: .2em; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { border-top: 1px solid var(--color-border); }
+  li a { display: grid; grid-template-columns: minmax(160px, .75fr) minmax(0, 1.25fr); gap: clamp(14px,3vw,30px); align-items: center; padding-block: 20px; color: var(--color-foreground); }
+  li a:hover h2 { color: var(--color-accent); }
+  img { display: block; width: 100%; height: auto; border-radius: 6px; }
+  h2 { font-size: clamp(1.25rem,2.7vw,1.85rem); margin: 0 0 .35rem; }
+  li p { margin: 0; color: var(--color-muted); }
+  @media (max-width: 590px) { li a { grid-template-columns: minmax(0,1fr); } }
+</style>
