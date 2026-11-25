@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { ArrowDown, ArrowDownToLine, ArrowRight, ArrowUpRight, Play } from '@lucide/astro';
-import { isPrintsHost, printsOrigin } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsFieldKitZip, printsOrigin } from '../../lib/prints-site.mjs';
 
 const kit = '/prints-desktop/devrel-20261125/';
 const title = 'From brief to byte';
@@ -31,7 +31,7 @@ const article = {
         <h1>From brief<br />to byte.</h1>
         <p>Show a real image. Follow the job through Fungi, Oyster and Cloudflare. Then put the same tools in your audience’s hands.</p>
         <div class="actions">
-          <a class="primary" href={kit + 'prints-devrel-field-kit.zip'} download><ArrowDownToLine size={18} aria-hidden="true" /> Download the field kit</a>
+          <a class="primary" href={printsFieldKitZip} download><ArrowDownToLine size={18} aria-hidden="true" /> Download the field kit</a>
           <a href={kit + 'stage.html'}><Play size={17} aria-hidden="true" /> Open stage view</a>
         </div>
       </div>

@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
 import PrintsArchive from '../components/PrintsArchive.astro';
 import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../lib/prints-site.mjs';
+import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
@@ -15,12 +16,6 @@ const archive = `${asset}archive-native-v0.4.0.webp`;
 const compare = `${asset}archive-compare-v0.4.0.webp`;
 const local = `${asset}local-library-v0.3.1.webp`;
 const hosted = `${asset}oyster-library-demo-v0.3.1.webp`;
-const builds = [
-  { label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip' },
-  { label: 'Linux', detail: 'x64 · Portable archive', file: 'linux-x64.tar.gz' },
-  { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz' },
-  { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip' },
-];
 const canonical = printsOrigin + '/';
 const product = isPrintsHost(Astro.url);
 const routePrefix = product ? '' : '/prints-desktop';
@@ -156,6 +151,7 @@ const schema = {
       <div>
         <h2 id="downloads-title">Get Prints Desktop.</h2>
         <p>Choose your v{version} preview. Every package includes the Loftwah Creative Archive and Afterlight.</p>
+        <p><a class="quiet-link" href={printsOrigin + '/downloads'}>Download statistics <ArrowUpRight size={16} aria-hidden="true" /></a></p>
         <a class="quiet-link" href={release}>Release notes, signing status and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
       <div>
