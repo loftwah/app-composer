@@ -36,6 +36,18 @@ In v0.4.2, a drop links the supported files as a batch and reports how many it k
 
 Prints keeps a link to each original on disk. I moved a test image to a different name, reopened the app and got an unavailable original with a **Locate original…** button. Pointing Prints at the new file restored the entry. After reopening again, I exported it and the bytes still matched. If you reorganise a folder, that’s the route back to the file.
 
+## Save the decision with a brief
+
+In v0.5.0, choose **Keep with draft** on each image, then open **Prompt draft** to save the brief with both references. Reopen the draft later to see the reasoning and go straight back to the files.
+
+<figure>
+  <video controls preload="none" width="1280" height="800" poster="/articles/prints-creator-workflow-050.jpg">
+    <source src="/articles/prints-creator-workflow-050.mp4" type="video/mp4">
+    <track kind="captions" src="/articles/prints-creator-workflow-050.vtt" srclang="en" label="English" default>
+  </video>
+  <figcaption>A 14-second scripted capture of the v0.5.0 Mac app. It compares the published cover and poster, keeps both, then saves a brief with them.</figcaption>
+</figure>
+
 ## Try it on one decision
 
 Open the built-in LoftwahFM pair first, then bring two versions of a piece you’re already working on. Give each version a destination. It might be a square album tile and a portrait announcement, or two crops for the same page. Look for what makes one work at the size people will actually see. Favourite the one you’d use and export it from the contact sheet.

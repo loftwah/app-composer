@@ -6,6 +6,7 @@ The two editorial covers were generated on 26 November 2026 with the built-in Im
 
 - Public asset `public/articles/release-art-20261126.jpg`
 - Screenshot `public/prints-desktop/archive-compare-v0.4.0.webp`, published LoftwahFM album cover and poster in Prints Desktop
+- Video, caption track and poster `public/articles/prints-creator-workflow-050.*`, native Rune replay of the same supplied artwork on the tagged Mac source
 
 > Wide landscape editorial cover photograph for a real App Composer engineering field note about choosing one release print from a shortlist. Overhead view of one printmaker’s off-white worktable. Two thoughtfully composed physical ink proofs of the same fictional record release sit side by side, one square, one tall, sharing the same deliberately simple vermilion disc and cobalt field but with different crops. One person’s natural fingertips enter at one lower edge to slide the chosen tall proof toward a clean archival sleeve; a single thin graphite crop mark on a small scrap. Quiet daylight, visible uncoated paper fibre, slight honest ink registration, hard enough shadow to read at 300px. Approachable independent print studio, strong graphic proportions, palette bone paper, persimmon, ink and cobalt. Nothing staged as a software screen. No lettering, words, logos, watermarks, devices, ornamental props or extra fingers. One clear action. The article title is outside the image. Produce a wide 16:9 composition with safe margins for 1200×630 cropping.
 

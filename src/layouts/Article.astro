@@ -41,7 +41,7 @@ const publishedLabel = new Intl.DateTimeFormat("en-AU", { dateStyle: "long", tim
   .lead { font-size: clamp(1.03rem,2.2vw,1.3rem); line-height: 1.5; margin-top: 0; }
   time, figcaption { color: var(--color-muted); font-size: .875rem; }
   figure { margin: 0; }
-  .cover img, .prose :global(figure img) { display: block; width: 100%; height: auto; border-radius: 8px; }
+  .cover img, .prose :global(figure img), .prose :global(figure video) { display: block; width: 100%; height: auto; border-radius: 8px; }
   .cover figcaption, .prose :global(figcaption) { margin-top: .6rem; line-height: 1.45; }
   .prose { margin-block: clamp(24px,5vw,52px); font-size: 1.05rem; line-height: 1.72; }
   .prose :global(h2) { margin: 1.6em 0 .48em; font-size: clamp(1.4rem,3vw,1.85rem); }
