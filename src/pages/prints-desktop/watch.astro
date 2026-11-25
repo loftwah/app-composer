@@ -2,34 +2,41 @@
 import Base from '../../layouts/Base.astro';
 import PrintsWalkthrough from '../../components/PrintsWalkthrough.astro';
 import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
-import { printsAfterlightVideo, printsArchiveVideo } from '../../lib/prints-video.mjs';
+import { printsAfterlightVideo, printsArchiveVideo, printsWorkshopVideo } from '../../lib/prints-video.mjs';
 import { ArrowLeft } from '@lucide/astro';
 
 const canonical = printsOrigin + '/watch';
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
 const { title, description } = printsArchiveVideo;
-const video = {
+const videos = {
   '@context': 'https://schema.org',
-  '@type': 'VideoObject',
-  name: title,
-  description,
-  thumbnailUrl: [new URL(printsArchiveVideo.poster, canonical).href],
-  contentUrl: new URL(printsArchiveVideo.src, canonical).href,
-  url: canonical,
-  uploadDate: printsArchiveVideo.uploadDate,
-  duration: `PT${printsArchiveVideo.duration}S`,
-  inLanguage: 'en',
+  '@graph': [printsArchiveVideo, printsWorkshopVideo].map((clip) => ({
+    '@type': 'VideoObject',
+    name: clip.title,
+    description: clip.description,
+    thumbnailUrl: [new URL(clip.poster, canonical).href],
+    contentUrl: new URL(clip.src, canonical).href,
+    url: canonical,
+    uploadDate: clip.uploadDate,
+    duration: `PT${clip.duration}S`,
+    inLanguage: 'en',
+  })),
 };
 ---
 
 <Base title={title} description={description} canonical={canonical} printsProduct={product} shareImage={printsShare} shareAlt={printsShareAlt}>
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(video)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(videos)} />
   <article class="watch">
     <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
     <h1>{title}.</h1>
     <PrintsWalkthrough clip={printsArchiveVideo} eager />
     <a class="back" href="/prints-desktop/archive-vertical-v0.4.0.mp4" download>Download the vertical cut · MP4</a>
+    <section aria-labelledby="archive-workshop">
+      <h2 id="archive-workshop">{printsWorkshopVideo.title}.</h2>
+      <p>{printsWorkshopVideo.description}</p>
+      <PrintsWalkthrough clip={printsWorkshopVideo} />
+    </section>
     <section aria-labelledby="connected-replay">
       <h2 id="connected-replay">{printsAfterlightVideo.title}.</h2>
       <p>{printsAfterlightVideo.description}</p>

@@ -6,6 +6,7 @@ import PrintsArchive from '../components/PrintsArchive.astro';
 import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt, printsWorkshopShareFolder, printsDownloadShareFolder, printsWorkflowShareFolder, printsPosterStudy } from '../lib/prints-site.mjs';
 import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
+import { printsWorkshopVideo } from '../lib/prints-video.mjs';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const site = 'https://github.com/loftwah/prints-desktop';
@@ -102,10 +103,10 @@ const schema = {
     <section class="tour" id="walkthrough" aria-labelledby="walkthrough-title">
       <div class="tour-heading">
         <h2 id="walkthrough-title">From first look to export.</h2>
-        <p>Watch the native app browse Afterlight, save an original, draft a prompt and open an example Oyster library.</p>
+        <p>Follow the native app from the album cover and release poster to a shortlist, a byte-for-byte export and a brief for your next print.</p>
       </div>
-      <PrintsWalkthrough />
-      <a class="quiet-link" href={`${routePrefix}/watch`}>Open the video page <ArrowUpRight size={16} aria-hidden="true" /></a>
+      <PrintsWalkthrough clip={printsWorkshopVideo} />
+      <a class="quiet-link" href={`${routePrefix}/watch`}>See all Prints videos <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
     <section class="workflows" aria-labelledby="workflows-title">
@@ -158,7 +159,7 @@ const schema = {
           <dd>Fungi’s generation and recovery layer. When you create through web Prints, the host and model determine availability and charges. A self-hosted Oyster can run Workers AI on your Cloudflare account.</dd>
         </div>
         <div>
-          <dt><a href="https://docs.fungi.computer/ecosystem">Fungi</a> and <a href="https://docs.fungi.computer/guides/use-the-terminal/">Shiitake</a></dt>
+          <dt><a href="https://docs.fungi.computer/ecosystem">Fungi</a> and <a href="https://docs.fungi.computer/guides/use-the-terminal">Shiitake</a></dt>
           <dd>Fungi makes the connected creative tools. Shiitake is its terminal coding agent for working in a local project. Browse Afterlight or connect Oyster directly from Prints Desktop.</dd>
         </div>
         <div>
