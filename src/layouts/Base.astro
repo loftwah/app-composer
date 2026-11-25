@@ -34,6 +34,14 @@ const {
   noindex = noindexFor(Astro.url.hostname, (Astro.response.status ?? 200) < 400),
 } = Astro.props;
 const printsProduct = Astro.props.printsProduct === true;
+const printsNavigation = [
+  { href: "/#archive", label: "Archive" },
+  { href: "/watch", label: "Watch" },
+  { href: "/guide", label: "Guide" },
+  { href: "/story", label: "Story" },
+  { href: "/#downloads", label: "Download" },
+];
+const printsPagePath = Astro.url.pathname.replace(/^\/prints-desktop(?=\/|$)/, "");
 const siteName = printsProduct ? "Prints Desktop" : "App Composer";
 const pageTitle = title.includes(siteName)
   ? title
@@ -135,13 +143,24 @@ Astro.csp?.insertScriptResource(
           )}
         </span>
       </a>}
-      {printsProduct && <nav class="prints-nav" aria-label="Prints navigation">
-        <a href="/#archive">Archive</a>
-        <a href="/watch" aria-current={Astro.url.pathname.endsWith('/watch') ? 'page' : undefined}>Watch</a>
-        <a href="/guide" aria-current={Astro.url.pathname.endsWith('/guide') ? 'page' : undefined}>Guide</a>
-        <a href="/story" aria-current={Astro.url.pathname.endsWith('/story') ? 'page' : undefined}>Story</a>
-        <a class="prints-download" href="/#downloads">Download</a>
-      </nav>}
+      {printsProduct && <>
+        <nav class="prints-nav" aria-label="Prints navigation">
+          {printsNavigation.map(({ href, label }) => (
+            <a href={href} class:list={{"prints-download": label === "Download"}} aria-current={printsPagePath === href ? "page" : undefined}>{label}</a>
+          ))}
+        </nav>
+        <details class="prints-menu">
+          <summary>
+            Menu
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+          </summary>
+          <nav class="prints-menu-panel" aria-label="Prints navigation">
+            {printsNavigation.map(({ href, label }) => (
+              <a href={href} aria-current={printsPagePath === href ? "page" : undefined}>{label}</a>
+            ))}
+          </nav>
+        </details>
+      </>}
       {!printsProduct && !focusedExperience && <nav class="site-navigation" aria-label="Main navigation">
         <a class="nav-direct" href="/learn">Learn</a>
         <a class="nav-direct" href="/demo">Demos</a>
@@ -293,7 +312,7 @@ Astro.csp?.insertScriptResource(
         } catch {}
         label();
       });
-      const siteMenu = document.querySelector<HTMLDetailsElement>(".site-menu");
+      const siteMenu = document.querySelector<HTMLDetailsElement>(".site-menu, .prints-menu");
       if (siteMenu) {
         const menuSummary = siteMenu.querySelector("summary")!;
         document.addEventListener("keydown", (event) => {
@@ -312,6 +331,11 @@ Astro.csp?.insertScriptResource(
             siteMenu.open = false;
           }
         });
+        if (siteMenu.classList.contains("prints-menu")) {
+          siteMenu.addEventListener("click", (event) => {
+            if (event.target instanceof Element && event.target.closest("a")) siteMenu.open = false;
+          });
+        }
         document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main navigation"] a').forEach((a) => {
           if (a.pathname === location.pathname)
             a.setAttribute("aria-current", "page");
@@ -343,13 +367,57 @@ Astro.csp?.insertScriptResource(
   .prints-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 4px 20px; }
   .prints-footer p { margin: 0; }
   .prints-footer nav a { display: inline-flex; align-items: center; min-height: 44px; }
-  @media (max-width: 620px) {
-    .prints-product .site-header { grid-template-columns: minmax(0, 1fr) auto; padding-block: 8px; }
-    .prints-product .header-utilities { grid-column: 2; grid-row: 1; }
-    .prints-nav { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; font-size: .88rem; }
-  }
-  @media (max-width: 360px) {
-    .prints-nav { flex-wrap: wrap; gap: 2px; }
-    .prints-nav .prints-download { padding-inline: 8px; }
+  .prints-menu { display: none; }
+  @media (max-width: 760px) {
+    .prints-product .site-header {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      min-height: 60px;
+      gap: 8px;
+      padding-block: 7px;
+    }
+    .prints-product .site-header .brand { gap: 7px; font-size: 1.06rem; }
+    .prints-product .site-header .brand > img { width: 28px; height: 28px; }
+    .prints-product #main { padding-block-start: 23px; }
+    .prints-nav { display: none; }
+    .prints-menu { position: relative; display: block; }
+    .prints-menu summary {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      gap: 5px;
+      padding: 0 8px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      color: var(--color-foreground);
+      font-size: .875rem;
+      font-weight: 650;
+      cursor: pointer;
+      list-style: none;
+    }
+    .prints-menu summary::-webkit-details-marker { display: none; }
+    .prints-menu[open] summary svg { transform: rotate(180deg); }
+    .prints-menu-panel {
+      position: absolute;
+      inset: calc(100% + 6px) 0 auto auto;
+      z-index: 8;
+      display: grid;
+      min-width: 168px;
+      gap: 2px;
+      padding: 6px;
+      border: 1px solid var(--color-border);
+      border-radius: 9px;
+      background: var(--color-background);
+      box-shadow: 0 9px 24px #0003;
+    }
+    .prints-menu-panel a {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 5px;
+      color: var(--color-foreground);
+    }
+    .prints-menu-panel :is(a:hover, a[aria-current="page"]) { background: var(--color-surface); }
+    .prints-menu :is(summary, a):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
   }
 </style>
