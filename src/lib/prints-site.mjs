@@ -1,11 +1,21 @@
+export const printsDiscovery = /** @type {const} */ ({
+  id: 'prints-desktop',
+  name: 'Prints Desktop',
+  category: 'Creative',
+  href: '/prints-desktop',
+  description: 'Browse, compare and export original artwork in a native desktop workspace. Start offline with the Loftwah Creative Archive.',
+  keywords: 'creative archive contact sheet artwork gallery offline download macos linux windows oyster fungi',
+});
 export const printsOrigin = 'https://prints.loftwah.com';
 export const printsIcon = '/prints-desktop/icons/aperture-32-20261125.png';
-export const printsShare = '/prints-desktop/loftwah-archive-og-20261125.jpg';
+export const printsShare = '/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg';
+export const printsShareAlt = 'Prints Desktop in cream lettering beside a hand lifting a coastal photograph from a contact sheet under a red darkroom lamp.';
 
 const productRoutes = new Map([
   ['/', '/prints-desktop'],
   ['/watch', '/prints-desktop/watch'],
   ['/guide', '/prints-desktop/guide'],
+  ['/story', '/prints-desktop/story'],
 ]);
 
 export function isPrintsHost(url) {

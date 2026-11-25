@@ -1,0 +1,90 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
+
+const product = isPrintsHost(Astro.url);
+const home = product ? '/' : '/prints-desktop';
+const guide = product ? '/guide' : '/prints-desktop/guide';
+const watch = product ? '/watch' : '/prints-desktop/watch';
+const canonical = printsOrigin + '/story';
+const title = 'What happens after you make the image?';
+const description = 'Meet Prints Desktop, the native creative archive from Loftwah. Compare the work behind an album release, keep your favourites and export the originals, all offline.';
+const date = '2026-11-25';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  mainEntityOfPage: canonical,
+  datePublished: date,
+  inLanguage: 'en-AU',
+  image: new URL(printsShare, canonical).href,
+  author: { '@type': 'Organization', name: 'Loftwah', url: 'https://loftwah.com/' },
+};
+---
+<Base title={title} description={description} canonical={canonical} printsProduct={product} ogType="article" shareImage={printsShare} shareAlt={printsShareAlt}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <meta slot="head" property="article:published_time" content={date} />
+  <article class="story">
+    <a class="story-link" href={home}><ArrowLeft size={17} aria-hidden="true" /> Prints Desktop</a>
+    <header>
+      <h1>{title}</h1>
+      <p class="standfirst">An album cover becomes a poster. A still from a game becomes the shot that sells it. Prints Desktop is a place to see those decisions side by side and keep the files worth coming back for.</p>
+      <p class="byline">Loftwah <span aria-hidden="true">·</span> <time datetime={date}>25 November 2026</time></p>
+    </header>
+
+    <figure class="story-image">
+      <img src={printsShare} width="1200" height="630" alt={printsShareAlt} fetchpriority="high" decoding="async" />
+      <figcaption>Prints Desktop campaign artwork, made with ImageGen.</figcaption>
+    </figure>
+
+    <div class="story-body">
+      <p>Open the preview and pick <em>Higher Than Before</em>. The album cover was designed to read as a square. The release poster has to do its job from across the room. Choose <strong>Compare formats</strong> and you can see how the lettering and space change between them. Both files are already there, even with Wi-Fi off.</p>
+      <p>That’s the first thing I wanted a creative app to get right. When a piece survives all the drafts, the exact file should be close at hand. So should the references and the other versions that explain why it works. The first edition starts with work we actually published for LoftwahFM, Fighter and Bubbles. Afterlight is a separate shelf of six imagined landscapes, with briefs you can turn into your own drafts.</p>
+
+      <h2>Work through a piece, then take it with you</h2>
+      <p>Find Fighter’s <em>Before the Bell</em>, open it full-size and inspect the faces in the ring. Favourite it to build a shortlist. Choose <strong>Export original</strong> when you want the file. Prints Desktop saves a copy with the original bytes. When you import your own image, the library links to the file where it already lives. Move it later and you can point the app to its new location.</p>
+      <p>The desktop is built in Rust with Anomaly’s native Rune toolkit. On the Mac you can use the menu bar, file dialogs and keyboard shortcuts to move through the archive. You can open the offline workspace without an account, and the software is open source. The <a href={guide}>first-project tutorial</a> takes you through the cover comparison, an original export and your first editable draft.</p>
+    </div>
+
+    <figure class="story-image">
+      <img src="/prints-desktop/archive-compare-v0.4.0.webp" width="1280" height="790" alt="The Higher Than Before album cover and release poster open side by side in Prints Desktop." loading="lazy" decoding="async" />
+      <figcaption>The native comparison in v0.4.0. <a href={watch}>Watch the workspace in use <ArrowUpRight size={14} aria-hidden="true" /></a></figcaption>
+    </figure>
+
+    <div class="story-body">
+      <h2>Connect the library you run</h2>
+      <p>If you already use Prints, the desktop can connect to your library directly. Oyster runs the app and manages access, web Prints is where you choose models and create, and Darkroom connects model providers. The desktop preview uses a scoped Oyster App key to open and export indexed originals. For generation and job recovery, it hands you over to your signed-in web Prints session.</p>
+      <p>Your provider and host determine the available models and what a run costs. Fungi documents the path to a <a href="https://docs.fungi.computer/guides/run-your-own-oyster">Cloudflare-hosted Oyster</a> and a <a href="https://docs.fungi.computer/apps/prints">Prints installation using Workers AI</a>. App Composer is where you can find the app or publish related work through Share. The desktop works with your installation directly.</p>
+
+      <h2>Start with something worth keeping</h2>
+      <p>Open the archive, spend a minute comparing the two editions, then try it on your own material. The v0.4.0 preview includes Apple Silicon, Linux and Windows packages. Check the download notes for signing and platform verification before you choose a build.</p>
+      <div class="story-actions">
+        <a class="button" href={home + '#downloads'}><ArrowDownToLine size={17} aria-hidden="true" /> Get the desktop preview</a>
+        <a class="story-link" href={guide}>Follow the tutorial <ArrowRight size={17} aria-hidden="true" /></a>
+      </div>
+      <p><a href="https://composer.loftwah.com/share/artwork/prints-desktop-darkroom">See the campaign artwork in App Composer Share <ArrowUpRight size={15} aria-hidden="true" /></a></p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .story { max-width: 970px; margin-inline: auto; }
+  .story header,.story-body { max-width: 68ch; margin-inline: auto; }
+  .story header { margin-block: 8px 26px; }
+  .story h1 { margin: 0 0 14px; font-size: clamp(2.75rem,7vw,5.75rem); line-height: 1; letter-spacing: -.035em; text-wrap: balance; }
+  .standfirst { font-size: clamp(1.12rem,2vw,1.42rem); line-height: 1.48; }
+  .byline,.story figcaption { color: var(--color-muted); font-size: .9rem; }
+  .story-image { margin: 0 0 28px; }
+  .story-image img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .story figcaption { margin-top: 6px; }
+  .story figcaption a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; }
+  .story-body { margin-block: 26px 36px; font-size: 1.06rem; line-height: 1.65; }
+  .story-body h2 { margin-block: 28px 8px; font-size: clamp(1.65rem,4vw,2.4rem); line-height: 1.12; }
+  .story a:not(.button) { color: var(--color-accent); }
+  .story a:not(.button):hover { color: var(--color-foreground); }
+  .story-link,.story-actions .button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+  .story-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+  .story a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+</style>

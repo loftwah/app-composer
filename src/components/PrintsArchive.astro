@@ -1,89 +1,97 @@
 ---
-import { ArrowDown, ArrowDownToLine, ArrowUpRight } from '@lucide/astro';
-const{ guide } = Astro.props;
-const folder = '/prints-desktop/archive-v1/';
+import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { printsIcon } from '../lib/prints-site.mjs';
+
+const { guide, story } = Astro.props;
 const entries = [
   {
-    title: 'Higher Than Before',
-    source: 'https://fm.loftwah.com/album/higher-than-before/',
-    img: 'higher-than-before.webp',
-    alt: 'Higher Than Before in large cream lettering above an orange disc on dark blue.',
-    from: 'LoftwahFM',
-    detail: 'The finished cover for the eleven-track record.',
-  },
-  {
     title: 'Before the Bell',
-    source: 'https://fighter.loftwah.com/',
-    img: 'before-the-bell.webp',
-    alt: 'A horned fighter, a masked fighter and the Grim Reaper share a ring under a warm spotlight.',
-    from: 'Fighter',
-    detail: 'A cinematic still from the arcade game’s campaign.',
-  },
-  {
-    title: 'One Shot',
-    source: 'https://bubbles.loftwah.com/',
-    img: 'bubbles-one-shot.webp',
-    alt: 'A Bubbles Classic campaign card built around an actual one-shot clear.',
-    from: 'Bubbles',
-    detail: 'A real Classic clear, framed as a game poster.',
+    project: 'Fighter',
+    source: 'https://media.loftwah.com/p/yFSN93LOFy1ja4j0',
+    image: '/prints-desktop/archive-v1/before-the-bell.webp',
+    alt: 'Three fighters face the crowd in a boxing ring under a single amber spotlight.',
+    width: 1000,
+    height: 1000,
   },
   {
     title: 'The Last Lift',
+    project: 'LoftwahFM',
     source: 'https://fm.loftwah.com/album/higher-than-before/#album-booklet',
-    img: 'the-last-lift.webp',
-    alt: 'An empty tiled pool in the artwork for The Last Lift booklet.',
-    from: 'LoftwahFM',
-    detail: 'The booklet that follows the record after dark.',
+    image: '/prints-desktop/archive-v1/the-last-lift.webp',
+    alt: 'An empty tiled swimming pool with a single lit doorway at the far end.',
+    width: 1000,
+    height: 667,
+  },
+  {
+    title: 'Relay Station',
+    project: 'Afterlight',
+    source: '#afterlight',
+    image: '/prints-desktop/afterlight-v0.3.1/relay-station-hero.webp',
+    alt: 'A dark relay tower rises above red sand dunes in a dust storm.',
+    width: 720,
+    height: 480,
   },
 ];
 ---
-
 <header class="archive" id="archive" aria-labelledby="archive-title">
   <div class="archive-intro">
-    <p class="signature"><span>Prints Desktop</span> by Loftwah</p>
-    <h1 id="archive-title">The work behind the work.</h1>
-    <p class="lede">Album covers, arcade posters and the files in between. Explore the Loftwah Creative Archive, then bring your own images into Prints Desktop.</p>
+    <p class="signature"><img src={printsIcon} width="32" height="32" alt="" /> Prints Desktop</p>
+    <h1 id="archive-title">A desktop for the work you keep.</h1>
+    <p class="lede">Browse the Loftwah Creative Archive, compare different cuts of the same artwork, and take the original with you. Then bring in work of your own.</p>
     <div class="archive-actions">
       <a class="download" href="#downloads"><ArrowDownToLine size={18} aria-hidden="true" /> Get the desktop preview</a>
-      <a href="#afterlight">Pick an Afterlight print <ArrowDown size={17} aria-hidden="true" /></a>
+      <a href={guide}>Try the first project <ArrowRight size={17} aria-hidden="true" /></a>
     </div>
-    <a class="guide" href={guide}>Installation and connection guide <ArrowUpRight size={16} aria-hidden="true" /></a>
+    <div class="archive-links">
+      <a href={story}>Read the launch story</a>
+      <a href="#afterlight">Try Afterlight in your browser</a>
+    </div>
   </div>
-  <div class="proof-sheet" aria-label="Selected work from the Loftwah Creative Archive">
-    {entries.map((entry, index) => (
+  <div class="proof-sheet" aria-label="Selected Loftwah artwork">
+    {entries.map(({ title, project, source, image, alt, width, height }, index) => (
       <figure>
-        <img src={folder + entry.img} alt={entry.alt} width="1000" height="1000" loading={index === 0 ? 'eager' : 'lazy'} decoding="async" fetchpriority={index === 0 ? 'high' : 'auto'} />
-        <figcaption>
-          <a href={entry.source}>{entry.title}<ArrowUpRight size={15} aria-hidden="true" /></a>
-          <span><strong>{entry.from}</strong> · {entry.detail}</span>
-        </figcaption>
+        <a href={source} aria-label={`${title} · ${project}`}>
+          <img src={image} alt={alt} width={width} height={height} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" fetchpriority={index === 0 ? 'high' : 'auto'} />
+        </a>
+        <figcaption><span>{title} <small>{project}</small></span><ArrowUpRight size={16} aria-hidden="true" /></figcaption>
       </figure>
     ))}
   </div>
 </header>
 
 <style>
-  .archive { display: grid; grid-template-columns: minmax(0,.91fr) minmax(0,1.09fr); gap: 30px clamp(24px,5vw,68px); align-items: center; scroll-margin-top: 5rem; }
-  .archive-intro .signature { margin: 0 0 7px; color: var(--color-muted); font-size: .92rem; }
-  .signature span { font-weight: 700; color: var(--color-foreground); }
-  .archive h1 { margin: 0 0 18px; max-width: 11ch; font-size: clamp(3rem,7.5vw,6rem); line-height: .98; font-weight: 700; letter-spacing: -.035em; text-wrap: balance; }
-  .archive .lede { font-size: clamp(1rem,1.7vw,1.23rem); line-height: 1.5; max-width: 34ch; margin: 0 0 18px; }
-  .archive-actions { display: flex; flex-wrap: wrap; gap: 7px 13px; }
-  .archive-actions a, .guide { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; font-size: .9rem; }
-  .archive-actions .download { border-radius: 6px; padding: 0 10px; background: #ffdab8; color: #24171d; }
-  .archive-actions .download:hover { background: #ffbc97; }
-  .guide { color: var(--color-muted); }
-  .guide:hover { color: var(--color-foreground); }
-  .proof-sheet { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(7px,1.5vw,15px); padding: clamp(10px,2vw,21px); border-radius: 12px; background: #251f28; color: #fff0da; }
-  .proof-sheet figure { min-width: 0; margin: 0; background: #322834; }
-  .proof-sheet img { width: 100%; height: auto; aspect-ratio: 1.25; object-fit: contain; display: block; background: #321f31; }
-  .proof-sheet figcaption { padding: 5px 9px 9px; line-height: 1.3; }
-  .proof-sheet figcaption a { min-height: 44px; display: inline-flex; gap: 4px; align-items: center; color: #fff0da; font: 700 clamp(.84rem,1.6vw,1.1rem)/1.14 Space,sans-serif; }
-  .proof-sheet figcaption a:hover { color: #ffc3a3; }
-  .proof-sheet figcaption span { display: block; font-size: .77rem; color: #e4cdbe; }
-  .archive a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-  @media(max-width: 790px) {
-    .archive { grid-template-columns: minmax(0,1fr); gap: 15px; }
-    .archive h1 { max-width: 14ch; }
+  .archive { display: grid; grid-template-columns: minmax(0,.88fr) minmax(0,1.12fr); gap: 26px clamp(26px,5vw,76px); align-items: center; scroll-margin-top: 5rem; }
+  .signature { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; font-weight: 700; }
+  .archive h1 { margin: 0 0 18px; max-width: 13ch; font-size: clamp(3.1rem,6.7vw,6rem); line-height: .99; font-weight: 700; letter-spacing: -.035em; text-wrap: balance; }
+  .lede { font-size: clamp(1rem,1.7vw,1.23rem); line-height: 1.53; max-width: 37ch; margin: 0 0 20px; }
+  .archive-actions,.archive-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+  .archive-actions a,.archive-links a { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; font-size: .9rem; }
+  .archive-actions a { font-weight: 700; }
+  .download { border-radius: 6px; padding: 0 12px; background: #ffdab8; color: #24171d; }
+  .download:hover { background: #ffbc97; color: #24171d; }
+  .archive-links a { color: var(--color-muted); }
+  .archive-links a:hover { color: var(--color-foreground); }
+  .proof-sheet { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; padding: 6px; border-radius: 12px; background: #241b22; color: #fff0da; }
+  .proof-sheet figure { position: relative; margin: 0; min-width: 0; }
+  .proof-sheet figure:first-child { grid-column: 1 / -1; }
+  .proof-sheet a { position: relative; display: block; height: 100%; overflow: hidden; border-radius: 5px; background: #322834; color: inherit; }
+  .proof-sheet img { width: 100%; height: auto; aspect-ratio: 1.65; object-fit: cover; display: block; }
+  .proof-sheet figure:first-child img { aspect-ratio: 1.83; object-position: 50% 32%; }
+  .proof-sheet figcaption { display: flex; justify-content: space-between; align-items: center; gap: 8px; position: absolute; pointer-events: none; inset: auto 7px 7px; width: fit-content; max-width: calc(100% - 14px); min-height: 39px; padding: 5px 9px; border-radius: 5px; background: #211921; color: #fff0da; line-height: 1.16; font-weight: 700; font-size: clamp(.84rem,1.5vw,1rem); }
+  .proof-sheet figcaption small { display: block; color: #ebcdbd; font-size: .71rem; font-weight: 400; }
+  .proof-sheet figcaption svg { flex: none; }
+  .proof-sheet a:hover + figcaption { background: #ffdab8; color: #24171d; }
+  .proof-sheet a:hover + figcaption small { color: #5a3a40; }
+  .archive a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+  .proof-sheet a:focus-visible { outline: 2px solid #ffdab8; outline-offset: -3px; }
+  @media(max-width: 780px) {
+    .archive { grid-template-columns: minmax(0,1fr); gap: 16px; }
+    .archive h1 { max-width: 15ch; }
+  }
+  @media(max-width: 460px) {
+    .archive h1 { font-size: clamp(2.8rem,11vw,3.25rem); }
+    .proof-sheet figure:first-child img { aspect-ratio: 1.44; }
+    .proof-sheet figure:not(:first-child) img { aspect-ratio: 1.21; }
+    .proof-sheet figcaption { inset-inline: 4px; bottom: 4px; max-width: calc(100% - 8px); padding-inline: 5px; }
   }
 </style>

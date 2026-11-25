@@ -1,47 +1,69 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { ArrowLeft, ArrowUpRight } from '@lucide/astro';
-import { isPrintsHost, printsOrigin, printsShare } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
 
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
 const repo = 'https://github.com/loftwah/prints-desktop';
-const title = 'Get started with Prints Desktop';
-const description = 'Install the Prints Desktop preview, make your first offline contact sheet and connect a Prints installation with a scoped Oyster key.';
+const title = 'Your first project in Prints Desktop';
+const description = 'Compare two published images, save a favourite, export the original and write your first prompt draft offline. Then connect a Prints library if you have one.';
+const watch = product ? '/watch' : '/prints-desktop/watch';
+const story = product ? '/story' : '/prints-desktop/story';
 ---
 
-<Base title={title} description={description} canonical={printsOrigin + '/guide'} printsProduct={product} shareImage={printsShare} shareAlt="Prints Desktop presents the Loftwah Creative Archive.">
+<Base title={title} description={description} canonical={printsOrigin + '/guide'} printsProduct={product} shareImage={printsShare} shareAlt={printsShareAlt}>
   <article class="guide">
     <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
     <h1>{title}</h1>
-    <p class="lede">Open the archive, bring an image of your own, or connect the Prints library you already run.</p>
+    <p class="lede">Compare a real album cover and poster, export the version you want to keep, then write a brief for your own piece. Everything through the first draft works offline and needs no account.</p>
     <nav aria-label="Guide sections">
-      <a href="#install">Install</a><a href="#offline">Work offline</a><a href="#connect">Connect Oyster</a><a href="#own">Run it yourself</a>
+      <a href="#install">Install</a><a href="#offline">Compare and export</a><a href="#draft">Write a draft</a><a href="#connect">Connect Oyster</a><a href="#own">Run it yourself</a>
     </nav>
 
     <section id="install">
       <h2>Install the desktop preview</h2>
+      <p>On a phone? <a href={`${home}#afterlight`}>Try the browser contact sheet</a> or <a href={watch}>watch the captioned demo</a>. The desktop preview needs a computer.</p>
       <ol>
-        <li><a href={`${home}#downloads`}>Choose your platform</a> and download its archive. The <a href={`${repo}/releases`}>repository releases</a> list checksums and platform checks.</li>
-        <li>Extract the archive. On Apple Silicon, open <code>Prints Desktop.app</code>. On Windows, open <code>prints-desktop.exe</code>. On Linux, launch <code>./prints-desktop</code> from the extracted folder.</li>
-        <li>The Mac preview uses an ad-hoc signature and can trigger Gatekeeper. Check the <a href={`${repo}#download`}>install and build instructions</a> for the current signing status and source build option.</li>
+        <li><a href={`${home}#downloads`}>Download the archive and its SHA-256 file</a> for your computer. In Terminal on macOS, run <code>shasum -a 256 &lt;archive&gt;</code>. On Linux, use <code>sha256sum &lt;archive&gt;</code>. In Windows PowerShell, use <code>Get-FileHash &lt;archive&gt; -Algorithm SHA256</code>. Replace <code>&lt;archive&gt;</code> with the downloaded archive’s path and compare the output to the published checksum.</li>
+        <li>Extract the archive. On an Apple Silicon Mac with macOS 14 or later, open <code>Prints Desktop.app</code>. On Linux, run <code>./prints-desktop</code> from the extracted folder in a graphical session. On Windows x64, open <code>prints-desktop.exe</code>.</li>
+        <li>The Mac archive is ad-hoc signed and unnotarised, and the Windows archive is an unsigned cross-build. See the <a href={`${repo}/releases/tag/v0.4.0`}>v0.4.0 release notes</a> for the exact platform checks and the <a href={`${repo}#build-and-inspect`}>source build instructions</a> if the package won’t open. On Linux, the <a href={`${repo}#platform-builds`}>platform notes</a> cover graphical dependencies and file dialogs.</li>
       </ol>
     </section>
 
     <section id="offline">
-      <h2>Make your first contact sheet</h2>
-      <p>On the archive preview, open Higher Than Before and choose Compare formats to see the album cover beside its release poster. Use Command+F to find Fighter’s Before the Bell. You can also open Afterlight, pick a study and inspect it at full size. Drag a JPEG, PNG or WebP into the workspace to add your own work. Favourite it or save its notes as a prompt draft. Local originals, favourites and drafts stay on your device. Offline work is free and needs no account.</p>
-      <a class="link" href={`${home}#afterlight`}>Try the browser contact sheet <ArrowUpRight size={16} aria-hidden="true" /></a>
+      <h2>Compare two versions and keep one</h2>
+      <ol>
+        <li>Open <strong>Creative Archive</strong>. In <strong>Find</strong>, enter <em>Higher Than Before</em> and pick the album cover. On macOS, Command+F takes you straight to Find.</li>
+        <li>Choose <strong>Compare formats</strong>. Look at the title and the orange artwork in the square cover and the taller release poster. Decide which format you would use for an album page and which you would hang on a wall.</li>
+        <li>Press Escape to return to the archive. Select the version you want and choose <strong>Add to favourites</strong> in the details panel. If the panel is closed, choose <strong>Show details</strong>. Open <strong>Favourites</strong> to check that your pick is there.</li>
+        <li>Choose <strong>Export original</strong> and save a copy to a folder you can find again. Open the exported file to check it. Quit and reopen Prints Desktop, then return to <strong>Favourites</strong> to confirm your pick is still there.</li>
+      </ol>
+      <figure class="lesson-image">
+        <img src="/prints-desktop/archive-compare-v0.4.0.webp" width="1280" height="790" alt="The square Higher Than Before cover and the taller release poster in the native Compare formats view." loading="lazy" decoding="async" />
+        <figcaption>Compare formats in the v0.4.0 Mac preview. <a href={watch}>Watch the comparison in the app <ArrowUpRight size={14} aria-hidden="true" /></a></figcaption>
+      </figure>
+    </section>
+
+    <section id="draft">
+      <h2>Bring a reference and write a brief</h2>
+      <ol>
+        <li>Choose <strong>Local imports</strong> and use <strong>Import</strong>, or drop a JPEG, PNG or WebP you own into the workspace. The library links to the original in place. If you move the file, choose <strong>Locate original…</strong> to reconnect it.</li>
+        <li>Open <strong>Prompt draft</strong>. Use the example below as a starting point, then replace its subject and two details with ones from your reference.</li>
+        <li>Choose <strong>Save draft</strong>. Reopen the app and check the text is still there. Use <strong>Copy draft</strong> to take it into your usual creative tool, or keep it with the project on this device.</li>
+      </ol>
+      <blockquote>Make a tall gig poster from my reference. Keep the rough paper and warm side light. Move the main subject down so the top third has space for the venue and date. Leave the poster unlettered so I can add the type myself.</blockquote>
+      <p>The draft stays local. Creating from it in a connected service is a separate action.</p>
     </section>
 
     <section id="connect">
       <h2>Read your Oyster library</h2>
       <ol>
-        <li>In Oyster, choose the Prints installation and create a named App key scoped to that installation. Use a key intended for this device and keep it out of links and screenshots.</li>
-        <li>In Prints Desktop, open <strong>Connect Prints</strong>. Enter the HTTPS origin, the installation ID and the key. Leave credential saving off for a one-off connection.</li>
+        <li>In Oyster, confirm the Prints installation and its selected Computer. Create a revocable named App key with <code>apps.read</code> for that installation. Keep the key out of links and screenshots.</li>
+        <li>Open <strong>Prints library</strong> in the desktop. On the <strong>Connect Prints</strong> screen, enter the Oyster HTTPS origin, installation ID and scoped key. Leave <strong>Remember key on this device</strong> off for your first connection.</li>
         <li>Open a print and export the original. Folder and model discovery depend on the installation. Use <strong>Create in web Prints</strong> for generation and job recovery.</li>
       </ol>
-      <p>If a key fails, verify the origin and installation ID. Use Forget saved key in the desktop to clear its credential, and revoke the key from Oyster when it’s no longer needed.</p>
+      <p>If access fails, confirm the origin, installation ID, scope and selected Computer before retrying. If the client shows the root library only, open web Prints for folder browsing. To clear a stored credential, disconnect and use <strong>Forget saved key</strong>. Revoke the key in Oyster when you finish with it.</p>
       <a class="link" href={`${repo}/blob/main/docs/oyster.md`}>Full connection and troubleshooting notes <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
@@ -50,6 +72,10 @@ const description = 'Install the Prints Desktop preview, make your first offline
       <p><a href="https://docs.fungi.computer/">Fungi</a> documents the ecosystem, including its <a href="https://docs.fungi.computer/guides/use-the-terminal/">Shiitake</a> terminal agent. <a href="https://docs.fungi.computer/oyster">Oyster</a> hosts <a href="https://docs.fungi.computer/apps/prints">web Prints</a> and manages access. Darkroom handles provider operations. Your chosen installation and providers set available models and charges. A supported self-hosted setup can use your own <a href="https://developers.cloudflare.com/workers-ai/">Cloudflare Workers AI</a> account.</p>
       <p>Try <a href="https://docs.fungi.computer/oyster-quickstart">Oyster locally</a> first. The <a href="https://docs.fungi.computer/guides/run-your-own-oyster/">owned Cloudflare deployment guide</a> lists the Workers Paid plan and required services. Check <a href="https://docs.fungi.computer/reference/versions-that-work-together/">compatible versions</a> before provisioning. To build the desktop app, start with the repository’s <a href={repo}>Rust build instructions</a> and the pinned <a href="https://github.com/anomalyco/rune">Rune</a> dependency. App Composer is a showcase and optional publishing destination. The desktop talks directly to your installation.</p>
     </section>
+    <nav class="next" aria-label="More about Prints Desktop">
+      <a href={story}>Read the launch story <ArrowUpRight size={15} aria-hidden="true" /></a>
+      <a href="https://composer.loftwah.com/share?tag=prints-desktop">Browse Prints Desktop in Share <ArrowUpRight size={15} aria-hidden="true" /></a>
+    </nav>
   </article>
 </Base>
 
@@ -65,4 +91,12 @@ const description = 'Install the Prints Desktop preview, make your first offline
   .guide section { padding-top: 23px; margin-top: 22px; border-top: 1px solid var(--color-border); scroll-margin-top: 5rem; }
   .guide ol { max-width: 69ch; padding-inline-start: 1.4rem; }
   .guide li + li { margin-top: 9px; }
+  .guide p,.guide li { line-height: 1.62; }
+  .guide code { overflow-wrap: anywhere; }
+  .lesson-image { margin: 20px 0 0; }
+  .lesson-image img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .lesson-image figcaption { color: var(--color-muted); margin-top: 6px; }
+  .lesson-image a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; }
+  .guide blockquote { margin: 14px 0; padding: 12px 16px; border-inline-start: 1px solid var(--color-accent); background: var(--color-surface); }
+  .guide .next { border-top: 1px solid var(--color-border); margin-top: 24px; padding-top: 8px; }
 </style>

@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
 import PrintsArchive from '../components/PrintsArchive.astro';
-import { isPrintsHost, printsOrigin, printsShare } from '../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../lib/prints-site.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
@@ -46,11 +46,11 @@ const schema = {
   canonical={canonical}
   printsProduct={product}
   shareImage={printsShare}
-  shareAlt="Prints Desktop presents the Loftwah Creative Archive, with artwork from LoftwahFM, Fighter and Bubbles."
+  shareAlt={printsShareAlt}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <PrintsArchive guide={`${routePrefix}/guide`} />
+    <PrintsArchive guide={`${routePrefix}/guide`} story={`${routePrefix}/story`} />
     {!product && <p class="product-link"><a class="quiet-link" href={printsOrigin}>Visit prints.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a></p>}
     <section id="afterlight" aria-label="Try the Afterlight contact sheet">
       <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />
@@ -177,7 +177,8 @@ const schema = {
     <footer class="prints-credit">
       <p>Built by Loftwah with Rust and Anomaly’s Rune. Afterlight is original ImageGen artwork. Oyster, Prints and Darkroom are projects from Fungi.</p>
       <div>
-        <a class="quiet-link" href="https://composer.loftwah.com/share?tag=prints-desktop">Share the archive poster <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a class="quiet-link" href="https://composer.loftwah.com/share?tag=prints-desktop">Explore the Prints collection in Share <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a class="quiet-link" href={`${site}/blob/main/PRODUCT.md`}>Product direction <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href={site}>Source on GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href="https://github.com/loftwah/app-composer/issues/1292">Follow the build <ArrowRight size={16} aria-hidden="true" /></a>
       </div>

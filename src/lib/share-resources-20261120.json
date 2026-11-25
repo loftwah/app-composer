@@ -165,6 +165,39 @@
   ],
   "prints-desktop": [
     {
+      "id": "prints-desktop-darkroom",
+      "title": "Prints Desktop · The Darkroom",
+      "project": "prints-desktop",
+      "visibility": "public",
+      "reuse": "unconfirmed",
+      "credit": "Loftwah · Made with ImageGen",
+      "alt": "Prints Desktop in cream lettering beside a hand lifting a coastal photograph from a contact sheet under a red darkroom lamp.",
+      "description": "The Prints Desktop campaign image catches the moment a photographer picks the frame to keep.",
+      "caption": "Which frame would you keep? Prints Desktop is a native creative archive for comparing your work and exporting the originals.",
+      "use": "social",
+      "stage": "campaign artwork",
+      "reviewedAt": "2026-11-25",
+      "tags": [
+        "prints-desktop",
+        "creative-archive"
+      ],
+      "projectUrl": "https://composer.loftwah.com/prints-desktop",
+      "sourceUrl": "https://composer.loftwah.com/prints-desktop/provenance.json",
+      "previewUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/darkroom-share-480-20261125.webp",
+      "thumbnailWidth": 480,
+      "thumbnailHeight": 252,
+      "original": {
+        "url": "https://composer.loftwah.com/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg",
+        "label": "Wide JPG",
+        "width": 1200,
+        "height": 630,
+        "sha256": "1752725b074636fe1bbacf63ce068e5387aed0aaa519163f6bc5c1139b03fd50",
+        "version": "v1"
+      },
+      "formats": []
+    },
+    {
       "id": "prints-desktop-creative-archive",
       "title": "Prints Desktop · The Creative Archive",
       "project": "prints-desktop",
@@ -181,7 +214,7 @@
         "prints-desktop",
         "creative-archive"
       ],
-      "projectUrl": "https://prints.loftwah.com/",
+      "projectUrl": "https://composer.loftwah.com/prints-desktop",
       "sourceUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/provenance.json",
       "previewUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/prints-archive-portrait.jpg",
       "thumbnailUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/prints-archive-480.webp",

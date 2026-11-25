@@ -43,11 +43,15 @@
       "archive-v1/bubbles-one-shot.webp": {
         "source": "https://bubbles.loftwah.com/assets/social/bubbles-one-shot-card.png",
         "credit": "Bubbles Classic by Loftwah. First-party campaign poster based on an actual one-shot clear."
+      },
+      "afterlight-v0.3.1/relay-station-hero.webp": {
+        "source": "https://prints.loftwah.com/prints-desktop/afterlight-v0.3.1/relay-station.jpg",
+        "credit": "Loftwah Afterlight study made with OpenAI ImageGen. 720 × 480 web crop of the original."
       }
     },
     "web_derivatives": "The listed public art is resized to a maximum edge of 1000 px and compressed as WebP. It is served without added marks.",
     "icons": "The desktop aperture mark from the native repository at c5ee40b883fb0c74087070b51367209580cdada0, exported at 16, 32, 180, 192, 512 pixels and to ICO.",
-    "share": "Original Loftwah archive artwork and aperture icon composed with Space Grotesk. No synthetic screenshot."
+    "share": "The original archive poster was composed from published Loftwah artwork. Its links retain the original artwork."
   },
   "archive_desktop": {
     "source": "2e3b25c96d56d7687617b93ebf5b6916fc557211",
@@ -61,5 +65,14 @@
       "archive-demo-v0.4.0.en.vtt": "English captions for the native replay.",
       "archive-vertical-v0.4.0.mp4": "Portrait edit of the same Rune replay with open captions and first-party Archive artwork."
     }
+  },
+  "darkroom_campaign": {
+    "date": "2026-11-25",
+    "method": "OpenAI ImageGen built-in image generation, including the lettering. Centre-cropped and compressed to 1200 × 630 JPEG and resized to a 480 × 252 WebP thumbnail.",
+    "description": "Editorial campaign artwork of a hand selecting a photograph of an Australian coastal wave from a contact sheet under a red safelight. The scene is an imagined darkroom.",
+    "assets": [
+      "/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg",
+      "/campaign/prints-desktop-20261125/darkroom-share-480-20261125.webp"
+    ]
   }
 }
