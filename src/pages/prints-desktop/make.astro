@@ -107,11 +107,15 @@ const schema = {
           <button type="button" data-copy-target="oyster-command" hidden><Clipboard size={16} aria-hidden="true" /> Copy command</button>
           <p class="status" role="status" data-copy-status></p>
           <p>For a terminal agent, install Shiitake and run <code>fungi</code> in your project folder. Ask it to refine your brief into one concrete scene per side. Fungi Team users can connect their Team tools with <code>fungi login --fungi-mcp &lt;team-endpoint&gt;</code>. A generation needs an approved Prints capability on the selected host.</p>
+          <figure class="trial">
+            <img src={proofRoot + 'oyster-local-prints.webp'} width="1150" height="760" alt="The empty Prints workspace in the fresh local Oyster trial. A notice says media generation is disabled." loading="lazy" decoding="async" />
+            <figcaption>Prints open in our fresh Oyster 0.59.0 trial. The local MCP connection worked and the media-generation permission stayed off.</figcaption>
+          </figure>
           <a href="https://docs.fungi.computer/oyster-quickstart">Oyster quickstart <ArrowUpRight size={15} aria-hidden="true" /></a> · <a href="https://docs.fungi.computer/guides/use-the-terminal">Shiitake terminal guide <ArrowUpRight size={15} aria-hidden="true" /></a>
         </details>
         <details>
           <summary>Try it with an MCP client</summary>
-          <p>MCP lets an agent call an App. Connect an approved client to your Oyster host’s <code>/mcp</code> endpoint and give it access to the intended Prints installation. Use a scoped credential via the client’s secret settings. Open its <code>execute</code> tool and start with a library read.</p>
+          <p>MCP lets an agent call an App. Connect an approved client to your Oyster host’s <code>/mcp</code> endpoint and give it access to the intended Prints installation. Use a scoped credential via the client’s secret settings. Open its <code>execute</code> tool and start with a library read. If it returns <code>library_unavailable</code>, select the gallery folder in web Prints first.</p>
           <pre><code id="mcp-read">{mcp}</code></pre>
           <button type="button" data-copy-target="mcp-read" hidden><Clipboard size={16} aria-hidden="true" /> Copy read call</button>
           <p class="status" role="status" data-copy-status></p>
@@ -233,6 +237,9 @@ const schema = {
   .proof { border-block: 1px solid var(--rule); padding-block: clamp(18px,4vw,44px); }
   .plates { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 16px; margin: 17px 0 10px; }
   .plates figcaption span { color: var(--color-muted); }
+  .trial { margin: 14px 0; }
+  .trial img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; }
+  .trial figcaption { margin-top: 6px; color: var(--color-muted); font-size: .85rem; }
   .stack { margin: 0; }
   .stack div { border-top: 1px solid var(--rule); padding: 9px 0 11px; }
   .stack dt { font-weight: 750; }
