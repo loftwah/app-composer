@@ -17,11 +17,13 @@ they can take the working desktop app with them.
 **Own world.** Afterlight's violet ink and warm silver appear in the native
 capture and the collection. The site retains Composer's action and theme tokens.
 
-**Story.** Learn what the preview does, download and open it, watch a short
-walkthrough, then follow the owning upstream documentation when ready.
+**Story.** See the workspace, learn why it keeps originals close, and choose a
+captioned tour or a platform download. Local and hosted screenshots explain
+the two workflows. An ecosystem breakdown names where each responsibility lives.
 
 **First viewport.** A large plain product title, release action and short
-description above an uninterrupted full-width capture. The capture is proof.
+description above an uninterrupted full-width capture. The native capture
+is proof and the download and walkthrough links share the opening row.
 
 **Form.** Code-led extension of the existing App Composer project world. The
 app and collection supply the visual direction.
