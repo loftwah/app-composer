@@ -1,0 +1,62 @@
+{
+  "schema": "prints.download-share/v1",
+  "capturedAt": "2026-11-25T03:50:50Z",
+  "report": "https://prints.loftwah.com/downloads",
+  "release": "v0.4.0",
+  "packages": {
+    "source": "https://github.com/loftwah/prints-desktop/releases/tag/v0.4.0",
+    "total": 9,
+    "macos-arm64": 3,
+    "linux-x64": 1,
+    "linux-arm64": 2,
+    "windows-x64": 3
+  },
+  "devrel": {
+    "responses": 1,
+    "from": "2026-11-19",
+    "through": "2026-11-25",
+    "timezone": "UTC",
+    "note": "The reported response was the positive production verification."
+  },
+  "installs": "unmeasured",
+  "alt": "Prints Desktop. The 25 November 2026 snapshot shows nine package downloads for v0.4.0 and one DevRel field kit ZIP response in seven days, UTC. Installs unmeasured. A folded cream-paper camera aperture opens onto an oxide-red coastline.",
+  "artwork": {
+    "generator": "Built-in ImageGen",
+    "method": "Each complete poster was generated with its final lettering. Export processing was limited to resize, light crop and JPEG encoding."
+  },
+  "caption": "Prints Desktop v0.4.0 · 9 package downloads.\nDevRel field kit · 1 ZIP response in seven days, UTC.\nSnapshot 25 November 2026. Installs unmeasured.\nhttps://prints.loftwah.com/downloads",
+  "formats": [
+    {
+      "file": "wide.jpg",
+      "label": "Wide",
+      "width": 1200,
+      "height": 630,
+      "use": "Link previews and landscape posts",
+      "sha256": "5a88ac5c979b9cdf443b0774403075ba20756b909d3f237aab11b36f08023792"
+    },
+    {
+      "file": "square.jpg",
+      "label": "Square",
+      "width": 1080,
+      "height": 1080,
+      "use": "Square feeds and carousels",
+      "sha256": "9063dd2139f323411a793f423e07a271e9145cc80009c2ce242e7f952b9ee7fb"
+    },
+    {
+      "file": "feed.jpg",
+      "label": "Portrait feed",
+      "width": 1080,
+      "height": 1350,
+      "use": "Tall feed posts",
+      "sha256": "de6166db598a2665cc8aeb2b15077b25de558be612cd7fe675766a72427334cb"
+    },
+    {
+      "file": "story.jpg",
+      "label": "Story",
+      "width": 1080,
+      "height": 1920,
+      "use": "Stories and vertical covers",
+      "sha256": "49cf16baa7173caafca335ba0258f958225d74522fab47a7588df902f854c137"
+    }
+  ]
+}

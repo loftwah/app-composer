@@ -1,0 +1,82 @@
+---
+import { ArrowDownToLine, ArrowUpRight } from '@lucide/astro';
+import { printsOrigin } from '../lib/prints-site.mjs';
+import snapshot from '../data/prints-download-share-20261125.json';
+
+const title = 'Prints Desktop download snapshot';
+const asset = '/prints-desktop/download-share-20261125/';
+const report = printsOrigin + '/downloads';
+const caption = snapshot.caption;
+const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<', '\\u003c');
+
+---
+
+<section id="share-downloads" aria-labelledby="share-downloads-title" data-insight-share>
+  <div class="share-intro">
+    <div>
+      <h2 id="share-downloads-title">Share the download report</h2>
+      <p>The 25 November 2026 snapshot, set in a paper aperture with a coastline inside. All four posters were generated as finished artwork.</p>
+    </div>
+    <a class="pack" href={asset + 'prints-downloads-social-kit.zip'} download>
+      <ArrowDownToLine size={17} aria-hidden="true" /> Download all four
+    </a>
+  </div>
+  <figure>
+    <a href={asset + 'wide.jpg'}>
+      <img src={asset + 'wide.jpg'} width="1200" height="630" loading="lazy" decoding="async" alt={snapshot.alt} />
+    </a>
+    <figcaption>9 package downloads for v0.4.0. One DevRel ZIP response in seven days, UTC. Installs unmeasured.</figcaption>
+  </figure>
+  <ul class="formats" aria-label="Individual social images">
+    {snapshot.formats.map(({ file, label, width, height }) => (
+      <li><a href={asset + file} download>
+        <span><strong>{label}</strong><small>{width} × {height}</small></span>
+        <ArrowDownToLine size={16} aria-hidden="true" />
+      </a></li>
+    ))}
+  </ul>
+  <details>
+    <summary>Caption and alt text</summary>
+    <div class="copy-actions">
+      <button type="button" data-insight-copy="caption" hidden>Copy caption</button>
+      <button type="button" data-insight-native hidden>Share report</button>
+      <button type="button" data-insight-copy="link" hidden>Copy live report link</button>
+      <a href={report}>Open live counts <ArrowUpRight size={15} aria-hidden="true" /></a>
+    </div>
+    <p data-insight-status role="status"></p>
+    <label>Post caption<textarea rows="4" readonly data-insight-caption>{caption}</textarea></label>
+    <label>Image alt text<textarea rows="3" readonly>{snapshot.alt}</textarea></label>
+  </details>
+  <script is:inline type="application/json" data-insight-payload set:html={data}></script>
+</section>
+
+<script>
+  import '../browser/insight-share';
+</script>
+
+<style>
+  section { margin-block: 36px 44px; scroll-margin-top: 20px; }
+  .share-intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 18px; margin-bottom: 12px; }
+  h2 { font-size: clamp(1.25rem, 4vw, 1.7rem); line-height: 1.2; margin: 0 0 8px; }
+  p { max-width: 67ch; margin: 0; color: var(--color-muted); }
+  .pack { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; padding: 0 12px; border-radius: 6px; background: #ffdab8; color: #24171d; font-weight: 700; }
+  .pack:hover { background: #ffbe96; color: #24171d; }
+  figure { margin: 0 0 8px; }
+  figure a, img { display: block; }
+  img { width: 100%; height: auto; border-radius: 6px; }
+  figcaption { margin-top: 6px; color: var(--color-muted); font-size: .9rem; }
+  .formats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0; list-style: none; margin: 10px 0 6px; border-top: 1px solid var(--color-border); }
+  .formats a { display: flex; justify-content: space-between; gap: 8px; min-height: 62px; align-items: center; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--color-border); }
+  .formats a :is(strong,small) { display: block; }
+  .formats small { font-variant-numeric: tabular-nums; color: var(--color-muted); }
+  details { margin-block: 6px 0; }
+  summary { cursor: pointer; padding-block: 12px; min-height: 44px; }
+  .copy-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 8px; }
+  .copy-actions :is(button,a) { min-height: 44px; }
+  .copy-actions a { display: inline-flex; align-items: center; gap: 4px; }
+  .copy-actions button { color: var(--color-foreground); background: var(--color-surface); cursor: pointer; border: 1px solid var(--color-border); border-radius: 5px; padding-inline: 10px; }
+  label { display: block; margin-block: 12px 0; font-weight: 600; }
+  textarea { box-sizing: border-box; display: block; width: 100%; margin-top: 4px; padding: 8px; font: inherit; font-weight: 400; background: var(--color-surface); color: var(--color-foreground); border: 1px solid var(--color-border); border-radius: 5px; }
+  :is(a,summary,button):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+  @media (max-width: 620px) { .formats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .formats a { padding-right: 12px; } }
+</style>
