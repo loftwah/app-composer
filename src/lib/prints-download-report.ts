@@ -4,7 +4,7 @@ import { fieldKitDailyCap, printsPackageDownloads } from './prints-downloads.mjs
 
 export const printsReleases = 'https://github.com/loftwah/prints-desktop/releases';
 
-export async function readPrintsPackages() {
+export async function readPrintsPackages(token?: string) {
   const endpoint = 'https://api.github.com/repos/loftwah/prints-desktop/releases?per_page=20';
   const key = new Request('https://prints.loftwah.com/internal-cache/package-downloads-v1');
   const cache = await globalThis.caches?.open('prints-downloads').catch(() => undefined);
@@ -15,11 +15,17 @@ export async function readPrintsPackages() {
     // The cache is optional. The public release API remains the source.
   }
   try {
+    const headers = new Headers({
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'App-Composer-Portfolio',
+    });
+    if (token) headers.set('Authorization', `Bearer ${token}`);
     const response = await fetch(endpoint, {
-      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Prints-Desktop-Downloads' },
+      headers,
       redirect: 'manual',
       signal: AbortSignal.timeout(3000),
     });
+    if (!response.ok) console.warn('Prints release counts unavailable', response.status);
     const rows = printsPackageDownloads(await boundedPortfolioJson(response, 512_000));
     if (rows?.length) {
       await cache?.put(key, Response.json(rows, {

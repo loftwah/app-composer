@@ -7,8 +7,8 @@ import { isPrintsHost, printsOrigin } from '../../lib/prints-site.mjs';
 import { builds } from '../../lib/prints-downloads.mjs';
 import { printsReleases, readFieldKitDownloads, readPrintsPackages } from '../../lib/prints-download-report';
 
-const runtime = env as unknown as { DB: D1Database };
-const [releases, kit] = await Promise.all([readPrintsPackages(), readFieldKitDownloads(runtime.DB)]);
+const runtime = env as unknown as { DB: D1Database; WOODHOUSE_GITHUB_TOKEN?: string };
+const [releases, kit] = await Promise.all([readPrintsPackages(runtime.WOODHOUSE_GITHUB_TOKEN), readFieldKitDownloads(runtime.DB)]);
 const latest = releases?.[0];
 const canonical = printsOrigin + '/downloads';
 const format = new Intl.NumberFormat('en-AU');
