@@ -11,6 +11,10 @@ const description = 'Compare two published images, save a favourite, export the 
 const watch = product ? '/watch' : '/prints-desktop/watch';
 const story = product ? '/story' : '/prints-desktop/story';
 const make = product ? '/make' : '/prints-desktop/make';
+const release = `v${printsPreviewVersion}`;
+const macSource = `git clone --branch ${release} --depth 1 ${repo}.git
+cd prints-desktop
+cargo run --locked --release`;
 ---
 
 <Base title={title} description={description} canonical={printsOrigin + '/guide'} printsProduct={product} shareImage={printsShare} shareAlt={printsShareAlt}>
@@ -26,11 +30,27 @@ const make = product ? '/make' : '/prints-desktop/make';
     <section id="install">
       <h2>Install the desktop preview</h2>
       <p>On a phone? <a href={`${home}#afterlight`}>Try the browser contact sheet</a> or <a href={watch}>watch the captioned demo</a>. The desktop preview needs a computer.</p>
-      <ol>
-        <li><a href={`${home}#downloads`}>Download the archive and its SHA-256 file</a> for your computer. In Terminal on macOS, run <code>shasum -a 256 &lt;archive&gt;</code>. On Linux, use <code>sha256sum &lt;archive&gt;</code>. In Windows PowerShell, use <code>Get-FileHash &lt;archive&gt; -Algorithm SHA256</code>. Replace <code>&lt;archive&gt;</code> with the downloaded archive’s path and compare the output to the published checksum.</li>
-        <li>Extract the archive. On an Apple Silicon Mac with macOS 14 or later, open <code>Prints Desktop.app</code>. On Linux, run <code>./prints-desktop</code> from the extracted folder in a graphical session. On Windows x64, open <code>prints-desktop.exe</code>.</li>
-        <li>The Mac archive is ad-hoc signed and unnotarised, and the Windows archive is an unsigned cross-build. See the <a href={`${repo}/releases/tag/v${printsPreviewVersion}`}>v{printsPreviewVersion} release notes</a> for the exact platform checks and the <a href={`${repo}/blob/main/CONTRIBUTING.md`}>source build instructions</a> if the package won’t open. On Linux, the <a href={`${repo}/blob/main/CONTRIBUTING.md#platform-setup`}>platform notes</a> cover graphical dependencies and file dialogs.</li>
-      </ol>
+      <p><a href={`${home}#downloads`}>Download the archive and its SHA-256 file</a> for your computer. Compare the published hash with the output of <code>shasum -a 256 &lt;archive&gt;</code> on Mac, <code>sha256sum &lt;archive&gt;</code> on Linux or <code>Get-FileHash &lt;archive&gt; -Algorithm SHA256</code> in PowerShell. Replace <code>&lt;archive&gt;</code> with the archive’s path.</p>
+      <dl class="platforms">
+        <div>
+          <dt>Apple Silicon Mac · macOS 14 or later</dt>
+          <dd>Extract the ZIP and open <code>Prints Desktop.app</code>. This ad-hoc signed preview has no Apple notarisation. If your Mac blocks the download, build the tagged source below or <a href={`${home}#afterlight`}>try Prints in the browser</a>. <a href="https://support.apple.com/en-au/102445">Apple’s guidance on opening downloaded apps</a>.</dd>
+        </div>
+        <div>
+          <dt>Linux · x64 or ARM64</dt>
+          <dd>Extract the tarball and run <code>./prints-desktop</code> in a graphical session. The <a href={`${repo}/blob/main/CONTRIBUTING.md#platform-setup`}>platform notes</a> list the graphics and file-dialog dependencies.</dd>
+        </div>
+        <div>
+          <dt>Windows · x64</dt>
+          <dd>Extract the ZIP and open <code>prints-desktop.exe</code>. The ZIP is unsigned. The build and archive were checked. A Windows desktop launch still needs verification.</dd>
+        </div>
+      </dl>
+      <details class="build-source">
+        <summary>Build on your Mac without an Apple Developer membership</summary>
+        <p>Use Apple’s free <a href="https://developer.apple.com/downloads/">Command Line Tools for Xcode</a> and install Rust with <a href="https://rustup.rs/">rustup</a>. Run these commands in Terminal to build and launch the published preview from source.</p>
+        <pre><code>{macSource}</code></pre>
+      </details>
+      <p><a href={`${repo}/releases/tag/${release}`}>Read the {release} release notes <ArrowUpRight size={15} aria-hidden="true" /></a></p>
     </section>
 
     <section id="offline">
@@ -95,6 +115,12 @@ const make = product ? '/make' : '/prints-desktop/make';
   .guide li + li { margin-top: 9px; }
   .guide p,.guide li { line-height: 1.62; }
   .guide code { overflow-wrap: anywhere; }
+  .platforms { max-width: 69ch; }
+  .platforms div { padding: 12px 0; border-top: 1px solid var(--color-border); }
+  .platforms dt { font-weight: 700; }
+  .platforms dd { margin: 3px 0 0; }
+  .build-source summary { min-height: 44px; align-content: center; color: var(--color-accent); cursor: pointer; font-weight: 700; }
+  .build-source summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
   .lesson-image { margin: 20px 0 0; }
   .lesson-image img { display: block; width: 100%; height: auto; border-radius: 12px; }
   .lesson-image figcaption { color: var(--color-muted); margin-top: 6px; }
