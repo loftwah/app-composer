@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import { ArrowDownToLine, ArrowRight, ArrowUpRight, CirclePlay } from '@lucide/astro';
+import AfterlightWall from '../components/AfterlightWall.astro';
+import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
+import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const site = 'https://github.com/loftwah/prints-desktop';
 const version = '0.3.1';
@@ -16,40 +18,45 @@ const builds = [
   { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz' },
   { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip' },
 ];
+const canonical = 'https://composer.loftwah.com/prints-desktop';
+const description = 'Pick a print from Afterlight, then try Prints Desktop. Browse local images, save prompt drafts and export originals on macOS, Windows or Linux. Connect a Prints library through Oyster.';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Prints Desktop',
+  url: canonical,
+  description,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'macOS 14+ (Apple Silicon), Linux (x64 and ARM64), Windows (x64)',
+  softwareVersion: version,
+  downloadUrl: builds.map(({ file }) => `${downloadRoot}-${file}`),
+  screenshot: new URL(afterlight, canonical).href,
+  offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD', url: release },
+};
 ---
 
 <Base
   title="Prints Desktop"
-  description="A native workspace for browsing images, shortlisting favourites and keeping the originals. Explore the offline Afterlight collection or connect your private Prints library through Oyster."
-  shareImage={`${asset}prints-desktop-share-v0.3.1.jpg`}
-  shareAlt="Prints Desktop beside The Last Horizon, an orange sun inside a concrete ring over a volcanic coast."
+  description={description}
+  canonical={canonical}
+  shareImage={`${asset}which-print-og-20261125.jpg`}
+  shareAlt="Which print gets the wall? Four Afterlight landscapes on a peach Prints Desktop contact sheet."
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <header class="prints-hero">
-      <div>
-        <img class="prints-mark" src={`${asset}aperture-96.png`} width="56" height="56" alt="" />
-        <h1>Prints Desktop</h1>
-        <p class="hero-description">A native workspace for images worth keeping. Look closer, shortlist your favourites and take the original files with you.</p>
-      </div>
-      <nav class="hero-actions" aria-label="Get Prints Desktop">
-        <a class="download" href="#downloads"><ArrowDownToLine size={19} aria-hidden="true" /> Get the desktop app</a>
-        <a class="quiet-link" href="#walkthrough"><CirclePlay size={19} aria-hidden="true" /> Watch the walkthrough</a>
-      </nav>
-    </header>
+    <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />
 
-    <figure class="workspace">
-      <a href={afterlight} aria-label="Open the Afterlight workspace screenshot at full size">
-        <img src={afterlight} width="1440" height="880" alt="Prints Desktop shows a concrete ring and orange sun in The Last Horizon, with six studies in the contact sheet and the selected print’s brief in the inspector." fetchpriority="high" decoding="async" />
-      </a>
-      <figcaption><strong>Afterlight</strong><span>Six original studies bundled with the app. Available offline on first launch.</span></figcaption>
-    </figure>
-
-    <section class="editorial" aria-labelledby="what-title">
-      <h2 id="what-title">A place to decide what stays.</h2>
-      <div class="editorial-copy">
-        <p>Prints Desktop gives a collection the room it deserves. The contact sheet keeps the sequence in view. Open a print at full size, read its brief, or return to the ideas you’ve starred.</p>
-        <p>It began with a simple problem. The image you want to keep can get buried between a generation history, a download folder and a draft. Prints puts those decisions in a native workspace and lets you export the original bytes.</p>
+    <section class="native" aria-labelledby="what-title">
+      <div class="native-heading">
+        <h2 id="what-title">Now try it with your own photos.</h2>
+        <p>Prints Desktop brings the contact sheet to your Mac, Linux or Windows desktop. Star the ideas worth coming back to, turn a brief into an editable draft and keep the original file when you export.</p>
       </div>
+      <figure class="workspace">
+        <a href={afterlight} aria-label="Open the Afterlight workspace screenshot at full size">
+          <img src={afterlight} width="1440" height="880" alt="Prints Desktop shows a concrete ring and orange sun in The Last Horizon, with six studies in the contact sheet and the selected print’s brief in the inspector." loading="lazy" decoding="async" />
+        </a>
+        <figcaption><strong>Afterlight</strong><span>Six original studies bundled with the app. Available offline on first launch.</span></figcaption>
+      </figure>
     </section>
 
     <section class="tour" id="walkthrough" aria-labelledby="walkthrough-title">
@@ -57,31 +64,17 @@ const builds = [
         <h2 id="walkthrough-title">From first look to export.</h2>
         <p>Watch the native app browse Afterlight, save an original, draft a prompt and open an example Oyster library.</p>
       </div>
-      <figure>
-        <video controls playsinline preload="none" poster={afterlight} aria-label="Prints Desktop walkthrough">
-          <source src={`${asset}prints-desktop-walkthrough-v0.3.1.mp4`} type="video/mp4" />
-          <track kind="captions" label="English" srclang="en" src={`${asset}prints-desktop-walkthrough-v0.3.1.en.vtt`} default />
-        </video>
-        <figcaption>28 seconds · Silent, with captions · Native Rune capture</figcaption>
-      </figure>
-      <details>
-        <summary>Read the walkthrough</summary>
-        <ol>
-          <li>Open Afterlight and select <cite>Blue Hour</cite> from the contact sheet. View it at full size.</li>
-          <li>Add the study to Favourites, return to it and export the bundled JPEG.</li>
-          <li>Copy the creative brief from <cite>The Last Horizon</cite> into an editable prompt draft and save it locally.</li>
-          <li>Browse a folder and preview a print in a connected Oyster library seeded with fictional media.</li>
-        </ol>
-      </details>
+      <PrintsWalkthrough />
+      <a class="quiet-link" href="/prints-desktop/watch">Open the video page <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
     <section class="workflows" aria-labelledby="workflows-title">
-      <h2 id="workflows-title">Two ways into the workspace.</h2>
+      <h2 id="workflows-title">Start offline or connect Oyster.</h2>
       <div class="workflow">
         <div>
           <h3>Start with your own files.</h3>
-          <p>Bring in a JPEG, PNG or WebP. Linked originals and their favourites reopen after you quit. If an original moves, locate it again from the inspector.</p>
-          <p>Afterlight, local imports and saved drafts work on your device without an account or model credits.</p>
+          <p>Drag in JPEG, PNG or WebP images. Linked originals and favourites reopen after you quit. If a file moves, find it again from the inspector.</p>
+          <p>The preview links up to 12 local originals. Afterlight, imports and saved drafts work without an account or model credits.</p>
         </div>
         <figure class="workspace">
           <a href={local} aria-label="Open the local imports screenshot at full size">
@@ -94,7 +87,7 @@ const builds = [
         <div>
           <h3>Connect a Prints library.</h3>
           <p>Enter your Oyster origin, Prints installation ID and a named read key scoped to that installation. Browse indexed output, inspect prompts and export originals. Folder and model discovery depend on the host.</p>
-          <p><strong>Create in web Prints</strong> opens the upstream app for generation. The desktop can remember your read key in your system credential store.</p>
+          <p><strong>Create in web Prints</strong> opens the upstream app for generation. Generation and recovery happen in web Prints. The desktop can remember your read key in your system credential store.</p>
           <a class="quiet-link" href={`${site}/blob/v${version}/docs/oyster.md`}>Read the connection guide <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
         <figure class="workspace">
@@ -108,8 +101,8 @@ const builds = [
 
     <section class="editorial ecosystem" aria-labelledby="ecosystem-title">
       <div>
-        <h2 id="ecosystem-title">How the pieces fit.</h2>
-        <p>Each project has a job. The workspace, the host, the media and the showcase keep their own roles.</p>
+        <h2 id="ecosystem-title">Who made what?</h2>
+        <p>Follow the projects behind the demo, from the local Rust app to the Fungi tools that host and generate prints.</p>
       </div>
       <dl>
         <div>
@@ -125,6 +118,10 @@ const builds = [
           <dd>Fungi’s generation and recovery layer. When you create through web Prints, the host and model determine availability and charges. A self-hosted Oyster can run Workers AI on your Cloudflare account.</dd>
         </div>
         <div>
+          <dt><a href="https://docs.fungi.computer/ecosystem">Fungi</a> and <a href="https://docs.fungi.computer/guides/use-the-terminal/">Shiitake</a></dt>
+          <dd>Fungi makes the connected creative tools. Shiitake is its terminal coding agent for working in a local project. Browse Afterlight or connect Oyster directly from Prints Desktop.</dd>
+        </div>
+        <div>
           <dt><a href="/projects">App Composer</a></dt>
           <dd>The public home for the project, its walkthrough and downloads. The desktop project ships from its own repository.</dd>
         </div>
@@ -133,7 +130,7 @@ const builds = [
 
     <section class="editorial releases" id="downloads" aria-labelledby="downloads-title">
       <div>
-        <h2 id="downloads-title">Take the workspace with you.</h2>
+        <h2 id="downloads-title">Get Prints Desktop.</h2>
         <p>v{version} preview. Extract the archive for your platform, then open Prints Desktop.</p>
         <a class="quiet-link" href={release}>Release notes, signing status and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
@@ -171,44 +168,15 @@ const builds = [
 
   :global([data-theme="light"]) .prints { --prints-accent: #96371e; }
   .prints :is(section, details) { scroll-margin-top: 5rem; }
-  .prints-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 22px 48px;
-    padding: clamp(15px, 3vw, 43px) 0 clamp(25px, 4vw, 42px);
-  }
-
-  .prints-mark { display: block; margin-left: -5px; width: 52px; height: 52px; }
-  .prints h1 {
-    margin: 9px 0 13px;
-    max-width: none;
-    font-size: clamp(3rem, 8.5vw, 6rem);
-    font-weight: 625;
-    line-height: 1;
-    letter-spacing: -.04em;
-    text-wrap: balance;
-  }
-
-  .hero-description {
-    max-width: 50ch;
-    margin: 0;
-    color: var(--color-muted);
-    font-size: clamp(1.03rem, 1.9vw, 1.24rem);
-    text-wrap: pretty;
-  }
-
-  .hero-actions { display: grid; justify-items: start; gap: 5px; }
-  .download, .quiet-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; }
-  .download { justify-content: center; padding: 10px 15px; border-radius: 8px; color: #20151c; background: #ffc3a7; font-weight: 650; }
-  .download:hover { background: #ffae88; }
+  .native-heading { margin-bottom: 15px; }
+  .quiet-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; }
   .quiet-link, .ecosystem dt a { color: var(--prints-accent); }
   .quiet-link:hover, .ecosystem dt a:hover { color: var(--color-foreground); }
   .prints :is(a, summary):focus-visible { outline: 2px solid var(--prints-accent); outline-offset: 4px; }
 
   .prints figure { margin: 0; }
   .workspace a { display: block; border-radius: 12px; }
-  .workspace img, .tour video {
+  .workspace img {
     display: block;
     width: 100%;
     height: auto;
@@ -222,18 +190,11 @@ const builds = [
   .prints section { margin-top: clamp(45px, 7vw, 92px); }
   .prints h2 { margin: 0 0 12px; font-size: clamp(1.8rem, 4vw, 3.2rem); line-height: 1.08; letter-spacing: -.03em; text-wrap: balance; }
   .prints h3 { margin: 0 0 10px; font-size: clamp(1.32rem, 2.5vw, 2rem); line-height: 1.18; letter-spacing: -.02em; }
-  .prints p:not(.hero-description) { margin: 0 0 .8em; color: var(--color-muted); max-width: 69ch; text-wrap: pretty; }
+  .prints p { margin: 0 0 .8em; color: var(--color-muted); max-width: 69ch; text-wrap: pretty; }
   .editorial, .workflow, .tour-heading { display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1.26fr); gap: 14px clamp(25px, 6vw, 76px); align-items: start; }
   .editorial { border-top: 1px solid var(--prints-rule); padding-top: clamp(20px, 4vw, 40px); }
-  .editorial-copy p { font-size: clamp(1rem, 1.6vw, 1.16rem); }
   .tour { border-top: 1px solid var(--prints-rule); padding-top: clamp(20px, 4vw, 40px); }
   .tour-heading { margin-bottom: 15px; }
-  .tour video { aspect-ratio: 18 / 11; }
-  .tour details { margin-top: 13px; color: var(--color-muted); }
-  .tour summary { display: list-item; width: fit-content; min-height: 44px; align-content: center; color: var(--prints-accent); cursor: pointer; }
-  .tour ol { max-width: 70ch; padding-inline-start: 1.35rem; margin: 3px 0 0; }
-  .tour li + li { margin-top: 7px; }
-
   .workflows > h2 { margin-bottom: 19px; }
   .workflow { border-top: 1px solid var(--prints-rule); padding-top: clamp(18px, 3vw, 29px); }
   .workflow + .workflow { margin-top: clamp(28px, 4vw, 48px); }
@@ -247,20 +208,15 @@ const builds = [
   .builds a { display: flex; justify-content: space-between; align-items: center; min-height: 60px; gap: 10px; padding: 7px 4px; color: var(--prints-accent); }
   .builds a > span { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 13px; }
   .builds a span span { color: var(--color-muted); font-size: .9rem; }
-  .builds a:hover strong { text-decoration: underline; }
+  .builds a:hover strong { color: var(--color-foreground); }
   .release-note, .prints-credit { font-size: .9rem; }
   .prints-credit { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 6px 21px; margin-top: clamp(28px, 5vw, 56px); padding-top: 17px; border-top: 1px solid var(--prints-rule); }
   .prints-credit div { display: flex; flex-wrap: wrap; gap: 4px 17px; }
 
   @media (max-width: 760px) {
-    .prints-hero, .editorial, .workflow, .tour-heading { grid-template-columns: minmax(0, 1fr); }
-    .hero-actions { grid-template-columns: auto 1fr; align-items: center; gap: 9px 15px; }
-    .prints h1 { font-size: clamp(2.9rem, 10vw, 4.8rem); }
+    .editorial, .workflow, .tour-heading { grid-template-columns: minmax(0, 1fr); }
     .ecosystem dl div { grid-template-columns: minmax(0, 1fr); }
     .tour-heading { gap: 0; }
   }
 
-  @media (max-width: 455px) {
-    .hero-actions { grid-template-columns: minmax(0, 1fr); gap: 4px; }
-  }
 </style>

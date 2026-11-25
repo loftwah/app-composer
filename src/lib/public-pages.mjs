@@ -11,7 +11,7 @@ export const publicPagePaths = Object.freeze([
   '/share/experiences/pick-a-door', '/top-nine', '/share/experiences/tech-bingo', '/share/experiences/computer-club', '/demo/examples', '/demo/examples/signal-and-type', '/demo/examples/print-shop', '/demo/examples/creator-hub', '/manage', '/building', '/effect',
   '/creator-hub', '/cloudflare', '/pitch', '/pitch/vision', '/pitch/briefing', '/pitch/briefing/film',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
-  '/media-studio', '/media-studio/films', '/media-studio/tutorial', '/media-studio/direct', '/prints-desktop', '/launcher',
+  '/media-studio', '/media-studio/films', '/media-studio/tutorial', '/media-studio/direct', '/prints-desktop', '/prints-desktop/watch', '/launcher',
   '/widgets',
 ]);
 
