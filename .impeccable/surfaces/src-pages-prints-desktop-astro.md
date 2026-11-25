@@ -2,30 +2,30 @@
 version: 1
 slug: "src-pages-prints-desktop-astro"
 primary_target: "src/pages/prints-desktop.astro"
-related_targets: []
+related_targets: ["src/components/AfterlightWall.astro", "src/pages/prints-desktop/watch.astro"]
 ---
 
 # Prints Desktop
 
-Mode: Persuade. A standalone product preview on the App Composer project site.
+Mode: Experience in the opening contact sheet, then Persuade with native proof.
 
 ## Direction contract
 
-**Thesis.** Let the visitor see the artwork at the same moment they understand
-they can take the working desktop app with them.
+**Thesis.** Give visitors one choice worth making. Which Afterlight print
+would they hang?
 
-**Own world.** Afterlight's violet ink and warm silver appear in the native
-capture and the collection. The site retains Composer's action and theme tokens.
+**Own world.** Colored mounting paper comes from the print in view. Large
+Space Grotesk lettering, a cream mount and a hand-sized contact sheet carry
+the existing Afterlight art.
 
-**Story.** See the workspace, learn why it keeps originals close, and choose a
-captioned tour or a platform download. Local and hosted screenshots explain
-the two workflows. An ecosystem breakdown names where each responsibility lives.
+**Story.** Browse six prints, hang one locally and download its original.
+Native captures then show how this same action works with your own files or
+a connected Oyster library.
 
-**First viewport.** A large plain product title, release action and short
-description above an uninterrupted full-width capture. The native capture
-is proof and the download and walkthrough links share the opening row.
+**First viewport.** The question and product lockup sit alongside one large
+print with its controls and contact sheet. On narrow screens they stack.
 
-**Form.** Code-led extension of the existing App Composer project world. The
-app and collection supply the visual direction.
+**Form.** Code-led extension. The contact-sheet browser uses the six actual
+bundled originals, and the native app retains its independent release.
 
 **Finish.** unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

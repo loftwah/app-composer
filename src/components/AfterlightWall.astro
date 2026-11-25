@@ -1,0 +1,243 @@
+---
+import { ArrowDownToLine, ArrowRight, ArrowUpRight, Pin } from '@lucide/astro';
+
+const { downloads, walkthrough } = Astro.props;
+const collection = '/prints-desktop/afterlight-v0.3.1';
+const prints = [
+  { id: 'the-last-horizon', title: 'The Last Horizon', note: 'A setting sun caught in a concrete ring.' },
+  { id: 'relay-station', title: 'Relay Station', note: 'The antenna stays put. The dunes have other plans.' },
+  { id: 'salt-memory', title: 'Salt Memory', note: 'One black rock in an enormous pink salt pan.' },
+  { id: 'blue-hour', title: 'Blue Hour', note: 'One light is still on in the frozen pass.' },
+  { id: 'airlock-garden', title: 'Airlock Garden', note: 'The airlock belongs to the ferns now.' },
+  { id: 'echo-chamber', title: 'Echo Chamber', note: 'Floodwater doubles an empty concrete enclosure.' },
+];
+const first = prints[0];
+const original = (id: string) => `${collection}/${id}.jpg`;
+---
+
+<afterlight-wall class="wall" data-print={first.id}>
+  <div class="intro">
+    <div class="lockup">
+      <img src="/prints-desktop/aperture-96.png" width="32" height="32" alt="" />
+      <span>Prints Desktop</span>
+    </div>
+    <h1>Which print gets the wall?</h1>
+    <p>Six imaginary places. One spot on your wall. Pick a print and take the original home.</p>
+  </div>
+
+  <div class="darkroom">
+    <figure class="mounted">
+      <div class="mat">
+        <img data-preview src={original(first.id)} alt={first.note} fetchpriority="high" decoding="async" />
+      </div>
+      <figcaption>
+        <div aria-live="polite">
+          <strong data-title>{first.title}</strong>
+          <span data-note>{first.note}</span>
+        </div>
+        <div class="print-actions">
+          <button type="button" data-hang aria-pressed="false" hidden>
+            <Pin size={17} aria-hidden="true" /><span>Hang it</span>
+          </button>
+          <a href={original(first.id)} download data-original><ArrowDownToLine size={17} aria-hidden="true" /> Original</a>
+        </div>
+      </figcaption>
+    </figure>
+
+    <ul class="sheet" aria-label="Afterlight contact sheet">
+      {prints.map((print) => (
+        <li>
+          <a href={original(print.id)} data-study={print.id} data-note={print.note} aria-current={print === first ? 'true' : undefined}>
+            <img src={`${collection}/${print.id}-thumb.webp`} alt="" width="216" height="144" decoding="async" />
+            <span>{print.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="wall-note" data-status role="status"></p>
+  </div>
+
+  <nav class="wall-links" aria-label="Prints Desktop preview">
+    <a class="get" href={downloads}>Get the desktop preview <ArrowRight size={18} aria-hidden="true" /></a>
+    <a href={walkthrough}>Watch the app <ArrowUpRight size={16} aria-hidden="true" /></a>
+  </nav>
+</afterlight-wall>
+
+<script>
+  class AfterlightWall extends HTMLElement {
+    connectedCallback() {
+      const preview = this.querySelector<HTMLImageElement>('[data-preview]');
+      const title = this.querySelector<HTMLElement>('[data-title]');
+      const note = this.querySelector<HTMLElement>('[data-note]');
+      const original = this.querySelector<HTMLAnchorElement>('[data-original]');
+      const hang = this.querySelector<HTMLButtonElement>('[data-hang]');
+      const status = this.querySelector<HTMLElement>('[data-status]');
+      const studies = [...this.querySelectorAll<HTMLAnchorElement>('[data-study]')];
+      if (!preview || !title || !note || !original || !hang || !status || studies.length === 0) return;
+      let active = studies[0];
+      let hanging = '';
+      try {
+        hanging = localStorage.getItem('prints-afterlight-wall-v1') ?? '';
+      } catch {
+        // The wall still works for this visit when browser storage is unavailable.
+      }
+
+      const updateWall = () => {
+        const hung = studies.find((study) => study.dataset.study === hanging);
+        const isHanging = hung === active;
+        hang.setAttribute('aria-pressed', String(isHanging));
+        status.textContent = hung
+          ? `On your wall · ${hung.textContent?.trim()}`
+          : 'Your wall is empty. Your pick stays in this browser.';
+      };
+
+      const select = (study: HTMLAnchorElement) => {
+        active.removeAttribute('aria-current');
+        active = study;
+        active.setAttribute('aria-current', 'true');
+        this.dataset.print = active.dataset.study;
+        title.textContent = active.textContent?.trim() ?? '';
+        note.textContent = active.dataset.note ?? '';
+        preview.alt = note.textContent;
+        preview.src = active.href;
+        original.href = active.href;
+        updateWall();
+      };
+
+      for (const study of studies) {
+        study.addEventListener('click', (event) => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          select(study);
+        });
+      }
+
+      hang.addEventListener('click', () => {
+        hanging = hanging === active.dataset.study ? '' : active.dataset.study ?? '';
+        try {
+          localStorage.setItem('prints-afterlight-wall-v1', hanging);
+        } catch {
+          // In-memory selection is enough to hang a print for the visit.
+        }
+        updateWall();
+      });
+
+      hang.hidden = false;
+      select(studies.find((study) => study.dataset.study === hanging) ?? active);
+    }
+  }
+
+  if (!customElements.get('afterlight-wall')) customElements.define('afterlight-wall', AfterlightWall);
+</script>
+
+<style>
+  .wall {
+    --paper: #ffdab8;
+    --ink: #24171d;
+    display: grid;
+    overflow: clip;
+    grid-template-columns: minmax(0, .77fr) minmax(0, 1.23fr);
+    grid-template-areas: "intro gallery" "links gallery";
+    grid-template-rows: 1fr auto;
+    gap: 19px clamp(22px, 5vw, 70px);
+    padding: clamp(17px, 3.7vw, 50px);
+    border-radius: 18px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .wall[data-print="relay-station"] { --paper: #ffbc8b; }
+  .wall[data-print="salt-memory"] { --paper: #ffc8ce; }
+  .wall[data-print="blue-hour"] { --paper: #cfd9ff; }
+  .wall[data-print="airlock-garden"] { --paper: #dce1ac; }
+  .wall[data-print="echo-chamber"] { --paper: #e3caf7; }
+  .lockup { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: .95rem; }
+  .lockup img { width: 32px; height: 32px; }
+  .intro { grid-area: intro; align-self: end; }
+  .intro h1 {
+    max-width: 10ch;
+    margin: 15px 0;
+    font-size: clamp(2.65rem, 5.6vw, 5.5rem);
+    font-weight: 700;
+    line-height: .99;
+    letter-spacing: -.04em;
+  }
+  .intro p { max-width: 28ch; margin: 0; font-size: clamp(1rem, 1.65vw, 1.2rem); line-height: 1.45; }
+  .wall-links { grid-area: links; align-content: start; align-self: start; gap: 5px 16px; padding-bottom: clamp(25px, 9vw, 114px); }
+  .wall-links a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: .88rem; }
+  .wall-links .get { background: var(--ink); color: #fff5e9; border-radius: 7px; padding: 0 11px; }
+  .wall-links .get:hover { background: #49303c; }
+  .darkroom { grid-area: gallery; min-width: 0; }
+  .mounted {
+    margin: 0;
+    padding: clamp(8px, 1.3vw, 17px);
+    background: #fff4e5;
+    color: var(--ink);
+    box-shadow: 0 13px 27px #35233040;
+  }
+  .mat {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #eadccc;
+  }
+  .mat img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+  .mounted figcaption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3px 10px;
+    padding-top: 8px;
+  }
+  .mounted figcaption strong { display: block; font: 700 clamp(1.12rem, 2vw, 1.45rem)/1.12 Space, sans-serif; }
+  .mounted figcaption span[data-note] { display: block; margin-top: 3px; font-size: .78rem; line-height: 1.4; }
+  .print-actions { display: flex; flex-wrap: wrap; gap: 0 6px; }
+  .print-actions :is(a, button) {
+    display: inline-flex;
+    padding: 0 6px;
+    min-height: 44px;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    color: var(--ink);
+    font: 650 .78rem/1.2 system-ui, sans-serif;
+  }
+  .print-actions button[hidden] { display: none; }
+  .print-actions :is(a, button):hover { background: #f3dec6; border-radius: 5px; }
+  .print-actions button { background: #f3dec6; border-radius: 5px; padding-inline: 9px; }
+  .print-actions button[aria-pressed="true"], .print-actions button[aria-pressed="true"]:hover { background: var(--ink); color: #fff5e9; }
+  .sheet {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 5px;
+    list-style: none;
+    padding: 0;
+    margin: 15px -4px 0;
+  }
+  .sheet li { margin: 0; }
+  .sheet a { display: block; color: var(--ink); padding: 4px; border: 1px solid transparent; border-radius: 5px; }
+  .sheet a:hover { background: #380f1b14; }
+  .sheet a[aria-current="true"] { border-color: var(--ink); }
+  .sheet img { display: block; width: 100%; height: auto; border-radius: 2px; background: #382b36; }
+  .sheet span { display: block; font-size: .69rem; line-height: 1.2; margin-top: 4px; }
+  .wall-note { margin: 5px 0 0; font-size: .76rem; min-height: 1.3lh; }
+  .wall-note:empty { display: none; }
+  .wall :is(a, button):focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  @media (max-width: 880px) {
+    .wall { grid-template: "intro" auto "gallery" auto "links" auto / minmax(0, 1fr); }
+    .wall-links { padding-bottom: 0; }
+    .intro h1 { max-width: 18ch; }
+    .intro p { max-width: 38ch; }
+  }
+  @media (max-width: 520px) {
+    .wall { gap: 17px; border-radius: 12px; }
+    .intro h1 { max-width: 12ch; margin: 9px 0 10px; }
+    .wall-links { gap: 4px 10px; }
+    .sheet { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wall { transition: background-color 190ms ease-out; }
+  }
+</style>

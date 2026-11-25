@@ -18,7 +18,10 @@
       "oyster-library-demo-v0.3.1.webp": "Native Rune capture against a fictional loopback Oyster library. No owner data.",
       "prints-desktop-walkthrough-v0.3.1.mp4": "Native Rune input replay on Apple Silicon, edited to 28 seconds. The Afterlight export matches its bundled JPEG. The hosted segment uses a fictional Oyster library.",
       "prints-desktop-walkthrough-v0.3.1.en.vtt": "English captions describing the actions in the silent native replay.",
-      "prints-desktop-share-v0.3.1.jpg": "Loftwah Prints Desktop wordmark composition using the existing aperture mark, Composer Space Grotesk typography and a crop of The Last Horizon."
+      "prints-desktop-share-v0.3.1.jpg": "Loftwah Prints Desktop wordmark composition using the existing aperture mark, Composer Space Grotesk typography and a crop of The Last Horizon.",
+      "afterlight-v0.3.1/*.jpg": "Unmodified public Afterlight JPEGs bundled in the native app at c5ee40b883fb0c74087070b51367209580cdada0. All six original landscapes were created with OpenAI ImageGen.",
+      "afterlight-v0.3.1/*-thumb.webp": "216 by 144 WebP thumbnails cropped from the six public Afterlight JPEGs.",
+      "which-print-og-20261125.jpg": "App Composer Space Grotesk lettering and original Prints mark composed with four of the same public ImageGen Afterlight studies. No third-party logos or owner data."
     }
   }
 }

@@ -1,0 +1,38 @@
+---
+import { ArrowDownToLine } from '@lucide/astro';
+
+const { eager = false } = Astro.props;
+const versioned = '/prints-desktop/prints-desktop-walkthrough-v0.3.1';
+---
+
+<figure>
+  <video controls playsinline preload={eager ? 'metadata' : 'none'} poster="/prints-desktop/afterlight-native-v0.3.1.webp" aria-label="Prints Desktop walkthrough">
+    <source src={`${versioned}.mp4`} type="video/mp4" />
+    <track kind="captions" label="English" srclang="en" src={`${versioned}.en.vtt`} default />
+  </video>
+  <figcaption>
+    <span>28 seconds · Silent, with captions · Native Rune capture</span>
+    <a href={`${versioned}.mp4`} download><ArrowDownToLine size={17} aria-hidden="true" /> Download MP4</a>
+  </figcaption>
+</figure>
+<details>
+  <summary>Read the walkthrough</summary>
+  <ol>
+    <li>Open Afterlight and pick <cite>Blue Hour</cite> from the contact sheet. View it at full size.</li>
+    <li>Add the study to Favourites, return to it and export the bundled JPEG.</li>
+    <li>Copy the brief from <cite>The Last Horizon</cite> into a prompt draft and save it locally.</li>
+    <li>Browse a folder and preview a print in an Oyster library seeded with fictional media.</li>
+  </ol>
+</details>
+
+<style>
+  figure { margin: 0; }
+  video { display: block; width: 100%; height: auto; aspect-ratio: 18 / 11; border: 1px solid var(--color-border); border-radius: 12px; background: #19151f; }
+  figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0 12px; margin-top: 6px; color: var(--color-muted); font-size: .88rem; }
+  figcaption a { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; color: var(--prints-accent, var(--color-accent)); }
+  details { margin-top: 4px; color: var(--color-muted); }
+  summary { display: list-item; width: fit-content; min-height: 44px; align-content: center; color: var(--prints-accent, var(--color-accent)); cursor: pointer; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--prints-accent, var(--color-accent)); outline-offset: 3px; }
+  ol { max-width: 70ch; padding-inline-start: 1.35rem; margin: 3px 0 0; }
+  li + li { margin-top: 7px; }
+</style>
