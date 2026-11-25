@@ -181,7 +181,7 @@
         "prints-desktop",
         "creative-archive"
       ],
-      "projectUrl": "https://composer.loftwah.com/prints-desktop",
+      "projectUrl": "https://prints.loftwah.com/",
       "sourceUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/provenance.json",
       "previewUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg",
       "thumbnailUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/darkroom-share-480-20261125.webp",
@@ -199,14 +199,14 @@
     },
     {
       "id": "prints-desktop-creative-archive",
-      "title": "Prints Desktop · The Creative Archive",
+      "title": "Prints Desktop · Make a poster",
       "project": "prints-desktop",
       "visibility": "public",
       "reuse": "unconfirmed",
-      "credit": "Loftwah · LoftwahFM, Fighter and Bubbles",
-      "alt": "Prints. The Creative Archive. Four works from LoftwahFM, Fighter and Bubbles on a dark field. prints.loftwah.com.",
-      "description": "A Prints Desktop launch poster made from the same published Loftwah artwork shown in the archive.",
-      "caption": "Album covers, arcade posters and the files in between. Explore the Loftwah Creative Archive in Prints Desktop.",
+      "credit": "Loftwah · Made with ImageGen",
+      "alt": "Prints Desktop. Make a poster. Keep the original. An orange camera aperture opens onto a sea made of white paper. prints.loftwah.com.",
+      "description": "The Prints workshop poster shows an orange aperture opening onto a folded paper coastline.",
+      "caption": "Make a poster. Keep the original. Try a ready-to-use prompt at prints.loftwah.com.",
       "use": "social",
       "stage": "share poster",
       "reviewedAt": "2026-11-25",
@@ -214,26 +214,32 @@
         "prints-desktop",
         "creative-archive"
       ],
-      "projectUrl": "https://composer.loftwah.com/prints-desktop",
-      "sourceUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/provenance.json",
-      "previewUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/prints-archive-portrait.jpg",
-      "thumbnailUrl": "https://composer.loftwah.com/campaign/prints-desktop-20261125/prints-archive-480.webp",
+      "projectUrl": "https://prints.loftwah.com/",
+      "sourceUrl": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/provenance.json",
+      "previewUrl": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/feed.jpg",
+      "thumbnailUrl": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/feed-480.webp",
       "thumbnailWidth": 480,
       "thumbnailHeight": 600,
       "original": {
-        "url": "https://composer.loftwah.com/campaign/prints-desktop-20261125/prints-archive-portrait.jpg",
+        "url": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/feed.jpg",
         "label": "Portrait JPG",
         "width": 1080,
         "height": 1350,
-        "sha256": "81f33c970f8092e9cb3738caedc71c89ab85a13a6a287a0285cc93f8330d4d7d",
-        "version": "v1"
+        "sha256": "3d91d5b79a68132a14a4e5029cc9b8038a75d8f611a7b931ca3e2034c2868127",
+        "version": "v2"
       },
       "formats": [
         {
-          "url": "https://composer.loftwah.com/campaign/prints-desktop-20261125/prints-archive-wide.jpg",
+          "url": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/wide.jpg",
           "label": "Wide JPG",
           "width": 1200,
           "height": 630
+        },
+        {
+          "url": "https://composer.loftwah.com/prints-desktop/workshop-share-home-20261125/story.jpg",
+          "label": "Story JPG",
+          "width": 1080,
+          "height": 1920
         }
       ]
     }
