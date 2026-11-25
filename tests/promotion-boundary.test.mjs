@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,existsSync,linkSync,symlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {promoteComposition} from '../scripts/promotion-boundary.mjs';
 
 function fixture({auditFailure=false,snapshotEdit=false,artifactEdit=false,extraAsset=false,customBuild=false,members=false}={}){
@@ -32,6 +33,37 @@ function fixture({auditFailure=false,snapshotEdit=false,artifactEdit=false,extra
  const calls=()=>existsSync(log)?readFileSync(log,'utf8').trim().split('\n').map(row=>JSON.parse(row)):[];
  return {root,workspace,sources,env,calls,cleanup:()=>rmSync(root,{recursive:true,force:true})};
 }
+
+test('the active mounted pins and workbench adapters select the exact reviewed app-owned sources',()=>{
+ const root=fileURLToPath(new URL('..',import.meta.url));
+ const lock=JSON.parse(readFileSync(join(root,'composition.lock.json'),'utf8'));
+ const sources=JSON.parse(readFileSync(join(root,'src/vendor/workbench/sources.json'),'utf8'));
+ // Keep the reviewed composition id: the mounted service names and bindings
+ // are derived from it, so a pin promotion must not rename those services.
+ assert.equal(lock.id,'8428e16f61c25a4d524abb691e440b36fe07c92e21c2f3843e43962b197f1e1e');
+ const reviewed={
+  guestbook:{commit:'14b52c3099e15b0b0b5bbf317440b1096dbb68c5',digest:'sha256:100e332442ed3acbfc90aeef3c0372a9320ef32fd21ec0ed9412079e7f84260a'},
+  showcase:{commit:'9b43fc0404476d4781414fff2505a81716d84b16',digest:'sha256:265eeb8cf4c81b01d7a5b41c8282847c176ff0e785d2c08d1209ac876612f02c'},
+ };
+ assert.deepEqual(lock.apps.map(app=>app.id),['guestbook','showcase']);
+ for(const app of lock.apps){
+  const expected=reviewed[app.id];
+  assert.equal(app.repository,'https://github.com/loftwah/app-composer-'+app.id);
+  assert.equal(app.commit,expected.commit);
+  assert.equal(app.manifest.id,app.id);
+  assert.equal(app.manifest.repository,app.repository);
+  assert.deepEqual(app.manifest.routes,['/'+app.id]);
+  assert.equal(app.manifest.dataVersion,1);
+  assert.equal(app.manifestDigest,expected.digest);
+  assert.equal(app.manifestDigest,'sha256:'+createHash('sha256').update(JSON.stringify(app.manifest)).digest('hex'));
+  const source=sources.apps.find(entry=>entry.id===app.id);
+  assert.equal(source.repository,app.repository);
+  assert.equal(source.commit,app.commit);
+  assert.equal(source.sha256,createHash('sha256').update(readFileSync(join(root,source.copy))).digest('hex'));
+ }
+ assert.equal(sources.version,1);
+ assert.equal(sources.apps.length,2);
+});
 
 test('promotion compiles both verified snapshots without credentials before selected uploads',()=>{
  const f=fixture();try{
