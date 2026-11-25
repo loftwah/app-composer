@@ -12,6 +12,7 @@ import {
 import {
   wrongAnswerCount, wrongAnswerPlate,
 } from "../lib/wrong-answers.ts";
+import { hotTakeCard, hotTakeCount } from "../lib/hot-take-factory.ts";
 import {
   redFlagCourtCard, redFlagCourtCount, redFlagCourtSubtitle,
   type RedFlagVerdict,
@@ -68,6 +69,8 @@ export interface ShareExperienceResult {
   /** The selected prompt and private answer for a Wrong Answers Only export. */
   prompt?: string;
   answer?: string;
+  /** Hot Take Factory: authored prompt index and private opinion, memory only. */
+  hotTakePrompt?: number;
   /** Red Flag Court: current docket position and verdict. Memory only, never a link. */
   courtCase?: number;
   verdict?: RedFlagVerdict;
@@ -119,6 +122,8 @@ const inks = {
   // The owned wrong-answers textbook: saffron blueprint ink on aged paper,
   // a faded copy, and a night-school page for the dark skin.
   "wrong-answers": [["#efe0bd", "#3a2412", "#8a4a08"], ["#f7f1e5", "#2a2319", "#7b3f10"], ["#1d1913", "#f4e6c7", "#e6ad3c"]],
+  // Hot Take Factory: night press, pale work ticket and blueprint plate.
+  "hot-take-factory": [["#171310", "#fbeee2", "#f07022"], ["#f4e6cf", "#2a1417", "#9b4308"], ["#152433", "#e9f4ff", "#ffb347"]],
   // The owned tabloid courtroom: warm court paper and red ink, a late edition,
   // and a cooler newsprint sheet. The verdict block stays red or green.
   "red-flag-court": [["#f3e4c7", "#1c1511", "#a3151f"], ["#17120f", "#f6ead2", "#d8343f"], ["#e9e4d8", "#1d1b18", "#7a1a1f"]],
@@ -567,6 +572,109 @@ async function renderWrongAnswers(result: ShareExperienceResult, format: ResultF
   });
 }
 
+/** One local hot-take card: the exact authored work order and opinion, stamped
+ * onto the factory's night shift, paper ticket or blueprint palette. */
+async function renderHotTakeFactory(result: ShareExperienceResult, format: ResultFormat): Promise<Blob> {
+  const card = hotTakeCard(result.hotTakePrompt, result.answer);
+  if (!card) throw new Error("No hot take to export");
+  const [width, height] = resultSizes[format];
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Image rendering is unavailable");
+  await document.fonts?.ready;
+  const palette = inks["hot-take-factory"];
+  const [paper, ink, accent] = palette[result.skin] ?? palette[0];
+  const wide = format === "wide";
+  const square = format === "square";
+  const story = format === "story";
+  const margin = Math.round(Math.min(width, height) * .067);
+  const safeTop = story ? Math.round(height * .13) : 0;
+  const safeBottom = story ? Math.round(height * .17) : 0;
+  const top = margin + safeTop;
+  const footer = height - safeBottom - margin - 42;
+  const inner = width - margin * 2;
+  const contentBottom = footer - (wide ? 54 : 104);
+  const mark = await picture("/brand/composer-icon-20261022b-96.png");
+
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, width, Math.max(12, Math.round(margin * .28)));
+  const stampTop = top + (wide ? 18 : 26);
+  drawTracked(ctx, "HOT TAKE FACTORY", margin, stampTop + (wide ? 14 : 20), wide ? 15 : 22, accent);
+  const tabSize = wide ? 0 : square ? 58 : story ? 70 : 62;
+  if (!wide) drawWrongTab(ctx, card.number, width - margin - tabSize, stampTop, tabSize, paper, accent);
+  const metaSize = wide ? 13 : 19;
+  const metaY = stampTop + (wide ? 48 : 66);
+  drawTracked(ctx, `WORK ORDER ${String(card.number).padStart(2, "0")} / ${hotTakeCount} · ${card.tab.toUpperCase()}`, margin, metaY, metaSize, accent);
+
+  const labelSize = wide ? 13 : 19;
+  const panelPadding = wide ? 24 : square ? 28 : story ? 42 : 36;
+  if (wide) {
+    const leftWidth = Math.round(inner * .44);
+    const gutter = Math.round(inner * .04);
+    const rightX = margin + leftWidth + gutter;
+    const rightWidth = margin + inner - rightX;
+    const promptY = metaY + 30;
+    ctx.fillStyle = ink;
+    drawPlateCentred(ctx, card.prompt, margin, promptY, leftWidth, contentBottom - promptY, 54);
+    ctx.save();
+    ctx.globalAlpha = .32;
+    ctx.fillStyle = ink;
+    ctx.fillRect(margin + leftWidth + gutter / 2, stampTop, 2, contentBottom - stampTop);
+    ctx.restore();
+
+    const panelY = stampTop;
+    const panelH = contentBottom - panelY;
+    ctx.save();
+    ctx.globalAlpha = .12;
+    ctx.fillStyle = accent;
+    ctx.fillRect(rightX, panelY, rightWidth, panelH);
+    ctx.restore();
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(rightX + .75, panelY + .75, rightWidth - 1.5, panelH - 1.5);
+    ctx.fillStyle = accent;
+    ctx.fillRect(rightX, panelY, 7, panelH);
+    drawTracked(ctx, "YOUR TAKE", rightX + panelPadding, panelY + panelPadding + labelSize, labelSize, accent);
+    const answerTop = panelY + panelPadding + labelSize + Math.round(labelSize * 1.1);
+    ctx.fillStyle = ink;
+    drawPlateText(ctx, card.answer, rightX + panelPadding, answerTop,
+      rightWidth - panelPadding * 2, contentBottom - panelPadding - answerTop, 34);
+  } else {
+    const promptY = metaY + 34;
+    const promptHeight = square ? 200 : story ? 360 : 302;
+    ctx.fillStyle = ink;
+    drawPlateCentred(ctx, card.prompt, margin, promptY, inner, promptHeight, square ? 72 : story ? 88 : 84);
+
+    const panelY = promptY + promptHeight + 26;
+    const panelH = contentBottom - panelY;
+    ctx.save();
+    ctx.globalAlpha = .12;
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, panelY, inner, panelH);
+    ctx.restore();
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(margin + .75, panelY + .75, inner - 1.5, panelH - 1.5);
+    ctx.fillStyle = accent;
+    ctx.fillRect(margin, panelY, 8, panelH);
+    drawTracked(ctx, "YOUR TAKE", margin + panelPadding, panelY + panelPadding + labelSize, labelSize, accent);
+    const answerTop = panelY + panelPadding + labelSize + Math.round(labelSize * 1.1);
+    ctx.fillStyle = ink;
+    drawPlateText(ctx, card.answer, margin + panelPadding, answerTop,
+      inner - panelPadding * 2, contentBottom - panelPadding - answerTop,
+      square ? 44 : story ? 62 : 60);
+  }
+
+  signCard(ctx, mark, width, margin, footer, ink, result.byline);
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not export image"))), "image/png");
+  });
+}
+
 /** One local tier-list PNG: the title, four named rows and their entries in
  * reading order, then the same publisher sign-off every card carries. Rows are
  * fixed, so the same board always draws the same text in the same position. */
@@ -983,6 +1091,7 @@ export async function renderExperienceResult(
   // title-and-grid renderer exactly as it was.
   if (result.game === "tier-list") return renderTierList(result, format);
   if (result.game === "wrong-answers") return renderWrongAnswers(result, format);
+  if (result.game === "hot-take-factory") return renderHotTakeFactory(result, format);
   if (result.game === "red-flag-court") return renderRedFlagCourt(result, format);
   if (result.game === "tech-tournament") return renderTechTournament(result, format);
   if (result.game === "cursed-choices") return renderCursedChoices(result, format);
