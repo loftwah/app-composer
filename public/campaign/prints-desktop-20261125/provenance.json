@@ -21,5 +21,14 @@
   },
   "web_derivatives": "The listed public art is resized to a maximum edge of 1000 px and compressed as WebP. It is served without added marks.",
   "icons": "The desktop aperture mark from the native repository at c5ee40b883fb0c74087070b51367209580cdada0, exported at 16, 32, 180, 192, 512 pixels and to ICO.",
-  "share": "Original Loftwah archive artwork and aperture icon composed with Space Grotesk. No synthetic screenshot."
+  "share": "Original Loftwah archive artwork and aperture icon composed with Space Grotesk. No synthetic screenshot.",
+  "darkroom_campaign": {
+    "date": "2026-11-25",
+    "method": "OpenAI ImageGen built-in image generation, including the lettering. Centre-cropped and compressed to 1200 × 630 JPEG and resized to a 480 × 252 WebP thumbnail.",
+    "description": "Editorial campaign artwork of a hand selecting a photograph of an Australian coastal wave from a contact sheet under a red safelight. The scene is an imagined darkroom.",
+    "assets": [
+      "/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg",
+      "/campaign/prints-desktop-20261125/darkroom-share-480-20261125.webp"
+    ]
+  }
 }
