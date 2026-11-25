@@ -10,7 +10,7 @@
 
 **Links to send**
 
-- Field kit https://prints.loftwah.com/devrel
+- Field kit https://prints.loftwah.com/workshop-kit
 - Image workshop https://prints.loftwah.com/make
 - Published image proof https://prints.loftwah.com/prints-desktop/workshop-20261125/proof.json
 - AI Gateway https://developers.cloudflare.com/ai-gateway/

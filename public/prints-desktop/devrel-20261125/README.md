@@ -1,6 +1,6 @@
 # From brief to byte
 
-A public speaker and workshop kit by Loftwah. Start at https://prints.loftwah.com/devrel.
+A public speaker and workshop kit by Loftwah. Start at https://prints.loftwah.com/workshop-kit.
 
 ## Rehearse
 
