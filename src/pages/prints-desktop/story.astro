@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight } from '@lucide/astro';
-import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsPreviewVersion, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
 
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
@@ -59,7 +59,7 @@ const schema = {
       <p>Your provider and host determine the available models and what a run costs. Fungi documents the path to a <a href="https://docs.fungi.computer/guides/run-your-own-oyster">Cloudflare-hosted Oyster</a> and a <a href="https://docs.fungi.computer/apps/prints">Prints installation using Workers AI</a>. App Composer is where you can find the app or publish related work through Share. The desktop works with your installation directly.</p>
 
       <h2>Start with something worth keeping</h2>
-      <p>Open the archive, spend a minute comparing the two editions, then try it on your own material. The v0.4.0 preview includes Apple Silicon, Linux and Windows packages. Check the download notes for signing and platform verification before you choose a build.</p>
+      <p>Open the archive, spend a minute comparing the two editions, then try it on your own material. The v{printsPreviewVersion} preview includes Apple Silicon, Linux and Windows packages. Check the download notes for signing and platform verification before you choose a build.</p>
       <div class="story-actions">
         <a class="button" href={home + '#downloads'}><ArrowDownToLine size={17} aria-hidden="true" /> Get the desktop preview</a>
         <a class="story-link" href={guide}>Follow the tutorial <ArrowRight size={17} aria-hidden="true" /></a>
