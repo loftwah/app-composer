@@ -1,5 +1,5 @@
 import { verificationRequest } from '../../lib/usage/publisher.mjs';
-import { isPrintsHost, legacyPrintsFieldKitZip, printsFieldKitZip } from './prints-site.mjs';
+import { isPrintsHost, printsFieldKitDownloads } from './prints-site.mjs';
 
 export const builds = [
   { key: 'macos-arm64', label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip' },
@@ -30,7 +30,7 @@ export const fieldKitDailyCap = 1000;
 
 export async function printsFieldKitAsset(request, runtime, context, now = new Date()) {
   const url = new URL(request.url);
-  if (![printsFieldKitZip, legacyPrintsFieldKitZip].includes(url.pathname)) return null;
+  if (!printsFieldKitDownloads.includes(url.pathname)) return null;
   const prints = isPrintsHost(url);
   if (!prints && url.origin !== runtime.PUBLIC_ORIGIN) return null;
   if (!['GET', 'HEAD'].includes(request.method))

@@ -4,7 +4,7 @@ import PrintsFirstSteps from '../../components/PrintsFirstSteps.astro';
 import { ArrowDown, ArrowDownToLine, ArrowUpRight, Clipboard } from '@lucide/astro';
 import campaign from '../../../public/campaign/computer-club-20261122/provenance.json';
 import proof from '../../../public/prints-desktop/workshop-20261125/proof.json';
-import { isPrintsHost, printsOrigin } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsWorkshopShareFolder as workshopArt } from '../../lib/prints-site.mjs';
 
 const title = 'Make a poster. Keep the original.';
 const description = 'A beginner workshop for making a campaign image. Copy a real App Composer Share prompt, see images made through Oyster and Workers AI, then choose a browser, terminal or MCP workflow.';
@@ -12,7 +12,6 @@ const canonical = printsOrigin + '/make';
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
 const guide = product ? '/guide' : '/prints-desktop/guide';
-const workshopArt = '/prints-desktop/workshop-share-20261125/';
 const campaignRoot = '/campaign/computer-club-20261122/';
 const proofRoot = '/prints-desktop/workshop-20261125/';
 const campaignPage = 'https://composer.loftwah.com/share/artwork/composer-club-01-friday-release';
@@ -184,10 +183,6 @@ const schema = {
     </section>
   </article>
 </Base>
-
-<script>
-  import '../../browser/prints-copy';
-</script>
 
 <style>
   .workshop { --paper: #f48120; --ink: #171717; --rule: var(--color-border); }

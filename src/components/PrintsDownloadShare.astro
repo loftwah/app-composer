@@ -1,13 +1,12 @@
 ---
 import { ArrowDownToLine, ArrowUpRight } from '@lucide/astro';
-import { printsOrigin } from '../lib/prints-site.mjs';
+import { printsOrigin, printsDownloadShareFolder as asset } from '../lib/prints-site.mjs';
 import snapshot from '../data/prints-download-share-20261125.json';
 
 const title = 'Prints Desktop download snapshot';
-const asset = '/prints-desktop/download-share-orange-20261125/';
 const report = printsOrigin + '/downloads';
 const caption = snapshot.caption;
-const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<', '\\u003c');
+const data = JSON.stringify({ url: printsOrigin, title, text: caption }).replaceAll('<', '\\u003c');
 
 ---
 
@@ -39,8 +38,8 @@ const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<
     <summary>Caption and alt text</summary>
     <div class="copy-actions">
       <button type="button" data-insight-copy="caption" hidden>Copy caption</button>
-      <button type="button" data-insight-native hidden>Share report</button>
-      <button type="button" data-insight-copy="link" hidden>Copy live report link</button>
+      <button type="button" data-insight-native hidden>Share Prints</button>
+      <button type="button" data-insight-copy="link" hidden>Copy Prints link</button>
       <a href={report}>Open live counts <ArrowUpRight size={15} aria-hidden="true" /></a>
     </div>
     <p data-insight-status role="status"></p>

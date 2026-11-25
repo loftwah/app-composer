@@ -8,10 +8,18 @@ export const printsDiscovery = /** @type {const} */ ({
 });
 export const printsOrigin = 'https://prints.loftwah.com';
 export const printsPreviewVersion = '0.4.1';
-export const printsFieldKitZip = '/prints-desktop/devrel-20261125/prints-workshop-kit.zip';
-export const legacyPrintsFieldKitZip = '/prints-desktop/devrel-20261125/prints-devrel-field-kit.zip';
+export const printsFieldKitFolder = '/prints-desktop/workshop-kit-20261125/';
+export const printsFieldKitZip = printsFieldKitFolder + 'prints-workshop-kit.zip';
+export const printsFieldKitDownloads = [
+  printsFieldKitZip,
+  '/prints-desktop/devrel-20261125/prints-workshop-kit.zip',
+  '/prints-desktop/devrel-20261125/prints-devrel-field-kit.zip',
+];
+export const printsWorkshopShareFolder = '/prints-desktop/workshop-share-home-20261125/';
+export const printsDownloadShareFolder = '/prints-desktop/download-share-home-20261125/';
+export const printsWorkflowShareFolder = '/prints-desktop/workflow-share-home-20261125/';
 export const printsIcon = '/prints-desktop/icons/aperture-32-20261125.png';
-export const printsShare = '/prints-desktop/workshop-share-20261125/wide.jpg';
+export const printsShare = printsWorkshopShareFolder + 'wide.jpg';
 export const printsShareAlt = 'Prints Desktop. Make a poster. Keep the original. A machined orange camera aperture opens onto a white coastline.';
 
 const productRoutes = new Map([

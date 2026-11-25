@@ -1,0 +1,30 @@
+{
+  "verifiedOn": "2026-11-25",
+  "runtime": "Wrangler 4.158.0 local workerd",
+  "route": "GET /api/brief",
+  "requests": [
+    {
+      "mode": "rehearsal-fixture",
+      "inferenceCalls": 0,
+      "project": "Midnight Arcade",
+      "format": "feed",
+      "width": 1080,
+      "height": 1350,
+      "caption": "Midnight Arcade is open. One token gets you in."
+    },
+    {
+      "mode": "rehearsal-fixture",
+      "inferenceCalls": 0,
+      "project": "Midnight Arcade",
+      "format": "link",
+      "width": 1200,
+      "height": 630,
+      "caption": "Midnight Arcade. Play past closing time."
+    }
+  ],
+  "rejected": {
+    "unsupportedFormat": 400,
+    "unsupportedMethod": 405
+  },
+  "inferenceCalls": 0
+}

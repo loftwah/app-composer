@@ -2,7 +2,10 @@
 import { ArrowDownToLine, ArrowUpRight, Clipboard } from '@lucide/astro';
 import { printsFirstSteps as paths } from '../lib/prints-first-steps.mjs';
 
-const shares = '/prints-desktop/workflow-share-20261125/';
+import { isPrintsHost, printsWorkflowShareFolder as shares } from '../lib/prints-site.mjs';
+const { frontDoor = false } = Astro.props;
+const workshop = isPrintsHost(Astro.url) ? '/make' : '/prints-desktop/make';
+const actionLink = (href: string) => frontDoor && href.startsWith('#') ? workshop + href : href;
 const posters = [
   { label: 'Your files. Your desk.', file: 'local.jpg', alt: 'A safety-orange lens projects a tiny paper coastline on a desk beside a storage drive.' },
   { label: 'Give your agent a library.', file: 'agent.jpg', alt: 'A small orange lens-shaped robot inspects a folded paper coastline with a magnifier.' },
@@ -10,7 +13,7 @@ const posters = [
 ];
 
 ---
-<section class="paths" id="paths" aria-labelledby="paths-title">
+<section class="paths" id="paths" aria-labelledby="paths-title" data-workshop>
   <header>
     <h2 id="paths-title">How do you want to work?</h2>
     <p>Pick a first step. Each recipe has a prompt you can copy into the agent or image tool you already use.</p>
@@ -22,7 +25,7 @@ const posters = [
         <summary>{title}</summary>
         <div class="path-body">
           <p>{detail}</p>
-          <a href={href}>{action} <ArrowUpRight size={15} aria-hidden="true" /></a>
+          <a href={actionLink(href)}>{action} <ArrowUpRight size={15} aria-hidden="true" /></a>
           <label for={`prints-prompt-${key}`}>Ready-to-use prompt</label>
           <textarea id={`prints-prompt-${key}`} rows="6">{prompt}</textarea>
           <button type="button" data-copy-target={`prints-prompt-${key}`} hidden><Clipboard size={16} aria-hidden="true" /> Copy prompt</button>
@@ -41,6 +44,9 @@ const posters = [
     </ul>
   </details>
 </section>
+<script>
+  import '../browser/prints-copy';
+</script>
 <style>
   .paths { margin-block: clamp(30px,6vw,76px); }
   .paths header { max-width: 680px; margin-bottom: 20px; }
