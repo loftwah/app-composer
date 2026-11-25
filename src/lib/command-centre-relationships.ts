@@ -35,6 +35,11 @@ const qualifiedPattern =
   /(?<![\w/])([A-Za-z0-9_.-]{1,80})\/([A-Za-z0-9_.-]{1,100})#(\d{1,7})\b/g;
 const barePattern = /(?<![\w/#])#(\d{1,7})\b/g;
 
+// A Markdown link whose destination is a GitHub issue/PR is one reference:
+// its URL is canonical and its label must not also be read as a local `#N`.
+const markdownIssueLinkPattern =
+  /\[[^\]]{0,300}\]\(\s*https?:\/\/github\.com\/[A-Za-z0-9_.-]{1,80}\/[A-Za-z0-9_.-]{1,100}\/(?:issues|pull)\/\d{1,7}\b[^)]*\)/gi;
+
 // A label is a whole word or an explicit `PR:`/`PR #12` form. Requiring a
 // boundary stops prose such as "Presentation/discovery" being read as "PR".
 const relationshipLabel =
@@ -57,7 +62,7 @@ function sectionFor(text: string): RelationKind | null {
 
 function relationshipFor(label: string): RelationKind | null {
   const value = label.toLowerCase();
-  if (/^(parent|part of)$/.test(value)) return "parent";
+  if (/^(parent|parent issue|part of)$/.test(value)) return "parent";
   if (/^(sub-?issues?|child(?:ren|\s+issues?)?)$/.test(value)) return "children";
   if (/^(blocked by|depends on|waiting on)$/.test(value)) return "blockers";
   if (/^(pull requests?|prs?)$/.test(value)) return "pullRequests";
@@ -89,9 +94,9 @@ function push(
   if (!duplicate) list.push(entry);
 }
 
-function readUrlReferences(body: string): RelationshipReference[] {
+function urlReferences(text: string, limit: number): RelationshipReference[] {
   const references: RelationshipReference[] = [];
-  for (const match of body.matchAll(urlPattern)) {
+  for (const match of text.matchAll(urlPattern)) {
     const owner = match[1];
     const name = match[2];
     const kind = match[3] === "pull" ? "pull-request" : "issue";
@@ -103,10 +108,17 @@ function readUrlReferences(body: string): RelationshipReference[] {
     push(
       references,
       reference(repository, number, kind, "url", match[0] ?? null),
-      maximumPullRequests + maximumBlockers + maximumChildren,
+      limit,
     );
   }
   return references;
+}
+
+function readUrlReferences(body: string): RelationshipReference[] {
+  return urlReferences(
+    body,
+    maximumPullRequests + maximumBlockers + maximumChildren,
+  );
 }
 
 function lineReferences(
@@ -114,8 +126,11 @@ function lineReferences(
   repository: string,
   kind: RelationshipReference["kind"],
 ): RelationshipReference[] {
-  const references: RelationshipReference[] = [];
-  for (const match of text.matchAll(qualifiedPattern)) {
+  // Canonical URLs and qualified references outrank a bare local `#N`, and a
+  // Markdown issue link is consumed once through its destination.
+  const references = urlReferences(text, 30);
+  const plain = text.replace(markdownIssueLinkPattern, "");
+  for (const match of plain.matchAll(qualifiedPattern)) {
     const owner = match[1];
     const name = match[2];
     const number = Number(match[3]);
@@ -129,7 +144,7 @@ function lineReferences(
       30,
     );
   }
-  for (const match of text.matchAll(barePattern)) {
+  for (const match of plain.matchAll(barePattern)) {
     const number = Number(match[1]);
     if (!Number.isSafeInteger(number) || number <= 0) continue;
     push(
