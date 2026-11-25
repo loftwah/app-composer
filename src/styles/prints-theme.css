@@ -1,0 +1,32 @@
+:root[data-product="prints"] {
+  scroll-behavior: auto;
+  --color-accent: #ffad67;
+  --color-accent-hover: #ffca9b;
+  --color-action: #f48120;
+  --color-action-hover: #ff9a43;
+  --color-action-pressed: #e56e14;
+  --color-on-action: #20170e;
+  --color-background: #191613;
+  --color-foreground: #fff6e9;
+  --color-muted: #c9bbac;
+  --color-surface: #28211b;
+  --color-field: #211b16;
+  --color-border: #514235;
+  --color-control-border: #9a806a;
+  --color-focus: #ffad67;
+  --color-selected: #3c2b1e;
+}
+
+:root[data-product="prints"][data-theme="light"] {
+  --color-background: #faf6ef;
+  --color-foreground: #211b15;
+  --color-muted: #605347;
+  --color-surface: #f1e9dc;
+  --color-field: #fffdf9;
+  --color-border: #d9cbb9;
+  --color-control-border: #8a7662;
+  --color-accent: #9b3d05;
+  --color-accent-hover: #793000;
+  --color-focus: #9b3d05;
+  --color-selected: #f5ddc4;
+}

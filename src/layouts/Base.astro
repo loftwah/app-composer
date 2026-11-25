@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import "../styles/header.css";
+import "../styles/prints-theme.css";
 import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
 import BuilderContext from "../components/BuilderContext.astro";
@@ -34,13 +35,14 @@ const {
   noindex = noindexFor(Astro.url.hostname, (Astro.response.status ?? 200) < 400),
 } = Astro.props;
 const printsProduct = Astro.props.printsProduct === true;
+const themeKey = printsProduct ? "prints-theme" : "composer-theme";
+const themeColors = printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
+const initialTheme = printsProduct ? "light" : "dark";
 const printsNavigation = [
-  { href: "/#archive", label: "Archive" },
-  { href: "/watch", label: "Watch" },
   { href: "/#paths", label: "Try it" },
-  { href: "/guide", label: "Guide" },
-  { href: "/#share-prints", label: "Share Prints" },
-  { href: "/#downloads", label: "Download" },
+  { href: "/watch", label: "Watch" },
+  { href: "/#share-prints", label: "Share kit" },
+  { href: "/#downloads", label: "Download", primary: true },
 ];
 const composerNavigation = [
   { path: "/", label: "Home" },
@@ -73,7 +75,7 @@ Astro.csp?.insertScriptResource(
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme={initialTheme} data-theme-key={themeKey} data-product={printsProduct ? "prints" : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
@@ -82,7 +84,7 @@ Astro.csp?.insertScriptResource(
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="manifest" href={printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />
-    <meta name="theme-color" content="#17181b" />
+    <meta name="theme-color" content={themeColors[initialTheme]} data-light={themeColors.light} data-dark={themeColors.dark} />
     {printsProduct ? <>
       <link rel="icon" href="/prints-desktop/icons/aperture-16-20261125.png" type="image/png" sizes="16x16" />
       <link rel="icon" href={printsIcon} type="image/png" sizes="32x32" />
@@ -124,7 +126,7 @@ Astro.csp?.insertScriptResource(
     <meta name="twitter:image:alt" content={shareAlt} />
     <meta name="robots" content={noindex ? "noindex,nofollow" : "max-image-preview:large"} />
     <slot name="head" />
-    <script is:inline src="/brand/theme-bootstrap.js"></script>
+    <script is:inline src="/brand/theme-bootstrap.js?v=2"></script>
     <link rel="stylesheet" href="/brand/page-share.css" />
     <link rel="stylesheet" href="/brand/theme-control.css" />
   </head>
@@ -154,8 +156,8 @@ Astro.csp?.insertScriptResource(
       </a>}
       {printsProduct && <>
         <nav class="prints-nav" aria-label="Prints navigation">
-          {printsNavigation.map(({ href, label }) => (
-            <a href={href} class:list={{"prints-download": label === "Download"}} aria-current={printsPagePath === href ? "page" : undefined}>{label}</a>
+          {printsNavigation.map(({ href, label, primary }) => (
+            <a href={href} class:list={{"prints-download": primary}} aria-current={printsPagePath === href ? "page" : undefined}>{label}</a>
           ))}
         </nav>
         <details class="prints-menu">
@@ -164,17 +166,17 @@ Astro.csp?.insertScriptResource(
             <span class="prints-menu-wide">App Composer</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
           </summary>
-          <nav class="prints-menu-panel" aria-label="Prints and App Composer links">
-            <div class="prints-menu-local">
-              {printsNavigation.map(({ href, label }) => (
-                <a href={href} aria-current={printsPagePath === href ? "page" : undefined}>{label}</a>
+          <div class="prints-menu-panel">
+            <nav class="prints-menu-local" aria-label="Prints navigation">
+              {printsNavigation.map(({ href, label, primary }) => (
+                <a href={href} class:list={{"prints-download": primary}} aria-current={printsPagePath === href ? "page" : undefined}>{label}</a>
               ))}
-            </div>
-            <div class="prints-menu-composer">
-              <p>App Composer</p>
+            </nav>
+            <nav class="prints-menu-composer" aria-label="App Composer">
+              <p aria-hidden="true">App Composer</p>
               {composerNavigation.map(({ path, label }) => <a href={`https://composer.loftwah.com${path}`}>{label}</a>)}
-            </div>
-          </nav>
+            </nav>
+          </div>
         </details>
       </>}
       {!printsProduct && !focusedExperience && <nav class="site-navigation" aria-label="Main navigation">
@@ -222,8 +224,8 @@ Astro.csp?.insertScriptResource(
           class="theme-control secondary theme-toggle shrink-0"
           id="theme-toggle"
           aria-label="Dark theme"
-          aria-pressed="true"
-          title="Switch to light theme"
+          aria-pressed={initialTheme === "dark" ? "true" : "false"}
+          title={initialTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
         >
           <svg
             data-theme-glyph="dark"
@@ -265,6 +267,7 @@ Astro.csp?.insertScriptResource(
     {printsProduct ? <footer class="prints-footer">
       <p>Prints Desktop by <a href="https://loftwah.com">Loftwah</a>.</p>
       <nav aria-label="Prints project links">
+        <a href="/guide">Guide</a>
         <a href="/workshop-kit">Workshop kit</a>
         <a href="https://composer.loftwah.com/prints-desktop">App Composer showcase</a>
         <a href="https://github.com/loftwah/prints-desktop">Source and releases</a>
@@ -311,21 +314,20 @@ Astro.csp?.insertScriptResource(
     <script>
       const toggle =
         document.querySelector<HTMLButtonElement>("#theme-toggle")!;
+      const root = document.documentElement;
+      const themeMeta = document.querySelector<HTMLMetaElement>("meta[name=theme-color]");
       function label() {
-        const dark = document.documentElement.dataset.theme !== "light";
+        const dark = root.dataset.theme !== "light";
         toggle.setAttribute("aria-pressed", String(dark));
         toggle.title = dark ? "Switch to light theme" : "Switch to dark theme";
       }
       label();
       toggle.addEventListener("click", () => {
-        const theme =
-          document.documentElement.dataset.theme === "light" ? "dark" : "light";
-        document.documentElement.dataset.theme = theme;
-        document
-          .querySelector("meta[name=theme-color]")
-          ?.setAttribute("content", theme === "dark" ? "#17181b" : "#faf9f7");
+        const theme = root.dataset.theme === "light" ? "dark" : "light";
+        root.dataset.theme = theme;
+        if (themeMeta?.dataset[theme]) themeMeta.content = themeMeta.dataset[theme];
         try {
-          localStorage.setItem("composer-theme", theme);
+          if (root.dataset.themeKey) localStorage.setItem(root.dataset.themeKey, theme);
         } catch {}
         label();
       });
@@ -373,74 +375,130 @@ Astro.csp?.insertScriptResource(
   .focused-experience .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
   .focused-experience .site-header .brand > img { width: 24px; height: 24px; }
   .focused-experience #main { padding-block-start: .65rem; }
-  .prints-product .site-header { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px 17px; min-height: 65px; }
-  .prints-product .site-header .brand { font-size: 1.24rem; min-height: 44px; }
+  .prints-product .site-header {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    gap: 0 clamp(6px, 1.4vw, 20px);
+    min-height: 64px;
+    padding-block: 9px;
+  }
+  .prints-product .site-header .brand {
+    gap: 8px;
+    min-height: 44px;
+    width: fit-content;
+    font-size: 1.22rem;
+    white-space: nowrap;
+  }
   .prints-product .site-header .brand > img { width: 32px; height: 32px; }
-  .prints-nav { align-items: center; flex-wrap: nowrap; gap: clamp(6px, 2vw, 22px); }
-  .prints-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 3px; color: var(--color-muted); }
-  .prints-nav :is(a:hover, a[aria-current="page"]) { color: var(--color-foreground); }
-  .prints-nav .prints-download { padding-inline: 12px; border-radius: 6px; background: #f48120; color: #151515; }
-  .prints-nav .prints-download:hover { background: #ff9a43; color: #151515; }
+  .prints-nav { align-items: center; flex-wrap: nowrap; gap: 5px; }
+  .prints-nav a,
+  .prints-menu-panel a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 6px;
+    color: var(--color-foreground);
+    white-space: nowrap;
+  }
+  .prints-nav :is(a:hover, a[aria-current="page"]),
+  .prints-menu-panel :is(a:hover, a[aria-current="page"]),
+  .prints-menu summary:hover,
+  .prints-menu[open] summary { background: var(--color-surface); }
+  .prints-nav .prints-download,
+  .prints-menu-panel .prints-download {
+    background: var(--color-action);
+    color: var(--color-on-action);
+    font-weight: 700;
+  }
+  .prints-nav .prints-download:hover,
+  .prints-menu-panel .prints-download:hover {
+    background: var(--color-action-hover);
+    color: var(--color-on-action);
+  }
   .prints-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 4px 20px; }
   .prints-footer p { margin: 0; }
   .prints-footer nav a { display: inline-flex; align-items: center; min-height: 44px; }
   .prints-menu { position: relative; margin: 0; }
   .prints-menu summary {
     display: flex;
-    min-height: 44px;
     align-items: center;
     gap: 5px;
-    padding: 0 8px;
-    border: 1px solid var(--color-border);
+    min-height: 44px;
+    padding: 0 9px;
     border-radius: 6px;
     color: var(--color-foreground);
     font-size: .875rem;
     font-weight: 650;
     cursor: pointer;
     list-style: none;
+    white-space: nowrap;
   }
   .prints-menu summary::-webkit-details-marker { display: none; }
   .prints-menu[open] summary svg { transform: rotate(180deg); }
   .prints-menu-panel {
     position: absolute;
-    inset: calc(100% + 6px) 0 auto auto;
+    inset: calc(100% + 8px) 0 auto auto;
     z-index: 8;
-    display: grid;
-    min-width: 176px;
-    max-height: min(600px, calc(100dvh - 86px));
+    width: 268px;
+    max-height: calc(100dvh - 86px);
     overflow-y: auto;
-    padding: 6px;
+    overscroll-behavior: contain;
+    padding: 8px;
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: 9px;
     background: var(--color-background);
-    box-shadow: 0 9px 24px #0003;
+    box-shadow: 0 12px 26px #26140426;
   }
-  .prints-menu-panel a {
-    display: flex;
-    min-height: 44px;
-    align-items: center;
-    padding: 0 10px;
-    border-radius: 5px;
-    color: var(--color-foreground);
+  .prints-menu-composer {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 4px;
   }
-  .prints-menu-composer p { margin: 6px 10px; color: var(--color-muted); font-size: .8rem; font-weight: 700; }
-  .prints-menu-panel :is(a:hover, a[aria-current="page"]) { background: var(--color-surface); }
-  .prints-menu :is(summary, a):focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+  .prints-menu-composer p {
+    grid-column: 1 / -1;
+    margin: 3px 12px 2px;
+    color: var(--color-muted);
+    font-size: .8125rem;
+    font-weight: 650;
+  }
+  .prints-product .site-header :is(summary, a):focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
   .prints-menu-compact, .prints-menu-local { display: none; }
-  @media (max-width: 940px) {
-    :global(html:has(body.prints-product)) { scroll-behavior: auto; }
+
+  @media (max-width: 760px) {
     .prints-product .site-header {
       grid-template-columns: minmax(0, 1fr) auto auto;
-      min-height: 60px;
-      gap: 8px;
-      padding-block: 7px;
+      gap: 0 4px;
+      min-height: 58px;
+      padding-block: 6px;
+      padding-inline: clamp(12px, 4vw, 24px);
     }
-    .prints-product .site-header .brand { gap: 7px; font-size: 1.06rem; }
+    .prints-product .site-header .brand { font-size: clamp(1rem, 4.7vw, 1.13rem); }
     .prints-product .site-header .brand > img { width: 28px; height: 28px; }
     .prints-product #main { padding-block-start: 23px; }
     .prints-nav, .prints-menu-wide { display: none; }
-    .prints-menu-compact, .prints-menu-local { display: block; }
-    .prints-menu-composer { border-top: 1px solid var(--color-border); margin-top: 4px; padding-top: 4px; }
+    .prints-menu { position: static; }
+    .prints-menu summary { border: 1px solid var(--color-border); }
+    .prints-menu-compact { display: block; }
+    .prints-menu-panel {
+      inset-block-start: calc(100% + 5px);
+      inset-inline-end: clamp(12px, 4vw, 24px);
+      width: min(354px, calc(100% - 2 * clamp(12px, 4vw, 24px)));
+      padding: 10px;
+    }
+    .prints-menu-local {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 9px;
+    }
+    .prints-menu-local a { background: var(--color-surface); font-weight: 700; }
+    .prints-menu-local :is(a:hover, a[aria-current="page"]) { background: var(--color-selected); }
+    .prints-menu-local .prints-download { justify-content: center; }
+    .prints-menu-composer { border-top: 1px solid var(--color-border); padding-top: 6px; }
   }
 
 </style>
