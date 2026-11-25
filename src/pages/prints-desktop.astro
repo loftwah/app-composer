@@ -2,13 +2,12 @@
 import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
 import PrintsArchive from '../components/PrintsArchive.astro';
-import { isPrintsHost, printsOrigin } from '../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt } from '../lib/prints-site.mjs';
 import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const site = 'https://github.com/loftwah/prints-desktop';
-const version = '0.4.0';
 const release = `${site}/releases/tag/v${version}`;
 const downloadUrl = (file: string) => `${site}/releases/download/v${version}/prints-desktop-${version}-${file}`;
 const asset = '/prints-desktop/';
@@ -40,8 +39,8 @@ const schema = {
   description={description}
   canonical={canonical}
   printsProduct={product}
-  shareImage="/prints-desktop/workshop-share-20261125/wide.jpg"
-  shareAlt="Prints Desktop. Make a poster. Keep the original. An orange optical iris opens onto a white coastline."
+  shareImage={printsShare}
+  shareAlt={printsShareAlt}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
@@ -150,7 +149,7 @@ const schema = {
     <section class="editorial releases" id="downloads" tabindex="-1" aria-labelledby="downloads-title">
       <div>
         <h2 id="downloads-title">Get Prints Desktop.</h2>
-        <p>Choose your v{version} preview. Every package includes the Loftwah Creative Archive and Afterlight.</p>
+        <p>Choose your v{version} preview. It includes the Loftwah Creative Archive and Afterlight, plus faster Find and safer export and library recovery.</p>
         <p><a class="quiet-link" href={printsOrigin + '/downloads'}>Download statistics <ArrowUpRight size={16} aria-hidden="true" /></a></p>
         <a class="quiet-link" href={release}>Release notes, signing status and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>

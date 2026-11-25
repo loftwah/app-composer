@@ -7,11 +7,12 @@ export const printsDiscovery = /** @type {const} */ ({
   keywords: 'creative archive contact sheet artwork gallery offline download macos linux windows oyster fungi',
 });
 export const printsOrigin = 'https://prints.loftwah.com';
+export const printsPreviewVersion = '0.4.1';
 export const printsFieldKitZip = '/prints-desktop/devrel-20261125/prints-workshop-kit.zip';
 export const legacyPrintsFieldKitZip = '/prints-desktop/devrel-20261125/prints-devrel-field-kit.zip';
 export const printsIcon = '/prints-desktop/icons/aperture-32-20261125.png';
-export const printsShare = '/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg';
-export const printsShareAlt = 'Prints Desktop in cream lettering beside a hand lifting a coastal photograph from a contact sheet under a red darkroom lamp.';
+export const printsShare = '/prints-desktop/workshop-share-20261125/wide.jpg';
+export const printsShareAlt = 'Prints Desktop. Make a poster. Keep the original. A machined orange camera aperture opens onto a white coastline.';
 
 const productRoutes = new Map([
   ['/', '/prints-desktop'],
