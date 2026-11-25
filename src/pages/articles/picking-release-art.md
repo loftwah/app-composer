@@ -20,11 +20,7 @@ The Creative Archive opens offline. I used Find to pull up the album cover, then
 
 I left the comparison, opened **Export original** and saved the cover. In the keyboard replay, Command–F opened Find, Tab reached the comparison button, Space opened it, and Escape took me back to the contact sheet. Command–S opened Save.
 
-The exported JPEG had the same SHA-256 as the published cover bundled with Prints. If you want to check your copy on a Mac, run this from the folder where you saved it.
-
-```sh
-shasum -a 256 higher-than-before.jpg
-```
+The exported JPEG had the same SHA-256 as the published cover bundled with Prints. On a Mac, open the folder where you saved it and run `shasum -a 256 higher-than-before.jpg`.
 
 The expected hash is `06b81e45c8af9ccc7d60e17cd80614c4ff65f58ed5c76e5602b4574aa312b3ac`. The archive records the source and hash for each bundled file, including the artwork from Fighter and the Bubbles poster made from a real Classic clear. [Loftwah Creative Archive provenance](https://github.com/loftwah/prints-desktop/blob/v0.4.2/assets/archive/README.md)
 
