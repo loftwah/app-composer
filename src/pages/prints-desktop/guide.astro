@@ -24,7 +24,7 @@ cargo run --locked --release`;
     <p class="lede">Compare a real album cover and poster, export the version you want to keep, then write a brief for your own piece. Everything through the first draft works offline and needs no account.</p>
     <p><a href={make}>Ready to generate? Make a poster in web Prints <ArrowUpRight size={15} aria-hidden="true" /></a></p>
     <nav aria-label="Guide sections">
-      <a href="#install">Install</a><a href="#offline">Compare and export</a><a href="#draft">Write a draft</a><a href="#connect">Connect Oyster</a><a href="#own">Run it yourself</a>
+      <a href="#install">Install</a><a href="#offline">Compare and export</a><a href="#draft">Write a draft</a><a href="#connect">Connect Oyster</a><a href="#agent">Agent quickstart</a><a href="#own">Run it yourself</a>
     </nav>
 
     <section id="install">
@@ -42,7 +42,7 @@ cargo run --locked --release`;
         </div>
         <div>
           <dt>Windows · x64</dt>
-          <dd>Extract the ZIP and open <code>prints-desktop.exe</code>. The ZIP is unsigned. The build and archive were checked. A Windows desktop launch still needs verification.</dd>
+          <dd>Extract the ZIP and open <code>Prints Desktop.exe</code>. The ZIP is unsigned. The build and archive were checked. A Windows desktop launch still needs verification.</dd>
         </div>
       </dl>
       <details class="build-source">
@@ -87,6 +87,16 @@ cargo run --locked --release`;
       </ol>
       <p>If access fails, confirm the origin, installation ID, scope and selected Computer before retrying. If the client shows the root library only, open web Prints for folder browsing. To clear a stored credential, disconnect and use <strong>Forget saved key</strong>. Revoke the key in Oyster when you finish with it.</p>
       <a class="link" href={`${repo}/blob/main/docs/oyster.md`}>Full connection and troubleshooting notes <ArrowUpRight size={16} aria-hidden="true" /></a>
+    </section>
+
+    <section id="agent">
+      <h2>Agent quickstart</h2>
+      <ol>
+        <li>Follow <a href="https://docs.fungi.computer/guides/call-an-app-from-your-own-server">Fungi’s Oyster MCP setup</a> to connect your approved client to your Oyster host’s <code>/mcp</code> endpoint. Put a revocable App key with <code>apps.read</code> for the Prints installation in the client’s credential settings.</li>
+        <li>Ask your agent to list up to five Prints outputs and report their formats and any available dimensions without downloading them.</li>
+        <li>Check the result against your Prints library. If the library is unavailable, check the selected Computer and library folder before retrying.</li>
+      </ol>
+      <p>For creation or job recovery, open web Prints through your normal sign-in path.</p>
     </section>
 
     <section id="own">
