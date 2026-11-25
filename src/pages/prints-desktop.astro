@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
 import PrintsFirstSteps from '../components/PrintsFirstSteps.astro';
 import PrintsArchive from '../components/PrintsArchive.astro';
-import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt, printsWorkshopShareFolder, printsDownloadShareFolder, printsWorkflowShareFolder } from '../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt, printsWorkshopShareFolder, printsDownloadShareFolder, printsWorkflowShareFolder, printsPosterStudy } from '../lib/prints-site.mjs';
 import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
@@ -50,7 +50,7 @@ const schema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <PrintsArchive guide={`${routePrefix}/make`} watch={`${routePrefix}/watch`} />
+    <PrintsArchive guide={`${routePrefix}/make`} watch={`${routePrefix}/watch`} compare={compare} />
     <PrintsFirstSteps frontDoor />
     <section class="front-door-share" id="share-prints" aria-labelledby="share-prints-title">
       <h2 id="share-prints-title">Share Prints</h2>
@@ -79,16 +79,24 @@ const schema = {
 
     <section class="workflow" aria-labelledby="compare-title">
       <div>
-        <h2 id="compare-title">One record, two formats.</h2>
-        <p>Compare the square <cite>Higher Than Before</cite> cover with its tall release poster. Find another piece with Command+F, star a favourite and export the original straight from the archive.</p>
-        <a class="quiet-link" href={`${routePrefix}/watch`}>See the archive in action <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <h2 id="compare-title">One brief, two layouts.</h2>
+        <p><cite>Last Train Home</cite> starts with one idea. A railway ticket folds into a coastline under a signal lamp. The tall layout fills the feed. The wide layout lets the scene stretch out.</p>
+        <a class="quiet-link" href={`${routePrefix}/make#brief`}>Read the brief <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
-      <figure class="workspace">
-        <a href={compare} aria-label="Open the native side-by-side comparison screenshot">
-          <img src={compare} width="1280" height="790" alt="The Higher Than Before album cover and release poster appear side by side in the native Prints Desktop comparison view." loading="lazy" decoding="async" />
-        </a>
-        <figcaption><strong>Compare</strong><span>LoftwahFM’s cover and release poster · Native macOS capture.</span></figcaption>
-      </figure>
+      <div class="study-pair">
+        <figure class="workspace">
+          <a href={printsPosterStudy + 'wide.jpg'} aria-label="View the full-size Last Train Home wide image">
+            <img src={printsPosterStudy + 'wide.jpg'} width="1200" height="630" alt="Last Train Home. Cream letters beside a folded paper railway ticket shaped like a coast under orange light." loading="lazy" decoding="async" />
+          </a>
+          <figcaption>Wide edition</figcaption>
+        </figure>
+        <figure class="workspace">
+          <a href={printsPosterStudy + 'feed.jpg'} aria-label="View the full-size Last Train Home portrait poster">
+            <img src={printsPosterStudy + 'feed.jpg'} width="1080" height="1350" alt="Last Train Home in cream text above a tiny folded paper coastline on a dark platform." loading="lazy" decoding="async" />
+          </a>
+          <figcaption>Portrait edition</figcaption>
+        </figure>
+      </div>
     </section>
 
     <section class="tour" id="walkthrough" aria-labelledby="walkthrough-title">
@@ -235,6 +243,7 @@ const schema = {
   .prints h2 { margin: 0 0 12px; font-size: clamp(1.8rem, 4vw, 3.2rem); line-height: 1.08; letter-spacing: -.03em; text-wrap: balance; }
   .prints h3 { margin: 0 0 10px; font-size: clamp(1.32rem, 2.5vw, 2rem); line-height: 1.18; letter-spacing: -.02em; }
   .prints p { margin: 0 0 .8em; color: var(--color-muted); max-width: 69ch; text-wrap: pretty; }
+  .study-pair { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: clamp(8px, 2vw, 17px); align-items: start; }
   .editorial, .workflow, .tour-heading { display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1.26fr); gap: 14px clamp(25px, 6vw, 76px); align-items: start; }
   .editorial { border-top: 1px solid var(--prints-rule); padding-top: clamp(20px, 4vw, 40px); }
   .tour { border-top: 1px solid var(--prints-rule); padding-top: clamp(20px, 4vw, 40px); }

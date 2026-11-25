@@ -252,3 +252,22 @@ test("Composer artwork is available by its public ID and exact revision without 
   assert.deepEqual(calls, [detail.artwork.previewUrl]);
   assert.match(calls[0], /^https:\/\/composer\.loftwah\.com\/campaign\//);
 });
+
+test("the Prints archive permalink exposes the finished poster and product homepage", async () => {
+  const assetId = "prints-desktop-creative-archive";
+  const detail = await publicShareArtwork(assetId, {
+    fetch: async () => assert.fail("Prints artwork is committed in Composer"),
+  });
+  assert.equal(detail.status, 200);
+  assert.equal(detail.artwork.projectUrl, "https://prints.loftwah.com/");
+  assert.equal(detail.artwork.previewUrl, "https://composer.loftwah.com/campaign/prints-desktop-20261125/workshop-home-feed.jpg");
+  const result = await resolveShareCatalogueAsset(assetId, {
+    fetch: async (url) => {
+      assert.equal(url, detail.artwork.previewUrl);
+      return new Response(Uint8Array.of(0xff, 0xd8, 0xff, 0xd9), {
+        headers: { "content-type": "image/jpeg" },
+      });
+    },
+  });
+  assert.equal(result.ok, true);
+});

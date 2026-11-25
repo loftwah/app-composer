@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import PrintsFirstSteps from '../../components/PrintsFirstSteps.astro';
 import { ArrowDown, ArrowDownToLine, ArrowUpRight, Clipboard } from '@lucide/astro';
 import proof from '../../../public/prints-desktop/workshop-20261125/proof.json';
-import { isPrintsHost, printsOrigin, printsWorkshopShareFolder as workshopArt } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsWorkshopShareFolder as workshopArt, printsPosterStudy } from '../../lib/prints-site.mjs';
 
 const title = 'Make a poster. Keep the original.';
 const description = 'A beginner workshop for making a campaign image. Copy a poster brief, inspect images made through Oyster and Workers AI, and choose a browser, terminal or MCP workflow.';
@@ -21,9 +21,9 @@ Use two contrasting ink colours, one focal point per side, and a simple backgrou
 Typeset “[your headline]” at the top. Set “[short left choice]” and “[short right choice]” in large, high-contrast type. Use only those three lines. Keep all lettering comfortably inside the edges.`;
 const mcp = 'return await env.PRINTS.listOutputs({});';
 const cli = 'npx @fungi.computer/oyster@0.59.0 try';
-const example = `Create a complete 4:5 poster for Prints Desktop. An orange aluminium camera aperture opens onto a tiny white paper coastline. Use hard side lighting, deep ink shadows and warm white type.
+const example = `Create a 4:5 poster for an imaginary late-night railway service. A small off-white ticket folds into a coastline. One signal-orange lamp catches its torn edge on a dark station platform.
 
-Render the artwork and lettering together. Set only “PRINTS DESKTOP”, “MAKE A POSTER.”, “KEEP THE ORIGINAL.” and “prints.loftwah.com”. Leave enough room for the words to read at 300 pixels wide.`;
+Generate the artwork and lettering together. Set only “LAST TRAIN HOME” in cream. Keep the words legible at 300 pixels wide. For a link preview, make a separate wide version and let the coastline stretch across it.`;
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -49,10 +49,10 @@ const schema = {
         </div>
       </div>
       <figure class="featured">
-        <a href={workshopArt + 'feed.jpg'}>
-          <img src={workshopArt + 'feed.jpg'} width="1080" height="1350" fetchpriority="high" decoding="async" alt="Prints Desktop. Make a poster. Keep the original. An orange optical iris opens onto a folded paper coastline." />
+        <a href={printsPosterStudy + 'feed.jpg'}>
+          <img src={printsPosterStudy + 'feed.jpg'} width="1080" height="1350" fetchpriority="high" decoding="async" alt="Last Train Home. A folded white ticket makes a tiny coastline under an orange signal lamp." />
         </a>
-        <figcaption><a href={workshopArt + 'prints-workshop-social-kit.zip'} download>Get the workshop posters <ArrowDownToLine size={15} aria-hidden="true" /></a></figcaption>
+        <figcaption><a href={printsPosterStudy + 'wide.jpg'}>See the wide version <ArrowUpRight size={15} aria-hidden="true" /></a></figcaption>
       </figure>
     </header>
 
@@ -65,10 +65,10 @@ const schema = {
     <section id="brief" class="chapter" aria-labelledby="brief-title">
       <div>
         <h2 id="brief-title">Give the image a job.</h2>
-        <p>The workshop poster uses one object, one action and a short headline. The orange aperture opens onto a paper coastline. ImageGen rendered the artwork and lettering together.</p>
+        <p>Last Train Home uses one object, one light and three words. The curled ticket becomes a coastline. Both layouts were generated with their lettering in the image.</p>
         <p>For your own brief, pick a subject you can describe in one sentence. Choose the exact words the image needs to carry.</p>
         <details>
-          <summary>Read a brief based on the Prints poster</summary>
+          <summary>Read the Last Train Home brief</summary>
           <p id="campaign-prompt">{example}</p>
           <button type="button" data-copy-target="campaign-prompt" hidden><Clipboard size={16} aria-hidden="true" /> Copy the example brief</button>
           <p class="status" role="status" data-copy-status></p>
@@ -79,7 +79,7 @@ const schema = {
         <textarea id="poster-brief" rows="12" spellcheck="false">{starter}</textarea>
         <div class="actions">
           <button type="button" data-copy-target="poster-brief" hidden><Clipboard size={16} aria-hidden="true" /> Copy prompt</button>
-          <a href={workshopArt + 'prints-workshop-social-kit.zip'} download><ArrowDownToLine size={16} aria-hidden="true" /> Download the example kit</a>
+          <a href={workshopArt + 'prints-workshop-social-kit.zip'} download><ArrowDownToLine size={16} aria-hidden="true" /> Download the Prints sharing pack</a>
         </div>
         <p class="status" role="status" data-copy-status></p>
       </div>
@@ -100,7 +100,7 @@ const schema = {
           <li>Inspect the image in Prints and keep the original in your gallery. Export a 4:5 portrait for the feed and prepare a separate 1200 × 630 image for link previews. You can use <a href="https://media.loftwah.com/tools/images">Media Studio Image Tools</a> to resize your work. Keep the prompt, model and settings with your project. Share the strongest take and its credit.</li>
         </ol>
         <p>If a preview or save fails, check Activity first. Use the existing attempt’s Retry or Resume to recover retained bytes.</p>
-        <div class="actions"><a href="https://docs.fungi.computer/guides/make-and-save-images">Open the official Prints walkthrough <ArrowUpRight size={15} aria-hidden="true" /></a><a href={workshopArt + 'wide.jpg'}>See the wide share card <ArrowUpRight size={15} aria-hidden="true" /></a></div>
+        <div class="actions"><a href="https://docs.fungi.computer/guides/make-and-save-images">Open the official Prints walkthrough <ArrowUpRight size={15} aria-hidden="true" /></a><a href={printsPosterStudy + 'provenance.json'}>Read the study’s provenance <ArrowUpRight size={15} aria-hidden="true" /></a></div>
         <details>
           <summary>Try it in a terminal</summary>
           <p>With Node 24.20.0 and Git, open an empty folder and start the local Oyster trial. Use <code>node --version</code> to check your runtime. This version of the Oyster desktop publisher expects that exact Node release. It lets you explore the desktop and Apps without a Cloudflare account. Image inference in Prints needs a deployed host with Workers AI configured.</p>
