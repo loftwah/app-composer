@@ -1,49 +1,20 @@
 ---
-import { ArrowUpRight, Clipboard } from '@lucide/astro';
-import { printsOrigin } from '../lib/prints-site.mjs';
-const paths = [
-  {
-    key: 'browse', title: 'I want to open the app',
-    detail: 'See what an original looks like alongside its release cut. The desktop archive, search and export work offline.',
-    href: printsOrigin + '/#downloads', action: 'Get the desktop preview',
-    prompt: 'Build a small contact sheet from three images already in my project. Use the original files. Give me one line of provenance for each, then recommend which should be my lead image and why. Keep the originals byte-for-byte.',
-  },
-  {
-    key: 'poster', title: 'I want to make a poster',
-    detail: 'Start with a finished brief. Use any image tool you already have, then open the result in Prints Desktop.',
-    href: '#brief', action: 'Read the image-making steps',
-    prompt: 'Create a 4:5 editorial poster for an imaginary night train called LAST TRAIN HOME. A single cream ticket curls into a coastline on a black station floor. One signal-orange lamp lights the fold. Make the exact words “LAST TRAIN HOME” large enough to read at 300 pixels wide. Use no other lettering. Keep the main object and words inside the middle 80 percent.',
-  },
-  {
-    key: 'agents', title: 'I want my AI agent to help',
-    detail: 'Start with a read-only library call on a Prints installation you can access. The agent can help shortlist work with its provenance.',
-    href: '#run', action: 'See the MCP walkthrough',
-    prompt: 'Use the authorised Prints tool to read the selected library. List up to five images with their filename, dimensions and any recorded brief or model. Pick two with different crops and explain which is better for a link preview. If the library is unavailable, tell me which folder or permission to check. Keep the run read-only.',
-  },
-  {
-    key: 'shiitake', title: 'I use Shiitake',
-    detail: 'Run the terminal agent in a project folder to develop the brief, then send the draft to your own approved Prints host when you’re ready.',
-    href: 'https://docs.fungi.computer/guides/use-the-terminal/', action: 'Open the Shiitake quickstart',
-    prompt: 'Read the public project README and draft prints-brief.md in this folder. Write a single image prompt with one visual joke, exactly one headline, a 4:5 feed crop and a 1200×630 link crop. Add a three-item review list for spelling, contrast and credit. Draft the file locally and keep inference off.',
-  },
-  {
-    key: 'local', title: 'I just want to keep my own files',
-    detail: 'Download the portable preview and use the local archive or import your own images. This workflow needs no wallet, account or generation credits.',
-    href: printsOrigin + '/guide', action: 'Follow the offline guide',
-    prompt: 'Write a short offline workflow for keeping the originals of my next three images. Give each one a folder name, a brief.txt with the source and intended use, and a place for one square and one landscape export. Preserve all original filenames and files.',
-  },
-  {
-    key: 'builders', title: 'I’m building with AI',
-    detail: 'Run the included Worker with a fictional brief. Try Gateway on your own account when you want visibility into a real model request.',
-    href: printsOrigin + '/workshop-kit#lab', action: 'Run the Worker lab',
-    prompt: 'Help me add a POSTER brief to the local workshop Worker. Return a caption and dimensions for feed and link outputs. Include one valid request for each format and one rejected input. Keep the rehearsal deterministic and report zero inference calls. Then list the authorised account settings needed for a separate live Gateway check.',
-  },
-] as const;
+import { ArrowDownToLine, ArrowUpRight, Clipboard } from '@lucide/astro';
+import { printsFirstSteps as paths } from '../lib/prints-first-steps.mjs';
+
+const shares = '/prints-desktop/workflow-share-20261125/';
+const posters = [
+  { label: 'Your files. Your desk.', file: 'local.jpg', alt: 'A safety-orange lens projects a tiny paper coastline on a desk beside a storage drive.' },
+  { label: 'Give your agent a library.', file: 'agent.jpg', alt: 'A small orange lens-shaped robot inspects a folded paper coastline with a magnifier.' },
+  { label: 'One Worker. Two formats.', file: 'worker.jpg', alt: 'An orange mechanical press sends two paper coastlines down separate rails.' },
+];
+
 ---
 <section class="paths" id="paths" aria-labelledby="paths-title">
   <header>
     <h2 id="paths-title">How do you want to work?</h2>
     <p>Pick a first step. Each recipe has a prompt you can copy into the agent or image tool you already use.</p>
+    <a class="share-link" href={shares + 'prompts.md'} download>Download all six prompts <ArrowDownToLine size={16} aria-hidden="true" /></a>
   </header>
   <div class="path-list">
     {paths.map(({ key, title, detail, href, action, prompt }) => (
@@ -60,6 +31,15 @@ const paths = [
       </details>
     ))}
   </div>
+  <details class="workflow-shares">
+    <summary>Share a workflow</summary>
+    <a class="share-link" href={shares + 'prints-workflow-social-kit.zip'} download>Download the workflow pack <ArrowDownToLine size={16} aria-hidden="true" /></a>
+    <ul aria-label="Workflow share posters">
+      {posters.map(({ label, file, alt }) => <li>
+        <a href={shares + file} download><img src={shares + file} alt={alt} width="1080" height="1350" loading="lazy" decoding="async" /><span>{label} <ArrowDownToLine size={15} aria-hidden="true" /></span></a>
+      </li>)}
+    </ul>
+  </details>
 </section>
 <style>
   .paths { margin-block: clamp(30px,6vw,76px); }
@@ -75,5 +55,12 @@ const paths = [
   .path-body textarea { box-sizing: border-box; display: block; width: 100%; padding: 10px; resize: vertical; font: inherit; background: var(--color-surface); color: var(--color-foreground); border: 1px solid var(--color-border); border-radius: 5px; }
   .path-body button { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; margin-top: 7px; padding: 0 10px; border: 1px solid var(--color-border); color: var(--color-foreground); background: var(--color-surface); cursor: pointer; border-radius: 5px; }
   .path-body button[hidden] { display: none; }
+  .share-link { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; font-weight: 650; }
+  .workflow-shares { margin-top: 14px; border-block-start: 1px solid var(--color-border); }
+  .workflow-shares summary { cursor: pointer; min-height: 44px; padding-block: 10px; font-weight: 700; }
+  .workflow-shares ul { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,160px),1fr)); gap: 12px; padding: 0; list-style: none; }
+  .workflow-shares a { font-weight: 650; }
+  .workflow-shares img { width: 100%; height: auto; display: block; border-radius: 5px; }
+  .workflow-shares li span { display: flex; min-height: 44px; align-items: center; gap: 6px; }
   @media (max-width: 720px) { .path-list { grid-template-columns: minmax(0,1fr); } }
 </style>
