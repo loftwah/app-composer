@@ -1,0 +1,48 @@
+{
+  "project": "Prints Desktop",
+  "date": "2026-11-25",
+  "homepage": "https://prints.loftwah.com/",
+  "method": "OpenAI ImageGen rendered each poster and its lettering together. The homepage URL was corrected with ImageGen. Exports were cropped, resized and compressed.",
+  "posters": [
+    {
+      "path": "/prints-desktop/workshop-share-home-20261125/feed.jpg",
+      "sha256": "3d91d5b79a68132a14a4e5029cc9b8038a75d8f611a7b931ca3e2034c2868127"
+    },
+    {
+      "path": "/prints-desktop/workshop-share-home-20261125/story.jpg",
+      "sha256": "fcdb338827152f1b0ea7da790ec19e6cc94a1d0d7270e078f42bafb3247e8581"
+    },
+    {
+      "path": "/prints-desktop/workshop-share-home-20261125/wide.jpg",
+      "sha256": "dcbf5d57de38af7412024c7d953593222a6357e600aca17e22563be841ae0aee"
+    },
+    {
+      "path": "/prints-desktop/workflow-share-home-20261125/agent.jpg",
+      "sha256": "b010670ed0eba4bb33dec965f3ae96eabed36d69884c5ed4d976a87cce270919"
+    },
+    {
+      "path": "/prints-desktop/workflow-share-home-20261125/local.jpg",
+      "sha256": "925f5eb52ac374c85f3132f3e6cacd134516e6eacec9dcc9541215d2151d8432"
+    },
+    {
+      "path": "/prints-desktop/workflow-share-home-20261125/worker.jpg",
+      "sha256": "7c06d0f5f1c189da265b0257d80c5b531c5fa4f2f6e408c7d56e1af7af41053f"
+    },
+    {
+      "path": "/prints-desktop/download-share-home-20261125/feed.jpg",
+      "sha256": "3ab314b5db73396a11d2595ef39a915d72d34178ff7f497c835294ffcc7cba4b"
+    },
+    {
+      "path": "/prints-desktop/download-share-home-20261125/square.jpg",
+      "sha256": "cac2c34a26ff7995035330d5a0f5bee9d54160acdcdd8cf8fedef12bb36d17db"
+    },
+    {
+      "path": "/prints-desktop/download-share-home-20261125/story.jpg",
+      "sha256": "134583dc333f0a6a02edcf8515f1fe4d187185964360e6bc123ba665f82154a3"
+    },
+    {
+      "path": "/prints-desktop/download-share-home-20261125/wide.jpg",
+      "sha256": "ac6a6de877d7e58bc8a84581c0a55dc4a5ddddda31bdaa907459cd0627fa9b2b"
+    }
+  ]
+}

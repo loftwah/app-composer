@@ -24,7 +24,7 @@ const packs = [
 ];
 const product = isPrintsHost(Astro.url);
 const routePrefix = product ? '' : '/prints-desktop';
-const description = 'Explore the Loftwah Creative Archive and download Prints Desktop for macOS, Windows or Linux. Browse local images, save prompt drafts and export originals. Connect your Prints library through Oyster.';
+const description = 'Explore the Loftwah Creative Archive and download Prints Desktop for macOS, Windows or Linux. Compare artwork, save favourites and export original files. Start offline or connect your Prints library through Oyster.';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -50,11 +50,11 @@ const schema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <PrintsArchive guide={`${routePrefix}/make`} story={`${routePrefix}/story`} />
+    <PrintsArchive guide={`${routePrefix}/make`} watch={`${routePrefix}/watch`} />
     <PrintsFirstSteps frontDoor />
     <section class="front-door-share" id="share-prints" aria-labelledby="share-prints-title">
       <h2 id="share-prints-title">Share Prints</h2>
-      <p>Send people straight to prints.loftwah.com. Each pack includes images, captions and alt text.</p>
+      <p>Choose a poster for the workshop, a workflow, or the dated download snapshot. Each pack includes captions and alt text.</p>
       <ul>
         {packs.map(({ label, url }) => <li><a href={url} download>{label} <ArrowDownToLine size={16} aria-hidden="true" /></a></li>)}
       </ul>
@@ -81,7 +81,7 @@ const schema = {
       <div>
         <h2 id="compare-title">One record, two formats.</h2>
         <p>Compare the square <cite>Higher Than Before</cite> cover with its tall release poster. Find another piece with Command+F, star a favourite and export the original straight from the archive.</p>
-        <a class="quiet-link" href={`${routePrefix}/watch`}>Watch the 15-second archive tour <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a class="quiet-link" href={`${routePrefix}/watch`}>See the archive in action <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
       <figure class="workspace">
         <a href={compare} aria-label="Open the native side-by-side comparison screenshot">
@@ -187,6 +187,7 @@ const schema = {
       <p>Built by Loftwah with Rust and Anomaly’s Rune. Afterlight is original ImageGen artwork. Oyster, Prints and Darkroom are projects from Fungi.</p>
       <div>
         <a class="quiet-link" href="https://composer.loftwah.com/share?tag=prints-desktop">Explore the Prints collection in Share <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a class="quiet-link" href={`${routePrefix}/story`}>Why we built Prints <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href={`${site}/blob/main/PRODUCT.md`}>Product direction <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href={site}>Source on GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href="https://github.com/loftwah/app-composer/issues/1292">Follow the build <ArrowRight size={16} aria-hidden="true" /></a>
@@ -202,12 +203,12 @@ const schema = {
   .front-door-share a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; }
 
   .prints {
-    --prints-accent: #ffb08c;
-    --prints-screen: #19151f;
+    --prints-accent: #ffad69;
+    --prints-screen: #191919;
     --prints-rule: var(--color-border);
   }
 
-  :global([data-theme="light"]) .prints { --prints-accent: #96371e; }
+  :global([data-theme="light"]) .prints { --prints-accent: #993c00; }
   .prints :is(section, details) { scroll-margin-top: 5rem; }
   .prints .product-link { margin-top: 12px; }
   .native-heading { margin-bottom: 15px; }

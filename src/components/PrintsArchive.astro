@@ -2,7 +2,7 @@
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 import { isPrintsHost, printsIcon } from '../lib/prints-site.mjs';
 
-const { guide, story } = Astro.props;
+const { guide, watch } = Astro.props;
 const printsProduct = isPrintsHost(Astro.url);
 const entries = [
   {
@@ -37,15 +37,15 @@ const entries = [
 <header class="archive" id="archive" tabindex="-1" aria-labelledby="archive-title">
   <div class="archive-intro">
     {!printsProduct && <p class="signature"><img src={printsIcon} width="32" height="32" alt="" /> Prints Desktop</p>}
-    <h1 id="archive-title"><span>A desktop for</span> <span>the work you keep.</span></h1>
-    <p class="lede">Browse the Loftwah Creative Archive, compare different cuts of the same artwork, and take the original with you. Then bring in work of your own.</p>
+    <h1 id="archive-title"><span>Compare artwork.</span> <span>Keep the original.</span></h1>
+    <p class="lede">Put an album cover beside its release poster, see what changed, and export the exact original. Explore the Loftwah Creative Archive or bring your own images.</p>
     <div class="archive-actions">
       <a class="download" href="#downloads"><ArrowDownToLine size={18} aria-hidden="true" /> Download preview</a>
-      <a href="#paths">Choose what to try <ArrowRight size={17} aria-hidden="true" /></a>
+      <a href="#paths">Try a workflow <ArrowRight size={17} aria-hidden="true" /></a>
     </div>
     <div class="archive-links">
       <a href={guide}>Poster workshop</a>
-      <a href={story}>Launch story</a>
+      <a href={watch}>Watch the 15-second demo</a>
       <a href="#afterlight">Play Afterlight</a>
     </div>
   </div>
@@ -64,7 +64,8 @@ const entries = [
 <style>
   .archive { display: grid; grid-template-columns: minmax(0,.88fr) minmax(0,1.12fr); gap: 26px clamp(26px,5vw,76px); align-items: center; scroll-margin-top: 5rem; }
   .signature { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; font-weight: 700; }
-  .archive h1 { margin: 0 0 18px; max-width: 13ch; font-size: clamp(3.1rem,6.7vw,6rem); line-height: .99; font-weight: 700; letter-spacing: -.035em; text-wrap: balance; }
+  .archive h1 { margin: 0 0 18px; max-width: 16ch; font-size: clamp(2.5rem,4.2vw,4.4rem); line-height: .99; font-weight: 700; letter-spacing: -.035em; text-wrap: balance; }
+  .archive h1 span { display: block; }
   .lede { font-size: clamp(1rem,1.7vw,1.23rem); line-height: 1.53; max-width: 37ch; margin: 0 0 20px; }
   .archive-actions,.archive-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
   .archive-actions a,.archive-links a { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; font-size: .9rem; }
@@ -92,7 +93,6 @@ const entries = [
   }
   @media(max-width: 620px) {
     .archive h1 { max-width: none; margin-bottom: 12px; font-size: clamp(1.8125rem,8.7vw,2.875rem); line-height: 1.04; }
-    .archive h1 span { display: block; }
     .archive .lede { margin-bottom: 13px; }
     .archive-actions,.archive-links { column-gap: 10px; }
     .archive-actions .download { padding-inline: 9px; }

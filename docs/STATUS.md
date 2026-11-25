@@ -6,12 +6,13 @@ Reviewed 25 October 2026 and updated 19 November 2026 AEDT. [Issue #11](https://
 
 [prints.loftwah.com](https://prints.loftwah.com/) is the canonical product home.
 It has its own Prints navigation, aperture icons, sitemap and practical guide.
+The homepage offers six prompts, the workshop and three downloadable share packs.
 The [Composer showcase](https://composer.loftwah.com/prints-desktop) and
 [Share posters](https://composer.loftwah.com/share?tag=prints-desktop) remain
 public. The [watch page](https://prints.loftwah.com/watch) carries native
 captures of the Creative Archive and the previous Afterlight and Oyster flow.
 
-The independent [v0.4.0 preview](https://github.com/loftwah/prints-desktop/releases/tag/v0.4.0)
+The independent [v0.4.1 preview](https://github.com/loftwah/prints-desktop/releases/tag/v0.4.1)
 starts in the Loftwah Creative Archive with real work from LoftwahFM, Fighter
 and Bubbles. Native Find, the album cover and poster comparison, Favourites
 and exact original export were exercised in the Mac release. Follow the
