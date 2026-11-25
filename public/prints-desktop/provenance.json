@@ -66,13 +66,5 @@
       "archive-vertical-v0.4.0.mp4": "Portrait edit of the same Rune replay with open captions and first-party Archive artwork."
     }
   },
-  "darkroom_campaign": {
-    "date": "2026-11-25",
-    "method": "OpenAI ImageGen built-in image generation, including the lettering. Centre-cropped and compressed to 1200 × 630 JPEG and resized to a 480 × 252 WebP thumbnail.",
-    "description": "Editorial campaign artwork of a hand selecting a photograph of an Australian coastal wave from a contact sheet under a red safelight. The scene is an imagined darkroom.",
-    "assets": [
-      "/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg",
-      "/campaign/prints-desktop-20261125/darkroom-share-480-20261125.webp"
-    ]
-  }
+  "darkroom_campaign": "https://composer.loftwah.com/campaign/prints-desktop-20261125/provenance.json"
 }
