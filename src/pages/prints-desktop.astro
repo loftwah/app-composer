@@ -50,7 +50,7 @@ const schema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <PrintsArchive guide={`${routePrefix}/guide`} story={`${routePrefix}/story`} />
+    <PrintsArchive guide={`${routePrefix}/make`} story={`${routePrefix}/story`} />
     {!product && <p class="product-link"><a class="quiet-link" href={printsOrigin}>Visit prints.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a></p>}
     <section id="afterlight" aria-label="Try the Afterlight contact sheet">
       <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />

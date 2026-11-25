@@ -10,6 +10,7 @@ const title = 'Your first project in Prints Desktop';
 const description = 'Compare two published images, save a favourite, export the original and write your first prompt draft offline. Then connect a Prints library if you have one.';
 const watch = product ? '/watch' : '/prints-desktop/watch';
 const story = product ? '/story' : '/prints-desktop/story';
+const make = product ? '/make' : '/prints-desktop/make';
 ---
 
 <Base title={title} description={description} canonical={printsOrigin + '/guide'} printsProduct={product} shareImage={printsShare} shareAlt={printsShareAlt}>
@@ -17,6 +18,7 @@ const story = product ? '/story' : '/prints-desktop/story';
     <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
     <h1>{title}</h1>
     <p class="lede">Compare a real album cover and poster, export the version you want to keep, then write a brief for your own piece. Everything through the first draft works offline and needs no account.</p>
+    <p><a href={make}>Ready to generate? Make a poster in web Prints <ArrowUpRight size={15} aria-hidden="true" /></a></p>
     <nav aria-label="Guide sections">
       <a href="#install">Install</a><a href="#offline">Compare and export</a><a href="#draft">Write a draft</a><a href="#connect">Connect Oyster</a><a href="#own">Run it yourself</a>
     </nav>
