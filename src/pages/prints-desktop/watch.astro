@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PrintsWalkthrough from '../../components/PrintsWalkthrough.astro';
-import { isPrintsHost, printsOrigin, printsShare } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
 import { printsAfterlightVideo, printsArchiveVideo } from '../../lib/prints-video.mjs';
 import { ArrowLeft } from '@lucide/astro';
 
@@ -23,7 +23,7 @@ const video = {
 };
 ---
 
-<Base title={title} description={description} canonical={canonical} printsProduct={product} shareImage={printsShare} shareAlt="Prints Desktop presents the Loftwah Creative Archive.">
+<Base title={title} description={description} canonical={canonical} printsProduct={product} shareImage={printsShare} shareAlt={printsShareAlt}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(video)} />
   <article class="watch">
     <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>

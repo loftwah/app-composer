@@ -5,6 +5,7 @@ import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {pathToFileURL} from "node:url";
 import {apps} from "../src/lib/apps.ts";
+import {printsDiscovery} from "../src/lib/prints-site.mjs";
 import {appDeviceSupport} from "../src/lib/app-device-support.ts";
 import {deviceSummary} from "../src/lib/device-support.mjs";
 
@@ -204,9 +205,12 @@ test("app rows carry the shared device-support note before opening", () => {
   assert.match(controller, /if \(item\.device\)/, "only app rows with a note render one");
 });
 
-test("launcher shell owns one registry and only the server-derived viewer state", () => {
+test("launcher shell adds only the local Prints entry and server-derived viewer state", () => {
   const component = read("src/components/AppLauncher.astro");
-  assert.doesNotMatch(component, /data-destination/, "the Astro shell must not author a second destination list");
+  assert.equal(component.match(/data-destination/g)?.length, 1);
+  assert.match(component, /data-local-launcher-group="apps" data-keywords=\{printsDiscovery\.keywords\}/);
+  assert.match(component, /href=\{printsDiscovery\.href\}/);
+  assert.ok(!destinations.some(item => item.path === printsDiscovery.href), "the shared registry must not duplicate the local row");
   assert.match(component, /Astro\.locals\.user/);
   assert.match(component, /data-viewer=\{member \? 'member' : 'public'\}/);
   assert.match(component, /data-launcher-recents=\{member \? '\/api\/launcher\/recents' : undefined\}/);

@@ -19,9 +19,8 @@ test('the launcher study mounts the maintained controller once', () => {
   assert.match(component, /<script is:inline src="\/brand\/launcher\.js" defer><\/script>/);
   assert.doesNotMatch(component, /type="module" src="\/brand\/launcher\.js"/);
   assert.match(controller, /querySelector<HTMLDialogElement>\("#app-navigation"\)/);
-  // One registry: the shell does not author destination rows, and the controller
-  // keeps its data and pure ranking functions in explicit testable blocks.
-  assert.doesNotMatch(component, /data-destination/);
+  // Both shells use the same local row contract and shared controller.
+  assert.match(component, /data-destination data-local-launcher-group="apps"/);
   assert.match(controller, /\/\* launcher-registry:start \*\//);
   assert.match(controller, /\/\* launcher-logic:start \*\//);
   assert.match(component, /data-viewer=\{member \? 'member' : 'public'\}/);

@@ -1,10 +1,9 @@
 ---
 import { Grid3x3, X, ArrowRight } from '@lucide/astro';
+import { printsDiscovery, printsIcon } from '../lib/prints-site.mjs';
 // The Apps menu follows the shared launcher contract documented in
-// src/browser/launcher.ts (styles in public/brand/launcher.css, linked once in
-// the base layout). The controller is the one destination registry; this shell
-// supplies the session-scoped viewer state and the recents endpoint, never a
-// second list or an owner identifier.
+// src/browser/launcher.ts. The shared controller supplies the registry and
+// handles entries specific to the Composer shell through its local row contract.
 const member = Boolean(Astro.locals.user);
 ---
 <div class="app-launcher">
@@ -17,7 +16,14 @@ const member = Boolean(Astro.locals.user);
   </div>
   <label>Find an app, task or project<input type="search" placeholder="Create, edit, check, publish…" autocomplete="off"/></label>
   <p class="small" role="status" aria-live="polite"></p>
-  <ul></ul>
+  <ul>
+   <li data-destination data-local-launcher-group="apps" data-keywords={printsDiscovery.keywords}>
+    <a href={printsDiscovery.href}>
+     <img src={printsIcon} width="40" height="40" alt="" />
+     <span>{printsDiscovery.name}<small>Browse the archive and get the desktop preview.</small></span>
+    </a>
+   </li>
+  </ul>
   <a class="launcher-all" href="/apps">Browse all apps <ArrowRight size={18} aria-hidden="true"/></a>
  </dialog>
 </div>
