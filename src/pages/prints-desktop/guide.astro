@@ -30,7 +30,7 @@ const description = 'Install the Prints Desktop preview, make your first offline
 
     <section id="offline">
       <h2>Make your first contact sheet</h2>
-      <p>Pick an Afterlight study, inspect it full-size and export the original. Then drag a JPEG, PNG or WebP into the workspace. Favourite it or save its notes as a prompt draft. Local originals, favourites and drafts stay on your device. Offline work is free and needs no account.</p>
+      <p>On the archive preview, open Higher Than Before and choose Compare formats to see the album cover beside its release poster. Use Command+F to find Fighter’s Before the Bell. You can also open Afterlight, pick a study and inspect it at full size. Drag a JPEG, PNG or WebP into the workspace to add your own work. Favourite it or save its notes as a prompt draft. Local originals, favourites and drafts stay on your device. Offline work is free and needs no account.</p>
       <a class="link" href={`${home}#afterlight`}>Try the browser contact sheet <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
@@ -41,14 +41,14 @@ const description = 'Install the Prints Desktop preview, make your first offline
         <li>In Prints Desktop, open <strong>Connect Prints</strong>. Enter the HTTPS origin, the installation ID and the key. Leave credential saving off for a one-off connection.</li>
         <li>Open a print and export the original. Folder and model discovery depend on the installation. Use <strong>Create in web Prints</strong> for generation and job recovery.</li>
       </ol>
-      <p>If a key fails, verify the origin and installation ID. Use the system credential store to forget the saved connection, and revoke the key from Oyster if it’s no longer needed.</p>
+      <p>If a key fails, verify the origin and installation ID. Use Forget saved key in the desktop to clear its credential, and revoke the key from Oyster when it’s no longer needed.</p>
       <a class="link" href={`${repo}/blob/main/docs/oyster.md`}>Full connection and troubleshooting notes <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
     <section id="own">
       <h2>Run it yourself</h2>
       <p><a href="https://docs.fungi.computer/">Fungi</a> documents the ecosystem, including its <a href="https://docs.fungi.computer/guides/use-the-terminal/">Shiitake</a> terminal agent. <a href="https://docs.fungi.computer/oyster">Oyster</a> hosts <a href="https://docs.fungi.computer/apps/prints">web Prints</a> and manages access. Darkroom handles provider operations. Your chosen installation and providers set available models and charges. A supported self-hosted setup can use your own <a href="https://developers.cloudflare.com/workers-ai/">Cloudflare Workers AI</a> account.</p>
-      <p>Follow the upstream installation guide for your chosen version before provisioning resources. To build the desktop app, start with the repository’s <a href={repo}>Rust build instructions</a> and the pinned <a href="https://github.com/anomalyco/rune">Rune</a> dependency. App Composer is a showcase and optional publishing destination. The desktop talks directly to your installation.</p>
+      <p>Try <a href="https://docs.fungi.computer/oyster-quickstart">Oyster locally</a> first. The <a href="https://docs.fungi.computer/guides/run-your-own-oyster/">owned Cloudflare deployment guide</a> lists the Workers Paid plan and required services. Check <a href="https://docs.fungi.computer/reference/versions-that-work-together/">compatible versions</a> before provisioning. To build the desktop app, start with the repository’s <a href={repo}>Rust build instructions</a> and the pinned <a href="https://github.com/anomalyco/rune">Rune</a> dependency. App Composer is a showcase and optional publishing destination. The desktop talks directly to your installation.</p>
     </section>
   </article>
 </Base>

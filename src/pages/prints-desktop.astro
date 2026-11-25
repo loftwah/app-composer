@@ -7,18 +7,20 @@ import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const site = 'https://github.com/loftwah/prints-desktop';
-const version = '0.3.1';
+const version = '0.4.0';
+const earlier = '0.3.1';
 const release = `${site}/releases/tag/v${version}`;
-const downloadRoot = `${site}/releases/download/v${version}/prints-desktop-${version}`;
+const downloadUrl = (file: string, edition: string) => `${site}/releases/download/v${edition}/prints-desktop-${edition}-${file}`;
 const asset = '/prints-desktop/';
-const afterlight = `${asset}afterlight-native-v0.3.1.webp`;
+const archive = `${asset}archive-native-v0.4.0.webp`;
+const compare = `${asset}archive-compare-v0.4.0.webp`;
 const local = `${asset}local-library-v0.3.1.webp`;
 const hosted = `${asset}oyster-library-demo-v0.3.1.webp`;
 const builds = [
-  { label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip' },
-  { label: 'Linux', detail: 'x64 · Portable archive', file: 'linux-x64.tar.gz' },
-  { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz' },
-  { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip' },
+  { label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip', edition: version },
+  { label: 'Linux', detail: 'x64 · Portable archive', file: 'linux-x64.tar.gz', edition: earlier },
+  { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz', edition: earlier },
+  { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip', edition: earlier },
 ];
 const canonical = printsOrigin + '/';
 const product = isPrintsHost(Astro.url);
@@ -33,8 +35,8 @@ const schema = {
   applicationCategory: 'MultimediaApplication',
   operatingSystem: 'macOS 14+ (Apple Silicon), Linux (x64 and ARM64), Windows (x64)',
   softwareVersion: version,
-  downloadUrl: builds.map(({ file }) => `${downloadRoot}-${file}`),
-  screenshot: new URL(afterlight, canonical).href,
+  downloadUrl: builds.map(({ file, edition }) => downloadUrl(file, edition)),
+  screenshot: [archive, compare].map((file) => new URL(file, canonical).href),
   offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD', url: release },
 };
 ---
@@ -50,7 +52,7 @@ const schema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
     <PrintsArchive guide={`${routePrefix}/guide`} />
-    { !product && <p class="product-link"><a class="quiet-link" href={printsOrigin}>Visit prints.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a></p> }
+    {!product && <p class="product-link"><a class="quiet-link" href={printsOrigin}>Visit prints.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a></p>}
     <section id="afterlight" aria-label="Try the Afterlight contact sheet">
       <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />
     </section>
@@ -61,10 +63,24 @@ const schema = {
         <p>Prints Desktop brings the contact sheet to your Mac, Linux or Windows desktop. Star the ideas worth coming back to, turn a brief into an editable draft and keep the original file when you export.</p>
       </div>
       <figure class="workspace">
-        <a href={afterlight} aria-label="Open the Afterlight workspace screenshot at full size">
-          <img src={afterlight} width="1440" height="880" alt="Prints Desktop shows a concrete ring and orange sun in The Last Horizon, with six studies in the contact sheet and the selected print’s brief in the inspector." loading="lazy" decoding="async" />
+        <a href={archive} aria-label="Open the native Creative Archive screenshot at full size">
+          <img src={archive} width="1440" height="885" alt="Prints Desktop opens on the Higher Than Before cover with the Loftwah Creative Archive contact sheet and original-file actions." loading="lazy" decoding="async" />
         </a>
-        <figcaption><strong>Afterlight</strong><span>Six original studies bundled with the app. Available offline on first launch.</span></figcaption>
+        <figcaption><strong>Loftwah Creative Archive</strong><span>Native macOS capture · v0.4.0.</span><a class="theme-shot" href="/prints-desktop/archive-light-v0.4.0.webp">See light appearance <ArrowUpRight size={14} aria-hidden="true" /></a></figcaption>
+      </figure>
+    </section>
+
+    <section class="workflow feature-proof" aria-labelledby="compare-title">
+      <div>
+        <h2 id="compare-title">One record, two formats.</h2>
+        <p>Compare the square <cite>Higher Than Before</cite> cover with its tall release poster. Find another piece with Command+F, star a favourite and export the original straight from the archive.</p>
+        <a class="quiet-link" href={`${routePrefix}/watch`}>Watch the 15-second archive tour <ArrowUpRight size={16} aria-hidden="true" /></a>
+      </div>
+      <figure class="workspace">
+        <a href={compare} aria-label="Open the native side-by-side comparison screenshot">
+          <img src={compare} width="1280" height="790" alt="The Higher Than Before album cover and release poster appear side by side in the native Prints Desktop comparison view." loading="lazy" decoding="async" />
+        </a>
+        <figcaption><strong>Compare</strong><span>LoftwahFM’s cover and release poster · Native macOS capture.</span></figcaption>
       </figure>
     </section>
 
@@ -140,15 +156,15 @@ const schema = {
     <section class="editorial releases" id="downloads" aria-labelledby="downloads-title">
       <div>
         <h2 id="downloads-title">Get Prints Desktop.</h2>
-        <p>v{version} preview. Extract the archive for your platform, then open Prints Desktop.</p>
+        <p>Choose your platform. The Creative Archive preview is available on Apple Silicon. The earlier Linux and Windows packages open in Afterlight.</p>
         <a class="quiet-link" href={release}>Release notes, signing status and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
       <div>
         <ul class="builds" aria-label="Platform downloads">
-          {builds.map(({ label, detail, file }) => (
+          {builds.map(({ label, detail, file, edition }) => (
             <li>
-              <a href={`${downloadRoot}-${file}`}>
-                <span><strong>{label}</strong><span>{detail}</span></span>
+              <a href={downloadUrl(file, edition)}>
+                <span><strong>{label}</strong><span>{detail} · v{edition}</span></span>
                 <ArrowDownToLine size={20} aria-hidden="true" />
               </a>
             </li>
@@ -161,6 +177,7 @@ const schema = {
     <footer class="prints-credit">
       <p>Built by Loftwah with Rust and Anomaly’s Rune. Afterlight is original ImageGen artwork. Oyster, Prints and Darkroom are projects from Fungi.</p>
       <div>
+        <a class="quiet-link" href="https://composer.loftwah.com/share?tag=prints-desktop">Share the archive poster <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href={site}>Source on GitHub <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href="https://github.com/loftwah/app-composer/issues/1292">Follow the build <ArrowRight size={16} aria-hidden="true" /></a>
       </div>
@@ -177,7 +194,7 @@ const schema = {
 
   :global([data-theme="light"]) .prints { --prints-accent: #96371e; }
   .prints :is(section, details) { scroll-margin-top: 5rem; }
-  .product-link { margin-top: 12px !important; }
+  .prints .product-link { margin-top: 12px; }
   .native-heading { margin-bottom: 15px; }
   .quiet-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; }
   .quiet-link, .ecosystem dt a { color: var(--prints-accent); }
@@ -185,7 +202,8 @@ const schema = {
   .prints :is(a, summary):focus-visible { outline: 2px solid var(--prints-accent); outline-offset: 4px; }
 
   .prints figure { margin: 0; }
-  .workspace a { display: block; border-radius: 12px; }
+  .workspace > a { display: block; border-radius: 12px; }
+  .workspace .theme-shot { display: inline-flex; align-items: center; gap: 5px; color: var(--prints-accent); }
   .workspace img {
     display: block;
     width: 100%;

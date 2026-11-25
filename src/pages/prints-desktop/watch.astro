@@ -2,23 +2,23 @@
 import Base from '../../layouts/Base.astro';
 import PrintsWalkthrough from '../../components/PrintsWalkthrough.astro';
 import { isPrintsHost, printsOrigin, printsShare } from '../../lib/prints-site.mjs';
+import { printsAfterlightVideo, printsArchiveVideo } from '../../lib/prints-video.mjs';
 import { ArrowLeft } from '@lucide/astro';
 
 const canonical = printsOrigin + '/watch';
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
-const title = 'Watch Prints Desktop in 28 Seconds';
-const description = 'Watch Prints Desktop browse Afterlight, export an original, save an editable prompt and open a fictional Oyster library.';
+const { title, description } = printsArchiveVideo;
 const video = {
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
   name: title,
   description,
-  thumbnailUrl: [new URL('/prints-desktop/afterlight-native-v0.3.1.webp', canonical).href],
-  contentUrl: new URL('/prints-desktop/prints-desktop-walkthrough-v0.3.1.mp4', canonical).href,
+  thumbnailUrl: [new URL(printsArchiveVideo.poster, canonical).href],
+  contentUrl: new URL(printsArchiveVideo.src, canonical).href,
   url: canonical,
-  uploadDate: '2026-11-25',
-  duration: 'PT28S',
+  uploadDate: printsArchiveVideo.uploadDate,
+  duration: `PT${printsArchiveVideo.duration}S`,
   inLanguage: 'en',
 };
 ---
@@ -27,14 +27,22 @@ const video = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(video)} />
   <article class="watch">
     <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
-    <h1>Prints Desktop in 28 seconds.</h1>
-    <PrintsWalkthrough eager />
+    <h1>{title}.</h1>
+    <PrintsWalkthrough clip={printsArchiveVideo} eager />
+    <a class="back" href="/prints-desktop/archive-vertical-v0.4.0.mp4" download>Download the vertical cut · MP4</a>
+    <section aria-labelledby="connected-replay">
+      <h2 id="connected-replay">{printsAfterlightVideo.title}.</h2>
+      <p>{printsAfterlightVideo.description}</p>
+      <PrintsWalkthrough clip={printsAfterlightVideo} />
+    </section>
     <p><a class="back" href={`${home}#downloads`}>Get the desktop preview</a></p>
   </article>
 </Base>
 
 <style>
   .watch { max-width: 960px; margin-inline: auto; }
+  .watch section { margin-block: clamp(35px, 6vw, 75px) 14px; }
+  .watch h2 { margin-bottom: 6px; }
   .watch h1 { font-size: clamp(2rem, 5vw, 4rem); max-width: none; margin: 7px 0 18px; }
   .back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--color-accent); }
   .back:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
