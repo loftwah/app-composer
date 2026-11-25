@@ -1,0 +1,30 @@
+{
+  "recordedOn": "2026-11-13",
+  "method": "Oyster MCP / Prints generateImage",
+  "inference": "Cloudflare Workers AI",
+  "displayNote": "Public WebP renditions of prior generated JPEGs. Private job, destination and image metadata excluded.",
+  "images": [
+    {
+      "image": "coastal-survey.webp",
+      "model": "@cf/leonardo/lucid-origin",
+      "prompt": "A flat overhead scan of a two-colour risograph art print on heavy bone-coloured cotton paper. A dense hand-drawn coastal survey: fine oxide-red contour lines over a single ochre ink wash, tide hachures, a circular compass rosette, visible paper fibres and deckled edge, slight ink misregistration, deep letterpress bite, matte surface, no lettering, no words, square composition with generous margins, quiet and tactile, editorial record-sleeve art",
+      "width": 1120,
+      "height": 1120,
+      "format": "jpeg",
+      "originalBytes": 989397,
+      "originalSha256": "90bd583f824db888266023383c95dcd0a7e11d8d12e21e66dbae1ff5141bab68",
+      "displaySha256": "2d4bf7ed6979bdbd285a11f96cb76b6b42e19e5221ccf70dacc1b6b28a63da9d"
+    },
+    {
+      "image": "shoreline-press.webp",
+      "model": "@cf/leonardo/phoenix-1.0",
+      "prompt": "Extreme close-up of a letterpress deboss: a single fine coastline contour pressed deep into 320gsm bone cotton paper, oxide-red ink sitting in the fibre, raking sidelight from the upper left, visible paper tooth and deckle, monochrome warm palette, no text, abstract tactile surface, gallery-quality print detail",
+      "width": 1120,
+      "height": 1120,
+      "format": "jpeg",
+      "originalBytes": 873142,
+      "originalSha256": "cd00371152f7caf075d89250ddbfe5f10ce7f148866ea3bc06dcf0788ec4d61a",
+      "displaySha256": "cf9737b38f792343ab87721ecde4f47fd21e76f6becb2ef3e7638aa0fd13969e"
+    }
+  ]
+}
