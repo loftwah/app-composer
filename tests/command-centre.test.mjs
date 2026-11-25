@@ -21,6 +21,7 @@ import {
   manageCommandCentre,
   readCommandCentre,
 } from "../src/lib/command-centre.ts";
+import { parseIssueRelationships } from "../src/lib/command-centre-relationships.ts";
 import { creatorPlugin } from "../src/lib/creator-plugin.ts";
 import {
   loadCommandCentrePage,
@@ -1843,4 +1844,121 @@ test("the tabs are labelled, roving and keyboard operable in source", () => {
   assert.match(source, /"End"/);
   assert.match(source, /id=\{`cc-tab-\$\{entry\.id\}`\}/);
   assert.match(source, /role="tabpanel"/);
+});
+
+test("declared relationships resolve canonical URLs before bare local references", () => {
+  const project = "loftwah/app-composer";
+  const woodhouse = "https://github.com/loftwah/woodhouse-new/issues/171";
+  const studio =
+    "https://github.com/loftwah/composer-media-studio/issues/157";
+  const shape = (entry) =>
+    entry && {
+      repository: entry.repository,
+      number: entry.number,
+      kind: entry.kind,
+      evidence: entry.evidence,
+      url: entry.url,
+    };
+
+  assert.deepEqual(
+    shape(parseIssueRelationships("Parent: #425", project).parent),
+    {
+      repository: project,
+      number: 425,
+      kind: "issue",
+      evidence: "reference",
+      url: null,
+    },
+  );
+  assert.deepEqual(
+    shape(parseIssueRelationships("Parent issue: #425", project).parent),
+    {
+      repository: project,
+      number: 425,
+      kind: "issue",
+      evidence: "reference",
+      url: null,
+    },
+  );
+
+  for (const declaration of [
+    `Parent: ${woodhouse}`,
+    `Parent: [#171](${woodhouse})`,
+    `Parent cross-project experience: ${woodhouse}`,
+  ]) {
+    const parsed = parseIssueRelationships(declaration, project);
+    assert.deepEqual(shape(parsed.parent), {
+      repository: "loftwah/woodhouse-new",
+      number: 171,
+      kind: "issue",
+      evidence: "url",
+      url: woodhouse,
+    });
+    assert.equal(parsed.children.length, 0);
+    assert.equal(parsed.blockers.length, 0);
+  }
+
+  const blocked = parseIssueRelationships(
+    `Blocked by: [Studio #157](${studio})`,
+    project,
+  );
+  assert.equal(blocked.blockers.length, 1);
+  assert.deepEqual(shape(blocked.blockers[0]), {
+    repository: "loftwah/composer-media-studio",
+    number: 157,
+    kind: "issue",
+    evidence: "url",
+    url: studio,
+  });
+
+  const incidental = parseIssueRelationships(
+    [`See ${woodhouse} for context.`, "Blocked by: #12"].join("\n"),
+    project,
+  );
+  assert.equal(incidental.parent, null);
+  assert.equal(incidental.blockers.length, 1);
+  assert.equal(incidental.blockers[0].repository, project);
+  assert.equal(incidental.blockers[0].number, 12);
+
+  const preserved = parseIssueRelationships(
+    [
+      "Parent: #11",
+      "Part of #11",
+      "Sub-issues: #13, #14",
+      "Blocked by: #12",
+      `PR: https://github.com/${project}/pull/701`,
+    ].join("\n"),
+    project,
+  );
+  assert.deepEqual(shape(preserved.parent), {
+    repository: project,
+    number: 11,
+    kind: "issue",
+    evidence: "reference",
+    url: null,
+  });
+  assert.deepEqual(
+    preserved.children.map((entry) => entry.number),
+    [13, 14],
+  );
+  assert.deepEqual(
+    preserved.blockers.map((entry) => entry.number),
+    [12],
+  );
+  assert.deepEqual(
+    preserved.pullRequests.map((entry) => entry.number),
+    [701],
+  );
+
+  const linkedLocal = parseIssueRelationships(
+    `Parent: [#11](https://github.com/${project}/issues/11)`,
+    project,
+  );
+  assert.deepEqual(shape(linkedLocal.parent), {
+    repository: project,
+    number: 11,
+    kind: "issue",
+    evidence: "url",
+    url: `https://github.com/${project}/issues/11`,
+  });
 });
