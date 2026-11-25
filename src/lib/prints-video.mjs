@@ -36,3 +36,23 @@ export const printsAfterlightVideo = {
     'Browse a folder and preview a print in an Oyster library seeded with fictional media.',
   ],
 };
+
+export const printsWorkshopVideo = {
+  title: 'Compare, shortlist and export',
+  description: 'Use the Loftwah Creative Archive to compare the Higher Than Before cover and release poster, export the original and save a brief for your next print.',
+  uploadDate: '2026-11-25',
+  duration: 61,
+  width: 1280,
+  height: 790,
+  poster: root + 'archive-workshop-v0.4.1.webp',
+  src: root + 'archive-workshop-v0.4.1.mp4',
+  captions: root + 'archive-workshop-v0.4.1.en.vtt',
+  version: 'v0.4.1',
+  transcript: [
+    'Open the Creative Archive and select Higher Than Before. Choose Compare formats to see how the lettering and artwork fit the square cover and tall release poster.',
+    'Press Escape, select Release Poster and choose Add to favourites. Open Favourites to find your shortlist.',
+    'Choose Export original and select a destination. The exported JPEG matches the archive original byte for byte.',
+    'Return to the Creative Archive. Press Command+F on Mac, or Ctrl+F on Windows and Linux, then type “bell” to find Fighter’s Before the Bell poster.',
+    'Press Escape to clear Find. Open Afterlight, choose Use in draft for The Last Horizon, then Save draft to keep the brief on your device.',
+  ],
+};
