@@ -2,8 +2,8 @@
 import Base from '../layouts/Base.astro';
 import { ArrowDownToLine, ArrowUpRight, CirclePlay } from '@lucide/astro';
 
-const release = 'https://github.com/loftwah/prints-desktop/releases/tag/v0.2.0';
-const download = 'https://github.com/loftwah/prints-desktop/releases/download/v0.2.0/prints-desktop-0.2.0-macos-arm64.zip';
+const release = 'https://github.com/loftwah/prints-desktop/releases/tag/v0.3.0';
+const download = 'https://github.com/loftwah/prints-desktop/releases/download/v0.3.0/prints-desktop-0.3.0-macos-arm64.zip';
 const screenshot = '/prints-desktop/afterlight-workspace-v0.1.0.jpg';
 const site = 'https://github.com/loftwah/prints-desktop';
 ---
@@ -22,7 +22,7 @@ const site = 'https://github.com/loftwah/prints-desktop';
       </div>
       <div class="hero-actions">
         <a class="download" href={download}><ArrowDownToLine size={18} aria-hidden="true" /> Download for Apple Silicon</a>
-        <span>v0.2.0 preview · Afterlight works offline</span>
+        <span>v0.3.0 preview · Afterlight works offline</span>
         <a class="quiet-link" href="#walkthrough"><CirclePlay size={17} aria-hidden="true" /> Watch the walkthrough</a>
       </div>
     </header>
@@ -58,9 +58,9 @@ const site = 'https://github.com/loftwah/prints-desktop';
         <dt>Install the preview</dt>
         <dd>The Apple Silicon package is ad-hoc signed and awaits Apple notarisation. macOS may block a copy downloaded from the web. See the release notes for verification and installation details.</dd>
         <dt>Explore without an account</dt>
-        <dd>Afterlight and local image work stay on your device. Exploring the preview uses no Cloudflare resources or model credits.</dd>
+        <dd>Afterlight and local image work stay on your device. Linked originals and favourites reopen after you quit. Exploring the preview uses no Cloudflare resources or model credits.</dd>
         <dt>Connect your Prints library</dt>
-        <dd>Use a named Oyster App key scoped to your Prints installation. Browse folders, read prompts and model details, and save original files from the desktop app. <a href="https://docs.fungi.computer/apps/prints">Read the upstream setup guide <ArrowUpRight size={14} aria-hidden="true" /></a></dd>
+        <dd>Use a named Oyster App key scoped to your Prints installation. Browse indexed prints, read prompts and save original files from the desktop app. Folder and model discovery depend on your installation. <a href="https://docs.fungi.computer/apps/prints">Read the upstream setup guide <ArrowUpRight size={14} aria-hidden="true" /></a></dd>
         <dt>Preview scope</dt>
         <dd>The connected preview opens web Prints for generation. See the release notes for Linux and Windows downloads and platform verification.</dd>
       </dl>
