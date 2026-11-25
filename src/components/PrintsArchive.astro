@@ -1,8 +1,9 @@
 ---
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
-import { printsIcon } from '../lib/prints-site.mjs';
+import { isPrintsHost, printsIcon } from '../lib/prints-site.mjs';
 
 const { guide, story } = Astro.props;
+const printsProduct = isPrintsHost(Astro.url);
 const entries = [
   {
     title: 'Before the Bell',
@@ -33,13 +34,13 @@ const entries = [
   },
 ];
 ---
-<header class="archive" id="archive" aria-labelledby="archive-title">
+<header class="archive" id="archive" tabindex="-1" aria-labelledby="archive-title">
   <div class="archive-intro">
-    <p class="signature"><img src={printsIcon} width="32" height="32" alt="" /> Prints Desktop</p>
-    <h1 id="archive-title">A desktop for the work you keep.</h1>
+    {!printsProduct && <p class="signature"><img src={printsIcon} width="32" height="32" alt="" /> Prints Desktop</p>}
+    <h1 id="archive-title"><span>A desktop for</span> <span>the work you keep.</span></h1>
     <p class="lede">Browse the Loftwah Creative Archive, compare different cuts of the same artwork, and take the original with you. Then bring in work of your own.</p>
     <div class="archive-actions">
-      <a class="download" href="#downloads"><ArrowDownToLine size={18} aria-hidden="true" /> Get the desktop preview</a>
+      <a class="download" href="#downloads"><ArrowDownToLine size={18} aria-hidden="true" /> Download preview</a>
       <a href={guide}>First project <ArrowRight size={17} aria-hidden="true" /></a>
     </div>
     <div class="archive-links">
@@ -88,8 +89,14 @@ const entries = [
     .archive { grid-template-columns: minmax(0,1fr); gap: 16px; }
     .archive h1 { max-width: 15ch; }
   }
+  @media(max-width: 620px) {
+    .archive h1 { max-width: none; margin-bottom: 12px; font-size: clamp(2rem,9vw,2.875rem); line-height: 1.04; }
+    .archive h1 span { display: block; }
+    .archive .lede { margin-bottom: 13px; }
+    .archive-actions,.archive-links { column-gap: 10px; }
+    .archive-actions .download { padding-inline: 9px; }
+  }
   @media(max-width: 460px) {
-    .archive h1 { font-size: clamp(2.8rem,11vw,3.25rem); }
     .proof-sheet figure:first-child img { aspect-ratio: 1.44; }
     .proof-sheet figure:not(:first-child) img { aspect-ratio: 1.21; }
     .proof-sheet figcaption { inset-inline: 4px; bottom: 4px; max-width: calc(100% - 8px); padding-inline: 5px; }
