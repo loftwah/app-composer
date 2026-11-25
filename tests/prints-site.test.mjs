@@ -14,7 +14,8 @@ test('the Prints host exposes the product pages without Composer sessions', () =
     assert.equal(request.headers.has(header), false);
   }
   assert.equal(get('/prints-desktop/watch/?ref=portfolio').headers.get('Location'), site + '/watch?ref=portfolio');
-  assert.equal(get('/devrel').url, site + '/prints-desktop/devrel');
+  assert.equal(get('/devrel').headers.get('Location'), site + '/workshop-kit');
+  assert.equal(get('/workshop-kit').url, site + '/prints-desktop/devrel');
   assert.equal(get('/make').url, site + '/prints-desktop/make');
   assert.equal(get('/story').url, site + '/prints-desktop/story');
   assert.equal(get('/api/resource-summary').status, 404);
@@ -25,7 +26,7 @@ test('the Prints host exposes the product pages without Composer sessions', () =
 
 test('the separate sitemap only lists actual product URLs', async () => {
   const sitemap = await get('/sitemap.xml').text();
-  for (const path of ['/', '/watch', '/guide', '/make', '/devrel', '/story', '/downloads']) assert.ok(sitemap.includes(`<loc>${site}${path}</loc>`));
+  for (const path of ['/', '/watch', '/guide', '/make', '/workshop-kit', '/story', '/downloads']) assert.ok(sitemap.includes(`<loc>${site}${path}</loc>`));
   assert.ok((await get('/robots.txt').text()).includes(`Sitemap: ${site}/sitemap.xml`));
   assert.equal(await get('/robots.txt', { method: 'HEAD' }).text(), '');
 });

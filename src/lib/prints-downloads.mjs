@@ -46,7 +46,7 @@ export async function printsFieldKitAsset(request, runtime, context, now = new D
   const asset = await runtime.ASSETS.fetch(new Request(target, { method: request.method, headers }));
   if (![200, 206].includes(asset.status)) return asset;
   const download = new Response(asset.body, asset);
-  download.headers.set('Content-Disposition', 'attachment; filename="prints-devrel-field-kit.zip"');
+  download.headers.set('Content-Disposition', 'attachment; filename="prints-workshop-kit.zip"');
   download.headers.set('X-Content-Type-Options', 'nosniff');
 
   if (prints && download.status === 200 && request.method === 'GET' && !headers.has('Range') &&

@@ -4,7 +4,7 @@ import { printsOrigin } from '../lib/prints-site.mjs';
 import snapshot from '../data/prints-download-share-20261125.json';
 
 const title = 'Prints Desktop download snapshot';
-const asset = '/prints-desktop/download-share-20261125/';
+const asset = '/prints-desktop/download-share-orange-20261125/';
 const report = printsOrigin + '/downloads';
 const caption = snapshot.caption;
 const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<', '\\u003c');
@@ -15,7 +15,7 @@ const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<
   <div class="share-intro">
     <div>
       <h2 id="share-downloads-title">Share the download report</h2>
-      <p>The 25 November 2026 snapshot, set in a paper aperture with a coastline inside. All four posters were generated as finished artwork.</p>
+      <p>Four poster sizes for the 25 November 2026 snapshot. Each one was generated as finished artwork.</p>
     </div>
     <a class="pack" href={asset + 'prints-downloads-social-kit.zip'} download>
       <ArrowDownToLine size={17} aria-hidden="true" /> Download all four
@@ -25,7 +25,7 @@ const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<
     <a href={asset + 'wide.jpg'}>
       <img src={asset + 'wide.jpg'} width="1200" height="630" loading="lazy" decoding="async" alt={snapshot.alt} />
     </a>
-    <figcaption>9 package downloads for v0.4.0. One DevRel ZIP response in seven days, UTC. Installs unmeasured.</figcaption>
+    <figcaption>9 package downloads for v0.4.0. One workshop ZIP response in seven days, UTC, from our verification. Installs unmeasured.</figcaption>
   </figure>
   <ul class="formats" aria-label="Individual social images">
     {snapshot.formats.map(({ file, label, width, height }) => (
@@ -59,8 +59,8 @@ const data = JSON.stringify({ url: report, title, text: caption }).replaceAll('<
   .share-intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 18px; margin-bottom: 12px; }
   h2 { font-size: clamp(1.25rem, 4vw, 1.7rem); line-height: 1.2; margin: 0 0 8px; }
   p { max-width: 67ch; margin: 0; color: var(--color-muted); }
-  .pack { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; padding: 0 12px; border-radius: 6px; background: #ffdab8; color: #24171d; font-weight: 700; }
-  .pack:hover { background: #ffbe96; color: #24171d; }
+  .pack { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; padding: 0 12px; border-radius: 6px; background: #f48120; color: #171717; font-weight: 700; }
+  .pack:hover { background: #ff9a43; color: #171717; }
   figure { margin: 0 0 8px; }
   figure a, img { display: block; }
   img { width: 100%; height: auto; border-radius: 6px; }

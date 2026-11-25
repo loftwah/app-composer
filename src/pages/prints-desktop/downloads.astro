@@ -17,12 +17,12 @@ const format = new Intl.NumberFormat('en-AU');
 const display = (count: number | null) => count === null ? '—' : format.format(count);
 ---
 
-<Base title="Download statistics" description="Prints Desktop package downloads by release and platform, plus DevRel field kit ZIP activity." canonical={canonical} printsProduct={isPrintsHost(Astro.url)}
-  shareImage="/prints-desktop/download-share-20261125/wide.jpg" shareAlt={shareSnapshot.alt}>
+<Base title="Download statistics" description="Prints Desktop package downloads by release and platform, plus workshop kit ZIP activity." canonical={canonical} printsProduct={isPrintsHost(Astro.url)}
+  shareImage="/prints-desktop/download-share-orange-20261125/wide.jpg" shareAlt={shareSnapshot.alt}>
   <article class="stats">
     <header>
       <h1>Download statistics</h1>
-      <p>See which Prints Desktop builds people fetch and how often the DevRel kit is served.</p>
+      <p>See which Prints Desktop builds people fetch and how often the workshop kit is served.</p>
       <p><a href="#share-downloads">Share this report <ArrowUpRight size={15} aria-hidden="true" /></a></p>
     </header>
 
@@ -32,7 +32,7 @@ const display = (count: number | null) => count === null ? '—' : format.format
         {latest ? <><strong>{display(latest.total)}</strong><p>{latest.tag} · All-time GitHub downloads</p></> : <p>GitHub counts are temporarily unavailable.</p>}
       </section>
       <section aria-labelledby="field-kit-count">
-        <h2 id="field-kit-count">DevRel field kit</h2>
+        <h2 id="field-kit-count">Workshop kit</h2>
         {kit ? <><strong>{display(kit.total)}{kit.capped ? '+' : ''}</strong><p>ZIP responses · Last 7 days including today, UTC</p></> : <p>ZIP counts are temporarily unavailable.</p>}
       </section>
     </div>
@@ -60,7 +60,7 @@ const display = (count: number | null) => count === null ? '—' : format.format
       <h2 id="install-count">Installs and first opens</h2>
       <p>The desktop app ships as a portable archive and can open offline. Prints Desktop sends no install or first-open event, so those counts are unavailable.</p>
       <p class="notes">The web kit counter stores daily totals for full ZIP responses. It excludes partial requests, identified prefetches and verification probes. Browsers and bots can make repeat requests, and a response doesn’t guarantee a completed transfer.</p>
-      <p><a href={printsOrigin + '/#downloads'}>Get Prints Desktop <ArrowUpRight size={15} aria-hidden="true" /></a> <a href={printsOrigin + '/devrel'}>Open the DevRel kit <ArrowUpRight size={15} aria-hidden="true" /></a></p>
+      <p><a href={printsOrigin + '/#downloads'}>Get Prints Desktop <ArrowUpRight size={15} aria-hidden="true" /></a> <a href={printsOrigin + '/workshop-kit'}>Open the workshop kit <ArrowUpRight size={15} aria-hidden="true" /></a></p>
     </section>
   </article>
 </Base>

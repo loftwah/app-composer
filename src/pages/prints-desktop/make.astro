@@ -1,16 +1,18 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PrintsFirstSteps from '../../components/PrintsFirstSteps.astro';
 import { ArrowDown, ArrowDownToLine, ArrowUpRight, Clipboard } from '@lucide/astro';
 import campaign from '../../../public/campaign/computer-club-20261122/provenance.json';
 import proof from '../../../public/prints-desktop/workshop-20261125/proof.json';
 import { isPrintsHost, printsOrigin } from '../../lib/prints-site.mjs';
 
-const title = 'Make an image worth sharing';
+const title = 'Make a poster. Keep the original.';
 const description = 'A beginner workshop for making a campaign image. Copy a real App Composer Share prompt, see images made through Oyster and Workers AI, then choose a browser, terminal or MCP workflow.';
 const canonical = printsOrigin + '/make';
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
 const guide = product ? '/guide' : '/prints-desktop/guide';
+const workshopArt = '/prints-desktop/workshop-share-20261125/';
 const campaignRoot = '/campaign/computer-club-20261122/';
 const proofRoot = '/prints-desktop/workshop-20261125/';
 const campaignPage = 'https://composer.loftwah.com/share/artwork/composer-club-01-friday-release';
@@ -31,34 +33,36 @@ const schema = {
   description,
   url: canonical,
   mainEntityOfPage: canonical,
-  image: new URL(campaignRoot + 'friday-release-og.jpg', canonical).href,
+  image: new URL(workshopArt + 'wide.jpg', canonical).href,
   author: { '@type': 'Organization', name: 'Loftwah', url: 'https://loftwah.com/' },
 };
 ---
 
-<Base title={title} description={description} canonical={canonical} printsProduct={product} shareImage={campaignRoot + 'friday-release-og.jpg'} shareAlt="Pick Your Curse, an App Composer Computer Club campaign poster about demo day and production.">
+<Base title={title} description={description} canonical={canonical} printsProduct={product} shareImage={workshopArt + 'wide.jpg'} shareAlt="Prints Desktop. Make a poster. Keep the original. A machined orange camera aperture opens onto a folded white coastline.">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="workshop" data-workshop>
     <header class="opening">
       <div class="intro">
-        <h1>Make an image worth sharing.</h1>
-        <p>Start with one good idea. Turn it into a poster, check it at feed size, and keep the original. Then see how to run the same creative workflow on a stack you control.</p>
+        <h1>Make a poster.<br />Keep the original.</h1>
+        <p>Try the creative archive in your browser, make a print with a ready-to-use prompt, or build the workflow into your own agent.</p>
         <div class="actions">
-          <a class="primary" href="#brief">Make your first poster <ArrowDown size={17} aria-hidden="true" /></a>
+          <a class="primary" href="#paths">Pick your first step <ArrowDown size={17} aria-hidden="true" /></a>
           <a href="#proof">See the Oyster proof <ArrowDown size={16} aria-hidden="true" /></a>
         </div>
       </div>
       <figure class="featured">
-        <a href={campaignPage}>
-          <img src={campaignRoot + 'friday-release-v1.jpg'} width="1080" height="1350" fetchpriority="high" decoding="async" alt="Pick Your Curse. Perfect demo, haunted prod? Or perfect prod, nobody knows? A red-lit hallway faces a green exhibition room." />
+        <a href={workshopArt + 'feed.jpg'}>
+          <img src={workshopArt + 'feed.jpg'} width="1080" height="1350" fetchpriority="high" decoding="async" alt="Prints Desktop. Make a poster. Keep the original. An orange optical iris opens onto a folded paper coastline." />
         </a>
-        <figcaption><a href={campaignPage}>Haunted rollout <ArrowUpRight size={15} aria-hidden="true" /></a><span>App Composer Share · original AI-generated poster</span></figcaption>
+        <figcaption><a href={workshopArt + 'prints-workshop-social-kit.zip'} download>Get the workshop posters <ArrowDownToLine size={15} aria-hidden="true" /></a></figcaption>
       </figure>
     </header>
 
     <nav class="jump" aria-label="Workshop sections">
-      <a href="#brief">Write the brief</a><a href="#run">Make the image</a><a href="#proof">See what ran</a><a href="#stack">Follow the stack</a><a href="#choose">Choose your tool</a>
+      <a href="#paths">Ways to start</a><a href="#brief">Write the brief</a><a href="#run">Make the image</a><a href="#proof">See what ran</a><a href="#stack">Follow the stack</a><a href="#choose">Choose your tool</a>
     </nav>
+
+    <PrintsFirstSteps />
 
     <section id="brief" class="chapter" aria-labelledby="brief-title">
       <div>
@@ -67,6 +71,7 @@ const schema = {
         <p>Pick your own dilemma. Give each side something you could draw. Keep the palette tight and write the exact words before you touch a model.</p>
         <details>
           <summary>Read the original campaign prompt</summary>
+          <figure class="example"><a href={campaignPage}><img width="1080" height="1350" loading="lazy" src={campaignRoot + 'friday-release-v1.jpg'} alt="Haunted rollout, the original App Composer Share poster for the Pick Your Curse campaign." /></a></figure>
           <p id="campaign-prompt">{original.prompt}</p>
           <button type="button" data-copy-target="campaign-prompt" hidden><Clipboard size={16} aria-hidden="true" /> Copy campaign prompt</button>
           <p class="status" role="status" data-copy-status></p>
@@ -156,7 +161,7 @@ const schema = {
         <div><dt><a href="https://docs.fungi.computer/ecosystem">Fungi</a></dt><dd>The ecosystem for Apps, agents and Computers. Shiitake is its terminal agent. A Computer is where your working files live.</dd></div>
         <div><dt><a href="https://docs.fungi.computer/guides/run-your-own-oyster">Oyster</a></dt><dd>The App host. People open Apps in the browser and authorised agents can call them over MCP. You can run the host on your own Cloudflare account and decide who can use it.</dd></div>
         <div><dt><a href="https://docs.fungi.computer/apps/prints">Prints and Darkroom</a></dt><dd>Prints accepts the brief, tracks the result and saves it on your Computer. Darkroom connects supported model providers. Prints Desktop gives you a separate local workspace for comparing and exporting images.</dd></div>
-        <div><dt><a href="https://developers.cloudflare.com/workers-ai/">Cloudflare</a></dt><dd>Workers hosts your deployed Oyster App infrastructure. Containers run the Computers, and Workers AI can run inference without a GPU on your desk. Your account holds the deployment and usage controls.</dd></div>
+        <div><dt><a href="https://developers.cloudflare.com/workers-ai/">Cloudflare</a></dt><dd>Workers hosts your deployed Oyster App infrastructure. Containers run the Computers, and Workers AI can run inference without a GPU on your desk. Your account holds the deployment and usage controls. This site uses Workers and D1 for its aggregate download report. <a href="https://developers.cloudflare.com/ai-gateway/">AI Gateway</a> adds visibility and controls for model calls you route through it.</dd></div>
         <div><dt><a href="https://composer.loftwah.com/share">App Composer Share</a></dt><dd>The publishing end. Put the selected image, caption and credit in front of people. Keep the originals and process notes in the project.</dd></div>
       </dl>
     </section>
@@ -174,54 +179,41 @@ const schema = {
           <div><dt><a href="https://composer.loftwah.com/media-studio">Media Studio</a></dt><dd>Choose it for our existing production workbench, edits, exports and publishing workflows. The Studio and Oyster each keep their own job history.</dd></div>
         </dl>
         <p>Start with one poster. Keep the prompt, one approved image and the original file. Then decide whether hosting and automation will save you work on the next ten.</p>
-        <div class="actions"><a class="primary" href="#brief">Start the poster <ArrowUpRight size={16} aria-hidden="true" /></a><a href={guide}>Try the desktop offline <ArrowUpRight size={16} aria-hidden="true" /></a><a href={printsOrigin + '/devrel'}>DevRel field kit <ArrowUpRight size={16} aria-hidden="true" /></a><a href={home}>Prints home</a></div>
+        <div class="actions"><a class="primary" href="#brief">Start the poster <ArrowUpRight size={16} aria-hidden="true" /></a><a href={guide}>Try the desktop offline <ArrowUpRight size={16} aria-hidden="true" /></a><a href={printsOrigin + '/workshop-kit'}>Workshop kit <ArrowUpRight size={16} aria-hidden="true" /></a><a href={home}>Prints home</a></div>
       </div>
     </section>
   </article>
 </Base>
 
 <script>
-  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-workshop] button[data-copy-target]')) {
-    const source = document.getElementById(button.dataset.copyTarget ?? '');
-    const status = button.closest('details, .prompt')?.querySelector('[data-copy-status]');
-    if (!source || !status || !navigator.clipboard?.writeText) continue;
-    button.hidden = false;
-    button.addEventListener('click', async () => {
-      const value = source instanceof HTMLTextAreaElement ? source.value : source.textContent ?? '';
-      try {
-        await navigator.clipboard.writeText(value);
-        status.textContent = 'Copied.';
-      } catch {
-        if (source instanceof HTMLTextAreaElement) source.select();
-        status.textContent = 'Select the text and copy it from here.';
-      }
-    });
-  }
+  import '../../browser/prints-copy';
 </script>
 
 <style>
-  .workshop { --paper: #ffdab8; --ink: #241a22; --rule: var(--color-border); }
+  .workshop { --paper: #f48120; --ink: #171717; --rule: var(--color-border); }
   .workshop :is(section, a) { scroll-margin-top: 30px; }
   .workshop h2 { margin: 0 0 12px; font-size: clamp(1.8rem,4vw,3rem); line-height: 1.07; text-wrap: balance; }
   .workshop h3 { margin: 0 0 9px; }
   .workshop p { margin: 0 0 13px; max-width: 64ch; }
   .workshop a { color: var(--color-accent); }
   .workshop :is(a, button, summary, textarea):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
-  .opening { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: center; gap: clamp(16px,5vw,65px); padding: clamp(18px,4vw,54px); border-radius: 12px; background: #241a22; color: #fff4e9; }
+  .opening { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: center; gap: clamp(16px,5vw,65px); padding: clamp(18px,4vw,54px); border-radius: 12px; background: #191919; color: #fff5e9; }
   .opening h1 { margin: 0 0 16px; font-size: clamp(2.35rem,6vw,5.25rem); line-height: 1.01; font-weight: 700; letter-spacing: -.04em; text-wrap: balance; }
-  .opening p { max-width: 37ch; color: #e1c9bc; font-size: clamp(1rem,1.8vw,1.2rem); }
-  .opening a { color: #ffdab8; }
+  .opening p { max-width: 37ch; color: #e5d9cb; font-size: clamp(1rem,1.8vw,1.2rem); }
+  .opening a { color: #ffa860; }
   .opening a:focus-visible { outline-color: var(--paper); }
   .actions { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
   .actions :is(a,button), .proof-link { min-height: 44px; display: inline-flex; align-items: center; gap: 7px; }
   .actions .primary { padding: 0 12px; border-radius: 6px; background: var(--paper); color: var(--ink); font-weight: 700; }
-  .actions .primary:hover { background: #ffbc97; }
+  .actions .primary:hover { background: #ff9a43; }
+  .example { max-width: 215px; margin: 8px 0 12px; }
+  .example img { width: 100%; height: auto; border-radius: 4px; }
   .featured, .plates figure { margin: 0; }
   .featured img, .plates img { display: block; width: 100%; height: auto; border-radius: 5px; }
   .featured img { max-width: 420px; border: 1px solid #725449; }
   .featured figcaption, .plates figcaption { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; margin-block: 8px 0; font-size: .85rem; }
   .featured figcaption a { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; }
-  .featured figcaption span { color: #e1c9bc; }
+  .featured figcaption span { color: #e5d9cb; }
   .jump { display: flex; gap: 2px 18px; border-bottom: 1px solid var(--rule); padding-block: 8px; }
   .jump a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 650; }
   .chapter { display: grid; grid-template-columns: minmax(0,.76fr) minmax(0,1.24fr); gap: 15px clamp(24px,6vw,90px); margin-block: clamp(35px,7vw,90px); }

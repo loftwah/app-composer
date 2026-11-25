@@ -17,7 +17,7 @@ const productRoutes = new Map([
   ['/watch', '/prints-desktop/watch'],
   ['/guide', '/prints-desktop/guide'],
   ['/make', '/prints-desktop/make'],
-  ['/devrel', '/prints-desktop/devrel'],
+  ['/workshop-kit', '/prints-desktop/devrel'],
   ['/story', '/prints-desktop/story'],
   ['/downloads', '/prints-desktop/downloads'],
 ]);
@@ -37,7 +37,7 @@ export function printsDomainRequest(request) {
 
   const path = url.pathname.length > 1 ? url.pathname.replace(/\/$/, '') : '/';
   const legacyPath = [...productRoutes].find(([, internal]) => internal === path)?.[0];
-  const canonicalPath = legacyPath ?? path;
+  const canonicalPath = path === '/devrel' ? '/workshop-kit' : legacyPath ?? path;
   if (productRoutes.has(canonicalPath) && (canonicalPath !== url.pathname || url.origin !== printsOrigin)) {
     const target = new URL(canonicalPath, printsOrigin);
     target.search = url.search;
