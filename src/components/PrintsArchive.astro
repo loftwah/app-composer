@@ -90,11 +90,14 @@ const entries = [
     .archive h1 { max-width: 15ch; }
   }
   @media(max-width: 620px) {
-    .archive h1 { max-width: none; margin-bottom: 12px; font-size: clamp(2rem,9vw,2.875rem); line-height: 1.04; }
+    .archive h1 { max-width: none; margin-bottom: 12px; font-size: clamp(1.8125rem,8.7vw,2.875rem); line-height: 1.04; }
     .archive h1 span { display: block; }
     .archive .lede { margin-bottom: 13px; }
     .archive-actions,.archive-links { column-gap: 10px; }
     .archive-actions .download { padding-inline: 9px; }
+  }
+  @media(max-width: 360px) {
+    .archive-actions a:not(.download) svg { display: none; }
   }
   @media(max-width: 460px) {
     .proof-sheet figure:first-child img { aspect-ratio: 1.44; }
