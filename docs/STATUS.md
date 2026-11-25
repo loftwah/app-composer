@@ -19,8 +19,10 @@ and exact original export were exercised in the Mac release. Follow the
 [platform evidence](https://github.com/loftwah/prints-desktop/issues/4) for
 the exact scope of each package. Native creation requires the
 [scoped upstream path](https://github.com/loftwah/prints-desktop/issues/6),
-and [Windows desktop and Mac notarisation](https://github.com/loftwah/prints-desktop/issues/7)
-remain open.
+and [Windows desktop verification](https://github.com/loftwah/prints-desktop/issues/7)
+remains open. The owner selected the free Apple account path. The Mac download
+is an ad-hoc signed preview, with a pinned source build in the
+[installation guide](https://prints.loftwah.com/guide#install).
 
 ## Verified release snapshot from 19 November 2026 AEDT
 

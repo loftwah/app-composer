@@ -4,8 +4,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { ArrowUpRight } from '@lucide/astro';
 import Base from '../../layouts/Base.astro';
 import PrintsDownloadShare from '../../components/PrintsDownloadShare.astro';
-import shareSnapshot from '../../data/prints-download-share-20261125.json';
-import { isPrintsHost, printsOrigin, printsDownloadShareFolder } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin } from '../../lib/prints-site.mjs';
 import { builds } from '../../lib/prints-downloads.mjs';
 import { printsReleases, readFieldKitDownloads, readPrintsPackages } from '../../lib/prints-download-report';
 
@@ -18,12 +17,12 @@ const display = (count: number | null) => count === null ? '—' : format.format
 ---
 
 <Base title="Download statistics" description="Prints Desktop package downloads by release and platform, plus workshop kit ZIP activity." canonical={canonical} printsProduct={isPrintsHost(Astro.url)}
-  shareImage={printsDownloadShareFolder + 'wide.jpg'} shareAlt={shareSnapshot.alt}>
+  shareImage="/prints-desktop/loftwah-archive-og-20261125.jpg" shareAlt="Prints. The Creative Archive. A selection of album covers, arcade posters and artwork from the offline library.">
   <article class="stats">
     <header>
       <h1>Download statistics</h1>
       <p>See which Prints Desktop builds people fetch and how often the workshop kit is served.</p>
-      <p><a href="#share-downloads">Share this report <ArrowUpRight size={15} aria-hidden="true" /></a></p>
+      <p><a href="#share-downloads">Get the launch snapshot <ArrowUpRight size={15} aria-hidden="true" /></a></p>
     </header>
 
     <div class="totals">
