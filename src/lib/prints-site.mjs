@@ -16,6 +16,7 @@ const productRoutes = new Map([
   ['/watch', '/prints-desktop/watch'],
   ['/guide', '/prints-desktop/guide'],
   ['/make', '/prints-desktop/make'],
+  ['/devrel', '/prints-desktop/devrel'],
   ['/story', '/prints-desktop/story'],
 ]);
 
