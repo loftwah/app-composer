@@ -1,0 +1,158 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ArrowDown, ArrowDownToLine, ArrowRight, ArrowUpRight, Play } from '@lucide/astro';
+import { isPrintsHost, printsOrigin } from '../../lib/prints-site.mjs';
+
+const kit = '/prints-desktop/devrel-20261125/';
+const title = 'From brief to byte';
+const description = 'A public DevRel field kit for Fungi, Oyster, Prints, Cloudflare Workers, Workers AI and AI Gateway. Present the story, run a local Worker and try a live Gateway lab on your own account.';
+const canonical = printsOrigin + '/devrel';
+const workshop = 'https://prints.loftwah.com/make';
+const roles = [
+  { name: 'Fungi', job: 'The ecosystem', detail: 'Apps, agents and Computers. Shiitake is the terminal agent.', url: 'https://docs.fungi.computer/ecosystem' },
+  { name: 'Oyster', job: 'The host', detail: 'Runs Apps and governs what people and agents can open or call.', url: 'https://docs.fungi.computer/oyster' },
+  { name: 'Prints', job: 'The creative app', detail: 'Takes the brief, tracks the job and keeps the original in a Computer folder.', url: 'https://docs.fungi.computer/apps/prints' },
+  { name: 'Cloudflare Workers', job: 'The runtime', detail: 'Runs application code. The included local Worker returns the workshop brief in two formats.', url: 'https://developers.cloudflare.com/workers/' },
+  { name: 'Workers AI', job: 'The model', detail: 'Runs inference without a GPU on your desk. Model access and usage depend on your account.', url: 'https://developers.cloudflare.com/workers-ai/' },
+  { name: 'AI Gateway', job: 'The control point', detail: 'Observe routed requests and apply security, cache or usage controls. Show a real request in your own dashboard.', url: 'https://developers.cloudflare.com/ai-gateway/' },
+];
+const article = {
+  '@context': 'https://schema.org', '@type': 'Article', headline: title, description,
+  url: canonical, mainEntityOfPage: canonical, image: new URL(kit + 'field-kit-og.jpg', canonical).href,
+  author: { '@type': 'Organization', name: 'Loftwah', url: 'https://loftwah.com/' },
+};
+---
+
+<Base title={title} description={description} canonical={canonical} printsProduct={isPrintsHost(Astro.url)} shareImage={kit + 'field-kit-og.jpg'} shareAlt="From brief to byte. A Prints DevRel field kit with a real coastal survey print on cream paper.">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(article)} />
+  <article class="field">
+    <header class="hero">
+      <div>
+        <h1>From brief<br />to byte.</h1>
+        <p>Show a real image. Follow the job through Fungi, Oyster and Cloudflare. Then put the same tools in your audience’s hands.</p>
+        <div class="actions">
+          <a class="primary" href={kit + 'prints-devrel-field-kit.zip'} download><ArrowDownToLine size={18} aria-hidden="true" /> Download the field kit</a>
+          <a href={kit + 'stage.html'}><Play size={17} aria-hidden="true" /> Open stage view</a>
+        </div>
+      </div>
+      <figure class="cover">
+        <img src={kit + 'coastal-survey.webp'} width="1120" height="1120" fetchpriority="high" decoding="async" alt="A printed coastal survey in oxide-red ink, with narrow contour lines and a compass rosette on bone paper." />
+        <figcaption>Coastal survey · Real Prints and Workers AI output <a href={workshop + '#proof'}>Trace the image <ArrowUpRight size={15} aria-hidden="true" /></a></figcaption>
+      </figure>
+    </header>
+
+    <nav class="jump" aria-label="Field kit sections">
+      <a href="#stage">Present</a><a href="#stack">Explain the stack</a><a href="#lab">Run the demo</a><a href="#access">Check attendee access</a>
+    </nav>
+
+    <section class="section two" id="stage" aria-labelledby="stage-title">
+      <div>
+        <h2 id="stage-title">Start with the print.</h2>
+        <p>“Here’s the original file. I want the brief that made it and a way to do it again next week. Let’s follow the job.”</p>
+      </div>
+      <div>
+        <div class="run"><strong>Five minutes</strong><p>Show the real image. Name each layer. Run the Worker in two formats. End with one thing the audience can try themselves.</p></div>
+        <div class="run"><strong>Twenty minutes</strong><p>Invite everyone to remix the brief, start a Worker, explore the Oyster trial, then follow one authorised request into their own Gateway dashboard.</p></div>
+        <div class="actions">
+          <a href={kit + 'SPEAKER.md'} download>Speaker notes <ArrowDownToLine size={16} aria-hidden="true" /></a>
+          <a href={kit + 'ATTENDEE.md'} download>Attendee handout <ArrowDownToLine size={16} aria-hidden="true" /></a>
+          <a href={kit + 'SHARE.md'} download>Event and follow-up copy <ArrowDownToLine size={16} aria-hidden="true" /></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="stack section" id="stack" aria-labelledby="roles-title">
+      <h2 id="roles-title">Six names. Six jobs.</h2>
+      <p>Fungi is the ecosystem. The image workflow is one way to put the pieces together. Add Gateway to the requests you want to observe or control.</p>
+      <dl>
+        {roles.map(({ name, job, detail, url }) => (
+          <div><dt><a href={url}>{name} <ArrowUpRight size={15} aria-hidden="true" /></a></dt><dd><strong>{job}</strong><span>{detail}</span></dd></div>
+        ))}
+      </dl>
+    </section>
+
+    <section class="section two" id="lab" aria-labelledby="lab-title">
+      <div>
+        <h2 id="lab-title">Run it twice. Show what changed.</h2>
+        <p>The local Worker turns the same fictional Midnight Arcade brief into a feed caption and a link caption. Attendees can verify the response themselves.</p>
+        <a class="direct" href={kit + 'sample-output.json'}>Read the recorded local output <ArrowUpRight size={16} aria-hidden="true" /></a>
+      </div>
+      <div class="lab">
+        <h3>Rehearse locally</h3>
+        <p>Extract the ZIP, open that folder in a terminal and start the Worker. The first run can download Wrangler.</p>
+        <pre><code>{'npx --yes wrangler@4.158.0 dev --local --ip 127.0.0.1 --port 8788'}</code></pre>
+        <pre><code>{"curl -fsS 'http://127.0.0.1:8788/api/brief?format=feed'\ncurl -fsS 'http://127.0.0.1:8788/api/brief?format=link'"}</code></pre>
+        <p>Look for <code>rehearsal-fixture</code> and <code>inferenceCalls: 0</code>. The Worker ran locally and the responses came from a fixed example.</p>
+        <h3>Trace a live request</h3>
+        <p>Use your Cloudflare account, an authenticated Gateway, a token with the relevant run permissions and a supported Workers AI text model. The kit’s README names each environment variable.</p>
+        <pre><code>{'node gateway.mjs\nnode gateway.mjs --live'}</code></pre>
+        <p>The first command is a dry run. The second sends one synthetic caption request and can incur charges. Find it by model and timestamp in your own Analytics or Logs. Check your logging settings, rate limits and budget before going on stage.</p>
+        <div class="actions"><a href="https://developers.cloudflare.com/ai-gateway/get-started/">Set up AI Gateway <ArrowUpRight size={15} aria-hidden="true" /></a><a href={kit + 'README.md'} download>Read the lab setup <ArrowDownToLine size={15} aria-hidden="true" /></a></div>
+      </div>
+    </section>
+
+    <section class="section two" id="access" aria-labelledby="access-title">
+      <div>
+        <h2 id="access-title">Can everyone follow along?</h2>
+        <p>Yes for the public material and the local rehearsal. The live exercises use the attendee’s own account, permissions and budget.</p>
+      </div>
+      <dl class="access">
+        <div><dt>Ready to share</dt><dd>This page, stage view, ZIP, prompts and proof receipts all open signed out. The kit includes no presenter credentials. Reuse the code and notes under MIT, and keep the artwork’s source credits.</dd></div>
+        <div><dt>Ready to run locally</dt><dd>The Worker rehearsal needs a supported Node release and Wrangler. The pinned Oyster trial in the image workshop uses Node 24.20.0 and Git. Local Oyster lets people open the Apps and connect over MCP.</dd></div>
+        <div><dt>Bring your own cloud access</dt><dd>Live Gateway use needs a Cloudflare account and an authorised model. A full Cloudflare Oyster deployment also needs Workers Paid and prerequisites such as Containers. Hosted Fungi access follows its current signup and funding rules.</dd></div>
+        <div><dt>What we can claim on stage</dt><dd>The local Worker replay and local Oyster setup were exercised. The historical images prove Prints and Workers AI generation. A successful live call and a record in the attendee’s gateway prove their Gateway route.</dd></div>
+      </dl>
+    </section>
+
+    <footer class="handoff">
+      <h2>Give them one thing to do.</h2>
+      <p>Start with the editable poster brief. Make a draft, keep the original, then choose the infrastructure you need for the next project.</p>
+      <div class="actions"><a class="primary" href={workshop}>Make your first poster <ArrowRight size={18} aria-hidden="true" /></a><a href="https://docs.fungi.computer/guides/run-your-own-oyster">Owned Oyster setup <ArrowUpRight size={16} aria-hidden="true" /></a></div>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .field { --peach:#ffdab8; --ink:#241a22; --rule:var(--color-border); }
+  .field section { scroll-margin-top:18px; }
+  .field h2 { margin:0 0 12px; font-size:clamp(1.9rem,4.1vw,3.3rem); line-height:1.06; text-wrap:balance; }
+  .field p { max-width:65ch; margin:0 0 12px; }
+  .field a { color:var(--color-accent); }
+  .field a:focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
+  .hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.8fr); gap:clamp(18px,5vw,65px); align-items:center; color:var(--ink); background:var(--peach); padding:clamp(17px,4.5vw,64px); border-radius:12px; }
+  .hero h1 { margin:0 0 15px; font-size:clamp(2.8rem,8vw,6rem); line-height:.96; font-weight:700; letter-spacing:-.04em; }
+  .hero p { max-width:34ch; color:#503347; font-size:clamp(1.02rem,1.8vw,1.25rem); }
+  .hero a { color:var(--ink); }
+  .hero a:focus-visible { outline-color:var(--ink); }
+  .actions { display:flex; flex-wrap:wrap; align-items:center; gap:3px 14px; }
+  .actions a,.direct,.cover a { display:inline-flex; align-items:center; gap:6px; min-height:44px; }
+  .actions .primary { padding:0 12px; border-radius:6px; color:#fff1df; background:var(--ink); font-weight:700; }
+  .actions .primary:hover { background:#503347; }
+  .cover { max-width:440px; margin:0; }
+  .cover img { display:block; width:100%; height:auto; border-radius:5px; box-shadow:0 9px 24px #36202d34; }
+  .cover figcaption { margin-top:8px; color:#503347; font-size:.86rem; }
+  .cover a { padding-inline:5px; }
+  .jump { display:flex; flex-wrap:wrap; gap:0 18px; padding:5px 0; border-bottom:1px solid var(--rule); }
+  .jump a { display:inline-flex; min-height:44px; align-items:center; }
+  .section { margin-block:clamp(36px,6vw,80px); }
+  .two { display:grid; grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr); gap:12px clamp(24px,6vw,84px); }
+  .section p,.access dd,.stack dd span { color:var(--color-muted); }
+  .run,.stack dl div,.access div { border-top:1px solid var(--rule); padding:10px 0; }
+  .run p { margin:2px 0 0; }
+  .stack dl { margin:18px 0 0; }
+  .stack dl div { display:grid; grid-template-columns:minmax(135px,.68fr) minmax(0,1.32fr); gap:3px 15px; }
+  .stack dt a { display:inline-flex; align-items:center; gap:6px; min-height:44px; }
+  .stack dd,.access dd { margin:0; }
+  .stack dd span { display:block; }
+  .lab h3 { margin:0 0 6px; }
+  .lab pre { overflow-x:auto; padding:11px; border:1px solid var(--rule); border-radius:5px; background:var(--color-surface); }
+  .lab h3:not(:first-child) { margin-top:26px; }
+  .access { margin:0; }
+  .access dt { font-weight:750; }
+  .handoff { border-top:1px solid var(--rule); padding-top:20px; }
+  @media(max-width:760px) {
+    .hero,.two { grid-template-columns:minmax(0,1fr); }
+    .cover { max-width:335px; }
+    .stack dl div { grid-template-columns:minmax(0,1fr); gap:0; }
+  }
+</style>

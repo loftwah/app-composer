@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>From brief to byte · Prints DevRel stage</title>
+  <link rel="stylesheet" href="stage.css">
+  <script src="stage.js" defer></script>
+</head>
+<body>
+  <header class="top"><a href="https://prints.loftwah.com/devrel">Prints field kit</a><nav id="controls" aria-label="Stage controls" hidden><button type="button" id="previous">Previous</button><span id="position" role="status"></span><button type="button" id="next">Next</button></nav></header>
+  <main class="deck">
+    <section class="scene opening" aria-labelledby="opening">
+      <div><h1 id="opening">From brief<br>to byte.</h1><p>One image. A file you can keep. A workflow you can run again.</p></div>
+      <figure><img src="coastal-survey.webp" width="1120" height="1120" alt="Oxide-red coastal contours and a compass on pale paper."><figcaption>Coastal survey · Oyster, Prints and Workers AI · prior run</figcaption></figure>
+    </section>
+    <section class="scene paper" aria-labelledby="roles">
+      <h2 id="roles">Six names.<br>Six jobs.</h2>
+      <dl><div><dt>Fungi</dt><dd>Apps, agents and Computers</dd></div><div><dt>Oyster</dt><dd>Hosts the Apps and checks access</dd></div><div><dt>Prints</dt><dd>Tracks the job and saves the original</dd></div><div><dt>Workers</dt><dd>Runs your application code</dd></div><div><dt>Workers AI</dt><dd>Runs the model</dd></div><div><dt>AI Gateway</dt><dd>Observes and controls routed requests</dd></div></dl>
+    </section>
+    <section class="scene" aria-labelledby="rehearsal">
+      <h2 id="rehearsal">Start on your laptop.</h2>
+      <p>Try the same brief in two formats. The Worker runs locally and returns a fixture.</p>
+      <pre><code>curl -fsS 'http://127.0.0.1:8788/api/brief?format=feed'
+curl -fsS 'http://127.0.0.1:8788/api/brief?format=link'</code></pre>
+      <p class="fine">Show the mode and zero-inference counter. Setup is in the kit README.</p>
+    </section>
+    <section class="scene paper" aria-labelledby="gateway">
+      <h2 id="gateway">Show the request.</h2>
+      <p>Send one fictional caption through your own AI Gateway. Find its model, duration and status in Analytics or Logs.</p>
+      <pre><code>node gateway.mjs
+node gateway.mjs --live</code></pre>
+      <p class="fine">The second command uses your account and can incur charges. A fixture is evidence of the rehearsal. A dashboard request proves live routing.</p>
+    </section>
+    <section class="scene" aria-labelledby="audience">
+      <h2 id="audience">Everyone gets a start.</h2>
+      <dl><div><dt>Today</dt><dd>Public kit, poster brief and local Worker</dd></div><div><dt>Next</dt><dd>Local Oyster and a read-only MCP check</dd></div><div><dt>When ready</dt><dd>Your Cloudflare account, permissions and budget</dd></div></dl>
+      <p class="fine">The full Cloudflare Oyster host needs Workers Paid. Hosted Fungi access follows its own prerequisites.</p>
+    </section>
+    <section class="scene paper" aria-labelledby="finish">
+      <h2 id="finish">Make one thing.<br>Keep the original.</h2>
+      <p>Choose an idea, run a workflow you understand, and save what lets you repeat it.</p>
+      <div class="links"><a href="https://prints.loftwah.com/devrel">Get the field kit</a><a href="https://prints.loftwah.com/make">Make your first poster</a></div>
+    </section>
+  </main>
+</body>
+</html>

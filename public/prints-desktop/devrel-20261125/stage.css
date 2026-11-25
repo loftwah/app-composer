@@ -1,0 +1,39 @@
+:root { color-scheme: dark; --ink:#241a22; --cream:#fff1df; --peach:#ffdab8; }
+* { box-sizing:border-box; }
+body { margin:0; background:#17151a; color:var(--cream); font: 17px/1.5 system-ui,sans-serif; }
+a { color:inherit; font-weight:700; }
+.top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px 16px; padding:10px max(16px,calc((100vw - 1240px)/2)); }
+.top > a { text-decoration:none; }
+nav:not([hidden]) { display:flex; align-items:center; gap:8px; }
+nav span { min-width:3rem; text-align:center; }
+button { min-height:44px; padding:0 10px; border:1px solid #967969; border-radius:5px; background:#2d242c; color:inherit; font:inherit; cursor:pointer; }
+button:disabled { opacity:.55; cursor:default; }
+:is(a,button):focus-visible { outline:2px solid #ffab7d; outline-offset:4px; }
+.deck { max-width:1280px; padding:0 14px 18px; margin:auto; }
+.scene { display:grid; align-content:center; gap:clamp(12px,2vw,23px); min-height:min(75vh,730px); margin-bottom:12px; padding:clamp(17px,5vw,62px); background:var(--ink); border:1px solid #725951; border-radius:10px; }
+.scene[hidden] { display:none; }
+.opening { grid-template-columns:minmax(0,1fr) minmax(0,.82fr); align-items:center; }
+.paper { background:var(--peach); color:var(--ink); border-color:transparent; }
+h1,h2 { font-size:clamp(2.25rem,7.4vw,6.3rem); font-weight:800; line-height:1; letter-spacing:-.035em; margin:0; text-wrap:balance; }
+p { max-width:42ch; margin:0; font-size:clamp(1.03rem,2.2vw,1.72rem); }
+figure { max-width:400px; margin:0; }
+img { display:block; width:100%; height:auto; border-radius:5px; }
+figcaption,.fine { margin-top:6px; font-size:clamp(.92rem,1.45vw,1.12rem); }
+dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 20px; margin:0; }
+dl div { padding:8px 0; border-top:1px solid currentColor; }
+dt { font-weight:800; font-size:clamp(1rem,2.5vw,1.6rem); }
+dd { margin:0; }
+pre { overflow-x:auto; margin:0; padding:15px; border:1px solid currentColor; border-radius:5px; max-width:100%; font:clamp(.75rem,1.55vw,1.13rem)/1.55 ui-monospace,monospace; }
+.links { display:flex; flex-wrap:wrap; gap:9px 18px; }
+@media(max-width:650px) {
+ .scene { min-height:0; }
+ .opening { grid-template-columns:minmax(0,1fr); }
+ .opening figure { max-width:280px; }
+ dl { grid-template-columns:minmax(0,1fr); }
+}
+@media print {
+ .top { display:none; }
+ .deck { padding:0; }
+ .scene[hidden] { display:grid; }
+ .scene { min-height:0; break-after:page; color:#241a22; background:white; padding:20px; }
+}
