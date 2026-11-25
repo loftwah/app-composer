@@ -1,1 +1,9 @@
-try{const theme=localStorage.getItem("composer-theme");if(theme==="light"){document.documentElement.dataset.theme="light";document.querySelector("meta[name=theme-color]")?.setAttribute("content","#faf9f7");}}catch{}
+try {
+  const root = document.documentElement;
+  const theme = localStorage.getItem(root.dataset.themeKey ?? "composer-theme");
+  if (theme === "light" || theme === "dark") {
+    root.dataset.theme = theme;
+    const color = document.querySelector("meta[name=theme-color]");
+    if (color?.dataset[theme]) color.content = color.dataset[theme];
+  }
+} catch {}

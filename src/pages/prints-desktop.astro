@@ -52,7 +52,7 @@ const schema = {
   <article class="prints">
     <PrintsArchive guide={`${routePrefix}/make`} watch={`${routePrefix}/watch`} compare={compare} />
     <PrintsFirstSteps frontDoor />
-    <section class="front-door-share" id="share-prints" aria-labelledby="share-prints-title">
+    <section class="front-door-share" id="share-prints" tabindex="-1" aria-labelledby="share-prints-title">
       <h2 id="share-prints-title">Share Prints</h2>
       <p>Choose a poster for the workshop, a workflow, or the dated download snapshot. Each pack includes captions and alt text.</p>
       <ul>
@@ -211,12 +211,11 @@ const schema = {
   .front-door-share a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; }
 
   .prints {
-    --prints-accent: #ffad69;
+    --prints-accent: var(--color-accent);
     --prints-screen: #191919;
     --prints-rule: var(--color-border);
   }
 
-  :global([data-theme="light"]) .prints { --prints-accent: #993c00; }
   .prints :is(section, details) { scroll-margin-top: 5rem; }
   .prints .product-link { margin-top: 12px; }
   .native-heading { margin-bottom: 15px; }

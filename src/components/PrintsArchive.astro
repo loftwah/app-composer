@@ -40,8 +40,8 @@ const printsProduct = isPrintsHost(Astro.url);
   .archive-actions,.archive-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
   .archive-actions a,.archive-links a { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; font-size: .9rem; }
   .archive-actions a { font-weight: 700; }
-  .download { border-radius: 6px; padding: 0 12px; background: #f48120; color: #171717; }
-  .download:hover { background: #ff9a43; color: #171717; }
+  .download { border-radius: 6px; padding: 0 12px; background: var(--color-action); color: var(--color-on-action); }
+  .download:hover { background: var(--color-action-hover); color: var(--color-on-action); }
   .archive-links a { color: var(--color-muted); }
   .archive-links a:hover { color: var(--color-foreground); }
   .compare-proof { min-width: 0; margin: 0; }
@@ -55,7 +55,7 @@ const printsProduct = isPrintsHost(Astro.url);
     .archive h1 { max-width: 15ch; }
   }
   @media(max-width: 620px) {
-    .archive h1 { max-width: none; margin-bottom: 12px; font-size: clamp(1.8125rem,8.7vw,2.875rem); line-height: 1.04; }
+    .archive h1 { max-width: none; margin-bottom: 12px; font-size: clamp(1.9rem,8.4vw,2.875rem); line-height: 1.04; text-wrap: initial; }
     .archive .lede { margin-bottom: 13px; }
     .archive-actions,.archive-links { column-gap: 10px; }
     .archive-actions .download { padding-inline: 9px; }

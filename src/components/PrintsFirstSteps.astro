@@ -13,7 +13,7 @@ const posters = [
 ];
 
 ---
-<section class="paths" id="paths" aria-labelledby="paths-title" data-workshop>
+<section class="paths" id="paths" tabindex="-1" aria-labelledby="paths-title" data-workshop>
   <header>
     <h2 id="paths-title">How do you want to work?</h2>
     <p>Pick a first step. Each recipe has a prompt you can copy into the agent or image tool you already use.</p>
@@ -53,7 +53,7 @@ const posters = [
   .path-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 30px; }
   .path-list details { min-width: 0; align-self: start; border-block-start: 1px solid var(--color-border); }
   .path-list summary { cursor: pointer; min-height: 50px; padding-block: 12px; font-size: clamp(1.08rem,2vw,1.26rem); font-weight: 700; }
-  .path-list summary::marker { color: #f48120; }
+  .path-list summary::marker { color: var(--color-accent); }
   .path-body { padding: 0 0 18px; }
   .path-body p { margin-bottom: 6px; }
   .path-body a { display: inline-flex; align-items: center; min-height: 44px; gap: 5px; font-weight: 650; }
