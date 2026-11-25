@@ -25,7 +25,7 @@ test('the Prints host exposes the product pages without Composer sessions', () =
 
 test('the separate sitemap only lists actual product URLs', async () => {
   const sitemap = await get('/sitemap.xml').text();
-  for (const path of ['/', '/watch', '/guide', '/make', '/devrel', '/story']) assert.ok(sitemap.includes(`<loc>${site}${path}</loc>`));
+  for (const path of ['/', '/watch', '/guide', '/make', '/devrel', '/story', '/downloads']) assert.ok(sitemap.includes(`<loc>${site}${path}</loc>`));
   assert.ok((await get('/robots.txt').text()).includes(`Sitemap: ${site}/sitemap.xml`));
   assert.equal(await get('/robots.txt', { method: 'HEAD' }).text(), '');
 });
