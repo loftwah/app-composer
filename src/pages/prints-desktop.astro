@@ -1,8 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
+import PrintsFirstSteps from '../components/PrintsFirstSteps.astro';
 import PrintsArchive from '../components/PrintsArchive.astro';
-import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt } from '../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt, printsWorkshopShareFolder, printsDownloadShareFolder, printsWorkflowShareFolder } from '../lib/prints-site.mjs';
 import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
@@ -16,6 +17,11 @@ const compare = `${asset}archive-compare-v0.4.0.webp`;
 const local = `${asset}local-library-v0.3.1.webp`;
 const hosted = `${asset}oyster-library-demo-v0.3.1.webp`;
 const canonical = printsOrigin + '/';
+const packs = [
+  { label: 'Workshop posters', url: printsWorkshopShareFolder + 'prints-workshop-social-kit.zip' },
+  { label: 'Workflow posters', url: printsWorkflowShareFolder + 'prints-workflow-social-kit.zip' },
+  { label: 'Download snapshot posters', url: printsDownloadShareFolder + 'prints-downloads-social-kit.zip' },
+];
 const product = isPrintsHost(Astro.url);
 const routePrefix = product ? '' : '/prints-desktop';
 const description = 'Explore the Loftwah Creative Archive and download Prints Desktop for macOS, Windows or Linux. Browse local images, save prompt drafts and export originals. Connect your Prints library through Oyster.';
@@ -45,6 +51,14 @@ const schema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
     <PrintsArchive guide={`${routePrefix}/make`} story={`${routePrefix}/story`} />
+    <PrintsFirstSteps frontDoor />
+    <section class="front-door-share" id="share-prints" aria-labelledby="share-prints-title">
+      <h2 id="share-prints-title">Share Prints</h2>
+      <p>Send people straight to prints.loftwah.com. Each pack includes images, captions and alt text.</p>
+      <ul>
+        {packs.map(({ label, url }) => <li><a href={url} download>{label} <ArrowDownToLine size={16} aria-hidden="true" /></a></li>)}
+      </ul>
+    </section>
     {!product && <p class="product-link"><a class="quiet-link" href={printsOrigin}>Visit prints.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a></p>}
     <section id="afterlight" aria-label="Try the Afterlight contact sheet">
       <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />
@@ -182,6 +196,11 @@ const schema = {
 </Base>
 
 <style>
+  .front-door-share { margin: 0 0 clamp(28px,6vw,70px); padding-block-start: 16px; border-top: 1px solid var(--color-border); }
+  .front-door-share h2 { margin: 0 0 8px; }
+  .front-door-share ul { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 0; list-style: none; }
+  .front-door-share a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; }
+
   .prints {
     --prints-accent: #ffb08c;
     --prints-screen: #19151f;

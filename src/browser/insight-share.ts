@@ -34,7 +34,7 @@ if (root) {
     try {
       await navigator.clipboard.writeText(value);
       show(
-        `${label} copied. It keeps the same metric, window and route scope.`,
+        `${label} copied.`,
       );
       return;
     } catch {
@@ -79,7 +79,7 @@ if (root) {
             url: payload!.url,
           });
           show(
-            "Share handed to your device. The public address re-checks the source before showing these numbers.",
+            "Opened your device’s share menu.",
           );
         } catch (error) {
           if (error instanceof DOMException && error.name === "AbortError")

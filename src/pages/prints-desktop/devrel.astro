@@ -1,13 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { ArrowDown, ArrowDownToLine, ArrowRight, ArrowUpRight, Play } from '@lucide/astro';
-import { isPrintsHost, printsFieldKitZip, printsOrigin } from '../../lib/prints-site.mjs';
+import { isPrintsHost, printsFieldKitFolder as kit, printsFieldKitZip, printsOrigin, printsShare as shareArt } from '../../lib/prints-site.mjs';
 
-const kit = '/prints-desktop/devrel-20261125/';
 const title = 'From brief to byte';
 const description = 'A public workshop kit for Fungi, Oyster, Prints, Cloudflare Workers, Workers AI and AI Gateway. Present the story, run a local Worker and try a live Gateway lab on your own account.';
 const canonical = printsOrigin + '/workshop-kit';
-const shareArt = '/prints-desktop/workshop-share-20261125/wide.jpg';
 const workshop = 'https://prints.loftwah.com/make';
 const roles = [
   { name: 'Fungi', job: 'The ecosystem', detail: 'Apps, agents and Computers. Shiitake is the terminal agent.', url: 'https://docs.fungi.computer/ecosystem' },

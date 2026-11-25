@@ -1,7 +1,7 @@
 {
   "schema": "prints.download-share/v1",
   "capturedAt": "2026-11-25T03:50:50Z",
-  "report": "https://prints.loftwah.com/downloads",
+  "report": "https://prints.loftwah.com/",
   "release": "v0.4.0",
   "packages": {
     "source": "https://github.com/loftwah/prints-desktop/releases/tag/v0.4.0",
@@ -12,12 +12,12 @@
     "windows-x64": 3
   },
   "installs": "unmeasured",
-  "alt": "Prints Desktop. On 25 November 2026, v0.4.0 had nine desktop package downloads. The workshop ZIP had one full response over seven days UTC. An orange machined camera aperture opens onto a white paper coastline.",
+  "alt": "Prints Desktop. On 25 November 2026, v0.4.0 had nine desktop package downloads. The workshop ZIP had one full response over seven days UTC. An orange mechanical aperture opens onto a white paper coastline. prints.loftwah.com.",
   "artwork": {
     "generator": "Built-in ImageGen",
     "method": "Each complete poster was generated with its final lettering. Export processing was limited to resize, light crop and JPEG encoding."
   },
-  "caption": "Prints Desktop v0.4.0 · 9 desktop package downloads.\nWorkshop ZIP · 1 response in seven days, UTC.\nSnapshot 25 November 2026. Installs unmeasured.\nhttps://prints.loftwah.com/downloads",
+  "caption": "Prints Desktop v0.4.0 · 9 desktop package downloads.\nWorkshop ZIP · 1 response in seven days, UTC.\nSnapshot 25 November 2026. Installs unmeasured.\nhttps://prints.loftwah.com/",
   "formats": [
     {
       "file": "wide.jpg",
@@ -25,7 +25,7 @@
       "width": 1200,
       "height": 630,
       "use": "Link previews and landscape posts",
-      "sha256": "f08872933a2f1732822fb168768ae02f42f9b716f4822fca3c989c68b6ee73ae"
+      "sha256": "ac6a6de877d7e58bc8a84581c0a55dc4a5ddddda31bdaa907459cd0627fa9b2b"
     },
     {
       "file": "square.jpg",
@@ -33,7 +33,7 @@
       "width": 1080,
       "height": 1080,
       "use": "Square feeds and carousels",
-      "sha256": "2c3dcccdea7a351c1fd0ad3653bea164f3c09312bffdf6e1b1ccbba887d4be02"
+      "sha256": "cac2c34a26ff7995035330d5a0f5bee9d54160acdcdd8cf8fedef12bb36d17db"
     },
     {
       "file": "feed.jpg",
@@ -41,7 +41,7 @@
       "width": 1080,
       "height": 1350,
       "use": "Tall feed posts",
-      "sha256": "4e0716af77baa344a140b060dc5da9f1beb5acf5650b23c2c2c1dd2c806a908f"
+      "sha256": "3ab314b5db73396a11d2595ef39a915d72d34178ff7f497c835294ffcc7cba4b"
     },
     {
       "file": "story.jpg",
@@ -49,7 +49,7 @@
       "width": 1080,
       "height": 1920,
       "use": "Stories and vertical covers",
-      "sha256": "f0abe8a5eaef82c6bd24f3a601f69db7d209c38da5a7fa4fe9eda7d920df253e"
+      "sha256": "134583dc333f0a6a02edcf8515f1fe4d187185964360e6bc123ba665f82154a3"
     }
   ],
   "workshop": {
