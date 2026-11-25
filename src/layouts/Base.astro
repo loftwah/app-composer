@@ -6,6 +6,7 @@ import AppLauncher from "../components/AppLauncher.astro";
 import BuilderContext from "../components/BuilderContext.astro";
 import {noindexFor} from "../lib/indexing.mjs";
 import {publicPageCanonical} from "../lib/public-pages.mjs";
+import {printsIcon} from "../lib/prints-site.mjs";
 import {siteShareArtwork, siteShareImageType} from "../lib/site-share-artwork.mjs";
 interface Props {
   title: string;
@@ -24,15 +25,19 @@ interface Props {
   /** The launcher study mounts its own instance; the controller binds by ID. */
   launcher?: boolean;
   focusedExperience?: boolean;
+  /** Dedicated Prints product hostname. */
+  printsProduct?: boolean;
 }
 const {
   title,
   description,
   noindex = noindexFor(Astro.url.hostname, (Astro.response.status ?? 200) < 400),
 } = Astro.props;
-const pageTitle = title.includes("App Composer")
+const printsProduct = Astro.props.printsProduct === true;
+const siteName = printsProduct ? "Prints Desktop" : "App Composer";
+const pageTitle = title.includes(siteName)
   ? title
-  : title + " · App Composer";
+  : title + " · " + siteName;
 const canonical = Astro.props.canonical
   ? new URL(Astro.props.canonical)
   : publicPageCanonical(Astro.url.pathname);
@@ -59,15 +64,22 @@ Astro.csp?.insertScriptResource(
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="manifest" href={printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />
     <meta name="theme-color" content="#17181b" />
-    <link rel="icon" href="/brand/composer-icon-tile-20261022b.svg" type="image/svg+xml" sizes="any" />
-    <link rel="icon" href="/brand/favicon-20261022b.ico" sizes="any" />
-    <link rel="icon" href="/brand/composer-icon-20261022b-16.png" type="image/png" sizes="16x16" />
-    <link rel="icon" href="/brand/composer-icon-20261022b-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/brand/composer-icon-20261022b-48.png" type="image/png" sizes="48x48" />
-    <link rel="icon" href="/brand/composer-icon-20261022b-96.png" type="image/png" sizes="96x96" />
-    <link rel="apple-touch-icon" href="/brand/composer-icon-20261022b-180.png" sizes="180x180" />
+    {printsProduct ? <>
+      <link rel="icon" href="/prints-desktop/icons/aperture-16-20261125.png" type="image/png" sizes="16x16" />
+      <link rel="icon" href={printsIcon} type="image/png" sizes="32x32" />
+      <link rel="icon" href="/prints-desktop/icons/favicon-20261125.ico" type="image/x-icon" sizes="16x16 32x32 48x48 64x64" />
+      <link rel="apple-touch-icon" href="/prints-desktop/icons/aperture-180-20261125.png" />
+    </> : <>
+      <link rel="icon" href="/brand/composer-icon-tile-20261022b.svg" type="image/svg+xml" sizes="any" />
+      <link rel="icon" href="/brand/favicon-20261022b.ico" sizes="any" />
+      <link rel="icon" href="/brand/composer-icon-20261022b-16.png" type="image/png" sizes="16x16" />
+      <link rel="icon" href="/brand/composer-icon-20261022b-32.png" type="image/png" sizes="32x32" />
+      <link rel="icon" href="/brand/composer-icon-20261022b-48.png" type="image/png" sizes="48x48" />
+      <link rel="icon" href="/brand/composer-icon-20261022b-96.png" type="image/png" sizes="96x96" />
+      <link rel="apple-touch-icon" href="/brand/composer-icon-20261022b-180.png" sizes="180x180" />
+    </>}
     <!-- Deliberate: /brand/space-latin-20261018.woff2 is the declared source of the one bundled
          face in global.css and the family every heading asks for, so the single
          early request is consumed. tests/font-preload.test.mjs locks the pairing. -->
@@ -82,7 +94,7 @@ Astro.csp?.insertScriptResource(
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content="App Composer" />
+    <meta property="og:site_name" content={siteName} />
     <meta property="og:image" content={shareImage.href} />
     <meta property="og:image:type" content={shareType} />
     {shareWidth !== null && <meta property="og:image:width" content={String(shareWidth)} />}
@@ -99,12 +111,17 @@ Astro.csp?.insertScriptResource(
     <link rel="stylesheet" href="/brand/page-share.css" />
     <link rel="stylesheet" href="/brand/theme-control.css" />
   </head>
-  <body class:list={{ "home-shell": Astro.props.homePage, "focused-experience": focusedExperience }}>
+  <body class:list={{ "home-shell": Astro.props.homePage, "focused-experience": focusedExperience, "prints-product": printsProduct }}>
     <a class="skip" href="#main">
       Skip to content
     </a>
     <header class="site-header">
-      {focusedExperience ? (
+      {printsProduct ? (
+        <a class="brand select-none" href="/">
+          <img src={printsIcon} width="32" height="32" alt="" />
+          <span>Prints Desktop</span>
+        </a>
+      ) : focusedExperience ? (
         <a class="brand select-none" href="/">
           <img src="/brand/composer-icon-tile-20261022b.svg" width="24" height="24" alt="" />
           <span>App Composer</span>
@@ -118,7 +135,13 @@ Astro.csp?.insertScriptResource(
           )}
         </span>
       </a>}
-      {!focusedExperience && <nav class="site-navigation" aria-label="Main navigation">
+      {printsProduct && <nav class="prints-nav" aria-label="Prints navigation">
+        <a href="/#archive">Archive</a>
+        <a href="/watch" aria-current={Astro.url.pathname.endsWith('/watch') ? 'page' : undefined}>Watch</a>
+        <a href="/guide" aria-current={Astro.url.pathname.endsWith('/guide') ? 'page' : undefined}>Guide</a>
+        <a class="prints-download" href="/#downloads">Download</a>
+      </nav>}
+      {!printsProduct && !focusedExperience && <nav class="site-navigation" aria-label="Main navigation">
         <a class="nav-direct" href="/learn">Learn</a>
         <a class="nav-direct" href="/demo">Demos</a>
         <a class="nav-direct" href="/media-studio">Media Studio</a>
@@ -157,7 +180,7 @@ Astro.csp?.insertScriptResource(
         </details>
       </nav>}
       <div class="header-utilities">
-        {!focusedExperience && Astro.props.launcher !== false && <AppLauncher />}
+        {!printsProduct && !focusedExperience && Astro.props.launcher !== false && <AppLauncher />}
         <button
           type="button"
           class="theme-control secondary theme-toggle shrink-0"
@@ -199,11 +222,18 @@ Astro.csp?.insertScriptResource(
       </div>
     </header>
     <main id="main">
-      {!focusedExperience && <BuilderContext />}
+      {!printsProduct && !focusedExperience && <BuilderContext />}
       <slot />
       <slot name="page-share" />
     </main>
-    {focusedExperience ? <footer><a href="/privacy">Privacy</a></footer> : <footer>
+    {printsProduct ? <footer class="prints-footer">
+      <p>Prints Desktop by <a href="https://loftwah.com">Loftwah</a>.</p>
+      <nav aria-label="Prints project links">
+        <a href="https://composer.loftwah.com/prints-desktop">App Composer showcase</a>
+        <a href="https://github.com/loftwah/prints-desktop">Source and releases</a>
+        <a href="https://composer.loftwah.com/privacy">Privacy</a>
+      </nav>
+    </footer> : focusedExperience ? <footer><a href="/privacy">Privacy</a></footer> : <footer>
       {!noindex && !Astro.slots.has("page-share") && (
         <div class="public-page-share" data-page-share hidden>
           <button type="button" class="secondary" data-page-native hidden>
@@ -301,4 +331,20 @@ Astro.csp?.insertScriptResource(
   .focused-experience .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
   .focused-experience .site-header .brand > img { width: 24px; height: 24px; }
   .focused-experience #main { padding-block-start: .65rem; }
+  .prints-product .site-header { grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 20px; min-height: 65px; }
+  .prints-product .site-header .brand { font-size: 1.24rem; min-height: 44px; }
+  .prints-product .site-header .brand > img { width: 32px; height: 32px; }
+  .prints-nav { align-items: center; flex-wrap: nowrap; gap: clamp(6px, 2vw, 22px); }
+  .prints-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 3px; color: var(--color-muted); }
+  .prints-nav :is(a:hover, a[aria-current="page"]) { color: var(--color-foreground); }
+  .prints-nav .prints-download { padding-inline: 12px; border-radius: 6px; background: #ffdab8; color: #24171d; }
+  .prints-nav .prints-download:hover { background: #ffbe96; color: #24171d; }
+  .prints-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 4px 20px; }
+  .prints-footer p { margin: 0; }
+  .prints-footer nav a { display: inline-flex; align-items: center; min-height: 44px; }
+  @media (max-width: 620px) {
+    .prints-product .site-header { grid-template-columns: minmax(0, 1fr) auto; padding-block: 8px; }
+    .prints-product .header-utilities { grid-column: 2; grid-row: 1; }
+    .prints-nav { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; font-size: .88rem; }
+  }
 </style>

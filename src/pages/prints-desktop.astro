@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
+import PrintsArchive from '../components/PrintsArchive.astro';
+import { isPrintsHost, printsOrigin, printsShare } from '../lib/prints-site.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
@@ -18,8 +20,10 @@ const builds = [
   { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz' },
   { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip' },
 ];
-const canonical = 'https://composer.loftwah.com/prints-desktop';
-const description = 'Pick a print from Afterlight, then try Prints Desktop. Browse local images, save prompt drafts and export originals on macOS, Windows or Linux. Connect a Prints library through Oyster.';
+const canonical = printsOrigin + '/';
+const product = isPrintsHost(Astro.url);
+const routePrefix = product ? '' : '/prints-desktop';
+const description = 'Explore the Loftwah Creative Archive and download Prints Desktop for macOS, Windows or Linux. Browse local images, save prompt drafts and export originals. Connect your Prints library through Oyster.';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -39,12 +43,17 @@ const schema = {
   title="Prints Desktop"
   description={description}
   canonical={canonical}
-  shareImage={`${asset}which-print-og-20261125.jpg`}
-  shareAlt="Which print gets the wall? Four Afterlight landscapes on a peach Prints Desktop contact sheet."
+  printsProduct={product}
+  shareImage={printsShare}
+  shareAlt="Prints Desktop presents the Loftwah Creative Archive, with artwork from LoftwahFM, Fighter and Bubbles."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />
+    <PrintsArchive guide={`${routePrefix}/guide`} />
+    { !product && <p class="product-link"><a class="quiet-link" href={printsOrigin}>Visit prints.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a></p> }
+    <section id="afterlight" aria-label="Try the Afterlight contact sheet">
+      <AfterlightWall downloads="#downloads" walkthrough="#walkthrough" />
+    </section>
 
     <section class="native" aria-labelledby="what-title">
       <div class="native-heading">
@@ -65,7 +74,7 @@ const schema = {
         <p>Watch the native app browse Afterlight, save an original, draft a prompt and open an example Oyster library.</p>
       </div>
       <PrintsWalkthrough />
-      <a class="quiet-link" href="/prints-desktop/watch">Open the video page <ArrowUpRight size={16} aria-hidden="true" /></a>
+      <a class="quiet-link" href={`${routePrefix}/watch`}>Open the video page <ArrowUpRight size={16} aria-hidden="true" /></a>
     </section>
 
     <section class="workflows" aria-labelledby="workflows-title">
@@ -106,7 +115,7 @@ const schema = {
       </div>
       <dl>
         <div>
-          <dt>Prints Desktop</dt>
+          <dt>Prints Desktop · <a href="https://github.com/anomalyco/rune">Rune</a></dt>
           <dd>Loftwah’s independent Rust and Rune app. It runs the offline workspace and talks directly to Oyster for supported, authorised reads.</dd>
         </div>
         <div>
@@ -122,8 +131,8 @@ const schema = {
           <dd>Fungi makes the connected creative tools. Shiitake is its terminal coding agent for working in a local project. Browse Afterlight or connect Oyster directly from Prints Desktop.</dd>
         </div>
         <div>
-          <dt><a href="/projects">App Composer</a></dt>
-          <dd>The public home for the project, its walkthrough and downloads. The desktop project ships from its own repository.</dd>
+          <dt><a href="https://composer.loftwah.com/projects">App Composer</a></dt>
+          <dd>The portfolio showcase, educational resources and optional publishing through Share. Prints Desktop ships from its own repository.</dd>
         </div>
       </dl>
     </section>
@@ -168,6 +177,7 @@ const schema = {
 
   :global([data-theme="light"]) .prints { --prints-accent: #96371e; }
   .prints :is(section, details) { scroll-margin-top: 5rem; }
+  .product-link { margin-top: 12px !important; }
   .native-heading { margin-bottom: 15px; }
   .quiet-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; }
   .quiet-link, .ecosystem dt a { color: var(--prints-accent); }

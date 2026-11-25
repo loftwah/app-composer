@@ -1,0 +1,59 @@
+export const printsOrigin = 'https://prints.loftwah.com';
+export const printsIcon = '/prints-desktop/icons/aperture-32-20261125.png';
+export const printsShare = '/prints-desktop/loftwah-archive-og-20261125.jpg';
+
+const productRoutes = new Map([
+  ['/', '/prints-desktop'],
+  ['/watch', '/prints-desktop/watch'],
+  ['/guide', '/prints-desktop/guide'],
+]);
+
+export function isPrintsHost(url) {
+  return url.hostname === new URL(printsOrigin).hostname;
+}
+
+// The public hostname exposes a small, read-only surface on the existing
+// Worker. Composer APIs, admin routes, and session headers stay on Composer.
+export function printsDomainRequest(request) {
+  const url = new URL(request.url);
+  if (!isPrintsHost(url)) return null;
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return new Response(null, { status: 405, headers: { Allow: 'GET, HEAD' } });
+  }
+
+  const path = url.pathname.length > 1 ? url.pathname.replace(/\/$/, '') : '/';
+  const legacyPath = [...productRoutes].find(([, internal]) => internal === path)?.[0];
+  const canonicalPath = legacyPath ?? path;
+  if (productRoutes.has(canonicalPath) && (canonicalPath !== url.pathname || url.origin !== printsOrigin)) {
+    const target = new URL(canonicalPath, printsOrigin);
+    target.search = url.search;
+    return Response.redirect(target, 308);
+  }
+
+  if (path === '/robots.txt' && path === url.pathname) {
+    return new Response(request.method === 'HEAD' ? null : `User-agent: *\nAllow: /\nSitemap: ${printsOrigin}/sitemap.xml\n`, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+    });
+  }
+  if (path === '/sitemap.xml' && path === url.pathname) {
+    const entries = [...productRoutes.keys()].map((route) => `<url><loc>${new URL(route, printsOrigin).href}</loc></url>`);
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
+    return new Response(request.method === 'HEAD' ? null : xml, {
+      headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+    });
+  }
+
+  const internal = productRoutes.get(path);
+  if (!internal) {
+    return new Response(request.method === 'HEAD' ? null : 'Page not found', {
+      status: 404,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
+    });
+  }
+  url.pathname = internal;
+  const headers = new Headers(request.headers);
+  for (const header of ['Authorization', 'Cookie', 'Cf-Access-Jwt-Assertion', 'Cf-Access-Authenticated-User-Email']) {
+    headers.delete(header);
+  }
+  return new Request(url, { method: request.method, headers });
+}

@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ArrowLeft, ArrowUpRight } from '@lucide/astro';
+import { isPrintsHost, printsOrigin, printsShare } from '../../lib/prints-site.mjs';
+
+const product = isPrintsHost(Astro.url);
+const home = product ? '/' : '/prints-desktop';
+const repo = 'https://github.com/loftwah/prints-desktop';
+const title = 'Get started with Prints Desktop';
+const description = 'Install the Prints Desktop preview, make your first offline contact sheet and connect a Prints installation with a scoped Oyster key.';
+---
+
+<Base title={title} description={description} canonical={printsOrigin + '/guide'} printsProduct={product} shareImage={printsShare} shareAlt="Prints Desktop presents the Loftwah Creative Archive.">
+  <article class="guide">
+    <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
+    <h1>{title}</h1>
+    <p class="lede">Open the archive, bring an image of your own, or connect the Prints library you already run.</p>
+    <nav aria-label="Guide sections">
+      <a href="#install">Install</a><a href="#offline">Work offline</a><a href="#connect">Connect Oyster</a><a href="#own">Run it yourself</a>
+    </nav>
+
+    <section id="install">
+      <h2>Install the desktop preview</h2>
+      <ol>
+        <li><a href={`${home}#downloads`}>Choose your platform</a> and download its archive. The <a href={`${repo}/releases`}>repository releases</a> list checksums and platform checks.</li>
+        <li>Extract the archive. On Apple Silicon, open <code>Prints Desktop.app</code>. On Windows, open <code>prints-desktop.exe</code>. On Linux, launch <code>./prints-desktop</code> from the extracted folder.</li>
+        <li>The Mac preview uses an ad-hoc signature and can trigger Gatekeeper. Check the <a href={`${repo}#download`}>install and build instructions</a> for the current signing status and source build option.</li>
+      </ol>
+    </section>
+
+    <section id="offline">
+      <h2>Make your first contact sheet</h2>
+      <p>Pick an Afterlight study, inspect it full-size and export the original. Then drag a JPEG, PNG or WebP into the workspace. Favourite it or save its notes as a prompt draft. Local originals, favourites and drafts stay on your device. Offline work is free and needs no account.</p>
+      <a class="link" href={`${home}#afterlight`}>Try the browser contact sheet <ArrowUpRight size={16} aria-hidden="true" /></a>
+    </section>
+
+    <section id="connect">
+      <h2>Read your Oyster library</h2>
+      <ol>
+        <li>In Oyster, choose the Prints installation and create a named App key scoped to that installation. Use a key intended for this device and keep it out of links and screenshots.</li>
+        <li>In Prints Desktop, open <strong>Connect Prints</strong>. Enter the HTTPS origin, the installation ID and the key. Leave credential saving off for a one-off connection.</li>
+        <li>Open a print and export the original. Folder and model discovery depend on the installation. Use <strong>Create in web Prints</strong> for generation and job recovery.</li>
+      </ol>
+      <p>If a key fails, verify the origin and installation ID. Use the system credential store to forget the saved connection, and revoke the key from Oyster if it’s no longer needed.</p>
+      <a class="link" href={`${repo}/blob/main/docs/oyster.md`}>Full connection and troubleshooting notes <ArrowUpRight size={16} aria-hidden="true" /></a>
+    </section>
+
+    <section id="own">
+      <h2>Run it yourself</h2>
+      <p><a href="https://docs.fungi.computer/">Fungi</a> documents the ecosystem, including its <a href="https://docs.fungi.computer/guides/use-the-terminal/">Shiitake</a> terminal agent. <a href="https://docs.fungi.computer/oyster">Oyster</a> hosts <a href="https://docs.fungi.computer/apps/prints">web Prints</a> and manages access. Darkroom handles provider operations. Your chosen installation and providers set available models and charges. A supported self-hosted setup can use your own <a href="https://developers.cloudflare.com/workers-ai/">Cloudflare Workers AI</a> account.</p>
+      <p>Follow the upstream installation guide for your chosen version before provisioning resources. To build the desktop app, start with the repository’s <a href={repo}>Rust build instructions</a> and the pinned <a href="https://github.com/anomalyco/rune">Rune</a> dependency. App Composer is a showcase and optional publishing destination. The desktop talks directly to your installation.</p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .guide { max-width: 870px; margin-inline: auto; }
+  .guide h1 { font-size: clamp(2.6rem,7vw,5rem); margin: 6px 0 10px; max-width: 16ch; letter-spacing: -.035em; }
+  .guide h2 { font-size: clamp(1.65rem,4vw,2.7rem); margin-bottom: 14px; }
+  .guide nav { gap: 0 14px; padding: 6px 0 16px; }
+  .guide :is(nav a,.link,.back) { display: inline-flex; align-items: center; min-height: 44px; gap: 7px; }
+  .guide a { color: var(--color-accent); }
+  .guide a:hover { color: var(--color-foreground); }
+  .guide a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  .guide section { padding-top: 23px; margin-top: 22px; border-top: 1px solid var(--color-border); scroll-margin-top: 5rem; }
+  .guide ol { max-width: 69ch; padding-inline-start: 1.4rem; }
+  .guide li + li { margin-top: 9px; }
+</style>

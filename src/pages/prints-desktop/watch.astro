@@ -1,12 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PrintsWalkthrough from '../../components/PrintsWalkthrough.astro';
+import { isPrintsHost, printsOrigin, printsShare } from '../../lib/prints-site.mjs';
 import { ArrowLeft } from '@lucide/astro';
 
-const canonical = 'https://composer.loftwah.com/prints-desktop/watch';
+const canonical = printsOrigin + '/watch';
+const product = isPrintsHost(Astro.url);
+const home = product ? '/' : '/prints-desktop';
 const title = 'Watch Prints Desktop in 28 Seconds';
 const description = 'Watch Prints Desktop browse Afterlight, export an original, save an editable prompt and open a fictional Oyster library.';
-const shareImage = '/prints-desktop/which-print-og-20261125.jpg';
 const video = {
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
@@ -21,13 +23,13 @@ const video = {
 };
 ---
 
-<Base title={title} description={description} canonical={canonical} shareImage={shareImage} shareAlt="Which print gets the wall? An Afterlight contact sheet from Prints Desktop.">
+<Base title={title} description={description} canonical={canonical} printsProduct={product} shareImage={printsShare} shareAlt="Prints Desktop presents the Loftwah Creative Archive.">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(video)} />
   <article class="watch">
-    <a class="back" href="/prints-desktop"><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
+    <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
     <h1>Prints Desktop in 28 seconds.</h1>
     <PrintsWalkthrough eager />
-    <p><a class="back" href="/prints-desktop#downloads">Get the desktop preview</a></p>
+    <p><a class="back" href={`${home}#downloads`}>Get the desktop preview</a></p>
   </article>
 </Base>
 

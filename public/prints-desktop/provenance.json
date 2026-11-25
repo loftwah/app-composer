@@ -23,5 +23,30 @@
       "afterlight-v0.3.1/*-thumb.webp": "216 by 144 WebP thumbnails cropped from the six public Afterlight JPEGs.",
       "which-print-og-20261125.jpg": "App Composer Space Grotesk lettering and original Prints mark composed with four of the same public ImageGen Afterlight studies. No third-party logos or owner data."
     }
+  },
+  "public_product": {
+    "date": "2026-11-25",
+    "origin": "https://prints.loftwah.com/",
+    "archive": {
+      "archive-v1/higher-than-before.webp": {
+        "source": "https://fm.loftwah.com/media/higher-than-before/cover-v2.jpg",
+        "credit": "LoftwahFM. Released album cover, made with ImageGen."
+      },
+      "archive-v1/the-last-lift.webp": {
+        "source": "https://fm.loftwah.com/media/higher-than-before/last-lift-booklet.jpg",
+        "credit": "LoftwahFM. Published companion booklet art, made with ImageGen."
+      },
+      "archive-v1/before-the-bell.webp": {
+        "source": "https://fighter.loftwah.com/assets/artwork/before-the-bell-20261114.png",
+        "credit": "Fighter artwork by Loftwah, prepared with FLUX.2 Klein in Media Studio."
+      },
+      "archive-v1/bubbles-one-shot.webp": {
+        "source": "https://bubbles.loftwah.com/assets/social/bubbles-one-shot-card.png",
+        "credit": "Bubbles Classic by Loftwah. First-party campaign poster based on an actual one-shot clear."
+      }
+    },
+    "web_derivatives": "The listed public art is resized to a maximum edge of 1000 px and compressed as WebP. It is served without added marks.",
+    "icons": "The desktop aperture mark from the native repository at c5ee40b883fb0c74087070b51367209580cdada0, exported at 16, 32, 180, 192, 512 pixels and to ICO.",
+    "share": "Original Loftwah archive artwork and aperture icon composed with Space Grotesk. No synthetic screenshot."
   }
 }
