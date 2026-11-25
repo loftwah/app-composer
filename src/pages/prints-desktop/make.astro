@@ -22,7 +22,7 @@ Use two contrasting ink colours, one focal point per side, and a simple backgrou
 
 Typeset “[your headline]” at the top. Set “[short left choice]” and “[short right choice]” in large, high-contrast type. Use only those three lines. Keep all lettering comfortably inside the edges.`;
 const mcp = 'return await env.PRINTS.listOutputs({});';
-const cli = 'npx @fungi.computer/oyster try';
+const cli = 'npx @fungi.computer/oyster@0.59.0 try';
 const original = campaign.find((item) => item.id === 'composer-club-01-friday-release')!;
 const schema = {
   '@context': 'https://schema.org',
@@ -102,7 +102,7 @@ const schema = {
         <div class="actions"><a href="https://docs.fungi.computer/guides/make-and-save-images">Open the official Prints walkthrough <ArrowUpRight size={15} aria-hidden="true" /></a><a href={campaignRoot + 'friday-release-og.jpg'}>See the wide share card <ArrowUpRight size={15} aria-hidden="true" /></a></div>
         <details>
           <summary>Try it in a terminal</summary>
-          <p>With Node 24 or newer and Git, open an empty folder and start the local Oyster trial. It lets you explore the desktop and Apps without a Cloudflare account. Image inference in Prints needs a deployed host with Workers AI configured.</p>
+          <p>With Node 24.20.0 and Git, open an empty folder and start the local Oyster trial. Use <code>node --version</code> to check your runtime. This version of the Oyster desktop publisher expects that exact Node release. It lets you explore the desktop and Apps without a Cloudflare account. Image inference in Prints needs a deployed host with Workers AI configured.</p>
           <pre><code id="oyster-command">{cli}</code></pre>
           <button type="button" data-copy-target="oyster-command" hidden><Clipboard size={16} aria-hidden="true" /> Copy command</button>
           <p class="status" role="status" data-copy-status></p>
