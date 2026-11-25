@@ -2,6 +2,25 @@
 
 Reviewed 25 October 2026 and updated 19 November 2026 AEDT. [Issue #11](https://github.com/loftwah/app-composer/issues/11) records exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record.
 
+## Prints Desktop Creative Archive · 25 November 2026 AEDT
+
+[prints.loftwah.com](https://prints.loftwah.com/) is the canonical product home.
+It has its own Prints navigation, aperture icons, sitemap and practical guide.
+The [Composer showcase](https://composer.loftwah.com/prints-desktop) and
+[Share posters](https://composer.loftwah.com/share?tag=prints-desktop) remain
+public. The [watch page](https://prints.loftwah.com/watch) carries native
+captures of the Creative Archive and the previous Afterlight and Oyster flow.
+
+The independent [v0.4.0 preview](https://github.com/loftwah/prints-desktop/releases/tag/v0.4.0)
+starts in the Loftwah Creative Archive with real work from LoftwahFM, Fighter
+and Bubbles. Native Find, the album cover and poster comparison, Favourites
+and exact original export were exercised in the Mac release. Follow the
+[platform evidence](https://github.com/loftwah/prints-desktop/issues/4) for
+the exact scope of each package. Native creation requires the
+[scoped upstream path](https://github.com/loftwah/prints-desktop/issues/6),
+and [Windows desktop and Mac notarisation](https://github.com/loftwah/prints-desktop/issues/7)
+remain open.
+
 ## Verified release snapshot from 19 November 2026 AEDT
 
 - Composer served source `4710b2ec6ff5a5477cf30bfd2208a53b5ccdfe0e`, Worker `062c4851-9c1f-4c37-b27b-f4223c978972`. The owner previewed a real linked artwork in Share Calendar and deliberately used its source text in an empty caption. Agenda preserves the same intended times as List, and the native per-event download matches its event in the full calendar. [Build identity](https://composer.loftwah.com/build.json), [caption proof](https://github.com/loftwah/app-composer/issues/663#issuecomment-7009402363), [calendar proof](https://github.com/loftwah/app-composer/issues/663#issuecomment-7009103061).

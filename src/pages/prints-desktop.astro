@@ -8,19 +8,18 @@ import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const site = 'https://github.com/loftwah/prints-desktop';
 const version = '0.4.0';
-const earlier = '0.3.1';
 const release = `${site}/releases/tag/v${version}`;
-const downloadUrl = (file: string, edition: string) => `${site}/releases/download/v${edition}/prints-desktop-${edition}-${file}`;
+const downloadUrl = (file: string) => `${site}/releases/download/v${version}/prints-desktop-${version}-${file}`;
 const asset = '/prints-desktop/';
 const archive = `${asset}archive-native-v0.4.0.webp`;
 const compare = `${asset}archive-compare-v0.4.0.webp`;
 const local = `${asset}local-library-v0.3.1.webp`;
 const hosted = `${asset}oyster-library-demo-v0.3.1.webp`;
 const builds = [
-  { label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip', edition: version },
-  { label: 'Linux', detail: 'x64 · Portable archive', file: 'linux-x64.tar.gz', edition: earlier },
-  { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz', edition: earlier },
-  { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip', edition: earlier },
+  { label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip' },
+  { label: 'Linux', detail: 'x64 · Portable archive', file: 'linux-x64.tar.gz' },
+  { label: 'Linux', detail: 'ARM64 · Portable archive', file: 'linux-arm64.tar.gz' },
+  { label: 'Windows', detail: 'x64 · Portable ZIP', file: 'windows-x64.zip' },
 ];
 const canonical = printsOrigin + '/';
 const product = isPrintsHost(Astro.url);
@@ -35,7 +34,7 @@ const schema = {
   applicationCategory: 'MultimediaApplication',
   operatingSystem: 'macOS 14+ (Apple Silicon), Linux (x64 and ARM64), Windows (x64)',
   softwareVersion: version,
-  downloadUrl: builds.map(({ file, edition }) => downloadUrl(file, edition)),
+  downloadUrl: builds.map(({ file }) => downloadUrl(file)),
   screenshot: [archive, compare].map((file) => new URL(file, canonical).href),
   offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD', url: release },
 };
@@ -70,7 +69,7 @@ const schema = {
       </figure>
     </section>
 
-    <section class="workflow feature-proof" aria-labelledby="compare-title">
+    <section class="workflow" aria-labelledby="compare-title">
       <div>
         <h2 id="compare-title">One record, two formats.</h2>
         <p>Compare the square <cite>Higher Than Before</cite> cover with its tall release poster. Find another piece with Command+F, star a favourite and export the original straight from the archive.</p>
@@ -156,21 +155,22 @@ const schema = {
     <section class="editorial releases" id="downloads" aria-labelledby="downloads-title">
       <div>
         <h2 id="downloads-title">Get Prints Desktop.</h2>
-        <p>Choose your platform. The Creative Archive preview is available on Apple Silicon. The earlier Linux and Windows packages open in Afterlight.</p>
+        <p>Choose your v{version} preview. Every package includes the Loftwah Creative Archive and Afterlight.</p>
         <a class="quiet-link" href={release}>Release notes, signing status and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
       <div>
         <ul class="builds" aria-label="Platform downloads">
-          {builds.map(({ label, detail, file, edition }) => (
+          {builds.map(({ label, detail, file }) => (
             <li>
-              <a href={downloadUrl(file, edition)}>
-                <span><strong>{label}</strong><span>{detail} · v{edition}</span></span>
+              <a class="build-download" href={downloadUrl(file)}>
+                <span><strong>{label}</strong><span>{detail}</span></span>
                 <ArrowDownToLine size={20} aria-hidden="true" />
               </a>
+              <a class="build-sha" href={downloadUrl(file) + '.sha256'} aria-label={`${label} ${detail} SHA-256 checksum`}>SHA-256</a>
             </li>
           ))}
         </ul>
-        <p class="release-note">The Mac preview is ad-hoc signed and unnotarised. macOS may block it when opened from a web download. See the release notes for platform verification.</p>
+        <p class="release-note">The Mac preview is ad-hoc signed and unnotarised, so macOS may block it when opened from a web download. The Windows archive is cross-built and its desktop runtime remains unverified. Check the release notes for each platform.</p>
       </div>
     </section>
 
@@ -231,12 +231,14 @@ const schema = {
   .ecosystem dt { font-weight: 650; }
   .ecosystem dd { margin: 0; color: var(--color-muted); }
   .builds { list-style: none; padding: 0; margin: 0 0 12px; }
-  .builds li { border-top: 1px solid var(--prints-rule); }
+  .builds li { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 8px; border-top: 1px solid var(--prints-rule); }
   .builds li:last-child { border-bottom: 1px solid var(--prints-rule); }
-  .builds a { display: flex; justify-content: space-between; align-items: center; min-height: 60px; gap: 10px; padding: 7px 4px; color: var(--prints-accent); }
-  .builds a > span { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 13px; }
-  .builds a span span { color: var(--color-muted); font-size: .9rem; }
-  .builds a:hover strong { color: var(--color-foreground); }
+  .build-download { display: flex; justify-content: space-between; align-items: center; min-height: 60px; gap: 10px; padding: 7px 4px; color: var(--prints-accent); }
+  .build-sha { display: inline-flex; min-height: 44px; align-items: center; padding-inline: 6px; color: var(--color-muted); font-size: .78rem; }
+  .build-sha:hover { color: var(--color-foreground); }
+  .build-download > span { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 13px; }
+  .build-download span span { color: var(--color-muted); font-size: .9rem; }
+  .build-download:hover strong { color: var(--color-foreground); }
   .release-note, .prints-credit { font-size: .9rem; }
   .prints-credit { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 6px 21px; margin-top: clamp(28px, 5vw, 56px); padding-top: 17px; border-top: 1px solid var(--prints-rule); }
   .prints-credit div { display: flex; flex-wrap: wrap; gap: 4px 17px; }
