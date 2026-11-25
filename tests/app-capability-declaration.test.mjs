@@ -28,8 +28,11 @@ test("old manifests without the optional declaration still validate", () => {
   const guestbookManifest = lock.apps.find(
     (app) => app.id === "guestbook",
   ).manifest;
-  assert.equal(guestbookManifest.agentCapabilities, undefined);
-  assert.equal(validateManifest(guestbookManifest), guestbookManifest);
+  // The reviewed pin now carries its own declaration; remove only that optional
+  // field to prove an older manifest shape still validates.
+  const { agentCapabilities, ...olderManifest } = guestbookManifest;
+  assert.ok(agentCapabilities);
+  assert.equal(validateManifest(olderManifest), olderManifest);
 });
 
 test("validateManifest rejects an invalid declaration", () => {

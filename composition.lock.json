@@ -5,7 +5,7 @@
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+      "commit": "14b52c3099e15b0b0b5bbf317440b1096dbb68c5",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
@@ -30,6 +30,53 @@
           "items:moderate",
           "media:private"
         ],
+        "agentCapabilities": {
+          "version": 1,
+          "ui": "https://guestbook.loftwah.com",
+          "storage": "app-owned",
+          "operations": [
+            {
+              "name": "read-invitation",
+              "description": "Read one visitor book's current invitation state, contribution limits and exact form paths. It never returns the guest code or private media.",
+              "kind": "read",
+              "method": "GET",
+              "path": "/r/:resource/api/invitation",
+              "availability": "public",
+              "requires": [
+                "none"
+              ],
+              "confirmation": false,
+              "verified": "2026-11-06"
+            },
+            {
+              "name": "list-public-items",
+              "description": "Read only the currently public, approved contributions. Pending, hidden and deleted items are excluded.",
+              "kind": "read",
+              "method": "GET",
+              "path": "/api/items",
+              "availability": "public",
+              "requires": [
+                "none"
+              ],
+              "confirmation": false,
+              "verified": "2026-11-06"
+            },
+            {
+              "name": "submit-postcard",
+              "description": "Submit one short postcard for owner review. Requires the app-issued guest code, explicit consent and a browser-rendered PNG; it cannot publish, moderate or read private records.",
+              "kind": "effect",
+              "method": "POST",
+              "path": "/r/:resource/api/guest-postcard",
+              "availability": "guest-invitation",
+              "requires": [
+                "guest-invitation-code",
+                "consent"
+              ],
+              "confirmation": true,
+              "verified": "2026-11-07"
+            }
+          ]
+        },
         "configuration": {
           "title": {
             "type": "string",
@@ -107,12 +154,12 @@
           }
         }
       },
-      "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+      "manifestDigest": "sha256:100e332442ed3acbfc90aeef3c0372a9320ef32fd21ec0ed9412079e7f84260a"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+      "commit": "9b43fc0404476d4781414fff2505a81716d84b16",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
@@ -288,9 +335,29 @@
           "publication": "explicit-snapshot",
           "publicPath": "/p/:handle/",
           "bridge": "/api/member-profiles"
+        },
+        "agentCapabilities": {
+          "version": 1,
+          "ui": "https://showcase.loftwah.com",
+          "storage": "app-owned",
+          "operations": [
+            {
+              "name": "read-public-profile",
+              "description": "Read one explicitly published profile snapshot. Draft profile edits and owner configuration stay private.",
+              "kind": "read",
+              "method": "GET",
+              "path": "/p/:handle/",
+              "availability": "public",
+              "requires": [
+                "none"
+              ],
+              "confirmation": false,
+              "verified": "2026-11-07"
+            }
+          ]
         }
       },
-      "manifestDigest": "sha256:2ff55f023d211afc1de5c479a3a52879e1dd2a31fd361ca79acc6360a2bee9be"
+      "manifestDigest": "sha256:265eeb8cf4c81b01d7a5b41c8282847c176ff0e785d2c08d1209ac876612f02c"
     }
   ]
 }

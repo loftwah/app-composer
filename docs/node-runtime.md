@@ -147,7 +147,7 @@ mise exec node@26.13.1 -- pnpm build
 `mise` is optional: selecting the same installed Node executable in PATH is
 equivalent. The suite's two independent Guestbook consumers must point at the
 clean commit in `composition.lock.json`, currently
-`5075d7be53b43aca288d3707fd06851aca91e8c2`, not a drifted owner's checkout:
+`14b52c3099e15b0b0b5bbf317440b1096dbb68c5`, not a drifted owner's checkout:
 
 ```sh
 COMPOSER_DEMO_GUESTBOOK=/absolute/clean/pinned/guestbook \
