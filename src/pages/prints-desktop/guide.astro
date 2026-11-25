@@ -29,7 +29,7 @@ const make = product ? '/make' : '/prints-desktop/make';
       <ol>
         <li><a href={`${home}#downloads`}>Download the archive and its SHA-256 file</a> for your computer. In Terminal on macOS, run <code>shasum -a 256 &lt;archive&gt;</code>. On Linux, use <code>sha256sum &lt;archive&gt;</code>. In Windows PowerShell, use <code>Get-FileHash &lt;archive&gt; -Algorithm SHA256</code>. Replace <code>&lt;archive&gt;</code> with the downloaded archive’s path and compare the output to the published checksum.</li>
         <li>Extract the archive. On an Apple Silicon Mac with macOS 14 or later, open <code>Prints Desktop.app</code>. On Linux, run <code>./prints-desktop</code> from the extracted folder in a graphical session. On Windows x64, open <code>prints-desktop.exe</code>.</li>
-        <li>The Mac archive is ad-hoc signed and unnotarised, and the Windows archive is an unsigned cross-build. See the <a href={`${repo}/releases/tag/v0.4.0`}>v0.4.0 release notes</a> for the exact platform checks and the <a href={`${repo}#build-and-inspect`}>source build instructions</a> if the package won’t open. On Linux, the <a href={`${repo}#platform-builds`}>platform notes</a> cover graphical dependencies and file dialogs.</li>
+        <li>The Mac archive is ad-hoc signed and unnotarised, and the Windows archive is an unsigned cross-build. See the <a href={`${repo}/releases/tag/v0.4.0`}>v0.4.0 release notes</a> for the exact platform checks and the <a href={`${repo}/blob/main/CONTRIBUTING.md`}>source build instructions</a> if the package won’t open. On Linux, the <a href={`${repo}/blob/main/CONTRIBUTING.md#platform-setup`}>platform notes</a> cover graphical dependencies and file dialogs.</li>
       </ol>
     </section>
 
