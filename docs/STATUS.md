@@ -12,10 +12,10 @@ The [Composer showcase](https://composer.loftwah.com/prints-desktop) and
 public. The [watch page](https://prints.loftwah.com/watch) carries native
 captures of the Creative Archive and the previous Afterlight and Oyster flow.
 
-The independent [v0.4.1 preview](https://github.com/loftwah/prints-desktop/releases/tag/v0.4.1)
+The independent [v0.4.2 preview](https://github.com/loftwah/prints-desktop/releases/tag/v0.4.2)
 starts in the Loftwah Creative Archive with real work from LoftwahFM, Fighter
-and Bubbles. Native Find, the album cover and poster comparison, Favourites
-and exact original export were exercised in the Mac release. Follow the
+and Bubbles. Drop multiple local originals into the workspace and compare two
+side by side. Follow the
 [platform evidence](https://github.com/loftwah/prints-desktop/issues/4) for
 the exact scope of each package. Native creation requires the
 [scoped upstream path](https://github.com/loftwah/prints-desktop/issues/6),
