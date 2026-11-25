@@ -26,10 +26,16 @@ On the Mac, the released Prints Desktop build opened the original and the compos
 The live generation run used the existing owner-authorised Oyster connection. Prints Desktop’s normal connection uses a revocable named App key scoped to one Prints installation with `apps.read`. It can browse compatible libraries and export originals. A first-time connection also needs a gallery folder selected on the intended Oyster Computer. Choose that folder in web Prints before connecting the desktop. [Prints Desktop connection guide](https://prints.loftwah.com/guide#connect)
 
 <figure>
-  <img src="/prints-desktop/workshop-20261125/oyster-local-prints.webp" alt="The local Oyster and Prints workshop shows an image in the gallery." width="1150" height="760" loading="lazy">
-  <figcaption>An earlier local Oyster workshop used a gallery fixture with generation disabled. The Cloudflare run above used the hosted owner connection.</figcaption>
+  <img src="/prints-desktop/workshop-20261125/oyster-local-prints.webp" alt="The web Prints first-run screen shows a permissions message saying image generation is disabled." width="1150" height="760" loading="lazy">
+  <figcaption>The local Oyster workshop opened to an empty gallery with generation disabled. The Cloudflare run above used the hosted owner connection.</figcaption>
 </figure>
 
 In the pinned upstream Oyster source, named keys authenticate as Team-key actors. The current Prints image generation handler declines that actor. The desktop therefore hands creation off to web Prints through Oyster’s normal browser sign-in. Scoped native creation remains open, along with an interrupted-job recovery check that reuses the original request identity and verifies a single provider run. [Oyster named-key authentication](https://github.com/fungi-computer/oyster/blob/3784e3071f10af40f2d179220e954da536b585d7/src/auth.ts#L256-L276) · [Prints generation admission](https://github.com/fungi-computer/prints/blob/3475e6e4075fa858a908d58eeb9a67595bd1f373/backend/methods.ts#L1060-L1067) · [Native generation issue](https://github.com/loftwah/prints-desktop/issues/6)
 
-The next useful proof starts with another creator’s own Oyster and Cloudflare setup. They should be able to generate one usable image, reopen it from a fresh session, and match the original against their desktop export. The Loftwah run gives that test a concrete recipe and a result to compare against. [Independent adoption tracking](https://github.com/loftwah/app-composer/issues/997)
+## Repeat it on your own installation
+
+1. Choose your Computer and gallery folder in web Prints. Confirm the model and cost settings on your account before generating.
+2. Run one image request and note the model and time. Look for the matching request in [AI Gateway logs](https://developers.cloudflare.com/ai-gateway/observability/logging/), then open the completed print in the gallery.
+3. Export the image from Prints Desktop with the scoped read key. Open a fresh authorised session, read the existing output and compare the two files with `shasum -a 256`. If a request is interrupted, start by checking the existing job in web Prints.
+
+An independent creator run is still open. [Follow the adoption check](https://github.com/loftwah/app-composer/issues/997)
