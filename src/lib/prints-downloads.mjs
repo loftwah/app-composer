@@ -1,5 +1,5 @@
 import { verificationRequest } from '../../lib/usage/publisher.mjs';
-import { isPrintsHost, printsFieldKitZip } from './prints-site.mjs';
+import { isPrintsHost, legacyPrintsFieldKitZip, printsFieldKitZip } from './prints-site.mjs';
 
 export const builds = [
   { key: 'macos-arm64', label: 'macOS', detail: 'Apple Silicon · macOS 14+', file: 'macos-arm64.zip' },
@@ -30,7 +30,7 @@ export const fieldKitDailyCap = 1000;
 
 export async function printsFieldKitAsset(request, runtime, context, now = new Date()) {
   const url = new URL(request.url);
-  if (url.pathname !== printsFieldKitZip) return null;
+  if (![printsFieldKitZip, legacyPrintsFieldKitZip].includes(url.pathname)) return null;
   const prints = isPrintsHost(url);
   if (!prints && url.origin !== runtime.PUBLIC_ORIGIN) return null;
   if (!['GET', 'HEAD'].includes(request.method))
@@ -42,11 +42,11 @@ export async function printsFieldKitAsset(request, runtime, context, now = new D
     const value = request.headers.get(name);
     if (value !== null) headers.set(name, value);
   }
-  const target = new URL(printsFieldKitZip, request.url);
+  const target = new URL(url.pathname, url.origin);
   const asset = await runtime.ASSETS.fetch(new Request(target, { method: request.method, headers }));
   if (![200, 206].includes(asset.status)) return asset;
   const download = new Response(asset.body, asset);
-  download.headers.set('Content-Disposition', 'attachment; filename="prints-devrel-field-kit.zip"');
+  download.headers.set('Content-Disposition', 'attachment; filename="prints-workshop-kit.zip"');
   download.headers.set('X-Content-Type-Options', 'nosniff');
 
   if (prints && download.status === 200 && request.method === 'GET' && !headers.has('Range') &&

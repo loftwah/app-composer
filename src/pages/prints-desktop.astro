@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import AfterlightWall from '../components/AfterlightWall.astro';
 import PrintsArchive from '../components/PrintsArchive.astro';
-import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../lib/prints-site.mjs';
+import { isPrintsHost, printsOrigin } from '../lib/prints-site.mjs';
 import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
@@ -40,8 +40,8 @@ const schema = {
   description={description}
   canonical={canonical}
   printsProduct={product}
-  shareImage={printsShare}
-  shareAlt={printsShareAlt}
+  shareImage="/prints-desktop/workshop-share-20261125/wide.jpg"
+  shareAlt="Prints Desktop. Make a poster. Keep the original. An orange optical iris opens onto a white coastline."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">

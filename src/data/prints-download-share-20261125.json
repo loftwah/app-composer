@@ -11,20 +11,13 @@
     "linux-arm64": 2,
     "windows-x64": 3
   },
-  "devrel": {
-    "responses": 1,
-    "from": "2026-11-19",
-    "through": "2026-11-25",
-    "timezone": "UTC",
-    "note": "The reported response was the positive production verification."
-  },
   "installs": "unmeasured",
-  "alt": "Prints Desktop. The 25 November 2026 snapshot shows nine package downloads for v0.4.0 and one DevRel field kit ZIP response in seven days, UTC. Installs unmeasured. A folded cream-paper camera aperture opens onto an oxide-red coastline.",
+  "alt": "Prints Desktop. On 25 November 2026, v0.4.0 had nine desktop package downloads. The workshop ZIP had one full response over seven days UTC. An orange machined camera aperture opens onto a white paper coastline.",
   "artwork": {
     "generator": "Built-in ImageGen",
     "method": "Each complete poster was generated with its final lettering. Export processing was limited to resize, light crop and JPEG encoding."
   },
-  "caption": "Prints Desktop v0.4.0 · 9 package downloads.\nDevRel field kit · 1 ZIP response in seven days, UTC.\nSnapshot 25 November 2026. Installs unmeasured.\nhttps://prints.loftwah.com/downloads",
+  "caption": "Prints Desktop v0.4.0 · 9 desktop package downloads.\nWorkshop ZIP · 1 response in seven days, UTC.\nSnapshot 25 November 2026. Installs unmeasured.\nhttps://prints.loftwah.com/downloads",
   "formats": [
     {
       "file": "wide.jpg",
@@ -32,7 +25,7 @@
       "width": 1200,
       "height": 630,
       "use": "Link previews and landscape posts",
-      "sha256": "5a88ac5c979b9cdf443b0774403075ba20756b909d3f237aab11b36f08023792"
+      "sha256": "f08872933a2f1732822fb168768ae02f42f9b716f4822fca3c989c68b6ee73ae"
     },
     {
       "file": "square.jpg",
@@ -40,7 +33,7 @@
       "width": 1080,
       "height": 1080,
       "use": "Square feeds and carousels",
-      "sha256": "9063dd2139f323411a793f423e07a271e9145cc80009c2ce242e7f952b9ee7fb"
+      "sha256": "2c3dcccdea7a351c1fd0ad3653bea164f3c09312bffdf6e1b1ccbba887d4be02"
     },
     {
       "file": "feed.jpg",
@@ -48,7 +41,7 @@
       "width": 1080,
       "height": 1350,
       "use": "Tall feed posts",
-      "sha256": "de6166db598a2665cc8aeb2b15077b25de558be612cd7fe675766a72427334cb"
+      "sha256": "4e0716af77baa344a140b060dc5da9f1beb5acf5650b23c2c2c1dd2c806a908f"
     },
     {
       "file": "story.jpg",
@@ -56,7 +49,14 @@
       "width": 1080,
       "height": 1920,
       "use": "Stories and vertical covers",
-      "sha256": "49cf16baa7173caafca335ba0258f958225d74522fab47a7588df902f854c137"
+      "sha256": "f0abe8a5eaef82c6bd24f3a601f69db7d209c38da5a7fa4fe9eda7d920df253e"
     }
-  ]
+  ],
+  "workshop": {
+    "responses": 1,
+    "from": "2026-11-19",
+    "through": "2026-11-25",
+    "timezone": "UTC",
+    "note": "The reported response was the positive production verification."
+  }
 }

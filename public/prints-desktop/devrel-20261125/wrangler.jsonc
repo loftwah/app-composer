@@ -1,5 +1,5 @@
 {
-  "name": "midnight-arcade-devrel",
+  "name": "midnight-arcade-workshop",
   "main": "worker.mjs",
   "compatibility_date": "2026-10-13"
 }

@@ -7,7 +7,8 @@ export const printsDiscovery = /** @type {const} */ ({
   keywords: 'creative archive contact sheet artwork gallery offline download macos linux windows oyster fungi',
 });
 export const printsOrigin = 'https://prints.loftwah.com';
-export const printsFieldKitZip = '/prints-desktop/devrel-20261125/prints-devrel-field-kit.zip';
+export const printsFieldKitZip = '/prints-desktop/devrel-20261125/prints-workshop-kit.zip';
+export const legacyPrintsFieldKitZip = '/prints-desktop/devrel-20261125/prints-devrel-field-kit.zip';
 export const printsIcon = '/prints-desktop/icons/aperture-32-20261125.png';
 export const printsShare = '/campaign/prints-desktop-20261125/darkroom-og-20261125.jpg';
 export const printsShareAlt = 'Prints Desktop in cream lettering beside a hand lifting a coastal photograph from a contact sheet under a red darkroom lamp.';
@@ -17,7 +18,7 @@ const productRoutes = new Map([
   ['/watch', '/prints-desktop/watch'],
   ['/guide', '/prints-desktop/guide'],
   ['/make', '/prints-desktop/make'],
-  ['/devrel', '/prints-desktop/devrel'],
+  ['/workshop-kit', '/prints-desktop/devrel'],
   ['/story', '/prints-desktop/story'],
   ['/downloads', '/prints-desktop/downloads'],
 ]);
@@ -37,7 +38,7 @@ export function printsDomainRequest(request) {
 
   const path = url.pathname.length > 1 ? url.pathname.replace(/\/$/, '') : '/';
   const legacyPath = [...productRoutes].find(([, internal]) => internal === path)?.[0];
-  const canonicalPath = legacyPath ?? path;
+  const canonicalPath = path === '/devrel' ? '/workshop-kit' : legacyPath ?? path;
   if (productRoutes.has(canonicalPath) && (canonicalPath !== url.pathname || url.origin !== printsOrigin)) {
     const target = new URL(canonicalPath, printsOrigin);
     target.search = url.search;

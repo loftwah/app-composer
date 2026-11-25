@@ -8,7 +8,7 @@ Make an image people want to stop for. See an actual Prints result, run a small 
 
 ## Send after the talk
 
-The kit, stage view and beginner workshop are here: https://prints.loftwah.com/devrel
+The kit, stage view and beginner workshop are here: https://prints.loftwah.com/workshop-kit
 
 Try the local Worker first. Send back its feed and link responses. If you run the optional Gateway lab, share an anonymised request status and model from your own dashboard. Keep credentials, private prompts and account identifiers out of replies.
 
