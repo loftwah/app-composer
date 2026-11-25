@@ -25,7 +25,7 @@ const packs = [
 ];
 const product = isPrintsHost(Astro.url);
 const routePrefix = product ? '' : '/prints-desktop';
-const description = 'Explore the Loftwah Creative Archive and download Prints Desktop for macOS, Windows or Linux. Compare artwork, save favourites and export original files. Start offline or connect your Prints library through Oyster.';
+const description = 'Compare artwork side by side, shortlist your favourites and export the exact originals. Work offline or connect your Oyster library.';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -51,7 +51,7 @@ const schema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
   <article class="prints">
-    <PrintsArchive guide={`${routePrefix}/make`} watch={`${routePrefix}/watch`} compare={compare} />
+    <PrintsArchive quickstart={`${routePrefix}/guide`} watch={`${routePrefix}/watch`} compare={compare} />
     <PrintsFirstSteps frontDoor />
     <section class="front-door-share" id="share-prints" tabindex="-1" aria-labelledby="share-prints-title">
       <h2 id="share-prints-title">Share Prints</h2>

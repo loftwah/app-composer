@@ -2,22 +2,23 @@
 import { ArrowDownToLine, ArrowRight } from '@lucide/astro';
 import { isPrintsHost, printsIcon } from '../lib/prints-site.mjs';
 
-const { guide, watch, compare } = Astro.props;
+const { quickstart, watch, compare } = Astro.props;
 const printsProduct = isPrintsHost(Astro.url);
 ---
 <header class="archive" id="archive" tabindex="-1" aria-labelledby="archive-title">
   <div class="archive-intro">
     {!printsProduct && <p class="signature"><img src={printsIcon} width="32" height="32" alt="" /> Prints Desktop</p>}
-    <h1 id="archive-title"><span>Compare artwork.</span> <span>Keep the original.</span></h1>
-    <p class="lede">Put an album cover beside its release poster, see what changed, and export the exact original. Explore the Loftwah Creative Archive or bring your own images.</p>
+    <h1 id="archive-title"><span>Pick the version</span> <span>worth keeping.</span></h1>
+    <p class="lede">Drop in a few exports or AI variants. Compare them side by side, mark a favourite and take the exact original with you.</p>
+    <p>Work offline without an account, or connect your Oyster library to browse and export generated work.</p>
     <div class="archive-actions">
-      <a class="download" href="#downloads"><ArrowDownToLine size={18} aria-hidden="true" /> Download preview</a>
-      <a href="#paths">Try a workflow <ArrowRight size={17} aria-hidden="true" /></a>
+      <a class="download" href="#downloads"><ArrowDownToLine size={18} aria-hidden="true" /> Download Prints</a>
+      <a href={quickstart + '#install'}>Desktop quickstart <ArrowRight size={17} aria-hidden="true" /></a>
     </div>
     <div class="archive-links">
-      <a href={guide}>Poster workshop</a>
+      <a href="#afterlight">Try the browser demo</a>
+      <a href={quickstart + '#agent'}>Agent quickstart</a>
       <a href={watch}>Watch the 15-second demo</a>
-      <a href="#afterlight">Play Afterlight</a>
     </div>
   </div>
   <figure class="compare-proof">
