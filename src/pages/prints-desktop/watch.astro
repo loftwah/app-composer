@@ -2,16 +2,16 @@
 import Base from '../../layouts/Base.astro';
 import PrintsWalkthrough from '../../components/PrintsWalkthrough.astro';
 import { isPrintsHost, printsOrigin, printsShare, printsShareAlt } from '../../lib/prints-site.mjs';
-import { printsAfterlightVideo, printsArchiveVideo, printsWorkshopVideo } from '../../lib/prints-video.mjs';
+import { printsAfterlightVideo, printsArchiveVideo, printsCurrentShort, printsCurrentVideo, printsWorkshopVideo } from '../../lib/prints-video.mjs';
 import { ArrowLeft } from '@lucide/astro';
 
 const canonical = printsOrigin + '/watch';
 const product = isPrintsHost(Astro.url);
 const home = product ? '/' : '/prints-desktop';
-const { title, description } = printsArchiveVideo;
+const { title, description } = printsCurrentVideo;
 const videos = {
   '@context': 'https://schema.org',
-  '@graph': [printsArchiveVideo, printsWorkshopVideo].map((clip) => ({
+  '@graph': [printsCurrentVideo, printsCurrentShort, printsArchiveVideo, printsWorkshopVideo].map((clip) => ({
     '@type': 'VideoObject',
     name: clip.title,
     description: clip.description,
