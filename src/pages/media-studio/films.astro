@@ -8,8 +8,10 @@ import { filmWidgetHref } from '../../lib/studio-film-starter.ts';
 const [socialKit, studioTeaser, ...films] = shareFilms;
 const teaser = '/media-studio/watch/media-studio-teaser-recut';
 const motionStory = `${studioPublicationOrigin}/films/artwork-to-motion`;
-Astro.csp?.insertDirective(`media-src 'self' ${studioPublicationOrigin}`);
-Astro.csp?.insertDirective(`img-src ${studioPublicationOrigin}/films/`);
+const albumUrl = 'https://fm.loftwah.com/album/who-keeps-the-map';
+const musicVideo = 'https://fm.loftwah.com/media/who-keeps-the-map/change-the-default-rhythm-1becbd4f';
+Astro.csp?.insertDirective(`media-src 'self' ${studioPublicationOrigin} ${musicVideo}.mp4`);
+Astro.csp?.insertDirective(`img-src ${studioPublicationOrigin}/films/ ${musicVideo}-poster.jpg`);
 const canReview = Boolean(Astro.locals.user);
 Astro.response.headers.set('Vary', 'Cookie');
 Astro.response.headers.set('Cache-Control', 'private, no-store');
@@ -23,6 +25,19 @@ const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
     <h1>Media Studio films</h1>
     <p class="lede">Watch the finished work and see how it was made. <a href="/demo/screening-room">Make your own screening room</a>.</p>
   </header>
+
+  <article id="change-the-default" class="music-film" aria-labelledby="change-the-default-title">
+    <h2 id="change-the-default-title">Change the Default</h2>
+    <p class="credit">Music video by LoftwahFM · 3 minutes</p>
+    <video controls playsinline preload="none" poster={musicVideo + '-poster.jpg'}
+      width="2560" height="1440" aria-labelledby="change-the-default-title">
+      <source src={musicVideo + '.mp4'} type="video/mp4" />
+      <track kind="captions" src="/media-studio/change-the-default-rhythm-1becbd4f-en.vtt" srclang="en" label="English lyrics" />
+      <a href={musicVideo + '.mp4'}>Open the music video</a>
+    </video>
+    <p>Mara finds a way to change how the city works while keeping the old routes open and returning the key to its owner.</p>
+    <a href={albumUrl + '#music-video'}>Explore Who Keeps the Map? on LoftwahFM</a>
+  </article>
 
   <div class="featured">
     <article id="studio-teaser" class="feature" aria-labelledby="teaser-title">
@@ -107,6 +122,10 @@ const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
 <style>
   .films-intro { max-width: 42rem; margin-bottom: 2rem; }
   .films-intro h1 { margin-block: .6rem; }
+  .music-film { max-width: 55rem; border-top: 1px solid var(--color-border); padding-block: 1.5rem 2rem; scroll-margin-top: 1rem; }
+  .music-film h2 { margin: 0 0 .3rem; }
+  .music-film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 10px; background: #17181b; }
+  .music-film a { display: inline-flex; align-items: center; min-height: 44px; }
   .featured { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
   .feature { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 1.35rem; align-items: start; padding-block: 1.25rem; border-top: 1px solid var(--color-border); scroll-margin-top: 1rem; }
   .feature video { display: block; width: 100%; height: auto; border-radius: 10px; background: #17181b; }
