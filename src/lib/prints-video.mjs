@@ -25,6 +25,11 @@ export const printsCurrentShort = { ...printsCurrentVideo,
   duration: 14,
   src: printsCurrentMedia + 'release-art-short.mp4',
   captions: printsCurrentMedia + 'release-art-short.en.vtt',
+  transcript: [
+    'Start with Higher Than Before and inspect the cover at 100%.',
+    'Codex records the reason in the native draft. Reopen it and select Release Poster.',
+    'Export the release poster as the exact original.',
+  ],
 };
 
 export const printsArchiveVideo = {

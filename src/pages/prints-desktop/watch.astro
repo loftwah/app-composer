@@ -30,8 +30,28 @@ const videos = {
   <article class="watch">
     <a class="back" href={home}><ArrowLeft size={18} aria-hidden="true" /> Prints Desktop</a>
     <h1>{title}.</h1>
-    <PrintsWalkthrough clip={printsArchiveVideo} eager />
-    <a class="back" href="/prints-desktop/archive-vertical-v0.4.0.mp4" download>Download the vertical cut · MP4</a>
+    <p>{description}</p>
+    <PrintsWalkthrough clip={printsCurrentVideo} eager />
+    <p><a href="https://github.com/loftwah/prints-desktop/releases/tag/v0.6.1">Exact Mac release and source</a></p>
+    <section aria-labelledby="short-release-art">
+      <h2 id="short-release-art">{printsCurrentShort.title}</h2>
+      <PrintsWalkthrough clip={printsCurrentShort} />
+    </section>
+    <section aria-labelledby="reproduce-current">
+      <h2 id="reproduce-current">Try the same decision</h2>
+      <ol>
+        <li>Open the Creative Archive and choose <strong>Compare formats</strong> on Higher Than Before. Use <strong>100%</strong> for the mark and <strong>Fit</strong> for both compositions.</li>
+        <li>Keep both images in the draft and write why each has a place. To follow the agent version, <a href={home === '/' ? '/guide#agent' : '/prints-desktop/guide#agent'}>open the local agent quickstart</a>.</li>
+        <li>Quit, reopen the draft and export the release poster. Compare its bytes with the <a href="https://github.com/loftwah/prints-desktop/blob/v0.6.1/assets/archive/higher-than-before-poster.jpg">bundled original</a>.</li>
+      </ol>
+      <p>To make new artwork, choose <strong>Create in web Prints</strong>. The <a href="https://composer.loftwah.com/articles/workers-ai-to-original">Workers AI field note</a> follows a real request, retained print and exact Mac export. The native walkthrough above uses published LoftwahFM originals and needs no key or generation.</p>
+      <p><a href="https://github.com/loftwah/app-composer/issues/997#issuecomment-7162591975">Earlier owner-authorised Workers AI run</a></p>
+    </section>
+    <section aria-labelledby="archive-preview">
+      <h2 id="archive-preview">{printsArchiveVideo.title}</h2>
+      <PrintsWalkthrough clip={printsArchiveVideo} />
+      <a class="back" href="/prints-desktop/archive-vertical-v0.4.0.mp4" download>Download the v0.4.0 vertical cut</a>
+    </section>
     <section aria-labelledby="archive-workshop">
       <h2 id="archive-workshop">{printsWorkshopVideo.title}.</h2>
       <p>{printsWorkshopVideo.description}</p>
