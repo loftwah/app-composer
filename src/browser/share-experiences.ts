@@ -172,6 +172,7 @@ interface ResultSnapshot {
 interface CoverSlot {
   url: string;
   art: HTMLCanvasElement;
+  artworkId: number;
   kind: "png" | "jpeg" | "webp";
   fit: CoverFit;
   approved?: ApprovedCover;
@@ -330,6 +331,7 @@ function mountNine(
   const rankMarks = elements<HTMLElement>(root, "[data-exhibit-rank]");
   const rankBadges = elements<HTMLElement>(root, "[data-nine-preview-rank]");
   const draftStatus = root.querySelector<HTMLElement>("[data-draft-status]")!;
+  const draftRevisionStatus = root.querySelector<HTMLElement>("[data-draft-revision-status]");
   const saveDraft = root.querySelector<HTMLButtonElement>("[data-draft-save]")!;
   const openDraft = root.querySelector<HTMLButtonElement>("[data-draft-open]")!;
   const clearDraft = root.querySelector<HTMLButtonElement>("[data-draft-clear]")!;
@@ -408,6 +410,14 @@ function mountNine(
   })();
   let draftBusy = false;
   let draftRevision = 0;
+  /** The board the device actually holds, named and identified from the bytes
+   * written to it. The status follows this board, not the number of edits, so
+   * an edit and its revert still name the same saved board. */
+  let savedIdentity: string | null = null;
+  let savedLabel = "";
+  let savedProfileDropped = false;
+  const artworkIds = new WeakMap<Blob, number>();
+  let nextArtworkId = 0;
   let hrefs: (string | null)[] = objects.map(() => null);
   /** Exact public pages for manually named exhibits, each remembered with the
    * title it was attached to so a retitled exhibit never keeps a stale link. */
@@ -911,6 +921,7 @@ function mountNine(
     });
     renderProfile();
     renderDate();
+    renderDraftRevision();
   }
 
   /** The one bounded local image path for a device file or the pinned approved
@@ -978,7 +989,7 @@ function mountNine(
     disposeCover(index);
     // A fresh cover starts at the current cropped default; any fit chosen for
     // the art it replaced went with that slot.
-    covers[index] = { url, art, kind: sniffed.kind, fit, ...(approved ? { approved } : {}) };
+    covers[index] = { url, art, artworkId: artworkId(bytes), kind: sniffed.kind, fit, ...(approved ? { approved } : {}) };
     renderCovers();
     renderPreview();
     if (!fromDraft) {
@@ -2211,6 +2222,69 @@ function mountNine(
     approvedCovers: approvedReferences(),
     pages: objects.map((_, index) => livePage(index)),
   });
+
+  /** A restored blob keeps the same identity while its preview decodes.
+   * Replacing the art in an otherwise unchanged slot changes the identity. */
+  function artworkId(blob: Blob): number {
+    const existing = artworkIds.get(blob);
+    if (existing !== undefined) return existing;
+    const id = ++nextArtworkId;
+    artworkIds.set(blob, id);
+    return id;
+  }
+
+  function currentFingerprint(file: string | null, slots: readonly (CoverSlot | null)[]): string {
+    return JSON.stringify([file, slots.map((slot) => slot
+      ? [slot.approved?.id ?? slot.artworkId, slot.fit]
+      : null)]);
+  }
+
+  /** The fingerprint of the stored record itself, including cover references
+   * that may still be decoding when an open or resume applies the board. */
+  function storedFingerprint(saved: { board: NineDraft; covers?: (DeviceCover | null)[] }): string {
+    const approved = saved.board.approvedCovers ?? [];
+    const slots = Array.from({ length: objects.length }, (_, index) => {
+      const reference = approved[index];
+      if (reference) return [reference.id, reference.fit];
+      const cover = saved.covers?.[index];
+      return cover ? [artworkId(cover.blob), cover.fit] : null;
+    });
+    return JSON.stringify([writeNineDraftFile(saved.board), slots]);
+  }
+
+  const draftName = (draft: NineDraft | null) => draft?.title || draft?.items.find(Boolean) || "your board";
+  /** Name only the sanitisation that actually happened to the bytes written. */
+  const profileDropped = (board: NineDraft, saved: NineDraft | null) =>
+    Boolean(board.profile?.trim()) && !saved?.profile;
+
+  function renderDraftRevision() {
+    if (!draftRevisionStatus) return;
+    if (!savedIdentity) {
+      draftRevisionStatus.textContent = "";
+      return;
+    }
+    const savedNote = `Saved “${savedLabel}” on this device${
+      savedProfileDropped ? " without the invalid profile link" : ""
+    }.`;
+    draftRevisionStatus.textContent = currentFingerprint(writeNineDraftFile(boardDraft()), covers) === savedIdentity
+      ? savedNote
+      : `${savedNote} Your current board is not saved yet — save it again.`;
+  }
+
+  function markSaved(identity: string, label: string, dropped: boolean) {
+    savedIdentity = identity;
+    savedLabel = label;
+    savedProfileDropped = dropped;
+    renderDraftRevision();
+  }
+
+  function clearSaved() {
+    savedIdentity = null;
+    savedLabel = "";
+    savedProfileDropped = false;
+    renderDraftRevision();
+  }
+
   async function loadSavedDraft(): Promise<{ board: NineDraft; covers?: (DeviceCover | null)[] } | null> {
     if (deviceStore) {
       const saved = await readDeviceDraft(deviceStore);
@@ -2244,27 +2318,35 @@ function mountNine(
       draftStatus.textContent = "Enter a title or a favourite before saving.";
       return;
     }
-    if (!readNineDraftFile(raw).draft) {
+    const saved = readNineDraftFile(raw).draft;
+    if (!saved) {
       draftStatus.textContent = "This draft is too long to save here. Shorten a title or link and try again.";
       return;
     }
+    // The bytes below are the board at click time. Artwork encoding and the
+    // device write are asynchronous, so snapshot the slotted artwork now and
+    // name exactly what landed even if the editor has moved on.
+    const clickedSlots = covers.slice();
+    const startedIdentity = currentFingerprint(raw, clickedSlots);
+    const name = draftName(saved);
+    const dropped = profileDropped(board, saved);
     draftBusy = true;
     draftRevision += 1;
     draftStatus.textContent = "Saving draft on this device…";
     try {
       if (deviceStore) {
-        const artwork = await Promise.all(covers.map(coverForDevice));
+        const artwork = await Promise.all(clickedSlots.map(coverForDevice));
         await writeDeviceDraft(deviceStore, { file: raw, covers: artwork });
       } else {
-        if (covers.some((cover) => cover && !cover.approved) || writeNineDraft(storage, board) !== "saved") {
+        if (clickedSlots.some((cover) => cover && !cover.approved) || writeNineDraft(storage, board) !== "saved") {
           throw new Error("Device storage unavailable");
         }
       }
       openDraft.hidden = true;
-      const invalidProfile = board.profile?.trim() && !profileUrl(board.profile);
-      draftStatus.textContent = invalidProfile
-        ? "Draft saved on this device without the invalid profile link."
-        : "Draft saved on this device.";
+      markSaved(startedIdentity, name, dropped);
+      // The saved/unsaved line owns success; this slot is for progress and
+      // failures only, so it can never contradict the revision status.
+      draftStatus.textContent = "";
     } catch {
       draftStatus.textContent = "This browser couldn’t save the draft. Your board is still here. Save a PNG to keep a copy.";
     } finally {
@@ -2289,8 +2371,9 @@ function mountNine(
         return;
       }
       applyDraft(saved.board, saved.covers);
+      markSaved(storedFingerprint(saved), draftName(saved.board), false);
       openDraft.hidden = true;
-      draftStatus.textContent = "Saved draft opened.";
+      draftStatus.textContent = "";
       if (root.hasAttribute("data-nine-recipient")) {
         root.querySelector<HTMLButtonElement>("[data-nine-edit-result]")?.click();
       }
@@ -2316,6 +2399,7 @@ function mountNine(
       openDraft.hidden = true;
       discardMove();
       clearReplace();
+      clearSaved();
       draftStatus.textContent = "Saved draft cleared from this device. Your board is still here.";
     } catch {
       draftStatus.textContent = "This browser couldn’t clear the saved draft. Your board is still here.";
@@ -2483,6 +2567,8 @@ function mountNine(
       markTarget();
       refreshLinks();
       renderPreview();
+      // A shared board is not the device draft, even when one exists here.
+      clearSaved();
       update();
     },
     resumeDraft(protectShared) {
@@ -2496,7 +2582,8 @@ function mountNine(
           return;
         }
         applyDraft(saved.board, saved.covers);
-        draftStatus.textContent = "Draft from this device restored.";
+        markSaved(storedFingerprint(saved), draftName(saved.board), false);
+        draftStatus.textContent = "";
       }).catch(() => {
         if (revision !== draftRevision) return;
         draftStatus.textContent = "This browser couldn’t open its saved draft. You can still build a board here.";
