@@ -7,7 +7,7 @@ export const printsDiscovery = /** @type {const} */ ({
   keywords: 'creative archive contact sheet artwork gallery offline download macos linux windows oyster fungi',
 });
 export const printsOrigin = 'https://prints.loftwah.com';
-export const printsPreviewVersion = '0.5.2';
+export const printsPreviewVersion = '0.6.0';
 export const printsFieldKitFolder = '/prints-desktop/workshop-kit-20261125/';
 export const printsFieldKitZip = printsFieldKitFolder + 'prints-workshop-kit.zip';
 export const printsFieldKitDownloads = [
