@@ -63,6 +63,8 @@ production operation is authorised by a benchmark definition.
 | **CF-R08** Recursive rebuild | Rebuild App Composer as a second independently owned installation, run a new app and useful follow-up through it, test repeatable reconstruction and declared parity | #931 / #600 / #476 / #603 |
 | **CF-R09** Portfolio proof/feedback | Join actual GitHub/Cloudflare/Studio identities across projects, retain private evidence and publish one approved benchmark plus one falsifiable Cloudflare improvement request | #601 / #613 / Woodhouse #18 |
 
+The existing **CF-R04** film profile has a detailed [MUSIC-DIRECTION-01 protocol](../creative-production/music-direction-01.md): scoped directing and reference packs, an owned 30–60 second production first, selective correction, and separately measured longer assembly/planning capacity. It remains **not-run** and keeps the same profile ID, status and campaign denominator. The protocol does not run through the provider-free foundation command.
+
 The profile file explicitly maps **all 13 MCP wishlist themes and all 18 wider
 platform themes** to at least one concrete outcome. The mapping is **coverage of
 questions to evaluate**, not provider availability or technical certification.

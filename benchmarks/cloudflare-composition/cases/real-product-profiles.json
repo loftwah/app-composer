@@ -496,7 +496,8 @@
       "prerequisites": [
         "Owned/licensed song and visual references; source fingerprints, project version and rights",
         "Declare expected duration, scene plan, output profile, provider eligibility, CPU/GPU and codec requirements",
-        "Set bounded processing allowance and supported human art review; no invented model entitlement"
+        "Set bounded processing allowance and supported human art review; no invented model entitlement",
+        "For MUSIC-DIRECTION-01, freeze source hashes, per-shot reference roles, requested versus transmitted inputs and profile-specific capacity; protocol: benchmarks/creative-production/music-direction-01.md"
       ],
       "steps": [
         "Ingest original audio and preserve provenance, preference/reference approvals and editable plan",
@@ -504,7 +505,9 @@
         "Produce/choose actual takes and retained revisions; edit in/out points, captions and soundtrack alignment",
         "Render complete playable output using an authorised supported engine; preserve inputs, hashes and failed attempts",
         "Seek/play real video and sound, reopen/edit one shot and re-render; verify correct changed version",
-        "Have a person assess actual musical/story quality separately from valid-file and technical correctness"
+        "Have a person assess actual musical/story quality separately from valid-file and technical correctness",
+        "Exercise MUSIC-DIRECTION-01 planning with 13 project references and 22 shots over 230 seconds; run an owned 30–60 second production first, then separately qualify longer assembly and larger planning packs",
+        "Continue the same revision through Media Studio, the chosen agent and Prints Desktop where supported; restart and correct one shot while retaining accepted takes and earlier masters"
       ],
       "positiveControl": "A finished version-pinned MP4 with corresponding editable project and approval can be reopened and revised.",
       "negativeCases": [
@@ -522,6 +525,21 @@
           "id": "rights-mismatch",
           "scenario": "Use withdrawn/unapproved source media in public export",
           "expected": "Publication prevented, originals retained appropriately"
+        },
+        {
+          "id": "reference-scope-or-capacity",
+          "scenario": "Use a 13-reference project pack with smaller per-shot subsets, an unrelated cast member and a late weather change",
+          "expected": "Retain the complete project pack, expose actual adapter inputs and unsupported capacity, and keep unrelated cast/weather outside other shots; no silent truncation"
+        },
+        {
+          "id": "unsupported-performance-claim",
+          "scenario": "Request singing on a route without verified audio conditioning, then use an instrumental control",
+          "expected": "Separate prompt-only acting, measured mouth/performer timing and final master sync; instrumental scenes require no invented lyrics or lip-sync score"
+        },
+        {
+          "id": "selective-repair-restart",
+          "scenario": "Restart after a saved take, then correct one shot or editorial boundary",
+          "expected": "Reconcile the existing job, preserve unaffected accepted hashes and prior master, and account for any new attempt separately"
         }
       ],
       "metrics": [
@@ -564,27 +582,79 @@
           "id": "cost_observed",
           "unit": "currency",
           "missing": "null-with-reason"
+        },
+        {
+          "id": "first_take_accepted_scene_slots",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "attempted_scene_slots",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "all_generated_takes",
+          "unit": "count",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "accepted_finished_seconds",
+          "unit": "seconds",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "word_boundary_error",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "mouth_performer_timing_error",
+          "unit": "ms",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "total_preparation_and_retry_cost",
+          "unit": "currency",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "human_active_time",
+          "unit": "minutes",
+          "missing": "null-with-reason"
+        },
+        {
+          "id": "unaffected_accepted_take_hashes_preserved",
+          "unit": "boolean",
+          "missing": "null-with-reason"
         }
       ],
       "evidence": [
         "Original song hash/rights and saved editable project",
         "Shot/caption/audio timing map, take and version lineage",
         "Playable final export plus browser/decoder observation",
-        "Creative review and real provider cost/cancellation receipts"
+        "Creative review and real provider cost/cancellation receipts",
+        "Versioned MUSIC-DIRECTION-01 storyboard with global style, scoped cast/location/action/camera/light, references and exact compiled adapter inputs",
+        "Separate plan/control, performance timing, master sync, craft and human appeal observations; complete preparation, generated-take, failure, retry and cost denominator"
       ],
       "owners": [
         "https://github.com/loftwah/composer-media-studio/issues/14",
         "https://github.com/loftwah/composer-media-studio/issues/150",
         "https://github.com/loftwah/composer-media-studio/issues/222",
         "https://github.com/loftwah/composer-media-studio/issues/11",
-        "https://github.com/loftwah/composer-media-studio/issues/445"
+        "https://github.com/loftwah/composer-media-studio/issues/445",
+        "https://github.com/loftwah/app-composer/issues/1019",
+        "https://github.com/loftwah/composer-media-studio/issues/697",
+        "https://github.com/loftwah/prints-desktop/issues/31"
       ],
       "status": "not-run",
       "required": false,
       "evidenceRecorded": [],
       "limits": [
         "Not live-qualified. Use actual authorised provider and independently observed user outcome for claims.",
-        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits."
+        "Record comparator and all attempted runs; do not silently drop failures, cost unknowns, no-provider, no-model or physical-device limits.",
+        "MUSIC-DIRECTION-01 is a procedure, not an executed benchmark. The 13-reference/22-shot/230-second, 27-reference/31-shot and 48-reference/36-shot cases are planning targets, not current product or universal provider limits.",
+        "Planning may consume agent inference even when no image/video generation runs. Report unsupported audio conditioning, native playback, long rendering and missing human judgement separately."
       ]
     },
     {
