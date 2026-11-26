@@ -1,5 +1,37 @@
 const root = '/prints-desktop/';
 
+export const printsCurrentMedia = root + 'release-art-v0.6.1/';
+export const printsCurrentVideo = {
+  title: 'Choosing the Higher Than Before cover',
+  description: 'Compare a LoftwahFM album cover and release poster at original size, share the native draft with an agent, then reopen and export the original.',
+  uploadDate: '2026-11-26',
+  duration: 30,
+  width: 1280,
+  height: 790,
+  poster: printsCurrentMedia + 'compare.webp',
+  src: printsCurrentMedia + 'release-art.mp4',
+  captions: printsCurrentMedia + 'release-art.en.vtt',
+  version: 'v0.6.1',
+  transcript: [
+    'Open the Loftwah Creative Archive in Prints Desktop. Compare the square Higher Than Before album cover and the tall release poster.',
+    'Switch to 100% to inspect the original pixels. Return to Fit to judge the whole composition. Choose the square version for the album tile because the centred mark stays readable at thumbnail size. Keep the portrait for the release poster because it gives the lettering more room.',
+    'In Agent access, enable edits. Codex uses the packaged local command to add both images to the shortlist and record the decision in the same native draft.',
+    'Quit and reopen the app. The draft and shortlist return. Open Release Poster, choose Export original and choose a destination. The exported JPEG has the same SHA-256 as the archive original.',
+  ],
+};
+export const printsCurrentShort = { ...printsCurrentVideo,
+  title: 'One cover, one poster in 14 seconds',
+  description: 'Inspect both versions, keep the reason and reopen the native draft.',
+  duration: 14,
+  src: printsCurrentMedia + 'release-art-short.mp4',
+  captions: printsCurrentMedia + 'release-art-short.en.vtt',
+  transcript: [
+    'Start with Higher Than Before and inspect the cover at 100%.',
+    'Codex records the reason in the native draft. Reopen it and select Release Poster.',
+    'Export the release poster as the exact original.',
+  ],
+};
+
 export const printsArchiveVideo = {
   title: 'The Creative Archive in 15 seconds',
   description: 'Watch the native Prints Desktop archive compare the Higher Than Before cover and release poster, find Fighter artwork and switch to Afterlight.',

@@ -6,17 +6,17 @@ import PrintsArchive from '../components/PrintsArchive.astro';
 import { isPrintsHost, printsOrigin, printsPreviewVersion as version, printsShare, printsShareAlt, printsWorkshopShareFolder, printsDownloadShareFolder, printsWorkflowShareFolder, printsPosterStudy } from '../lib/prints-site.mjs';
 import { builds } from '../lib/prints-downloads.mjs';
 import PrintsWalkthrough from '../components/PrintsWalkthrough.astro';
-import { printsWorkshopVideo } from '../lib/prints-video.mjs';
+import { printsCurrentMedia, printsCurrentVideo } from '../lib/prints-video.mjs';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight } from '@lucide/astro';
 
 const site = 'https://github.com/loftwah/prints-desktop';
 const release = `${site}/releases/tag/v${version}`;
 const downloadUrl = (file: string) => `${site}/releases/download/v${version}/prints-desktop-${version}-${file}`;
 const asset = '/prints-desktop/';
-const archive = `${asset}archive-native-v0.4.0.webp`;
-const compare = `${asset}archive-compare-v0.4.0.webp`;
+const archive = printsCurrentMedia + 'contact-sheet.webp';
+const compare = printsCurrentMedia + 'compare.webp';
 const local = `${asset}local-library-v0.3.1.webp`;
-const hosted = `${asset}oyster-library-demo-v0.3.1.webp`;
+const hosted = printsCurrentMedia + 'connected-compare.webp';
 const canonical = printsOrigin + '/';
 const packs = [
   { label: 'Workshop posters', url: printsWorkshopShareFolder + 'prints-workshop-social-kit.zip' },
@@ -72,9 +72,9 @@ const schema = {
       </div>
       <figure class="workspace">
         <a href={archive} aria-label="Open the native Creative Archive screenshot at full size">
-          <img src={archive} width="1440" height="885" alt="Prints Desktop opens on the Higher Than Before cover with the Loftwah Creative Archive contact sheet and original-file actions." loading="lazy" decoding="async" />
+          <img src={archive} width="1280" height="790" alt="Prints Desktop opens on the Higher Than Before cover with the Loftwah Creative Archive contact sheet and original-file actions." loading="lazy" decoding="async" />
         </a>
-        <figcaption><strong>Loftwah Creative Archive</strong><span>Native macOS capture · v0.4.0.</span><a class="theme-shot" href="/prints-desktop/archive-light-v0.4.0.webp">See light appearance <ArrowUpRight size={14} aria-hidden="true" /></a></figcaption>
+        <figcaption><strong>Loftwah Creative Archive</strong><span>Native macOS capture · v0.6.1.</span><a class="theme-shot" href={printsCurrentMedia + 'contact-sheet-light.webp'}>See light appearance <ArrowUpRight size={14} aria-hidden="true" /></a></figcaption>
       </figure>
     </section>
 
@@ -102,10 +102,24 @@ const schema = {
 
     <section class="tour" id="walkthrough" aria-labelledby="walkthrough-title">
       <div class="tour-heading">
-        <h2 id="walkthrough-title">From first look to export.</h2>
-        <p>Follow the native app from the album cover and release poster to a shortlist, a byte-for-byte export and a brief for your next print.</p>
+        <h2 id="walkthrough-title">Choose the cover. Keep the reason.</h2>
+        <p>The square <cite>Higher Than Before</cite> cover stays readable in an album tile. The portrait gives the release lettering room. Watch Codex record that choice in the native draft, then reopen it and export the original poster.</p>
       </div>
-      <PrintsWalkthrough clip={printsWorkshopVideo} />
+      <PrintsWalkthrough clip={printsCurrentVideo} />
+      <div class="study-pair walkthrough-stills">
+        <figure class="workspace">
+          <a href={printsCurrentMedia + 'original-pixels.webp'} aria-label="View the original-pixel comparison at full size">
+            <img src={printsCurrentMedia + 'original-pixels.webp'} width="1280" height="790" alt="Prints Desktop zooms to 100% on the square cover to inspect the mark alongside the poster." loading="lazy" decoding="async" />
+          </a>
+          <figcaption>Inspect the mark at 100%</figcaption>
+        </figure>
+        <figure class="workspace">
+          <a href={printsCurrentMedia + 'working-brief.webp'} aria-label="View the saved working brief at full size">
+            <img src={printsCurrentMedia + 'working-brief.webp'} width="1280" height="790" alt="The square album cover and portrait poster appear together in the draft shortlist beneath the written decision." loading="lazy" decoding="async" />
+          </a>
+          <figcaption>Reopen the brief and both choices</figcaption>
+        </figure>
+      </div>
       <a class="quiet-link" href={`${routePrefix}/watch`}>See all Prints videos <ArrowUpRight size={16} aria-hidden="true" /></a>
       <p><a class="quiet-link" href="https://composer.loftwah.com/articles/picking-release-art">Read how we chose the release artwork <ArrowUpRight size={16} aria-hidden="true" /></a></p>
     </section>
@@ -128,16 +142,16 @@ const schema = {
       <div class="workflow">
         <div>
           <h3>Connect a Prints library.</h3>
-          <p>Enter your Oyster origin, Prints installation ID and a named read key scoped to that installation. Browse indexed output, inspect prompts and export originals. Folder and model discovery depend on the host.</p>
-          <p><strong>Create in web Prints</strong> opens the upstream app for generation. Generation and recovery happen in web Prints. The desktop can remember your read key in your system credential store.</p>
+          <p>Enter your Oyster origin, Prints installation ID and a named read key scoped to that installation. Load a print into the same full viewer, compare it with local artwork and keep its reference in your draft. Folder and model discovery depend on the host.</p>
+          <p><strong>Create in web Prints</strong> opens the upstream app for generation. Generation and recovery happen in web Prints. Return to the native library to open the retained output, or link an exact export with its Prints source.</p>
           <a class="quiet-link" href={`${site}/blob/v${version}/docs/oyster.md`}>Read the connection guide <ArrowUpRight size={16} aria-hidden="true" /></a>
           <p><a class="quiet-link" href="https://composer.loftwah.com/articles/workers-ai-to-original">Follow an original from Workers AI to the Mac <ArrowUpRight size={16} aria-hidden="true" /></a></p>
         </div>
         <figure class="workspace">
           <a href={hosted} aria-label="Open the example hosted library screenshot at full size">
-            <img src={hosted} width="1440" height="880" alt="The connected Prints library previews a ring at dusk alongside folder selection, model details, and an Export original button." loading="lazy" decoding="async" />
+            <img src={hosted} width="1280" height="780" alt="A landscape read from an example Oyster library appears next to the square LoftwahFM cover in the native comparison viewer." loading="lazy" decoding="async" />
           </a>
-          <figcaption><strong>Prints library</strong><span>Native capture using a fictional Oyster library.</span></figcaption>
+          <figcaption><strong>Connected and local in one view</strong><span>Native v0.6.1 capture with a controlled Oyster fixture.</span></figcaption>
         </figure>
       </div>
     </section>
@@ -174,7 +188,7 @@ const schema = {
     <section class="editorial releases" id="downloads" tabindex="-1" aria-labelledby="downloads-title">
       <div>
         <h2 id="downloads-title">Get Prints Desktop.</h2>
-        <p>Choose your v{version} preview. It includes the Loftwah Creative Archive and Afterlight, plus faster Find and safer export and library recovery.</p>
+        <p>Choose your v{version} preview. It includes the Loftwah Creative Archive and Afterlight, plus a working draft, connected comparison and optional local agent access.</p>
         <p><a class="quiet-link" href={printsOrigin + '/downloads'}>Download statistics <ArrowUpRight size={16} aria-hidden="true" /></a></p>
         <a class="quiet-link" href={`${routePrefix}/guide#install`}>Installation and source build <ArrowUpRight size={16} aria-hidden="true" /></a>
         <a class="quiet-link" href={release}>Release notes, signing status and checksums <ArrowUpRight size={16} aria-hidden="true" /></a>
@@ -222,6 +236,7 @@ const schema = {
 
   .prints :is(section, details) { scroll-margin-top: 5rem; }
   .prints .product-link { margin-top: 12px; }
+  .walkthrough-stills { margin-block: 20px; }
   .native-heading { margin-bottom: 15px; }
   .quiet-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; }
   .quiet-link, .ecosystem dt a { color: var(--prints-accent); }
