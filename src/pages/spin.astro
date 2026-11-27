@@ -1,13 +1,34 @@
 ---
 import Base from '../layouts/Base.astro';
+import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinLifetimeDays } from '../lib/spin-protocol.mjs';
 const replay = Astro.url.searchParams.has('session');
+const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
+const title = replay ? 'Verify a replay · App Composer Spin' : 'Decision Wheel & Random Picker · App Composer Spin';
+const description = replay
+  ? 'Open an App Composer Spin replay and check the recorded decision.'
+  : 'Make a free online decision wheel. Pick dinner, a game or who goes first, then share a replay and a result your friends can verify.';
+if (replay) Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+const application = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: spinDiscovery.name,
+  url: spinDiscovery.href,
+  description,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Web',
+  inLanguage: 'en-AU',
+  image: new URL(spinArtwork, spinOrigin).href,
+  offers: { '@type': 'Offer', price: 0, priceCurrency: 'AUD' },
+});
 ---
-<Base title="App Composer Spin" description="Give the wheel a question, spin a fair series and share a result anyone can check." noindex={replay || undefined} focusedExperience>
-  <section class="spin" data-spin>
+<Base {title} {description} canonical={spinDiscovery.href} shareImage={spinArtwork}
+  shareAlt={spinArtworkAlt} shareType="image/jpeg" noindex={replay || undefined} focusedExperience spinProduct>
+  {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
+  <section class="spin" data-spin data-spin-path={spinPath}>
     <header>
-      <h1>App Composer Spin</h1>
-      <p>A decision wheel with a replay you can check.</p>
+      <h1>{replay ? 'Spin replay' : 'Settle it with a spin.'}</h1>
+      <p>{replay ? 'Watch the recorded wheel and check the result.' : 'A free decision wheel for dinner, game night and anything up for debate.'}</p>
     </header>
     <div class="play">
       <div class="wheel-panel">
@@ -64,14 +85,23 @@ const replay = Astro.url.searchParams.has('session');
           <div class="button-row secondary-actions">
             <button type="button" aria-pressed="false" data-sound>Sound</button>
             <button type="button" data-abandon hidden>Abandon session</button>
-            <a href="/spin">Make a new wheel</a>
+            <a href={spinDiscovery.href}>Make a new wheel</a>
           </div>
         </section>
         <p role="alert" data-error></p>
-        {replay && <p data-start-over hidden><a href="/spin">Make a new wheel</a></p>}
+        {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Make a new wheel</a></p>}
         <noscript><p>Enable JavaScript to use Spin.</p></noscript>
       </div>
     </div>
+    {!replay && <section class="spin-guide" aria-labelledby="how-spin-works">
+      <img src={spinArtwork} alt={spinArtworkAlt} width="1200" height="630" loading="lazy" decoding="async" />
+      <div>
+        <h2 id="how-spin-works">How Spin works</h2>
+        <p>Add your choices and pick a single spin or a best-of series. Each eligible choice has the same odds on its round.</p>
+        <p>Lock the wheel to get a link you can share before the first spin. Once the series ends, friends can replay the recorded result and check the receipt.</p>
+        <a href="https://composer.loftwah.com/spin?session=7d113e55-af96-4e12-99f2-4ea1483faa47">Watch the game night example</a>
+      </div>
+    </section>}
   </section>
 </Base>
 
@@ -80,6 +110,20 @@ const replay = Astro.url.searchParams.has('session');
 </script>
 
 <style>
+  :global(html[data-product='spin']) {
+    --color-background: #211521;
+    --color-foreground: #fff0d7;
+    --color-muted: #cab6c7;
+    --color-border: #765b70;
+    --color-accent: #ff936b;
+  }
+  :global(html[data-product='spin'][data-theme='light']) {
+    --color-background: #fff6e5;
+    --color-foreground: #29192b;
+    --color-muted: #674a61;
+    --color-border: #ab849d;
+    --color-accent: #ad3926;
+  }
   .spin { max-width: 1080px; margin-inline: auto; padding-bottom: 48px; }
   header { padding-block: 12px 22px; }
   h1 { font-size: clamp(2.25rem, 6vw, 4.4rem); line-height: 1; letter-spacing: -.035em; margin: 0 0 10px; }
@@ -110,8 +154,12 @@ const replay = Astro.url.searchParams.has('session');
   details code { overflow-wrap: anywhere; }
   [data-error]:empty, [data-verification]:empty { display: none; }
   .secondary-actions a { align-self: center; }
+  .spin-guide { margin-top: clamp(42px, 8vw, 90px); border-top: 1px solid var(--color-border); padding-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 4vw, 40px); align-items: center; }
+  .spin-guide img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .spin-guide p { color: var(--color-muted); }
+  .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; }
   @media (max-width: 750px) {
-    .play { grid-template-columns: 1fr; }
+    .play, .spin-guide { grid-template-columns: 1fr; }
     .wheel-panel { position: static; }
     .wheel-frame { width: min(75vw, 350px); }
   }

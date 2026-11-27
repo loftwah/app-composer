@@ -17,6 +17,10 @@
     {
       "pattern": "prints.loftwah.com",
       "custom_domain": true
+    },
+    {
+      "pattern": "spin.loftwah.com",
+      "custom_domain": true
     }
   ],
   "d1_databases": [

@@ -36,7 +36,7 @@ function mount(root) {
   const rules = config => config.entries.length === 2
     ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
     : `Play ${config.bestOf} counted spins. Tied leaders get a final spin. Each counted spin starts with all choices.`;
-  const shareUrl = id => new URL('/spin?session=' + encodeURIComponent(id), location.origin).href;
+  const shareUrl = id => new URL(root.dataset.spinPath + '?session=' + encodeURIComponent(id), location.origin).href;
 
   function fit(context, value, max) {
     let text = value;

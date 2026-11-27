@@ -5,6 +5,7 @@ import paperworkSource from '../../lib/paperwork/source.json';
 import { appDeviceSupport } from '../lib/app-device-support';
 import { deviceFilterTokens } from '../lib/device-support.mjs';
 import { apps, appDetails } from '../lib/apps';
+import { spinDiscovery as spin, spinIcon } from '../lib/spin-site.mjs';
 import { printsDiscovery, printsIcon } from '../lib/prints-site.mjs';
 import { filmTitle, filmWidgetHref } from '../lib/studio-film-starter';
 import { ArrowRight, Search, SlidersHorizontal } from '@lucide/astro';
@@ -32,7 +33,6 @@ const topNine = {
   description: 'Make a 3×3 board of your favourites and download it as an image.',
   href: '/top-nine',
 } as const;
-const spin = { id: 'spin', name: 'App Composer Spin', category: 'Creative', description: 'Settle a decision with a wheel and a result your friends can verify.', href: '/spin' } as const;
 const entries = [...apps.filter(app => app.id === 'media-studio'), printsDiscovery, ...apps.filter(app => app.id === 'showcase'), topNine, spin, share, benchmarks,
   ...apps.filter(app => app.id !== 'media-studio' && app.id !== 'showcase'), widgets];
 const features = {
@@ -47,6 +47,7 @@ const actions: Record<string, string> = {
 };
 const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   'prints-desktop': printsDiscovery.keywords,
+  spin: spin.keywords,
   'media-studio': 'Image Tools · clip and caption a video · subtitle a clip · SRT · WebVTT',
   'composer-share': 'portfolio report kits · portfolio analytics · public report cards',
   benchmarks: 'benchmark benchmarks evaluate model comparison test app test suites recorded runs compare results',
@@ -91,7 +92,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
       const href = isStudio ? '/media-studio/studio' : app.id === 'launch-kit' ? app.standalone + '/profile.html' : app.id === 'paperwork' ? paperworkSource.origin : app.href;
       const label = isStudio ? 'Open Media Studio' : isShare ? 'Browse artwork' : isPrints ? 'Explore Prints Desktop' : actions[app.id];
       const details = 'preview' in app ? appDetails[app.id] : null;
-      const thumbnail = isPrints ? printsIcon : 'thumbnail' in app ? app.thumbnail : null;
+      const thumbnail = app.id === spin.id ? spinIcon : isPrints ? printsIcon : 'thumbnail' in app ? app.thumbnail : null;
       return (
         <article id={app.id} class:list={['directory-entry', { featured: feature }]} data-app
           data-category={app.category} data-devices={deviceTokens}
@@ -152,8 +153,7 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   const search = controls.querySelector<HTMLInputElement>('#app-search')!;
   const category = controls.querySelector<HTMLSelectElement>('#app-category')!;
   const device = controls.querySelector<HTMLSelectElement>('#app-device')!;
-  const spin = { id: 'spin', name: 'App Composer Spin', category: 'Creative', description: 'Settle a decision with a wheel and a result your friends can verify.', href: '/spin' } as const;
-const entries = [...document.querySelectorAll<HTMLElement>('[data-app]')];
+  const entries = [...document.querySelectorAll<HTMLElement>('[data-app]')];
   const results = controls.querySelector<HTMLElement>('#app-results')!;
   const empty = document.querySelector<HTMLElement>('#app-empty')!;
 

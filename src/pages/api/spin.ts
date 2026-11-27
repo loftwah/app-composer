@@ -5,7 +5,7 @@ import { readBoundedJsonBody } from '../../lib/benchmark-body.ts';
 import { advanceSpin, createSpin, readSpin } from '../../lib/spin-session.ts';
 import { spinIdPattern, spinSecretPattern } from '../../lib/spin-protocol.mjs';
 
-const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
+const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'X-Robots-Tag': 'noindex' };
 const fail = (status: number, error: string) => Response.json({ error }, { status, headers });
 const messages = { tooLarge: 'This wheel is too large.', missing: 'Send wheel details.', unreadable: 'Could not read the request.', invalid: 'Invalid wheel data.' };
 
