@@ -10,6 +10,8 @@ test('product questions return canonical Markdown sources for the requested host
   for (const [origin, query, source] of [
     [composer, 'What does App Composer do?', '/docs/how-it-works'],
     [composer, 'How do I set up my own coding agent?', '/setup'],
+    [composer, 'spin', '/articles/why-we-built-spin'],
+    [composer, 'search agent', '/articles/cloudflare-search-for-agents'],
     [prints, 'How do I install Prints Desktop on an Apple Silicon Mac?', '/guide#install'],
     [prints, 'How can I export an original offline?', '/guide#offline'],
     [prints, 'How do I connect Oyster and generate in web Prints?', '/guide#connect'],
@@ -18,6 +20,7 @@ test('product questions return canonical Markdown sources for the requested host
     assert.equal(response.status, 200, query);
     assert.match(response.headers.get('content-type'), /^text\/markdown/);
     assert.equal(response.headers.get('cache-control'), 'public, max-age=60');
+    assert.equal(response.headers.get('content-signal'), 'search=yes, ai-input=yes, ai-train=no');
     const body = await response.text();
     assert.ok(body.includes('Source: ' + origin + source), query);
     assert.ok(!body.includes(origin === prints ? composer : prints), query);

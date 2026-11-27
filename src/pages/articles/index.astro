@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { frontmatter as agentSearch } from "./cloudflare-search-for-agents.md";
 import { frontmatter as storage } from "./why-databases-rewrite-data.md";
 import { frontmatter as releaseArt } from "./picking-release-art.md";
 import { frontmatter as rehearsal } from "./cloudflare-app-rehearsal.md";
@@ -15,6 +16,7 @@ interface ArticleSummary {
 }
 
 const articles = [
+  { frontmatter: agentSearch as ArticleSummary, href: "/articles/cloudflare-search-for-agents" },
   { frontmatter: spin as ArticleSummary, href: "/articles/why-we-built-spin" },
   { frontmatter: storage as ArticleSummary, href: "/articles/why-databases-rewrite-data" },
   { frontmatter: rehearsal as ArticleSummary, href: "/articles/cloudflare-app-rehearsal" },

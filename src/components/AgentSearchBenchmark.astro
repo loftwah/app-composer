@@ -1,0 +1,96 @@
+---
+import evidence from '../../public/benchmarks/agent-search-01/results.json';
+
+const path = '/benchmarks/agent-search-01';
+const arms: Record<string, string> = {
+  navigation: 'Navigation', explicit: 'Endpoint provided', discovery: 'Endpoint undisclosed',
+};
+const harnesses: Record<string, string> = { codex: 'Codex CLI', opencode: 'OpenCode' };
+const seconds = (ms: number | null) => ms === null ? 'Unavailable' : (ms / 1000).toFixed(1) + ' s';
+const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString('en-AU');
+const bytes = (value: number | null) => value === null ? 'Unavailable' : Math.round(value / 1000) + ' kB';
+const maxSeconds = Math.max(...evidence.views.map(row => row.durationMs ?? 0));
+---
+<section id="agent-search-01" aria-labelledby="agent-search-title">
+  <h2 id="agent-search-title">Can agents find our search endpoint?</h2>
+  <p>Two coding agents ran the same 12 questions three ways against live App Composer. Each used the advertised endpoint in 9 of 12 sessions where the prompt gave only the homepage. The entries below compare the sessions within each harness.</p>
+  <p class="run-links">
+    <a href="/articles/cloudflare-search-for-agents">Read the experiment</a>
+    <a href={path + '/results.json'}>Results JSON</a>
+    <a href={path + '/trials.csv'}>Download CSV</a>
+    <a href={path + '/trials.json'}>Inspect trial traces</a>
+  </p>
+
+  <form class="search-demo" action="/.well-known/search" method="get">
+    <label for="agent-search-query">Try the live documentation search</label>
+    <div>
+      <input id="agent-search-query" name="q" type="search" value="coding agent" maxlength="240" required />
+      <button type="submit" class="button">Open Markdown results</button>
+    </div>
+    <small>Use a few topic keywords. Each result has a source link.</small>
+  </form>
+
+  {Object.entries(harnesses).map(([id, harness]) => (
+    <details class="harness" open={id === 'codex'}>
+      <summary>{harness} <small>{evidence.protocol.harnesses[id as keyof typeof evidence.protocol.harnesses].model}</small></summary>
+      <div class="comparison" aria-label={harness + ' session measures'}>
+        {evidence.views.filter(row => row.harness === id).map(row => (
+          <section class="arm">
+            <h3>{arms[row.arm]}</h3>
+            <dl>
+              <div>
+                <dt>Correct with observed citation</dt>
+                <dd>{row.groundedCorrect}/{row.supported}
+                  <meter aria-label="Correct with observed citation" value={row.groundedCorrect} max={row.supported || 1}></meter>
+                </dd>
+              </div>
+              <div>
+                <dt>Median session time</dt>
+                <dd>{seconds(row.durationMs)}
+                  <meter aria-label="Median session time" value={row.durationMs ?? 0} max={maxSeconds || 1}></meter>
+                </dd>
+              </div>
+              <div><dt>Median requests</dt><dd>{number(row.requestMedian)}</dd></div>
+              <div><dt>Median body bytes</dt><dd>{bytes(row.bytesMedian)}</dd></div>
+              <div><dt>Median input / output tokens</dt><dd>{number(row.inputMedian)} / {number(row.outputMedian)}</dd></div>
+              <div><dt>Unsupported abstentions</dt><dd>{row.abstained}/{row.unsupported}</dd></div>
+              <div><dt>Harness-reported cost</dt><dd>{row.reportedUsd === null ? 'Unavailable' : 'US$' + row.reportedUsd.toFixed(2)}</dd></div>
+            </dl>
+          </section>
+        ))}
+      </div>
+    </details>
+  ))}
+  <p class="small">App Composer retrieval uses its maintained Worker index. The separate Cloudflare-managed check used one allowlisted public page in a private instance. Invoice attribution was unavailable.</p>
+</section>
+
+<style>
+  section[id] { margin-block: 48px; scroll-margin-top: 5rem; }
+  section[id] > p { max-width: 72ch; }
+  .run-links { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; }
+  .run-links a { min-height: 44px; display: inline-flex; align-items: center; }
+  .search-demo { border-block: 1px solid var(--color-border); padding-block: 1rem; margin-block: 1.1rem; }
+  label { display: block; font-weight: 650; margin-bottom: .5rem; }
+  .search-demo > div { display: flex; flex-wrap: wrap; gap: .6rem; max-width: 42rem; }
+  input {
+    flex: 1 1 13rem; min-width: 0; min-height: 44px; padding-inline: .75rem;
+    border: 1px solid var(--color-control-border); border-radius: 6px;
+    background: var(--color-surface); color: var(--color-foreground); font: inherit;
+  }
+  form small { display: block; margin-top: .45rem; }
+  .harness { border-bottom: 1px solid var(--color-border); }
+  summary { cursor: pointer; padding-block: .75rem; min-height: 44px; font-weight: 650; }
+  small { color: var(--color-muted); }
+  summary small { padding-left: .3rem; font-weight: 400; }
+  .comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; padding-bottom: .9rem; }
+  h3 { margin: .25rem 0 .55rem; font-size: 1rem; }
+  dl { margin: 0; font-variant-numeric: tabular-nums; }
+  dl > div { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: .4rem; border-top: 1px solid var(--color-border); padding-block: .45rem; }
+  dt { color: var(--color-muted); font-size: .84rem; }
+  dd { margin: 0; font-size: .87rem; text-align: end; }
+  meter { display: block; width: 100%; height: .6rem; margin-top: .17rem; accent-color: var(--color-accent); }
+  @media (max-width: 860px) {
+    .comparison { grid-template-columns: 1fr; gap: .8rem; }
+    dl > div { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  }
+</style>

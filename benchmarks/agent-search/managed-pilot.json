@@ -1,0 +1,63 @@
+{
+  "checkedAt": "2026-11-27T11:11:31.138Z",
+  "localTimeZone": "Australia/Melbourne",
+  "apexSearchForAgents": "off",
+  "zonePlan": "Free Website",
+  "workersPlan": "Paid",
+  "composerOwnZone": false,
+  "markdownForAgents": "Disabled on this zone; dashboard showed Pro plan",
+  "botPreferenceSync": "off",
+  "apiReadStatus": 403,
+  "namespace": "default",
+  "instance": "composer-agent-search-01-pilot",
+  "publicEndpoint": "off",
+  "similarityCache": "off",
+  "scheduledSync": "paused",
+  "source": "https://composer.loftwah.com/sitemap.xml",
+  "include": [
+    "https://composer.loftwah.com/setup"
+  ],
+  "sitemapUrlsSeen": 112,
+  "itemsQueued": 1,
+  "itemsObserved": 1,
+  "initialJobStartedAt": "2026-11-27T11:10:40Z",
+  "jobLogFinishedAt": "2026-11-27T11:11:03.316Z",
+  "queries": [
+    {
+      "query": "set up an existing coding agent",
+      "observedUniqueSources": [
+        "https://composer.loftwah.com/setup"
+      ],
+      "observedChunks": 3
+    },
+    {
+      "query": "Example Atlas Holdings private contract balance Example-9642",
+      "observedUniqueSources": [],
+      "observedChunks": 0
+    }
+  ],
+  "invoicesOrUsageAttribution": "No instance metrics were available immediately after the two signed-in searches. Account usage showed zero before creation, not a receipt for this run.",
+  "doesNotEstablish": [
+    "Native zone endpoint activation for Composer",
+    "Automatic source refresh",
+    "Origin unpublish or positive cache expiry",
+    "Mutable content eligibility"
+  ],
+  "withdrawal": {
+    "mechanism": "Replaced exact include rule for /setup with /architecture; public pages stayed available. Similarity cache off. Scheduled index resumed for the check and paused again.",
+    "savedAt": "2026-11-27T11:14:53.515Z",
+    "verifiedJobCleanupAt": "2026-11-27T11:15:52.398Z",
+    "repeatedQueryAt": "2026-11-27T11:18:49.351Z",
+    "freshQueryAt": "2026-11-27T11:18:58.809Z",
+    "repeatedQuery": "set up an existing coding agent",
+    "freshQuery": "EmDash manages the catalogue and independent applications keep their own data",
+    "repeatedQuerySources": [
+      "https://composer.loftwah.com/architecture"
+    ],
+    "freshQuerySources": [
+      "https://composer.loftwah.com/architecture"
+    ],
+    "oldSourceInEither": false,
+    "managedFreshnessLimit": "Observed by the first post-job query. Source edits, origin unpublish, cache-on removal and external access revocation were not tested."
+  }
+}

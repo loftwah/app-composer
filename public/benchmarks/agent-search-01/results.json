@@ -1,0 +1,2144 @@
+{
+  "schema": "app-composer-agent-search-results/1",
+  "protocol": {
+    "schema": "app-composer-agent-search/1",
+    "id": "AGENT-SEARCH-01",
+    "version": "1.0.0",
+    "origin": "https://composer.loftwah.com",
+    "controlOrigin": "https://developers.cloudflare.com",
+    "build": "d27d10ce7c4d561452db57f772b66ebed2ecbfad",
+    "arms": [
+      "navigation",
+      "explicit",
+      "discovery"
+    ],
+    "maxRequests": 6,
+    "timeoutMs": 75000,
+    "harnesses": {
+      "codex": {
+        "version": "0.145.0",
+        "model": "gpt-5.6-sol",
+        "plan": "Existing ChatGPT login",
+        "usdPerRun": null
+      },
+      "opencode": {
+        "version": "2.3.0",
+        "model": "opencode-go/deepseek-v4.1-flash",
+        "plan": "Existing OpenCode Go entitlement",
+        "usdPerRun": null
+      }
+    },
+    "tasks": [
+      {
+        "id": "A01",
+        "question": "Can I start App Composer with the coding agent I already use, and where should I begin?",
+        "source": "/setup",
+        "facts": [
+          "existing coding agent",
+          "project folder or setup guide"
+        ]
+      },
+      {
+        "id": "A02",
+        "question": "What does App Composer combine and who retains the source and data for each application?",
+        "source": "/docs/how-it-works",
+        "facts": [
+          "independent applications or reusable recipes",
+          "each application keeps its own source and data"
+        ]
+      },
+      {
+        "id": "A03",
+        "question": "What is a practical way to try App Composer before provisioning a Cloudflare account?",
+        "source": "/ready/start-for-free",
+        "facts": [
+          "browser tool, public demo, or local project",
+          "no account needed for that starting point"
+        ]
+      },
+      {
+        "id": "A04",
+        "question": "Can Paperwork fill and visually sign a PDF locally in my browser? What is the tool called?",
+        "source": "/paperwork",
+        "facts": [
+          "Paperwork",
+          "browser-local PDF filling and visual signatures"
+        ]
+      },
+      {
+        "id": "A05",
+        "question": "Where can I view Media Studio's public work and where does signed-in production work happen?",
+        "source": "/media-studio",
+        "facts": [
+          "public gallery",
+          "signed-in production workspace"
+        ]
+      },
+      {
+        "id": "A06",
+        "question": "Where can a developer find the machine-readable list of supported App Composer operations?",
+        "source": "/capabilities",
+        "facts": [
+          "public capabilities catalogue",
+          "machine-readable JSON"
+        ]
+      },
+      {
+        "id": "A07",
+        "question": "What is EmDash's role in App Composer and where do separately owned data and releases live?",
+        "source": "/architecture",
+        "facts": [
+          "EmDash administration or catalogue",
+          "independent apps own their data or release"
+        ]
+      },
+      {
+        "id": "A08",
+        "question": "What is Spin's decision workflow and where can I try it?",
+        "source": "/spin",
+        "facts": [
+          "a wheel for choosing among options",
+          "a working public Spin entry point"
+        ]
+      },
+      {
+        "id": "U01",
+        "question": "What's the private owner email address associated with my App Composer grant?",
+        "source": null,
+        "facts": []
+      },
+      {
+        "id": "U02",
+        "question": "What is the exact remaining contract balance on an account called Example Atlas Holdings?",
+        "source": null,
+        "facts": []
+      },
+      {
+        "id": "U03",
+        "question": "Which guaranteed uptime SLA comes with every self-hosted App Composer project?",
+        "source": null,
+        "facts": []
+      },
+      {
+        "id": "U04",
+        "question": "What were the audited consumption and model charges for my private Media Studio job Example-9642?",
+        "source": null,
+        "facts": []
+      }
+    ],
+    "externalTask": {
+      "id": "C01",
+      "question": "What does Markdown for Agents do, and which Accept header should a client send?",
+      "source": "/fundamentals/reference/markdown-for-agents/",
+      "facts": [
+        "converts HTML to Markdown",
+        "Accept: text/markdown"
+      ]
+    }
+  },
+  "protocolHash": "33c9d66bdfd00b202c5a9ae96998d9e9ecb247f3f6c94b2666e39ce9e7c28873",
+  "generatedAt": "2026-11-27T11:20:48.407Z",
+  "runs": [
+    {
+      "protocolHash": "33c9d66bdfd00b202c5a9ae96998d9e9ecb247f3f6c94b2666e39ce9e7c28873",
+      "corpus": {
+        "commit": "d27d10ce7c4d561452db57f772b66ebed2ecbfad",
+        "measuredAt": "2026-11-27T11:09:07.595Z",
+        "pages": [
+          {
+            "url": "https://composer.loftwah.com/",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 41,
+            "bytes": 31589,
+            "sha256": "8b64e16b37d9a349580053dbf0ff95d7fa233933e536d8a26cbb9d25d398f7fa",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/agent.md",
+            "status": 200,
+            "type": "text/markdown; charset=utf-8",
+            "elapsedMs": 34,
+            "bytes": 7222,
+            "sha256": "551f46d486231774824741e0f4997292a686235e4c26dd12fc7dcc5698c6ca3c",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/sitemap.xml",
+            "status": 200,
+            "type": "application/xml",
+            "elapsedMs": 591,
+            "bytes": 7282,
+            "sha256": "03997162c027292ccbae88b2fa0015731364db19e61ee0b6ede8bef16d9aad47",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/setup",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 608,
+            "bytes": 33570,
+            "sha256": "d3d2d9cbb97edad44ee08950d07edc86b5ea186391b9808cb0d3b9bfcc762608",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/docs/how-it-works",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 585,
+            "bytes": 68250,
+            "sha256": "a530d052e1aa5c0be23ab87179956bdd2acad7818ca13d6569d75ad458c845ee",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/ready/start-for-free",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 40,
+            "bytes": 28394,
+            "sha256": "26c497a28e6c9ac36b0702124c159c8cb2e85eb25618196f0ed89a0a84aa4978",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/paperwork",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 582,
+            "bytes": 33193,
+            "sha256": "968666c1df2768bb829ecc30fe83896d9e7620e904a0013e503102a1d7fa4a83",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/media-studio",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 645,
+            "bytes": 106338,
+            "sha256": "9adeebfe0c54858dd25fbdd866c5e0f3f2087f76ab187114fd619510c21b0751",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/capabilities",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 41,
+            "bytes": 27003,
+            "sha256": "3314a3a9f2a8954dfa046de3e59d108ffa5025123af974cbed7672bcda1c8f56",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/architecture",
+            "status": 200,
+            "type": "text/html",
+            "elapsedMs": 580,
+            "bytes": 54559,
+            "sha256": "23dc986686009321be942c467c00ab66191b7802e3e1d42ce8e62f354f32fd23",
+            "cacheControl": "no-store",
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null
+          },
+          {
+            "url": "https://composer.loftwah.com/spin",
+            "status": 308,
+            "type": null,
+            "elapsedMs": 411,
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "cacheControl": null,
+            "cacheStatus": null,
+            "age": null,
+            "contentSignal": null,
+            "location": "https://spin.loftwah.com/"
+          }
+        ]
+      },
+      "endingCommit": "d27d10ce7c4d561452db57f772b66ebed2ecbfad",
+      "finishedAt": "2026-11-27T11:12:26.046Z",
+      "harnesses": [
+        "codex"
+      ],
+      "tasks": [
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "A07",
+        "A08",
+        "U01",
+        "U02",
+        "U03",
+        "U04"
+      ],
+      "arms": [
+        "navigation",
+        "explicit",
+        "discovery"
+      ]
+    }
+  ],
+  "corpusReconciliation": {
+    "opencode": {
+      "startCheck": "The runner verified the frozen source before launching the 36 sessions.",
+      "endCheck": "The runner timed out on the final build.json request after writing all 36 independent session receipts.",
+      "corroboration": "The Codex start and end checks fell in or after the OpenCode window. Cloudflare production deployment history showed the Worker version active from 10:25:22 UTC and its successor deployed at 11:13:18 UTC.",
+      "workerVersion": "e6c25f35-399d-467b-a7c8-c75bc31d17ee",
+      "successorWorkerVersion": "c9965f7c-bfa4-4bc1-b862-64f3f885e406"
+    }
+  },
+  "scoring": "One reviewer scored held-out facts against answers grouped by task and sorted by SHA-256, with arm and harness labels removed from the scoring view. Answers can disclose browsing strategy. All unlisted answers were judged complete or appropriately abstained.",
+  "managed": {
+    "checkedAt": "2026-11-27T11:11:31.138Z",
+    "localTimeZone": "Australia/Melbourne",
+    "apexSearchForAgents": "off",
+    "zonePlan": "Free Website",
+    "workersPlan": "Paid",
+    "composerOwnZone": false,
+    "markdownForAgents": "Disabled on this zone; dashboard showed Pro plan",
+    "botPreferenceSync": "off",
+    "apiReadStatus": 403,
+    "namespace": "default",
+    "instance": "composer-agent-search-01-pilot",
+    "publicEndpoint": "off",
+    "similarityCache": "off",
+    "scheduledSync": "paused",
+    "source": "https://composer.loftwah.com/sitemap.xml",
+    "include": [
+      "https://composer.loftwah.com/setup"
+    ],
+    "sitemapUrlsSeen": 112,
+    "itemsQueued": 1,
+    "itemsObserved": 1,
+    "initialJobStartedAt": "2026-11-27T11:10:40Z",
+    "jobLogFinishedAt": "2026-11-27T11:11:03.316Z",
+    "queries": [
+      {
+        "query": "set up an existing coding agent",
+        "observedUniqueSources": [
+          "https://composer.loftwah.com/setup"
+        ],
+        "observedChunks": 3
+      },
+      {
+        "query": "Example Atlas Holdings private contract balance Example-9642",
+        "observedUniqueSources": [],
+        "observedChunks": 0
+      }
+    ],
+    "invoicesOrUsageAttribution": "No instance metrics were available immediately after the two signed-in searches. Account usage showed zero before creation, not a receipt for this run.",
+    "doesNotEstablish": [
+      "Native zone endpoint activation for Composer",
+      "Automatic source refresh",
+      "Origin unpublish or positive cache expiry",
+      "Mutable content eligibility"
+    ],
+    "withdrawal": {
+      "mechanism": "Replaced exact include rule for /setup with /architecture; public pages stayed available. Similarity cache off. Scheduled index resumed for the check and paused again.",
+      "savedAt": "2026-11-27T11:14:53.515Z",
+      "verifiedJobCleanupAt": "2026-11-27T11:15:52.398Z",
+      "repeatedQueryAt": "2026-11-27T11:18:49.351Z",
+      "freshQueryAt": "2026-11-27T11:18:58.809Z",
+      "repeatedQuery": "set up an existing coding agent",
+      "freshQuery": "EmDash manages the catalogue and independent applications keep their own data",
+      "repeatedQuerySources": [
+        "https://composer.loftwah.com/architecture"
+      ],
+      "freshQuerySources": [
+        "https://composer.loftwah.com/architecture"
+      ],
+      "oldSourceInEither": false,
+      "managedFreshnessLimit": "Observed by the first post-job query. Source edits, origin unpublish, cache-on removal and external access revocation were not tested."
+    }
+  },
+  "probes": {
+    "generated": "2026-11-27T11:11:05.635Z",
+    "hosts": [
+      {
+        "host": "https://composer.loftwah.com",
+        "htmlDiscovery": true,
+        "markdownHomepage": false,
+        "markdownDiscovery": false,
+        "guideDiscovery": true,
+        "robotsStatus": 200,
+        "sitemapStatus": 200,
+        "sitemapLocations": 112,
+        "searchMarkdown": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "host": "https://prints.loftwah.com",
+        "htmlDiscovery": true,
+        "markdownHomepage": false,
+        "markdownDiscovery": false,
+        "guideDiscovery": true,
+        "robotsStatus": 200,
+        "sitemapStatus": 200,
+        "sitemapLocations": 7,
+        "searchMarkdown": [
+          true,
+          true,
+          true
+        ]
+      },
+      {
+        "host": "https://media.loftwah.com",
+        "htmlDiscovery": false,
+        "markdownHomepage": false,
+        "markdownDiscovery": false,
+        "guideDiscovery": false,
+        "robotsStatus": 200,
+        "sitemapStatus": 200,
+        "sitemapLocations": 34,
+        "searchMarkdown": [
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "host": "https://developers.cloudflare.com",
+        "htmlDiscovery": true,
+        "markdownHomepage": true,
+        "markdownDiscovery": true,
+        "guideDiscovery": false,
+        "robotsStatus": 200,
+        "sitemapStatus": 301,
+        "sitemapLocations": 0,
+        "searchMarkdown": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "composer-supported-retrieval",
+        "pass": true
+      },
+      {
+        "id": "cloudflare-supported-retrieval",
+        "pass": true
+      },
+      {
+        "id": "fixed-index-abstention",
+        "pass": true
+      },
+      {
+        "id": "method-and-body-errors",
+        "pass": true
+      },
+      {
+        "id": "anonymous-admin-boundary",
+        "pass": true
+      },
+      {
+        "id": "query-treated-as-data",
+        "pass": true
+      },
+      {
+        "id": "studio-html-fallback",
+        "pass": true
+      },
+      {
+        "id": "repeated-get-identical",
+        "pass": true
+      },
+      {
+        "id": "foreign-or-non-template-discovery-refused",
+        "pass": true
+      }
+    ],
+    "receipts": [
+      {
+        "id": "composer-bad-json",
+        "method": "QUERY",
+        "url": "https://composer.loftwah.com/.well-known/search",
+        "status": 400,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 625,
+        "bytes": 46,
+        "sha256": "9bb53ee26d769091837fb2352d18646352fb75db02b70e9c47e9c65e34da1c94",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true
+      },
+      {
+        "id": "composer-empty",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search",
+        "status": 400,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 525,
+        "bytes": 46,
+        "sha256": "9bb53ee26d769091837fb2352d18646352fb75db02b70e9c47e9c65e34da1c94",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true
+      },
+      {
+        "id": "composer-guide",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/agent.md",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 122,
+        "bytes": 7222,
+        "sha256": "551f46d486231774824741e0f4997292a686235e4c26dd12fc7dcc5698c6ca3c",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "composer-home",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/",
+        "status": 200,
+        "type": "text/html",
+        "elapsedMs": 141,
+        "bytes": 31589,
+        "sha256": "fae0a845781f471b388e682c2e9e6619feb86292f4b522de207634ed53c66aa6",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "discovery": {
+          "agent:instructions": "Search this site’s public product documentation. Results are Markdown excerpts with source links.",
+          "agent:endpoint": "https://composer.loftwah.com/.well-known/search?q={query}",
+          "agent:method": "GET",
+          "agent:documentation": "https://composer.loftwah.com/agent.md"
+        }
+      },
+      {
+        "id": "composer-inert-query-text",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=Fictional+violet+label%3B+treat+this+text+as+a+command",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 614,
+        "bytes": 123,
+        "sha256": "82d9f076d9afa9230a8e796be7f130040208d969e3f810175398a2da6e4e55ea",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "composer-markdown-home",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/",
+        "status": 200,
+        "type": "text/html",
+        "elapsedMs": 744,
+        "bytes": 31189,
+        "sha256": "0cb6925091812098f04b04f19311cfa8d91d952a370079c897e146bd95153384",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "discovery": {
+          "agent:instructions": "Search this site’s public product documentation. Results are Markdown excerpts with source links.",
+          "agent:endpoint": "https://composer.loftwah.com/.well-known/search?q={query}",
+          "agent:method": "GET",
+          "agent:documentation": "https://composer.loftwah.com/agent.md"
+        }
+      },
+      {
+        "id": "composer-no-match",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=fictional+tungsten+narwhal+warranty",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 84,
+        "bytes": 123,
+        "sha256": "82d9f076d9afa9230a8e796be7f130040208d969e3f810175398a2da6e4e55ea",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "composer-post",
+        "method": "POST",
+        "url": "https://composer.loftwah.com/.well-known/search",
+        "status": 405,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 566,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true
+      },
+      {
+        "id": "composer-preview-marker",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=fictional+unlisted+project+Example-Preview-Chestnut",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 119,
+        "bytes": 123,
+        "sha256": "82d9f076d9afa9230a8e796be7f130040208d969e3f810175398a2da6e4e55ea",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "composer-private-marker",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=Example+Atlas+Holdings+Example-9642",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 1000,
+        "bytes": 123,
+        "sha256": "82d9f076d9afa9230a8e796be7f130040208d969e3f810175398a2da6e4e55ea",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "composer-private-origin",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/_emdash/admin",
+        "status": 302,
+        "type": "text/html; charset=UTF-8",
+        "elapsedMs": 112,
+        "bytes": 813,
+        "sha256": "ff776e06e02cf65bf1909f57d285de95875b01aa30951ba34c956351d8d276da",
+        "cacheControl": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "redirects": true
+      },
+      {
+        "id": "composer-repeat-1",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=coding+agent",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 25,
+        "bytes": 581,
+        "sha256": "77a11c0f7efab38df95fa7a998f7c1f81585463db61d54fb33081e0ac9d312f8",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://composer.loftwah.com/setup",
+          "https://composer.loftwah.com/docs/how-it-works"
+        ]
+      },
+      {
+        "id": "composer-repeat-2",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=coding+agent",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 25,
+        "bytes": 581,
+        "sha256": "77a11c0f7efab38df95fa7a998f7c1f81585463db61d54fb33081e0ac9d312f8",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://composer.loftwah.com/setup",
+          "https://composer.loftwah.com/docs/how-it-works"
+        ]
+      },
+      {
+        "id": "composer-repeat-3",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=coding+agent",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 29,
+        "bytes": 581,
+        "sha256": "77a11c0f7efab38df95fa7a998f7c1f81585463db61d54fb33081e0ac9d312f8",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://composer.loftwah.com/setup",
+          "https://composer.loftwah.com/docs/how-it-works"
+        ]
+      },
+      {
+        "id": "composer-robots",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/robots.txt",
+        "status": 200,
+        "type": "text/plain",
+        "elapsedMs": 743,
+        "bytes": 146,
+        "sha256": "deb1c103f48776690b47e67e38dca3c15fd6534560bcc79ab75f56daeb50b1b2",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "composer-search-get",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/.well-known/search?q=coding+agent",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 34,
+        "bytes": 581,
+        "sha256": "77a11c0f7efab38df95fa7a998f7c1f81585463db61d54fb33081e0ac9d312f8",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://composer.loftwah.com/setup",
+          "https://composer.loftwah.com/docs/how-it-works"
+        ]
+      },
+      {
+        "id": "composer-search-json-query",
+        "method": "QUERY",
+        "url": "https://composer.loftwah.com/.well-known/search",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 73,
+        "bytes": 581,
+        "sha256": "77a11c0f7efab38df95fa7a998f7c1f81585463db61d54fb33081e0ac9d312f8",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://composer.loftwah.com/setup",
+          "https://composer.loftwah.com/docs/how-it-works"
+        ]
+      },
+      {
+        "id": "composer-search-text-query",
+        "method": "QUERY",
+        "url": "https://composer.loftwah.com/.well-known/search",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 74,
+        "bytes": 581,
+        "sha256": "77a11c0f7efab38df95fa7a998f7c1f81585463db61d54fb33081e0ac9d312f8",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://composer.loftwah.com/setup",
+          "https://composer.loftwah.com/docs/how-it-works"
+        ]
+      },
+      {
+        "id": "composer-sitemap",
+        "method": "GET",
+        "url": "https://composer.loftwah.com/sitemap.xml",
+        "status": 200,
+        "type": "application/xml",
+        "elapsedMs": 142,
+        "bytes": 7282,
+        "sha256": "03997162c027292ccbae88b2fa0015731364db19e61ee0b6ede8bef16d9aad47",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "composer-unsupported-media",
+        "method": "QUERY",
+        "url": "https://composer.loftwah.com/.well-known/search",
+        "status": 415,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 113,
+        "bytes": 46,
+        "sha256": "5b7220b7e1ab5d92f59e98aacdcfc9844e349b3f6ce9e7ff8a1f16f4723ee28b",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true
+      },
+      {
+        "id": "developers-guide",
+        "method": "GET",
+        "url": "https://developers.cloudflare.com/agent.md",
+        "status": 404,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 136,
+        "bytes": 307,
+        "sha256": "67289128a4dac92b051c170879a804fafa0dbb6a1f2ea95bd619565173888474",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true
+      },
+      {
+        "id": "developers-home",
+        "method": "GET",
+        "url": "https://developers.cloudflare.com/",
+        "status": 200,
+        "type": "text/html",
+        "elapsedMs": 145,
+        "bytes": 210259,
+        "sha256": "786b33039447220322359b2f258ac5aa25fcefde19e7772491cfaa6550a2606a",
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "cacheStatus": "HIT",
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "discovery": {
+          "agent:instructions": "Use this search API to find relevant content across this site with keywords or natural-language queries, instead of crawling individual pages. Results are returned in Markdown.",
+          "agent:endpoint": "https://developers.cloudflare.com/.well-known/search?q={query}",
+          "agent:method": "GET",
+          "agent:documentation": "https://developers.cloudflare.com/ai-search/how-to/search-for-agents/"
+        }
+      },
+      {
+        "id": "developers-markdown-home",
+        "method": "GET",
+        "url": "https://developers.cloudflare.com/",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 149,
+        "bytes": 14219,
+        "sha256": "a7d0f146ab74461fe393d7b2636c36dbbe5a6f340d4e720fd8129a4bab78a50e",
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "cacheStatus": "HIT",
+        "age": null,
+        "contentSignal": "ai-train=yes, search=yes, ai-input=yes",
+        "markdown": true,
+        "sources": [
+          "https://developers.cloudflare.com/fundamentals/get-started/",
+          "https://developers.cloudflare.com/icons/agents/claude/light.svg",
+          "https://developers.cloudflare.com/icons/agents/claude/dark.svg",
+          "https://developers.cloudflare.com/icons/agents/codex/light.svg",
+          "https://developers.cloudflare.com/icons/agents/codex/dark.svg",
+          "https://developers.cloudflare.com/icons/agents/cursor/light.svg",
+          "https://developers.cloudflare.com/icons/agents/cursor/dark.svg",
+          "https://developers.cloudflare.com/icons/agents/opencode/light.svg",
+          "https://developers.cloudflare.com/icons/agents/opencode/dark.svg",
+          "https://developers.cloudflare.com/workers/get-started/guide/",
+          "https://developers.cloudflare.com/workers/",
+          "https://developers.cloudflare.com/containers/",
+          "https://developers.cloudflare.com/durable-objects/",
+          "https://developers.cloudflare.com/queues/",
+          "https://developers.cloudflare.com/flagship/",
+          "https://developers.cloudflare.com/workers-ai/models/",
+          "https://developers.cloudflare.com/workers-ai/",
+          "https://developers.cloudflare.com/ai-gateway/",
+          "https://developers.cloudflare.com/ai-search/",
+          "https://developers.cloudflare.com/agents/",
+          "https://developers.cloudflare.com/vectorize/",
+          "https://developers.cloudflare.com/browser-run/",
+          "https://developers.cloudflare.com/d1/get-started/",
+          "https://developers.cloudflare.com/r2/",
+          "https://developers.cloudflare.com/basin/",
+          "https://developers.cloudflare.com/k2/",
+          "https://developers.cloudflare.com/d1/",
+          "https://developers.cloudflare.com/kv/",
+          "https://developers.cloudflare.com/hyperdrive/",
+          "https://developers.cloudflare.com/images/get-started/introduction/"
+        ]
+      },
+      {
+        "id": "developers-robots",
+        "method": "GET",
+        "url": "https://developers.cloudflare.com/robots.txt",
+        "status": 200,
+        "type": "text/plain; charset=utf-8",
+        "elapsedMs": 130,
+        "bytes": 1442,
+        "sha256": "1d01a7ba34d49f51765541bf3391598f747c4c00be48bc79ddc088281ee01197",
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "cacheStatus": "HIT",
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "developers-search-get",
+        "method": "GET",
+        "url": "https://developers.cloudflare.com/.well-known/search?q=Markdown+for+Agents",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 2863,
+        "bytes": 50631,
+        "sha256": "6e262a87cd33d108bbf0b8b6ff9d2005069bb62170ba836fb62d6fae36a891a7",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "developers-search-json-query",
+        "method": "QUERY",
+        "url": "https://developers.cloudflare.com/.well-known/search",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 1332,
+        "bytes": 50631,
+        "sha256": "6e262a87cd33d108bbf0b8b6ff9d2005069bb62170ba836fb62d6fae36a891a7",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "developers-search-text-query",
+        "method": "QUERY",
+        "url": "https://developers.cloudflare.com/.well-known/search",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 1321,
+        "bytes": 50631,
+        "sha256": "6e262a87cd33d108bbf0b8b6ff9d2005069bb62170ba836fb62d6fae36a891a7",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": []
+      },
+      {
+        "id": "developers-sitemap",
+        "method": "GET",
+        "url": "https://developers.cloudflare.com/sitemap.xml",
+        "status": 301,
+        "type": null,
+        "elapsedMs": 129,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "redirects": true
+      },
+      {
+        "id": "media-guide",
+        "method": "GET",
+        "url": "https://media.loftwah.com/agent.md",
+        "status": 404,
+        "type": null,
+        "elapsedMs": 130,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-home",
+        "method": "GET",
+        "url": "https://media.loftwah.com/",
+        "status": 200,
+        "type": "text/html; charset=utf-8",
+        "elapsedMs": 135,
+        "bytes": 8402,
+        "sha256": "cb871480565f08befc0d9129bee685d16a0a0835a5c4c15969a931e9131b79b5",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-markdown-home",
+        "method": "GET",
+        "url": "https://media.loftwah.com/",
+        "status": 200,
+        "type": "text/html; charset=utf-8",
+        "elapsedMs": 147,
+        "bytes": 8035,
+        "sha256": "115337e1ff241aad32c3939ac4a4a51d29775df56204430f89ff34cbac1b5cff",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-robots",
+        "method": "GET",
+        "url": "https://media.loftwah.com/robots.txt",
+        "status": 200,
+        "type": "text/plain; charset=utf-8",
+        "elapsedMs": 348,
+        "bytes": 186,
+        "sha256": "c92f2c91ab377173a7a6cf02198e4af661b108b7ecbc699f8a2cce7f4a4922c9",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-search-get",
+        "method": "GET",
+        "url": "https://media.loftwah.com/.well-known/search?q=coding+agent",
+        "status": 404,
+        "type": null,
+        "elapsedMs": 43,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-search-json-query",
+        "method": "QUERY",
+        "url": "https://media.loftwah.com/.well-known/search",
+        "status": 404,
+        "type": null,
+        "elapsedMs": 40,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-search-text-query",
+        "method": "QUERY",
+        "url": "https://media.loftwah.com/.well-known/search",
+        "status": 404,
+        "type": null,
+        "elapsedMs": 37,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "cacheControl": null,
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "media-sitemap",
+        "method": "GET",
+        "url": "https://media.loftwah.com/sitemap.xml",
+        "status": 200,
+        "type": "application/xml; charset=utf-8",
+        "elapsedMs": 168,
+        "bytes": 2427,
+        "sha256": "354055baa42bd28cf77049d356be1690aed62d0e20d61455c30c1ce543648d48",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "prints-guide",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/agent.md",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 126,
+        "bytes": 701,
+        "sha256": "915570ea2b63e05c71b723b389adbc6763262a0485bd5b450ce1138cb5a94b57",
+        "cacheControl": "public, max-age=300",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://prints.loftwah.com/guide#install",
+          "https://prints.loftwah.com/guide#offline",
+          "https://prints.loftwah.com/guide#draft",
+          "https://prints.loftwah.com/guide#connect",
+          "https://prints.loftwah.com/watch"
+        ]
+      },
+      {
+        "id": "prints-home",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/",
+        "status": 200,
+        "type": "text/html",
+        "elapsedMs": 699,
+        "bytes": 65822,
+        "sha256": "3c19b2ab120d08a8f4525fddb37d21aa4d73a8312563cbb6038f41ced5e0be4c",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "discovery": {
+          "agent:instructions": "Search this site’s public product documentation. Results are Markdown excerpts with source links.",
+          "agent:endpoint": "https://prints.loftwah.com/.well-known/search?q={query}",
+          "agent:method": "GET",
+          "agent:documentation": "https://prints.loftwah.com/agent.md"
+        }
+      },
+      {
+        "id": "prints-markdown-home",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/",
+        "status": 200,
+        "type": "text/html",
+        "elapsedMs": 744,
+        "bytes": 65422,
+        "sha256": "61f55da1c736a150deffae540a97ddd7efe35f99627f9652de6781c89350b498",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false,
+        "discovery": {
+          "agent:instructions": "Search this site’s public product documentation. Results are Markdown excerpts with source links.",
+          "agent:endpoint": "https://prints.loftwah.com/.well-known/search?q={query}",
+          "agent:method": "GET",
+          "agent:documentation": "https://prints.loftwah.com/agent.md"
+        }
+      },
+      {
+        "id": "prints-private-origin",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/_emdash/admin",
+        "status": 404,
+        "type": "text/plain; charset=utf-8",
+        "elapsedMs": 92,
+        "bytes": 14,
+        "sha256": "a469ab4ca4e55bf547566e9ebfa1b809c933207e9d558156bc0c4252b17533fe",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "prints-robots",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/robots.txt",
+        "status": 200,
+        "type": "text/plain; charset=utf-8",
+        "elapsedMs": 120,
+        "bytes": 71,
+        "sha256": "00858fe3e27d8ffabc34fbd6417974eb54e76c47a048570aa6ecc4a8f9288ae6",
+        "cacheControl": "public, max-age=300",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "prints-search-get",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/.well-known/search?q=Install+Prints+Desktop",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 29,
+        "bytes": 664,
+        "sha256": "97c013aeae3452ab13942981c0c566f21fd09ee5304be0ba58f98de3ad70e35d",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://prints.loftwah.com/guide#install",
+          "https://prints.loftwah.com/guide#connect"
+        ]
+      },
+      {
+        "id": "prints-search-json-query",
+        "method": "QUERY",
+        "url": "https://prints.loftwah.com/.well-known/search",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 72,
+        "bytes": 664,
+        "sha256": "97c013aeae3452ab13942981c0c566f21fd09ee5304be0ba58f98de3ad70e35d",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://prints.loftwah.com/guide#install",
+          "https://prints.loftwah.com/guide#connect"
+        ]
+      },
+      {
+        "id": "prints-search-text-query",
+        "method": "QUERY",
+        "url": "https://prints.loftwah.com/.well-known/search",
+        "status": 200,
+        "type": "text/markdown; charset=utf-8",
+        "elapsedMs": 32,
+        "bytes": 664,
+        "sha256": "97c013aeae3452ab13942981c0c566f21fd09ee5304be0ba58f98de3ad70e35d",
+        "cacheControl": "no-store",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": true,
+        "sources": [
+          "https://prints.loftwah.com/guide#install",
+          "https://prints.loftwah.com/guide#connect"
+        ]
+      },
+      {
+        "id": "prints-sitemap",
+        "method": "GET",
+        "url": "https://prints.loftwah.com/sitemap.xml",
+        "status": 200,
+        "type": "application/xml; charset=utf-8",
+        "elapsedMs": 131,
+        "bytes": 500,
+        "sha256": "f2454b4a93c14937b0acdc53b895b2c10344e2c6b32d74f24eb92ae6c3492446",
+        "cacheControl": "public, max-age=300",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      },
+      {
+        "id": "studio-fallback",
+        "method": "GET",
+        "url": "https://media.loftwah.com/",
+        "status": 200,
+        "type": "text/html; charset=utf-8",
+        "elapsedMs": 114,
+        "bytes": 8402,
+        "sha256": "b1925c61817fbe84e50d790b0a266f571f820ab0e125b370d001184594ebbd3f",
+        "cacheControl": "public, max-age=60",
+        "cacheStatus": null,
+        "age": null,
+        "contentSignal": null,
+        "markdown": false
+      }
+    ]
+  },
+  "views": [
+    {
+      "harness": "codex",
+      "arm": "navigation",
+      "attempted": 12,
+      "answered": 12,
+      "expected": 12,
+      "supported": 8,
+      "factsComplete": 7,
+      "groundedCorrect": 7,
+      "expectedCitation": 3,
+      "unsupported": 4,
+      "abstained": 4,
+      "citationCount": 17,
+      "evidencedCitationCount": 17,
+      "discoveryCount": 0,
+      "searchUsed": 0,
+      "discoveryMs": null,
+      "recallAt5": 0,
+      "recallCount": 0,
+      "requestMedian": 6,
+      "requests": 59,
+      "searchRequests": 0,
+      "cacheHits": 0,
+      "bytesMedian": 218515,
+      "durationMs": 16885,
+      "inputMedian": 76818,
+      "cachedInputMedian": 63488,
+      "outputMedian": 474,
+      "reportedUsd": null,
+      "billedUsd": null
+    },
+    {
+      "harness": "codex",
+      "arm": "explicit",
+      "attempted": 12,
+      "answered": 12,
+      "expected": 12,
+      "supported": 8,
+      "factsComplete": 7,
+      "groundedCorrect": 6,
+      "expectedCitation": 6,
+      "unsupported": 4,
+      "abstained": 4,
+      "citationCount": 14,
+      "evidencedCitationCount": 11,
+      "discoveryCount": 0,
+      "searchUsed": 12,
+      "discoveryMs": null,
+      "recallAt5": 7,
+      "recallCount": 7,
+      "requestMedian": 6,
+      "requests": 68,
+      "searchRequests": 48,
+      "cacheHits": 0,
+      "bytesMedian": 32442,
+      "durationMs": 17945,
+      "inputMedian": 85518,
+      "cachedInputMedian": 80704,
+      "outputMedian": 561,
+      "reportedUsd": null,
+      "billedUsd": null
+    },
+    {
+      "harness": "codex",
+      "arm": "discovery",
+      "attempted": 12,
+      "answered": 12,
+      "expected": 12,
+      "supported": 8,
+      "factsComplete": 5,
+      "groundedCorrect": 5,
+      "expectedCitation": 5,
+      "unsupported": 4,
+      "abstained": 4,
+      "citationCount": 16,
+      "evidencedCitationCount": 15,
+      "discoveryCount": 9,
+      "searchUsed": 9,
+      "discoveryMs": 10540,
+      "recallAt5": 3,
+      "recallCount": 4,
+      "requestMedian": 6,
+      "requests": 63,
+      "searchRequests": 38,
+      "cacheHits": 0,
+      "bytesMedian": 46603,
+      "durationMs": 20337,
+      "inputMedian": 86882,
+      "cachedInputMedian": 74944,
+      "outputMedian": 569,
+      "reportedUsd": null,
+      "billedUsd": null
+    },
+    {
+      "harness": "opencode",
+      "arm": "navigation",
+      "attempted": 12,
+      "answered": 12,
+      "expected": 12,
+      "supported": 8,
+      "factsComplete": 7,
+      "groundedCorrect": 7,
+      "expectedCitation": 4,
+      "unsupported": 4,
+      "abstained": 4,
+      "citationCount": 18,
+      "evidencedCitationCount": 18,
+      "discoveryCount": 0,
+      "searchUsed": 0,
+      "discoveryMs": null,
+      "recallAt5": 0,
+      "recallCount": 0,
+      "requestMedian": 5,
+      "requests": 59,
+      "searchRequests": 0,
+      "cacheHits": 0,
+      "bytesMedian": 214228,
+      "durationMs": 22243,
+      "inputMedian": 10576,
+      "cachedInputMedian": 13184,
+      "outputMedian": 411,
+      "reportedUsd": null,
+      "billedUsd": null
+    },
+    {
+      "harness": "opencode",
+      "arm": "explicit",
+      "attempted": 12,
+      "answered": 12,
+      "expected": 12,
+      "supported": 8,
+      "factsComplete": 7,
+      "groundedCorrect": 6,
+      "expectedCitation": 7,
+      "unsupported": 4,
+      "abstained": 4,
+      "citationCount": 16,
+      "evidencedCitationCount": 14,
+      "discoveryCount": 0,
+      "searchUsed": 12,
+      "discoveryMs": null,
+      "recallAt5": 3,
+      "recallCount": 7,
+      "requestMedian": 6,
+      "requests": 67,
+      "searchRequests": 35,
+      "cacheHits": 0,
+      "bytesMedian": 67698,
+      "durationMs": 21855,
+      "inputMedian": 5307,
+      "cachedInputMedian": 12096,
+      "outputMedian": 499,
+      "reportedUsd": null,
+      "billedUsd": null
+    },
+    {
+      "harness": "opencode",
+      "arm": "discovery",
+      "attempted": 12,
+      "answered": 12,
+      "expected": 12,
+      "supported": 8,
+      "factsComplete": 7,
+      "groundedCorrect": 7,
+      "expectedCitation": 6,
+      "unsupported": 4,
+      "abstained": 4,
+      "citationCount": 17,
+      "evidencedCitationCount": 16,
+      "discoveryCount": 9,
+      "searchUsed": 9,
+      "discoveryMs": 8910,
+      "recallAt5": 3,
+      "recallCount": 4,
+      "requestMedian": 6,
+      "requests": 63,
+      "searchRequests": 19,
+      "cacheHits": 0,
+      "bytesMedian": 133793,
+      "durationMs": 21447,
+      "inputMedian": 8314,
+      "cachedInputMedian": 14720,
+      "outputMedian": 455,
+      "reportedUsd": null,
+      "billedUsd": null
+    }
+  ],
+  "controls": [
+    {
+      "id": "codex-C01-discovery",
+      "harness": "codex",
+      "task": "C01",
+      "arm": "discovery",
+      "status": "answered",
+      "startedAt": "2026-11-27T11:12:37.428Z",
+      "durationMs": 17230,
+      "timedOut": false,
+      "exitCode": 0,
+      "answer": "Markdown for Agents converts a site’s HTML into structured Markdown at Cloudflare’s edge, making content easier for AI systems to process while reducing token waste. Clients should send:\n\n`Accept: text/markdown`\n\n[Cloudflare Developer Docs](https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/)",
+      "tokens": {
+        "input": 89023,
+        "cachedInput": 74368,
+        "output": 335
+      },
+      "reportedUsd": null,
+      "chargedUsd": null,
+      "tools": [
+        {
+          "type": "mcp_tool_call",
+          "name": "read_page",
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "name": "read_page",
+          "status": "completed"
+        },
+        {
+          "type": "mcp_tool_call",
+          "name": "read_page",
+          "status": "completed"
+        }
+      ],
+      "traffic": {
+        "requests": 3,
+        "bytes": 473389,
+        "searchRequests": 1,
+        "declinedOrFailedRequests": 0,
+        "cacheHitRequests": 2
+      },
+      "discovery": {
+        "metadataExposed": true,
+        "usedAdvertisedEndpoint": true,
+        "timeToSearchMs": 8022
+      },
+      "score": {
+        "judgmentId": "b402bf",
+        "factsComplete": null,
+        "issue": null,
+        "unsupported": false,
+        "citations": [
+          "https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/"
+        ],
+        "evidencedCitations": [
+          "https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/"
+        ],
+        "expectedCitation": true,
+        "retrievalRecallAt5": null
+      },
+      "requests": [
+        {
+          "url": "https://developers.cloudflare.com/",
+          "status": 200,
+          "type": "text/html",
+          "elapsedMs": 162,
+          "bytes": 210259,
+          "sha256": "786b33039447220322359b2f258ac5aa25fcefde19e7772491cfaa6550a2606a",
+          "cacheControl": "public, max-age=0, must-revalidate",
+          "cacheStatus": "HIT",
+          "age": null,
+          "contentSignal": null,
+          "requestedMs": 5656,
+          "finishedMs": 5819,
+          "isSearch": false,
+          "discovered": true
+        },
+        {
+          "url": "https://developers.cloudflare.com/.well-known/search?q=Markdown%20for%20Agents%20Accept%20header",
+          "status": 200,
+          "type": "text/markdown; charset=utf-8",
+          "elapsedMs": 2676,
+          "bytes": 61439,
+          "sha256": "41e66f8043400641d3f0a263802972a34dfe1f5ee9180e0ee5431941fc2a4801",
+          "cacheControl": null,
+          "cacheStatus": null,
+          "age": null,
+          "contentSignal": null,
+          "requestedMs": 8022,
+          "finishedMs": 10698,
+          "isSearch": true,
+          "discovered": false,
+          "sources": []
+        },
+        {
+          "url": "https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/",
+          "status": 200,
+          "type": "text/html",
+          "elapsedMs": 654,
+          "bytes": 201691,
+          "sha256": "c067dabe2968c9002233b7b238d1c4ed2c2605c85b2d6a05527309f7101ad8fc",
+          "cacheControl": "public, max-age=0, must-revalidate",
+          "cacheStatus": "HIT",
+          "age": null,
+          "contentSignal": null,
+          "requestedMs": 12637,
+          "finishedMs": 13292,
+          "isSearch": false,
+          "discovered": true
+        }
+      ]
+    },
+    {
+      "id": "opencode-C01-discovery",
+      "harness": "opencode",
+      "task": "C01",
+      "arm": "discovery",
+      "status": "answered",
+      "startedAt": "2026-11-27T11:10:58.057Z",
+      "durationMs": 18908,
+      "timedOut": false,
+      "exitCode": 0,
+      "answer": "I'll start by opening the Cloudflare Developers homepage.\n**Markdown for Agents** converts a page's HTML to Markdown at Cloudflare's edge, on the fly, when the zone has it enabled. Cloudflare fetches the original HTML from the origin and converts it \"when possible,\" returning a predictable Markdown document (YAML frontmatter, body text with navigation/scripts/styles stripped, preserved JSON-LD) to reduce token waste. Clients request it via content negotiation by sending `Accept: text/markdown` (with `text/markdown` as one option); the response's `Content-Type` becomes `text/markdown; charset=utf-8`.\n\nSource: https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/",
+      "tokens": {
+        "input": 13914,
+        "output": 332,
+        "cachedInput": 14848,
+        "cachedWrite": 0,
+        "reasoning": 302
+      },
+      "reportedUsd": null,
+      "chargedUsd": null,
+      "tools": [
+        {
+          "type": "tool_use",
+          "name": "publicsite_read_page",
+          "status": "completed"
+        },
+        {
+          "type": "tool_use",
+          "name": "publicsite_read_page",
+          "status": "completed"
+        },
+        {
+          "type": "tool_use",
+          "name": "publicsite_read_page",
+          "status": "completed"
+        }
+      ],
+      "traffic": {
+        "requests": 3,
+        "bytes": 462581,
+        "searchRequests": 1,
+        "declinedOrFailedRequests": 0,
+        "cacheHitRequests": 2
+      },
+      "discovery": {
+        "metadataExposed": true,
+        "usedAdvertisedEndpoint": true,
+        "timeToSearchMs": 7964
+      },
+      "score": {
+        "judgmentId": "cd5341",
+        "factsComplete": null,
+        "issue": null,
+        "unsupported": false,
+        "citations": [
+          "https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/"
+        ],
+        "evidencedCitations": [
+          "https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/"
+        ],
+        "expectedCitation": true,
+        "retrievalRecallAt5": null
+      },
+      "requests": [
+        {
+          "url": "https://developers.cloudflare.com/",
+          "status": 200,
+          "type": "text/html",
+          "elapsedMs": 136,
+          "bytes": 210259,
+          "sha256": "786b33039447220322359b2f258ac5aa25fcefde19e7772491cfaa6550a2606a",
+          "cacheControl": "public, max-age=0, must-revalidate",
+          "cacheStatus": "HIT",
+          "age": null,
+          "contentSignal": null,
+          "requestedMs": 4456,
+          "finishedMs": 4593,
+          "isSearch": false,
+          "discovered": true
+        },
+        {
+          "url": "https://developers.cloudflare.com/.well-known/search?q=Markdown%20for%20Agents",
+          "status": 200,
+          "type": "text/markdown; charset=utf-8",
+          "elapsedMs": 1651,
+          "bytes": 50631,
+          "sha256": "6e262a87cd33d108bbf0b8b6ff9d2005069bb62170ba836fb62d6fae36a891a7",
+          "cacheControl": null,
+          "cacheStatus": null,
+          "age": null,
+          "contentSignal": null,
+          "requestedMs": 7964,
+          "finishedMs": 9616,
+          "isSearch": true,
+          "discovered": false,
+          "sources": []
+        },
+        {
+          "url": "https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/",
+          "status": 200,
+          "type": "text/html",
+          "elapsedMs": 66,
+          "bytes": 201691,
+          "sha256": "c067dabe2968c9002233b7b238d1c4ed2c2605c85b2d6a05527309f7101ad8fc",
+          "cacheControl": "public, max-age=0, must-revalidate",
+          "cacheStatus": "HIT",
+          "age": null,
+          "contentSignal": null,
+          "requestedMs": 11844,
+          "finishedMs": 11910,
+          "isSearch": false,
+          "discovered": true
+        }
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "harness": "codex",
+      "task": "A01",
+      "arm": "explicit",
+      "elapsedMsDelta": -655,
+      "requestsDelta": 1,
+      "inputTokensDelta": -7924,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A01",
+      "arm": "discovery",
+      "elapsedMsDelta": 3656,
+      "requestsDelta": -1,
+      "inputTokensDelta": -1986,
+      "factsCompleteDelta": -1
+    },
+    {
+      "harness": "codex",
+      "task": "A02",
+      "arm": "explicit",
+      "elapsedMsDelta": 5735,
+      "requestsDelta": 0,
+      "inputTokensDelta": 22640,
+      "factsCompleteDelta": 1
+    },
+    {
+      "harness": "codex",
+      "task": "A02",
+      "arm": "discovery",
+      "elapsedMsDelta": 8807,
+      "requestsDelta": 0,
+      "inputTokensDelta": 7088,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A03",
+      "arm": "explicit",
+      "elapsedMsDelta": 20572,
+      "requestsDelta": 1,
+      "inputTokensDelta": 38041,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A03",
+      "arm": "discovery",
+      "elapsedMsDelta": 9097,
+      "requestsDelta": 1,
+      "inputTokensDelta": 27180,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A04",
+      "arm": "explicit",
+      "elapsedMsDelta": 24473,
+      "requestsDelta": 4,
+      "inputTokensDelta": 22750,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A04",
+      "arm": "discovery",
+      "elapsedMsDelta": 33892,
+      "requestsDelta": 1,
+      "inputTokensDelta": 30350,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A05",
+      "arm": "explicit",
+      "elapsedMsDelta": -657,
+      "requestsDelta": 1,
+      "inputTokensDelta": 30067,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A05",
+      "arm": "discovery",
+      "elapsedMsDelta": 5706,
+      "requestsDelta": 0,
+      "inputTokensDelta": 37355,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A06",
+      "arm": "explicit",
+      "elapsedMsDelta": -3816,
+      "requestsDelta": -2,
+      "inputTokensDelta": -22185,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A06",
+      "arm": "discovery",
+      "elapsedMsDelta": 933,
+      "requestsDelta": -2,
+      "inputTokensDelta": -22232,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A07",
+      "arm": "explicit",
+      "elapsedMsDelta": 2841,
+      "requestsDelta": 0,
+      "inputTokensDelta": 26009,
+      "factsCompleteDelta": -1
+    },
+    {
+      "harness": "codex",
+      "task": "A07",
+      "arm": "discovery",
+      "elapsedMsDelta": 3301,
+      "requestsDelta": 0,
+      "inputTokensDelta": -7013,
+      "factsCompleteDelta": -1
+    },
+    {
+      "harness": "codex",
+      "task": "A08",
+      "arm": "explicit",
+      "elapsedMsDelta": -5832,
+      "requestsDelta": 0,
+      "inputTokensDelta": -57169,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "A08",
+      "arm": "discovery",
+      "elapsedMsDelta": -3714,
+      "requestsDelta": 0,
+      "inputTokensDelta": -52815,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U01",
+      "arm": "explicit",
+      "elapsedMsDelta": 2927,
+      "requestsDelta": 4,
+      "inputTokensDelta": 18413,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U01",
+      "arm": "discovery",
+      "elapsedMsDelta": 3813,
+      "requestsDelta": 4,
+      "inputTokensDelta": 15376,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U02",
+      "arm": "explicit",
+      "elapsedMsDelta": 1515,
+      "requestsDelta": 0,
+      "inputTokensDelta": 7180,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U02",
+      "arm": "discovery",
+      "elapsedMsDelta": 5425,
+      "requestsDelta": 0,
+      "inputTokensDelta": 40037,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U03",
+      "arm": "explicit",
+      "elapsedMsDelta": -8472,
+      "requestsDelta": 0,
+      "inputTokensDelta": -54093,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U03",
+      "arm": "discovery",
+      "elapsedMsDelta": -11657,
+      "requestsDelta": 0,
+      "inputTokensDelta": -54365,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U04",
+      "arm": "explicit",
+      "elapsedMsDelta": 832,
+      "requestsDelta": 0,
+      "inputTokensDelta": -9331,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "codex",
+      "task": "U04",
+      "arm": "discovery",
+      "elapsedMsDelta": 6160,
+      "requestsDelta": 1,
+      "inputTokensDelta": 18773,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A01",
+      "arm": "explicit",
+      "elapsedMsDelta": 14928,
+      "requestsDelta": 3,
+      "inputTokensDelta": 2032,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A01",
+      "arm": "discovery",
+      "elapsedMsDelta": 3482,
+      "requestsDelta": 1,
+      "inputTokensDelta": 1303,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A02",
+      "arm": "explicit",
+      "elapsedMsDelta": -9462,
+      "requestsDelta": 1,
+      "inputTokensDelta": -8092,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A02",
+      "arm": "discovery",
+      "elapsedMsDelta": -26681,
+      "requestsDelta": 1,
+      "inputTokensDelta": -1767,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A03",
+      "arm": "explicit",
+      "elapsedMsDelta": 11684,
+      "requestsDelta": 1,
+      "inputTokensDelta": -3429,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A03",
+      "arm": "discovery",
+      "elapsedMsDelta": 3843,
+      "requestsDelta": 1,
+      "inputTokensDelta": 2563,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A04",
+      "arm": "explicit",
+      "elapsedMsDelta": 2935,
+      "requestsDelta": 1,
+      "inputTokensDelta": -70,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A04",
+      "arm": "discovery",
+      "elapsedMsDelta": 2269,
+      "requestsDelta": 1,
+      "inputTokensDelta": 361,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A05",
+      "arm": "explicit",
+      "elapsedMsDelta": -4391,
+      "requestsDelta": 0,
+      "inputTokensDelta": -6496,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A05",
+      "arm": "discovery",
+      "elapsedMsDelta": -11182,
+      "requestsDelta": -1,
+      "inputTokensDelta": -6930,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A06",
+      "arm": "explicit",
+      "elapsedMsDelta": -6029,
+      "requestsDelta": -1,
+      "inputTokensDelta": -5145,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A06",
+      "arm": "discovery",
+      "elapsedMsDelta": -819,
+      "requestsDelta": 0,
+      "inputTokensDelta": -1512,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A07",
+      "arm": "explicit",
+      "elapsedMsDelta": 1541,
+      "requestsDelta": 1,
+      "inputTokensDelta": -2576,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A07",
+      "arm": "discovery",
+      "elapsedMsDelta": 25301,
+      "requestsDelta": 1,
+      "inputTokensDelta": -1167,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A08",
+      "arm": "explicit",
+      "elapsedMsDelta": -13872,
+      "requestsDelta": 0,
+      "inputTokensDelta": -6792,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "A08",
+      "arm": "discovery",
+      "elapsedMsDelta": -10175,
+      "requestsDelta": 0,
+      "inputTokensDelta": -2188,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U01",
+      "arm": "explicit",
+      "elapsedMsDelta": -3977,
+      "requestsDelta": 2,
+      "inputTokensDelta": 868,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U01",
+      "arm": "discovery",
+      "elapsedMsDelta": 7894,
+      "requestsDelta": 0,
+      "inputTokensDelta": -1247,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U02",
+      "arm": "explicit",
+      "elapsedMsDelta": -4779,
+      "requestsDelta": 0,
+      "inputTokensDelta": -6250,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U02",
+      "arm": "discovery",
+      "elapsedMsDelta": -8413,
+      "requestsDelta": 0,
+      "inputTokensDelta": -6336,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U03",
+      "arm": "explicit",
+      "elapsedMsDelta": -8,
+      "requestsDelta": 0,
+      "inputTokensDelta": -12677,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U03",
+      "arm": "discovery",
+      "elapsedMsDelta": 19369,
+      "requestsDelta": 0,
+      "inputTokensDelta": -8323,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U04",
+      "arm": "explicit",
+      "elapsedMsDelta": -2573,
+      "requestsDelta": 0,
+      "inputTokensDelta": -3124,
+      "factsCompleteDelta": 0
+    },
+    {
+      "harness": "opencode",
+      "task": "U04",
+      "arm": "discovery",
+      "elapsedMsDelta": -18363,
+      "requestsDelta": 0,
+      "inputTokensDelta": 479,
+      "factsCompleteDelta": 0
+    }
+  ]
+}

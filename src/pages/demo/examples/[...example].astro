@@ -8,7 +8,7 @@ const id = Astro.params.example;
 const example = shareExamples.find((item) => item.id === id);
 if (id && !example) return new Response(null, { status: 404 });
 
-const shareCover = example?.id === 'creator-hub' || example?.id === 'first-app-rehearsal'
+const shareCover = example?.id === 'creator-hub' || example?.id === 'first-app-rehearsal' || example?.id === 'agent-search-01'
   ? example.lead
   : undefined;
 ---
