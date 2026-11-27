@@ -741,7 +741,7 @@ function planRow(
           <ul className="cc-relations">{relationships}</ul>
         ) : item.linkState === "unknown" ? (
           <span className="cc-row-meta">
-            Unknown — the issue body was not read.
+            Unknown. The issue body was unavailable or incomplete.
           </span>
         ) : (
           <span className="cc-row-meta">

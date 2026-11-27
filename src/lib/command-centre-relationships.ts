@@ -27,7 +27,14 @@ const repositoryPattern = /^[A-Za-z0-9_.-]{1,80}\/[A-Za-z0-9_.-]{1,100}$/;
 const maximumChildren = 20;
 const maximumBlockers = 10;
 const maximumPullRequests = 10;
-const maximumBodyCharacters = 65_536;
+export const maximumIssueBodyCharacters = 65_536;
+
+export function completeIssueBodyPrefix(body: string): string {
+  if (body.length <= maximumIssueBodyCharacters) return body;
+  // A partial final line could misread a truncated issue number or URL.
+  const prefix = body.slice(0, maximumIssueBodyCharacters);
+  return prefix.slice(0, prefix.lastIndexOf("\n") + 1);
+}
 
 const urlPattern =
   /https?:\/\/github\.com\/([A-Za-z0-9_.-]{1,80})\/([A-Za-z0-9_.-]{1,100})\/(issues|pull)\/(\d{1,7})\b/gi;
@@ -176,7 +183,7 @@ export function parseIssueRelationships(
     blockers: [],
     pullRequests: [],
   };
-  const text = body.slice(0, maximumBodyCharacters);
+  const text = completeIssueBodyPrefix(body);
   const urls = readUrlReferences(text);
   for (const entry of urls) {
     if (entry.kind === "pull-request")

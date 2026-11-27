@@ -23,7 +23,9 @@ export type {
   CommandCentreForecastObservations,
 } from "./command-centre-forecast.ts";
 import {
+  completeIssueBodyPrefix,
   hasRelationships,
+  maximumIssueBodyCharacters,
   parseIssueRelationships,
   type RelationshipReference,
 } from "./command-centre-relationships.ts";
@@ -679,7 +681,9 @@ export const githubIssue = z.looseObject({
   created_at: instant.nullable().optional(),
   closed_at: instant.nullable().optional(),
   state_reason: z.string().max(40).nullable().optional(),
-  body: z.string().max(65_536).nullable().optional(),
+  // A long issue body cannot invalidate the other issue records on the page.
+  // Each text consumer bounds its own read.
+  body: z.string().nullable().optional(),
   milestone: githubMilestone.nullable().optional(),
   labels: z
     .array(
@@ -842,7 +846,7 @@ export function linkedReleaseFromBody(
   body: string | null | undefined,
 ): { tag: string; url: string } | null {
   if (!body) return null;
-  const match = releaseUrlPattern.exec(body);
+  const match = releaseUrlPattern.exec(completeIssueBodyPrefix(body));
   if (!match) return null;
   const tag = (match[1] ?? "").replace(/[.,;:]+$/, "");
   if (!tag) return null;
@@ -1113,7 +1117,11 @@ export function mapPlanSection(
           mapRelationship(entry, repository, titles),
         ),
         linkState:
-          body === null ? "unknown" : hasRelationships(parsed) ? "found" : "none",
+          hasRelationships(parsed)
+            ? "found"
+            : body === null || body.length > maximumIssueBodyCharacters
+              ? "unknown"
+              : "none",
       };
     });
 
@@ -1143,7 +1151,7 @@ export function mapPlanSection(
     items,
     milestones: [...milestones.values()].slice(0, commandCentreMilestoneLimit),
     relationshipBasis:
-      "Explicit parent, sub-issue, blocker and pull-request references in issue bodies and pull-request URLs. Native sub-issue fields and pull-request state are not read.",
+      "Explicit parent, sub-issue, blocker and pull-request references in the first 65,536 characters of each issue body. Native sub-issue fields and pull-request state are not read.",
   };
 }
 
