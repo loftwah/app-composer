@@ -1,6 +1,6 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
 import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, turn, winnerAngle } from './spin-wheel.mjs';
-import { loadSpinPhotos } from './spin-art.mjs';
+import { loadSpinPhotos, spinPhotoUrl } from './spin-art.mjs';
 import { mountSpinShare } from './spin-share.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
@@ -35,7 +35,10 @@ function mount(root) {
   let wheelLabels = [];
   let direction = 1;
   const panel = get('wheel-panel');
-  const sharing = mountSpinShare(get('share-dialog'), get('share-result'), () => {
+  const resultDisplay = get('result-display');
+  const shareResult = get('share-result');
+  const wheelTap = get('wheel-tap');
+  const sharing = mountSpinShare(get('share-dialog'), shareResult, resultDisplay, () => {
     armSound();
     return sound ? audio : undefined;
   }, reduced);
@@ -47,7 +50,7 @@ function mount(root) {
   };
   const focusAction = name => requestAnimationFrame(() => get(name).focus({ preventScroll: true }));
   const rules = config => config.bestOf === openSpinMode ? 'Each spin counts. Finish whenever you like.' :
-    config.bestOf === 1 ? 'One spin. Each choice has the same chance.' :
+    config.bestOf === 1 ? '' :
       config.entries.length === 2 ? `First to ${Math.floor(config.bestOf / 2) + 1} wins the series.` :
         `${config.bestOf} spins. The highest score wins. Ties get extra spins.`;
   const templateLink = config => spinOrigin + '/#' + new URLSearchParams({ wheel: JSON.stringify(config) });
@@ -64,6 +67,36 @@ function mount(root) {
   function activateWheel() {
     const control = spinControl();
     if (control && !playing && !control.disabled) control.click();
+  }
+
+  function showImage(visible) {
+    resultDisplay.hidden = !visible;
+    wheelTap.inert = visible;
+    panel.toggleAttribute('data-result-image', visible);
+    if (session?.status === 'completed') {
+      get('share-label').textContent = visible ? 'Show wheel' : 'Show image';
+    }
+  }
+
+  function showChoices(labels) {
+    const choices = labels.slice(0, 3).map(label => {
+      const item = document.createElement('li');
+      const source = spinPhotoUrl(label);
+      if (source) {
+        const image = new Image(30, 28);
+        image.src = source;
+        image.alt = '';
+        item.append(image);
+      }
+      item.append(label);
+      return item;
+    });
+    if (labels.length > 3) {
+      const more = document.createElement('li');
+      more.textContent = `+${labels.length - 3} more`;
+      choices.push(more);
+    }
+    get('choice-preview').replaceChildren(...choices);
   }
 
   function warmWheelPhotos(labels) {
@@ -84,11 +117,11 @@ function mount(root) {
       get('spin-heading').textContent = question.value.trim() || 'What should we pick?';
       get('spin-heading').title = get('spin-heading').textContent;
       wheelLabels = labels;
+      showChoices(labels);
       warmWheelPhotos(labels);
       paintSpinWheel(ctx, labels, angle);
-      get('result-label').textContent = labels.length < 2 ? 'Build your wheel' :
-        reduced.matches ? 'Tap the wheel or press Spin' : 'Tap or flick the wheel';
-      showResult(labels.length >= 2 ? `${labels.length} choices` : 'Add at least two choices.');
+      get('result-label').textContent = '';
+      showResult(labels.length >= 2 ? '' : 'Add at least two choices.');
       get('share').disabled = playing || get('spin-now').disabled;
     }
     syncHub();
@@ -108,7 +141,8 @@ function mount(root) {
     const completed = next.status === 'completed';
     const count = next.rounds.length;
     const canSpin = isOpen && Boolean(owner);
-    get('share-label').textContent = completed ? 'Share result' : 'Share draw';
+    get('share-label').textContent = 'Share draw';
+    get('share-icon').toggleAttribute('hidden', completed);
     bestOf.value = String(next.config.bestOf);
     bestOf.disabled = true;
     get('rules').textContent = rules(next.config);
@@ -120,15 +154,23 @@ function mount(root) {
     get('score-heading').textContent = openMode ? 'Session tally' : 'Series score';
     get('scores').setAttribute('aria-label', openMode ? 'Session tally' : 'Series score');
     get('draw').textContent = count ? 'Next spin' : 'Spin';
-    if (firstRender) get('score-details').open = next.config.entries.length <= 6;
+    if (firstRender) {
+      get('score-details').open = next.config.entries.length <= 6;
+      get('session').open = isOpen && next.config.bestOf !== 1;
+    }
     setup.hidden = true;
-    if (get('edit-choices')) get('edit-choices').hidden = true;
+    get('wheel-editor').hidden = true;
+    const editChoices = get('edit-choices');
+    if (editChoices) {
+      editChoices.hidden = true;
+      editChoices.setAttribute('aria-expanded', 'false');
+    }
     for (const button of presetBar.querySelectorAll('[aria-pressed]')) button.removeAttribute('aria-pressed');
     get('spin-now').hidden = true;
     get('undo-wheel').hidden = true;
     panel.dataset.state = next.status;
     get('session').hidden = false;
-    get('session-heading').textContent = completed ? 'The result' : 'The draw';
+    get('session-heading').textContent = completed ? 'Draw details' : 'Draw and score';
     const countLabel = `${count} ${count === 1 ? 'spin' : 'spins'}`;
     get('series').textContent = `${spinModeLabel(next.config.bestOf)} · ${countLabel} recorded.`;
     const wins = next.totals[next.winner];
@@ -178,6 +220,7 @@ function mount(root) {
     if (settledWinner !== undefined) angle = winnerAngle(settledWinner, next.config.entries.length);
     else if (!keepAngle) angle = 0;
     wheelLabels = next.config.entries;
+    showChoices(wheelLabels);
     warmWheelPhotos(wheelLabels);
     paintSpinWheel(ctx, wheelLabels, angle, { winner: completed ? next.winner : isOpen ? (last?.winner ?? -1) : -1, shade: completed });
     showResult(next.status === 'completed' ? (next.winner < 0 ? 'It’s a tie' : next.config.entries[next.winner]) :
@@ -185,6 +228,7 @@ function mount(root) {
         last ? next.config.entries[last.winner] : 'Ready to spin');
     if (completed) sharing.present({ session: next, link: shareUrl(next.id), question: next.config.question });
     else sharing.hideResult();
+    showImage(completed);
     const result = get('result');
     result.toggleAttribute('data-long-result', result.textContent.length > 18);
     syncHub();
@@ -223,6 +267,7 @@ function mount(root) {
     get('share').disabled = true;
     syncHub();
     presetBar.inert = true;
+    shareResult.inert = true;
     const pauseButton = automatic ? get('auto') : null;
     const draftBusy = !session;
     if (draftBusy) {
@@ -250,6 +295,7 @@ function mount(root) {
     finally {
       playing = false;
       presetBar.inert = false;
+      shareResult.inert = false;
       get('finish').disabled = !session?.rounds.length;
       if (draftBusy) {
         setup.inert = false;
@@ -286,6 +332,7 @@ function mount(root) {
   const chime = () => { if (sound && audio?.state === 'running') spinChime(audio); };
 
   function animate(next, last, spinDirection = 1) {
+    showImage(false);
     const choices = next.config.entries;
     const target = winnerAngle(last.winner, choices.length);
     if (reduced.matches) {
@@ -330,6 +377,7 @@ function mount(root) {
 
   async function startDraw(config, spinImmediately) {
     if (spinImmediately) {
+      showImage(false);
       panel.dataset.state = 'pending';
       get('result-label').textContent = 'Starting a draw';
       showResult('Locking the choices…');
@@ -352,6 +400,10 @@ function mount(root) {
   const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, get('spin-now'), updatePreview);
   const draftConfig = () => validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: Number(bestOf.value) });
   function openShare() {
+    if (session?.status === 'completed') {
+      showImage(resultDisplay.hidden);
+      return;
+    }
     const config = session?.config ?? draftConfig();
     if (!config) {
       showError(`Add a question and 2–${spinChoiceLimit} distinct choices to share this wheel.`);
@@ -363,6 +415,9 @@ function mount(root) {
     });
   }
   get('share').addEventListener('click', openShare);
+  shareResult.addEventListener('change', event => {
+    if (!playing && event.target.name === 'spin-image-format') showImage(true);
+  });
   setup.addEventListener('submit', event => {
     event.preventDefault();
     armSound();
@@ -376,7 +431,6 @@ function mount(root) {
     armSound();
     void perform(() => startDraw(session.config, true));
   });
-  const wheelTap = get('wheel-tap');
   hub.addEventListener('click', activateWheel);
   let gesture;
   let suppressPointerClick = false;
@@ -501,10 +555,16 @@ function mount(root) {
       else tick();
     }
   });
-  get('edit-choices')?.addEventListener('click', () => {
-    const heading = root.querySelector('#spin-choices');
-    heading.focus({ preventScroll: true });
-    heading.scrollIntoView({ block: 'start' });
+  get('edit-choices')?.addEventListener('click', event => {
+    const editor = get('wheel-editor');
+    const open = editor.hidden;
+    editor.hidden = !open;
+    event.currentTarget.setAttribute('aria-expanded', String(open));
+    if (open) {
+      const heading = root.querySelector('#spin-choices');
+      heading.focus({ preventScroll: true });
+      heading.scrollIntoView({ block: 'start' });
+    }
   });
 
   function openPreset(id) {
@@ -532,6 +592,7 @@ function mount(root) {
         await new Promise(resolve => setTimeout(resolve, 650));
       }
       render(next);
+      if (reduced.matches && next.status === 'completed') showImage(false);
       if (next.status === 'completed' && next.winner >= 0) celebrate();
     });
   }
@@ -548,6 +609,7 @@ function mount(root) {
         await new Promise(resolve => setTimeout(resolve, reduced.matches ? 550 : 410));
       }
       render(next);
+      if (reduced.matches && next.status === 'completed') showImage(false);
       if (next.status === 'completed' && next.winner >= 0) celebrate();
     });
   });

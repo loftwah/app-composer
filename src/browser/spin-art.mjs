@@ -9,6 +9,11 @@ function lookup(label) {
   return photos.get(label?.toLowerCase().replace(/[’']/g, '').trim());
 }
 
+export function spinPhotoUrl(label) {
+  const subject = lookup(label);
+  return subject ? `/spin-brand/live/${subject}.webp` : '';
+}
+
 export function spinPhoto(label) {
   return images.get(lookup(label))?.image;
 }

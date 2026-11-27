@@ -334,7 +334,7 @@ across its four sizes. Choices without a picture use the stopped dial.
 The campaign uses the same colours and cutouts. The App Composer parent mark
 keeps its existing identity.
 
-Fast food, Game night, Weekend and All presets sit above the wheel. The plain
+Fast food, Game night, Weekend and All presets sit directly below the play area. The plain
 Spin URL starts with Maccas, Hungry Jack’s and KFC and rounds off. Resume draft
 recovers the most recent edited wheel from this device. Saved wheels remain
 available from the editor. Opening a preset from a locked draw opens a fresh
@@ -343,8 +343,7 @@ wheel, with the original draw available at its link.
 The stage keeps the question, mode, wheel, result and action row in place
 through setup, spinning, finishing and replay. Preset changes in the editor
 keep the selected mode. Best-of and Open tally explain their rules beside the
-control, then show progress in the stage. Edit choices jumps to the editor,
-which sits beside the stage on desktop and below it on phones.
+control, then show progress in the stage. Edit wheel opens the editor below the play area. Saved wheels and food ideas live there.
 
 The play stage looks and sounds like a small mechanical dial. Dragging turns
 the face under the pointer and releasing plays the committed spin in the same
@@ -357,8 +356,8 @@ can be undone. The replay and exports use the same dial artwork.
 
 
 Share wheel sends an editable copy or lets the host lock a draw before spinning.
-A completed spin shows the post on the page. Share result goes straight to
-the image. The card leads with the winner and question. The stopped wheel and
+A completed spin shows the post in the same space as the wheel. Copy image
+is beside the winner. Show wheel brings the stopped wheel back into view. The card leads with the winner and question. The stopped wheel and
 QR to the draw recompose for the chosen aspect ratio. Story keeps those elements clear of the top and
 bottom edges. All four sizes list their pixel dimensions and Copy image is the primary action. Save PNG and the device share
 sheet use the same export. The selected size is remembered on this device.

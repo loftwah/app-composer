@@ -3,7 +3,7 @@ import { spinBrandFiles, spinImageFormats } from '../lib/spin-site.mjs';
 import { qrMatrix } from '../lib/qr-code.ts';
 import { loadSpinPhotos, paintSpinPhoto, spinPhoto } from './spin-art.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
-import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, winnerAngle } from './spin-wheel.mjs';
+import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, spinSectorColours, winnerAngle } from './spin-wheel.mjs';
 
 const palette = { orange: '#ff691f', ink: '#1d1c25', paper: '#fbfafe' };
 const sizes = Object.fromEntries(spinImageFormats.map(({ id, width, height }) => [id, [width, height]]));
@@ -100,8 +100,7 @@ function composition(target, wheel, session, qr, style, frame, mark) {
   const summary = session.config.bestOf === 1 ? 'One spin' :
     `${spinModeLabel(session.config.bestOf)} · ${spins} ${spins === 1 ? 'spin' : 'spins'}` + (winner ? ` · ${wins} ${wins === 1 ? 'win' : 'wins'}` : '');
 
-  const colours = ['#fed06f', '#91ded2', '#ffaec2', '#aacaff', '#d6c7ff', '#ffc39d'];
-  const colour = colours[session.winner % colours.length] ?? colours[4];
+  const colour = spinSectorColours[session.winner % spinSectorColours.length] ?? spinSectorColours[2];
 
   target.fillStyle = palette.paper;
   target.fillRect(0, 0, width, height);
