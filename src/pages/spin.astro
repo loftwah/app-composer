@@ -14,10 +14,10 @@ const example = !sessionLink && candidate && Object.hasOwn(spinExamples, candida
 const replay = Boolean(sessionLink || example);
 const defaultWheel = spinPresetById[spinDefaultPreset];
 const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
-const title = replay ? 'Watch a draw · Spin by App Composer' : 'Decision Wheel & Random Picker · Spin by App Composer';
+const title = replay ? 'Shared spin · Spin by App Composer' : 'Decision Wheel & Random Picker · Spin by App Composer';
 const description = replay
-  ? 'Open the shared wheel to see the recorded draw and verify the result when it finishes.'
-  : 'Make a free online decision wheel. Choose a single spin, a best-of series or an open session with a running tally, then share a replay your friends can verify.';
+  ? 'See where the wheel landed.'
+  : 'Put your choices on a wheel and spin. Play once, keep score over several rounds, or share the result.';
 Astro.csp?.insertDirective('img-src blob:');
 if (replay) Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 const canonical = (example || (sharedId && spinIdPattern.test(sharedId))) ? new URL(spinPath + '?' + new URLSearchParams(
@@ -59,6 +59,10 @@ const application = JSON.stringify({
       <div class="wheel-panel" data-wheel-panel>
         <header class="stage-heading">
           <h1 class="wheel-question" data-spin-heading>{replay ? 'Opening draw…' : defaultWheel.question}</h1>
+          <div class="stage-edit">
+            <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
+            <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
+          </div>
           <p class="note" data-spin-intro hidden></p>
         </header>
         <div class="stage-mode">
@@ -75,10 +79,11 @@ const application = JSON.stringify({
               </optgroup>
             </select><ChevronDown size={16} aria-hidden="true" /></span>
           </label>
-          <p id="spin-mode-help" data-rules>One spin decides it. Every enabled choice has equal odds.</p>
+          <p id="spin-mode-help" data-rules>One spin. Each choice has the same chance.</p>
         </div>
         <div class="wheel-frame" data-wheel-tap>
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
+          <button type="button" class="spin-hub" data-spin-hub aria-label="Spin the wheel" disabled></button>
           <div class="wheel-applause" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
         <div class="wheel-readout" role="status">
@@ -86,7 +91,7 @@ const application = JSON.stringify({
           <p class="wheel-status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
         </div>
         <div class="wheel-actions">
-          <div class="primary-slot">
+          <div class="primary-slot" data-spin-primary>
             <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
               aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
             <button type="button" class="button wheel-primary" data-draw hidden>Spin</button>
@@ -97,14 +102,15 @@ const application = JSON.stringify({
           <button type="button" data-share disabled={replay}><Share2 size={17} aria-hidden="true" /> <span data-share-label>Share wheel</span></button>
         </div>
         <div class="wheel-tools">
+          <button type="button" data-undo-wheel hidden>Undo</button>
           <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
             <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
             <span data-sound-label>Sound on</span>
           </button>
-          {!replay && <button type="button" data-edit-choices aria-controls="spin-setup">Edit choices</button>}
+          {!replay && <button type="button" data-edit-choices aria-controls="spin-setup" aria-label="Edit choices">Edit</button>}
           <button type="button" data-auto hidden>Run series</button>
-          <button class="finish-session" type="button" data-finish hidden>Finish session</button>
-          <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Find it nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
+          <button class="finish-session" type="button" data-finish aria-label="Finish session" hidden>Finish</button>
+          <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
         <p role="alert" data-error></p>
         {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Open Spin</a></p>}
@@ -147,7 +153,6 @@ const application = JSON.stringify({
           <SpinTasteCloud />
           <details class="choice-editor">
             <summary>Paste or manage choices</summary>
-            <button type="button" data-clear-wheel>Start blank</button>
             <label class="order-toggle"><input type="checkbox" data-show-order /> Show reorder controls</label>
             <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
             <div class="button-row">
@@ -158,7 +163,7 @@ const application = JSON.stringify({
             <button type="button" data-paste-choices>Add pasted choices</button>
             <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
           </details>
-          <p class="screen-reader" id="spin-link-privacy">Starting creates an unlisted draw. Anyone with its link can see the question and choices for {spinLifetimeDays} days.</p>
+          <p class="screen-reader" id="spin-link-privacy">Anyone with the link to a spin can see the question and choices for {spinLifetimeDays} days.</p>
           <details>
             <summary>Find takeaway near you</summary>
             <label>Suburb, town or postcode <input name="suburb" maxlength="80" placeholder="e.g. Sunbury VIC 3429" autocomplete="off" /></label>
@@ -177,18 +182,23 @@ const application = JSON.stringify({
             <button type="button" data-replay-series>Replay the series</button>
             <a class="button" data-create-own href={spinDiscovery.href}>Make your own wheel <ArrowUpRight size={16} aria-hidden="true" /></a>
           </div>
-          <p data-verification></p>
+          <p class="note" data-verification-warning role="alert"></p>
           <details data-score-details>
             <summary data-score-heading>Series score</summary>
             <ol class="scores" aria-label="Series score" data-scores></ol>
           </details>
           <details>
-            <summary>Commitment and round history</summary>
-            <p class="note">Send the link before spinning so friends can compare the commitment. A fixed session prevents silent rerolls through the app. Someone can still create a separate session or choose which one to share.</p>
-            <code data-commitment></code>
+            <summary>Spin history</summary>
+            <p data-verification></p>
             <p class="note" data-history-note hidden></p>
             <ol data-rounds></ol>
             <p class="note" data-expiry></p>
+            <details>
+              <summary>Draw code</summary>
+              <p class="note">The code is set before the first spin. You can send the link early so friends can compare it with the code they see after you finish.</p>
+              <code data-commitment></code>
+              <p><a href="https://composer.loftwah.com/articles/why-we-built-spin">How Spin checks a result</a></p>
+            </details>
           </details>
           <div class="button-row secondary-actions">
             <button type="button" data-abandon hidden>Abandon session</button>
@@ -201,7 +211,7 @@ const application = JSON.stringify({
     <SpinShareDialog />
     {!replay && <nav class="spin-guide" aria-label="Spin examples and help">
       {Object.entries(spinExamples).map(([key, label]) => <a href={spinOrigin + '/?example=' + key}>{label}</a>)}
-      <a href="https://composer.loftwah.com/articles/why-we-built-spin">How verification works</a>
+      <a href="https://composer.loftwah.com/articles/why-we-built-spin">How Spin checks a result</a>
       <a href="https://composer.loftwah.com/share/spin">Spin in App Composer Share</a>
     </nav>}
   </section>
@@ -232,7 +242,16 @@ const application = JSON.stringify({
     padding-top: clamp(12px, 3vw, 40px);
   }
   .controls { min-width: 0; }
-  .stage-heading { width: 100%; min-width: 0; text-align: center; }
+  .stage-heading {
+    width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center; gap: 8px;
+  }
+  .stage-edit { display: flex; gap: 4px; }
+  .spin .stage-edit button:not(.button) {
+    color: var(--spin-paper); border-color: rgb(255 250 240 / .55); padding-inline: 7px;
+    min-width: 44px; font-size: .82rem;
+  }
+  .spin .stage-edit button:not(.button):hover { background: rgb(255 255 255 / .12); }
   .stage-heading p { position: absolute; clip-path: inset(50%); }
   .wheel-question {
     display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
@@ -268,6 +287,16 @@ const application = JSON.stringify({
     }
   }
   canvas { display: block; width: 100%; height: auto; }
+  .spin-hub {
+    position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%);
+    width: max(44px, 19%); aspect-ratio: 1; padding: 0; min-height: 44px;
+    border: 0; border-radius: 50%; color: inherit; background: transparent; cursor: pointer;
+    touch-action: manipulation;
+  }
+  .spin-hub:is(:hover, :active, :focus-visible) { background: transparent; }
+  .spin-hub:disabled { pointer-events: none; background: rgb(22 19 73 / .18); }
+  .spin-hub:hover:enabled { box-shadow: inset 0 0 0 2px rgb(255 250 240 / .75); }
+  .spin-hub:focus-visible { outline: 2px solid var(--spin-paper); outline-offset: 3px; }
   .wheel-readout {
     width: min(100%, 455px); text-align: center; display: grid; align-content: center; gap: 4px;
     min-width: 0; block-size: 5.25rem; padding-inline: 4px;
@@ -377,7 +406,7 @@ const application = JSON.stringify({
   .scores { list-style: none; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
   .scores :global(li) { padding: 4px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; }
   .scores :global(.winner) { color: var(--color-accent); font-weight: 700; }
-  [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
+  [data-error]:empty, [data-verification]:empty, [data-verification-warning]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a { align-self: center; font-weight: 650; }
   .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; font-size: .89rem; }
@@ -385,9 +414,14 @@ const application = JSON.stringify({
   @media (max-width: 760px) {
     .play { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 7px; }
     .preset-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .wheel-frame { width: min(100%, clamp(205px, 33dvh, 268px)); }
+    .wheel-frame { width: min(100%, clamp(196px, 30.8dvh, 268px)); }
     .wheel-panel { gap: 7px; }
-    .wheel-readout { block-size: 4.25rem; }
+    .wheel-readout { block-size: 3.9rem; }
+    .wheel-tools { gap: 2px; max-width: 100%; }
+    .spin .wheel-tools button:not(.button), .wheel-tools a {
+      min-width: 44px; padding-inline: 6px; font-size: .8rem;
+    }
+    .wheel-tools [data-sound-label] { display: none; }
     .spin .preset-quick button { padding-inline: 9px; font-size: .83rem; gap: 5px; }
     .preset-picker select { font-size: .83rem; }
   }
