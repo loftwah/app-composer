@@ -3,7 +3,7 @@ import type { D1Database, RateLimit } from '@cloudflare/workers-types';
 import { env } from 'cloudflare:workers';
 import { readBoundedJsonBody } from '../../lib/benchmark-body.ts';
 import { advanceSpin, createSpin, readSpin } from '../../lib/spin-session.ts';
-import { spinIdPattern, spinSecretPattern } from '../../lib/spin-protocol.mjs';
+import { spinChoiceLimit, spinIdPattern, spinSecretPattern } from '../../lib/spin-protocol.mjs';
 
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'X-Robots-Tag': 'noindex' };
 const fail = (status: number, error: string) => Response.json({ error }, { status, headers });
@@ -27,12 +27,12 @@ export const ALL: APIRoute = async ({ request, url }) => {
     }
     if (request.method !== 'POST') return new Response(null, { status: 405, headers: { ...headers, Allow: 'GET, POST' } });
     if (request.headers.get('Origin') !== url.origin) return fail(403, 'Use the controls on App Composer Spin.');
-    const body = await readBoundedJsonBody(request, 4096, messages);
+    const body = await readBoundedJsonBody(request, 12_288, messages);
     if (!body.ok) return fail(body.status, body.error);
     if (!id) {
       const result = await createSpin(DB, body.value, now);
       return result ? Response.json(result, { status: 201, headers }) :
-        fail(400, 'Use a question, 2–12 distinct entries, and an odd best-of length from 1 to 21.');
+        fail(400, `Use a question, 2–${spinChoiceLimit} distinct entries, and an odd best-of length from 1 to 21.`);
     }
     const input = body.value as { owner?: string; revision?: number; action?: string } | null;
     if (!input || typeof input.owner !== 'string' || !spinSecretPattern.test(input.owner) ||

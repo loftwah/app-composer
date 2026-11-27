@@ -1,4 +1,7 @@
-import { spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
+import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
+import { spinOrigin } from '../lib/spin-site.mjs';
+import { spinPresetById } from '../lib/spin-presets.mjs';
+import { spinChoiceLimit, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
 
 const root = document.querySelector('[data-spin]');
 if (root) mount(root);
@@ -8,18 +11,10 @@ function mount(root) {
   const canvas = get('wheel');
   const ctx = canvas.getContext('2d');
   const setup = get('setup');
-  const { question, entries, bestOf } = setup.elements;
+  const { question, bestOf } = setup.elements;
   const currentId = new URL(location.href).searchParams.get('session');
   const key = id => 'composer-spin-owner:' + id;
-  const colors = ['#ff7434', '#e8c657', '#61c2ab', '#8da9f9', '#f088ae', '#b5cb64'];
-  const presets = {
-    dinner: ['What’s for dinner?', ['Pizza', 'Thai', 'Tacos', 'Burgers']],
-    game: ['What should we play?', ['Codenames', 'Mario Kart', 'Jackbox', 'Chess']],
-    yes: ['Should we do it?', ['Yes', 'No']],
-    coin: ['Call it!', ['Heads', 'Tails']],
-    first: ['Who goes first?', ['Player one', 'Player two', 'Player three']],
-    custom: ['', ['', '']],
-  };
+  const colors = ['#ff946b', '#ffe0a5', '#4eb8aa', '#c9acf0', '#f395b4', '#b7ce78', '#92d2f2'];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tau = Math.PI * 2;
   let session;
@@ -30,12 +25,12 @@ function mount(root) {
   let audio;
   let angle = 0;
 
-  const localEntries = () => entries.value.split(/\r?\n/).map(value => value.trim()).filter(Boolean);
   const showError = message => { get('error').textContent = message; };
   const showResult = message => { get('result').textContent = message; };
   const rules = config => config.entries.length === 2
     ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
     : `Play ${config.bestOf} counted spins. Tied leaders get a final spin. Each counted spin starts with all choices.`;
+  const templateLink = config => spinOrigin + '/#' + new URLSearchParams({ wheel: JSON.stringify(config) });
   const shareUrl = id => new URL(root.dataset.spinPath + '?session=' + encodeURIComponent(id), location.origin).href;
 
   function fit(context, value, max) {
@@ -62,7 +57,7 @@ function mount(root) {
       ctx.closePath();
       ctx.fillStyle = colors[index % colors.length];
       ctx.fill();
-      ctx.strokeStyle = '#17181b';
+      ctx.strokeStyle = '#211521';
       ctx.lineWidth = 3;
       ctx.stroke();
       ctx.rotate(step / 2);
@@ -71,7 +66,8 @@ function mount(root) {
       const facingLeft = Math.cos(offset - Math.PI / 2 + index * step) < -.01;
       if (facingLeft) ctx.rotate(Math.PI);
       ctx.textAlign = facingLeft ? 'left' : 'right';
-      ctx.fillText(fit(ctx, label, 164), (center - 43) * (facingLeft ? -1 : 1), 7);
+      ctx.fillText(choices.length > 12 ? String(index + 1) : fit(ctx, label, 164),
+        (center - 43) * (facingLeft ? -1 : 1), 7);
       ctx.restore();
     });
     ctx.restore();
@@ -84,11 +80,10 @@ function mount(root) {
     ctx.stroke();
   }
 
-  function updatePreview() {
-    const labels = localEntries();
+  function updatePreview(labels) {
     const best = Number(bestOf.value);
     get('rules').textContent = rules({ entries: labels, bestOf: Number.isInteger(best) && best > 0 ? best : 1 });
-    if (!session) drawWheel(labels.slice(0, 12));
+    if (!session) drawWheel(labels);
   }
 
   function render(next) {
@@ -102,7 +97,7 @@ function mount(root) {
       const item = document.createElement('li');
       if (index === next.winner) item.className = 'winner';
       const name = document.createElement('span');
-      name.textContent = label;
+      name.textContent = next.config.entries.length > 12 ? `${index + 1}. ${label}` : label;
       const score = document.createElement('strong');
       score.textContent = String(next.totals[index]);
       item.append(name, score);
@@ -120,6 +115,13 @@ function mount(root) {
     get('abandon').hidden = !owner || next.status !== 'open';
     get('exports').hidden = next.status === 'open';
     get('replay').hidden = next.rounds.length === 0;
+    const winner = next.config.entries[next.winner];
+    const takeaway = next.status === 'completed' && spinPresetById.takeaway.entries.includes(winner);
+    const fishAndChips = winner === 'Fish and chips';
+    get('winner-art').hidden = !takeaway;
+    get('winner-art').querySelector('img').hidden = !fishAndChips;
+    if (takeaway) get('nearby').href = nearbySearch(winner);
+    get('remix').href = templateLink(next.config);
     get('png').hidden = next.status !== 'completed';
     get('portrait').hidden = next.status !== 'completed';
     get('native-share').hidden = typeof navigator.share !== 'function';
@@ -241,17 +243,12 @@ function mount(root) {
     download(blob, 'app-composer-spin-' + session.id.slice(0, 8) + '.png');
   }
 
-  setup.addEventListener('input', updatePreview);
-  setup.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => {
-    [question.value, entries.value] = [presets[button.dataset.preset][0], presets[button.dataset.preset][1].join('\n')];
-    updatePreview();
-    if (button.dataset.preset === 'custom') question.focus();
-  }));
+  const localEntries = currentId ? () => [] : mountSpinEditor(setup, updatePreview);
   setup.addEventListener('submit', event => {
     event.preventDefault();
     void perform(async () => {
       const config = validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: Number(bestOf.value) });
-      if (!config) throw new Error('Use a question, 2–12 distinct choices, and an odd best-of length from 1 to 21.');
+      if (!config) throw new Error(`Use a question, 2–${spinChoiceLimit} distinct choices, and an odd best-of length from 1 to 21.`);
       const created = await request('', config);
       owner = created.owner;
       try { localStorage.setItem(key(created.session.id), owner); } catch {}
@@ -302,6 +299,11 @@ function mount(root) {
     await navigator.clipboard.writeText(shareUrl(session.id));
     get('share').textContent = 'Session link copied';
   }));
+  get('copy-template').addEventListener('click', () => void perform(async () => {
+    if (!navigator.clipboard) throw new Error('Open “Use these choices” and copy from the new wheel.');
+    await navigator.clipboard.writeText(templateLink(session.config));
+    get('copy-template').textContent = 'Wheel link copied';
+  }));
   get('native-share').addEventListener('click', () => void perform(async () => {
     try { await navigator.share({ title: session.config.question, url: shareUrl(session.id) }); }
     catch (error) { if (error?.name !== 'AbortError') throw error; }
@@ -336,5 +338,5 @@ function mount(root) {
         throw error;
       }
     });
-  } else updatePreview();
+  }
 }
