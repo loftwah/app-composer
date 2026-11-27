@@ -16,6 +16,10 @@ When MP says **clear the backlog**, **ship**, **finish** or **deliver**, own the
 
 Prefer existing Codex/OpenCode subscription entitlements and qualified free routes over incremental spending. Keep paid overages, separate metered APIs and new subscriptions off without owner authority. Record chosen model/provider/harness, reason, known allowance/cost, meaningful failures/retries and verified task outcome in the existing issue/PR or benchmark record. Update future preferences from measured completed work, not release-date hype. Do not create a second orchestration system to implement this policy.
 
+## Portfolio design bar — owner direction, 28 November 2026
+
+Apply the [portfolio design bar](docs/visual-direction.md#portfolio-design-bar) to anything a user sees, reads or touches. Begin with an expressive credible direction that may need to be dialled back. The owner's visual brief is sharp, modern, bright, fun and neon, with deliberate colour and no muddy or retro default. Judge the work against proven external products. The current portfolio is implementation context and the owner's prior reactions stand. Carry this direction into agent handoffs and each owning project's design brief. [#1422](https://github.com/loftwah/app-composer/issues/1422) records the decision and routes adoption.
+
 ## Product direction and reference routing
 
 For product planning, agent handoffs or creative decisions, read

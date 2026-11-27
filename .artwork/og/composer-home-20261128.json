@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-28",
+  "route": "/",
+  "asset": "public/brand/campaign/composer-home-og-20261128.png",
+  "artSource": ".artwork/og/composer-home-20261128.html",
+  "renderer": ".artwork/og/render-composer-home-20261128.mjs",
+  "sourceMark": "public/brand/composer-icon-20261022b.svg",
+  "sourceFont": "public/brand/space-latin-20261018.woff2",
+  "spotColors": [
+    "#fc5b05",
+    "#17181b"
+  ],
+  "export": {
+    "width": 1200,
+    "height": 630,
+    "type": "image/png",
+    "sha256": "3d46038f55a8bb89e45f4926f67686ad65d842d96dc03122e7ff51d5c91c3877"
+  },
+  "direction": "Two flat Composer colours and its existing interlocking geometry. Colour reverses across a diagonal in the oversized mark. Confirmed desk-to-feed scale during authoring.",
+  "ownerDirection": "https://github.com/loftwah/app-composer/issues/1422",
+  "reference": "https://www.cloudflare.com/"
+}

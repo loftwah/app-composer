@@ -7,7 +7,7 @@ const readSource = (path) => readFileSync(new URL(path, import.meta.url), 'utf8'
 test('the owner-selected campaign leads into Studio, the app library, Linkarooie and Share', () => {
   const home = readSource('../src/components/ProductHome.astro');
   const opening = home.slice(home.indexOf('<section class="home-opening'), home.indexOf('<section class="home-miniapps'));
-  assert.ok(opening.includes('/brand/campaign/build-it-keep-it-running.png'));
+  assert.match(opening, /class="campaign-master" src="\/brand\/campaign\/build-it-keep-it-running-864-20261128\.webp"/);
   for (const href of ['/media-studio/studio', '/apps', '/showcase/', '/share']) assert.ok(opening.includes('href="' + href + '"'));
   assert.doesNotMatch(opening, /PostcardDesk|guestbook|fighter|orbital/i);
   assert.ok(home.includes('href="/projects">Other projects'));
@@ -26,7 +26,9 @@ test('the workshop and captioned commercial remain reachable through Demos', () 
 
 test('the shared header leads with Learn, keeps setup under More and preserves mobile and app navigation', () => {
   const base = readFileSync(new URL('../src/layouts/Base.astro', import.meta.url), 'utf8');
-  const nav = base.slice(base.indexOf('<nav class="site-navigation"'), base.indexOf('</nav>'));
+  const start = base.indexOf('<nav class="site-navigation"');
+  const nav = base.slice(start, base.indexOf('</nav>', start))
+    .replace(/href=\{composerHref\("([^"]+)"\)\}/g, 'href="$1"');
   const peers = [...nav.matchAll(/class="nav-direct" href="([^"]+)">([^<]+)<\/a>/g)].map((m) => `${m[2]}:${m[1]}`);
   assert.deepEqual(peers, ['Learn:/learn', 'Demos:/demo', 'Media Studio:/media-studio'], 'Learn leads the desktop peers');
   assert.equal([...nav.matchAll(/href="\/ready"/g)].length, 1, 'one setup link in the shared navigation');
@@ -44,7 +46,7 @@ test('the shared header leads with Learn, keeps setup under More and preserves m
 
   // Namespace, launcher and the rest of the More menu keep their existing routes.
   assert.match(base, /class="instance-brand-context"/);
-  assert.match(base, /Astro\.props\.launcher !== false && <AppLauncher \/>/);
+  assert.match(base, /composerHeader && Astro\.props\.launcher !== false && <AppLauncher \{composerHome\} \/>/);
   assert.match(nav, /<p class="site-menu-heading">Explore<\/p>[\s\S]*?<a href="\/projects">Other projects<\/a>/);
   assert.match(nav, /<div class="site-menu-resources">[\s\S]*?<a href="\/docs">Documentation<\/a>/);
 });
