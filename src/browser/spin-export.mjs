@@ -1,16 +1,18 @@
 import { loadWinnerArtwork } from './spin-winner-art.mjs';
+import { spinClick, spinChime } from './spin-audio.mjs';
 
-const palette = { background: '#211521', paper: '#fff0d7', coral: '#ff946b', muted: '#dbc2d5' };
+const palette = { background: '#0d2032', paper: '#f5fcff', coral: '#ff8a52', muted: '#b4cddc' };
 const sizes = {
   square: [1080, 1080], portrait: [1080, 1350], story: [1080, 1920], landscape: [1200, 630],
 };
 const turn = Math.PI * 2;
 export const winnerAngle = (winner, count) => -winner * turn / count;
 const types = ['video/mp4;codecs=avc1.420034', 'video/mp4;codecs=avc1', 'video/webm;codecs=vp8', 'video/webm'];
+const soundTypes = ['video/mp4;codecs=avc1.420034,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/webm;codecs=vp8,opus'];
 
-export function replayVideoType() {
+export function replayVideoType(withSound = false) {
   if (typeof HTMLCanvasElement.prototype.captureStream !== 'function' || typeof MediaRecorder === 'undefined') return '';
-  return types.find(type => MediaRecorder.isTypeSupported(type)) || '';
+  return (withSound ? soundTypes : types).find(type => MediaRecorder.isTypeSupported(type)) || '';
 }
 
 function makeCanvas(width, height) {
@@ -103,8 +105,9 @@ export async function renderSpinPng(session, link, style, paintWheel) {
   return blob;
 }
 
-export async function renderSpinVideo(session, link, paintWheel, reduced) {
-  const mimeType = replayVideoType();
+export async function renderSpinVideo(session, link, paintWheel, reduced, audio) {
+  const audioType = audio ? replayVideoType(true) : '';
+  const mimeType = audioType || replayVideoType();
   if (!mimeType) throw new Error('This browser cannot record replay video. Try the story PNG.');
   if (document.hidden) throw new Error('Keep Spin visible while exporting the replay.');
   const output = makeCanvas(...sizes.story);
@@ -125,6 +128,8 @@ export async function renderSpinVideo(session, link, paintWheel, reduced) {
   let frameId;
   let timer;
   try {
+    const destination = audioType && audio.state === 'running' ? audio.createMediaStreamDestination() : null;
+    if (destination) stream.addTrack(destination.stream.getAudioTracks()[0]);
     recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3_200_000 });
     const stopped = new Promise((resolve, reject) => {
       recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
@@ -135,6 +140,9 @@ export async function renderSpinVideo(session, link, paintWheel, reduced) {
     recorder.start();
     const drawing = new Promise((resolve, reject) => {
       const startedAt = performance.now();
+      let lastTick = -Infinity;
+      let lastSegment = -1;
+      let announced = false;
       timer = setTimeout(() => reject(new Error('Keep Spin visible while exporting the replay.')), duration + 3500);
       function draw(now) {
         const elapsed = Math.max(0, now - startedAt);
@@ -150,11 +158,21 @@ export async function renderSpinVideo(session, link, paintWheel, reduced) {
           const progress = Math.min(1, (elapsed - introMs - index * roundMs) / (roundMs * .72));
           const distance = (final - start + 3 * turn) % turn + 2 * turn;
           angle = reduced ? final : start + distance * (1 - (1 - progress) ** 3);
+          const segment = Math.floor(angle / turn * length + .5);
+          if (destination && progress < 1 && !reduced && segment !== lastSegment && elapsed - lastTick >= 45) {
+            spinClick(audio, destination);
+            lastTick = elapsed;
+            lastSegment = segment;
+          }
           frame = {
             title: `Round ${round.index + 1}`,
             note: progress === 1 || reduced ? session.config.entries[round.winner] : 'Wheel spinning',
           };
-        } else angle = winnerAngle(session.winner, length);
+        } else {
+          angle = winnerAngle(session.winner, length);
+          if (destination && !announced) spinChime(audio, destination);
+          announced = true;
+        }
         paintWheel(session.config.entries, angle, wheel);
         composition(output, wheel.canvas, session, link, 'story', frame, artwork, composer);
         if (elapsed < duration) frameId = requestAnimationFrame(draw);

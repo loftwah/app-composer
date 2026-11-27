@@ -1,4 +1,5 @@
 import { spinChoiceLimit, validateSpinConfig } from '../lib/spin-protocol.mjs';
+import { recommendTakeaway } from '../lib/spin-tastes.mjs';
 import { spinPresetById } from '../lib/spin-presets.mjs';
 
 const storageKey = 'composer-spin-wheels-v1';
@@ -28,6 +29,12 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   const find = key => form.querySelector('[data-' + key + ']');
   const { question, bestOf, suburb, paste, entry } = form.elements;
   const prefs = readPreferences();
+  const tastes = Array.isArray(prefs.tastes) ? prefs.tastes : [];
+  const pickedTastes = new Set(tastes);
+  const tasteButtons = [...form.querySelectorAll('[data-taste]')];
+  const tasteSuggestions = find('taste-suggestions');
+  const tasteAddAll = find('taste-add-all');
+  const normalized = label => label.trim().normalize('NFC').toLocaleLowerCase('en-AU');
   let draft = prefs.draft ?? fromPreset('fast-food-three');
   if (draft.preset === 'fast-food-three' && draft.question === 'Which fast food should we get?') draft.question = spinPresetById['fast-food-three'].question;
   const template = new URLSearchParams(location.hash.slice(1)).get('wheel');
@@ -54,6 +61,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     draft.bestOf = bestOf.value;
     prefs.draft = draft;
     prefs.suburb = suburb.value.trim();
+    prefs.tastes = [...pickedTastes];
     try { localStorage.setItem(storageKey, JSON.stringify(prefs)); } catch {}
   };
 
@@ -69,7 +77,69 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     spinButton.disabled = count < 2 || !distinct;
     persist();
     onPreview(active());
+    renderTasteSuggestions();
   }
+
+  function addSuggested(labels) {
+    const rows = new Map(draft.choices.map(row => [normalized(row.label), row]));
+    const additions = labels.filter(label => !rows.has(normalized(label)));
+    if (draft.choices.length + additions.length > spinChoiceLimit) {
+      find('taste-status').textContent = `This wheel is limited to ${spinChoiceLimit} choices. Add individual suggestions or remove a choice.`;
+      return;
+    }
+    for (const label of labels) {
+      const row = rows.get(normalized(label));
+      if (row) row.enabled = true;
+    }
+    draft.choices.push(...additions.map(label => ({ label, enabled: true })));
+    search.value = '';
+    renderRows();
+    update();
+  }
+
+  function renderTasteSuggestions() {
+    for (const button of tasteButtons) button.setAttribute('aria-pressed', String(pickedTastes.has(button.dataset.taste)));
+    const suggestions = recommendTakeaway([...pickedTastes]);
+    const included = new Set(active().map(normalized));
+    const available = suggestions.filter(idea => !included.has(normalized(idea.label)));
+    find('taste-status').textContent = available.length
+      ? `${available.length} ${available.length === 1 ? 'idea' : 'ideas'} to add`
+      : suggestions.length ? 'These ideas are already on the wheel.' : '';
+    tasteAddAll.hidden = available.length < 2;
+    const focused = document.activeElement?.dataset.suggestion;
+    tasteSuggestions.replaceChildren(...suggestions.map(idea => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.suggestion = idea.label;
+      const onWheel = included.has(normalized(idea.label));
+      button.disabled = onWheel;
+      button.setAttribute('aria-label', onWheel ? idea.label + ' is on the wheel' : 'Add ' + idea.label);
+      const image = document.createElement('img');
+      image.src = idea.art;
+      image.alt = '';
+      image.width = 32;
+      image.height = 32;
+      button.append(image, (onWheel ? '✓ ' : '+ ') + idea.label);
+      button.addEventListener('click', () => addSuggested([idea.label]));
+      return button;
+    }));
+    if (focused) {
+      const next = [...tasteSuggestions.children].find(button => !button.disabled);
+      (next ?? tasteButtons.find(button => pickedTastes.has(button.dataset.taste)))?.focus({preventScroll: true});
+    }
+  }
+
+  for (const button of tasteButtons) button.addEventListener('click', () => {
+    const key = button.dataset.taste;
+    if (pickedTastes.has(key)) pickedTastes.delete(key);
+    else pickedTastes.add(key);
+    persist();
+    renderTasteSuggestions();
+  });
+  tasteAddAll.addEventListener('click', () => {
+    addSuggested(recommendTakeaway([...pickedTastes]).map(idea => idea.label));
+    if (tasteAddAll.hidden) tasteButtons.find(button => pickedTastes.has(button.dataset.taste))?.focus({preventScroll: true});
+  });
 
   function renderRows(focus) {
     list.replaceChildren();

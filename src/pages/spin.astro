@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { ChevronDown, Clipboard, Plus, RotateCw } from '@lucide/astro';
+import SpinTasteCloud from '../components/SpinTasteCloud.astro';
+import { ArrowUpRight, ChevronDown, Clipboard, Plus, RotateCw, Share2, Sparkles, Volume2, VolumeX } from '@lucide/astro';
 import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinPresetGroups } from '../lib/spin-presets.mjs';
@@ -29,7 +30,7 @@ const application = JSON.stringify({
 });
 ---
 <Base {title} {description} canonical={spinDiscovery.href} shareImage={spinArtwork}
-  shareAlt={spinArtworkAlt} shareType="image/jpeg" noindex={replay || undefined} focusedExperience spinProduct>
+  shareAlt={spinArtworkAlt} shareType="image/jpeg" shareWidth={1200} shareHeight={630} noindex={replay || undefined} focusedExperience spinProduct>
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <div class="play">
@@ -51,9 +52,18 @@ const application = JSON.stringify({
           <button type="button" class="wheel-copy" data-share hidden><Clipboard size={17} aria-hidden="true" /> <span data-share-label>Copy link</span></button>
         </div>
         <aside class="winner-art" data-winner-art hidden>
-          <img alt="" width="72" height="72" src="/spin-brand/food-20261127.webp" loading="lazy" decoding="async" />
+          <img alt="" width="72" height="72" decoding="async" />
           <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
         </aside>
+        <div class="wheel-tools">
+          <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
+            <Volume2 size={19} aria-hidden="true" data-sound-on /><VolumeX size={19} aria-hidden="true" data-sound-off hidden />
+            <span data-sound-label>Sound on</span>
+          </button>
+          {!replay && <button type="button" data-find-ideas aria-controls="spin-ideas"><Sparkles size={18} aria-hidden="true" /> Find ideas</button>}
+          <button type="button" data-share-spin><Share2 size={17} aria-hidden="true" /> <span data-share-spin-label>Share Spin</span></button>
+          <a class="spin-kit" href="https://composer.loftwah.com/share/spin#social-kit">Launch kit <ArrowUpRight size={15} aria-hidden="true" /></a>
+        </div>
         <p role="alert" data-error></p>
         {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Open Spin</a></p>}
       </div>
@@ -83,6 +93,7 @@ const application = JSON.stringify({
             </label>
           </div>
           <p class="note" data-editor-message role="status"></p>
+          <SpinTasteCloud />
           <details class="choice-editor">
             <summary>Paste or manage choices</summary>
             <button type="button" data-clear-wheel>Start blank</button>
@@ -160,7 +171,6 @@ const application = JSON.stringify({
             <p class="note" data-expiry></p>
           </details>
           <div class="button-row secondary-actions">
-            <button type="button" aria-pressed="false" data-sound>Sound</button>
             <button type="button" data-abandon hidden>Abandon session</button>
             <a data-remix>Edit this wheel</a>
             <button type="button" data-copy-template>Copy editable wheel link</button>
@@ -183,22 +193,24 @@ const application = JSON.stringify({
 
 <style>
   :global(html[data-product='spin']) {
-    --color-background: #171615;
-    --color-foreground: #fff5e8;
-    --color-muted: #c3b4aa;
-    --color-border: #53483e;
-    --color-accent: #ff9364;
-    --spin-field: #24201c;
-    --spin-selection: #39271e;
+    --color-background: #101827;
+    --color-foreground: #eefaff;
+    --color-muted: #b4cad7;
+    --color-border: #50677b;
+    --color-accent: #ff8c5b;
+    --spin-field: #172738;
+    --spin-selection: #314456;
+    --spin-surface: #1d3245;
   }
   :global(html[data-product='spin'][data-theme='light']) {
-    --color-background: #faf7f1;
-    --color-foreground: #201a16;
-    --color-muted: #62554b;
-    --color-border: #c6b7a8;
-    --color-accent: #aa3814;
-    --spin-field: #fffdf9;
-    --spin-selection: #ffe3d1;
+    --color-background: #f5fcff;
+    --color-foreground: #102137;
+    --color-muted: #405972;
+    --color-border: #a5bacb;
+    --color-accent: #ab3614;
+    --spin-field: #ffffff;
+    --spin-selection: #ffebda;
+    --spin-surface: #e1ebf4;
   }
   .spin { max-width: 1150px; margin-inline: auto; }
   .play {
@@ -217,7 +229,7 @@ const application = JSON.stringify({
   .wheel-panel {
     grid-area: wheel; min-width: 0; display: grid; justify-items: center;
     padding: clamp(6px, 1.5vw, 18px) clamp(10px, 2.25vw, 28px) clamp(13px, 2vw, 21px);
-    color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border);
+    color: var(--color-foreground); background: var(--spin-surface);
     border-radius: 15px;
   }
   .wheel-frame { width: min(100%, 455px); position: relative; }
@@ -233,6 +245,11 @@ const application = JSON.stringify({
   .wheel-actions .wheel-primary { min-height: 49px; flex: 1; font: 700 1.12rem/1 Space, sans-serif; }
   .wheel-actions .wheel-copy { flex: 1; white-space: nowrap; }
   .wheel-actions .wheel-copy svg { flex: none; }
+  .wheel-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
+  .wheel-tools button { gap: 5px; }
+  .spin-kit { display: inline-flex; align-items: center; gap: 3px; min-height: 44px; padding-inline: 7px; color: var(--color-foreground); text-decoration: underline; text-underline-offset: .2em; font-size: .85rem; }
+  .spin .wheel-tools button:not(.button) { background: var(--spin-field); border-color: transparent; }
+  .spin .wheel-tools button[data-sound][aria-pressed='true'] { color: var(--color-foreground); background: var(--spin-field); }
   .wheel-panel [data-error] { margin: 8px 0 0; color: var(--color-foreground); }
   .wheel-status { font: 700 clamp(1rem, 2.7vw, 1.3rem)/1.2 Space, sans-serif; margin: 4px 0 0; text-align: center; text-wrap: balance; }
   [data-state='completed'] .wheel-status { font-size: clamp(1.9rem, 5vw, 3.1rem); }

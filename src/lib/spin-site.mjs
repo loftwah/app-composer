@@ -1,13 +1,13 @@
 export const spinOrigin = 'https://spin.loftwah.com';
-export const spinArtwork = '/campaign/spin/pick-a-side-20261127.jpg';
-export const spinArtworkAlt = 'Pick a side. App Composer Spin. An orange industrial wheel spins beside a takeaway wrapper and hot chips.';
-export const spinIcon = '/spin-brand/spin-icon-192-20261127c.png';
+export const spinArtwork = '/campaign/spin/spin-wide-20261127d.jpg';
+export const spinArtworkAlt = 'App Composer Spin. Takeaway roulette. An orange, cream and navy wheel beside a paper takeaway bag and hot chips.';
+export const spinIcon = '/spin-brand/spin-icon-192-20261127d.png';
 export const spinBrandFiles = {
   dark: '/spin-brand/spin-lockup-dark-20261127c.png',
   light: '/spin-brand/spin-lockup-light-20261127c.png',
-  icon: '/spin-brand/spin-icon-512-20261127c.png',
-  favicon: '/spin-brand/spin-icon-32-20261127c.png',
-  touch: '/spin-brand/spin-icon-180-20261127c.png',
+  icon: '/spin-brand/spin-icon-512-20261127d.png',
+  favicon: '/spin-brand/spin-icon-32-20261127d.png',
+  touch: '/spin-brand/spin-icon-180-20261127d.png',
 };
 export const spinDiscovery = Object.freeze({
   id: 'spin',

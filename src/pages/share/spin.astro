@@ -1,13 +1,21 @@
 ---
-import { ArrowDownToLine, ArrowLeft, ArrowUpRight } from '@lucide/astro';
+import { ArrowDownToLine, ArrowLeft, ArrowUpRight, Copy } from '@lucide/astro';
 import Base from '../../layouts/Base.astro';
-import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinOrigin } from '../../lib/spin-site.mjs';
+import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinOrigin } from '../../lib/spin-site.mjs';
 
 const campaign = '/campaign/spin/';
+const caption = `Maccas, Hungry Jack’s or KFC? Put your takeaway picks on App Composer Spin, give the wheel a go and send your mates the draw. ${spinDiscovery.href}`;
+const formats = [
+  { file: 'wide', label: 'Link preview', width: 1200, height: 630 },
+  { file: 'square', label: 'Square feed', width: 1080, height: 1080 },
+  { file: 'portrait', label: 'Portrait feed', width: 1080, height: 1350 },
+  { file: 'story', label: 'Story', width: 1080, height: 1920 },
+];
+const qr = campaign + 'spin-qr-20261127d.png';
 ---
 
-<Base title="Pick a side · App Composer Spin" description="Three takeaway choices, one spin, and a result your friends can check. Watch the draw or try the wheel."
-  shareImage={spinArtwork} shareAlt={spinArtworkAlt} shareType="image/jpeg">
+<Base title="App Composer Spin launch kit" description="Watch a takeaway draw and download the App Composer Spin launch kit, logos, social images, captions and the QR code."
+  shareImage={spinArtwork} shareAlt={spinArtworkAlt} shareType="image/jpeg" shareWidth={1200} shareHeight={630}>
   <article class="spin-feature">
     <a class="back" href="/share"><ArrowLeft size={16} aria-hidden="true" /> Share</a>
     <header class="opening">
@@ -18,29 +26,70 @@ const campaign = '/campaign/spin/';
         <div class="feature-actions">
           <a class="button" href={spinOrigin}>Open Spin <ArrowUpRight size={18} aria-hidden="true" /></a>
           <a href="#watch" data-watch-draw>Watch the draw</a>
+          <a href="#social-kit">Get the launch kit</a>
         </div>
       </div>
     </header>
 
+    <section class="launch-kit" id="social-kit" aria-labelledby="spin-social-heading">
+      <div class="kit-heading">
+        <div>
+          <h2 id="spin-social-heading">Launch kit</h2>
+          <p>Download the artwork for your post, story or link preview.</p>
+        </div>
+        <a class="button" href={campaign + 'spin-launch-kit-20261127d.zip'} download>Download kit <ArrowDownToLine size={18} aria-hidden="true" /></a>
+      </div>
+      <div class="social-formats">
+        {formats.map(({file, label, width, height}) => (
+          <a class="social-format" href={campaign + `spin-${file}-20261127d.jpg`} download>
+            <div class="format-image">
+              <img src={campaign + `spin-${file}-thumb-20261127d.webp`} width={width} height={height}
+                alt="" loading="lazy" decoding="async" />
+            </div>
+            <span class="format-caption"><span>{label}<small>{width} × {height}</small></span><ArrowDownToLine size={18} aria-hidden="true" /></span>
+          </a>
+        ))}
+      </div>
+      <div class="promotion">
+        <div>
+          <h3>Ready-to-post caption</h3>
+          <p data-spin-caption>{caption}</p>
+          <div class="promotion-actions">
+            <button class="button" type="button" data-copy-spin-caption hidden><Copy size={16} aria-hidden="true" /> Copy caption</button>
+            <a href={campaign + 'spin-captions-20261127d.txt'} download>Download captions</a>
+          </div>
+          <p class="copy-status" data-spin-copy-status role="status"></p>
+          <a class="public-url" href={spinDiscovery.href}>spin.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a>
+        </div>
+        <figure class="qr-card">
+          <a href={spinDiscovery.href}><img src={qr} alt="Scan the QR code to open App Composer Spin" width="136" height="136" loading="lazy" /></a>
+          <figcaption>
+            <a href={qr} download>Download QR <ArrowDownToLine size={16} aria-hidden="true" /></a>
+            <a href={campaign + 'spin-print-qr-20261127d.png'} download>Print card <ArrowDownToLine size={16} aria-hidden="true" /></a>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section class="screening" id="watch" aria-label="Watch App Composer Spin">
       <figure class="film">
         <video data-spin-feature-film width="540" height="960" controls playsinline preload="none"
-          poster={campaign + 'wheel-demo-poster-20261127c.webp'}>
-          <source src={campaign + 'wheel-demo-20261127c.mp4'} type="video/mp4" />
-          <track kind="captions" src={campaign + 'wheel-demo-20261127c.en.vtt'} srclang="en-AU" label="English" default />
+          poster={campaign + 'wheel-demo-poster-20261127d.webp'}>
+          <source src={campaign + 'wheel-demo-20261127d.mp4'} type="video/mp4" />
+          <track kind="captions" src={campaign + 'wheel-demo-20261127d.en.vtt'} srclang="en-AU" label="English" default />
         </video>
       </figure>
       <div class="screening-copy">
         <h2>The recorded draw</h2>
-        <p>Add a choice, spin, and copy the result. The link opens the exact draw shown here.</p>
+        <p>Pick Pizza and Vegetarian, add a suggestion and spin. The link opens the exact draw shown in the film.</p>
         <ul class="downloads">
-          <li><a href={spinOrigin + '/?example=editor-draw'}>Verify the draw in the film <ArrowUpRight size={18} aria-hidden="true" /></a></li>
-          <li><a href={campaign + 'wheel-loop-20261127c.gif'} download>Download the looping GIF <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
-          <li><a href={campaign + 'wheel-demo-20261127c.mp4'} download>Download the film <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
-          <li><a href="/share/artwork/composer-spin-pick-a-side">Get the campaign poster <ArrowUpRight size={18} aria-hidden="true" /></a></li>
+          <li><a href={spinOrigin + '/?example=taste-cloud'}>Verify the draw in the film <ArrowUpRight size={18} aria-hidden="true" /></a></li>
+          <li><a href={campaign + 'wheel-loop-20261127d.gif'} download>Download the looping GIF <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+          <li><a href={campaign + 'wheel-demo-20261127d.mp4'} download>Download the film <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+          <li><a href="/share/artwork/composer-spin-takeaway-roulette">Get the campaign poster <ArrowUpRight size={18} aria-hidden="true" /></a></li>
         </ul>
         <figure class="laptop">
-          <img src={campaign + 'wheel-laptop-20261127c.webp'} width="1440" height="950"
+          <img src={campaign + 'wheel-laptop-20261127d.webp'} width="1440" height="950"
             alt="App Composer Spin on a laptop-sized screen with editable takeaway choices beside the decision wheel and orange Spin button." loading="lazy" decoding="async" />
           <figcaption>Spin on a laptop.</figcaption>
         </figure>
@@ -52,6 +101,7 @@ const campaign = '/campaign/spin/';
         <li><a href={spinBrandFiles.dark} download>Logo for dark backgrounds <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
         <li><a href={spinBrandFiles.light} download>Logo for light backgrounds <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
         <li><a href={spinBrandFiles.icon} download>App icon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+        <li><a href={spinBrandFiles.touch} download>Touch icon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
         <li><a href={spinBrandFiles.favicon} download>Favicon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
       </ul>
     </section>
@@ -62,6 +112,20 @@ const campaign = '/campaign/spin/';
   const play = document.querySelector('[data-watch-draw]');
   const film = document.querySelector<HTMLVideoElement>('[data-spin-feature-film]');
   play?.addEventListener('click', () => { void film?.play().catch(() => {}); });
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy-spin-caption]');
+  const caption = document.querySelector('[data-spin-caption]');
+  const status = document.querySelector('[data-spin-copy-status]');
+  if (copy && caption && status && navigator.clipboard) {
+    copy.hidden = false;
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(caption.textContent?.trim() || '');
+        status.textContent = 'Caption copied.';
+      } catch {
+        status.textContent = 'Download the captions or select the text to copy it.';
+      }
+    });
+  }
 </script>
 
 <style>
@@ -74,6 +138,27 @@ const campaign = '/campaign/spin/';
   p { color: var(--color-muted); margin: 0 0 20px; }
   .feature-actions { display: flex; gap: 14px 18px; flex-wrap: wrap; align-items: center; }
   .feature-actions > a:not(.button) { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .2em; }
+  .launch-kit { margin-block-start: clamp(32px, 6vw, 76px); border-top: 1px solid var(--color-border); padding-block-start: 28px; }
+  .kit-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 20px; margin-block-end: 20px; }
+  .kit-heading p { margin: 0; }
+  .kit-heading .button { margin-block-start: 10px; }
+  .social-formats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .social-format { display: grid; grid-template-rows: 1fr auto; overflow: hidden; border: 1px solid var(--color-border); border-radius: 10px; text-decoration: none; }
+  .format-image { display: grid; place-items: center; padding: 8px; background: #0d2032; aspect-ratio: 4 / 3; }
+  .format-image img { display: block; max-width: 100%; width: auto; height: auto; max-height: 158px; object-fit: contain; }
+  .format-caption { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 10px; font-weight: 650; }
+  .format-caption svg { flex: none; }
+  .format-caption small { display: block; color: var(--color-muted); font-size: .8em; }
+  .social-format:hover .format-caption { text-decoration: underline; text-underline-offset: .2em; }
+  .promotion { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px 32px; padding: clamp(16px, 4vw, 32px); margin-top: 18px; border: 1px solid var(--color-border); border-radius: 12px; }
+  .promotion h3 { margin-top: 0; }
+  .promotion-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+  .promotion-actions a, .public-url, .qr-card figcaption a { display: inline-flex; min-height: 44px; align-items: center; gap: 5px; }
+  .promotion .copy-status { margin: 6px 0; }
+  .promotion .copy-status:empty, [data-copy-spin-caption][hidden] { display: none; }
+  .qr-card { margin: 0; text-align: center; }
+  .qr-card figcaption { display: flex; flex-direction: column; align-items: center; }
+  .qr-card img { display: block; margin-inline: auto; border: 1px solid var(--color-border); border-radius: 6px; }
   .screening {
     display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr); align-items: start;
     gap: clamp(24px, 6vw, 90px); padding-block-start: clamp(18px, 4vw, 48px);
@@ -91,6 +176,8 @@ const campaign = '/campaign/spin/';
     .opening, .screening { grid-template-columns: 1fr; }
     .opening { gap: 20px; }
     .film { width: min(100%, 335px); }
+    .social-formats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
+  @media (max-width: 440px) { .promotion { grid-template-columns: 1fr; } .qr-card { justify-self: start; } }
   @media (prefers-reduced-motion: reduce) { .feature-actions a { scroll-behavior: auto; } }
 </style>
