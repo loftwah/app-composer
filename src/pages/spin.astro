@@ -14,7 +14,7 @@ const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
 const title = replay ? 'Verify a replay · Spin by App Composer' : 'Decision Wheel & Random Picker · Spin by App Composer';
 const description = replay
   ? 'Open an App Composer Spin replay and check the recorded decision.'
-  : 'Make a free online decision wheel. Pick dinner, a game or who goes first, then share a replay and a result your friends can verify.';
+  : 'Make a free online decision wheel. Choose a single spin, a best-of series or an open session with a running tally, then share a replay your friends can verify.';
 if (replay) Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 const application = JSON.stringify({
   '@context': 'https://schema.org',
@@ -35,7 +35,7 @@ const application = JSON.stringify({
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <div class="play">
       <header class="spin-heading">
-        <h1>{replay ? 'Spin replay' : 'Spin the wheel'}</h1>
+        <h1 data-page-heading>{example ? 'Spin replay' : replay ? 'Spin session' : 'Spin the wheel'}</h1>
         <p class="note" data-spin-intro hidden></p>
       </header>
       {!replay && (
@@ -53,6 +53,19 @@ const application = JSON.stringify({
             </select>
             <ChevronDown size={15} aria-hidden="true" />
           </label>
+          <label class="mode-picker">
+            <span>Rounds</span>
+            <select name="bestOf" form="spin-setup" required>
+              <option value="1">Best of 1 · Single spin</option>
+              <option value="3">Best of 3</option>
+              <option value="5">Best of 5</option>
+              <option value="7">Best of 7</option>
+              <option value="0">Open session</option>
+              <optgroup label="Longer series">
+                {[9, 11, 13, 15, 17, 19, 21].map(count => <option value={count}>Best of {count}</option>)}
+              </optgroup>
+            </select>
+          </label>
         </div>
       )}
       <div class="wheel-panel" data-wheel-panel>
@@ -64,6 +77,7 @@ const application = JSON.stringify({
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
         </div>
         <p class="wheel-status" role="status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
+        <p class="live-tally" data-live-tally hidden></p>
         <div class="wheel-actions">
           <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
             aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
@@ -71,6 +85,7 @@ const application = JSON.stringify({
           <button type="button" class="button wheel-primary" data-spin-again hidden><RotateCw size={18} aria-hidden="true" /> Spin again</button>
           <button type="button" class="wheel-copy" data-share hidden><Clipboard size={17} aria-hidden="true" /> <span data-share-label>Copy link</span></button>
         </div>
+        <button class="finish-session" type="button" data-finish hidden>Finish session</button>
         <aside class="winner-art" data-winner-art hidden>
           <img src={spinBrandFiles.mark} alt="" width="72" height="72" decoding="async" hidden />
           <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
@@ -116,7 +131,6 @@ const application = JSON.stringify({
           <details class="wheel-options">
             <summary>Wheel settings</summary>
             <label>Question <input name="question" required maxlength="100" value="What’s for dinner?" /></label>
-            <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="1" required /></label>
             <p class="note" data-rules></p>
             <button type="submit" data-lock-wheel aria-describedby="spin-link-privacy">Lock wheel and get link</button>
             <p class="note" id="spin-link-privacy">Anyone with a session link can see the question and choices for {spinLifetimeDays} days.</p>
@@ -166,13 +180,14 @@ const application = JSON.stringify({
           <p class="note" data-export-status role="status"></p>
           <p data-verification></p>
           <details data-score-details>
-            <summary>Series score</summary>
+            <summary data-score-heading>Series score</summary>
             <ol class="scores" aria-label="Series score" data-scores></ol>
           </details>
           <details>
             <summary>Commitment and round history</summary>
             <p class="note">Send the link before spinning so friends can compare the commitment. A fixed session prevents silent rerolls through the app. Someone can still create a separate session or choose which one to share.</p>
             <code data-commitment></code>
+            <p class="note" data-history-note hidden></p>
             <ol data-rounds></ol>
             <p class="note" data-expiry></p>
           </details>
@@ -279,7 +294,11 @@ const application = JSON.stringify({
   .preset-picker select { appearance: none; height: 44px; padding-inline-end: 29px; background: transparent; font-size: .9rem; cursor: pointer; }
   .preset-picker svg { position: absolute; top: 15px; right: 10px; pointer-events: none; }
   .preset-quick button { text-align: left; justify-content: space-between; }
-  .series { grid-template-columns: max-content 79px; align-items: center; gap: 12px; }
+  .mode-picker { display: flex; align-items: center; gap: 10px; margin-inline-start: auto; font-size: .86rem; }
+  .mode-picker select { min-width: 175px; }
+  .live-tally { margin: 6px 0 0; max-width: 46ch; text-align: center; font-size: .86rem; color: var(--color-muted); overflow-wrap: anywhere; }
+  .finish-session { margin-block-start: 8px; }
+  .finish-session[hidden] { display: none; }
   .note { color: var(--color-muted); font-size: .88rem; margin: 0 0 3px; }
   form details, [data-session] details { border-top: 1px solid var(--color-border); margin: 0; }
   form details > * + *, [data-session] details > * + * { margin-block-end: 8px; }
@@ -307,6 +326,7 @@ const application = JSON.stringify({
     .preset-quick { gap: 5px; }
     .spin .preset-quick button { padding-inline: 7px; font-size: .78rem; gap: 5px; }
     .preset-quick .preset-picker { flex-basis: 78px; }
+    .mode-picker { flex: 1 0 100%; margin-inline-start: 0; }
     .preset-picker select { font-size: .78rem; padding-inline: 6px 16px; }
     .preset-picker svg { right: 3px; width: 12px; }
     .preset-quick button svg { width: 14px; }
@@ -315,6 +335,7 @@ const application = JSON.stringify({
   }
   @media (max-width: 430px) {
     .preset-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mode-picker { grid-column: 1 / -1; }
     .spin .preset-quick button { justify-content: flex-start; gap: 7px; padding-inline: 10px; }
     .preset-picker select { padding-inline: 10px 26px; }
     .preset-picker svg { right: 9px; }

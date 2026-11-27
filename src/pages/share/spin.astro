@@ -1,15 +1,15 @@
 ---
 import { ArrowDownToLine, ArrowLeft, ArrowUpRight, Copy } from '@lucide/astro';
 import Base from '../../layouts/Base.astro';
-import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinOrigin } from '../../lib/spin-site.mjs';
+import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinGameNightArtwork, spinGameNightArtworkAlt, spinOrigin } from '../../lib/spin-site.mjs';
 
 const campaign = '/campaign/spin/';
-const caption = `Dinner, game night or who goes first? Put your choices on Spin by App Composer, give the wheel a go and send your mates the draw. ${spinDiscovery.href}`;
+const caption = `One spin or all night. Pick a best-of series or keep an open tally in Spin by App Composer. Share the draw when you’re done. ${spinDiscovery.href}`;
 const formats = [
-  { file: 'wide', label: 'Link preview', width: 1200, height: 630 },
-  { file: 'square', label: 'Square feed', width: 1080, height: 1080 },
-  { file: 'portrait', label: 'Portrait feed', width: 1080, height: 1350 },
-  { file: 'story', label: 'Story', width: 1080, height: 1920 },
+  { file: 'one-spin-or-all-night', version: '20261127f', label: 'Link preview', width: 1200, height: 630 },
+  { file: 'spin-square', label: 'Square feed', width: 1080, height: 1080 },
+  { file: 'spin-portrait', label: 'Portrait feed', width: 1080, height: 1350 },
+  { file: 'spin-story', label: 'Story', width: 1080, height: 1920 },
 ];
 const qr = campaign + 'spin-qr-20261127d.png';
 ---
@@ -22,7 +22,7 @@ const qr = campaign + 'spin-qr-20261127d.png';
       <img src={spinArtwork} alt={spinArtworkAlt} width="1200" height="630" fetchpriority="high" />
       <div>
         <h1>Spin by App Composer</h1>
-        <p>Pick dinner, choose a game or settle who goes first. Put your own choices on the wheel and share the draw.</p>
+        <p>Make a quick call, play a best-of series, or keep an open tally for game night. Share a replay when you’re done.</p>
         <div class="feature-actions">
           <a class="button" href={spinOrigin}>Open Spin <ArrowUpRight size={18} aria-hidden="true" /></a>
           <a href="#watch" data-watch-draw>Watch the draw</a>
@@ -37,26 +37,32 @@ const qr = campaign + 'spin-qr-20261127d.png';
           <h2 id="spin-social-heading">Launch kit</h2>
           <p>Download the artwork for your post, story or link preview.</p>
         </div>
-        <a class="button" href={campaign + 'spin-launch-kit-20261127e.zip'} download>Download kit <ArrowDownToLine size={18} aria-hidden="true" /></a>
+        <a class="button" href={campaign + 'spin-launch-kit-20261127f.zip'} download>Download kit <ArrowDownToLine size={18} aria-hidden="true" /></a>
       </div>
       <div class="social-formats">
-        {formats.map(({file, label, width, height}) => (
-          <a class="social-format" href={campaign + `spin-${file}-20261127e.jpg`} download>
+        {formats.map(({file, version = '20261127e', label, width, height}) => (
+          <a class="social-format" href={campaign + `${file}-${version}.jpg`} download>
             <div class="format-image">
-              <img src={campaign + `spin-${file}-thumb-20261127e.webp`} width={width} height={height}
+              <img src={campaign + `${file}-thumb-${version}.webp`} width={width} height={height}
                 alt="" loading="lazy" decoding="async" />
             </div>
             <span class="format-caption"><span>{label}<small>{width} × {height}</small></span><ArrowDownToLine size={18} aria-hidden="true" /></span>
           </a>
         ))}
       </div>
+      <a class="hero-variant" href={spinGameNightArtwork} download>
+        <img src={campaign + 'make-the-call-game-night-thumb-20261127f.webp'} alt={spinGameNightArtworkAlt}
+          width="600" height="315" loading="lazy" decoding="async" />
+        <span>Game night hero <small>1200 × 630</small></span>
+        <ArrowDownToLine size={18} aria-hidden="true" />
+      </a>
       <div class="promotion">
         <div>
           <h3>Ready-to-post caption</h3>
           <p data-spin-caption>{caption}</p>
           <div class="promotion-actions">
             <button class="button" type="button" data-copy-spin-caption hidden><Copy size={16} aria-hidden="true" /> Copy caption</button>
-            <a href={campaign + 'spin-captions-20261127e.txt'} download>Download captions</a>
+            <a href={campaign + 'spin-captions-20261127f.txt'} download>Download captions</a>
           </div>
           <p class="copy-status" data-spin-copy-status role="status"></p>
           <a class="public-url" href={spinDiscovery.href}>spin.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a>
@@ -86,7 +92,7 @@ const qr = campaign + 'spin-qr-20261127d.png';
           <li><a href={spinOrigin + '/?example=any-choice-demo'}>Verify the draw in the film <ArrowUpRight size={18} aria-hidden="true" /></a></li>
           <li><a href={campaign + 'wheel-loop-20261127e.gif'} download>Download the looping GIF <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
           <li><a href={campaign + 'wheel-demo-20261127e.mp4'} download>Download the film <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
-          <li><a href="/share/artwork/composer-spin-make-the-call">Get the campaign poster <ArrowUpRight size={18} aria-hidden="true" /></a></li>
+          <li><a href="/share/artwork/composer-spin-one-spin-or-all-night">Get the campaign poster <ArrowUpRight size={18} aria-hidden="true" /></a></li>
         </ul>
         <figure class="laptop">
           <img src={campaign + 'wheel-laptop-20261127e.webp'} width="1440" height="950"
@@ -115,6 +121,10 @@ const qr = campaign + 'spin-qr-20261127d.png';
         <li><a href={spinBrandFiles.favicon} download>Favicon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
       </ul>
     </section>
+    <nav class="project-links" aria-label="More from App Composer">
+      <a href="/projects">Explore App Composer projects <ArrowUpRight size={16} aria-hidden="true" /></a>
+      <a href="/apps">Browse mini-apps <ArrowUpRight size={16} aria-hidden="true" /></a>
+    </nav>
   </article>
 </Base>
 
@@ -160,6 +170,11 @@ const qr = campaign + 'spin-qr-20261127d.png';
   .format-caption svg { flex: none; }
   .format-caption small { display: block; color: var(--color-muted); font-size: .8em; }
   .social-format:hover .format-caption { text-decoration: underline; text-underline-offset: .2em; }
+  .hero-variant { display: grid; grid-template-columns: minmax(95px, 1fr) minmax(0, 1fr) auto; align-items: center; gap: 12px; max-width: 565px; margin-top: 12px; padding: 8px 12px 8px 8px; border: 1px solid var(--color-border); border-radius: 10px; }
+  .hero-variant img { width: 100%; height: auto; border-radius: 5px; }
+  .hero-variant small { display: block; color: var(--color-muted); font-size: .8em; }
+  .project-links { border-top: 1px solid var(--color-border); padding-top: 14px; }
+  .project-links a { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; }
   .promotion { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px 32px; padding: clamp(16px, 4vw, 32px); margin-top: 18px; border: 1px solid var(--color-border); border-radius: 12px; }
   .promotion h3 { margin-top: 0; }
   .promotion-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }

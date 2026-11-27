@@ -245,7 +245,8 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   function showDraft(next) {
     draft = next;
     question.value = draft.question || 'What should we pick?';
-    bestOf.value = draft.bestOf;
+    bestOf.value = String(draft.bestOf);
+    if (!bestOf.value) bestOf.value = '1';
     search.value = '';
     for (const picker of presetPickers) picker.value = '';
     renderRows();

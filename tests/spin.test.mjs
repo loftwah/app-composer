@@ -11,6 +11,7 @@ const config = { question: 'What should we play?', entries: ['Chess', 'Codenames
 function database(test) {
   const db = new DatabaseSync(':memory:');
   db.exec(readFileSync(new URL('../migrations/0045_spin_sessions.sql', import.meta.url), 'utf8'));
+  db.exec(readFileSync(new URL('../migrations/0046_spin_open_rounds.sql', import.meta.url), 'utf8'));
   test.after(() => db.close());
   return {
     prepare(sql) {
@@ -19,6 +20,7 @@ function database(test) {
         bind(...values) {
           return {
             first: async () => stmt.get(...values) ?? null,
+            all: async () => ({ results: stmt.all(...values) }),
             run: async () => ({ meta: { changes: Number(stmt.run(...values).changes) } }),
           };
         },
@@ -44,28 +46,28 @@ test('a session reveals no seed before completion and concurrent requests append
   const { owner, session } = await createSpin(db, config, now);
   assert.equal('seed' in session, false);
   assert.equal('owner' in await readSpin(db, session.id, now), false);
-  assert.equal((await advanceSpin(db, session.id, 'bad', 0, false, now)).status, 403);
+  assert.equal((await advanceSpin(db, session.id, 'bad', 0, 'spin', now)).status, 403);
   const attempts = await Promise.all(Array.from({ length: 12 }, () =>
-    advanceSpin(db, session.id, owner, 0, false, now)));
+    advanceSpin(db, session.id, owner, 0, 'spin', now)));
   assert.ok(attempts.every(result => result.session.rounds.length === 1));
   assert.ok(attempts.every(result => result.session.rounds[0].winner === attempts[0].session.rounds[0].winner));
   let next = await readSpin(db, session.id, now);
   assert.equal(next.configHash, session.configHash);
-  while (next.status === 'open') next = (await advanceSpin(db, session.id, owner, next.revision, false, now)).session;
+  while (next.status === 'open') next = (await advanceSpin(db, session.id, owner, next.revision, 'spin', now)).session;
   assert.equal(next.status, 'completed');
   assert.equal(await verifySpin(next), true);
   assert.equal(await verifySpin({ ...next, config: { ...next.config, entries: ['Chess', 'Tacos'] } }), false);
   assert.equal(await verifySpin({ ...next, rounds: [{ ...next.rounds[0], winner: 1 - next.rounds[0].winner }, ...next.rounds.slice(1)] }), false);
-  assert.deepEqual((await advanceSpin(db, session.id, owner, next.revision, false, now)).session, next);
+  assert.deepEqual((await advanceSpin(db, session.id, owner, next.revision, 'spin', now)).session, next);
 });
 
 test('abandonment closes the wheel, reveals its seed and never extends retention', async ctx => {
   const db = database(ctx);
   const { owner, session } = await createSpin(db, config, now);
-  const next = (await advanceSpin(db, session.id, owner, 0, true, now)).session;
+  const next = (await advanceSpin(db, session.id, owner, 0, 'abandon', now)).session;
   assert.equal(next.status, 'abandoned');
   assert.equal(await verifySpin(next), true);
-  assert.deepEqual((await advanceSpin(db, session.id, owner, 1, false, now)).session, next);
+  assert.deepEqual((await advanceSpin(db, session.id, owner, 1, 'spin', now)).session, next);
   assert.equal(await readSpin(db, session.id, Date.parse(next.expiresAt)), null);
   await purgeExpiredSpins(db, Date.parse(next.expiresAt));
   assert.equal(await readSpin(db, session.id, now), null);
@@ -86,9 +88,62 @@ test('the Australian takeaway wheel fits and new large wheels stay independently
   assert.equal(validateSpinConfig({ question: 'Which choice?', entries: [...entries, 'Overflow'], bestOf: 3 }), null);
   const db = database(ctx);
   const created = await createSpin(db, { question: 'Which choice?', entries, bestOf: 1 }, now);
-  const outcome = await advanceSpin(db, created.session.id, created.owner, 0, false, now);
+  const outcome = await advanceSpin(db, created.session.id, created.owner, 0, 'spin', now);
   assert.equal(outcome.session.status, 'completed');
   assert.equal(await verifySpin(outcome.session), true);
+});
+
+test('an open session keeps its tally beyond fixed series and can be finished once', async ctx => {
+  const db = database(ctx);
+  const { owner, session } = await createSpin(db, { ...config, bestOf: 0 }, now);
+  assert.equal((await advanceSpin(db, session.id, owner, 0, 'finish', now)).status, 409);
+  assert.equal((await advanceSpin(db, session.id, 'bad', 0, 'spin', now)).status, 403);
+  const initial = await Promise.all(Array.from({ length: 8 }, () => advanceSpin(db, session.id, owner, 0, 'spin', now)));
+  assert.ok(initial.every(result => result.session.rounds.length === 1));
+  let next = initial[0].session;
+  for (let index = 1; index < 33; index++) {
+    next = (await advanceSpin(db, session.id, owner, next.revision, 'spin', now + index)).session;
+  }
+  assert.equal(next.status, 'open');
+  assert.equal(next.winner, -1);
+  assert.equal(next.rounds.length, 33);
+  assert.equal(next.totals.reduce((total, count) => total + count, 0), 33);
+  assert.ok(next.rounds.every((round, index) => round.index === index && !round.tieBreak && round.eligible.length === 2));
+  assert.equal('seed' in next, false);
+  assert.equal((await advanceSpin(db, session.id, owner, 32, 'finish', now)).session.status, 'open');
+  const [first, duplicate] = await Promise.all([
+    advanceSpin(db, session.id, owner, next.revision, 'finish', now),
+    advanceSpin(db, session.id, owner, next.revision, 'finish', now),
+  ]);
+  assert.deepEqual(first, duplicate);
+  assert.equal(first.session.status, 'completed');
+  assert.ok(first.session.winner >= 0);
+  assert.equal(first.session.expiresAt, session.expiresAt);
+  assert.equal(await verifySpin(first.session), true);
+  assert.equal(await verifySpin({ ...first.session, rounds: first.session.rounds.slice(1) }), false);
+  assert.deepEqual((await advanceSpin(db, session.id, owner, first.session.revision, 'spin', now)).session, first.session);
+  await purgeExpiredSpins(db, Date.parse(session.expiresAt));
+  const { results } = await db.prepare('SELECT * FROM composer_spin_open_rounds WHERE session_id=?').bind(session.id).all();
+  assert.deepEqual(results, []);
+});
+
+test('an open session ends with a tie when the top scores match', async () => {
+  const { configHash, seedCommitment, spinOpenRound, spinVersion } = await import('../src/lib/spin-protocol.mjs');
+  const id = '12345678-1234-1234-1234-123456789abc';
+  const open = { ...config, bestOf: 0 };
+  const hash = await configHash(id, open);
+  const seed = 'a'.repeat(64);
+  const rounds = [];
+  do {
+    rounds.push(await spinOpenRound(seed, hash, open.entries, rounds.length));
+    assert.ok(rounds.length <= 64);
+  } while (spinProgress(open, rounds).totals[0] !== spinProgress(open, rounds).totals[1]);
+  const result = spinProgress(open, rounds, true);
+  assert.equal(result.winner, -1);
+  const receipt = { version: spinVersion, id, config: open, configHash: hash,
+    commitment: await seedCommitment(hash, seed), seed, status: 'completed', rounds, totals: result.totals, winner: -1 };
+  assert.equal(await verifySpin(receipt), true);
+  assert.equal(await verifySpin({ ...receipt, winner: 0 }), false);
 });
 
 test('all public Spin examples are completed receipts with no creator key', async () => {

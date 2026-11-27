@@ -1,3 +1,4 @@
+import { openSpinMode, spinModeLabel } from '../lib/spin-protocol.mjs';
 import { spinBrandFiles } from '../lib/spin-site.mjs';
 import { loadWinnerArtwork } from './spin-winner-art.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
@@ -81,14 +82,16 @@ function composition(target, wheel, session, link, style, frame, artwork, mark) 
   target.fillStyle = palette.orange;
   target.fill();
   const resultY = wide ? 305 : wheelY + size + (story ? 140 : 96);
-  label(target, frame.title ?? winner + ' wins!', x, resultY, maxText, wide ? 55 : story ? 78 : 65, 800, palette.paper);
+  label(target, frame.title ?? (winner ? winner + ' wins!' : 'Session ended in a tie'), x, resultY, maxText, wide ? 55 : story ? 78 : 65, 800, palette.paper);
   const wins = session.totals[session.winner];
   const spins = session.rounds.length;
   const score = session.config.entries.length <= 5
     ? session.config.entries.map((entry, index) => ({ entry, score: session.totals[index] }))
       .sort((left, right) => right.score - left.score).slice(0, 2).map(({entry, score}) => `${entry} ${score}`).join(' · ')
     : `${wins} ${wins === 1 ? 'win' : 'wins'} across ${spins} ${spins === 1 ? 'spin' : 'spins'}`;
-  const details = session.config.bestOf === 1 ? 'Single spin' : `Best of ${session.config.bestOf} · ${score}`;
+  const mode = spinModeLabel(session.config.bestOf);
+  const count = `${spins} ${spins === 1 ? 'spin' : 'spins'}`;
+  const details = session.config.bestOf === openSpinMode ? `${mode} · ${count}` : session.config.bestOf === 1 ? mode : `${mode} · ${score}`;
   label(target, frame.note ?? details, x, resultY + (story ? 89 : 62), maxText, wide ? 22 : 30, 600, palette.muted);
   label(target, 'Replay & verify', x, height - (story ? 190 : 106), maxText, 25, 700, palette.orange);
   label(target, link, x, height - (story ? 145 : 65), maxText, wide ? 15 : 22, 500, palette.paper);
@@ -104,7 +107,7 @@ async function loadSpinMark() {
 export async function renderSpinPng(session, link, style, paintWheel) {
   const output = makeCanvas(...sizes[style]);
   const wheel = makeCanvas(560, 560);
-  paintWheel(session.config.entries, winnerAngle(session.winner, session.config.entries.length), wheel);
+  paintWheel(session.config.entries, winnerAngle(session.winner < 0 ? session.rounds.at(-1).winner : session.winner, session.config.entries.length), wheel);
   const [artwork, mark] = await Promise.all([
     loadWinnerArtwork(session.config.entries[session.winner]), loadSpinMark(),
   ]);
@@ -158,7 +161,7 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
         let angle = 0;
         let frame = {};
         if (elapsed < introMs) {
-          frame = { title: 'The replay', note: session.config.bestOf === 1 ? 'Single recorded spin' : `Best of ${session.config.bestOf} · Recorded rounds` };
+          frame = { title: 'The replay', note: session.config.bestOf === 1 ? 'Single recorded spin' : `${spinModeLabel(session.config.bestOf)} · Recorded rounds` };
         } else if (elapsed < end) {
           const index = Math.floor((elapsed - introMs) / roundMs);
           const round = rounds[index];
@@ -178,7 +181,7 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
             note: progress === 1 || reduced ? session.config.entries[round.winner] : 'Wheel spinning',
           };
         } else {
-          angle = winnerAngle(session.winner, length);
+          angle = winnerAngle(session.winner < 0 ? session.rounds.at(-1).winner : session.winner, length);
           if (destination && !announced) spinChime(audio, destination);
           announced = true;
         }

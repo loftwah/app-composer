@@ -5,7 +5,7 @@ import { winnerArtwork } from './spin-winner-art.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
 import { spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinPresetById } from '../lib/spin-presets.mjs';
-import { spinChoiceLimit, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
+import { openSpinMode, spinChoiceLimit, spinModeLabel, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
 
 const root = document.querySelector('[data-spin]');
 if (root) mount(root);
@@ -39,7 +39,7 @@ function mount(root) {
     if (status.textContent !== message) status.textContent = message;
   };
   const focusAction = name => requestAnimationFrame(() => get(name).focus({ preventScroll: true }));
-  const rules = config => config.bestOf === 1 ? 'One spin. Every enabled choice has equal odds.' :
+  const rules = config => config.bestOf === openSpinMode ? 'Keep spinning and finish whenever you’re ready.' : config.bestOf === 1 ? 'One spin. Every enabled choice has equal odds.' :
     config.entries.length === 2
     ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
     : `Play ${config.bestOf} counted spins. Tied leaders get a final spin. Each counted spin starts with all choices.`;
@@ -143,10 +143,12 @@ function mount(root) {
   function updatePreview(labels, foodIdeas) {
     if (get('find-ideas')) get('find-ideas').hidden = !foodIdeas;
     const best = Number(bestOf.value);
-    get('rules').textContent = rules({ entries: labels, bestOf: Number.isInteger(best) && best > 0 ? best : 1 });
+    get('rules').textContent = rules({ entries: labels, bestOf: best });
     if (!session) {
       get('spin-heading').textContent = question.value.trim() || 'What should we pick?';
       drawWheel(labels);
+      get('live-tally').hidden = best !== openSpinMode;
+      get('live-tally').textContent = 'Every spin adds to the tally. Finish whenever you choose.';
       showResult(labels.length >= 2 ? `${labels.length} choices on the wheel` : 'Enable two choices to spin.');
     }
   }
@@ -161,7 +163,15 @@ function mount(root) {
     get('share').hidden = false;
     get('share').setAttribute('aria-label', next.status === 'completed' ? 'Copy result link' : 'Copy draw link');
     get('share-label').textContent = 'Copy link';
+    const openMode = next.config.bestOf === openSpinMode;
+    if (openMode) get('page-heading').textContent = next.status === 'open' ? 'Open session' : 'Session result';
+    else if (showingExample || currentId) get('page-heading').textContent = showingExample || next.status !== 'open' ? 'Spin replay' : 'Spin session';
     get('spin-again').hidden = next.status === 'open';
+    get('finish').hidden = !openMode || !owner || next.status !== 'open';
+    get('finish').disabled = next.rounds.length === 0;
+    get('score-heading').textContent = openMode ? 'Session tally' : 'Series score';
+    get('scores').setAttribute('aria-label', openMode ? 'Session tally' : 'Series score');
+    get('draw').textContent = openMode ? 'Spin again' : 'Spin the wheel';
     if (firstRender) get('export-status').textContent = '';
     if (get('spin-guide')) get('spin-guide').hidden = true;
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
@@ -172,7 +182,15 @@ function mount(root) {
     get('wheel-panel').dataset.state = next.status;
     get('session').hidden = false;
     const series = next.status === 'open' && next.tieBreak ? 'The next spin is a tie-break.' : rules(next.config);
-    get('series').textContent = `${series} ${next.rounds.length} ${next.rounds.length === 1 ? 'spin' : 'spins'} recorded.`;
+    const count = next.rounds.length;
+    const countLabel = `${count} ${count === 1 ? 'spin' : 'spins'}`;
+    get('series').textContent = openMode
+      ? `${spinModeLabel(next.config.bestOf)} · ${countLabel} recorded.`
+      : `${series} ${countLabel} recorded.`;
+    const tally = next.config.entries.map((label, index) => ({ label, score: next.totals[index] }))
+      .filter(choice => choice.score).sort((left, right) => right.score - left.score).slice(0, 3);
+    get('live-tally').hidden = !openMode;
+    get('live-tally').textContent = [countLabel, ...tally.map(choice => `${choice.label} ${choice.score}`)].join(' · ');
     get('scores').replaceChildren(...next.config.entries.map((label, index) => {
       const item = document.createElement('li');
       if (index === next.winner) item.className = 'winner';
@@ -183,7 +201,10 @@ function mount(root) {
       item.append(name, score);
       return item;
     }));
-    get('rounds').replaceChildren(...next.rounds.map(round => {
+    const visibleRounds = next.rounds.slice(-50);
+    get('history-note').hidden = visibleRounds.length === count;
+    get('history-note').textContent = `Showing the latest ${visibleRounds.length} of ${count} spins. Download the finished session receipt for the full history.`;
+    get('rounds').replaceChildren(...visibleRounds.map(round => {
       const li = document.createElement('li');
       li.textContent = `Round ${round.index + 1}${round.tieBreak ? ' · tie-break' : ''} — ${next.config.entries[round.winner]}`;
       return li;
@@ -193,11 +214,12 @@ function mount(root) {
       'Available until ' + new Date(next.expiresAt).toLocaleDateString('en-AU') + '.';
     get('refresh').hidden = Boolean(example);
     get('draw').hidden = !owner || next.status !== 'open';
-    get('auto').hidden = get('draw').hidden || next.config.bestOf === 1;
+    get('auto').hidden = get('draw').hidden || next.config.bestOf <= 1;
     get('abandon').hidden = !owner || next.status !== 'open';
     get('exports').hidden = next.status === 'open';
     get('replay').hidden = next.rounds.length === 0;
-    get('replay-series').hidden = next.rounds.length < 2;
+    get('replay-series').hidden = count < 2;
+    get('replay-series').textContent = openMode && count > 3 ? 'Replay the last 3 spins' : 'Replay the series';
     const winner = next.config.entries[next.winner];
     const takeaway = next.status === 'completed' && spinPresetById.takeaway.entries.includes(winner);
     const art = next.status === 'completed' ? winnerArtwork(winner) : '';
@@ -217,7 +239,7 @@ function mount(root) {
     const last = next.rounds.at(-1);
     angle = last ? winnerAngle(last.winner, next.config.entries.length) : 0;
     drawWheel(next.config.entries);
-    showResult(next.status === 'completed' ? next.config.entries[next.winner] + ' wins!' :
+    showResult(next.status === 'completed' ? (next.winner < 0 ? 'Session ended in a tie' : next.config.entries[next.winner] + ' wins!') :
       next.status === 'abandoned' ? 'Session abandoned' :
         last ? 'Round ' + (last.index + 1) + ': ' + next.config.entries[last.winner] :
           'Wheel locked. Share the link before spinning.');
@@ -342,8 +364,8 @@ function mount(root) {
     event.preventDefault();
     armSound();
     void perform(async () => {
-      const config = validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: Number(bestOf.value) });
-      if (!config) throw new Error(`Use a question, 2–${spinChoiceLimit} distinct choices, and an odd best-of length from 1 to 21.`);
+      const config = validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: bestOf.value === '' ? NaN : Number(bestOf.value) });
+      if (!config) throw new Error(`Use a question, 2–${spinChoiceLimit} distinct choices, and choose a spin mode.`);
       await startDraw(config, event.submitter === get('spin-now'));
     });
   });
@@ -395,6 +417,13 @@ function mount(root) {
       }
     });
   });
+  get('finish').addEventListener('click', () => void perform(async () => {
+    const next = (await request(session.id, { owner, revision: session.revision, action: 'finish' })).session;
+    render(next);
+    if (next.status === 'open') throw new Error('The tally changed. Review it and finish the session again.');
+    chime();
+    focusAction('share');
+  }));
   get('abandon').addEventListener('click', () => {
     if (!confirm('Abandon this session? The seed will be revealed and this wheel cannot spin again.')) return;
     void perform(async () => render((await request(session.id, { owner, revision: session.revision, action: 'abandon' })).session));
@@ -461,7 +490,7 @@ function mount(root) {
     void perform(async () => {
       const next = session;
       angle = 0;
-      for (const round of next.rounds) {
+      for (const round of next.config.bestOf === openSpinMode ? next.rounds.slice(-3) : next.rounds) {
         await animate(next, round);
         showResult(`Round ${round.index + 1}: ${next.config.entries[round.winner]}`);
         await new Promise(resolve => setTimeout(resolve, reduced.matches ? 550 : 410));
