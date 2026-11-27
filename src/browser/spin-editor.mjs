@@ -152,6 +152,7 @@ export function mountSpinEditor(form, onPreview) {
     renderOptions(find('saved-wheels'), prefs.wheels.map(wheel => new Option(wheel.title, wheel.id)), 'Open a saved wheel');
     renderOptions(find('favourites'), prefs.favourites.map(id => new Option(spinPresetById[id].label, id)), 'Open a favourite');
     renderOptions(find('recent-wheels'), prefs.recent.map(id => new Option(spinPresetById[id].label, id)), 'Open a recent preset');
+    find('quick-chains').setAttribute('aria-pressed', String(draft.preset === 'fast-food-three'));
     const starred = prefs.favourites.includes(draft.preset);
     find('favourite').setAttribute('aria-pressed', String(starred));
     find('favourite').textContent = starred ? 'Remove favourite' : 'Favourite preset';
