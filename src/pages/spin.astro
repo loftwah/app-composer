@@ -293,6 +293,7 @@ const application = JSON.stringify({
   [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a, .winner-art a { align-self: center; text-decoration: underline; text-underline-offset: .22em; }
   .winner-art { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 13px; }
+  .winner-art[hidden], .winner-art [hidden] { display: none; }
   .winner-art img { display: block; width: 58px; height: 58px; border-radius: 9px; }
   .winner-art a { min-height: 44px; display: inline-flex; align-items: center; font-size: .9rem; }
   .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
