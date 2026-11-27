@@ -140,7 +140,8 @@ function mount(root) {
     get('spin-intro').hidden = !showingExample;
     get('spin-intro').textContent = showingExample ? 'Recorded draw' : '';
     get('share').hidden = false;
-    get('share-label').textContent = next.status === 'completed' ? 'Copy result link' : 'Copy draw link';
+    get('share').setAttribute('aria-label', next.status === 'completed' ? 'Copy result link' : 'Copy draw link');
+    get('share-label').textContent = 'Copy link';
     get('spin-again').hidden = next.status === 'open';
     if (firstRender) get('export-status').textContent = '';
     if (get('spin-guide')) get('spin-guide').hidden = true;
@@ -357,9 +358,12 @@ function mount(root) {
     if (!navigator.clipboard) throw new Error('Copy the session link from the address bar.');
     await navigator.clipboard.writeText(shareUrl(session.id));
     get('share-label').textContent = 'Link copied';
+    get('share').setAttribute('aria-label', 'Link copied');
     const copiedId = session.id;
     setTimeout(() => {
-      if (session.id === copiedId) get('share-label').textContent = session.status === 'completed' ? 'Copy result link' : 'Copy draw link';
+      if (session.id !== copiedId) return;
+      get('share').setAttribute('aria-label', session.status === 'completed' ? 'Copy result link' : 'Copy draw link');
+      get('share-label').textContent = 'Copy link';
     }, 1600);
   }));
   get('copy-template').addEventListener('click', () => void perform(async () => {
