@@ -1,5 +1,39 @@
 [
   {
+    "id": "composer-spin-going-round",
+    "project": "app-composer",
+    "title": "Going round in circles? Good. · Spin",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · Codex ImageGen and original art direction",
+    "alt": "Spin by App Composer. Going round in circles? Good. An orange felt hand flicks a blue wheel and sends a slice of felt pizza flying.",
+    "description": "Felt workshop campaign artwork for Spin by App Composer.",
+    "caption": "Going round in circles? Good. Let Spin settle dinner, game night or whatever’s up for debate. https://spin.loftwah.com/",
+    "tags": [
+      "spin",
+      "app-composer"
+    ],
+    "use": "social",
+    "stage": "share poster",
+    "kind": "editorial composition",
+    "reviewedAt": "2026-11-27",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/going-round-provenance-20261127.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/going-round-thumb-20261127.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 315,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/going-round-20261127.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/going-round-20261127.jpg",
+      "label": "Campaign JPEG",
+      "width": 1200,
+      "height": 630,
+      "sha256": "646ce5e43dd8da72365a7af3bea3dbb03f60e2a262f6b69ca403542d81be4a74",
+      "version": "going-round-20261127"
+    }
+  },
+  {
     "id": "composer-spin-one-spin-or-all-night",
     "project": "app-composer",
     "title": "One spin or all night · Spin by App Composer",
@@ -32,7 +66,8 @@
       "height": 630,
       "sha256": "ee0a6bae09ab77be12033f36efa99dc95aa63df139e30c3864cead04cfc7c427",
       "version": "20261127f"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-make-the-call-game-night",
@@ -67,7 +102,8 @@
       "height": 630,
       "sha256": "00b270dc540e2be9b818d3b9aa84dd42604cd40d0ccaa0ad39642bd861398c31",
       "version": "20261127f"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-make-the-call",
@@ -102,7 +138,8 @@
       "height": 630,
       "sha256": "93795147d1097c19741b05ce75b47a993aa5435d0a20e64cd202f4ce4928f449",
       "version": "20261127e"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-laptop",
@@ -135,7 +172,8 @@
       "height": 950,
       "sha256": "babbf84f2c7fde22e9763cdb81d4b0fd720a24fbd2a94a0e5dfd6eddcd41d63c",
       "version": "20261127e"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-takeaway-roulette",
@@ -170,7 +208,8 @@
       "height": 630,
       "sha256": "7ee16006bb68ae7423bddac1cd2d90e8e30559bee1b900dad359474f472e8a33",
       "version": "20261127d"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-pick-a-side",
@@ -205,6 +244,7 @@
       "height": 630,
       "sha256": "9bb771a97b7b4a9100e12a347da7c295dab0d849caaff08797cfe64b2b774c51",
       "version": "20261127"
-    }
+    },
+    "hiddenFromGallery": true
   }
 ]

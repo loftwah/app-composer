@@ -27,6 +27,7 @@ interface ComposerShareRecord {
   project: string;
   description: string;
   tags: string[];
+  hiddenFromGallery?: boolean;
 }
 
 const nativeCollections = new Map<string, readonly ComposerShareRecord[]>([
@@ -381,7 +382,8 @@ export async function searchShareCatalogueAssets(
   const words = q.toLowerCase().split(/\s+/);
   const local = [...nativeRecords.values()]
     .map(({ record }) => record)
-    .filter(({ title, description, tags }) => {
+    .filter(({ title, description, tags, hiddenFromGallery }) => {
+      if (hiddenFromGallery) return false;
       const searchable = [title, description, "app composer", ...tags].join(" ").toLowerCase();
       return words.every((word) => searchable.includes(word));
     })
@@ -637,8 +639,9 @@ export async function browseShareArtwork(
   }
 }
 
-function composerCatalogue(records: Iterable<{ tag: string; record: unknown }>): CatalogueArtwork[] {
+function composerCatalogue(records: Iterable<{ tag: string; record: ComposerShareRecord }>): CatalogueArtwork[] {
   return Array.from(records).flatMap(({ record, tag }) => {
+    if (record.hiddenFromGallery) return [];
     const artwork = catalogueArtwork(record, composerOrigin, tag);
     return artwork ? [artwork] : [];
   });

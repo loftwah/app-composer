@@ -324,26 +324,23 @@ control, label, role and action usable and readable in both themes. The full
 recipe and verification contract is
 [the appearance skin contract](docs/appearance-skin-contract.md).
 
-## App Composer Spin identity — 27 November 2026
+## App Composer Spin
 
-Spin is a first-party mini-app at `spin.loftwah.com`. The wordmark reads
-Spin by App Composer. The ring, axle and orange pointer are Spin’s distinct
-mark. The Composer tile remains the parent product’s identity. Use Composer’s
-paper, ink and orange across the Spin header, play surface, controls and result
-exports. The campaign uses separate ImageGen compositions for the four social
-formats. The QR opens the public Spin homepage.
+Spin uses cobalt `#2821b1`, acid yellow `#edff40`, hot pink `#ff6fbc` and
+paper `#fffaf0`. The three-colour disc and angled
+pointer make up the app icon. The campaign takes its practical felt staging
+from App Composer Share's workshop artwork. The square, feed portrait, story
+and link posters each frame the same visual joke for their destination. The
+App Composer parent mark keeps its existing identity.
 
-## Spin play surface — 27 November 2026
+The stage keeps the question, mode, wheel, result and action row in place
+through setup, spinning, finishing and replay. A fresh wheel starts in Single
+spin, with rounds off. Presets keep the selected mode. Best-of and Open tally
+explain their rules beside the control, then show progress in the stage. The
+editor and draw details sit beside the stage on desktop and below it on phones.
 
-The app heading describes the action and the wheel shows the active question.
-Fast food, Game night, Weekend and the preset picker sit before the wheel. A
-laptop places the wheel beside the editor. A phone places the wheel and Spin
-button first. A fresh visit loads the three takeaway choices and existing
-drafts retain their own choices. Selecting a non-food preset hides food ideas.
-
-Choice entry and toggles live together. Multi-select food tiles suggest individual
-choices to add. Keep sound, Find ideas and Share Spin next to the wheel. Keep
-reorder, bulk operations and
-custom series in disclosures. A completed draw puts Spin again and Copy
-result link below the winner. Repeat creates a separate verified session
-with the original choices and leaves the previous draw in browser history.
+Share wheel sends an editable copy or lets the host lock a draw before spinning.
+Share result puts the replay link, post text, alt text and four downloadable
+image formats beside a preview of the actual export. The card's QR opens the
+same draw. The share sheet uses a focused dialog so local preparation and
+intentional handoff are distinct interactions.

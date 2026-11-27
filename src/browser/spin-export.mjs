@@ -1,9 +1,9 @@
-import { openSpinMode, spinModeLabel } from '../lib/spin-protocol.mjs';
+import { spinModeLabel } from '../lib/spin-protocol.mjs';
 import { spinBrandFiles } from '../lib/spin-site.mjs';
-import { loadWinnerArtwork } from './spin-winner-art.mjs';
+import { qrMatrix } from '../lib/qr-code.ts';
 import { spinClick, spinChime } from './spin-audio.mjs';
 
-const palette = { background: '#17181b', paper: '#faf9f7', orange: '#fc5b05', muted: '#d4ceca' };
+const palette = { blue: '#2821b1', ink: '#161349', paper: '#fffaf0', acid: '#edff40', pink: '#ff6fbc' };
 const sizes = {
   square: [1080, 1080], portrait: [1080, 1350], story: [1080, 1920], landscape: [1200, 630],
 };
@@ -26,75 +26,96 @@ function makeCanvas(width, height) {
   return context;
 }
 
-function label(context, value, x, y, width, size, weight, colour) {
-  context.font = `${weight} ${size}px system-ui`;
+function line(context, value, x, y, width, size, weight, colour) {
+  context.font = `${weight} ${size}px Space, sans-serif`;
   context.fillStyle = colour;
-  const letters = Array.from(value);
-  const count = letters.length;
-  while (letters.length > 1 && context.measureText(letters.join('') + (letters.length < count ? '…' : '')).width > width) {
-    letters.pop();
-  }
-  const short = letters.join('');
-  context.fillText(short === value ? short : short + '…', x, y);
+  context.fillText(value, x, y, width);
 }
 
-function composition(target, wheel, session, link, style, frame, artwork, mark) {
+function wrapped(context, value, x, y, width, size, weight, colour) {
+  context.font = `${weight} ${size}px Space, sans-serif`;
+  const letters = Array.from(value);
+  const lines = [];
+  let part = '';
+  while (letters.length) {
+    const next = letters.shift();
+    if (part && context.measureText(part + next).width > width) {
+      const space = part.lastIndexOf(' ');
+      if (space > 0) {
+        letters.unshift(...part.slice(space + 1), next);
+        part = part.slice(0, space);
+      } else letters.unshift(next);
+      lines.push(part.trim());
+      part = '';
+    } else part += next;
+  }
+  if (part) lines.push(part.trim());
+  if (lines.length > 2) return wrapped(context, value, x, y, width, size - 3, weight, colour);
+  lines.forEach((text, index) => line(context, text, x, y + index * (size + 5), width, size, weight, colour));
+}
+
+function drawQr(target, qr, x, y) {
+  const scale = 3;
+  const quiet = 4;
+  const size = (qr.size + quiet * 2) * scale;
+  target.fillStyle = '#fff';
+  target.fillRect(x, y, size, size);
+  target.fillStyle = palette.ink;
+  qr.modules.forEach((row, rowIndex) => row.forEach((dark, colIndex) => {
+    if (dark) target.fillRect(x + (colIndex + quiet) * scale, y + (rowIndex + quiet) * scale, scale, scale);
+  }));
+  return size;
+}
+
+function composition(target, wheel, session, qr, style, frame, mark) {
   const { width, height } = target.canvas;
   const wide = style === 'landscape';
   const story = style === 'story';
-  const maxText = wide ? 565 : width - 110;
-  const x = wide ? 60 : width / 2;
-  const size = wide ? 490 : story ? 720 : style === 'portrait' ? 650 : 500;
-  const wheelX = wide ? width - size - 35 : (width - size) / 2;
-  const wheelY = wide ? (height - size) / 2 : story ? 440 : Math.round(height * .20);
+  const square = style === 'square';
+  const x = 56;
+  const textWidth = wide ? 570 : width - 2 * x;
+  const wheelSize = wide ? 460 : story ? 650 : square ? 425 : 570;
+  const wheelX = wide ? 695 : (width - wheelSize) / 2;
+  const wheelY = wide ? 78 : story ? 450 : square ? 250 : 278;
+  const brandY = story ? 254 : 82;
+  const resultY = wide ? 282 : wheelY + wheelSize + 15;
+  const resultHeight = wide ? 178 : story ? 255 : 215;
+  const footerY = resultY + resultHeight + 22;
   const winner = session.config.entries[session.winner];
-  target.fillStyle = palette.background;
+  target.fillStyle = palette.blue;
   target.fillRect(0, 0, width, height);
-  target.fillStyle = palette.orange;
-  target.fillRect(0, 0, width, wide ? 7 : 12);
-  const brandY = wide ? 105 : story ? 215 : 92;
-  const brand = 'SPIN BY APP COMPOSER';
-  target.font = '750 30px system-ui';
-  const brandWidth = target.measureText(brand).width + (mark ? 42 : 0);
-  const brandX = wide ? x : (width - brandWidth) / 2;
   target.textAlign = 'left';
-  if (mark) target.drawImage(mark, brandX, brandY - 26, 30, 30);
-  label(target, brand, brandX + (mark ? 42 : 0), brandY, maxText, 30, 750, palette.orange);
-  target.textAlign = wide ? 'left' : 'center';
-  label(target, session.config.question, x, wide ? 170 : story ? 320 : 164, maxText, wide ? 34 : 48, 650, palette.paper);
-  target.drawImage(wheel, wheelX, wheelY, size, size);
-  if (artwork && !frame.title) {
-    const radius = size * .11;
-    const x = wheelX + size / 2;
-    const y = wheelY + size / 2;
-    target.save();
-    target.beginPath();
-    target.arc(x, y, radius, 0, turn);
-    target.clip();
-    target.drawImage(artwork, x - radius, y - radius, radius * 2, radius * 2);
-    target.restore();
-  }
+  if (mark) target.drawImage(mark, x, brandY - 42, 51, 51);
+  const wordmarkX = x + (mark ? 65 : 0);
+  line(target, 'Spin.', wordmarkX, brandY, 150, 57, 700, palette.paper);
+  const attributionX = wordmarkX + target.measureText('Spin.').width + 15;
+  line(target, 'by App Composer', attributionX, brandY, 300, 25, 650, palette.paper);
+  wrapped(target, session.config.question, x, brandY + (story ? 95 : 78), textWidth, wide ? 42 : 49, 700, palette.paper);
+
+  target.drawImage(wheel, wheelX, wheelY, wheelSize, wheelSize);
   target.beginPath();
-  target.moveTo(wheelX + size / 2 - size * .027, wheelY + size * .01);
-  target.lineTo(wheelX + size / 2 + size * .027, wheelY + size * .01);
-  target.lineTo(wheelX + size / 2, wheelY + size * .067);
+  target.moveTo(wheelX + wheelSize * .463, wheelY + wheelSize * .013);
+  target.lineTo(wheelX + wheelSize * .537, wheelY + wheelSize * .013);
+  target.lineTo(wheelX + wheelSize * .5, wheelY + wheelSize * .091);
   target.closePath();
-  target.fillStyle = palette.orange;
+  target.fillStyle = palette.pink;
   target.fill();
-  const resultY = wide ? 305 : wheelY + size + (story ? 140 : 96);
-  label(target, frame.title ?? (winner ? winner + ' wins!' : 'Session ended in a tie'), x, resultY, maxText, wide ? 55 : story ? 78 : 65, 800, palette.paper);
-  const wins = session.totals[session.winner];
+
+  target.fillStyle = palette.acid;
+  target.fillRect(x, resultY, textWidth, resultHeight);
   const spins = session.rounds.length;
-  const score = session.config.entries.length <= 5
-    ? session.config.entries.map((entry, index) => ({ entry, score: session.totals[index] }))
-      .sort((left, right) => right.score - left.score).slice(0, 2).map(({entry, score}) => `${entry} ${score}`).join(' · ')
-    : `${wins} ${wins === 1 ? 'win' : 'wins'} across ${spins} ${spins === 1 ? 'spin' : 'spins'}`;
   const mode = spinModeLabel(session.config.bestOf);
   const count = `${spins} ${spins === 1 ? 'spin' : 'spins'}`;
-  const details = session.config.bestOf === openSpinMode ? `${mode} · ${count}` : session.config.bestOf === 1 ? mode : `${mode} · ${score}`;
-  label(target, frame.note ?? details, x, resultY + (story ? 89 : 62), maxText, wide ? 22 : 30, 600, palette.muted);
-  label(target, 'Replay & verify', x, height - (story ? 190 : 106), maxText, 25, 700, palette.orange);
-  label(target, link, x, height - (story ? 145 : 65), maxText, wide ? 15 : 22, 500, palette.paper);
+  const wins = session.totals[session.winner];
+  const summary = session.config.bestOf === 1 ? mode :
+    `${mode} · ${count}` + (winner ? ` · ${wins} ${wins === 1 ? 'win' : 'wins'}` : '');
+  line(target, frame.note ?? summary, x + 26, resultY + 39, textWidth - 52, wide ? 22 : 28, 700, palette.ink);
+  wrapped(target, frame.title ?? (winner ? winner + ' wins!' : 'It ended in a tie.'), x + 26, resultY + (wide ? 100 : 111),
+    textWidth - 52, wide ? 48 : story ? 72 : 62, 700, palette.ink);
+
+  const qrSize = drawQr(target, qr, x, footerY);
+  line(target, 'Replay the draw', x + qrSize + 20, footerY + 47, textWidth - qrSize - 20, wide ? 24 : 31, 700, palette.paper);
+  line(target, 'spin.loftwah.com', x + qrSize + 20, footerY + 79, textWidth - qrSize - 20, wide ? 20 : 24, 500, palette.paper);
 }
 
 async function loadSpinMark() {
@@ -108,10 +129,9 @@ export async function renderSpinPng(session, link, style, paintWheel) {
   const output = makeCanvas(...sizes[style]);
   const wheel = makeCanvas(560, 560);
   paintWheel(session.config.entries, winnerAngle(session.winner < 0 ? session.rounds.at(-1).winner : session.winner, session.config.entries.length), wheel);
-  const [artwork, mark] = await Promise.all([
-    loadWinnerArtwork(session.config.entries[session.winner]), loadSpinMark(),
-  ]);
-  composition(output, wheel.canvas, session, link, style, {}, artwork, mark);
+  const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready]);
+  const qr = qrMatrix(link);
+  composition(output, wheel.canvas, session, qr, style, {}, mark);
   const blob = await new Promise(resolve => output.canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Image export did not finish.');
   return blob;
@@ -124,9 +144,8 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
   if (document.hidden) throw new Error('Keep Spin visible while exporting the replay.');
   const output = makeCanvas(...sizes.story);
   const wheel = makeCanvas(560, 560);
-  const [artwork, mark] = await Promise.all([
-    loadWinnerArtwork(session.config.entries[session.winner]), loadSpinMark(),
-  ]);
+  const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready]);
+  const qr = qrMatrix(link);
   const rounds = session.rounds.slice(-3);
   const length = session.config.entries.length;
   const introMs = 1550;
@@ -186,7 +205,7 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
           announced = true;
         }
         paintWheel(session.config.entries, angle, wheel);
-        composition(output, wheel.canvas, session, link, 'story', frame, artwork, mark);
+        composition(output, wheel.canvas, session, qr, 'story', frame, mark);
         if (elapsed < duration) frameId = requestAnimationFrame(draw);
         else resolve();
       }
