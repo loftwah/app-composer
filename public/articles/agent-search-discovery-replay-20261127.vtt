@@ -4,6 +4,6 @@ WEBVTT
 The recorded Codex and OpenCode traces show the homepage,
 the advertised search endpoint and the canonical source.
 
-00:00:07.600 --> 00:00:20.400
+00:00:07.600 --> 00:00:17.200
 The browser repeats the recorded GET request.
 Cloudflare Developer Docs returns sourced Markdown.

@@ -77,7 +77,7 @@ Managed search still returned the withdrawn snippet before sync. The next crawl 
 
 The sitemap lacked a published-revision `lastmod` signal. Cloudflare documents that its sitemap crawler revisits pages daily when both `lastmod` and `changefreq` are absent. That could explain why the manual sync left old page text in place. The cause of continued retrieval for the removed URL was not isolated. It could still surface with similarity caching off, so a cache setting alone cannot establish revocation. Automatic expiry remains unmeasured. [Cloudflare website crawl rules](https://developers.cloudflare.com/ai-search/configuration/data-source/website/parse-types/).
 
-The private test deliberately indexed one harmless quoted instruction, which came back as literal text in retrieval. The probe exercised retrieval only. Both fixtures were returned to draft, and the pilot’s public endpoint remained off.
+The private test deliberately indexed one harmless quoted instruction, which came back as literal text in retrieval. The probe exercised retrieval only. Both fixtures were returned to draft. After restoring the exact `/architecture` allowlist and running cleanup, both marker searches returned no results. The private index is paused. At the last read, the account meter showed 12 semantic queries and about 10,160 ingestion tokens. We observed 15 playground submissions, so the meter and request count are reported separately.
 
 ## What to reuse
 

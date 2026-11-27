@@ -158,6 +158,59 @@
     "quotedInstructionScope": "Provider retrieved a quoted inert instruction as data. No generation or downstream instruction-following assertion was made.",
     "disposition": "Pilot stayed private. Both synthetic entries were returned to draft. The include list was restored to /architecture only.",
     "cleanupOriginAt": "2026-11-27T11:35:19.624Z",
-    "restoreFilterAt": "2026-11-27T11:35:41.384Z"
+    "restoreFilterAt": "2026-11-27T11:35:41.384Z",
+    "cleanup": {
+      "origin": {
+        "at": "2026-11-27T11:38:04.240Z",
+        "paths": [
+          {
+            "url": "https://composer.loftwah.com/catalogue/agent-search-update-canary",
+            "status": 404,
+            "hasMarker": false
+          },
+          {
+            "url": "https://composer.loftwah.com/catalogue/agent-search-withdrawal-canary",
+            "status": 404,
+            "hasMarker": false
+          }
+        ],
+        "sitemap": [
+          {
+            "slug": "agent-search-update-canary",
+            "present": false
+          },
+          {
+            "slug": "agent-search-withdrawal-canary",
+            "present": false
+          }
+        ]
+      },
+      "restoredAllowlist": [
+        "https://composer.loftwah.com/architecture"
+      ],
+      "queryAt": [
+        "2026-11-27T11:39:25.760Z",
+        "2026-11-27T11:39:31.546Z"
+      ],
+      "queryResults": [
+        "No results found",
+        "No results found"
+      ],
+      "scheduledPauseAt": "2026-11-27T11:39:43.154Z",
+      "publicEndpoint": "off",
+      "similarityCache": "off"
+    }
+  },
+  "finalAccountMeter": {
+    "checkedAt": "2026-11-27T11:39:55Z",
+    "semanticQueries": 12,
+    "fullTextQueries": 0,
+    "ingestionTokensDisplay": "10.16k",
+    "storageDisplay": "0 GB-mo",
+    "imageTokens": 0,
+    "queriedInstance": "composer-agent-search-01-pilot",
+    "observedPlaygroundSubmissions": 15,
+    "billChargedUsd": null,
+    "precision": "Dashboard display. The three-query difference was not attributed to a specific metering delay or cache behavior."
   }
 }
