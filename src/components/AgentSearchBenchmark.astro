@@ -10,6 +10,7 @@ const seconds = (ms: number | null) => ms === null ? 'Unavailable' : (ms / 1000)
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString('en-AU');
 const bytes = (value: number | null) => value === null ? 'Unavailable' : Math.round(value / 1000) + ' kB';
 const maxSeconds = Math.max(...evidence.views.map(row => row.durationMs ?? 0));
+const externalSource = new URL(evidence.protocol.externalTask.source, evidence.protocol.controlOrigin).href;
 ---
 <section id="agent-search-01" aria-labelledby="agent-search-title">
   <h2 id="agent-search-title">Can agents find our search endpoint?</h2>
@@ -61,7 +62,25 @@ const maxSeconds = Math.max(...evidence.views.map(row => row.durationMs ?? 0));
       </div>
     </details>
   ))}
-  <p class="small">App Composer retrieval uses its maintained Worker index. The separate Cloudflare-managed check used one allowlisted public page in a private instance. Invoice attribution was unavailable.</p>
+  <details class="harness">
+    <summary>How agents discovered Cloudflare Developer Docs</summary>
+    <p>These separate control sessions started at the documentation homepage. The prompt did not name an endpoint.</p>
+    {evidence.controls.map(control => (
+      <section class="control">
+        <h3>{harnesses[control.harness]} · {seconds(control.durationMs)}</h3>
+        <ol>
+          {control.requests.map((request, index) => (
+            <li>
+              <a href={request.url}>{new URL(request.url).pathname}</a>
+              <span>{request.isSearch ? 'Retrieved Markdown' : index === 0 && request.discovered ? 'Advertised the endpoint' : 'Opened source'}</span>
+            </li>
+          ))}
+        </ol>
+        <p><a href={externalSource}>Read the cited Cloudflare guide</a></p>
+      </section>
+    ))}
+  </details>
+  <p class="small">App Composer retrieval uses its maintained Worker index. The first Cloudflare-managed check used one allowlisted public page in a private instance. Invoice attribution was unavailable.</p>
 </section>
 
 <style>
@@ -88,6 +107,9 @@ const maxSeconds = Math.max(...evidence.views.map(row => row.durationMs ?? 0));
   dl > div { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: .4rem; border-top: 1px solid var(--color-border); padding-block: .45rem; }
   dt { color: var(--color-muted); font-size: .84rem; }
   dd { margin: 0; font-size: .87rem; text-align: end; }
+  .control { max-width: 72ch; margin: .8rem 0 1rem; }
+  .control li { padding-block: .22rem; overflow-wrap: anywhere; }
+  .control li span { display: block; font-size: .84rem; color: var(--color-muted); }
   meter { display: block; width: 100%; height: .6rem; margin-top: .17rem; accent-color: var(--color-accent); }
   @media (max-width: 860px) {
     .comparison { grid-template-columns: 1fr; gap: .8rem; }

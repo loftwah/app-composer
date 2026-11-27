@@ -39,9 +39,10 @@
   "invoicesOrUsageAttribution": "No instance metrics were available immediately after the two signed-in searches. Account usage showed zero before creation, not a receipt for this run.",
   "doesNotEstablish": [
     "Native zone endpoint activation for Composer",
-    "Automatic source refresh",
-    "Origin unpublish or positive cache expiry",
-    "Mutable content eligibility"
+    "Automatic recrawl timing",
+    "Complete source update and source withdrawal under repeated query traffic",
+    "Mutable content eligibility",
+    "Invoice attribution"
   ],
   "withdrawal": {
     "mechanism": "Replaced exact include rule for /setup with /architecture; public pages stayed available. Similarity cache off. Scheduled index resumed for the check and paused again.",
@@ -59,5 +60,157 @@
     ],
     "oldSourceInEither": false,
     "managedFreshnessLimit": "Observed by the first post-job query. Source edits, origin unpublish, cache-on removal and external access revocation were not tested."
+  },
+  "initialAccountMeter": {
+    "checkedAt": "2026-11-27T11:23:00Z",
+    "semanticQueries": 4,
+    "fullTextQueries": 0,
+    "ingestionTokensDisplay": "5.87k",
+    "storageDisplay": "0 GB-mo",
+    "imageTokens": 0,
+    "queriedInstance": "composer-agent-search-01-pilot",
+    "billChargedUsd": null,
+    "precision": "Dashboard display, before EmDash canary queries"
+  },
+  "sourceCanaries": {
+    "source": "EmDash production catalogue. Both records were fictional and explicitly admitted by exact URL in the private Cloudflare specimen.",
+    "initialSyncRequestedAt": "2026-11-27T11:27:07.430Z",
+    "initialJobFinishedAt": "2026-11-27T11:30:37.600Z",
+    "initialJobSitemapUrls": 115,
+    "initialJobQueued": 2,
+    "initialSearches": [
+      {
+        "at": "2026-11-27T11:27:46.833Z",
+        "query": "amber heron compass",
+        "result": "Update fixture version one"
+      },
+      {
+        "at": "2026-11-27T11:27:52.061Z",
+        "query": "silver wattle sextant",
+        "result": "Withdrawal fixture with a harmless quoted instruction present as retrieved text"
+      }
+    ],
+    "origin": {
+      "observedAt": "2026-11-27T11:28:53.555Z",
+      "update": {
+        "status": 200,
+        "newMarker": true,
+        "priorMarker": false,
+        "elapsedMs": 168
+      },
+      "withdraw": {
+        "status": 404,
+        "priorMarker": false,
+        "elapsedMs": 184
+      },
+      "sitemap": {
+        "status": 200,
+        "update": true,
+        "withdraw": false
+      }
+    },
+    "originVersionTwoPublishedAt": "2026-11-27T11:28:26.692Z",
+    "queriesAfterOriginChange": [
+      {
+        "at": "2026-11-27T11:28:59.927Z",
+        "query": "silver wattle sextant",
+        "similarityCache": "on",
+        "result": "Withdrawn canonical URL and snippet still returned before sync"
+      },
+      {
+        "at": "2026-11-27T11:32:35.079Z",
+        "query": "silver wattle sextant",
+        "similarityCache": "on",
+        "result": "Withdrawn canonical URL still returned after sync processed the sitemap"
+      },
+      {
+        "at": "2026-11-27T11:32:40.392Z",
+        "query": "copper ibis sundial",
+        "similarityCache": "on",
+        "result": "Version one and withdrawn URL still returned"
+      },
+      {
+        "at": "2026-11-27T11:33:18.224Z",
+        "query": "silver wattle sextant",
+        "similarityCache": "off",
+        "result": "Withdrawn canonical URL still returned"
+      },
+      {
+        "at": "2026-11-27T11:35:00.289Z",
+        "query": "silver wattle sextant",
+        "similarityCache": "off",
+        "result": "Withdrawn canonical URL still returned after dashboard reported Indexed Source"
+      },
+      {
+        "at": "2026-11-27T11:35:05.943Z",
+        "query": "copper ibis sundial",
+        "similarityCache": "off",
+        "result": "Returned version one after dashboard reported Indexed Source"
+      }
+    ],
+    "nextJobStartedAt": "2026-11-27T11:31:08.726Z",
+    "nextJobSitemapUrls": 114,
+    "nextJobQueued": 1,
+    "nextJobFileCheckFinishedAt": "2026-11-27T11:31:51.719Z",
+    "singleItemReindex": "Requested after the cache-off comparison. The item inspector still displayed version one.",
+    "cacheHitObservation": "Instance configuration was observed, but the playground exposed no per-query cache-hit marker.",
+    "publicWorkerSearch": "The anonymous fixed index returned no matches for either synthetic marker.",
+    "quotedInstructionScope": "Provider retrieved a quoted inert instruction as data. No generation or downstream instruction-following assertion was made.",
+    "disposition": "Pilot stayed private. Both synthetic entries were returned to draft. The include list was restored to /architecture only.",
+    "cleanupOriginAt": "2026-11-27T11:35:19.624Z",
+    "restoreFilterAt": "2026-11-27T11:35:41.384Z",
+    "cleanup": {
+      "origin": {
+        "at": "2026-11-27T11:38:04.240Z",
+        "paths": [
+          {
+            "url": "https://composer.loftwah.com/catalogue/agent-search-update-canary",
+            "status": 404,
+            "hasMarker": false
+          },
+          {
+            "url": "https://composer.loftwah.com/catalogue/agent-search-withdrawal-canary",
+            "status": 404,
+            "hasMarker": false
+          }
+        ],
+        "sitemap": [
+          {
+            "slug": "agent-search-update-canary",
+            "present": false
+          },
+          {
+            "slug": "agent-search-withdrawal-canary",
+            "present": false
+          }
+        ]
+      },
+      "restoredAllowlist": [
+        "https://composer.loftwah.com/architecture"
+      ],
+      "queryAt": [
+        "2026-11-27T11:39:25.760Z",
+        "2026-11-27T11:39:31.546Z"
+      ],
+      "queryResults": [
+        "No results found",
+        "No results found"
+      ],
+      "scheduledPauseAt": "2026-11-27T11:39:43.154Z",
+      "publicEndpoint": "off",
+      "similarityCache": "off"
+    }
+  },
+  "finalAccountMeter": {
+    "checkedAt": "2026-11-27T11:39:55Z",
+    "semanticQueries": 12,
+    "fullTextQueries": 0,
+    "ingestionTokensDisplay": "10.16k",
+    "storageDisplay": "0 GB-mo",
+    "imageTokens": 0,
+    "queriedInstance": "composer-agent-search-01-pilot",
+    "observedPlaygroundSubmissions": 15,
+    "billChargedUsd": null,
+    "precision": "Dashboard display. The three-query difference was not attributed to a specific metering delay or cache behavior."
   }
 }
