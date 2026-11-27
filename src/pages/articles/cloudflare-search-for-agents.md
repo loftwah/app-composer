@@ -36,14 +36,18 @@ The benchmark froze eight answerable questions and four unsupported questions. E
 
 Each session had a 75-second time limit and six anonymous same-origin HTTP requests. The client refused off-origin redirects, accepted no credentials, and returned bounded excerpts of page text with the discovery fields. The order rotated by task. Each trial started a new session. Provider prompt-cache hits still appeared in token telemetry. No HTTP cache HIT was observed in the receipt window.
 
+<div class="table-scroll" role="region" aria-label="Session comparison" tabindex="0">
+
 | Harness and arm | Facts complete | Correct with observed citation | Median requests | Median page data | Median time |
-| --- | ---: | ---: | ---: | ---: | ---: |
+| --- | --- | --- | --- | --- | --- |
 | Codex · navigation | 7/8 | 7/8 | 6 | 219 kB | 16.9 s |
 | Codex · endpoint provided | 7/8 | 6/8 | 6 | 32 kB | 17.9 s |
 | Codex · discovery | 5/8 | 5/8 | 6 | 47 kB | 20.3 s |
 | OpenCode · navigation | 7/8 | 7/8 | 5 | 214 kB | 22.2 s |
 | OpenCode · endpoint provided | 7/8 | 6/8 | 6 | 68 kB | 21.9 s |
 | OpenCode · discovery | 7/8 | 7/8 | 6 | 134 kB | 21.4 s |
+
+</div>
 
 Both harnesses abstained on all four unsupported questions in every arm. A human-readable source counted as observed when it appeared in a tool response or a successful canonical fetch. The expected-source and recall-at-five counts are available in the results. Recall excludes Spin, whose recorded historical search cited a different hostname, and the external control, whose chunk format used a different source parser. Codex had fewer fully correct discovery answers. Two responses, for example, explained EmDash’s role and said the available evidence did not establish where independently owned data and releases live.
 
