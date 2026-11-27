@@ -1,10 +1,12 @@
 export const spinExamples = Object.freeze({
   takeaway: 'Australian takeaway',
+  'share-draw': 'The Share film draw',
   'game-night': 'Game night',
   coin: 'Heads or tails',
 });
 
 const loaders = {
+  'share-draw': () => import('../data/spin-examples/share-draw.json', { with: { type: 'json' } }),
   takeaway: () => import('../data/spin-examples/takeaway.json', { with: { type: 'json' } }),
   'game-night': () => import('../data/spin-examples/game-night.json', { with: { type: 'json' } }),
   coin: () => import('../data/spin-examples/coin.json', { with: { type: 'json' } }),
