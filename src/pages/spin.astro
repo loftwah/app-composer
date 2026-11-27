@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { ArrowUpRight, Plus } from '@lucide/astro';
 import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinPresetGroups } from '../lib/spin-presets.mjs';
@@ -31,35 +32,45 @@ const application = JSON.stringify({
   shareAlt={spinArtworkAlt} shareType="image/jpeg" noindex={replay || undefined} focusedExperience spinProduct>
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
-    <header>
-      <h1 data-spin-heading>{replay ? 'Spin replay' : 'Settle it with a spin.'}</h1>
-      <p data-spin-intro>{replay ? 'Watch the recorded wheel and check the result.' : 'A free decision wheel for dinner, game night and anything up for debate.'}</p>
+    <header class="spin-heading">
+      <h1 data-spin-heading>{replay ? 'Spin replay' : 'Give it a spin.'}</h1>
+      <p data-spin-intro>{replay ? 'Watch the recorded wheel and check the result.' : 'Pick dinner, pick a winner, or settle whatever’s up for debate.'}</p>
     </header>
     <div class="play">
-      <div class="wheel-panel">
+      <div class="wheel-panel" data-wheel-panel>
         <div class="wheel-frame">
           <span class="pointer" aria-hidden="true"></span>
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
+          <button type="submit" class="spin-hub" form="spin-setup" data-spin-now aria-label="Spin now"
+            aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
+          <button type="button" class="spin-hub" data-draw aria-label="Spin the wheel" hidden>Spin</button>
         </div>
-        <p class="wheel-status" role="status" data-result>Set up your wheel to start.</p>
+        <p class="wheel-status" role="status" data-result>{replay ? "Opening replay…" : "Loading wheel…" }</p>
         <aside class="winner-art" data-winner-art hidden>
           <img alt="" width="112" height="112" loading="lazy" decoding="async" />
           <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
         </aside>
       </div>
       <div class="controls">
-        <form data-setup hidden={replay}>
-          <h2>Set up your wheel</h2>
-          <button type="button" class="quick-preset" data-quick-chains aria-pressed="false">Maccas, Hungry Jack’s &amp; KFC</button>
-          <div class="button-row ready-actions">
-            <button class="button" type="submit" data-spin-now aria-describedby="spin-link-privacy">Spin now</button>
-            <button type="submit" data-lock-wheel aria-describedby="spin-link-privacy">Lock wheel and get link</button>
+        <form id="spin-setup" data-setup hidden={replay}>
+          <label class="wheel-title">Your wheel <input name="question" required maxlength="100" value="Which fast food should we get?" /></label>
+          <div class="choice-heading">
+            <h2 id="spin-choices">Choices</h2>
+            <p class="note" data-choice-odds></p>
           </div>
-          <p class="note" id="spin-link-privacy">Anyone with the session link can read the question and choices for {spinLifetimeDays} days. Leave personal details out.</p>
-          <button type="button" class="takeaway" data-takeaway>
-            <img src="/spin-brand/food-20261127.webp" alt="" width="72" height="72" />
-            <span><strong>Australian takeaway roulette</strong><small>Fish and chips, kebabs, Maccas and more</small></span>
-          </button>
+          <ol class="choice-list" data-choices-list aria-label="Wheel choices"></ol>
+          <div class="choice-actions">
+            <button type="button" data-add-choice><Plus size={17} aria-hidden="true" /> Add choice</button>
+            <button type="button" data-clear-wheel>Start blank</button>
+          </div>
+          <div class="preset-quick">
+            <button type="button" data-quick-chains aria-pressed="false">
+              <strong>Maccas, Hungry Jack’s &amp; KFC</strong>
+            </button>
+            <button type="button" data-takeaway>
+              <strong>Australian takeaway roulette</strong><ArrowUpRight size={16} aria-hidden="true" />
+            </button>
+          </div>
           <details class="preset-browser">
             <summary>Browse {spinPresetGroups.flatMap(group => group.presets).length} wheel presets</summary>
             <div class="preset-groups">
@@ -78,23 +89,24 @@ const application = JSON.stringify({
             <button type="button" data-favourite aria-pressed="false">Favourite preset</button>
             <button type="button" data-reset>Reset to preset</button>
           </details>
-          <label>Question <input name="question" required maxlength="100" value="What’s for dinner?" /></label>
-          <p class="note" data-choice-odds></p>
           <details class="choice-editor">
-            <summary>Edit or toggle choices</summary>
+            <summary>Paste, search or toggle all</summary>
             <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
             <div class="button-row">
               <button type="button" data-enable="all">Enable all</button>
               <button type="button" data-enable="none">Disable all</button>
-              <button type="button" data-add-choice>Add a choice</button>
             </div>
-            <ol class="choice-list" data-choices-list aria-label="Wheel choices"></ol>
             <label>Paste choices <textarea name="paste" rows="2" placeholder="One choice per line"></textarea></label>
             <button type="button" data-paste-choices>Add pasted choices</button>
             <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
           </details>
-          <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="3" required /></label>
-          <p class="note" data-rules></p>
+          <details class="wheel-options">
+            <summary>Series and session settings</summary>
+            <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="1" required /></label>
+            <p class="note" data-rules></p>
+            <button type="submit" data-lock-wheel aria-describedby="spin-link-privacy">Lock wheel and get link</button>
+          </details>
+          <p class="note session-privacy" id="spin-link-privacy">Session links show the question and choices for {spinLifetimeDays} days.</p>
           <details class="saved-wheels">
             <summary>Saved wheels and favourites</summary>
             <div class="button-row">
@@ -116,14 +128,16 @@ const application = JSON.stringify({
         <section data-session hidden aria-labelledby="spin-question">
           <h2 id="spin-question" data-question></h2>
           <p class="note" data-series></p>
-          <div class="button-row">
-            <button class="button" type="button" data-draw hidden>Spin the wheel</button>
+          <div class="result-actions button-row">
+            <a class="button" href={spinDiscovery.href}>New spin</a>
             <button type="button" data-auto hidden>Spin full series</button>
             <button type="button" data-share>Copy session link</button>
             <button type="button" data-native-share hidden>Share link</button>
             <button type="button" data-refresh>Refresh result</button>
           </div>
-          <div class="button-row" data-exports hidden>
+          <details class="export-settings" data-exports hidden>
+            <summary>Replay and download</summary>
+            <div class="button-row">
             <button type="button" data-replay>Replay last spin</button>
             <button type="button" data-replay-series>Replay the series</button>
             <button type="button" data-png>Save square PNG</button>
@@ -132,7 +146,8 @@ const application = JSON.stringify({
             <button type="button" data-landscape>Save landscape PNG</button>
             <button type="button" data-replay-video>Download replay video</button>
             <button type="button" data-receipt>Download JSON receipt</button>
-          </div>
+            </div>
+          </details>
           <p class="note" data-export-status role="status"></p>
           <p data-verification></p>
           <details data-score-details>
@@ -151,7 +166,6 @@ const application = JSON.stringify({
             <button type="button" data-abandon hidden>Abandon session</button>
             <a data-remix>Use these choices</a>
             <button type="button" data-copy-template>Copy editable wheel link</button>
-            <a href={spinDiscovery.href}>Make a new wheel</a>
           </div>
         </section>
         <p role="alert" data-error></p>
@@ -180,79 +194,109 @@ const application = JSON.stringify({
 
 <style>
   :global(html[data-product='spin']) {
-    --color-background: #211521;
-    --color-foreground: #fff0d7;
-    --color-muted: #cab6c7;
-    --color-border: #765b70;
+    --color-background: #151821;
+    --color-foreground: #fff4e4;
+    --color-muted: #b9bdd0;
+    --color-border: #505772;
     --color-accent: #ff936b;
+    --spin-field: #1c2130;
+    --spin-selection: #3a2a28;
   }
   :global(html[data-product='spin'][data-theme='light']) {
-    --color-background: #fff6e5;
-    --color-foreground: #29192b;
-    --color-muted: #674a61;
-    --color-border: #ab849d;
-    --color-accent: #ad3926;
+    --color-background: #f8f4eb;
+    --color-foreground: #191c2a;
+    --color-muted: #50566a;
+    --color-border: #9d9baa;
+    --color-accent: #a33113;
+    --spin-field: #fffdf8;
+    --spin-selection: #ffe6d4;
   }
-  .spin { max-width: 1080px; margin-inline: auto; padding-bottom: 48px; }
-  header { padding-block: 12px 22px; }
-  h1 { font-size: clamp(2.25rem, 6vw, 4.4rem); line-height: 1; letter-spacing: -.035em; margin: 0 0 10px; }
-  header p { margin: 0; color: var(--color-muted); font-size: 1.08rem; }
-  .play { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); align-items: start; gap: clamp(16px, 5vw, 60px); }
-  .wheel-panel { align-self: start; position: sticky; top: 100px; }
-  .wheel-frame { width: min(100%, 560px); position: relative; margin-inline: auto; }
-  canvas { width: 100%; height: auto; display: block; }
-  .pointer { width: 0; height: 0; border-inline: 13px solid transparent; border-top: 26px solid var(--color-foreground); position: absolute; z-index: 1; top: 2px; left: 50%; transform: translateX(-50%); }
-  .wheel-status { text-align: center; font-weight: 650; font-size: clamp(1.15rem, 3vw, 1.6rem); margin: 8px 0; text-wrap: balance; }
-  .controls { border-top: 1px solid var(--color-border); padding-top: 14px; min-width: 0; }
-  h2 { margin: 0 0 10px; font-size: clamp(1.4rem, 3vw, 1.95rem); overflow-wrap: anywhere; }
+  .spin { max-width: 1190px; margin-inline: auto; }
+  .spin-heading { padding-block: clamp(14px, 3.1vw, 40px) 19px; }
+  .spin-heading h1 { max-width: none; margin: 0 0 7px; font-size: clamp(2.3rem, 5.6vw, 4.55rem); letter-spacing: -.035em; }
+  .spin-heading p { margin: 0; color: var(--color-muted); font-size: clamp(.88rem, 1.7vw, 1.08rem); }
+  .play { display: grid; grid-template-columns: minmax(310px, .77fr) minmax(0, 1.23fr); grid-template-areas: 'editor wheel'; align-items: start; gap: clamp(20px, 5vw, 64px); }
+  .controls { grid-area: editor; min-width: 0; }
+  .wheel-panel {
+    grid-area: wheel; min-width: 0; padding: clamp(13px, 2.2vw, 30px) clamp(12px, 3vw, 36px) 20px;
+    border-radius: 16px; color: #fff4e4; background: #2839b6;
+    display: grid; justify-items: center; align-self: start;
+  }
+  .wheel-frame { width: min(100%, 505px); position: relative; }
+  canvas { display: block; width: 100%; height: auto; filter: drop-shadow(0 15px 18px #0b15486b); }
+  .pointer {
+    position: absolute; z-index: 2; top: 1%; left: 50%; width: clamp(24px, 4.7vw, 42px);
+    height: clamp(29px, 5.3vw, 50px); translate: -50% 0;
+    background: #fff2d8; clip-path: polygon(4% 0, 96% 0, 83% 52%, 50% 100%, 17% 52%);
+  }
+  .wheel-frame .spin-hub {
+    position: absolute; inset: 50% auto auto 50%; translate: -50% -50%;
+    width: 20.8%; height: auto; aspect-ratio: 1; min-height: 44px; padding: 0;
+    border-radius: 50%; border: 4px solid #171a27; color: #191c2a; background: #fff2d8;
+    font: 700 clamp(1rem, 3.25vw, 1.8rem)/1 Space, sans-serif; box-shadow: 0 4px 0 #111321;
+  }
+  .wheel-frame .spin-hub:hover { background: #ffd275; }
+  .wheel-frame .spin-hub:active { transform: translateY(3px); box-shadow: 0 1px 0 #111321; }
+  .wheel-frame .spin-hub:focus-visible { outline: 3px solid #fff4e4; outline-offset: 4px; }
+  .wheel-frame .spin-hub:disabled { color: #eee8d7; background: #454a60; opacity: 1; cursor: default; }
+  .wheel-status { font: 700 clamp(1rem, 2.7vw, 1.3rem)/1.2 Space, sans-serif; margin: 10px 0 0; text-align: center; text-wrap: balance; }
+  [data-state='completed'] .wheel-status { font-size: clamp(1.9rem, 5vw, 3.1rem); }
+  h2 { margin: 0 0 8px; font-size: clamp(1.35rem, 3vw, 1.8rem); overflow-wrap: anywhere; }
   form { display: grid; gap: 10px; }
   form[hidden], [hidden] { display: none; }
-  label { display: grid; gap: 4px; margin: 0; font-weight: 600; }
-  input, textarea, select { font: inherit; width: 100%; min-height: 44px; padding: 8px 10px; color: var(--color-foreground); background: var(--color-background); border: 1px solid var(--color-border); border-radius: 6px; }
-  .series { grid-template-columns: max-content 84px; align-items: center; gap: 12px; }
-  .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  button:not(.button) { min-height: 44px; padding: 6px 11px; border: 1px solid var(--color-border); border-radius: 6px; background: transparent; color: var(--color-foreground); font: inherit; cursor: pointer; }
-  .spin button:not(.button)[aria-pressed='true'] { background: var(--color-accent); color: var(--color-background); }
-  button:disabled { opacity: .65; cursor: default; }
-  .note { color: var(--color-muted); font-size: .91rem; margin: 0 0 6px; }
-  .scores { list-style: none; margin: 14px 0; padding: 0; font-variant-numeric: tabular-nums; }
-  .scores :global(li) { padding: 6px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; }
-  .scores :global(.winner) { color: var(--color-accent); font-weight: 700; }
-  [data-exports], .secondary-actions { margin-top: 10px; }
-  summary { cursor: pointer; padding-block: 9px; }
+  label { display: grid; gap: 2px; margin: 0; font-weight: 650; }
+  input, textarea, select { font: inherit; width: 100%; min-height: 44px; padding: 7px 10px; margin: 0; color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border); border-radius: 7px; }
+  textarea { min-height: 75px; }
+  .wheel-title { font-size: .86rem; color: var(--color-muted); }
+  .wheel-title input { padding-inline: 0; background: transparent; border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; font: 700 clamp(1.2rem, 2.25vw, 1.65rem)/1.2 Space, sans-serif; }
+  .choice-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; flex-wrap: wrap; margin-bottom: -7px; }
+  .choice-heading h2 { font-size: 1.08rem; margin: 0; }
+  .choice-heading p { margin: 0; font-size: .82rem; }
+  .choice-list { list-style: none; display: block; margin: 0; padding: 0; max-height: 16.8rem; overflow-y: auto; }
+  .choice-list :global(li) { display: grid; grid-template-columns: 39px minmax(0, 1fr) 32px 32px 42px; gap: 3px; align-items: center; margin: 0; padding: 1px 3px; min-height: 44px; border-bottom: 1px solid var(--color-border); }
+  .choice-list :global(label) { display: flex; align-items: center; gap: 3px; min-height: 43px; margin: 0; cursor: pointer; }
+  .choice-list :global(label span) { color: var(--color-muted); font-size: .69rem; }
+  .choice-list :global(input[type='checkbox']) { width: 20px; height: 20px; margin: 0; accent-color: #cc4b26; }
+  .choice-list :global(input[type='text']) { min-height: 41px; width: 100%; font: inherit; font-size: 1rem; padding: 2px 4px; color: var(--color-foreground); background: transparent; border: 0; margin: 0; border-radius: 4px; }
+  .choice-list :global(button) { min-height: 40px; padding: 0; font: 650 1.2rem/1 system-ui; color: var(--color-foreground); background: transparent; border: 0; }
+  .choice-list :global(button:hover) { background: var(--spin-field); }
+  .choice-list :global(button:disabled) { opacity: .35; cursor: default; }
+  .choice-actions, .button-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .spin button:not(.spin-hub, .button) { min-height: 44px; padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 7px; background: transparent; color: var(--color-foreground); font-size: .9rem; }
+  .spin button:not(.spin-hub, .button):hover { background: var(--spin-field); }
+  .spin button:not(.spin-hub, .button)[aria-pressed='true'] { background: var(--spin-selection); border-color: var(--color-accent); color: var(--color-foreground); }
+  .spin button:disabled { cursor: default; }
+  .preset-quick { display: flex; flex-wrap: wrap; gap: 7px; padding-block: 3px; }
+  .preset-quick button { text-align: left; justify-content: space-between; }
+  .preset-quick strong { font-weight: 640; }
+  .series { grid-template-columns: max-content 79px; align-items: center; gap: 12px; }
+  .note { color: var(--color-muted); font-size: .88rem; margin: 0 0 3px; }
+  form details, [data-session] details { border-top: 1px solid var(--color-border); margin: 0; }
+  form details > * + *, [data-session] details > * + * { margin-block-end: 8px; }
+  summary { cursor: pointer; padding-block: 8px; }
   details code { overflow-wrap: anywhere; }
+  .preset-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .preset-groups label { grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 6px; }
+  .preset-groups img { display: block; border-radius: 5px; }
+  .result-actions, .secondary-actions { margin-block: 12px; }
+  [data-verification] { display: inline-block; color: var(--color-foreground); background: var(--spin-field); padding: 8px 12px; border-radius: 7px; }
+  .scores { list-style: none; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
+  .scores :global(li) { padding: 4px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; }
+  .scores :global(.winner) { color: var(--color-accent); font-weight: 700; }
   [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
-  .secondary-actions a { align-self: center; }
-  :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
-  .quick-preset, button.takeaway { justify-content: flex-start; text-align: start; }
-  .ready-actions > button { flex: 1 1 auto; min-height: 44px; }
-  .takeaway { display: flex; align-items: center; text-align: left; gap: 14px; }
-  .takeaway img, .preset-groups img, .winner-art img { display: block; flex: none; border-radius: 8px; }
-  .takeaway small { display: block; color: var(--color-muted); }
-  form details { border-block-start: 1px solid var(--color-border); }
-  form details > * + * { margin-block-end: 8px; }
-  .preset-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .preset-groups label { grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 8px; }
-  .choice-list { list-style: none; margin: 8px 0; padding: 0; max-height: 25rem; overflow-y: auto; }
-  .choice-list :global(li) { display: grid; grid-template-columns: 46px minmax(0, 1fr) 36px 36px auto; gap: 4px; align-items: center; padding: 4px 1px; }
-  .choice-list :global(label) { display: flex; align-items: center; min-height: 44px; cursor: pointer; }
-  .choice-list :global(label span) { color: var(--color-muted); font-size: .75rem; }
-  .choice-list :global(input[type='checkbox']) { width: 21px; height: 21px; min-height: 0; accent-color: var(--color-accent); }
-  .choice-list :global(input[type='text']) { min-height: 42px; width: 100%; font: inherit; padding: 4px 5px; color: var(--color-foreground); background: var(--color-background); border: 1px solid var(--color-border); border-radius: 6px; }
-  .choice-list :global(button) { min-height: 44px; padding-inline: 4px; font: inherit; font-size: .83rem; color: var(--color-foreground); background: transparent; border: 1px solid var(--color-border); border-radius: 6px; cursor: pointer; }
-  .choice-list :global(button:disabled) { opacity: .46; cursor: default; }
-  .winner-art { margin-block: 12px; display: flex; justify-content: center; align-items: center; gap: 12px; }
-  .winner-art [hidden] { display: none; }
-  .winner-art a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; }
-  .spin-guide { margin-top: clamp(42px, 8vw, 90px); border-top: 1px solid var(--color-border); padding-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 4vw, 40px); align-items: center; }
-  .spin-guide[hidden] { display: none; }
+  .secondary-actions a, .winner-art a { align-self: center; text-decoration: underline; text-underline-offset: .22em; }
+  .winner-art { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 13px; }
+  .winner-art img { display: block; width: 74px; height: 74px; border-radius: 9px; }
+  .winner-art a { min-height: 44px; display: inline-flex; align-items: center; font-size: .9rem; }
+  .spin-guide { margin-top: clamp(36px, 6vw, 74px); border-top: 1px solid var(--color-border); padding-block: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 4vw, 36px); align-items: center; }
   .spin-guide img { display: block; width: 100%; height: auto; border-radius: 12px; }
   .spin-guide p { color: var(--color-muted); }
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; margin-inline-end: 12px; }
-  @media (max-width: 750px) {
-    .play, .spin-guide { grid-template-columns: 1fr; }
-    .wheel-panel { position: static; }
-    .wheel-frame { width: min(64vw, 320px); }
-    .preset-groups { grid-template-columns: 1fr; }
+  :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
+  @media (max-width: 760px) {
+    .play { grid-template-columns: 1fr; grid-template-areas: 'wheel' 'editor'; }
+    .wheel-frame { width: min(100%, 320px); }
+    .spin-guide, .preset-groups { grid-template-columns: 1fr; }
+    .wheel-panel { padding-block-start: 10px; }
   }
 </style>

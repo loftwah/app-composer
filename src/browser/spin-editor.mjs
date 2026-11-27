@@ -24,11 +24,11 @@ export function nearbySearch(winner) {
   return 'https://www.google.com/maps/search/?' + new URLSearchParams({ api: '1', query });
 }
 
-export function mountSpinEditor(form, onPreview) {
+export function mountSpinEditor(form, spinButton, onPreview) {
   const find = key => form.querySelector('[data-' + key + ']');
   const { question, bestOf, suburb, paste } = form.elements;
   const prefs = readPreferences();
-  let draft = prefs.draft ?? fromPreset('dinner');
+  let draft = prefs.draft ?? fromPreset('fast-food-three');
   const template = new URLSearchParams(location.hash.slice(1)).get('wheel');
   if (template) {
     try {
@@ -57,12 +57,14 @@ export function mountSpinEditor(form, onPreview) {
   };
 
   function update() {
-    const count = active().length;
+    const entries = active();
+    const count = entries.length;
+    const distinct = new Set(entries.map(entry => entry.normalize('NFC').toLocaleLowerCase('en-AU'))).size === count;
     const odds = count < 2 ? 'Enable at least two different choices.' :
       `${count} enabled · ${new Intl.NumberFormat('en-AU', { style: 'percent', maximumFractionDigits: 2 }).format(1 / count)} each at the start`;
-    find('choice-odds').textContent = odds;
-    find('lock-wheel').disabled = count < 2;
-    find('spin-now').disabled = count < 2;
+    find('choice-odds').textContent = distinct ? odds : 'Use different names for each choice.';
+    find('lock-wheel').disabled = count < 2 || !distinct;
+    spinButton.disabled = count < 2 || !distinct;
     persist();
     onPreview(active());
   }
@@ -125,7 +127,7 @@ export function mountSpinEditor(form, onPreview) {
       };
       const remove = document.createElement('button');
       remove.type = 'button';
-      remove.textContent = 'Remove';
+      remove.textContent = '×';
       remove.setAttribute('aria-label', 'Remove choice ' + (index + 1));
       remove.addEventListener('click', () => {
         draft.choices.splice(index, 1);
@@ -181,7 +183,11 @@ export function mountSpinEditor(form, onPreview) {
   for (const picker of presetPickers) picker.addEventListener('change', () => pick(picker.value));
   find('quick-chains').addEventListener('click', () => {
     pick('fast-food-three');
-    find('spin-now').focus();
+    spinButton.focus();
+  });
+  find('clear-wheel').addEventListener('click', () => {
+    pick('custom');
+    question.focus();
   });
   find('takeaway').addEventListener('click', () => pick('takeaway'));
   find('reset').addEventListener('click', () => pick(draft.preset));

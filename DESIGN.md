@@ -333,3 +333,15 @@ at icon sizes. Plum, cream, coral and teal carry the illustrated product
 identity through the wheel, cards and takeaway art. Use the supplied light and
 dark lockups on their matching backgrounds. The first view offers a quick spin
 and a separate commitment-first action before the optional wheel editor.
+
+
+## Spin play surface — 27 November 2026
+
+The wheel is the main control. Its enamel colours, index ring and mechanical
+pointer carry the design. Contrast the blue stage with ink or paper according
+to theme. On a laptop the editor shares the first viewport with the full
+wheel. On a phone the stage and its centre button sit above the editable
+choices. Start with the three fast-food choices on a clean device. Saved
+wheels retain their own selections. Place series rules, link-first creation and
+bulk editing in disclosures. Keep the recorded result, replay and download paths
+with the same stage so the outcome is legible before the technical receipt.

@@ -18,7 +18,7 @@ function mount(root) {
   const currentId = new URL(location.href).searchParams.get('session');
   const example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
-  const colors = ['#ff946b', '#ffe0a5', '#4eb8aa', '#c9acf0', '#f395b4', '#b7ce78', '#92d2f2'];
+  const colors = ['#ff704a', '#ffcb55', '#a7d5fd', '#c2aff8', '#f8a6c3', '#c5e08b', '#a3e3cd'];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tau = Math.PI * 2;
   let session;
@@ -50,40 +50,72 @@ function mount(root) {
     const center = context.canvas.width / 2;
     const choices = labels.length > 1 ? labels : ['Add choices', 'Start a wheel'];
     const step = tau / choices.length;
-    context.clearRect(0, 0, context.canvas.width, canvas.height);
+    const disc = center - 38;
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     context.save();
     context.translate(center, center);
-    context.rotate(offset - Math.PI / 2 - step / 2);
+
+    context.beginPath();
+    context.arc(0, 0, center - 11, 0, tau);
+    context.fillStyle = '#171a27';
+    context.fill();
+    context.strokeStyle = '#8292b0';
+    context.lineWidth = 2;
+    context.stroke();
+
+    for (let tick = 0; tick < 72; tick++) {
+      const bearing = offset + tick * tau / 72;
+      const inside = center - (tick % 6 === 0 ? 32 : 26);
+      const outside = center - 17;
+      context.beginPath();
+      context.moveTo(Math.cos(bearing) * inside, Math.sin(bearing) * inside);
+      context.lineTo(Math.cos(bearing) * outside, Math.sin(bearing) * outside);
+      context.strokeStyle = tick % 6 === 0 ? '#f6ebda' : '#9ba9c3';
+      context.lineWidth = tick % 6 === 0 ? 3 : 1.4;
+      context.stroke();
+    }
+
+    const labelSize = choices.length < 5 ? 29 : 22;
     choices.forEach((label, index) => {
-      context.save();
-      context.rotate(index * step);
+      const bearing = offset - Math.PI / 2 + index * step;
       context.beginPath();
       context.moveTo(0, 0);
-      context.arc(0, 0, center - 14, 0, step);
+      context.arc(0, 0, disc, bearing - step / 2, bearing + step / 2);
       context.closePath();
       context.fillStyle = colors[index % colors.length];
       context.fill();
-      context.strokeStyle = '#211521';
+      context.strokeStyle = '#171a27';
       context.lineWidth = 3;
       context.stroke();
-      context.rotate(step / 2);
-      context.fillStyle = '#15161a';
-      context.font = '700 20px system-ui';
-      const facingLeft = Math.cos(offset - Math.PI / 2 + index * step) < -.01;
-      if (facingLeft) context.rotate(Math.PI);
-      context.textAlign = facingLeft ? 'left' : 'right';
-      context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, 164),
-        (center - 43) * (facingLeft ? -1 : 1), 7);
+
+      const radius = choices.length < 5 ? disc * .68 : disc * .75;
+      context.save();
+      context.translate(Math.cos(bearing) * radius, Math.sin(bearing) * radius);
+      if (choices.length > 6 && choices.length <= 12) {
+        context.rotate(Math.cos(bearing) < 0 ? bearing + Math.PI : bearing);
+      }
+      context.fillStyle = '#171a27';
+      context.font = `750 ${labelSize}px system-ui`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      const splitAt = label.lastIndexOf(' ');
+      if (choices.length <= 4 && splitAt > 0 && context.measureText(label).width > 145) {
+        context.fillText(fit(context, label.slice(0, splitAt), 145), 0, -labelSize * .53);
+        context.fillText(fit(context, label.slice(splitAt + 1), 145), 0, labelSize * .53);
+      } else {
+        context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, choices.length > 6 ? 115 : 160), 0, 0);
+      }
       context.restore();
     });
-    context.restore();
+
     context.beginPath();
-    context.arc(center, center, 37, 0, tau);
-    context.fillStyle = '#17181b';
+    context.arc(0, 0, 59, 0, tau);
+    context.fillStyle = '#171a27';
     context.fill();
-    context.strokeStyle = '#fff0dc';
-    context.lineWidth = 4;
+    context.strokeStyle = '#fff4dd';
+    context.lineWidth = 3;
     context.stroke();
+    context.restore();
   }
 
   function updatePreview(labels) {
@@ -103,6 +135,8 @@ function mount(root) {
     if (get('spin-guide')) get('spin-guide').hidden = true;
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
+    get('spin-now').hidden = true;
+    get('wheel-panel').dataset.state = next.status;
     get('session').hidden = false;
     get('question').textContent = next.config.question;
     const series = next.status === 'open' && next.tieBreak ? 'The next spin is a tie-break.' : rules(next.config);
@@ -214,6 +248,7 @@ function mount(root) {
     const distance = (target - start + 8 * tau) % tau + 4 * tau;
     const at = performance.now();
     let segment = -1;
+    get('wheel-panel').dataset.state = 'spinning';
     showResult('Spinning…');
     return new Promise(resolve => {
       function frame(now) {
@@ -243,7 +278,7 @@ function mount(root) {
     download(blob, `spin-${session.id.slice(0, 8)}-${style}.png`);
   }
 
-  const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, updatePreview);
+  const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, get('spin-now'), updatePreview);
   setup.addEventListener('submit', event => {
     event.preventDefault();
     void perform(async () => {

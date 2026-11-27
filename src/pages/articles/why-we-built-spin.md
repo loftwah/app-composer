@@ -2,9 +2,9 @@
 layout: "../../layouts/Article.astro"
 title: "Why we built App Composer Spin"
 description: "A wheel for the everyday decisions that go round in circles, with a replay your friends can check."
-cover: "/spin-brand/decision-wheel-20261127b.jpg"
-coverAlt: "A colourful decision wheel with fish and chips, a game controller and a cup of coffee."
-coverCaption: "Original AI-generated illustration for App Composer Spin. The title and lettering were added separately."
+cover: "/campaign/spin/pick-a-side-20261127.jpg"
+coverAlt: "The words Pick a side beside a mechanical wheel, takeaway paper and chips."
+coverCaption: "Original AI-generated campaign artwork for App Composer Spin."
 published: "2026-11-27"
 ---
 
@@ -43,4 +43,4 @@ Set a suburb or postcode such as Sunbury VIC 3429. Spin remembers the area on yo
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/composer-spin-lockup-dark-20261127b.png) · [Logo for light backgrounds](/spin-brand/composer-spin-lockup-light-20261127b.png) · [App icon](/spin-brand/icon-512.png) · [Social preview](/spin-brand/decision-wheel-20261127b.jpg)
+[Logo for dark backgrounds](/spin-brand/composer-spin-lockup-dark-20261127b.png) · [Logo for light backgrounds](/spin-brand/composer-spin-lockup-light-20261127b.png) · [App icon](/spin-brand/icon-512.png) · [Social preview](/campaign/spin/pick-a-side-20261127.jpg)
