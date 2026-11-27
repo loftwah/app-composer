@@ -51,10 +51,15 @@ function composition(target, wheel, session, link, style, frame, artwork, mark) 
   target.fillRect(0, 0, width, height);
   target.fillStyle = palette.orange;
   target.fillRect(0, 0, width, wide ? 7 : 12);
-  target.textAlign = wide ? 'left' : 'center';
   const brandY = wide ? 105 : story ? 215 : 92;
-  if (mark) target.drawImage(mark, wide ? x : x - 174, brandY - 28, 30, 30);
-  label(target, 'SPIN BY APP COMPOSER', x + (mark ? (wide ? 43 : 16) : 0), brandY, maxText, 30, 750, palette.orange);
+  const brand = 'SPIN BY APP COMPOSER';
+  target.font = '750 30px system-ui';
+  const brandWidth = target.measureText(brand).width + (mark ? 42 : 0);
+  const brandX = wide ? x : (width - brandWidth) / 2;
+  target.textAlign = 'left';
+  if (mark) target.drawImage(mark, brandX, brandY - 26, 30, 30);
+  label(target, brand, brandX + (mark ? 42 : 0), brandY, maxText, 30, 750, palette.orange);
+  target.textAlign = wide ? 'left' : 'center';
   label(target, session.config.question, x, wide ? 170 : story ? 320 : 164, maxText, wide ? 34 : 48, 650, palette.paper);
   target.drawImage(wheel, wheelX, wheelY, size, size);
   if (artwork && !frame.title) {
@@ -77,11 +82,14 @@ function composition(target, wheel, session, link, style, frame, artwork, mark) 
   target.fill();
   const resultY = wide ? 305 : wheelY + size + (story ? 140 : 96);
   label(target, frame.title ?? winner + ' wins!', x, resultY, maxText, wide ? 55 : story ? 78 : 65, 800, palette.paper);
+  const wins = session.totals[session.winner];
+  const spins = session.rounds.length;
+  const series = session.config.bestOf === 1 ? 'Single spin' : `Best of ${session.config.bestOf}`;
   const score = session.config.entries.length <= 5
     ? session.config.entries.map((entry, index) => ({ entry, score: session.totals[index] }))
       .sort((left, right) => right.score - left.score).slice(0, 2).map(({entry, score}) => `${entry} ${score}`).join(' · ')
-    : `${session.totals[session.winner]} wins across ${session.rounds.length} spins`;
-  label(target, frame.note ?? `Best of ${session.config.bestOf} · ${score}`, x, resultY + (story ? 89 : 62), maxText, wide ? 22 : 30, 600, palette.muted);
+    : `${wins} ${wins === 1 ? 'win' : 'wins'} across ${spins} ${spins === 1 ? 'spin' : 'spins'}`;
+  label(target, frame.note ?? `${series} · ${score}`, x, resultY + (story ? 89 : 62), maxText, wide ? 22 : 30, 600, palette.muted);
   label(target, 'Replay & verify', x, height - (story ? 190 : 106), maxText, 25, 700, palette.orange);
   label(target, link, x, height - (story ? 145 : 65), maxText, wide ? 15 : 22, 500, palette.paper);
 }
@@ -150,7 +158,7 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
         let angle = 0;
         let frame = {};
         if (elapsed < introMs) {
-          frame = { title: 'The replay', note: `Best of ${session.config.bestOf} · Recorded rounds` };
+          frame = { title: 'The replay', note: session.config.bestOf === 1 ? 'Single recorded spin' : `Best of ${session.config.bestOf} · Recorded rounds` };
         } else if (elapsed < end) {
           const index = Math.floor((elapsed - introMs) / roundMs);
           const round = rounds[index];
