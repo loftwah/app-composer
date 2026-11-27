@@ -1,7 +1,8 @@
+import { spinBrandFiles } from '../lib/spin-site.mjs';
 import { loadWinnerArtwork } from './spin-winner-art.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
 
-const palette = { background: '#0d2032', paper: '#f5fcff', coral: '#ff8a52', muted: '#b4cddc' };
+const palette = { background: '#17181b', paper: '#faf9f7', orange: '#fc5b05', muted: '#d4ceca' };
 const sizes = {
   square: [1080, 1080], portrait: [1080, 1350], story: [1080, 1920], landscape: [1200, 630],
 };
@@ -36,7 +37,7 @@ function label(context, value, x, y, width, size, weight, colour) {
   context.fillText(short === value ? short : short + '…', x, y);
 }
 
-function composition(target, wheel, session, link, style, frame, artwork, composer) {
+function composition(target, wheel, session, link, style, frame, artwork, mark) {
   const { width, height } = target.canvas;
   const wide = style === 'landscape';
   const story = style === 'story';
@@ -48,12 +49,12 @@ function composition(target, wheel, session, link, style, frame, artwork, compos
   const winner = session.config.entries[session.winner];
   target.fillStyle = palette.background;
   target.fillRect(0, 0, width, height);
-  target.fillStyle = palette.coral;
+  target.fillStyle = palette.orange;
   target.fillRect(0, 0, width, wide ? 7 : 12);
   target.textAlign = wide ? 'left' : 'center';
   const brandY = wide ? 105 : story ? 215 : 92;
-  if (composer) target.drawImage(composer, wide ? x : x - 174, brandY - 28, 30, 30);
-  label(target, 'APP COMPOSER SPIN', x + (composer ? (wide ? 43 : 16) : 0), brandY, maxText, 30, 750, palette.coral);
+  if (mark) target.drawImage(mark, wide ? x : x - 174, brandY - 28, 30, 30);
+  label(target, 'SPIN BY APP COMPOSER', x + (mark ? (wide ? 43 : 16) : 0), brandY, maxText, 30, 750, palette.orange);
   label(target, session.config.question, x, wide ? 170 : story ? 320 : 164, maxText, wide ? 34 : 48, 650, palette.paper);
   target.drawImage(wheel, wheelX, wheelY, size, size);
   if (artwork && !frame.title) {
@@ -72,7 +73,7 @@ function composition(target, wheel, session, link, style, frame, artwork, compos
   target.lineTo(wheelX + size / 2 + size * .027, wheelY + size * .01);
   target.lineTo(wheelX + size / 2, wheelY + size * .067);
   target.closePath();
-  target.fillStyle = palette.paper;
+  target.fillStyle = palette.orange;
   target.fill();
   const resultY = wide ? 305 : wheelY + size + (story ? 140 : 96);
   label(target, frame.title ?? winner + ' wins!', x, resultY, maxText, wide ? 55 : story ? 78 : 65, 800, palette.paper);
@@ -81,13 +82,13 @@ function composition(target, wheel, session, link, style, frame, artwork, compos
       .sort((left, right) => right.score - left.score).slice(0, 2).map(({entry, score}) => `${entry} ${score}`).join(' · ')
     : `${session.totals[session.winner]} wins across ${session.rounds.length} spins`;
   label(target, frame.note ?? `Best of ${session.config.bestOf} · ${score}`, x, resultY + (story ? 89 : 62), maxText, wide ? 22 : 30, 600, palette.muted);
-  label(target, 'Replay & verify', x, height - (story ? 190 : 106), maxText, 25, 700, palette.coral);
+  label(target, 'Replay & verify', x, height - (story ? 190 : 106), maxText, 25, 700, palette.orange);
   label(target, link, x, height - (story ? 145 : 65), maxText, wide ? 15 : 22, 500, palette.paper);
 }
 
-async function loadComposerMark() {
+async function loadSpinMark() {
   const logo = new Image();
-  logo.src = '/brand/composer-icon-20261022b-96.png';
+  logo.src = spinBrandFiles.mark;
   try { await logo.decode(); } catch { return null; }
   return logo;
 }
@@ -96,10 +97,10 @@ export async function renderSpinPng(session, link, style, paintWheel) {
   const output = makeCanvas(...sizes[style]);
   const wheel = makeCanvas(560, 560);
   paintWheel(session.config.entries, winnerAngle(session.winner, session.config.entries.length), wheel);
-  const [artwork, composer] = await Promise.all([
-    loadWinnerArtwork(session.config.entries[session.winner]), loadComposerMark(),
+  const [artwork, mark] = await Promise.all([
+    loadWinnerArtwork(session.config.entries[session.winner]), loadSpinMark(),
   ]);
-  composition(output, wheel.canvas, session, link, style, {}, artwork, composer);
+  composition(output, wheel.canvas, session, link, style, {}, artwork, mark);
   const blob = await new Promise(resolve => output.canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Image export did not finish.');
   return blob;
@@ -112,8 +113,8 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
   if (document.hidden) throw new Error('Keep Spin visible while exporting the replay.');
   const output = makeCanvas(...sizes.story);
   const wheel = makeCanvas(560, 560);
-  const [artwork, composer] = await Promise.all([
-    loadWinnerArtwork(session.config.entries[session.winner]), loadComposerMark(),
+  const [artwork, mark] = await Promise.all([
+    loadWinnerArtwork(session.config.entries[session.winner]), loadSpinMark(),
   ]);
   const rounds = session.rounds.slice(-3);
   const length = session.config.entries.length;
@@ -174,7 +175,7 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
           announced = true;
         }
         paintWheel(session.config.entries, angle, wheel);
-        composition(output, wheel.canvas, session, link, 'story', frame, artwork, composer);
+        composition(output, wheel.canvas, session, link, 'story', frame, artwork, mark);
         if (elapsed < duration) frameId = requestAnimationFrame(draw);
         else resolve();
       }

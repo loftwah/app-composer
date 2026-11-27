@@ -1,8 +1,9 @@
 import { spinChoiceLimit, validateSpinConfig } from '../lib/spin-protocol.mjs';
 import { recommendTakeaway } from '../lib/spin-tastes.mjs';
-import { spinPresetById } from '../lib/spin-presets.mjs';
+import { spinPresetById, spinPresetGroups } from '../lib/spin-presets.mjs';
 
 const storageKey = 'composer-spin-wheels-v1';
+const foodPresets = new Set(spinPresetGroups.find(group => group.id === 'food').presets.map(preset => preset.id));
 
 function readPreferences() {
   try {
@@ -53,7 +54,10 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   const list = find('choices-list');
   const search = find('choice-search');
   const message = find('editor-message');
-  const presetPickers = [...form.querySelectorAll('[data-preset-picker]')];
+  const presets = form.closest('.play').querySelector('[data-spin-presets]');
+  const fastFood = presets.querySelector('[data-quick-chains]');
+  const quickPresets = [...presets.querySelectorAll('[data-quick-preset]')];
+  const presetPickers = [...presets.querySelectorAll('[data-preset-picker]')];
 
   const active = () => draft.choices.filter(item => item.enabled && item.label.trim()).map(item => item.label.trim());
   const persist = () => {
@@ -76,7 +80,9 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     find('lock-wheel').disabled = count < 2 || !distinct;
     spinButton.disabled = count < 2 || !distinct;
     persist();
-    onPreview(active());
+    const foodIdeas = foodPresets.has(draft.preset) || draft.preset === 'custom';
+    find('taste-cloud').hidden = !foodIdeas;
+    onPreview(entries, foodIdeas);
     renderTasteSuggestions();
   }
 
@@ -227,8 +233,10 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     renderOptions(find('saved-wheels'), prefs.wheels.map(wheel => new Option(wheel.title, wheel.id)), 'Open a saved wheel');
     renderOptions(find('favourites'), prefs.favourites.map(id => new Option(spinPresetById[id].label, id)), 'Open a favourite');
     renderOptions(find('recent-wheels'), prefs.recent.map(id => new Option(spinPresetById[id].label, id)), 'Open a recent preset');
-    find('quick-chains').setAttribute('aria-pressed', String(draft.preset === 'fast-food-three'));
-    find('takeaway').setAttribute('aria-pressed', String(draft.preset === 'takeaway'));
+    fastFood.setAttribute('aria-pressed', String(draft.preset === 'fast-food-three'));
+    for (const button of quickPresets) {
+      button.setAttribute('aria-pressed', String(draft.preset === button.dataset.quickPreset));
+    }
     const starred = prefs.favourites.includes(draft.preset);
     find('favourite').setAttribute('aria-pressed', String(starred));
     find('favourite').textContent = starred ? 'Remove favourite' : 'Favourite preset';
@@ -253,7 +261,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   }
 
   for (const picker of presetPickers) picker.addEventListener('change', () => pick(picker.value));
-  find('quick-chains').addEventListener('click', () => {
+  fastFood.addEventListener('click', () => {
     pick('fast-food-three');
     spinButton.focus();
   });
@@ -264,7 +272,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     pick('custom');
     entry.focus();
   });
-  find('takeaway').addEventListener('click', () => pick('takeaway'));
+  for (const button of quickPresets) button.addEventListener('click', () => pick(button.dataset.quickPreset));
   find('reset').addEventListener('click', () => pick(draft.preset));
   find('favourites').addEventListener('change', event => pick(event.target.value));
   find('recent-wheels').addEventListener('change', event => pick(event.target.value));

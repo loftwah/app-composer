@@ -2,13 +2,13 @@
 layout: "../../layouts/Article.astro"
 title: "Why we built App Composer Spin"
 description: "A wheel for the everyday decisions that go round in circles, with a replay your friends can check."
-cover: "/campaign/spin/spin-wide-20261127d.jpg"
-coverAlt: "Takeaway roulette. An orange, cream and navy wheel beside a paper takeaway bag and hot chips."
+cover: "/campaign/spin/spin-wide-20261127e.jpg"
+coverAlt: "Spin by App Composer. Make the call. An orange and ivory decision wheel."
 coverCaption: "Original AI-generated campaign artwork for App Composer Spin."
 published: "2026-11-27"
 ---
 
-Dinner is the decision that keeps coming back. The group is hungry, nobody wants to pick, and the same three places get suggested. We built [App Composer Spin](https://spin.loftwah.com/) so anyone can put the choices on a wheel, agree to the rules and get on with the evening.
+Spin is a decision wheel for anything you can put on a list. Dinner is the decision that keeps coming back. The group is hungry, nobody wants to pick, and the same three places get suggested. We built [App Composer Spin](https://spin.loftwah.com/) so anyone can put the choices on a wheel, agree to the rules and get on with the evening.
 
 Start with Australian takeaway roulette for fish and chips, kebabs, an HSP or a burger. Tap a few tastes to get suggestions, turn off anything you’re over, or add your local favourite. Spin remembers the wheel on your device. There are also presets for game night, weekend plans, chores and who goes first. The wheel works in your browser without an account.
 
@@ -29,8 +29,8 @@ The receipt checks consistency within one session. A person can still create sev
 These public launch examples preserve the original completed receipts so you can replay and verify them after the original session links expire.
 
 <figure>
-  <video controls playsinline preload="metadata" width="540" height="960" poster="/campaign/spin/wheel-demo-poster-20261127d.webp" src="/campaign/spin/wheel-demo-20261127d.mp4">
-    <track kind="captions" label="English" srclang="en" src="/campaign/spin/wheel-demo-20261127d.en.vtt" default>
+  <video controls playsinline preload="metadata" width="540" height="960" poster="/campaign/spin/wheel-demo-poster-20261127e.webp" src="/campaign/spin/wheel-demo-20261127e.mp4">
+    <track kind="captions" label="English" srclang="en" src="/campaign/spin/wheel-demo-20261127e.en.vtt" default>
   </video>
   <figcaption>A phone-sized recording of Spin’s takeaway suggestions, wheel sound and result link. <a href="/share/spin">Watch it in App Composer Share</a>.</figcaption>
 </figure>
@@ -43,4 +43,4 @@ Set a suburb or postcode such as Sunbury VIC 3429. Spin remembers the area on yo
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-20261127c.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-20261127c.png) · [App icon](/spin-brand/spin-icon-512-20261127d.png) · [Social preview](/campaign/spin/spin-wide-20261127d.jpg) · [Launch kit and QR](/share/spin#social-kit)
+[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-20261127e.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-20261127e.png) · [App icon](/spin-brand/spin-icon-512-20261127e.png) · [Social preview](/campaign/spin/spin-wide-20261127e.jpg) · [Launch kit and QR](/share/spin#social-kit)

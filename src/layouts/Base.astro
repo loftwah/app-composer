@@ -40,7 +40,7 @@ const {
 const printsProduct = Astro.props.printsProduct === true;
 const spinProduct = Astro.props.spinProduct === true;
 const themeKey = spinProduct ? "spin-theme" : printsProduct ? "prints-theme" : "composer-theme";
-const themeColors = spinProduct ? { light: "#f5fcff", dark: "#101827" } : printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
+const themeColors = printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
 const initialTheme = printsProduct || spinProduct ? "light" : "dark";
 const printsNavigation = [
   { href: "/#paths", label: "Try it" },
@@ -89,9 +89,11 @@ Astro.csp?.insertScriptResource(
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {(!spinProduct || Astro.url.origin === spinOrigin) &&
-      <link rel="manifest" href={spinProduct ? "/spin-brand/site-20261127d.webmanifest" : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
+      <link rel="manifest" href={spinProduct ? spinBrandFiles.manifest : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
     <meta name="theme-color" content={themeColors[initialTheme]} data-light={themeColors.light} data-dark={themeColors.dark} />
     {spinProduct ? <>
+      <link rel="icon" href={spinBrandFiles.mark} type="image/svg+xml" sizes="any" />
+      <link rel="icon" href={spinBrandFiles.faviconSmall} type="image/png" sizes="16x16" />
       <link rel="icon" href={spinBrandFiles.favicon} type="image/png" sizes="32x32" />
       <link rel="apple-touch-icon" href={spinBrandFiles.touch} sizes="180x180" />
     </> : printsProduct ? <>
@@ -140,15 +142,15 @@ Astro.csp?.insertScriptResource(
     <link rel="stylesheet" href="/brand/page-share.css" />
     <link rel="stylesheet" href="/brand/theme-control.css" />
   </head>
-  <body class:list={{ "home-shell": Astro.props.homePage, "focused-experience": focusedExperience, "prints-product": printsProduct }}>
+  <body class:list={{ "home-shell": Astro.props.homePage, "focused-experience": focusedExperience, "prints-product": printsProduct, "spin-experience": spinProduct }}>
     <a class="skip" href="#main">
       Skip to content
     </a>
     <header class="site-header">
       {spinProduct ? (
         <a class="brand spin-brand select-none" href={spinDiscovery.href}>
-          <img class="spin-brand-dark" src={spinBrandFiles.dark} width="192" height="44" alt="App Composer Spin" />
-          <img class="spin-brand-light" src={spinBrandFiles.light} width="192" height="44" alt="App Composer Spin" />
+          <img src={spinBrandFiles.mark} width="38" height="38" alt="" />
+          <span class="spin-brand-name">Spin<span>by App Composer</span></span>
         </a>
       ) : printsProduct ? (
         <a class="brand select-none" href="/">
@@ -385,14 +387,16 @@ Astro.csp?.insertScriptResource(
 </html>
 
 <style>
-  .spin-brand img { width: 192px; height: 44px; object-fit: contain; border-radius: 0; }
-  .spin-brand-light, :global(html[data-theme='light']) .spin-brand-dark { display: none; }
-  :global(html[data-theme='light']) .spin-brand-light { display: block; }
+  .site-header .spin-brand { display: inline-flex; gap: 9px; flex-wrap: nowrap; }
+  .site-header .spin-brand > img { width: 38px; height: 38px; border-radius: 0; }
+  .spin-brand-name { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; font: 700 1.55rem/.95 Space, sans-serif; letter-spacing: -.035em; }
+  .spin-brand-name span { color: var(--color-muted); font: 650 .76rem/1.2 system-ui, sans-serif; letter-spacing: 0; }
   .focused-experience .site-header {
     grid-template-columns: minmax(0, 1fr) auto;
     min-height: 56px;
     padding: 6px max(18px, calc((100% - 1024px) / 2));
   }
+  .spin-experience .site-header { padding-inline: max(18px, calc((100% - 1150px) / 2)); }
   .focused-experience .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
   .focused-experience .site-header .brand:not(.spin-brand) > img { width: 24px; height: 24px; }
   .focused-experience #main { padding-block-start: .65rem; }

@@ -1,0 +1,16 @@
+{
+  "id": "https://spin.loftwah.com/",
+  "name": "Spin by App Composer",
+  "short_name": "Spin",
+  "description": "A decision wheel for dinner, game night or whatever you want to decide.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#faf9f7",
+  "icons": [
+    { "src": "spin-icon-192-20261127e.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "spin-icon-512-20261127e.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "spin-icon-maskable-20261127e.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
