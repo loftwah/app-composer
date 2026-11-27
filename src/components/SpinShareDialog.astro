@@ -1,6 +1,7 @@
 ---
-import { Copy, Download, Share2, X } from '@lucide/astro';
+import { ArrowUpRight, Copy, Download, Link2, Share2, X } from '@lucide/astro';
 import { spinLifetimeDays } from '../lib/spin-protocol.mjs';
+import { spinImageFormats } from '../lib/spin-site.mjs';
 ---
 
 <dialog data-share-dialog aria-labelledby="spin-share-title">
@@ -11,96 +12,129 @@ import { spinLifetimeDays } from '../lib/spin-protocol.mjs';
         <button class="close-share secondary" aria-label="Close sharing" autofocus><X size={21} aria-hidden="true" /></button>
       </form>
     </header>
-    <p data-share-description></p>
-    <div class="share-grid">
-      <div class="preview" data-share-preview hidden>
-        <p data-image-status>Making your preview…</p>
+    <p class="note share-description" data-share-description></p>
+
+    <div class="post" data-share-social hidden>
+      <div class="preview" data-share-preview>
+        <p data-image-status>Preparing the image…</p>
       </div>
-      <div class="share-fields">
-        <label>Link <input type="text" data-share-url readonly spellcheck="false" /></label>
-        <div class="share-buttons">
-          <button class="button" type="button" data-copy-link><Copy size={17} aria-hidden="true" /> Copy link</button>
-          <button type="button" class="secondary" data-native-share hidden><Share2 size={17} aria-hidden="true" /> Send link</button>
-        </div>
-        <div data-share-draft hidden>
-          <button type="submit" form="spin-setup" class="secondary" data-lock-wheel>Lock a draw to share before spinning</button>
-          <p class="note">Anyone with the draw link can see its question and choices for {spinLifetimeDays} days.</p>
-        </div>
-        <div class="social" data-share-social hidden>
-          <label>Image format
-            <select data-share-format>
-              <option value="portrait">Feed portrait · 4:5</option>
-              <option value="square">Square · 1:1</option>
-              <option value="story">Story · 9:16</option>
-              <option value="landscape">Landscape · 1200 × 630</option>
-            </select>
-          </label>
-          <div class="share-buttons">
-            <button type="button" class="secondary" data-save-image disabled><Download size={17} aria-hidden="true" /> Save image</button>
-            <button type="button" class="secondary" data-copy-image hidden disabled><Copy size={17} aria-hidden="true" /> Copy image</button>
-            <button type="button" class="secondary" data-native-image hidden disabled><Share2 size={17} aria-hidden="true" /> Share image</button>
+      <div class="post-controls">
+        <fieldset data-share-formats>
+          <legend>Image size</legend>
+          <div class="formats">
+            {spinImageFormats.map(({ id, name, width, height }) => (
+              <label class="format" data-format={id}>
+                <input type="radio" name="spin-image-format" value={id} checked={id === 'portrait'} />
+                <span class="format-shape" aria-hidden="true"></span>
+                <span><strong>{name}</strong><small>{width} × {height}</small></span>
+              </label>
+            ))}
           </div>
-          <label>Post text <textarea data-share-caption rows="3" readonly spellcheck="false"></textarea></label>
-          <div class="share-buttons">
-            <button type="button" class="secondary" data-copy-caption>Copy post text</button>
-            <button type="button" class="secondary" data-copy-alt>Copy image alt text</button>
-          </div>
-          <details>
-            <summary>More downloads</summary>
-            <div class="share-buttons">
-              <button type="button" class="secondary" data-replay-video hidden>Save replay video</button>
-            </div>
-          </details>
+        </fieldset>
+        <div class="actions image-actions">
+          <button class="button" type="button" data-copy-image disabled><Copy size={18} aria-hidden="true" /> Copy image</button>
+          <button class="button secondary" type="button" data-save-image disabled><Download size={18} aria-hidden="true" /> Save PNG</button>
+          <button type="button" class="secondary" data-native-image hidden><Share2 size={17} aria-hidden="true" /> Send image</button>
+          <a class="button secondary" data-open-image target="_blank" rel="noopener" hidden>Open full-size PNG <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
-        <div class="share-buttons" data-receipt-actions hidden>
-          <button type="button" class="secondary" data-receipt>Save verification receipt</button>
-        </div>
+        <p class="feedback" data-image-feedback role="status"></p>
       </div>
     </div>
-    <p class="share-feedback" data-share-feedback role="status"></p>
+
+    <div class="replay-tools">
+      <label data-link-field>Link <input type="text" data-share-url readonly spellcheck="false" /></label>
+      <div class="actions link-actions">
+        <button class="button secondary" type="button" data-copy-link><Link2 size={17} aria-hidden="true" /> <span data-copy-link-label>Copy link</span></button>
+        <button type="button" class="secondary" data-native-share hidden><Share2 size={17} aria-hidden="true" /> Send link</button>
+      </div>
+      <div data-share-draft hidden>
+        <button type="submit" form="spin-setup" class="secondary" data-lock-wheel>Lock a draw to share before spinning</button>
+        <p class="note">Anyone with the draw link can see its question and choices for {spinLifetimeDays} days.</p>
+      </div>
+      <details data-share-more hidden>
+        <summary>Caption, alt text and downloads</summary>
+        <label>Post caption <textarea data-share-caption rows="3" readonly spellcheck="false"></textarea></label>
+        <div class="actions">
+          <button type="button" class="secondary" data-copy-caption>Copy caption</button>
+          <button type="button" class="secondary" data-copy-alt>Copy alt text</button>
+          <button type="button" class="secondary" data-replay-video hidden>Save replay video</button>
+          <button type="button" class="secondary" data-receipt>Save verification receipt</button>
+        </div>
+        <p class="note">Paste the image before copying the caption.</p>
+      </details>
+      <div class="actions" data-receipt-actions hidden>
+        <button type="button" class="secondary" data-abandoned-receipt>Save verification receipt</button>
+      </div>
+      <p class="feedback" data-share-feedback role="status"></p>
+    </div>
   </div>
 </dialog>
 
 <style>
   dialog {
-    width: min(740px, calc(100% - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 0;
+    width: min(804px, calc(100% - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 0;
     border: 1px solid var(--color-border); border-radius: 14px;
     background: var(--color-surface); color: var(--color-foreground);
   }
   dialog::backdrop { background: rgb(12 9 43 / .74); }
-  .share-inner { padding: clamp(15px, 4vw, 26px); }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  header h2 { margin: 0; font: 700 clamp(1.5rem, 5vw, 2.15rem)/1.05 Space, sans-serif; letter-spacing: -.03em; }
-  .share-inner > p { margin: 8px 0 16px; color: var(--color-muted); }
-  .share-grid { display: grid; gap: 18px; }
-  .share-grid:has(.preview:not([hidden])) { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); }
-  .preview {
-    min-width: 0; height: 370px; align-self: start; background: var(--color-field); color: var(--color-foreground); border-radius: 9px;
-    display: grid; place-items: center; text-align: center; overflow: hidden;
-  }
-  .preview :global(img) { width: 100%; height: 100%; object-fit: contain; }
-  .share-fields, .social { display: grid; gap: 10px; min-width: 0; align-content: start; }
-  .social, [data-share-draft] { border-top: 1px solid var(--color-border); padding-top: 12px; margin-top: 2px; }
-  .share-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-  button { min-height: 44px; padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 7px; }
-  button:not(.button):hover { background: var(--color-field); }
-  .share-buttons button { gap: 6px; }
-  .share-buttons .button { color: #1a1542; background: #edff40; border-color: #1a1542; }
-  .share-buttons .button:hover { background: #f9ff88; }
+  .share-inner { padding: clamp(14px, 3vw, 25px); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  header h2 { margin: 0; font: 700 clamp(1.55rem, 5vw, 2.15rem)/1.05 Space, sans-serif; letter-spacing: -.03em; }
   .close-share { width: 44px; padding: 0; }
+  .note { color: var(--color-muted); font-size: .89rem; margin: 7px 0 0; }
+  .share-description { margin-bottom: 12px; }
+  .post { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: clamp(12px, 3vw, 24px); }
+  .preview {
+    height: clamp(278px, 44vh, 405px); min-width: 0; padding: 12px; background: var(--color-field);
+    color: var(--color-muted); border-radius: 9px; display: grid; place-items: center;
+    text-align: center; overflow: hidden;
+  }
+  .preview :global(img) { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+  .preview p { margin: 0; font-size: .9rem; }
+  .post-controls, .replay-tools { display: grid; min-width: 0; gap: 10px; align-content: start; }
+  fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
+  legend { padding: 0; margin: 0 0 7px; font: 700 .98rem/1.2 Space, sans-serif; }
+  .formats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .format {
+    position: relative; display: flex; align-items: center; gap: 8px; min-height: 57px;
+    padding: 5px 8px; cursor: pointer; border: 1px solid var(--color-control-border); border-radius: 7px;
+  }
+  .format:hover { background: var(--color-field); }
+  .format:has(input:checked) { background: #edff40; border-color: #25206c; color: #25206c; }
+  .format:has(input:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+  .format input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .format-shape { flex: none; width: 13px; height: 17px; border: 1.5px solid currentColor; border-radius: 2px; }
+  [data-format='square'] .format-shape { height: 13px; }
+  [data-format='story'] .format-shape { width: 11px; height: 20px; margin-inline: 1px; }
+  [data-format='landscape'] .format-shape { width: 15px; height: 9px; }
+  .format strong, .format small { display: block; }
+  .format small { margin-top: 2px; font: 500 .76rem/1.15 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  .post:not([hidden]) + .replay-tools { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--color-border); }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+  button, .actions a { min-height: 44px; padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 7px; }
+  button:not(.button):hover { background: var(--color-field); }
+  .actions button, .actions a { gap: 6px; }
+  .image-actions [data-copy-image], .image-actions[data-save-primary] [data-save-image] {
+    color: #1a1542; background: #edff40; border-color: #1a1542;
+  }
+  .image-actions [data-copy-image]:hover, .image-actions[data-save-primary] [data-save-image]:hover { background: #f9ff88; }
   label { display: grid; gap: 4px; font: 650 .86rem/1.3 Space, sans-serif; margin: 0; }
-  input, textarea, select {
+  .format { display: flex; }
+  input, textarea {
     width: 100%; min-height: 44px; margin: 0; padding: 8px 9px; font: inherit;
     color: var(--color-foreground); background: var(--color-field); border: 1px solid var(--color-border); border-radius: 7px;
   }
   textarea { resize: vertical; font-weight: 500; }
   details { margin: 0; }
-  summary { padding-block: 8px; cursor: pointer; }
-  .note { color: var(--color-muted); font-size: .87rem; margin: 6px 0 0; }
-  .share-inner .share-feedback { min-height: 1lh; margin: 10px 0 0; color: var(--color-foreground); }
+  summary { cursor: pointer; padding-block: 5px; }
+  details .actions { margin-top: 8px; }
+  .feedback { color: var(--color-foreground); font-size: .88rem; line-height: 1.4; margin: 0; overflow-wrap: anywhere; }
+  [data-image-feedback] { min-height: 2lh; }
+  [data-share-feedback]:empty { display: none; }
   [hidden] { display: none; }
-  @media (max-width: 550px) {
-    .share-grid:has(.preview:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
-    .preview { height: 213px; }
+  @media (max-width: 620px) {
+    .post { grid-template-columns: minmax(0, 1fr); }
+    .preview { height: clamp(164px, 30dvh, 255px); padding: 8px; }
+    .image-actions [data-copy-image], .image-actions[data-save-primary] [data-save-image] { flex: 1; }
   }
 </style>
