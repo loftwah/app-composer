@@ -13,10 +13,37 @@ const resources = [
   {title: "Run your apps", links: [["Manage apps", "/manage"], ["Platform console", "/platform"], ["Console demo", "/platform/demo"], ["Analytics and reports", "/activity"], ["Creator stacks", "/studio"], ["Cloudflare costs", "/cloudflare"], ["Release evidence", "/release"]]},
   {title: "Explore Composer", links: [["Why I built this", "/story"], ["Build story", "/building"], ["Find a tool by task", "/discover"], ["Project setup", "/setup"], ["Connect an agent", "/agent"], ["Service guide", "/guide"], ["Operator resources", "/resources"], ["PHP2Shell briefing", "/php2shell"]]},
 ];
-const steps = [
-  { title: "Shape the idea", detail: "Bring a goal and references. Use Init to turn them into a brief your agent can build from.", href: "/init", link: "Write a brief in Init" },
-  { title: "Build and publish", detail: "Prepare a Cloudflare environment and build the app with your coding agent in your own repository.", href: "/ready", link: "Set up with Get Ready" },
-  { title: "Run it and come back", detail: "Manage content in EmDash, then ask your agent for the next change on the same live project.", href: "/creator-hub#follow-up", link: "See a change after launch" },
+const questions = [
+  {
+    area: "Engineering", question: "Can I build this?",
+    answer: "Start with one useful feature. Use Init to give your AI agent a brief and a working reference.",
+    href: "/init", link: "Write an app brief",
+  },
+  {
+    area: "Product", question: "Does anyone actually want this?",
+    answer: "Show someone a working version and ask what they’d use. After launch, check what people actually open.",
+    href: "/activity", link: "See recorded usage",
+  },
+  {
+    area: "Strategy", question: "Should I build, buy, integrate or reuse it?",
+    answer: "Try a working tool first. Reuse what fits, pay for a specialist service if it earns its place, and build the missing piece.",
+    href: "/discover", link: "Find a tool by task",
+  },
+  {
+    area: "Distribution", question: "How do I get it into people’s hands?",
+    answer: "Publish to your own Cloudflare account and send a working link. See how a profile and guestbook went live and changed later.",
+    href: "/creator-hub", link: "Follow the Creator Hub build",
+  },
+  {
+    area: "Economics", question: "What does it cost to build and operate?",
+    answer: "Reuse an agent you have and start on Workers Free if it fits. Budget for hosting, maintenance and optional AI features powered by Workers AI.",
+    href: "/ready/start-for-free", link: "Read the free-first cheat sheet",
+  },
+  {
+    area: "Leverage", question: "How does this help my next project?",
+    answer: "Carry your source, assets and workflows forward. See how Prints Desktop turns artwork into a reusable shortlist and release assets.",
+    href: "/articles/picking-release-art", link: "See the Prints workflow",
+  },
 ];
 const siteSchema = {
   "@context": "https://schema.org",
@@ -38,12 +65,61 @@ const siteSchema = {
       <div class="campaign-frame">
         <h1 id="home-heading"><img class="campaign-master" src="/brand/campaign/build-it-keep-it-running.png" width="1728" height="910" fetchpriority="high" alt="App Composer. Build it. Keep it running." /></h1>
         <div class="campaign-bar">
-          <p>Build and run apps with your AI agent, in accounts you own.</p>
+          <p>Find a starting point, then use your AI agent to build and run an app in accounts you own.</p>
           <nav class="home-opening-actions" aria-label="Open App Composer tools">
             <a class="home-button" href="/ready">Get started — build your first app <ArrowRight size={17} aria-hidden="true" /></a>
             <a class="home-text-link" href="/media-studio/studio">Media Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
             <a href="/apps">App library</a><a href="/showcase/">Linkarooie</a><a href="/share">Share</a>
           </nav>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-workflow" id="make-something" aria-labelledby="start-heading">
+      <div class="home-container">
+        <div class="home-section-head">
+          <div>
+            <h2 id="start-heading">From idea to live app</h2>
+            <p>App Composer is open source. Explore the public examples here, then build with your own agent, GitHub repository and Cloudflare account.</p>
+          </div>
+          <a class="home-text-link" href="/ready/start-for-free">See what you can start for free <ArrowRight size={17} aria-hidden="true" /></a>
+        </div>
+        <div class="home-decisions">
+          <ul class="home-questions" role="list">
+            {questions.map(({ area, question, answer, href, link }) => (
+              <li>
+                <span class="home-question-area">{area}</span>
+                <div>
+                  <h3>{question}</h3>
+                  <p>{answer}</p>
+                  <a class="home-text-link" href={href}>{link} <ArrowRight size={16} aria-hidden="true" /></a>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <aside class="home-examples" id="example" aria-label="Examples you can try">
+            <figure>
+              <a href="/creator-hub#follow-up">
+                <img src="/creator-hub/profile-20261112.webp" width="1440" height="1535" alt="The published Mara Quinn profile with two featured links" loading="lazy" />
+                <span>See the change after launch <ArrowUpRight size={16} aria-hidden="true" /></span>
+              </a>
+              <figcaption>Creator Hub · fictional profile, live on Cloudflare</figcaption>
+            </figure>
+            <figure>
+              <a href="/articles/picking-release-art">
+                <img src="/articles/prints-creator-workflow-050.jpg" width="1280" height="800" alt="Prints Desktop compares an album cover and release poster side by side" loading="lazy" />
+                <span>Follow the Prints Desktop workflow <ArrowUpRight size={16} aria-hidden="true" /></span>
+              </a>
+              <figcaption>Prints Desktop · a working artwork tool</figcaption>
+            </figure>
+          </aside>
+        </div>
+        <div class="home-case" id="origin">
+          <div>
+            <h3>Why this workshop exists</h3>
+            <p>It began with systems work, music storefronts and a simple habit: reuse what works, pay for the specialist parts and build what's missing.</p>
+          </div>
+          <a class="home-text-link" href="/story">Read the founder story <ArrowUpRight size={17} aria-hidden="true" /></a>
         </div>
       </div>
     </section>
@@ -59,42 +135,6 @@ const siteSchema = {
       <div class="home-widget-trail">
         <p>Embed LoftwahFM’s Night Signal player on your site.</p>
         <a class="home-text-link" href="/widgets">Open the Widget library <ArrowRight size={17} aria-hidden="true" /></a>
-      </div>
-    </section>
-
-    <section class="home-workflow" id="make-something" aria-labelledby="start-heading">
-      <div class="home-container">
-        <div class="home-section-head">
-          <div>
-            <h2 id="start-heading">Build, ship, keep going.</h2>
-            <p>App Composer is open source. The supported app and website path uses your agent, GitHub, Cloudflare and EmDash.</p>
-          </div>
-          <a class="home-text-link" href="/architecture#project-workspace">See how it fits together <ArrowUpRight size={17} aria-hidden="true" /></a>
-        </div>
-        <a class="cloudflare-campaign" href="/cloudflare" aria-label="Read the Cloudflare Workers costs and operations guide"><img src="/brand/campaign/get-started-workers.png" width="1672" height="941" alt="Get started on Cloudflare Workers. Paid plans from $5 a month." loading="lazy" /></a>
-        <ol class="home-steps">
-          {steps.map((step) => (
-            <li>
-              <h3>{step.title}</h3>
-              <p>{step.detail}</p>
-              <a class="home-text-link" href={step.href}>{step.link} <ArrowRight size={17} aria-hidden="true" /></a>
-            </li>
-          ))}
-        </ol>
-        <div class="home-case" id="example">
-          <div>
-            <h3>See an app go from brief to live</h3>
-            <p>Creator Hub shows how an agent connected two apps, released them to Cloudflare and changed the live site later.</p>
-          </div>
-          <a class="home-text-link" href="/creator-hub">Follow the Creator Hub build <ArrowUpRight size={17} aria-hidden="true" /></a>
-        </div>
-        <div class="home-case" id="origin">
-          <div>
-            <h3>Why this workshop exists</h3>
-            <p>It began with systems work, music storefronts and a simple habit: reuse what works, pay for the specialist parts and build what's missing.</p>
-          </div>
-          <a class="home-text-link" href="/story">Read the founder story <ArrowUpRight size={17} aria-hidden="true" /></a>
-        </div>
       </div>
     </section>
 
