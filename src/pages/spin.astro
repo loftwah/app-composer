@@ -425,6 +425,12 @@ const application = JSON.stringify({
   .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; font-size: .89rem; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
+  @media (max-width: 350px) {
+    .mode-picker { grid-template-columns: minmax(0, 1fr); }
+    .mode-picker > span:first-child {
+      position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+  }
   @media (max-width: 760px) {
     .play { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 7px; }
     .preset-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
