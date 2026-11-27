@@ -25,7 +25,7 @@ import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/r
       <a class="discovery-return" href={spinDiscovery.href}>Make a decision with App Composer Spin <ArrowRight size={17} aria-hidden="true" /></a>
     </section>
     <section id="roles" class="discovery-group" aria-labelledby="roles-heading">
-      <div class="group-heading"><h2 id="roles-heading">How you work</h2></div>
+      <div class="group-heading"><h2 id="roles-heading">How you work</h2><p>Explore paths for {discoveryRoles.length} roles.</p></div>
       <nav class="choice-list" aria-label="Choose a role">
         {discoveryRoles.map((role) => <a href={'/for/' + role.id}><span class="choice-copy"><strong>{role.label}</strong><small>{role.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
       </nav>
@@ -55,6 +55,7 @@ import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/r
   .discovery-groups { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px 48px; align-items:start; }
   .discovery-group { min-width:0; scroll-margin-top:80px; }
   .group-heading h2 { font-size:1.55rem; margin:0 0 12px; }
+  .group-heading p { margin: -4px 0 12px; color: var(--color-muted); }
   .choice-list { border-top:1px solid var(--color-border); }
   .choice-list>a { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:74px; padding:12px 4px; border-bottom:1px solid var(--color-border); }
   .choice-list>a:hover { color:var(--color-accent); }
