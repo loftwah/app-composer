@@ -1,0 +1,34 @@
+{
+  "generator": "Built-in Codex ImageGen",
+  "export": "Resize and JPEG compression",
+  "assets": {
+    "going-round-20261127.jpg": {
+      "width": 1200,
+      "height": 630,
+      "sha256": "646ce5e43dd8da72365a7af3bea3dbb03f60e2a262f6b69ca403542d81be4a74",
+      "prompt": "Create a NEW 1.91:1 wide poster campaign artwork for the App Composer app called Spin. Take ONLY the attached reference's expressive practical felt miniature craftsmanship and authored staging, none of its colours or sombre lighting, wording or composition. Direction: violently cheerful, deliberately absurd, extremely bright acid yellow and saturated electric cobalt blue with one hot raspberry pink pointer. Graphic flat acid yellow background on the left, hard editorial colour blocking, a kinetic blue miniature stage on the right. On the right: an enormous soft felt bright cobalt decision dial with precisely three chunky contrasting wedges (acid yellow, milk white, hot pink) under a hot pink overhead directional pointer. A fuzzy orange felt hand with a cobalt checkered sleeve has just flicked it with one finger; at the other side of wheel a single tiny slice of felt pepperoni pizza has lifted off the table from the force, comedic but geometrically clear. Freeze everything but the dial's physical motion. Use tight camera, bright even studio set light with hard graphic shadows, no black backdrop, no brown workshop, no glints or brass, no sparkles or busy background, no casino motifs. On the yellow left use HUGE heavy cobalt typography: 'Spin.' then below in smaller very readable bold type 'Going round in circles? Good.' and one small footer 'BY APP COMPOSER'. No other text. Editorial stop-motion from a playful indie studio, tactile practical materials, confident physical comedy. Design the title and decisive visual silhouette to read at 300 pixels wide. Centre-safe margins, no frame.",
+      "reference": "https://composer.loftwah.com/share/artwork/composer-owd-01-first-app"
+    },
+    "going-round-portrait-20261127.jpg": {
+      "width": 1080,
+      "height": 1350,
+      "sha256": "0106ca39777a0edc9be8569b452108aa5e144cb457bf41c954fd3ab95618571f",
+      "prompt": "Create a new portrait 4:5 social poster for the same Spin campaign. Use the attached approved direction as a style and continuity reference, not a crop. Same brilliant acid yellow, electric cobalt and hot pink, soft felt stop-motion machine, tiny flying pizza and orange felt hand in a cobalt-cream checkered sleeve. Compose vertically: top typography first, machine beneath, hand coming diagonally from the left. Give the huge 'Spin.' milk white lettering on cobalt, with 'Going round in circles? Good.' in yellow and a small 'BY APP COMPOSER' clearly readable. Three clear wedges, loud graphic blocks, no black, no glints, no ornament. Keep all lettering and the dial itself in the vertical centre 76% so it can also be center cropped to square. Fill top and bottom with a solid electric cobalt background. Exactly three lines of content only (Spin., Going round in circles? Good., BY APP COMPOSER). Make it exuberant and editorial; a single clear focal moment. Crop nothing important.",
+      "reference": "https://composer.loftwah.com/campaign/spin/going-round-20261127.jpg"
+    },
+    "going-round-square-20261127.jpg": {
+      "width": 1080,
+      "height": 1080,
+      "sha256": "fdccae4a1704d03713227718d57377623156bf114e5eb1b9021c323c2020802d",
+      "prompt": "Create a new exact 1:1 square poster for Spin, sized for a social feed. Match the reference practical plush felt look and electric colours: bright cobalt blue, acid yellow, white and hot pink. Arrange the huge text 'Spin.' across the top third on vivid yellow, small enough to have a clear left and right safe margin. Under it, the exact single line 'Going round in circles? Good.' Right under it but clearly separated, a chunky cobalt felt wheel with three wedges and an exaggerated pink pointer is being flicked from the left by an orange felt hand with a checked sleeve; a tiny absurd flying felt pizza slice balances it on the right. Use a bold horizontal yellow-to-blue field change. Tiny clean readable 'BY APP COMPOSER' near the bottom. No other words, borders, clutter, muted colours or shadows swallowing the forms. Everything important in the safe central area. Satisfying graphic editorial humour.",
+      "reference": "https://composer.loftwah.com/campaign/spin/going-round-20261127.jpg"
+    },
+    "going-round-story-20261127.jpg": {
+      "width": 1080,
+      "height": 1920,
+      "sha256": "dd983ef03a2d8524695aefb57037b46a7c00f46340fd6200ffbe8e2db5170619",
+      "prompt": "Create a new vertical story 9:16 social poster for the same Spin campaign. Use the attached approved direction as a style and continuity reference, not a crop. Same brilliant acid yellow, electric cobalt and hot pink, soft felt stop-motion machine, tiny flying pizza and orange felt hand in a cobalt-cream checkered sleeve. Compose vertically: top typography first, machine beneath, hand coming diagonally from the left. Give the huge 'Spin.' milk white lettering on cobalt, with 'Going round in circles? Good.' in yellow and a small 'BY APP COMPOSER' clearly readable. Three clear wedges, loud graphic blocks, no black, no glints, no ornament. All lettering and objects must stay inside the central 72% height with roomy empty top and bottom safe areas for a social app interface. Exactly three lines of content only (Spin., Going round in circles? Good., BY APP COMPOSER). Make it exuberant and editorial; a single clear focal moment. Crop nothing important.",
+      "reference": "https://composer.loftwah.com/campaign/spin/going-round-20261127.jpg"
+    }
+  }
+}

@@ -1,19 +1,17 @@
 export const spinOrigin = 'https://spin.loftwah.com';
-export const spinArtwork = '/campaign/spin/one-spin-or-all-night-20261127f.jpg';
-export const spinArtworkAlt = 'Spin by App Composer. One spin or all night. A close-up of the metal pointer above an orange and charcoal wheel.';
-export const spinGameNightArtwork = '/campaign/spin/make-the-call-game-night-20261127f.jpg';
-export const spinGameNightArtworkAlt = 'Spin by App Composer. Make the call. An orange, ivory and charcoal decision wheel with an orange die.';
-export const spinIcon = '/spin-brand/spin-icon-192-20261127e.png';
+export const spinArtwork = '/campaign/spin/going-round-20261127.jpg';
+export const spinArtworkAlt = 'Spin by App Composer. Going round in circles? Good. An orange felt hand flicks a blue wheel and sends a slice of felt pizza flying.';
+export const spinIcon = '/spin-brand/spin-192-round-20261127.png';
 export const spinBrandFiles = {
-  mark: '/spin-brand/spin-mark-20261127e.svg',
-  manifest: '/spin-brand/site-20261127e.webmanifest',
-  dark: '/spin-brand/spin-lockup-dark-20261127e.png',
-  light: '/spin-brand/spin-lockup-light-20261127e.png',
-  icon: '/spin-brand/spin-icon-512-20261127e.png',
-  favicon: '/spin-brand/spin-icon-32-20261127e.png',
-  faviconSmall: '/spin-brand/spin-icon-16-20261127e.png',
-  maskable: '/spin-brand/spin-icon-maskable-20261127e.png',
-  touch: '/spin-brand/spin-icon-180-20261127e.png',
+  mark: spinIcon,
+  manifest: '/spin-brand/site-round-20261127.webmanifest',
+  dark: '/spin-brand/spin-lockup-dark-round-20261127.png',
+  light: '/spin-brand/spin-lockup-light-round-20261127.png',
+  icon: '/spin-brand/spin-512-round-20261127.png',
+  favicon: '/spin-brand/spin-32-round-20261127.png',
+  faviconSmall: '/spin-brand/spin-16-round-20261127.png',
+  maskable: '/spin-brand/spin-maskable-round-20261127.png',
+  touch: '/spin-brand/spin-180-round-20261127.png',
 };
 export const spinDiscovery = Object.freeze({
   id: 'spin',

@@ -3,7 +3,7 @@ export const spinVersion = 'composer.spin/1';
 export const spinLifetimeDays = 30;
 export const spinChoiceLimit = 32;
 export const openSpinMode = 0;
-export const spinModeLabel = bestOf => bestOf === openSpinMode ? 'Open session' : bestOf === 1 ? 'Single spin' : `Best of ${bestOf}`;
+export const spinModeLabel = bestOf => bestOf === openSpinMode ? 'Open tally' : bestOf === 1 ? 'Single spin' : `Best of ${bestOf}`;
 export const spinIdPattern = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
 export const spinSecretPattern = /^[a-f0-9]{64}$/;
 const hex = buffer => Array.from(new Uint8Array(buffer), byte => byte.toString(16).padStart(2, '0')).join('');

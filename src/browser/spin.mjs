@@ -1,11 +1,11 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
-import { renderSpinPng, renderSpinVideo, replayVideoType, winnerAngle } from './spin-export.mjs';
+import { winnerAngle } from './spin-export.mjs';
+import { mountSpinShare } from './spin-share.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
-import { winnerArtwork } from './spin-winner-art.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
-import { spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
+import { spinOrigin } from '../lib/spin-site.mjs';
 import { spinPresetById } from '../lib/spin-presets.mjs';
-import { openSpinMode, spinChoiceLimit, spinModeLabel, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
+import { openSpinMode, spinChoiceLimit, spinModeLabel, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
 
 const root = document.querySelector('[data-spin]');
 if (root) mount(root);
@@ -19,9 +19,10 @@ function mount(root) {
   const currentId = new URL(location.href).searchParams.get('session');
   let example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
-  const markRing = new Path2D('M18 1a18 18 0 1 1-19-19');
-  const markPointer = new Path2D('m4-19 15 1-1 15-7-7z');
-  const colors = ['#fc5b05', '#faf9f7', '#c8b9a7', '#e4d9ca', '#e7ad89', '#f2e5da'];
+  const sectors = [
+    ['#efff48', '#161349'], ['#ff73bd', '#161349'], ['#3c37dc', '#ffffff'],
+    ['#99f0e1', '#161349'], ['#fffaf0', '#161349'], ['#ffad66', '#161349'],
+  ];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tau = Math.PI * 2;
   let session;
@@ -32,6 +33,10 @@ function mount(root) {
   let automatic = false;
   let audio;
   let angle = 0;
+  const sharing = mountSpinShare(get('share-dialog'), drawWheel, () => {
+    armSound();
+    return sound ? audio : undefined;
+  }, reduced);
 
   const showError = message => { get('error').textContent = message; };
   const showResult = message => {
@@ -39,10 +44,10 @@ function mount(root) {
     if (status.textContent !== message) status.textContent = message;
   };
   const focusAction = name => requestAnimationFrame(() => get(name).focus({ preventScroll: true }));
-  const rules = config => config.bestOf === openSpinMode ? 'Keep spinning and finish whenever you’re ready.' : config.bestOf === 1 ? 'One spin. Every enabled choice has equal odds.' :
-    config.entries.length === 2
-    ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
-    : `Play ${config.bestOf} counted spins. Tied leaders get a final spin. Each counted spin starts with all choices.`;
+  const rules = config => config.bestOf === openSpinMode ? 'Each spin counts. Finish whenever you like.' :
+    config.bestOf === 1 ? 'One spin decides it. Every choice has equal odds.' :
+      config.entries.length === 2 ? `First to ${Math.floor(config.bestOf / 2) + 1} wins the series.` :
+        `${config.bestOf} spins. Most wins takes it. Ties get extra spins.`;
   const templateLink = config => spinOrigin + '/#' + new URLSearchParams({ wheel: JSON.stringify(config) });
   const shareUrl = id => example ? spinOrigin + '/?example=' + encodeURIComponent(example) :
     new URL(root.dataset.spinPath + '?session=' + encodeURIComponent(id), location.origin).href;
@@ -65,9 +70,9 @@ function mount(root) {
 
     context.beginPath();
     context.arc(0, 0, center - 11, 0, tau);
-    context.fillStyle = '#17181b';
+    context.fillStyle = '#1f1b93';
     context.fill();
-    context.strokeStyle = '#887f74';
+    context.strokeStyle = '#2920a0';
     context.lineWidth = 2;
     context.stroke();
 
@@ -78,7 +83,7 @@ function mount(root) {
       context.beginPath();
       context.moveTo(Math.cos(bearing) * inside, Math.sin(bearing) * inside);
       context.lineTo(Math.cos(bearing) * outside, Math.sin(bearing) * outside);
-      context.strokeStyle = tick % 6 === 0 ? '#faf9f7' : '#a69b8e';
+      context.strokeStyle = tick % 6 === 0 ? '#efff48' : '#9a9af8';
       context.lineWidth = tick % 6 === 0 ? 3 : 1.4;
       context.stroke();
     }
@@ -90,9 +95,10 @@ function mount(root) {
       context.moveTo(0, 0);
       context.arc(0, 0, disc, bearing - step / 2, bearing + step / 2);
       context.closePath();
-      context.fillStyle = colors[index % colors.length];
+      const [surface, ink] = sectors[index % sectors.length];
+      context.fillStyle = surface;
       context.fill();
-      context.strokeStyle = '#17181b';
+      context.strokeStyle = '#1f1b93';
       context.lineWidth = 3;
       context.stroke();
 
@@ -102,7 +108,7 @@ function mount(root) {
       if (choices.length > 6 && choices.length <= 12) {
         context.rotate(Math.cos(bearing) < 0 ? bearing + Math.PI : bearing);
       }
-      context.fillStyle = '#17181b';
+      context.fillStyle = ink;
       context.font = `750 ${labelSize}px system-ui`;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
@@ -117,24 +123,24 @@ function mount(root) {
     });
 
     context.beginPath();
-    context.arc(0, 0, 59, 0, tau);
-    context.fillStyle = '#17181b';
+    context.arc(0, 0, 53, 0, tau);
+    context.fillStyle = '#1f1b93';
     context.fill();
-    context.strokeStyle = '#faf9f7';
+    context.strokeStyle = '#fffaf0';
     context.lineWidth = 3;
     context.stroke();
-    const markScale = 1.5;
     context.save();
-    context.scale(markScale, markScale);
-    context.strokeStyle = '#faf9f7';
-    context.lineCap = 'round';
-    context.lineWidth = 5;
-    context.stroke(markRing);
-    context.fillStyle = '#fc5b05';
-    context.fill(markPointer);
-    context.fillStyle = '#faf9f7';
+    context.rotate(offset);
+    context.fillStyle = '#efff48';
     context.beginPath();
-    context.arc(0, 0, 4.5, 0, tau);
+    context.moveTo(-27, -13);
+    context.lineTo(8, -13);
+    context.lineTo(8, -26);
+    context.lineTo(30, 0);
+    context.lineTo(8, 26);
+    context.lineTo(8, 13);
+    context.lineTo(-27, 13);
+    context.closePath();
     context.fill();
     context.restore();
     context.restore();
@@ -146,9 +152,8 @@ function mount(root) {
     get('rules').textContent = rules({ entries: labels, bestOf: best });
     if (!session) {
       get('spin-heading').textContent = question.value.trim() || 'What should we pick?';
+      get('spin-heading').title = get('spin-heading').textContent;
       drawWheel(labels);
-      get('live-tally').hidden = best !== openSpinMode;
-      get('live-tally').textContent = 'Every spin adds to the tally. Finish whenever you choose.';
       showResult(labels.length >= 2 ? `${labels.length} choices on the wheel` : 'Enable two choices to spin.');
     }
   }
@@ -157,40 +162,41 @@ function mount(root) {
     const firstRender = !session || session.id !== next.id;
     session = next;
     get('spin-heading').textContent = next.config.question;
+    get('spin-heading').title = next.config.question;
+    get('full-question').textContent = next.config.question;
     const showingExample = Boolean(example);
     get('spin-intro').hidden = !showingExample;
     get('spin-intro').textContent = showingExample ? 'Recorded draw' : '';
-    get('share').hidden = false;
-    get('share').setAttribute('aria-label', next.status === 'completed' ? 'Copy result link' : 'Copy draw link');
-    get('share-label').textContent = 'Copy link';
     const openMode = next.config.bestOf === openSpinMode;
-    if (openMode) get('page-heading').textContent = next.status === 'open' ? 'Open session' : 'Session result';
-    else if (showingExample || currentId) get('page-heading').textContent = showingExample || next.status !== 'open' ? 'Spin replay' : 'Spin session';
-    get('spin-again').hidden = next.status === 'open';
-    get('finish').hidden = !openMode || !owner || next.status !== 'open';
-    get('finish').disabled = next.rounds.length === 0;
+    const isOpen = next.status === 'open';
+    const completed = next.status === 'completed';
+    const count = next.rounds.length;
+    const canSpin = isOpen && Boolean(owner);
+    get('share-label').textContent = completed ? 'Share result' : 'Share draw';
+    bestOf.value = String(next.config.bestOf);
+    bestOf.disabled = true;
+    get('rules').textContent = rules(next.config);
+    get('spin-again').hidden = isOpen || Boolean(currentId && !owner) || showingExample;
+    get('stage-replay').hidden = !get('spin-again').hidden || count === 0 || isOpen;
+    get('waiting').hidden = !isOpen || canSpin;
+    get('finish').hidden = !openMode || !canSpin;
+    get('finish').disabled = playing || count === 0;
     get('score-heading').textContent = openMode ? 'Session tally' : 'Series score';
     get('scores').setAttribute('aria-label', openMode ? 'Session tally' : 'Series score');
-    get('draw').textContent = openMode ? 'Spin again' : 'Spin the wheel';
-    if (firstRender) get('export-status').textContent = '';
-    if (get('spin-guide')) get('spin-guide').hidden = true;
+    get('draw').textContent = count ? 'Next spin' : 'Spin';
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
-    if (get('spin-presets')) get('spin-presets').hidden = true;
     if (get('find-ideas')) get('find-ideas').hidden = true;
     get('spin-now').hidden = true;
     get('wheel-panel').dataset.state = next.status;
     get('session').hidden = false;
-    const series = next.status === 'open' && next.tieBreak ? 'The next spin is a tie-break.' : rules(next.config);
-    const count = next.rounds.length;
+    get('session-heading').textContent = completed ? 'The result' : 'The draw';
     const countLabel = `${count} ${count === 1 ? 'spin' : 'spins'}`;
-    get('series').textContent = openMode
-      ? `${spinModeLabel(next.config.bestOf)} · ${countLabel} recorded.`
-      : `${series} ${countLabel} recorded.`;
-    const tally = next.config.entries.map((label, index) => ({ label, score: next.totals[index] }))
-      .filter(choice => choice.score).sort((left, right) => right.score - left.score).slice(0, 3);
-    get('live-tally').hidden = !openMode;
-    get('live-tally').textContent = [countLabel, ...tally.map(choice => `${choice.label} ${choice.score}`)].join(' · ');
+    get('series').textContent = `${spinModeLabel(next.config.bestOf)} · ${countLabel} recorded.`;
+    get('result-label').textContent = completed ? (next.winner < 0 ? 'Final result' : 'We have a winner') :
+      next.status === 'abandoned' ? 'Draw closed' :
+        next.tieBreak ? `Tie-break next · ${countLabel} recorded` : openMode ? `${countLabel} recorded` :
+          next.config.bestOf === 1 ? 'Single spin' : `Round ${Math.min(count + 1, next.config.bestOf)} of ${next.config.bestOf}`;
     get('scores').replaceChildren(...next.config.entries.map((label, index) => {
       const item = document.createElement('li');
       if (index === next.winner) item.className = 'winner';
@@ -212,37 +218,27 @@ function mount(root) {
     get('commitment').textContent = next.commitment;
     get('expiry').textContent = example ? 'Public launch example from a completed session.' :
       'Available until ' + new Date(next.expiresAt).toLocaleDateString('en-AU') + '.';
-    get('refresh').hidden = Boolean(example);
+    get('refresh').hidden = !isOpen || Boolean(example);
     get('draw').hidden = !owner || next.status !== 'open';
     get('auto').hidden = get('draw').hidden || next.config.bestOf <= 1;
     get('abandon').hidden = !owner || next.status !== 'open';
-    get('exports').hidden = next.status === 'open';
-    get('replay').hidden = next.rounds.length === 0;
+    get('playback').hidden = isOpen || (!showingExample && !currentId && count === 0);
+    get('replay-last').hidden = count === 0 || !get('stage-replay').hidden;
+    get('create-own').hidden = !showingExample && !currentId;
     get('replay-series').hidden = count < 2;
     get('replay-series').textContent = openMode && count > 3 ? 'Replay the last 3 spins' : 'Replay the series';
     const winner = next.config.entries[next.winner];
     const takeaway = next.status === 'completed' && spinPresetById.takeaway.entries.includes(winner);
-    const art = next.status === 'completed' ? winnerArtwork(winner) : '';
-    const artwork = get('winner-art').querySelector('img');
-    get('winner-art').hidden = !takeaway && !art;
-    artwork.hidden = !art;
-    if (art) artwork.src = art;
     get('nearby').hidden = !takeaway;
     if (takeaway) get('nearby').href = nearbySearch(winner);
     get('remix').href = templateLink(next.config);
-    get('png').hidden = next.status !== 'completed';
-    get('portrait').hidden = next.status !== 'completed';
-    get('story').hidden = next.status !== 'completed';
-    get('landscape').hidden = next.status !== 'completed';
-    get('replay-video').hidden = next.status !== 'completed' || !replayVideoType();
-    get('native-share').hidden = typeof navigator.share !== 'function';
     const last = next.rounds.at(-1);
-    angle = last ? winnerAngle(last.winner, next.config.entries.length) : 0;
+    const settledWinner = next.status === 'completed' && next.winner >= 0 ? next.winner : last?.winner;
+    angle = settledWinner === undefined ? 0 : winnerAngle(settledWinner, next.config.entries.length);
     drawWheel(next.config.entries);
-    showResult(next.status === 'completed' ? (next.winner < 0 ? 'Session ended in a tie' : next.config.entries[next.winner] + ' wins!') :
+    showResult(next.status === 'completed' ? (next.winner < 0 ? 'Session ended in a tie' : next.config.entries[next.winner]) :
       next.status === 'abandoned' ? 'Session abandoned' :
-        last ? 'Round ' + (last.index + 1) + ': ' + next.config.entries[last.winner] :
-          'Wheel locked. Share the link before spinning.');
+        last ? next.config.entries[last.winner] : 'The wheel is locked');
     get('verification').textContent = '';
     if (next.status !== 'open') {
       try { if (!example) localStorage.removeItem(key(next.id)); } catch {}
@@ -269,13 +265,31 @@ function mount(root) {
     if (playing) return;
     playing = true;
     showError('');
+    get('share').disabled = true;
     const pauseButton = automatic ? get('auto') : null;
-    const buttons = [...root.querySelectorAll('button')].filter(button => !button.disabled && button !== pauseButton);
+    const draftBusy = !session;
+    if (draftBusy) {
+      setup.inert = true;
+      bestOf.disabled = true;
+    }
+    const buttons = ['spin-now', 'draw', 'spin-again', 'stage-replay', 'auto', 'abandon', 'refresh', 'replay-last', 'replay-series', 'lock-wheel']
+      .map(get).filter(button => !button.disabled && button !== pauseButton);
+    get('finish').disabled = true;
     for (const button of buttons) button.disabled = true;
     try { await action(); }
-    catch (error) { showError(error instanceof Error ? error.message : 'The action could not finish.'); }
+    catch (error) {
+      const message = error instanceof Error ? error.message : 'The action could not finish.';
+      if (get('share-dialog').open) sharing.error(message);
+      else showError(message);
+    }
     finally {
       playing = false;
+      get('finish').disabled = !session?.rounds.length;
+      get('share').disabled = !session && Boolean(currentId || example);
+      if (draftBusy) {
+        setup.inert = false;
+        bestOf.disabled = Boolean(session) || Boolean(currentId || example);
+      }
       for (const button of buttons) button.disabled = false;
     }
   }
@@ -314,7 +328,8 @@ function mount(root) {
     let segment = -1;
     let lastTick = at - 120;
     get('wheel-panel').dataset.state = 'spinning';
-    showResult('Spinning…');
+    get('result-label').textContent = 'On the wheel';
+    showResult('Round and round…');
     return new Promise(resolve => {
       function frame(now) {
         const fraction = Math.min((now - at) / 1250, 1);
@@ -333,20 +348,6 @@ function mount(root) {
     });
   }
 
-  function download(blob, name) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = name;
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
-  async function makePng(style) {
-    const blob = await renderSpinPng(session, shareUrl(session.id), style, drawWheel);
-    download(blob, `spin-${session.id.slice(0, 8)}-${style}.png`);
-  }
-
   async function startDraw(config, spinImmediately) {
     const created = await request('', config);
     owner = created.owner;
@@ -356,15 +357,32 @@ function mount(root) {
     history[hasPreviousDraw ? 'pushState' : 'replaceState'](null, '', shareUrl(created.session.id));
     render(created.session);
     if (spinImmediately) await drawOne();
-    focusAction(spinImmediately && session.status === 'open' ? 'draw' : spinImmediately ? 'spin-again' : 'share');
+    if (spinImmediately) focusAction(session.status === 'open' ? 'draw' : 'spin-again');
+    else {
+      openShare();
+      get('copy-link').focus();
+    }
   }
 
   const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, get('spin-now'), updatePreview);
+  const draftConfig = () => validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: Number(bestOf.value) });
+  function openShare() {
+    const config = session?.config ?? draftConfig();
+    if (!config) {
+      showError(`Add a question and 2–${spinChoiceLimit} distinct choices to share this wheel.`);
+      return;
+    }
+    sharing.open({
+      session, link: session ? shareUrl(session.id) : templateLink(config),
+      question: config.question, isDraft: !session,
+    });
+  }
+  get('share').addEventListener('click', openShare);
   setup.addEventListener('submit', event => {
     event.preventDefault();
     armSound();
     void perform(async () => {
-      const config = validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: bestOf.value === '' ? NaN : Number(bestOf.value) });
+      const config = draftConfig();
       if (!config) throw new Error(`Use a question, 2–${spinChoiceLimit} distinct choices, and choose a spin mode.`);
       await startDraw(config, event.submitter === get('spin-now'));
     });
@@ -429,27 +447,6 @@ function mount(root) {
     void perform(async () => render((await request(session.id, { owner, revision: session.revision, action: 'abandon' })).session));
   });
   get('refresh').addEventListener('click', () => void perform(async () => render((await request(session.id)).session)));
-  get('share').addEventListener('click', () => void perform(async () => {
-    if (!navigator.clipboard) throw new Error('Copy the session link from the address bar.');
-    await navigator.clipboard.writeText(shareUrl(session.id));
-    get('share-label').textContent = 'Link copied';
-    get('share').setAttribute('aria-label', 'Link copied');
-    const copiedId = session.id;
-    setTimeout(() => {
-      if (session.id !== copiedId) return;
-      get('share').setAttribute('aria-label', session.status === 'completed' ? 'Copy result link' : 'Copy draw link');
-      get('share-label').textContent = 'Copy link';
-    }, 1600);
-  }));
-  get('copy-template').addEventListener('click', () => void perform(async () => {
-    if (!navigator.clipboard) throw new Error('Open “Edit this wheel” to change its choices.');
-    await navigator.clipboard.writeText(templateLink(session.config));
-    get('copy-template').textContent = 'Wheel link copied';
-  }));
-  get('native-share').addEventListener('click', () => void perform(async () => {
-    try { await navigator.share({ title: session.config.question, url: shareUrl(session.id) }); }
-    catch (error) { if (error?.name !== 'AbortError') throw error; }
-  }));
   get('sound').addEventListener('click', () => {
     sound = !sound;
     try { localStorage.setItem('composer-spin-sound', sound ? 'on' : 'off'); } catch {}
@@ -465,26 +462,23 @@ function mount(root) {
     heading.focus({preventScroll: true});
     heading.scrollIntoView({block: 'start'});
   });
-  get('share-spin').addEventListener('click', () => void perform(async () => {
-    const url = spinOrigin + '/';
-    if (typeof navigator.share === 'function') {
-      try { await navigator.share({ title: spinDiscovery.name, url }); return; }
-      catch (error) { if (error?.name === 'AbortError') return; }
-    }
-    if (!navigator.clipboard) throw new Error('Open the Spin sharing kit to copy the app link.');
-    await navigator.clipboard.writeText(url);
-    get('share-spin-label').textContent = 'App link copied';
-    setTimeout(() => { get('share-spin-label').textContent = 'Share Spin'; }, 1600);
-  }));
-  get('replay').addEventListener('click', () => {
+  function replayLast() {
     armSound();
     void perform(async () => {
       const next = session;
-      await animate(next, next.rounds.at(-1));
+      const last = next.rounds.at(-1);
+      await animate(next, last);
+      if (last.winner !== next.winner) {
+        get('result-label').textContent = 'Last recorded spin';
+        showResult(next.config.entries[last.winner]);
+        await new Promise(resolve => setTimeout(resolve, 650));
+      }
       if (next.status === 'completed') chime();
       render(next);
     });
-  });
+  }
+  get('stage-replay').addEventListener('click', replayLast);
+  get('replay-last').addEventListener('click', replayLast);
   get('replay-series').addEventListener('click', () => {
     armSound();
     void perform(async () => {
@@ -499,27 +493,6 @@ function mount(root) {
       render(next);
     });
   });
-  for (const [control, style] of [['png', 'square'], ['portrait', 'portrait'], ['story', 'story'], ['landscape', 'landscape']]) {
-    get(control).addEventListener('click', () => void perform(() => makePng(style)));
-  }
-  get('replay-video').addEventListener('click', () => {
-    armSound();
-    void perform(async () => {
-      get('export-status').textContent = 'Making the replay video…';
-      try {
-        const video = await renderSpinVideo(session, shareUrl(session.id), drawWheel, reduced.matches, sound ? audio : undefined);
-        download(video.blob, `spin-${session.id.slice(0, 8)}-replay.${video.extension}`);
-        get('export-status').textContent = 'Replay video downloaded.';
-      } catch (error) {
-        get('export-status').textContent = '';
-        throw error;
-      }
-    });
-  });
-  get('receipt').addEventListener('click', () => {
-    download(new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' }), 'spin-' + session.id + '.json');
-  });
-
   if (example) {
     showResult('Opening example…');
     void perform(async () => render(await readSpinExample(example)));

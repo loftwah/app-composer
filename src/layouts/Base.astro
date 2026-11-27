@@ -92,7 +92,6 @@ Astro.csp?.insertScriptResource(
       <link rel="manifest" href={spinProduct ? spinBrandFiles.manifest : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
     <meta name="theme-color" content={themeColors[initialTheme]} data-light={themeColors.light} data-dark={themeColors.dark} />
     {spinProduct ? <>
-      <link rel="icon" href={spinBrandFiles.mark} type="image/svg+xml" sizes="any" />
       <link rel="icon" href={spinBrandFiles.faviconSmall} type="image/png" sizes="16x16" />
       <link rel="icon" href={spinBrandFiles.favicon} type="image/png" sizes="32x32" />
       <link rel="apple-touch-icon" href={spinBrandFiles.touch} sizes="180x180" />
@@ -150,7 +149,7 @@ Astro.csp?.insertScriptResource(
       {spinProduct ? (
         <a class="brand spin-brand select-none" href={spinDiscovery.href}>
           <img src={spinBrandFiles.mark} width="38" height="38" alt="" />
-          <span class="spin-brand-name">Spin<span>by App Composer</span></span>
+          <span class="spin-brand-name">Spin.<span>by App Composer</span></span>
         </a>
       ) : printsProduct ? (
         <a class="brand select-none" href="/">
@@ -396,7 +395,8 @@ Astro.csp?.insertScriptResource(
     min-height: 56px;
     padding: 6px max(18px, calc((100% - 1024px) / 2));
   }
-  .spin-experience .site-header { padding-inline: max(18px, calc((100% - 1150px) / 2)); }
+  .spin-experience .site-header { padding-inline: max(18px, calc((100% - 1100px) / 2)); }
+  .spin-brand > img { border-radius: 9px; }
   .focused-experience .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
   .focused-experience .site-header .brand:not(.spin-brand) > img { width: 24px; height: 24px; }
   .focused-experience #main { padding-block-start: .65rem; }

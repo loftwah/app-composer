@@ -16,7 +16,7 @@ function readPreferences() {
 const fromPreset = id => ({
   preset: id,
   question: spinPresetById[id].question,
-  bestOf: id === 'fast-food-three' ? 1 : 3,
+  bestOf: 1,
   choices: spinPresetById[id].entries.map(label => ({ label, enabled: true })),
 });
 
@@ -77,7 +77,6 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     const odds = count < 2 ? 'Enable at least two choices.' :
       `${new Intl.NumberFormat('en-AU', { style: 'percent', maximumFractionDigits: 2 }).format(1 / count)} each`;
     find('choice-odds').textContent = distinct ? odds : 'Use different names for each choice.';
-    find('lock-wheel').disabled = count < 2 || !distinct;
     spinButton.disabled = count < 2 || !distinct;
     persist();
     const foodIdeas = foodPresets.has(draft.preset) || draft.preset === 'custom';
@@ -120,12 +119,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
       const onWheel = included.has(normalized(idea.label));
       button.disabled = onWheel;
       button.setAttribute('aria-label', onWheel ? idea.label + ' is on the wheel' : 'Add ' + idea.label);
-      const image = document.createElement('img');
-      image.src = idea.art;
-      image.alt = '';
-      image.width = 32;
-      image.height = 32;
-      button.append(image, (onWheel ? '✓ ' : '+ ') + idea.label);
+      button.textContent = onWheel ? idea.label + ' added' : '+ ' + idea.label;
       button.addEventListener('click', () => addSuggested([idea.label]));
       return button;
     }));
@@ -257,15 +251,12 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   function pick(id) {
     if (!Object.hasOwn(spinPresetById, id)) return;
     prefs.recent = [id, ...prefs.recent.filter(item => item !== id)].slice(0, 8);
-    showDraft(fromPreset(id));
+    showDraft({ ...fromPreset(id), bestOf: bestOf.value });
     message.textContent = spinPresetById[id].label + ' loaded.';
   }
 
   for (const picker of presetPickers) picker.addEventListener('change', () => pick(picker.value));
-  fastFood.addEventListener('click', () => {
-    pick('fast-food-three');
-    spinButton.focus();
-  });
+  fastFood.addEventListener('click', () => pick('fast-food-three'));
   find('show-order').addEventListener('change', event => {
     list.dataset.reorder = String(event.target.checked);
   });

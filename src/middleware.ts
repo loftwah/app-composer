@@ -108,7 +108,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
   response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  if (!response.headers.has("Referrer-Policy")) {
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  }
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Cache-Control", "no-store");
   return response;

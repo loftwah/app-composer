@@ -1,4 +1,4 @@
-// A short spring click and two-note result signal. Audio starts from a user gesture.
+// A short spring click and short original result flourish. Audio starts from a user gesture.
 function tone(context, destination, frequency, strength, seconds, delay = 0, type = 'triangle') {
   const start = context.currentTime + delay;
   const oscillator = context.createOscillator();
@@ -19,6 +19,9 @@ export function spinClick(context, destination = context.destination) {
 }
 
 export function spinChime(context, destination = context.destination) {
-  tone(context, destination, 659.25, .12, .14);
-  tone(context, destination, 987.77, .11, .20, .10);
+  tone(context, destination, 587.33, .10, .13);
+  tone(context, destination, 739.99, .10, .14, .072);
+  tone(context, destination, 880, .11, .18, .144);
+  tone(context, destination, 1174.66, .10, .30, .228);
+  tone(context, destination, 293.66, .07, .27, .228);
 }

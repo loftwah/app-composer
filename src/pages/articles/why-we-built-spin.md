@@ -2,8 +2,8 @@
 layout: "../../layouts/Article.astro"
 title: "Why we built App Composer Spin"
 description: "A wheel for the everyday decisions that go round in circles, with a replay your friends can check."
-cover: "/campaign/spin/one-spin-or-all-night-20261127f.jpg"
-coverAlt: "Spin by App Composer. One spin or all night. A close-up of the metal pointer above an orange and charcoal wheel."
+cover: "/campaign/spin/going-round-20261127.jpg"
+coverAlt: "Spin by App Composer. Going round in circles? Good. An orange felt hand flicks a blue wheel and sends a slice of felt pizza flying."
 coverCaption: "Original AI-generated campaign artwork for App Composer Spin."
 published: "2026-11-27"
 ---
@@ -28,12 +28,7 @@ The receipt checks consistency within one session. A person can still create sev
 
 These public launch examples preserve the original completed receipts so you can replay and verify them after the original session links expire.
 
-<figure>
-  <video controls playsinline preload="metadata" width="540" height="960" poster="/campaign/spin/wheel-demo-poster-20261127e.webp" src="/campaign/spin/wheel-demo-20261127e.mp4">
-    <track kind="captions" label="English" srclang="en" src="/campaign/spin/wheel-demo-20261127e.en.vtt" default>
-  </video>
-  <figcaption>A phone-sized recording of Spin’s takeaway suggestions, wheel sound and result link. <a href="/share/spin">Watch it in App Composer Share</a>.</figcaption>
-</figure>
+[See Spin’s artwork and download the post package in App Composer Share](/share/spin).
 
 ## If the wheel picks takeaway
 
@@ -43,4 +38,4 @@ Set a suburb or postcode such as Sunbury VIC 3429. Spin remembers the area on yo
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-20261127e.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-20261127e.png) · [App icon](/spin-brand/spin-icon-512-20261127e.png) · [Social preview](/campaign/spin/one-spin-or-all-night-20261127f.jpg) · [Launch kit and QR](/share/spin#social-kit)
+[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-round-20261127.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-round-20261127.png) · [App icon](/spin-brand/spin-512-round-20261127.png) · [Social preview](/campaign/spin/going-round-20261127.jpg) · [Launch kit and QR](/share/spin#social-kit)
