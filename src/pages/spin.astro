@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import SpinTasteCloud from '../components/SpinTasteCloud.astro';
 import SpinShareDialog from '../components/SpinShareDialog.astro';
 import { ArrowUpRight, CalendarDays, ChevronDown, Gamepad2, Plus, RotateCw, Share2, Utensils, Volume2, VolumeX } from '@lucide/astro';
-import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
+import { spinLinkArtwork, spinLinkArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinDefaultPreset, spinPresetById, spinPresetGroups } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinIdPattern, spinLifetimeDays } from '../lib/spin-protocol.mjs';
@@ -17,7 +17,7 @@ const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
 const title = replay ? 'Shared spin · Spin by App Composer' : 'Decision Wheel & Random Picker · Spin by App Composer';
 const description = replay
   ? 'See where the wheel landed.'
-  : 'Put your choices on a wheel and spin. Play once, keep score over several rounds, or share the result.';
+  : 'Free, ad-free decision wheel. Add your own choices, spin once or play best-of rounds, then copy the result as an image.';
 Astro.csp?.insertDirective('img-src blob:');
 if (replay) Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 const canonical = (example || (sharedId && spinIdPattern.test(sharedId))) ? new URL(spinPath + '?' + new URLSearchParams(
@@ -32,12 +32,13 @@ const application = JSON.stringify({
   applicationCategory: 'UtilitiesApplication',
   operatingSystem: 'Web',
   inLanguage: 'en-AU',
-  image: new URL(spinArtwork, spinOrigin).href,
+  image: new URL(spinLinkArtwork, spinOrigin).href,
   offers: { '@type': 'Offer', price: 0, priceCurrency: 'AUD' },
 });
 ---
-<Base {title} {description} {canonical} shareImage={spinArtwork}
-  shareAlt={spinArtworkAlt} shareType="image/jpeg" shareWidth={1200} shareHeight={630} noindex={replay || undefined} focusedExperience spinProduct>
+<Base {title} {description} {canonical} shareImage={spinLinkArtwork}
+  shareAlt={spinLinkArtworkAlt} shareType="image/jpeg" shareWidth={1200} shareHeight={630} noindex={replay || undefined} focusedExperience spinProduct>
+  <meta slot="head" property="og:locale" content="en_AU" />
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <div class="play">
@@ -66,11 +67,6 @@ const application = JSON.stringify({
             </label>
             <p id="spin-mode-help" data-rules></p>
           </div>
-          <div class="wheel-readout" role="status">
-            <p class="readout-label" data-result-label>{replay ? 'Shared draw' : 'Tap or flick the wheel'}</p>
-            <p class="wheel-status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
-          </div>
-          <section data-share-result aria-label="Share result" hidden></section>
           <div class="wheel-actions">
             <div class="primary-slot" data-spin-primary>
               <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
@@ -82,6 +78,11 @@ const application = JSON.stringify({
             </div>
             <button type="button" data-share disabled={replay}><Share2 size={17} aria-hidden="true" data-share-icon /> <span data-share-label>Share wheel</span></button>
           </div>
+          <div class="wheel-readout" role="status">
+            <p class="readout-label" data-result-label>{replay ? 'Shared draw' : 'Tap or flick the wheel'}</p>
+            <p class="wheel-status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
+          </div>
+          <section data-share-result aria-label="Share result" hidden></section>
           <div class="wheel-tools">
             <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
             <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
@@ -364,11 +365,7 @@ const application = JSON.stringify({
   .spin .wheel-primary { color: var(--spin-ink); background: var(--spin-orange); border-color: var(--spin-ink); }
   .spin .wheel-primary:hover:enabled { background: #ff8c52; }
   .spin .wheel-primary:disabled { opacity: .68; }
-  .spin [data-state='completed'] .wheel-primary {
-    color: var(--color-foreground); background: var(--color-field); border-color: var(--color-border);
-  }
-  .spin [data-state='completed'] .wheel-primary:hover:enabled { background: var(--color-surface); }
-  .spin .wheel-actions > button { background: var(--color-field); font-weight: 700; }
+  .spin .wheel-actions > button { background: var(--color-field); font-weight: 700; white-space: nowrap; }
   .spin .wheel-actions > button:hover { border-color: var(--spin-accent); }
   .wheel-actions svg, .wheel-tools svg, .preset-quick button svg { flex: none; }
   .wheel-tools { display: flex; align-items: center; justify-content: flex-start; gap: 4px; min-height: 44px; flex-wrap: wrap; }
@@ -453,9 +450,9 @@ const application = JSON.stringify({
     .choice-preview :global(img) { width: 25px; height: 23px; }
     .stage-mode { grid-row: 2; }
     .wheel-display { grid-row: 3; width: min(100%, clamp(212px, 33dvh, 285px)); justify-self: center; border-radius: 17px; }
-    .wheel-readout { grid-row: 4; min-block-size: 2.25rem; }
-    [data-share-result] { grid-row: 5; }
-    .wheel-actions { grid-row: 6; }
+    .wheel-actions { grid-row: 4; }
+    .wheel-readout { grid-row: 5; min-block-size: 2.25rem; }
+    [data-share-result] { grid-row: 6; }
     .wheel-tools { grid-row: 7; gap: 2px; max-width: 100%; }
     .wheel-panel [data-error], .wheel-panel [data-start-over] { grid-row: 8; }
     .spin .wheel-tools button:not(.button), .wheel-tools a {
@@ -467,6 +464,7 @@ const application = JSON.stringify({
     .preset-picker select { font-size: .83rem; }
   }
   @media (max-width: 350px) {
+    .spin .wheel-actions > button { padding-inline: 7px; font-size: .82rem; }
     .mode-picker { grid-template-columns: minmax(0, 1fr); }
     .mode-picker > span:first-child {
       position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;

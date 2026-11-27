@@ -8,6 +8,8 @@ export const spinImageFormats = [
 ];
 export const spinArtwork = '/campaign/spin/let-it-spin-wide-20261128.jpg';
 export const spinArtworkAlt = 'What’s for dinner? Let the wheel pick. Three cutout takeaway meals orbit on lilac. Spin by App Composer.';
+export const spinLinkArtwork = '/spin-brand/spin-motion-cover-20261128.jpg';
+export const spinLinkArtworkAlt = 'App Composer Spin. Three positions of a colourful decision wheel beside the words Put it on the wheel.';
 const brand = '/spin-brand/live/';
 export const spinIcon = brand + 'spin-192.png';
 export const spinBrandFiles = {
