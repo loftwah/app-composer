@@ -1,12 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
 import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
+import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinPresetGroups } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinLifetimeDays } from '../lib/spin-protocol.mjs';
-const replay = Astro.url.searchParams.has('session');
+const candidate = Astro.url.searchParams.get('example');
+const sessionLink = Astro.url.searchParams.has('session');
+const example = !sessionLink && candidate && Object.hasOwn(spinExamples, candidate) ? candidate : '';
+const replay = Boolean(sessionLink || example);
 const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
-const example = 'https://spin.loftwah.com/?session=677dd723-a74a-4424-a51c-6c71f4803ed3';
-const exampleAvailable = Date.now() < Date.UTC(2026, 11, 27, 8, 45);
 const title = replay ? 'Verify a replay · App Composer Spin' : 'Decision Wheel & Random Picker · App Composer Spin';
 const description = replay
   ? 'Open an App Composer Spin replay and check the recorded decision.'
@@ -28,7 +30,7 @@ const application = JSON.stringify({
 <Base {title} {description} canonical={spinDiscovery.href} shareImage={spinArtwork}
   shareAlt={spinArtworkAlt} shareType="image/jpeg" noindex={replay || undefined} focusedExperience spinProduct>
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
-  <section class="spin" data-spin data-spin-path={spinPath}>
+  <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <header>
       <h1 data-spin-heading>{replay ? 'Spin replay' : 'Settle it with a spin.'}</h1>
       <p data-spin-intro>{replay ? 'Watch the recorded wheel and check the result.' : 'A free decision wheel for dinner, game night and anything up for debate.'}</p>
@@ -48,6 +50,11 @@ const application = JSON.stringify({
       <div class="controls">
         <form data-setup hidden={replay}>
           <h2>Set up your wheel</h2>
+          <button type="button" class="quick-preset" data-quick-chains>Maccas, Hungry Jack’s &amp; KFC</button>
+          <div class="button-row ready-actions">
+            <button class="button" type="submit" data-spin-now>Spin now</button>
+            <button type="submit" data-lock-wheel>Lock wheel and get link</button>
+          </div>
           <button type="button" class="takeaway" data-takeaway>
             <img src="/spin-brand/food-20261127.webp" alt="" width="72" height="72" />
             <span><strong>Australian takeaway roulette</strong><small>Fish and chips, kebabs, Maccas and more</small></span>
@@ -88,7 +95,6 @@ const application = JSON.stringify({
           <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="3" required /></label>
           <p class="note" data-rules></p>
           <p class="note">Anyone with the session link can read the question and choices for {spinLifetimeDays} days. Leave personal details out.</p>
-          <button class="button" type="submit" data-lock-wheel>Lock wheel and get link</button>
           <details class="saved-wheels">
             <summary>Saved wheels and favourites</summary>
             <div class="button-row">
@@ -160,7 +166,9 @@ const application = JSON.stringify({
         <p>Add your choices and pick a single spin or a best-of series. Each eligible choice has the same odds on its round.</p>
         <p>Lock the wheel to get a link you can share before the first spin. Once the series ends, friends can replay the recorded result and check the receipt.</p>
         <a href="https://composer.loftwah.com/articles/why-we-built-spin">How the verification works</a>
-        {exampleAvailable && <a href={example}>Watch the game night example</a>}
+        <div class="spin-examples">
+          {Object.entries(spinExamples).map(([key, label]) => <a href={spinOrigin + '/?example=' + key}>{label} replay</a>)}
+        </div>
       </div>
     </section>}
   </section>
@@ -216,6 +224,8 @@ const application = JSON.stringify({
   [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a { align-self: center; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
+  .quick-preset { text-align: start; }
+  .ready-actions > button { flex: 1 1 auto; min-height: 44px; }
   .takeaway { display: flex; align-items: center; text-align: left; gap: 14px; }
   .takeaway img, .preset-groups img, .winner-art img { display: block; flex: none; border-radius: 8px; }
   .takeaway small { display: block; color: var(--color-muted); }

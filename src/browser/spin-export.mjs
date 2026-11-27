@@ -6,7 +6,7 @@ const sizes = {
 };
 const turn = Math.PI * 2;
 export const winnerAngle = (winner, count) => -winner * turn / count;
-const types = ['video/mp4', 'video/webm;codecs=vp8', 'video/webm'];
+const types = ['video/mp4;codecs=avc1.420034', 'video/mp4;codecs=avc1', 'video/webm;codecs=vp8', 'video/webm'];
 
 export function replayVideoType() {
   if (typeof HTMLCanvasElement.prototype.captureStream !== 'function' || typeof MediaRecorder === 'undefined') return '';
@@ -34,7 +34,7 @@ function label(context, value, x, y, width, size, weight, colour) {
   context.fillText(short === value ? short : short + '…', x, y);
 }
 
-function composition(target, wheel, session, link, style, frame, artwork) {
+function composition(target, wheel, session, link, style, frame, artwork, composer) {
   const { width, height } = target.canvas;
   const wide = style === 'landscape';
   const story = style === 'story';
@@ -49,7 +49,9 @@ function composition(target, wheel, session, link, style, frame, artwork) {
   target.fillStyle = palette.coral;
   target.fillRect(0, 0, width, wide ? 7 : 12);
   target.textAlign = wide ? 'left' : 'center';
-  label(target, 'APP COMPOSER SPIN', x, wide ? 105 : story ? 215 : 92, maxText, 30, 750, palette.coral);
+  const brandY = wide ? 105 : story ? 215 : 92;
+  if (composer) target.drawImage(composer, wide ? x : x - 174, brandY - 28, 30, 30);
+  label(target, 'APP COMPOSER SPIN', x + (composer ? (wide ? 43 : 16) : 0), brandY, maxText, 30, 750, palette.coral);
   label(target, session.config.question, x, wide ? 170 : story ? 320 : 164, maxText, wide ? 34 : 48, 650, palette.paper);
   target.drawImage(wheel, wheelX, wheelY, size, size);
   if (artwork && !frame.title) {
@@ -81,12 +83,21 @@ function composition(target, wheel, session, link, style, frame, artwork) {
   label(target, link, x, height - (story ? 145 : 65), maxText, wide ? 15 : 22, 500, palette.paper);
 }
 
+async function loadComposerMark() {
+  const logo = new Image();
+  logo.src = '/brand/composer-icon-20261022b-96.png';
+  try { await logo.decode(); } catch { return null; }
+  return logo;
+}
+
 export async function renderSpinPng(session, link, style, paintWheel) {
   const output = makeCanvas(...sizes[style]);
   const wheel = makeCanvas(560, 560);
   paintWheel(session.config.entries, winnerAngle(session.winner, session.config.entries.length), wheel);
-  const artwork = await loadWinnerArtwork(session.config.entries[session.winner]);
-  composition(output, wheel.canvas, session, link, style, {}, artwork);
+  const [artwork, composer] = await Promise.all([
+    loadWinnerArtwork(session.config.entries[session.winner]), loadComposerMark(),
+  ]);
+  composition(output, wheel.canvas, session, link, style, {}, artwork, composer);
   const blob = await new Promise(resolve => output.canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Image export did not finish.');
   return blob;
@@ -98,7 +109,9 @@ export async function renderSpinVideo(session, link, paintWheel, reduced) {
   if (document.hidden) throw new Error('Keep Spin visible while exporting the replay.');
   const output = makeCanvas(...sizes.story);
   const wheel = makeCanvas(560, 560);
-  const artwork = await loadWinnerArtwork(session.config.entries[session.winner]);
+  const [artwork, composer] = await Promise.all([
+    loadWinnerArtwork(session.config.entries[session.winner]), loadComposerMark(),
+  ]);
   const rounds = session.rounds.slice(-3);
   const length = session.config.entries.length;
   const introMs = 1550;
@@ -143,7 +156,7 @@ export async function renderSpinVideo(session, link, paintWheel, reduced) {
           };
         } else angle = winnerAngle(session.winner, length);
         paintWheel(session.config.entries, angle, wheel);
-        composition(output, wheel.canvas, session, link, 'story', frame, artwork);
+        composition(output, wheel.canvas, session, link, 'story', frame, artwork, composer);
         if (elapsed < duration) frameId = requestAnimationFrame(draw);
         else resolve();
       }

@@ -14,7 +14,7 @@ function readPreferences() {
 const fromPreset = id => ({
   preset: id,
   question: spinPresetById[id].question,
-  bestOf: 3,
+  bestOf: id === 'fast-food-three' ? 1 : 3,
   choices: spinPresetById[id].entries.map(label => ({ label, enabled: true })),
 });
 
@@ -62,6 +62,7 @@ export function mountSpinEditor(form, onPreview) {
       `${count} enabled · ${new Intl.NumberFormat('en-AU', { style: 'percent', maximumFractionDigits: 2 }).format(1 / count)} each at the start`;
     find('choice-odds').textContent = odds;
     find('lock-wheel').disabled = count < 2;
+    find('spin-now').disabled = count < 2;
     persist();
     onPreview(active());
   }
@@ -177,6 +178,10 @@ export function mountSpinEditor(form, onPreview) {
   }
 
   for (const picker of presetPickers) picker.addEventListener('change', () => pick(picker.value));
+  find('quick-chains').addEventListener('click', () => {
+    pick('fast-food-three');
+    find('spin-now').focus();
+  });
   find('takeaway').addEventListener('click', () => pick('takeaway'));
   find('reset').addEventListener('click', () => pick(draft.preset));
   find('favourites').addEventListener('change', event => pick(event.target.value));

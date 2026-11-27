@@ -8,7 +8,7 @@ import BuilderContext from "../components/BuilderContext.astro";
 import {agentSearchMetadata} from "../lib/public-agent-search.mjs";
 import {noindexFor} from "../lib/indexing.mjs";
 import {publicPageCanonical} from "../lib/public-pages.mjs";
-import {spinDiscovery, spinIcon, spinOrigin} from "../lib/spin-site.mjs";
+import {spinDiscovery, spinOrigin} from "../lib/spin-site.mjs";
 import {printsIcon} from "../lib/prints-site.mjs";
 import {siteShareArtwork, siteShareImageType} from "../lib/site-share-artwork.mjs";
 interface Props {
@@ -146,9 +146,9 @@ Astro.csp?.insertScriptResource(
     </a>
     <header class="site-header">
       {spinProduct ? (
-        <a class="brand select-none" href={spinDiscovery.href}>
-          <img src={spinIcon} width="28" height="28" alt="" />
-          <span>App Composer Spin</span>
+        <a class="brand spin-brand select-none" href={spinDiscovery.href}>
+          <img class="spin-brand-dark" src="/spin-brand/composer-spin-lockup-dark-20261127.png" width="135" height="51" alt="App Composer Spin" />
+          <img class="spin-brand-light" src="/spin-brand/composer-spin-lockup-light-20261127.png" width="135" height="51" alt="App Composer Spin" />
         </a>
       ) : printsProduct ? (
         <a class="brand select-none" href="/">
@@ -385,6 +385,9 @@ Astro.csp?.insertScriptResource(
 </html>
 
 <style>
+  .spin-brand img { width: 135px; height: 51px; object-fit: contain; }
+  .spin-brand-light, :global(html[data-theme='light']) .spin-brand-dark { display: none; }
+  :global(html[data-theme='light']) .spin-brand-light { display: block; }
   .focused-experience .site-header {
     grid-template-columns: minmax(0, 1fr) auto;
     min-height: 56px;

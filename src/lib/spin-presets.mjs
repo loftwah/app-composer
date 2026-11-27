@@ -6,6 +6,7 @@ const groups = [
       'Local burger shop', 'Chinese', 'Indian', 'Thai', 'Vietnamese', 'Japanese', 'Sushi', 'Subway', 'Nando’s',
       'Guzman y Gomez', 'Schnitz', 'Mexican', 'Chicken and chips', 'Bánh mì', 'Pub parma',
     ]],
+    ['fast-food-three', 'Maccas, Hungry Jack’s & KFC', 'Which fast food should we get?', ['Maccas', 'Hungry Jack’s', 'KFC']],
     ['dinner', 'Dinner', 'What’s for dinner?', ['Pizza', 'Thai', 'Tacos', 'Burgers', 'Pasta', 'Dumplings']],
     ['lunch', 'Lunch', 'What’s for lunch?', ['Bánh mì', 'Sushi rolls', 'Salad bowl', 'Toastie', 'Soup', 'Wrap']],
     ['breakfast', 'Breakfast', 'What’s for brekkie?', ['Eggs on toast', 'Porridge', 'Pancakes', 'Yoghurt and fruit', 'Breakfast roll']],
