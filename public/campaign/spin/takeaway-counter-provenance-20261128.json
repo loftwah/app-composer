@@ -1,0 +1,58 @@
+{
+  "title": "Dinner’s on the wheel",
+  "source": "Built-in Codex ImageGen",
+  "date": "2026-11-28",
+  "credit": "App Composer · Codex ImageGen and original art direction",
+  "artwork": [
+    {
+      "variant": "wide",
+      "file": "takeaway-counter-wide-20261128.jpg",
+      "width": 1200,
+      "height": 630,
+      "sha256": "f8981dc7f219c72e1ca866fc4e3f89c2db37465519f21d992a6cef5c26ce0866",
+      "prompt": "Create the complete horizontal Open Graph poster for an original small Australian dinner-picker web app called Spin. Wide 1.9:1 composition, editorial food still life shot on flash with hand-printed display type. Design to the exact text only: large 'DINNER’S ON THE WHEEL.' on three short lines at left, and small 'Spin by App Composer' at lower left. Keep ALL lettering at least 12% from all edges and legible at a 300px preview. Warm pale butter-papier backdrop on the left, espresso-black condensed display lettering, brick-red and bottle green art direction. At right a circular old-fashioned fairground wheel made of painted hardware, three differently painted pie slices with paper labels suggested without words, and a little red pointer at 12 o’clock, resting on a tabletop physically surrounded by a takeaway burger, fries and Southern fried chicken. Treat the composition as a genuine opinionated magazine cover with photographic food, tactile believable texture and punch. Bold hierarchy, clean lettering, independent takeaway menu meets magazine cover with humour coming from the scene. No additional text, marks, logos, busy decorative clutter, or stock stickers."
+    },
+    {
+      "variant": "square",
+      "file": "takeaway-counter-square-20261128.jpg",
+      "width": 1080,
+      "height": 1080,
+      "sha256": "2616724f14b12a3cee85e031483d2e6c4de250499975a767157c1212e36011c2",
+      "prompt": "Complete square ad adaptation of the attached Spin by App Composer campaign. Same cream ochre real paper, real constructive red/green/gold wooden wheel with a red triangular pointer and burger, fries, fried chicken photographed on tabletop. Square composition with legible exact text 'DINNER’S ON' and 'THE WHEEL.' in dark condensed type across upper third, small 'Spin by App Composer' beneath it. Fit the wheel and takeaway food in the bottom two thirds so everything important has ample clearance from all edges. Draw from the same editorial real food, on-camera flash and print campaign, adjusting subject size for a clean square post. All required text spelled exactly, no extra copy or logos."
+    },
+    {
+      "variant": "portrait",
+      "file": "takeaway-counter-portrait-20261128.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "610eaae23ae04c3d4dd146663fe41b752733d10cb73bfc30a692b86057f1c5be",
+      "prompt": "Create the COMPLETE tall companion poster for the attached Spin takeaway counter campaign. Same photography, print title, staging and readable typography, RECOMPOSE it for vertical so it works in the central 4:5 crop of a 2:3 master. Leave the outermost 14% of the vertical canvas at each end as plain textured pale golden paper and wooden tabletop respectively, with substantial clearance from text and subjects. At the top of the content block set in two big typeset lines 'DINNER’S ON' and 'THE WHEEL.' in the same espresso-black condensed letterpress style. Below that, shoot a slightly angled closeup of the green/red/gold wooden decision wheel propped on the tabletop, surrounded below and to the sides by an unbranded takeaway burger, golden fries and fried chicken. Set small 'Spin by App Composer' below the headline. Text, wheel, and main food must all fit well inside the centre 75% height AND 84% width. No other copy. Magazine editorial food photo, believable hard flash, cream paper and red stained timber, attractive tactile food, no brand logos. Full bleed 2:3 portrait."
+    },
+    {
+      "variant": "story",
+      "file": "takeaway-counter-story-20261128.jpg",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "5fcf253466f4f6d1ac45e5f1532ca13abf770600951a97170dce34de4d6e06cf",
+      "prompt": "Create the COMPLETE tall companion poster for the attached Spin takeaway counter campaign. Same photography, print title, staging and readable typography, RECOMPOSE it for vertical so it works in the central 4:5 crop of a 2:3 master. Leave the outermost 14% of the vertical canvas at each end as plain textured pale golden paper and wooden tabletop respectively, with substantial clearance from text and subjects. At the top of the content block set in two big typeset lines 'DINNER’S ON' and 'THE WHEEL.' in the same espresso-black condensed letterpress style. Below that, shoot a slightly angled closeup of the green/red/gold wooden decision wheel propped on the tabletop, surrounded below and to the sides by an unbranded takeaway burger, golden fries and fried chicken. Set small 'Spin by App Composer' below the headline. Text, wheel, and main food must all fit well inside the centre 75% height AND 84% width. No other copy. Magazine editorial food photo, believable hard flash, cream paper and red stained timber, attractive tactile food, no brand logos. Full bleed 2:3 portrait.",
+      "finishing": "Extend the paper and tabletop at the edges to keep the printed title clear of story overlays."
+    }
+  ],
+  "optionPhotos": {
+    "prompt": "Create a single wide 3:2 editorial food photograph contact sheet, built from THREE exactly equal width edge-to-edge vertical image panels with hard straight divisions at thirds, no gaps. The final output will be cropped along the two seams to create three distinct thumbnails and hero crops for an independent Australian takeaway dinner decision wheel. Left third: a very close overhead view of irresistible golden craggy Southern fried chicken in plain cream paper, warm tomato-red tabletop. Middle third: very large pub-style flame-grilled beef burger, fresh lettuce, tomato and sesame bun, angled flash still life on a jade diner tray, very clearly thicker and distinct. Right third: a small classic thin double cheeseburger and thin golden fries in an unbranded ivory paper sleeve, mustard yellow tabletop. Centre each main dish fully within its own third. Original 35mm on-camera flash food photography, small independent restaurant editorial, tactile, warm, funny and real, plenty of visual detail, hard lighting with dark edges. Full bleed scene to each panel edge. No typography, no visible brands, no watermarks, no extra objects that cross between panels, no split within a panel.",
+    "files": [
+      {
+        "file": "spin-brand/counter/chicken.webp",
+        "sha256": "b593c0cb78c06d08d8d6217b262d53289da3e78bdd5c7dc110473260d95d1164"
+      },
+      {
+        "file": "spin-brand/counter/fries.webp",
+        "sha256": "12bc993524a87ee53159fa314ebcbdc56d836a2431022c601c0862eeda50060b"
+      },
+      {
+        "file": "spin-brand/counter/grill.webp",
+        "sha256": "4014d347f4fa73185d00e650e30e029507bd68bbc95156d37941fae408add44e"
+      }
+    ]
+  }
+}

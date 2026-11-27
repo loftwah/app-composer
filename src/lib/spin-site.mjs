@@ -6,19 +6,19 @@ export const spinImageFormats = [
   { id: 'story', name: 'Story', width: 1080, height: 1920 },
   { id: 'landscape', name: 'Wide post', width: 1200, height: 630 },
 ];
-export const spinArtwork = '/campaign/spin/going-round-20261127.jpg';
-export const spinArtworkAlt = 'Spin by App Composer. Going round in circles? Good. An orange felt hand flicks a blue wheel and sends a slice of felt pizza flying.';
-export const spinIcon = '/spin-brand/spin-192-round-20261127.png';
+export const spinArtwork = '/campaign/spin/takeaway-counter-wide-20261128.jpg';
+export const spinArtworkAlt = 'Dinner’s on the wheel. A painted wooden wheel sits behind takeaway burgers, chips and fried chicken. Spin by App Composer.';
+const counter = '/spin-brand/counter/';
+export const spinIcon = counter + 'spin-192.png';
 export const spinBrandFiles = {
   mark: spinIcon,
-  manifest: '/spin-brand/site-round-20261127.webmanifest',
-  dark: '/spin-brand/spin-lockup-dark-round-20261127.png',
-  light: '/spin-brand/spin-lockup-light-round-20261127.png',
-  icon: '/spin-brand/spin-512-round-20261127.png',
-  favicon: '/spin-brand/spin-32-round-20261127.png',
-  faviconSmall: '/spin-brand/spin-16-round-20261127.png',
-  maskable: '/spin-brand/spin-maskable-round-20261127.png',
-  touch: '/spin-brand/spin-180-round-20261127.png',
+  manifest: counter + 'site.webmanifest',
+  dark: counter + 'lockup-dark.png',
+  light: counter + 'lockup-light.png',
+  icon: counter + 'spin-512.png',
+  favicon: counter + 'spin-32.png',
+  faviconSmall: counter + 'spin-16.png',
+  touch: counter + 'spin-180.png',
 };
 export const spinDiscovery = Object.freeze({
   id: 'spin',

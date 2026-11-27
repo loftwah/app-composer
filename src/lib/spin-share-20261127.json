@@ -1,5 +1,39 @@
 [
   {
+    "id": "composer-spin-takeaway-counter",
+    "project": "app-composer",
+    "title": "Dinner’s on the wheel · Spin",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · Codex ImageGen and original art direction",
+    "alt": "Dinner’s on the wheel. A painted wooden wheel sits behind takeaway burgers, chips and fried chicken. Spin by App Composer.",
+    "description": "Takeaway counter campaign artwork for Spin by App Composer.",
+    "caption": "Dinner’s on the wheel. Give it a spin and send the result to the group chat. https://spin.loftwah.com/",
+    "tags": [
+      "spin",
+      "app-composer"
+    ],
+    "use": "social",
+    "stage": "share poster",
+    "kind": "editorial composition",
+    "reviewedAt": "2026-11-28",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/takeaway-counter-provenance-20261128.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/takeaway-counter-wide-thumb-20261128.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 315,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/takeaway-counter-wide-20261128.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/takeaway-counter-wide-20261128.jpg",
+      "label": "Campaign JPEG",
+      "width": 1200,
+      "height": 630,
+      "sha256": "f8981dc7f219c72e1ca866fc4e3f89c2db37465519f21d992a6cef5c26ce0866",
+      "version": "takeaway-counter-20261128"
+    }
+  },
+  {
     "id": "composer-spin-going-round",
     "project": "app-composer",
     "title": "Going round in circles? Good. · Spin",
@@ -31,7 +65,8 @@
       "height": 630,
       "sha256": "646ce5e43dd8da72365a7af3bea3dbb03f60e2a262f6b69ca403542d81be4a74",
       "version": "going-round-20261127"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-one-spin-or-all-night",

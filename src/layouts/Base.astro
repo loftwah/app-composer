@@ -40,7 +40,9 @@ const {
 const printsProduct = Astro.props.printsProduct === true;
 const spinProduct = Astro.props.spinProduct === true;
 const themeKey = spinProduct ? "spin-theme" : printsProduct ? "prints-theme" : "composer-theme";
-const themeColors = printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
+const themeColors = spinProduct ? { light: "#f9efe1", dark: "#231915" }
+  : printsProduct ? { light: "#faf6ef", dark: "#191613" }
+  : { light: "#faf9f7", dark: "#17181b" };
 const initialTheme = printsProduct || spinProduct ? "light" : "dark";
 const printsNavigation = [
   { href: "/#paths", label: "Try it" },
@@ -386,6 +388,40 @@ Astro.csp?.insertScriptResource(
 </html>
 
 <style>
+  :global(html[data-product='spin'][data-theme='light']) {
+    --color-background: #f9efe1;
+    --color-foreground: #302019;
+    --color-muted: #6a4e40;
+    --color-surface: #f0dfca;
+    --color-field: #fff8ed;
+    --color-border: #bda18a;
+    --color-control-border: #94745d;
+    --color-accent: #9d3326;
+    --color-accent-hover: #79251a;
+    --color-action: #a73426;
+    --color-action-hover: #8c2a1e;
+    --color-action-pressed: #752319;
+    --color-on-action: #fff5e6;
+    --color-focus: #a73426;
+    --color-selected: #f7dfad;
+  }
+  :global(html[data-product='spin'][data-theme='dark']) {
+    --color-background: #231915;
+    --color-foreground: #fff2e1;
+    --color-muted: #e4c4ac;
+    --color-surface: #3d2920;
+    --color-field: #2e211b;
+    --color-border: #6d5144;
+    --color-control-border: #a07d68;
+    --color-accent: #ffae8c;
+    --color-accent-hover: #ffcfb9;
+    --color-action: #ffc35b;
+    --color-action-hover: #ffdb98;
+    --color-action-pressed: #eeb453;
+    --color-on-action: #302019;
+    --color-focus: #ffbf61;
+    --color-selected: #603321;
+  }
   .site-header .spin-brand { display: inline-flex; gap: 9px; flex-wrap: nowrap; }
   .site-header .spin-brand > img { width: 38px; height: 38px; border-radius: 0; }
   .spin-brand-name { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; font: 700 1.55rem/.95 Space, sans-serif; letter-spacing: -.035em; }
