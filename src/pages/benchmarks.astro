@@ -45,13 +45,13 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
     <h3>Paperwork PDF editor</h3>
     <p>First useful edit in <strong>{seconds(freeFirst.static.firstUsefulInteractionMs.desktop1440)}</strong> on desktop and <strong>{seconds(freeFirst.static.firstUsefulInteractionMs.phone390)}</strong> at phone width. Both runs recovered from a damaged file and reopened an edited export.</p>
     <p>Existing Workers Paid reference. The separate remix passed a local build and Wrangler dry run. Free-account deployment is open.</p>
-    <a href={freeFirst.static.reference}>Try the live fictional form <ArrowRight size={16} aria-hidden="true"/></a>
+    <a class="bench-trial-link" href={freeFirst.static.reference}>Try the live fictional form <ArrowRight size={16} aria-hidden="true"/></a>
    </li>
    <li>
     <h3>Prints illustration</h3>
     <p><strong>{freeFirst.ai.successfulRequests} successful Workers AI requests</strong> in the earlier owner run. A later read and native export returned matching original bytes.</p>
     <p>Zero new inference calls in the rehearsal. Attributable Neurons, invoice and participant-owned run are open.</p>
-    <a href={freeFirst.ai.result}>Follow the original <ArrowRight size={16} aria-hidden="true"/></a>
+    <a class="bench-trial-link" href={freeFirst.ai.result}>Follow the original <ArrowRight size={16} aria-hidden="true"/></a>
    </li>
   </ul>
   <p><a href="/articles/cloudflare-app-rehearsal">Read the results and run the workshop</a> · <a href="/demo/examples/first-app-rehearsal">Open the share pack</a> · <a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/cloudflare-composition/cases/free-first-01-20261127.json">Inspect the receipt</a></p>
@@ -145,8 +145,10 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
 <style>
  .bench-cf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,275px),1fr));gap:12px;list-style:none;padding:0;margin:18px 0 20px;max-width:none}
  .bench-cf-grid li{padding:15px;border:1px solid var(--color-border);border-radius:10px;margin:0;min-width:0}
- .bench-cf-grid strong{display:block;margin:6px 0;font-size:14px;max-width:none}
+ .bench-cf-grid li > strong{display:block;margin:6px 0;font-size:14px;max-width:none}
  .bench-cf-grid p{margin:4px 0;max-width:none}
+ .bench-trial-link{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+ .bench-trial-link svg{flex:none}
  .bench-cf-id{color:var(--color-muted);text-transform:uppercase;letter-spacing:.02em}
  .bench-cf-profiles{margin:12px 0 20px}
  .bench-cf-profiles summary{cursor:pointer;font-weight:600;padding:8px 0}
