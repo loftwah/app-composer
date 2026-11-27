@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { agentSearchFrontmatter } from '../lib/public-agent-search.mjs';
+import { agentSearchFrontmatter, publicAgentContentSignal } from '../lib/public-agent-search.mjs';
 import { renderPrompt } from '../lib/prompt-library.ts';
 
 export const agentRequestVersion = '2026-11-22';
@@ -29,7 +29,7 @@ ${request}
 
 ## Search public documentation
 
-Send GET with the q parameter or HTTP QUERY with a plain-text body to https://composer.loftwah.com/.well-known/search. The endpoint searches a small maintained index and returns Markdown excerpts with canonical links. If it has no match, open the guides below.
+Send GET with the q parameter or HTTP QUERY with a plain-text body to https://composer.loftwah.com/.well-known/search. Use a few topic keywords. The endpoint returns public Markdown excerpts with source links. Open a canonical source before quoting it. If search is unavailable or finds no match, follow the public guides below. See the public experiment and working demo at https://composer.loftwah.com/articles/cloudflare-search-for-agents.
 
 ## Public starting points
 
@@ -62,6 +62,7 @@ export const GET: APIRoute = () =>
   new Response(markdown(), {
     headers: {
       'Content-Type': 'text/markdown; charset=utf-8',
+      'Content-Signal': publicAgentContentSignal,
       'Cache-Control': 'public, max-age=300',
       'X-Agent-Request-Version': agentRequestVersion,
       'X-Content-Type-Options': 'nosniff',

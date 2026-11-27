@@ -6,7 +6,8 @@ const composerOrigin = publicPageCanonical('/').origin;
 const searchPath = '/.well-known/search';
 const guidePath = '/agent.md';
 const limit = 1024;
-const instructions = 'Search this site’s public product documentation. Results are Markdown excerpts with source links.';
+const instructions = 'Search this site’s public product documentation with a few topic keywords. Results are Markdown excerpts with source links.';
+export const publicAgentContentSignal = 'search=yes, ai-input=yes, ai-train=no';
 
 const sites = new Map([
   [composerOrigin, [
@@ -20,9 +21,11 @@ const sites = new Map([
       'Paperwork supports browser-local PDF form filling and visual signatures. The product guide links to the hosted editor and the portable recipe.'],
     ['Create and review media', '/media-studio', 'studio image video film audio media work published gallery tools creative local',
       'Media Studio has browser-local tools, a public gallery and signed-in production workspaces. Open the product guide for the available starting points.'],
-    [spinDiscovery.name, spinDiscovery.href, spinDiscovery.keywords, spinDiscovery.description],
+    [spinDiscovery.name, '/articles/why-we-built-spin', spinDiscovery.keywords, spinDiscovery.description],
+    ['Search this site from your agent', '/articles/cloudflare-search-for-agents', 'search find agent discovery discover public documentation cloudflare markdown endpoint benchmarks get query',
+      'App Composer advertises public documentation search in its HTML and agent guide. Use GET or HTTP QUERY to read sourced Markdown excerpts. The article links the live demo, measurements and fallback.'],
     ['See current capabilities', '/capabilities', 'capability catalogue catalog operations machine readable json contract supported',
-      'The public capabilities catalogue lists the supported App Composer operations and their boundaries.'],
+      'The public capabilities catalogue lists supported App Composer operations and their boundaries. It links to the machine-readable JSON at /capabilities.json.'],
     ['Read the architecture', '/architecture', 'architecture storage d1 durable object r2 source data worker database privacy trust boundary',
       'The public architecture guide describes the Worker, EmDash administration and the boundaries between Composer, mounted apps and independently owned data.'],
   ]],
@@ -96,6 +99,7 @@ function markdown(body, status, method, cache = 'no-store', headers = {}) {
       'Content-Type': 'text/markdown; charset=utf-8',
       'Cache-Control': cache,
       'X-Content-Type-Options': 'nosniff',
+      'Content-Signal': publicAgentContentSignal,
       ...headers,
     },
   });
@@ -148,6 +152,6 @@ export async function publicAgentSearch(request) {
 
   const results = readQueryResults(origin, query);
   const content = results.map(({ title, source, excerpt }) => `## ${title}\n\n${excerpt}\n\nSource: ${source}\n`).join('\n');
-  return markdown(`# Public documentation search\n\n${content || 'No matching source in this public documentation index. Try fewer or more specific keywords.\n'}`,
+  return markdown(`# Public documentation search\n\n${content || 'No matching source in this public documentation index. Try fewer or more specific keywords, or open the public guide at /agent.md.\n'}`,
     200, method, method === 'QUERY' ? 'no-store' : 'public, max-age=60');
 }

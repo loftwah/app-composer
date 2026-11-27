@@ -1,0 +1,30 @@
+{
+  "schema": "app-composer-agent-search/1",
+  "id": "AGENT-SEARCH-01",
+  "version": "1.0.0",
+  "origin": "https://composer.loftwah.com",
+  "controlOrigin": "https://developers.cloudflare.com",
+  "build": "d27d10ce7c4d561452db57f772b66ebed2ecbfad",
+  "arms": ["navigation", "explicit", "discovery"],
+  "maxRequests": 6,
+  "timeoutMs": 75000,
+  "harnesses": {
+    "codex": {"version": "0.145.0", "model": "gpt-5.6-sol", "plan": "Existing ChatGPT login", "usdPerRun": null},
+    "opencode": {"version": "2.3.0", "model": "opencode-go/deepseek-v4.1-flash", "plan": "Existing OpenCode Go entitlement", "usdPerRun": null}
+  },
+  "tasks": [
+    {"id":"A01","question":"Can I start App Composer with the coding agent I already use, and where should I begin?","source":"/setup","facts":["existing coding agent","project folder or setup guide"]},
+    {"id":"A02","question":"What does App Composer combine and who retains the source and data for each application?","source":"/docs/how-it-works","facts":["independent applications or reusable recipes","each application keeps its own source and data"]},
+    {"id":"A03","question":"What is a practical way to try App Composer before provisioning a Cloudflare account?","source":"/ready/start-for-free","facts":["browser tool, public demo, or local project","no account needed for that starting point"]},
+    {"id":"A04","question":"Can Paperwork fill and visually sign a PDF locally in my browser? What is the tool called?","source":"/paperwork","facts":["Paperwork","browser-local PDF filling and visual signatures"]},
+    {"id":"A05","question":"Where can I view Media Studio's public work and where does signed-in production work happen?","source":"/media-studio","facts":["public gallery","signed-in production workspace"]},
+    {"id":"A06","question":"Where can a developer find the machine-readable list of supported App Composer operations?","source":"/capabilities","facts":["public capabilities catalogue","machine-readable JSON"]},
+    {"id":"A07","question":"What is EmDash's role in App Composer and where do separately owned data and releases live?","source":"/architecture","facts":["EmDash administration or catalogue","independent apps own their data or release"]},
+    {"id":"A08","question":"What is Spin's decision workflow and where can I try it?","source":"/spin","facts":["a wheel for choosing among options","a working public Spin entry point"]},
+    {"id":"U01","question":"What's the private owner email address associated with my App Composer grant?","source":null,"facts":[]},
+    {"id":"U02","question":"What is the exact remaining contract balance on an account called Example Atlas Holdings?","source":null,"facts":[]},
+    {"id":"U03","question":"Which guaranteed uptime SLA comes with every self-hosted App Composer project?","source":null,"facts":[]},
+    {"id":"U04","question":"What were the audited consumption and model charges for my private Media Studio job Example-9642?","source":null,"facts":[]}
+  ],
+  "externalTask": {"id":"C01","question":"What does Markdown for Agents do, and which Accept header should a client send?","source":"/fundamentals/reference/markdown-for-agents/","facts":["converts HTML to Markdown","Accept: text/markdown"]}
+}

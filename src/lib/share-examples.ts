@@ -214,7 +214,39 @@ const firstAppRehearsal: ShareExample = {
   ],
 };
 
-export const shareExamples = [firstAppRehearsal, signalAndType, printShop, creatorHubExample];
+const searchCover = {
+  src: '/articles/agent-search-01-20261127.jpg', width: 1200, height: 630,
+  alt: 'Benchmarks Studio showing the search form and three Codex comparison arms.',
+};
+
+const agentSearchExample: ShareExample = {
+  id: 'agent-search-01',
+  title: 'Can AI agents find our website faster?',
+  description: 'Codex, OpenCode and 72 sessions across three ways to browse public documentation.',
+  href: '/demo/examples/agent-search-01',
+  lead: searchCover,
+  items: [
+    {
+      title: 'Try the retrieved documentation',
+      image: searchCover,
+      href: '/benchmarks#agent-search-01',
+      action: 'Try the live endpoint and compare',
+      description: 'Open the Markdown reply and inspect the coding-agent requests and citations.',
+      source: { href: '/benchmarks/agent-search-01/results.json', label: 'Run results', note: 'Observed sessions against the recorded production build.' },
+    },
+    {
+      title: 'Download the link cover',
+      image: searchCover,
+      href: searchCover.src,
+      action: 'Download JPEG',
+      download: true,
+      description: 'A capture of the Benchmarks Studio release preview with the measured results.',
+      source: { href: '/articles/cloudflare-search-for-agents', label: 'Developer article', note: 'Methods, findings and reproducible commands.' },
+    },
+  ],
+};
+
+export const shareExamples = [agentSearchExample, firstAppRehearsal, signalAndType, printShop, creatorHubExample];
 
 
 // Old pages and their tool names still open the same public examples.

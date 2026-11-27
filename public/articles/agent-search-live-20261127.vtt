@@ -1,0 +1,9 @@
+WEBVTT
+
+00:00:00.200 --> 00:00:02.700
+Composer returns Markdown with a source URL
+for each documentation excerpt.
+
+00:00:02.700 --> 00:00:08.300
+The canonical setup page provides
+the complete project guide.

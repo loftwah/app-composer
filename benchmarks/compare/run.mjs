@@ -37,6 +37,7 @@ const defaultTimeoutMs = 240_000;
 const USAGE = `Benchmarks Studio comparison runner
 
   node benchmarks/compare/run.mjs --configurations <ids> [options]
+  node benchmarks/compare/run.mjs --agent-search [--out=directory]
 
   --configurations   comma-separated configuration ids from configurations.json
   --trials <n>       trials per configuration; defaults to the configured count
@@ -456,7 +457,12 @@ async function main() {
 }
 
 if (import.meta.url === pathToFileURLSafe(process.argv[1])) {
-  await main();
+  if (process.argv[2] === "--agent-search") {
+    const { runAgentSearch } = await import("../agent-search/experiment.mjs");
+    await runAgentSearch(process.argv.slice(3), { runCommand, parseCodexUsage });
+  } else {
+    await main();
+  }
 }
 
 /** @param {string|undefined} value */

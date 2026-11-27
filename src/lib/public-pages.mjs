@@ -1,7 +1,7 @@
 // These are the deliberately indexable Composer pages. Mounted apps and private
 // routes keep their own routing and publication policies.
 export const publicPagePaths = Object.freeze([
-  '/', '/learn', '/articles', '/articles/why-we-built-spin', '/articles/why-databases-rewrite-data', '/articles/nanochat-pufferfish', '/articles/picking-release-art', '/articles/workers-ai-to-original', '/ready', '/ready/guide', '/setup', '/prompts', '/agent', '/agent.md', '/resources', '/resources/change', '/resources/incident', '/resources/pipeline', '/resources/hook', '/resources/operating-kit', '/init', '/init/content', '/init/launch-kit',
+  '/', '/learn', '/articles', '/articles/why-we-built-spin', '/articles/cloudflare-search-for-agents', '/articles/why-databases-rewrite-data', '/articles/nanochat-pufferfish', '/articles/picking-release-art', '/articles/workers-ai-to-original', '/ready', '/ready/guide', '/setup', '/prompts', '/agent', '/agent.md', '/resources', '/resources/change', '/resources/incident', '/resources/pipeline', '/resources/hook', '/resources/operating-kit', '/init', '/init/content', '/init/launch-kit',
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
   '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team', '/for/media-producer', '/for/marketer', '/for/app-operator',
   '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect', '/jobs/produce', '/jobs/publish', '/jobs/operate',
