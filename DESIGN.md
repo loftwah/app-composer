@@ -340,7 +340,8 @@ explain their rules beside the control, then show progress in the stage. The
 editor and draw details sit beside the stage on desktop and below it on phones.
 
 Share wheel sends an editable copy or lets the host lock a draw before spinning.
-Share result puts the replay link, post text, alt text and four downloadable
-image formats beside a preview of the actual export. The card's QR opens the
-same draw. The share sheet uses a focused dialog so local preparation and
-intentional handoff are distinct interactions.
+Share result opens on the actual image. All four sizes list their pixel
+dimensions and Copy image is the primary action. Save PNG and the device share
+sheet use the same export. The selected size is remembered on this device.
+Caption and alt text are separate from the image clipboard action. The replay
+link remains directly available and the card's QR opens the same draw.

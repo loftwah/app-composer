@@ -1,12 +1,10 @@
 import { spinModeLabel } from '../lib/spin-protocol.mjs';
-import { spinBrandFiles } from '../lib/spin-site.mjs';
+import { spinBrandFiles, spinImageFormats } from '../lib/spin-site.mjs';
 import { qrMatrix } from '../lib/qr-code.ts';
 import { spinClick, spinChime } from './spin-audio.mjs';
 
 const palette = { blue: '#2821b1', ink: '#161349', paper: '#fffaf0', acid: '#edff40', pink: '#ff6fbc' };
-const sizes = {
-  square: [1080, 1080], portrait: [1080, 1350], story: [1080, 1920], landscape: [1200, 630],
-};
+const sizes = Object.fromEntries(spinImageFormats.map(({ id, width, height }) => [id, [width, height]]));
 const turn = Math.PI * 2;
 export const winnerAngle = (winner, count) => -winner * turn / count;
 const types = ['video/mp4;codecs=avc1.420034', 'video/mp4;codecs=avc1', 'video/webm;codecs=vp8', 'video/webm'];

@@ -1,4 +1,11 @@
 export const spinOrigin = 'https://spin.loftwah.com';
+
+export const spinImageFormats = [
+  { id: 'portrait', name: 'Feed portrait', width: 1080, height: 1350 },
+  { id: 'square', name: 'Square post', width: 1080, height: 1080 },
+  { id: 'story', name: 'Story', width: 1080, height: 1920 },
+  { id: 'landscape', name: 'Wide post', width: 1200, height: 630 },
+];
 export const spinArtwork = '/campaign/spin/going-round-20261127.jpg';
 export const spinArtworkAlt = 'Spin by App Composer. Going round in circles? Good. An orange felt hand flicks a blue wheel and sends a slice of felt pizza flying.';
 export const spinIcon = '/spin-brand/spin-192-round-20261127.png';
