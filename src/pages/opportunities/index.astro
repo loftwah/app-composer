@@ -1,0 +1,79 @@
+---
+import Base from '../../layouts/Base.astro';
+import { categories, filterOpportunities, opportunityDate, opportunityPath, opportunityStatus, regions, staleOpportunity, statuses } from '../../lib/opportunities';
+
+const now = Date.now();
+const result = filterOpportunities(Astro.url.searchParams, now);
+---
+<Base title="Australian AI opportunities" description="Find AI training, meetup dates, startup funding and procurement pathways in Melbourne, Victoria and across Australia.">
+  <link slot="head" rel="alternate" type="application/rss+xml" title="Australian AI opportunities" href="/opportunities/feed.xml" />
+  <section class="opportunities" aria-labelledby="opportunities-title">
+    <header>
+      <h1 id="opportunities-title">Australian AI opportunities</h1>
+      <p>Find small-business support, technical meetups, startup funding and routes to consulting work. Start near Sunbury or look across Australia.</p>
+      <a href="/opportunities/feed.xml">Subscribe by RSS</a>
+    </header>
+    <form method="get" action="/opportunities" aria-label="Filter opportunities">
+      <label class="search">Search <input name="q" type="search" value={result.q} maxlength="120" placeholder="Try Sunbury, Cloudflare or meetups" /></label>
+      <label>Region <select name="region">
+        <option value="">All regions</option>
+        {Object.entries(regions).map(([value, label]) => <option value={value} selected={value === result.region}>{label}</option>)}
+      </select></label>
+      <label>Type <select name="category">
+        <option value="">All types</option>
+        {Object.entries(categories).map(([value, label]) => <option value={value} selected={value === result.category}>{label}</option>)}
+      </select></label>
+      <label>Availability <select name="show">
+        <option value="current" selected={result.show === 'current'}>Current programmes</option>
+        <option value="all" selected={result.show === 'all'}>Include watch and past</option>
+      </select></label>
+      <label>Sort <select name="sort">
+        <option value="local" selected={result.sort === 'local'}>Local first</option>
+        <option value="date" selected={result.sort === 'date'}>Dated events first</option>
+        <option value="verified" selected={result.sort === 'verified'}>Recently verified</option>
+      </select></label>
+      <button class="button" type="submit">Apply filters</button>
+    </form>
+    <div class="result-line"><p>{result.matches.length} {result.matches.length === 1 ? 'opportunity' : 'opportunities'}</p>
+      {Astro.url.search && <a href="/opportunities">Clear filters</a>}
+    </div>
+    {result.matches.length ? <ul class="directory">
+      {result.matches.map(item => (
+        <li>
+          <div class="details"><span>{item.location}</span><span>{statuses[opportunityStatus(item, now)]}</span></div>
+          <h2><a href={opportunityPath(item.id)}>{item.title}</a></h2>
+          <p>{item.summary}</p>
+          <p class="dates">{item.organiser} · {staleOpportunity(item, now) ? 'Needs recheck. Last checked' : 'Source checked'} <time datetime={item.verifiedOn}>{opportunityDate(item.verifiedOn)}</time></p>
+        </li>
+      ))}
+    </ul> : <p>No opportunities match. Try a different region or include watch and past entries.</p>}
+    <p class="note">Source checks are dated. Confirm availability and terms with the organiser before applying.</p>
+  </section>
+</Base>
+
+<style>
+  .opportunities { max-width: 1000px; margin-inline: auto; }
+  header { max-width: 70ch; margin-block: 18px 36px; }
+  h1 { font-size: clamp(2.35rem, 6vw, 4.5rem); line-height: 1.03; margin: 0 0 .3em; letter-spacing: -.035em; text-wrap: balance; }
+  header p { font-size: 1.1rem; max-width: 60ch; }
+  header a, .result-line a { padding-block: 10px; display: inline-block; }
+  form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: 14px; padding-block: 18px; border-block: 1px solid var(--color-border); }
+  label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: .9rem; }
+  .search { grid-column: 1 / -1; }
+  form button { grid-column: 4; }
+  input, select { width: 100%; min-width: 0; min-height: 44px; padding: 6px 9px; font: inherit; color: var(--color-foreground); background: var(--color-background); border: 1px solid var(--color-border); border-radius: 6px; }
+  .result-line { display: flex; justify-content: space-between; align-items: center; }
+  .directory { list-style: none; margin: 0; padding: 0; }
+  li { border-top: 1px solid var(--color-border); padding-block: 18px; }
+  .details { display: flex; flex-wrap: wrap; gap: 3px 18px; font-size: .9rem; color: var(--color-muted); }
+  .details span:last-child { font-weight: 650; color: var(--color-foreground); }
+  h2 { margin: 2px 0; font-size: clamp(1.25rem, 3vw, 1.65rem); }
+  h2 a { display: inline-flex; align-items: center; min-height: 44px; }
+  li p { max-width: 72ch; margin: 3px 0 10px; }
+  .dates, .note { font-size: .9rem; color: var(--color-muted); }
+  @media (max-width: 660px) {
+    form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .search, form button { grid-column: 1 / -1; }
+    form button { grid-row: auto; }
+  }
+</style>
