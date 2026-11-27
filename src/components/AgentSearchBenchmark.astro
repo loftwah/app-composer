@@ -69,10 +69,10 @@ const externalSource = new URL(evidence.protocol.externalTask.source, evidence.p
       <section class="control">
         <h3>{harnesses[control.harness]} · {seconds(control.durationMs)}</h3>
         <ol>
-          {control.requests.map(request => (
+          {control.requests.map((request, index) => (
             <li>
               <a href={request.url}>{new URL(request.url).pathname}</a>
-              <span>{request.discovered ? 'Advertised the endpoint' : request.isSearch ? 'Retrieved Markdown' : 'Opened source'}</span>
+              <span>{request.isSearch ? 'Retrieved Markdown' : index === 0 && request.discovered ? 'Advertised the endpoint' : 'Opened source'}</span>
             </li>
           ))}
         </ol>
@@ -80,7 +80,7 @@ const externalSource = new URL(evidence.protocol.externalTask.source, evidence.p
       </section>
     ))}
   </details>
-  <p class="small">App Composer retrieval uses its maintained Worker index. The separate Cloudflare-managed check used one allowlisted public page in a private instance. Invoice attribution was unavailable.</p>
+  <p class="small">App Composer retrieval uses its maintained Worker index. The first Cloudflare-managed check used one allowlisted public page in a private instance. Invoice attribution was unavailable.</p>
 </section>
 
 <style>
