@@ -52,9 +52,10 @@ const application = JSON.stringify({
           <h2>Set up your wheel</h2>
           <button type="button" class="quick-preset" data-quick-chains>Maccas, Hungry Jack’s &amp; KFC</button>
           <div class="button-row ready-actions">
-            <button class="button" type="submit" data-spin-now>Spin now</button>
-            <button type="submit" data-lock-wheel>Lock wheel and get link</button>
+            <button class="button" type="submit" data-spin-now aria-describedby="spin-link-privacy">Spin now</button>
+            <button type="submit" data-lock-wheel aria-describedby="spin-link-privacy">Lock wheel and get link</button>
           </div>
+          <p class="note" id="spin-link-privacy">Anyone with the session link can read the question and choices for {spinLifetimeDays} days. Leave personal details out.</p>
           <button type="button" class="takeaway" data-takeaway>
             <img src="/spin-brand/food-20261127.webp" alt="" width="72" height="72" />
             <span><strong>Australian takeaway roulette</strong><small>Fish and chips, kebabs, Maccas and more</small></span>
@@ -94,7 +95,6 @@ const application = JSON.stringify({
           </details>
           <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="3" required /></label>
           <p class="note" data-rules></p>
-          <p class="note">Anyone with the session link can read the question and choices for {spinLifetimeDays} days. Leave personal details out.</p>
           <details class="saved-wheels">
             <summary>Saved wheels and favourites</summary>
             <div class="button-row">
