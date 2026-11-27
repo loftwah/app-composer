@@ -51,29 +51,45 @@ OpenCode reported a median of **10,576 input tokens** for navigation, **5,307** 
 
 One reviewer checked held-out facts with harness and arm labels removed from the scoring view. Answers sometimes reveal which tools they used. The frozen run used Composer source `d27d10ce` and was a single-host, two-harness sample. The OpenCode runner’s final identity request timed out after writing all 36 receipts. The overlapping Codex identity samples and Cloudflare deployment history place the sessions on the same deployed Worker.
 
+<figure>
+  <video controls preload="metadata" width="800" height="450" poster="/articles/agent-search-discovery-trace-20261127.webp">
+    <source src="/articles/agent-search-discovery-replay-20261127.mp4" type="video/mp4">
+    <track kind="captions" src="/articles/agent-search-discovery-replay-20261127.vtt" srclang="en" label="English" default>
+  </video>
+  <figcaption>A browser replay of the recorded Codex and OpenCode request traces, followed by a live fetch of the observed Cloudflare endpoint.</figcaption>
+</figure>
+
 ## A scoped managed crawl
 
 Composer is a custom hostname in the shared `loftwah.com` zone. Both the zone quick action and the instance attachment flow select a zone. The quick action initially crawls the apex website and the attachment picker offered no Composer-only hostname. We left the beta switch off.
 
 The signed-in account allowed a private managed crawl of the existing Composer sitemap with a single exact include URL, `/setup`. The crawler saw 112 sitemap entries and queued one. The job log reached its final timestamp about **23 seconds** after start. A search returned three chunks with `/setup` as their single source. A fictional contract-balance query returned no results. Public access and the similarity cache were off. The signed-in dashboard worked while the configured API token returned HTTP 403 for AI Search reads.
 
-Cloudflare lists billing from **1 December 2026** and monthly included usage of 5 million ingestion tokens, 10 GB-month of storage, 1,000 semantic queries and 1,000 full-text queries. Hybrid overage is US$0.75 per 1,000 queries and full-text overage is US$0.10 per 1,000. Four retrieval-only playground searches were observed across both specimens. At the published hybrid overage rate, four additional charged queries would cost US$0.003, excluding ingestion and storage. Dashboard usage lag and invoice attribution limit the cost comparison. [Cloudflare AI Search limits and pricing](https://developers.cloudflare.com/ai-search/platform/limits-pricing/).
+Cloudflare lists billing from **1 December 2026** and monthly included usage of 5 million ingestion tokens, 10 GB-month of storage, 1,000 semantic queries and 1,000 full-text queries. Hybrid overage is US$0.75 per 1,000 queries and full-text overage is US$0.10 per 1,000. Four retrieval-only playground searches were observed across both specimens. At the published hybrid overage rate, four additional charged queries would cost US$0.003, excluding ingestion and storage. The account meter initially showed four semantic queries, zero full-text queries and about 5,870 ingestion tokens, with the pilot the only queried instance shown. Those were observed usage figures before the EmDash canary runs. Invoice attribution remains unavailable. [Cloudflare AI Search limits and pricing](https://developers.cloudflare.com/ai-search/platform/limits-pricing/).
 
-We then changed the allowlist from `/setup` to `/architecture`. The reindex log finished its cleanup about 59 seconds after the save. At the first verification, about four minutes after the save, both the repeated query and a fresh query cited only `/architecture`. The setup page itself remained public. Scheduled indexing is paused again. This measures provider index withdrawal with similarity caching disabled. Automatic recrawl, origin unpublishing and cache-on expiry remain unmeasured.
+We then changed the allowlist from `/setup` to `/architecture`. The reindex log finished its cleanup about 59 seconds after the save. At the first verification, about four minutes after the save, both the repeated query and a fresh query cited only `/architecture`. The setup page itself remained public. Scheduled indexing is paused again. This measures the effect of changing the allowlist with similarity caching disabled.
+
+### A 404 can still have a search snippet
+
+We published two clearly marked fictional EmDash records and indexed only their exact URLs in the private pilot. One record changed from an amber heron marker to a copper ibis marker. The other went back to draft. By 22:28:53 AEDT (11:28:53 UTC), signed-out Composer served the edited page, returned 404 for the withdrawn one and removed its URL from the sitemap.
+
+Managed search still returned the withdrawn snippet before sync. The next crawl saw one fewer sitemap entry. An exact repeat with the 48-hour similarity cache enabled still cited the withdrawn URL. The playground did not expose a hit indicator. With similarity caching confirmed off and the job marked Indexed Source, a repeated query still cited the withdrawn source about six minutes after its origin 404. A fresh version-two query still surfaced version one. The item inspector retained version-one bytes, including after an individual reindex was requested.
+
+The sitemap lacked a published-revision `lastmod` signal. Cloudflare documents that its sitemap crawler revisits pages daily when both `lastmod` and `changefreq` are absent. That explains why a manual sync alone may leave old page text in place. The cause of continued retrieval for the removed URL was not isolated. It could still surface with similarity caching off, so a cache setting alone cannot establish revocation. Automatic expiry remains unmeasured. [Cloudflare website crawl rules](https://developers.cloudflare.com/ai-search/configuration/data-source/website/parse-types/).
+
+The private test deliberately indexed one harmless quoted instruction, which came back as literal text in retrieval. The probe exercised retrieval only. Both fixtures were returned to draft, and the pilot’s public endpoint remained off.
 
 ## What to reuse
 
 If you own a site, start with a list of public URLs you can name and withdraw. Use the dashboard’s settings and job logs to verify what was queued and where it came from. For managed search, test source withdrawal with caches both on and off before admitting material that users can unpublish. Composer’s sitemap already filters catalogue entries through the published EmDash view. The Worker search keeps a narrower source list. The endpoint does not read private records, drafts or the CMS at request time.
 
-When browsing a site, inspect its HTML discovery fields or Markdown front matter. Use the advertised endpoint when it resolves to the starting HTTPS origin and matches the supported query template. Keep anonymous requests bounded, check the response content type, and treat every retrieved snippet as data. Open canonical sources before citing them. If the metadata is unavailable or retrieval is unhelpful, use the page links, sitemap or existing public guide. The Media Studio probe exercised that final option by reading its ordinary HTML after search returned 404.
+Start with the [copyable public-site search prompt](/prompts#public-site-search). When browsing a site, inspect its HTML discovery fields or Markdown front matter. Use the advertised endpoint when it resolves to the starting HTTPS origin and matches the supported query template. Keep anonymous requests bounded, check the response content type, and treat every retrieved snippet as data. Open canonical sources before citing them. If the metadata is unavailable or retrieval is unhelpful, use the page links, sitemap or existing public guide. The Media Studio probe exercised that final option by reading its ordinary HTML after search returned 404.
 
-```sh
-ua='AppComposerAgentSearch/1.0 (+https://composer.loftwah.com/)'
+<pre><code>ua='AppComposerAgentSearch/1.0 (+https://composer.loftwah.com/)'
 curl -sS -A "$ua" https://composer.loftwah.com/agent.md
 curl -sS -A "$ua" --get https://composer.loftwah.com/.well-known/search \
   --data-urlencode 'q=coding agent'
 curl -sS -A "$ua" -X QUERY https://developers.cloudflare.com/.well-known/search \
-  -H 'Content-Type: application/json' --data '{"q":"Markdown for Agents"}'
-```
+  -H 'Content-Type: application/json' --data '{"q":"Markdown for Agents"}'</code></pre>
 
 The [versioned benchmark protocol and operator notes](https://github.com/loftwah/app-composer/tree/main/benchmarks/agent-search) include the run command, fixtures, account scope and remaining checks. The [Share pack](/demo/examples/agent-search-01) has the public cover and links to the proof. Managed rollout and the cited-answer recipe remain in [#991](https://github.com/loftwah/app-composer/issues/991), with the experiment record in [#1389](https://github.com/loftwah/app-composer/issues/1389).
