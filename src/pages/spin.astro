@@ -313,4 +313,10 @@ const application = JSON.stringify({
     .wheel-status { font-size: .94rem; }
     [data-state='completed'] .wheel-status { font-size: 1.95rem; }
   }
+  @media (max-width: 430px) {
+    .preset-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .spin .preset-quick button { justify-content: flex-start; gap: 7px; padding-inline: 10px; }
+    .preset-picker select { padding-inline: 10px 26px; }
+    .preset-picker svg { right: 9px; }
+  }
 </style>
