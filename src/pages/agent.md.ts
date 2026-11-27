@@ -1,11 +1,12 @@
 import type { APIRoute } from 'astro';
+import { agentSearchFrontmatter } from '../lib/public-agent-search.mjs';
 import { renderPrompt } from '../lib/prompt-library.ts';
 
 export const agentRequestVersion = '2026-11-22';
 
 function markdown() {
   const request = renderPrompt('assess').text;
-  return `# Point your agent at App Composer
+  return `${agentSearchFrontmatter('https://composer.loftwah.com')}# Point your agent at App Composer
 
 Version ${agentRequestVersion} · https://composer.loftwah.com/agent
 
@@ -25,6 +26,10 @@ ${request}
 | Connect a local agent to an owner workspace | Bounded | Requires an owner-issued, expiring grant. The connection can read its scope and submit a proposal. It cannot approve, deploy, merge, spend or read secrets. |
 | Deploy to Cloudflare | Authorised project work | The existing guarded recipe and the owner's own account and release authority still apply. There is no automatic production deployment. |
 | Make changes without approval | Not supported | Assessment is read-only. Implementation needs explicit owner authorisation, and production actions keep their existing gates. |
+
+## Search public documentation
+
+Send GET with the q parameter or HTTP QUERY with a plain-text body to https://composer.loftwah.com/.well-known/search. The endpoint searches a small maintained index and returns Markdown excerpts with canonical links. If it has no match, open the guides below.
 
 ## Public starting points
 

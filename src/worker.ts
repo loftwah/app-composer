@@ -11,6 +11,7 @@ import {publicFilmAsset} from './lib/public-film-assets';
 import {purgePrivateOutcomes} from './lib/private-outcome-events';
 import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 import {builderNavigationRedirect} from './lib/builder-context.mjs';
+import {publicAgentSearch} from './lib/public-agent-search.mjs';
 import {printsDomainRequest} from './lib/prints-site.mjs';
 import {printsFieldKitAsset} from './lib/prints-downloads.mjs';
 import {publicPageRedirect} from './lib/public-pages.mjs';
@@ -26,6 +27,7 @@ const usageRoute=new RegExp(`^/api/usage/(${Object.keys(events).join('|')})$`);
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
  const fieldKit=await printsFieldKitAsset(request,runtime,context);if(fieldKit)return fieldKit;
+ const search=await publicAgentSearch(request);if(search)return search;
  const printsRequest=printsDomainRequest(request);
  if(printsRequest instanceof Response)return printsRequest;
  if(printsRequest instanceof Request)return handler.fetch!(printsRequest as unknown as typeof request,runtime,context);
