@@ -1,5 +1,75 @@
 [
   {
+    "id": "composer-spin-one-spin-or-all-night",
+    "project": "app-composer",
+    "title": "One spin or all night · Spin by App Composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · Codex ImageGen and original art direction",
+    "alt": "Spin by App Composer. One spin or all night. A close-up of the metal pointer above an orange and charcoal wheel.",
+    "description": "Photographic campaign artwork for Spin by App Composer.",
+    "caption": "Pick a best-of series or keep an open tally. Try Spin and share the draw when you finish.",
+    "tags": [
+      "spin",
+      "app-composer",
+      "takeaway"
+    ],
+    "use": "social",
+    "stage": "share poster",
+    "kind": "editorial composition",
+    "reviewedAt": "2026-11-27",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127f.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/one-spin-or-all-night-thumb-20261127f.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 315,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/one-spin-or-all-night-20261127f.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/one-spin-or-all-night-20261127f.jpg",
+      "label": "Campaign JPEG",
+      "width": 1200,
+      "height": 630,
+      "sha256": "ee0a6bae09ab77be12033f36efa99dc95aa63df139e30c3864cead04cfc7c427",
+      "version": "20261127f"
+    }
+  },
+  {
+    "id": "composer-spin-make-the-call-game-night",
+    "project": "app-composer",
+    "title": "Make the call · Game night · Spin by App Composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · Codex ImageGen and original art direction",
+    "alt": "Spin by App Composer. Make the call. An orange, ivory and charcoal decision wheel with an orange die.",
+    "description": "Photographic campaign artwork for Spin by App Composer.",
+    "caption": "Pick a best-of series or keep an open tally. Try Spin and share the draw when you finish.",
+    "tags": [
+      "spin",
+      "app-composer",
+      "takeaway"
+    ],
+    "use": "social",
+    "stage": "share poster",
+    "kind": "editorial composition",
+    "reviewedAt": "2026-11-27",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127f.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/make-the-call-game-night-thumb-20261127f.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 315,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/make-the-call-game-night-20261127f.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/make-the-call-game-night-20261127f.jpg",
+      "label": "Campaign JPEG",
+      "width": 1200,
+      "height": 630,
+      "sha256": "00b270dc540e2be9b818d3b9aa84dd42604cd40d0ccaa0ad39642bd861398c31",
+      "version": "20261127f"
+    }
+  },
+  {
     "id": "composer-spin-make-the-call",
     "project": "app-composer",
     "title": "Make the call · Spin by App Composer",

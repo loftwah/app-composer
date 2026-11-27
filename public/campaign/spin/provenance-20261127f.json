@@ -1,0 +1,37 @@
+{
+  "title": "One spin or all night · Spin by App Composer",
+  "generator": "OpenAI ImageGen (built-in)",
+  "date": "2026-11-27",
+  "artDirection": "Use an original physical wheel and Spin’s own mark in warm paper, charcoal and Composer orange. Primary hero is a tight metal pointer detail with “One spin or all night.” Companion hero is a full wheel with an orange die and “Make the call.” Both were produced as complete renders.",
+  "designReference": "https://teenage.engineering/products/op-1",
+  "exports": {
+    "make-the-call-game-night-20261127f.jpg": {
+      "sha256": "00b270dc540e2be9b818d3b9aa84dd42604cd40d0ccaa0ad39642bd861398c31",
+      "bytes": 109870
+    },
+    "make-the-call-game-night-thumb-20261127f.webp": {
+      "sha256": "11511c75185704a45b9b820a204dda175af7a54bec059ba0ecdbd778977e9c8b",
+      "bytes": 14594
+    },
+    "one-spin-or-all-night-20261127f.jpg": {
+      "sha256": "ee0a6bae09ab77be12033f36efa99dc95aa63df139e30c3864cead04cfc7c427",
+      "bytes": 115731
+    },
+    "one-spin-or-all-night-thumb-20261127f.webp": {
+      "sha256": "993091c06d35970ac9f5f63195dbdaec62669595055bc5b22a09a43b2375e17e",
+      "bytes": 15834
+    },
+    "spin-captions-20261127f.txt": {
+      "sha256": "6ff629db337d91d956db049a629d232e1f449f65abafea1e10dc531a23325836",
+      "bytes": 572
+    },
+    "spin-launch-kit-20261127f.zip": {
+      "sha256": "1732da71f7d6b3765100d085285aa55daedf709689232c3aa33494f8f142e7c3",
+      "bytes": 4808014
+    }
+  },
+  "generationOutputs": {
+    "one-spin-or-all-night": "5ed2d5f9-7107-43b5-b271-a2e4775a03ea",
+    "make-the-call-game-night": "e5ee6bee-842d-412a-9b54-a715ba52e087"
+  }
+}

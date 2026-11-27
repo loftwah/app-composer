@@ -32,15 +32,16 @@ export const ALL: APIRoute = async ({ request, url }) => {
     if (!id) {
       const result = await createSpin(DB, body.value, now);
       return result ? Response.json(result, { status: 201, headers }) :
-        fail(400, `Use a question, 2–${spinChoiceLimit} distinct entries, and an odd best-of length from 1 to 21.`);
+        fail(400, `Use a question, 2–${spinChoiceLimit} distinct entries, and choose a spin mode.`);
     }
     const input = body.value as { owner?: string; revision?: number; action?: string } | null;
     if (!input || typeof input.owner !== 'string' || !spinSecretPattern.test(input.owner) ||
         typeof input.revision !== 'number' || !Number.isSafeInteger(input.revision) || input.revision < 0 ||
-        (input.action !== 'spin' && input.action !== 'abandon')) return fail(400, 'Invalid session operation.');
-    const result = await advanceSpin(DB, id, input.owner, input.revision, input.action === 'abandon', now);
+        (input.action !== 'spin' && input.action !== 'abandon' && input.action !== 'finish')) return fail(400, 'Invalid session operation.');
+    const result = await advanceSpin(DB, id, input.owner, input.revision, input.action, now);
     return result.status === 200 ? Response.json({ session: result.session }, { headers }) :
-      fail(result.status, result.status === 403 ? 'Only the creator’s browser can change this session.' : 'This session is unavailable or has expired.');
+      fail(result.status, result.status === 409 ? 'Start an open session and spin before finishing it.' :
+          result.status === 403 ? 'Only the creator’s browser can change this session.' : 'This session is unavailable or has expired.');
   } catch {
     return fail(503, 'Spin could not save or read the session. Reopen its link before retrying.');
   }

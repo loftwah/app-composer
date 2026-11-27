@@ -1,6 +1,8 @@
 export const spinOrigin = 'https://spin.loftwah.com';
-export const spinArtwork = '/campaign/spin/spin-wide-20261127e.jpg';
-export const spinArtworkAlt = 'Spin by App Composer. Make the call. An orange and ivory decision wheel beside the Spin mark.';
+export const spinArtwork = '/campaign/spin/one-spin-or-all-night-20261127f.jpg';
+export const spinArtworkAlt = 'Spin by App Composer. One spin or all night. A close-up of the metal pointer above an orange and charcoal wheel.';
+export const spinGameNightArtwork = '/campaign/spin/make-the-call-game-night-20261127f.jpg';
+export const spinGameNightArtworkAlt = 'Spin by App Composer. Make the call. An orange, ivory and charcoal decision wheel with an orange die.';
 export const spinIcon = '/spin-brand/spin-icon-192-20261127e.png';
 export const spinBrandFiles = {
   mark: '/spin-brand/spin-mark-20261127e.svg',
@@ -17,7 +19,7 @@ export const spinDiscovery = Object.freeze({
   id: 'spin',
   name: 'Spin by App Composer',
   category: 'Creative',
-  description: 'Pick dinner, choose a game or settle a decision with a custom wheel and a result friends can verify.',
+  description: 'Pick dinner or choose a game with a single spin, a best-of series or an open session with a live tally.',
   href: spinOrigin + '/',
   keywords: 'decision wheel spin the wheel random picker wheel of names roulette choose dinner game night takeaway best of',
 });

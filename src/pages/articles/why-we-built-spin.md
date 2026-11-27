@@ -2,8 +2,8 @@
 layout: "../../layouts/Article.astro"
 title: "Why we built App Composer Spin"
 description: "A wheel for the everyday decisions that go round in circles, with a replay your friends can check."
-cover: "/campaign/spin/spin-wide-20261127e.jpg"
-coverAlt: "Spin by App Composer. Make the call. An orange and ivory decision wheel."
+cover: "/campaign/spin/one-spin-or-all-night-20261127f.jpg"
+coverAlt: "Spin by App Composer. One spin or all night. A close-up of the metal pointer above an orange and charcoal wheel."
 coverCaption: "Original AI-generated campaign artwork for App Composer Spin."
 published: "2026-11-27"
 ---
@@ -18,7 +18,7 @@ Start with Australian takeaway roulette for fish and chips, kebabs, an HSP or a 
 2. Share the session link before spinning if your friends want to witness the commitment. Each round is derived from that fixed seed, the configuration hash and the round number, using HMAC-SHA-256 and rejection sampling for equal odds among the eligible choices.
 3. Open the replay when the series finishes. Spin reveals the seed, and the recipient’s browser recomputes the commitment, rounds and tally. They can download the JSON receipt to keep or verify separately.
 
-With two choices, best of three ends when one gets two wins. With more choices, the wheel counts three spins and runs a tie-break among the leaders when needed. A rematch or an editable copy starts a new commitment. The original stays available to the people holding its link for 30 days.
+With two choices, best of three ends when one gets two wins. With more choices, the wheel counts three spins and runs a tie-break among the leaders when needed. For an open session, each spin adds to the tally. Finish when you choose to reveal the seed and share the result, including ties. A rematch or an editable copy starts a new commitment. The original stays available to the people holding its link for 30 days.
 
 The receipt checks consistency within one session. A person can still create several separate sessions and only share the one they like. A commitment also relies on the operator choosing a genuinely random server seed. The replay link and receipt are what people can use to verify a result. A screenshot or exported clip is a copy to share.
 
@@ -43,4 +43,4 @@ Set a suburb or postcode such as Sunbury VIC 3429. Spin remembers the area on yo
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-20261127e.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-20261127e.png) · [App icon](/spin-brand/spin-icon-512-20261127e.png) · [Social preview](/campaign/spin/spin-wide-20261127e.jpg) · [Launch kit and QR](/share/spin#social-kit)
+[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-20261127e.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-20261127e.png) · [App icon](/spin-brand/spin-icon-512-20261127e.png) · [Social preview](/campaign/spin/one-spin-or-all-night-20261127f.jpg) · [Launch kit and QR](/share/spin#social-kit)
