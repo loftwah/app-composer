@@ -1,5 +1,39 @@
 [
   {
+    "id": "composer-spin-let-it-spin",
+    "project": "app-composer",
+    "title": "What’s for dinner? · Spin",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · original composition and ImageGen food imagery",
+    "alt": "What’s for dinner? Let the wheel pick. Three cutout takeaway meals orbit on lilac. Spin by App Composer.",
+    "description": "Spin decides what’s for dinner.",
+    "caption": "What’s for dinner? Let the wheel pick. https://spin.loftwah.com/",
+    "tags": [
+      "spin",
+      "app-composer"
+    ],
+    "use": "social",
+    "stage": "share poster",
+    "kind": "editorial composition",
+    "reviewedAt": "2026-11-28",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/let-it-spin-provenance-20261128.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/let-it-spin-wide-thumb-20261128.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 315,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/let-it-spin-wide-20261128.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/let-it-spin-wide-20261128.jpg",
+      "label": "Campaign JPEG",
+      "width": 1200,
+      "height": 630,
+      "sha256": "cb656c97917ef2b2b2bbd7fcf9b4ddbc9dd8afa3b1a5d027e87e36e54de62de7",
+      "version": "let-it-spin-20261128"
+    }
+  },
+  {
     "id": "composer-spin-takeaway-counter",
     "project": "app-composer",
     "title": "Dinner’s on the wheel · Spin",
@@ -31,7 +65,8 @@
       "height": 630,
       "sha256": "f8981dc7f219c72e1ca866fc4e3f89c2db37465519f21d992a6cef5c26ce0866",
       "version": "takeaway-counter-20261128"
-    }
+    },
+    "hiddenFromGallery": true
   },
   {
     "id": "composer-spin-going-round",

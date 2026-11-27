@@ -4,11 +4,11 @@ import Base from '../../layouts/Base.astro';
 import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinOrigin } from '../../lib/spin-site.mjs';
 
 const campaign = '/campaign/spin/';
-const caption = `Dinner’s on the wheel. Give it a spin and send the result to the group chat. ${spinDiscovery.href}`;
+const caption = `What’s for dinner? Let the wheel pick. ${spinDiscovery.href}`;
 const formats = [
-  { file: 'takeaway-counter-portrait', label: 'Feed portrait', width: 1080, height: 1350 },
-  { file: 'takeaway-counter-square', label: 'Square feed', width: 1080, height: 1080 },
-  { file: 'takeaway-counter-story', label: 'Story', width: 1080, height: 1920 },
+  { file: 'let-it-spin-portrait', label: 'Feed portrait', width: 1080, height: 1350 },
+  { file: 'let-it-spin-square', label: 'Square feed', width: 1080, height: 1080 },
+  { file: 'let-it-spin-story', label: 'Story', width: 1080, height: 1920 },
 ];
 const demo = spinOrigin + '/?example=any-choice-demo';
 ---
@@ -35,7 +35,7 @@ const demo = spinOrigin + '/?example=any-choice-demo';
           <h2 id="spin-social-heading">Share Spin</h2>
           <p>Pick a format, grab the caption and post it wherever you like.</p>
         </div>
-        <a class="button secondary" href={campaign + 'spin-takeaway-counter-kit-20261128.zip'} download>Download post package <ArrowDownToLine size={18} aria-hidden="true" /></a>
+        <a class="button secondary" href={campaign + 'spin-let-it-spin-kit-20261128.zip'} download>Download post package <ArrowDownToLine size={18} aria-hidden="true" /></a>
       </div>
       <div class="social-formats">
         {formats.map(({file, label, width, height}) => (
@@ -58,7 +58,7 @@ const demo = spinOrigin + '/?example=any-choice-demo';
             <a class="button secondary" href={spinArtwork} download>Save link image <ArrowDownToLine size={16} aria-hidden="true" /></a>
           </div>
           <p class="copy-status" data-spin-copy-status role="status"></p>
-          <a href="/share/artwork/composer-spin-takeaway-counter">Open the artwork in Share <ArrowUpRight size={16} aria-hidden="true" /></a>
+          <a href="/share/artwork/composer-spin-let-it-spin">Open the artwork in Share <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
       </div>
     </section>

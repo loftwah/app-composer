@@ -2,8 +2,8 @@
 layout: "../../layouts/Article.astro"
 title: "Why we built App Composer Spin"
 description: "Put your choices on a wheel, spin, and send the result to your friends."
-cover: "/campaign/spin/takeaway-counter-wide-20261128.jpg"
-coverAlt: "Dinner’s on the wheel. A painted wooden wheel sits behind takeaway burgers, chips and fried chicken. Spin by App Composer."
+cover: "/campaign/spin/let-it-spin-wide-20261128.jpg"
+coverAlt: "What’s for dinner? Let the wheel pick. Three cutout takeaway meals orbit on lilac. Spin by App Composer."
 coverCaption: "Original AI-generated campaign artwork for App Composer Spin."
 published: "2026-11-27"
 ---
@@ -40,4 +40,4 @@ Add a suburb or postcode such as Sunbury VIC 3429. Spin keeps it on your device.
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/counter/lockup-dark.png) · [Logo for light backgrounds](/spin-brand/counter/lockup-light.png) · [App icon](/spin-brand/counter/spin-512.png) · [Social preview](/campaign/spin/takeaway-counter-wide-20261128.jpg) · [Launch kit and QR](/share/spin#social-kit)
+[Logo for dark backgrounds](/spin-brand/live/lockup-dark.png) · [Logo for light backgrounds](/spin-brand/live/lockup-light.png) · [App icon](/spin-brand/live/spin-512.png) · [Social preview](/campaign/spin/let-it-spin-wide-20261128.jpg) · [Launch kit and QR](/share/spin#social-kit)

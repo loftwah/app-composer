@@ -4,13 +4,12 @@ export const turn = 2 * Math.PI;
 export const winnerAngle = (winner, count) => -winner * turn / count;
 export const spinDuration = 1510;
 
-const ink = '#302019';
-const paper = '#fff4df';
-const gold = '#ffc34c';
-const red = '#f2573a';
+const ink = '#1d1c25';
+const paper = '#fff';
+const orange = '#ff681f';
 const sectors = [
-  [gold, ink], ['#206750', paper], [red, ink],
-  ['#b6cfdb', ink], [paper, ink], ['#eb9e7a', ink],
+  ['#fed06f', ink], ['#91ded2', ink], ['#ffaec2', ink],
+  ['#aacaff', ink], ['#d6c7ff', ink], ['#ffc39d', ink],
 ];
 
 const wrap = angle => ((angle % turn) + turn) % turn;
@@ -49,23 +48,6 @@ function shortLabel(context, label, width) {
   return glyphs.join('') + '…';
 }
 
-function paintSectorPhoto(context, photo, radius, first, last) {
-  const corners = [first, last];
-  for (let cardinal = 0; cardinal < turn; cardinal += Math.PI / 2) {
-    if (wrap(cardinal - first) < last - first) corners.push(cardinal);
-  }
-  const xs = corners.map(angle => Math.cos(angle) * radius);
-  const ys = corners.map(angle => Math.sin(angle) * radius);
-  const x = Math.min(0, ...xs);
-  const y = Math.min(0, ...ys);
-  const width = Math.max(0, ...xs) - x;
-  const height = Math.max(0, ...ys) - y;
-  context.save();
-  context.clip();
-  paintSpinPhoto(context, photo, x, y, width, height);
-  context.restore();
-}
-
 function paintPointer(context, bend) {
   context.save();
   context.translate(0, -266);
@@ -78,7 +60,7 @@ function paintPointer(context, bend) {
   context.lineTo(0, 58);
   context.lineTo(-23, 22);
   context.closePath();
-  context.fillStyle = red;
+  context.fillStyle = orange;
   context.fill();
   context.strokeStyle = ink;
   context.lineWidth = 6;
@@ -100,13 +82,13 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
   context.scale(scale, scale);
   context.translate(280, 280);
 
-  disc(context, 0, 9, 252, '#281813');
-  disc(context, 0, 0, 252, ink, '#ad7860', 3);
-  disc(context, 0, 0, 243, '#6f3a29', '#af7255', 3);
+  disc(context, 0, 7, 247, '#171620');
+  disc(context, 0, 0, 247, ink);
+  disc(context, 0, 0, 239, null, '#41404f', 2);
   for (let index = 0; index < pegs; index++) {
     const bearing = angle - Math.PI / 2 + index * turn / pegs;
     const major = index % 3 === 0;
-    disc(context, Math.cos(bearing) * 235, Math.sin(bearing) * 235, major ? 4.4 : 2.6, major ? gold : '#dba484');
+    disc(context, Math.cos(bearing) * 234, Math.sin(bearing) * 234, major ? 4.4 : 2.6, major ? paper : '#868492');
   }
 
   const labelSize = count < 5 ? 31 : count < 13 ? 23 : count < 29 ? 18 : 13;
@@ -122,19 +104,31 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.fillStyle = surface;
     context.fill();
     const photo = count <= 6 ? spinPhoto(label) : null;
-    if (photo) paintSectorPhoto(context, photo, radius, first, last);
+    if (photo) {
+      const artSize = count <= 3 ? 120 : 82;
+      const artRadius = count <= 3 ? 152 : 157;
+      const x = Math.cos(bearing) * artRadius;
+      const y = Math.sin(bearing) * artRadius;
+      context.save();
+      context.clip();
+      context.shadowColor = 'rgba(31,22,39,.27)';
+      context.shadowBlur = 12;
+      context.shadowOffsetY = 6;
+      paintSpinPhoto(context, photo, x - artSize / 2, y - artSize / 2 - 8, artSize, artSize);
+      context.restore();
+    }
     context.lineWidth = 2.8;
     context.strokeStyle = ink;
     context.stroke();
 
     if (shade && winner >= 0 && index !== winner) {
-      context.fillStyle = 'rgba(39,24,17,.35)';
+      context.fillStyle = 'rgba(29,28,37,.29)';
       context.fill();
     }
     if (index === winner) {
       context.beginPath();
       context.arc(0, 0, radius - 8, first + spacing * .07, last - spacing * .07);
-      context.strokeStyle = surface === paper ? '#a13f29' : paper;
+      context.strokeStyle = paper;
       context.lineWidth = 7;
       context.lineCap = 'round';
       context.stroke();
@@ -151,6 +145,7 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     if (photo) {
+      context.translate(0, count <= 3 ? 43 : 37);
       const maxWidth = count < 5 ? 174 : 106;
       context.font = `800 ${count < 5 ? 22 : 18}px system-ui, sans-serif`;
       const short = shortLabel(context, label, maxWidth);
@@ -180,12 +175,11 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.restore();
   }
 
-  disc(context, 0, 3, 56, '#291912');
-  disc(context, 0, 0, 53, ink, paper, 3);
-  disc(context, 0, 0, 40, '#9e3023', '#dc7152', 2);
+  disc(context, 0, 5, 56, '#272634');
+  disc(context, 0, 0, 53, paper, ink, 4);
   context.save();
   context.rotate(angle);
-  context.fillStyle = gold;
+  context.fillStyle = ink;
   context.beginPath();
   context.moveTo(-24, -8);
   context.lineTo(4, -8);

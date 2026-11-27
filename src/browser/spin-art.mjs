@@ -20,7 +20,7 @@ export function loadSpinPhotos(labels) {
     if (!images.has(subject)) {
       const image = new Image();
       const entry = {};
-      image.src = `/spin-brand/counter/${subject}.webp`;
+      image.src = `/spin-brand/live/${subject}.webp`;
       entry.ready = image.decode().then(() => { entry.image = image; }).catch(() => {});
       images.set(subject, entry);
       pending.push(entry.ready);
@@ -32,9 +32,9 @@ export function loadSpinPhotos(labels) {
 }
 
 export function paintSpinPhoto(context, image, x, y, width, height) {
-  const fit = Math.max(width / image.naturalWidth, height / image.naturalHeight);
-  const sourceWidth = width / fit;
-  const sourceHeight = height / fit;
-  context.drawImage(image, (image.naturalWidth - sourceWidth) / 2, (image.naturalHeight - sourceHeight) / 2,
-    sourceWidth, sourceHeight, x, y, width, height);
+  const fit = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+  const drawnWidth = image.naturalWidth * fit;
+  const drawnHeight = image.naturalHeight * fit;
+  context.drawImage(image, x + (width - drawnWidth) / 2, y + (height - drawnHeight) / 2,
+    drawnWidth, drawnHeight);
 }

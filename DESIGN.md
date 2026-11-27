@@ -326,12 +326,13 @@ recipe and verification contract is
 
 ## App Composer Spin
 
-Spin takes its palette from an Australian takeaway counter: soft paper, tomato
-red, mustard and bottle green. Photography of the three default choices fills
-the wheel and gives the winning choice the lead in the result artwork. Use the
-plain painted dial for choices without photos. The app icon is a three-colour
-dial with the pointer at twelve o’clock. The App Composer parent mark keeps
-its existing identity.
+Spin uses the App Composer orange for its main action and the same neutral
+light and dark interface palette as Share. The wheel carries the brighter
+colours. The default choices have isolated food images on coloured slices.
+A result post shows one large subject, the winner, and a QR to the draw
+across its four sizes. Choices without a picture use the stopped dial.
+The campaign uses the same colours and cutouts. The App Composer parent mark
+keeps its existing identity.
 
 Fast food, Game night, Weekend and All presets sit above the wheel. The plain
 Spin URL starts with Maccas, Hungry Jack’s and KFC and rounds off. Resume draft
