@@ -67,6 +67,9 @@ const canonical = Astro.props.canonical
   : publicPageCanonical(Astro.url.pathname);
 const searchMetadata = !noindex && agentSearchMetadata(Astro.url.origin);
 const focusedExperience = Astro.props.focusedExperience === true;
+const composerHeader = !printsProduct && (!focusedExperience || spinProduct);
+const composerHome = spinProduct ? publicPageCanonical("/").href : "/";
+const composerHref = (path: string) => spinProduct ? new URL(path, composerHome).href : path;
 const artwork = siteShareArtwork(canonical.pathname);
 const shareImage = new URL(Astro.props.shareImage ?? artwork.path, canonical);
 const shareAlt = Astro.props.shareAlt ?? artwork.alt;
@@ -147,22 +150,17 @@ Astro.csp?.insertScriptResource(
       Skip to content
     </a>
     <header class="site-header">
-      {spinProduct ? (
-        <a class="brand spin-brand select-none" href={spinDiscovery.href}>
-          <img src={spinBrandFiles.mark} width="38" height="38" alt="" />
-          <span class="spin-brand-name">Spin.<span>by App Composer</span></span>
-        </a>
-      ) : printsProduct ? (
+      {printsProduct ? (
         <a class="brand select-none" href="/">
           <img src={printsIcon} width="32" height="32" alt="" />
           <span>Prints Desktop</span>
         </a>
-      ) : focusedExperience ? (
+      ) : !composerHeader ? (
         <a class="brand select-none" href="/">
           <img src="/brand/composer-icon-tile-20261022b.svg" width="24" height="24" alt="" />
           <span>App Composer</span>
         </a>
-      ) : <a class="brand select-none" href="/">
+      ) : <a class="brand select-none" href={composerHome}>
         <img src="/brand/composer-icon-tile-20261022b.svg" width="38" height="38" alt="" />
         <span class="brand-copy">
           <span>App Composer</span>
@@ -196,10 +194,10 @@ Astro.csp?.insertScriptResource(
           </div>
         </details>
       </>}
-      {!printsProduct && !focusedExperience && <nav class="site-navigation" aria-label="Main navigation">
-        <a class="nav-direct" href="/learn">Learn</a>
-        <a class="nav-direct" href="/demo">Demos</a>
-        <a class="nav-direct" href="/media-studio">Media Studio</a>
+      {composerHeader && <nav class="site-navigation" aria-label="Main navigation">
+        <a class="nav-direct" href={composerHref("/learn")}>Learn</a>
+        <a class="nav-direct" href={composerHref("/demo")}>Demos</a>
+        <a class="nav-direct" href={composerHref("/media-studio")}>Media Studio</a>
         <details class="site-menu">
           <summary aria-label="More navigation">
             <span class="menu-word">More</span>
@@ -208,34 +206,34 @@ Astro.csp?.insertScriptResource(
           </summary>
           <div class="site-menu-panel">
             <div class="site-menu-quick compact-only">
-              <a href="/learn">Learn</a>
-              <a href="/demo">Demos</a>
-              <a href="/media-studio">Media Studio</a>
+              <a href={composerHref("/learn")}>Learn</a>
+              <a href={composerHref("/demo")}>Demos</a>
+              <a href={composerHref("/media-studio")}>Media Studio</a>
             </div>
             <div class="site-menu-group">
               <p class="site-menu-heading">Build &amp; manage</p>
-              <a href="/ready">Get Ready</a>
-              <a href="/init">Create an app</a>
-              <a href="/media-studio/studio">Media Studio</a>
-              <a href="/me">Invited profile &amp; apps</a>
+              <a href={composerHref("/ready")}>Get Ready</a>
+              <a href={composerHref("/init")}>Create an app</a>
+              <a href={composerHref("/media-studio/studio")}>Media Studio</a>
+              <a href={composerHref("/me")}>Invited profile &amp; apps</a>
             </div>
             <div class="site-menu-group">
               <p class="site-menu-heading">Explore</p>
-              <a href="/discover">Browse by task</a>
-              <a href="/share">Share</a>
-              <a href="/activity/portfolio">Analytics</a>
-              <a href="/benchmarks">Benchmarks Studio</a>
-              <a href="/projects">Other projects</a>
+              <a href={composerHref("/discover")}>Browse by task</a>
+              <a href={composerHref("/share")}>Share</a>
+              <a href={composerHref("/activity/portfolio")}>Analytics</a>
+              <a href={composerHref("/benchmarks")}>Benchmarks Studio</a>
+              <a href={composerHref("/projects")}>Other projects</a>
             </div>
             <div class="site-menu-resources">
-              <a href="/resources">Runbooks &amp; resources</a>
-              <a href="/docs">Documentation</a>
+              <a href={composerHref("/resources")}>Runbooks &amp; resources</a>
+              <a href={composerHref("/docs")}>Documentation</a>
             </div>
           </div>
         </details>
       </nav>}
       <div class="header-utilities">
-        {!printsProduct && !focusedExperience && Astro.props.launcher !== false && <AppLauncher />}
+        {composerHeader && Astro.props.launcher !== false && <AppLauncher {composerHome} />}
         <button
           type="button"
           class="theme-control secondary theme-toggle shrink-0"
@@ -376,7 +374,7 @@ Astro.csp?.insertScriptResource(
           });
         }
         document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main navigation"] a').forEach((a) => {
-          if (a.pathname === location.pathname)
+          if (a.origin === location.origin && a.pathname === location.pathname)
             a.setAttribute("aria-current", "page");
         });
       }
@@ -387,19 +385,13 @@ Astro.csp?.insertScriptResource(
 </html>
 
 <style>
-  .site-header .spin-brand { display: inline-flex; gap: 9px; flex-wrap: nowrap; }
-  .site-header .spin-brand > img { width: 38px; height: 38px; border-radius: 0; }
-  .spin-brand-name { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; font: 700 1.55rem/.95 Space, sans-serif; letter-spacing: -.035em; }
-  .spin-brand-name span { color: var(--color-muted); font: 650 .76rem/1.2 system-ui, sans-serif; letter-spacing: 0; }
-  .focused-experience .site-header {
+  .focused-experience:not(.spin-experience) .site-header {
     grid-template-columns: minmax(0, 1fr) auto;
     min-height: 56px;
     padding: 6px max(18px, calc((100% - 1024px) / 2));
   }
-  .spin-experience .site-header { padding-inline: max(18px, calc((100% - 1100px) / 2)); }
-  .spin-brand > img { border-radius: 9px; }
-  .focused-experience .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
-  .focused-experience .site-header .brand:not(.spin-brand) > img { width: 24px; height: 24px; }
+  .focused-experience:not(.spin-experience) .site-header .brand { min-height: 44px; font-size: .88rem; font-weight: 650; }
+  .focused-experience:not(.spin-experience) .site-header .brand > img { width: 24px; height: 24px; }
   .focused-experience #main { padding-block-start: .65rem; }
   .prints-product .site-header {
     position: relative;

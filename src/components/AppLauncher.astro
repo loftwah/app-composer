@@ -5,12 +5,15 @@ import { printsDiscovery, printsIcon } from '../lib/prints-site.mjs';
 // The Apps menu follows the shared launcher contract documented in
 // src/browser/launcher.ts. The shared controller supplies the registry and
 // handles entries specific to the Composer shell through its local row contract.
-const member = Boolean(Astro.locals.user);
+interface Props { composerHome?: string }
+const { composerHome = '/' } = Astro.props;
+const appsHref = composerHome === '/' ? '/apps' : new URL('/apps', composerHome).href;
+const member = Boolean(Astro.locals.user) && (composerHome === '/' || new URL(composerHome).origin === Astro.url.origin);
 ---
 <div class="app-launcher">
  <button type="button" class="secondary apps-trigger" data-open-apps aria-label="Open apps" title="Apps and shortcuts (Ctrl/Cmd+K)" aria-haspopup="dialog"><Grid3x3 size={20} aria-hidden="true"/><span>Apps</span><kbd>⌘K / Ctrl K</kbd></button>
- <noscript><a class="apps-fallback" href="/apps" aria-label="Browse all apps"><Grid3x3 size={20} aria-hidden="true"/><span>Browse all apps</span></a></noscript>
- <dialog data-composer-home="/" id="app-navigation" aria-labelledby="app-navigation-title" data-viewer={member ? 'member' : 'public'} data-launcher-recents={member ? '/api/launcher/recents' : undefined}>
+ <noscript><a class="apps-fallback" href={appsHref} aria-label="Browse all apps"><Grid3x3 size={20} aria-hidden="true"/><span>Browse all apps</span></a></noscript>
+ <dialog data-composer-home={composerHome} id="app-navigation" aria-labelledby="app-navigation-title" data-viewer={member ? 'member' : 'public'} data-launcher-recents={member ? '/api/launcher/recents' : undefined}>
   <div class="dialog-heading">
    <h2 id="app-navigation-title">Apps and shortcuts</h2>
    <button type="button" data-close-apps autofocus><X size={18} aria-hidden="true"/><span>Close</span></button>
@@ -31,7 +34,7 @@ const member = Boolean(Astro.locals.user);
     </a>
    </li>
   </ul>
-  <a class="launcher-all" href="/apps">Browse all apps <ArrowRight size={18} aria-hidden="true"/></a>
+  <a class="launcher-all" href={appsHref}>Browse all apps <ArrowRight size={18} aria-hidden="true"/></a>
  </dialog>
 </div>
 <style>
