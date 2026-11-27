@@ -58,7 +58,10 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   const search = find('choice-search');
   const message = find('editor-message');
   const resume = find('resume-draft');
-  const presets = form.closest('.play').querySelector('[data-spin-presets]');
+  const play = form.closest('.play');
+  const presets = play.querySelector('[data-spin-presets]');
+  const undo = play.querySelector('[data-undo-wheel]');
+  let beforeQuickEdit;
   const fastFood = presets.querySelector('[data-quick-chains]');
   const quickPresets = [...presets.querySelectorAll('[data-quick-preset]')];
   const presetPickers = [...presets.querySelectorAll('[data-preset-picker]')];
@@ -78,7 +81,13 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     try { localStorage.setItem(storageKey, JSON.stringify(prefs)); } catch {}
   };
 
+  function discardUndo() {
+    beforeQuickEdit = undefined;
+    undo.hidden = true;
+  }
+
   function update(remember = true) {
+    if (remember !== false) discardUndo();
     const entries = active();
     const count = entries.length;
     list.dataset.numbered = String(count > 12);
@@ -253,6 +262,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   }
 
   function showDraft(next, resumed = false) {
+    discardUndo();
     draft = next;
     usingDraft = resumed;
     question.value = draft.question || 'What should we pick?';
@@ -282,9 +292,27 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   find('show-order').addEventListener('change', event => {
     list.dataset.reorder = String(event.target.checked);
   });
-  find('clear-wheel').addEventListener('click', () => {
-    pick('custom');
-    entry.focus();
+  function quickEdit(next, status, origin) {
+    if (form.hidden || form.inert) return;
+    const previous = { draft: structuredClone(draft), usingDraft, origin };
+    showDraft(next);
+    beforeQuickEdit = previous;
+    undo.hidden = false;
+    message.textContent = status;
+  }
+
+  play.querySelector('[data-clear-wheel]').addEventListener('click', event => {
+    quickEdit({ ...fromPreset('custom'), question: question.value, bestOf: bestOf.value }, 'Choices cleared.', event.currentTarget);
+  });
+  play.querySelector('[data-reset-wheel]').addEventListener('click', event => {
+    quickEdit(fromPreset(spinDefaultPreset), 'Fast food wheel restored.', event.currentTarget);
+  });
+  undo.addEventListener('click', () => {
+    if (!beforeQuickEdit) return;
+    const previous = beforeQuickEdit;
+    showDraft(previous.draft, previous.usingDraft);
+    previous.origin.focus({ preventScroll: true });
+    message.textContent = 'Wheel restored.';
   });
   for (const button of quickPresets) button.addEventListener('click', () => pick(button.dataset.quickPreset));
   find('reset').addEventListener('click', () => pick(draft.preset));
@@ -390,7 +418,10 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   question.addEventListener('keydown', event => {
     if (event.key === 'Enter') event.preventDefault();
   });
-  bestOf.addEventListener('input', () => update(usingDraft));
+  bestOf.addEventListener('input', () => {
+    discardUndo();
+    update(usingDraft);
+  });
   suburb.value = prefs.suburb;
   suburb.addEventListener('input', persist);
   showDraft(draft);

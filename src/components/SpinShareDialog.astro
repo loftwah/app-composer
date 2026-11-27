@@ -48,22 +48,22 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
         <button type="button" class="secondary" data-native-share hidden><Share2 size={17} aria-hidden="true" /> Send link</button>
       </div>
       <div data-share-draft hidden>
-        <button type="submit" form="spin-setup" class="secondary" data-lock-wheel>Lock a draw to share before spinning</button>
-        <p class="note">Anyone with the draw link can see its question and choices for {spinLifetimeDays} days.</p>
+        <button type="submit" form="spin-setup" class="secondary" data-lock-wheel>Get a link before spinning</button>
+        <p class="note">Anyone with the link can see the question and choices for {spinLifetimeDays} days.</p>
       </div>
       <details data-share-more hidden>
         <summary>Caption, alt text and downloads</summary>
-        <label>Post caption <textarea data-share-caption rows="3" readonly spellcheck="false"></textarea></label>
+        <label>Caption <textarea data-share-caption rows="3" readonly spellcheck="false"></textarea></label>
         <div class="actions">
           <button type="button" class="secondary" data-copy-caption>Copy caption</button>
           <button type="button" class="secondary" data-copy-alt>Copy alt text</button>
-          <button type="button" class="secondary" data-replay-video hidden>Save replay video</button>
-          <button type="button" class="secondary" data-receipt>Save verification receipt</button>
+          <button type="button" class="secondary" data-replay-video hidden>Save video</button>
+          <button type="button" class="secondary" data-receipt>Download draw record</button>
         </div>
         <p class="note">Paste the image before copying the caption.</p>
       </details>
       <div class="actions" data-receipt-actions hidden>
-        <button type="button" class="secondary" data-abandoned-receipt>Save verification receipt</button>
+        <button type="button" class="secondary" data-abandoned-receipt>Download draw record</button>
       </div>
       <p class="feedback" data-share-feedback role="status"></p>
     </div>

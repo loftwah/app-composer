@@ -109,14 +109,14 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
     const description = get('share-description');
     description.hidden = completed;
     description.textContent = isDraft
-      ? 'Send an editable copy of your wheel. To let friends witness the same draw, lock it before spinning.'
-      : 'Anyone with this link can see the draw. Send it now and friends can check the result at the same link.';
+      ? 'Send a copy of your wheel that friends can edit.'
+      : 'Send this link now. Friends can come back to the same link to see where the wheel lands.';
     get('share-draft').hidden = !isDraft;
     get('share-social').hidden = !completed;
     get('link-field').hidden = completed;
     get('share-more').hidden = !completed;
     get('share-more').open = false;
-    get('copy-link-label').textContent = completed ? 'Copy replay link' : 'Copy link';
+    get('copy-link-label').textContent = completed ? 'Copy result link' : 'Copy link';
     get('receipt-actions').hidden = session?.status !== 'abandoned';
     get('native-share').hidden = typeof navigator.share !== 'function';
     get('replay-video').hidden = !completed || !replayVideoType();
@@ -131,8 +131,9 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
     const leaders = session.config.entries.map((entry, index) => ({ entry, wins: session.totals[index] }))
       .filter(choice => choice.wins > 0).sort((left, right) => right.wins - left.wins).slice(0, 2);
     const tally = spins > 1 ? ' ' + leaders.map(choice => `${choice.entry} ${choice.wins}`).join(' · ') + '.' : '';
-    alt = `Spin decision wheel for “${question}”. ${outcome} ${count} recorded.${tally}`;
-    get('share-caption').value = `${question}\n${outcome}${tally}\nReplay the draw on Spin: ${link}`;
+    alt = `Spin wheel for “${question}”. ${outcome} ${count}.${tally}`;
+    get('share-caption').value = `${question}\n${outcome}${tally}\nSee the spin
+${link}`;
     void preview();
   }
 
@@ -208,7 +209,7 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
   const saveReceipt = () => {
     const { session } = current;
     download(new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' }), `spin-${session.id}.json`);
-    feedback.textContent = 'Receipt downloaded.';
+    feedback.textContent = 'Draw record saved.';
   };
   get('receipt').addEventListener('click', saveReceipt);
   get('abandoned-receipt').addEventListener('click', saveReceipt);
@@ -217,13 +218,13 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
     const { session, link } = current;
     const report = message => { if (dialog.open && current.session === session) feedback.textContent = message; };
     button.disabled = true;
-    report('Recording the replay. Keep this tab visible…');
+    report('Making the video. Keep this tab open…');
     try {
       const video = await renderSpinVideo(session, link, reducedMotion.matches, getVideoAudio());
       download(video.blob, `spin-${session.id.slice(0, 8)}-replay.${video.extension}`);
-      report('Replay video downloaded.');
+      report('Video saved.');
     } catch (error) {
-      report(error instanceof Error ? error.message : 'The replay could not be exported. Try saving the story image.');
+      report(error instanceof Error ? error.message : 'Spin couldn’t make the video. Try saving the story image.');
     } finally {
       button.disabled = false;
     }

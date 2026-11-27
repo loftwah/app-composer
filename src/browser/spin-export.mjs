@@ -145,7 +145,7 @@ function composition(target, wheel, session, qr, style, frame, mark) {
   target.imageSmoothingEnabled = false;
   target.drawImage(qr, x, footer, qrSize, qrSize);
   target.imageSmoothingEnabled = true;
-  line(target, 'Replay & verify', textX, footer + 53, ticketWidth - qrSize - 17, wide ? 27 : 38, 700, palette.paper);
+  line(target, 'See the spin', textX, footer + 53, ticketWidth - qrSize - 17, wide ? 27 : 38, 700, palette.paper);
   line(target, 'spin.loftwah.com', textX, footer + 84, ticketWidth - qrSize - 17, wide ? 20 : 25, 500, palette.paper);
 }
 
@@ -172,8 +172,8 @@ export async function renderSpinPng(session, link, style) {
 export async function renderSpinVideo(session, link, reduced, audio) {
   const audioType = audio ? replayVideoType(true) : '';
   const mimeType = audioType || replayVideoType();
-  if (!mimeType) throw new Error('This browser cannot record replay video. Try the story PNG.');
-  if (document.hidden) throw new Error('Keep Spin visible while exporting the replay.');
+  if (!mimeType) throw new Error('This browser can’t make a video. Try saving the story image.');
+  if (document.hidden) throw new Error('Keep this tab open while Spin makes the video.');
   const output = makeCanvas(...sizes.story);
   const wheel = makeCanvas(560, 560);
   const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready]);
@@ -207,7 +207,7 @@ export async function renderSpinVideo(session, link, reduced, audio) {
       let lastTooth = -Infinity;
       let lastKnock = -Infinity;
       let announced = false;
-      timer = setTimeout(() => reject(new Error('Keep Spin visible while exporting the replay.')), duration + 3500);
+      timer = setTimeout(() => reject(new Error('Keep this tab open while Spin makes the video.')), duration + 3500);
       function draw(now) {
         const elapsed = Math.max(0, now - startedAt);
         let angle = 0;
@@ -215,7 +215,7 @@ export async function renderSpinVideo(session, link, reduced, audio) {
         let winner = -1;
         let bend = 0;
         if (elapsed < introMs) {
-          frame = { title: 'The replay', note: session.config.bestOf === 1 ? 'Single recorded spin' : `${spinModeLabel(session.config.bestOf)} · Recorded rounds` };
+          frame = { title: 'Watch the spin', note: session.config.bestOf === 1 ? 'Single spin' : `${spinModeLabel(session.config.bestOf)} · Recorded rounds` };
         } else if (elapsed < end) {
           const index = Math.floor((elapsed - introMs) / roundMs);
           const round = rounds[index];

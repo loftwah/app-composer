@@ -350,7 +350,9 @@ the face under the pointer and releasing plays the committed spin in the same
 direction. The pointer reacts as each visible peg passes. The recorded result
 determines where the wheel ends. The selected slice lights up and the winner
 fills the readout. Reduced Motion goes straight to the recorded result.
-The spin button, replay and exports use the same dial artwork.
+The centre arrow performs the same action as the main button. Clear empties
+the choices, Reset brings back the fast-food wheel, and either draft action
+can be undone. The replay and exports use the same dial artwork.
 
 
 Share wheel sends an editable copy or lets the host lock a draw before spinning.
@@ -359,5 +361,5 @@ question and winner, with the stopped wheel and replay QR below or beside it
 for the chosen aspect ratio. Story keeps those elements clear of the top and
 bottom edges. All four sizes list their pixel dimensions and Copy image is the primary action. Save PNG and the device share
 sheet use the same export. The selected size is remembered on this device.
-Caption and alt text are separate from the image clipboard action. The replay
-link remains directly available and the card's QR opens the same draw.
+Caption and alt text are separate from the image clipboard action. The result
+link remains directly available and the card's “See the spin” QR opens it.

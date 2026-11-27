@@ -16,6 +16,8 @@ function mount(root) {
   const ctx = canvas.getContext('2d');
   const setup = get('setup');
   const presetBar = get('spin-presets');
+  const hub = get('spin-hub');
+  const spinControl = () => get('spin-primary').querySelector('button:not([hidden])');
   const { question, bestOf } = setup.elements;
   const currentId = new URL(location.href).searchParams.get('session');
   let example = root.dataset.spinExample;
@@ -44,12 +46,24 @@ function mount(root) {
   };
   const focusAction = name => requestAnimationFrame(() => get(name).focus({ preventScroll: true }));
   const rules = config => config.bestOf === openSpinMode ? 'Each spin counts. Finish whenever you like.' :
-    config.bestOf === 1 ? 'One spin decides it. Every choice has equal odds.' :
+    config.bestOf === 1 ? 'One spin. Each choice has the same chance.' :
       config.entries.length === 2 ? `First to ${Math.floor(config.bestOf / 2) + 1} wins the series.` :
-        `${config.bestOf} spins. Most wins takes it. Ties get extra spins.`;
+        `${config.bestOf} spins. The highest score wins. Ties get extra spins.`;
   const templateLink = config => spinOrigin + '/#' + new URLSearchParams({ wheel: JSON.stringify(config) });
   const shareUrl = id => example ? spinOrigin + '/?example=' + encodeURIComponent(example) :
     new URL(root.dataset.spinPath + '?session=' + encodeURIComponent(id), location.origin).href;
+
+  function syncHub() {
+    const control = spinControl();
+    hub.disabled = playing || !control || control.disabled;
+    hub.setAttribute('aria-label', control === get('stage-replay') ? 'Watch the spin again' :
+      control === get('spin-again') ? 'Spin this wheel again' : 'Spin the wheel');
+  }
+
+  function activateWheel() {
+    const control = spinControl();
+    if (control && !playing && !control.disabled) control.click();
+  }
 
   function updatePreview(labels) {
     const best = Number(bestOf.value);
@@ -61,8 +75,10 @@ function mount(root) {
       paintSpinWheel(ctx, labels, angle);
       get('result-label').textContent = labels.length < 2 ? 'Build your wheel' :
         reduced.matches ? 'Tap the wheel or press Spin' : 'Tap or flick the wheel';
-      showResult(labels.length >= 2 ? `${labels.length} choices on the wheel` : 'Enable two choices to spin.');
+      showResult(labels.length >= 2 ? `${labels.length} choices` : 'Add at least two choices.');
+      get('share').disabled = playing || get('spin-now').disabled;
     }
+    syncHub();
   }
 
   function render(next, keepAngle = false) {
@@ -96,6 +112,7 @@ function mount(root) {
     if (get('edit-choices')) get('edit-choices').hidden = true;
     for (const button of presetBar.querySelectorAll('[aria-pressed]')) button.removeAttribute('aria-pressed');
     get('spin-now').hidden = true;
+    get('undo-wheel').hidden = true;
     panel.dataset.state = next.status;
     get('session').hidden = false;
     get('session-heading').textContent = completed ? 'The result' : 'The draw';
@@ -149,20 +166,26 @@ function mount(root) {
     else if (!keepAngle) angle = 0;
     wheelLabels = next.config.entries;
     paintSpinWheel(ctx, wheelLabels, angle, { winner: completed ? next.winner : isOpen ? (last?.winner ?? -1) : -1, shade: completed });
-    showResult(next.status === 'completed' ? (next.winner < 0 ? 'Session ended in a tie' : next.config.entries[next.winner]) :
-      next.status === 'abandoned' ? 'Session abandoned' :
-        last ? next.config.entries[last.winner] : 'The wheel is locked');
+    showResult(next.status === 'completed' ? (next.winner < 0 ? 'It’s a tie' : next.config.entries[next.winner]) :
+      next.status === 'abandoned' ? 'This spin was stopped' :
+        last ? next.config.entries[last.winner] : 'Ready to spin');
     const result = get('result');
     result.toggleAttribute('data-long-result', result.textContent.length > 18);
+    syncHub();
     get('verification').textContent = '';
+    get('verification-warning').textContent = '';
     if (next.status !== 'open') {
       try { if (!example) localStorage.removeItem(key(next.id)); } catch {}
-      get('verification').textContent = 'Checking receipt…';
+      get('verification').textContent = 'Checking the result…';
+      const report = (message, warn) => {
+        if (session !== next) return;
+        get('verification').textContent = message;
+        if (warn) get('verification-warning').textContent = message;
+      };
       void verifySpin(next).then(verified => {
-        if (session === next) get('verification').textContent = verified ?
-          'Verified against the original commitment.' : 'The receipt does not match its commitment.';
+        report(verified ? 'Matches the original spin.' : 'This result does not match the original spin.', !verified);
       }).catch(() => {
-        if (session === next) get('verification').textContent = 'Could not verify this receipt.';
+        report('Spin couldn’t check this result.', true);
       });
     }
   }
@@ -182,6 +205,7 @@ function mount(root) {
     showError('');
     panel.removeAttribute('data-celebrate');
     get('share').disabled = true;
+    syncHub();
     presetBar.inert = true;
     const pauseButton = automatic ? get('auto') : null;
     const draftBusy = !session;
@@ -189,7 +213,7 @@ function mount(root) {
       setup.inert = true;
       bestOf.disabled = true;
     }
-    const buttons = ['spin-now', 'draw', 'spin-again', 'stage-replay', 'auto', 'abandon', 'refresh', 'replay-last', 'replay-series', 'lock-wheel']
+    const buttons = ['spin-now', 'draw', 'spin-again', 'stage-replay', 'auto', 'abandon', 'refresh', 'replay-last', 'replay-series', 'lock-wheel', 'clear-wheel', 'reset-wheel', 'undo-wheel']
       .map(get).filter(button => !button.disabled && button !== pauseButton);
     get('finish').disabled = true;
     for (const button of buttons) button.disabled = true;
@@ -211,12 +235,13 @@ function mount(root) {
       playing = false;
       presetBar.inert = false;
       get('finish').disabled = !session?.rounds.length;
-      get('share').disabled = !session && Boolean(currentId || example);
       if (draftBusy) {
         setup.inert = false;
         bestOf.disabled = Boolean(session) || Boolean(currentId || example);
       }
       for (const button of buttons) button.disabled = false;
+      get('share').disabled = !session && Boolean(currentId || example || get('spin-now').disabled);
+      syncHub();
     }
   }
 
@@ -336,14 +361,14 @@ function mount(root) {
     void perform(() => startDraw(session.config, true));
   });
   const wheelTap = get('wheel-tap');
-  const spinControl = () => get(session ? 'draw' : 'spin-now');
+  hub.addEventListener('click', activateWheel);
   let gesture;
   let suppressPointerClick = false;
   const bearingAt = (event, rect) => Math.atan2(event.clientY - rect.y - rect.height / 2, event.clientX - rect.x - rect.width / 2);
   wheelTap.addEventListener('pointerdown', event => {
     if (event.isPrimary) suppressPointerClick = false;
     const control = spinControl();
-    if (!event.isPrimary || event.button !== 0 || control.disabled || control.hidden || reduced.matches) return;
+    if (event.target === hub || !event.isPrimary || event.button !== 0 || !control || control.disabled || control === get('stage-replay') || reduced.matches) return;
     const rect = wheelTap.getBoundingClientRect();
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, angle, delta: 0, bearing: bearingAt(event, rect), rect, moved: false };
     wheelTap.setPointerCapture(event.pointerId);
@@ -381,15 +406,15 @@ function mount(root) {
       return;
     }
     direction = delta < 0 ? -1 : 1;
-    spinControl().click();
+    activateWheel();
   });
-  wheelTap.addEventListener('click', () => {
+  wheelTap.addEventListener('click', event => {
+    if (event.target === hub) return;
     if (suppressPointerClick) {
       suppressPointerClick = false;
       return;
     }
-    const button = spinControl();
-    if (!button.hidden && !button.disabled) button.click();
+    activateWheel();
   });
   window.addEventListener('popstate', () => location.reload());
 
@@ -398,8 +423,8 @@ function mount(root) {
     const spinDirection = direction;
     direction = 1;
     panel.dataset.state = 'pending';
-    get('result-label').textContent = previous.tieBreak ? 'Tie-break spin' : 'Drawing';
-    showResult('One moment…');
+    get('result-label').textContent = previous.tieBreak ? 'Tie-break spin' : 'Starting the spin';
+    showResult('Picking a winner…');
     const { session: next } = await request(previous.id, { owner, revision: previous.revision, action: 'spin' });
     if (next.status === 'open' && next.revision === previous.revision) throw new Error('The round did not advance. Refresh the result before trying again.');
     const advanced = next.rounds.length > previous.rounds.length;
@@ -477,6 +502,8 @@ function mount(root) {
     if (button) openPreset(button.hasAttribute('data-quick-chains') ? spinDefaultPreset : button.dataset.quickPreset);
   });
   get('preset-picker').addEventListener('change', event => openPreset(event.currentTarget.value));
+  get('clear-wheel').addEventListener('click', () => openPreset('custom'));
+  get('reset-wheel').addEventListener('click', () => openPreset(spinDefaultPreset));
   function replayLast() {
     armSound();
     void perform(async () => {
