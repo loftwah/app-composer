@@ -1,0 +1,83 @@
+{
+  "title": "Make the call · Spin by App Composer",
+  "date": "2026-11-27",
+  "credit": "App Composer · OpenAI ImageGen and original art direction",
+  "generator": "OpenAI ImageGen",
+  "generationOutputs": {
+    "wide": "33437d56-641d-45d9-8d99-48d064ff24a7",
+    "square": "90eba054-76d4-40a7-81da-c20b50d0f9ee",
+    "portrait": "1babbd6f-9c27-4bbf-8af4-afba6922a838",
+    "story": "b1c3192a-c034-499d-8157-091abbf3c21f",
+    "food contact sheet": "446fe1a6-8ccc-47bd-b62b-97ab46527bdc"
+  },
+  "composition": "The four social layouts are separately generated full compositions. The story has additional space above the wordmark. Interface and print asset exports use the authored Spin vector mark and bundled Space Grotesk.",
+  "demo": "Recorded candidate interface using the Spin session implementation with an isolated SQLite database. The MP4 carries actual wheel audio. The public replay preserves that exact demo receipt.",
+  "demoReplayUrl": "https://spin.loftwah.com/?example=any-choice-demo",
+  "qrUrl": "https://spin.loftwah.com/",
+  "files": {
+    "spin-captions-20261127e.txt": {
+      "sha256": "c88ba973f9060118dc988a94df2595b56153c6ceb4de736ec511c934da5c4eea",
+      "bytes": 728
+    },
+    "spin-portrait-20261127e.jpg": {
+      "sha256": "e3cfb4c026af22b8f528b4776ed8cac6be4539bc662755bbc03250873a328361",
+      "bytes": 180417
+    },
+    "spin-portrait-thumb-20261127e.webp": {
+      "sha256": "21935811f9d45f23780d76dd55f13fed6895431961ac42f93bd476fa4be92811",
+      "bytes": 14022
+    },
+    "spin-print-qr-20261127e.png": {
+      "sha256": "3511f97fec90a776d7d0b294ee1cb29364beef53e22b1f957e512caade4a0b28",
+      "bytes": 2027782
+    },
+    "spin-square-20261127e.jpg": {
+      "sha256": "873b4a6c4030a9b104b68b22c735f54a2257519e574408cf5d1d3043ecfae6ee",
+      "bytes": 152510
+    },
+    "spin-square-thumb-20261127e.webp": {
+      "sha256": "54311b0af694304499e3c0d529857dedf9682da8ed623228868a01def0619228",
+      "bytes": 15528
+    },
+    "spin-story-20261127e.jpg": {
+      "sha256": "74dbaa787bd19c8b2000a46e928009c6bff125a38ea7b64fbb6cccdfb3d09a7d",
+      "bytes": 207612
+    },
+    "spin-story-thumb-20261127e.webp": {
+      "sha256": "b27fcc74dd7615800c69a4de640bef1b3d4e3c714f83dc10705508875b94b3dd",
+      "bytes": 10566
+    },
+    "spin-wide-20261127e.jpg": {
+      "sha256": "93795147d1097c19741b05ce75b47a993aa5435d0a20e64cd202f4ce4928f449",
+      "bytes": 96063
+    },
+    "spin-wide-thumb-20261127e.webp": {
+      "sha256": "31fb8d9e7794b1d6a580ed6c43ab2b1b13896335d34753aeffd6186ab9f537da",
+      "bytes": 14048
+    },
+    "wheel-demo-20261127e.en.vtt": {
+      "sha256": "73d30b7a061224ba4f80dc88980e99628db5052bb7d60423018dd17e93e1bb62",
+      "bytes": 479
+    },
+    "wheel-demo-20261127e.mp4": {
+      "sha256": "3c4283bab2d97fef7972f367c74cf21ba76daf7fb16fd0e4f78b6bd5c7844b9f",
+      "bytes": 888945
+    },
+    "wheel-demo-poster-20261127e.webp": {
+      "sha256": "47c50f30c6d6bc0830496ce81c3cca358a89d83f12bf1a65a409cb948b5ecfd1",
+      "bytes": 31496
+    },
+    "wheel-laptop-20261127e.webp": {
+      "sha256": "babbf84f2c7fde22e9763cdb81d4b0fd720a24fbd2a94a0e5dfd6eddcd41d63c",
+      "bytes": 53796
+    },
+    "wheel-laptop-thumb-20261127e.webp": {
+      "sha256": "b8608c34d73c3773832d856086f29d57bf5e86407b0823c2deec8f5343ffa1a7",
+      "bytes": 16742
+    },
+    "wheel-loop-20261127e.gif": {
+      "sha256": "84038a8df27596eb12f397e09a0ecfe0db3287c3738fe9c80fac24c08ccff946",
+      "bytes": 1073989
+    }
+  }
+}

@@ -1,10 +1,9 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
 import { renderSpinPng, renderSpinVideo, replayVideoType, winnerAngle } from './spin-export.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
-import { spinTasteArt } from '../lib/spin-tastes.mjs';
 import { winnerArtwork } from './spin-winner-art.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
-import { spinOrigin } from '../lib/spin-site.mjs';
+import { spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinPresetById } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
 
@@ -20,8 +19,9 @@ function mount(root) {
   const currentId = new URL(location.href).searchParams.get('session');
   let example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
-  const colors = ['#ff8957', '#e3eef9', '#a7c6e5', '#ffe8be', '#d1d7ec', '#e6c6b0', '#bce4de'];
-  const tasteImages = new Map();
+  const markRing = new Path2D('M18 1a18 18 0 1 1-19-19');
+  const markPointer = new Path2D('m4-19 15 1-1 15-7-7z');
+  const colors = ['#fc5b05', '#faf9f7', '#c8b9a7', '#e4d9ca', '#e7ad89', '#f2e5da'];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tau = Math.PI * 2;
   let session;
@@ -53,21 +53,6 @@ function mount(root) {
     return text === value ? text : text + '…';
   }
 
-  function tasteImage(label) {
-    const url = spinTasteArt(label);
-    if (!url) return null;
-    if (!tasteImages.has(url)) {
-      const image = new Image();
-      image.addEventListener('load', () => {
-        if (!playing) drawWheel(session?.config.entries ?? localEntries());
-      }, { once: true });
-      image.src = url;
-      tasteImages.set(url, image);
-    }
-    const image = tasteImages.get(url);
-    return image.complete && image.naturalWidth ? image : null;
-  }
-
   function drawWheel(labels, offset = angle, context = ctx) {
     if (!context) return;
     const center = context.canvas.width / 2;
@@ -80,9 +65,9 @@ function mount(root) {
 
     context.beginPath();
     context.arc(0, 0, center - 11, 0, tau);
-    context.fillStyle = '#171a27';
+    context.fillStyle = '#17181b';
     context.fill();
-    context.strokeStyle = '#8292b0';
+    context.strokeStyle = '#887f74';
     context.lineWidth = 2;
     context.stroke();
 
@@ -93,7 +78,7 @@ function mount(root) {
       context.beginPath();
       context.moveTo(Math.cos(bearing) * inside, Math.sin(bearing) * inside);
       context.lineTo(Math.cos(bearing) * outside, Math.sin(bearing) * outside);
-      context.strokeStyle = tick % 6 === 0 ? '#f6ebda' : '#9ba9c3';
+      context.strokeStyle = tick % 6 === 0 ? '#faf9f7' : '#a69b8e';
       context.lineWidth = tick % 6 === 0 ? 3 : 1.4;
       context.stroke();
     }
@@ -107,7 +92,7 @@ function mount(root) {
       context.closePath();
       context.fillStyle = colors[index % colors.length];
       context.fill();
-      context.strokeStyle = '#171a27';
+      context.strokeStyle = '#17181b';
       context.lineWidth = 3;
       context.stroke();
 
@@ -117,48 +102,46 @@ function mount(root) {
       if (choices.length > 6 && choices.length <= 12) {
         context.rotate(Math.cos(bearing) < 0 ? bearing + Math.PI : bearing);
       }
-      context.fillStyle = '#171a27';
+      context.fillStyle = '#17181b';
       context.font = `750 ${labelSize}px system-ui`;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      const art = choices.length <= 5 ? tasteImage(label) : null;
-      const y = art ? 33 : 0;
-      if (art) {
-        context.save();
-        context.beginPath();
-        context.roundRect(-21, -39, 42, 42, 8);
-        context.clip();
-        context.drawImage(art, -21, -39, 42, 42);
-        context.restore();
-      }
       const splitAt = label.lastIndexOf(' ');
       if (choices.length <= 4 && splitAt > 0 && context.measureText(label).width > 145) {
-        context.fillText(fit(context, label.slice(0, splitAt), 145), 0, y - labelSize * .46);
-        context.fillText(fit(context, label.slice(splitAt + 1), 145), 0, y + labelSize * .46);
+        context.fillText(fit(context, label.slice(0, splitAt), 145), 0, -labelSize * .49);
+        context.fillText(fit(context, label.slice(splitAt + 1), 145), 0, labelSize * .49);
       } else {
-        context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, choices.length > 6 ? 115 : 160), 0, y);
+        context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, choices.length > 6 ? 115 : 160), 0, 0);
       }
       context.restore();
     });
 
     context.beginPath();
     context.arc(0, 0, 59, 0, tau);
-    context.fillStyle = '#171a27';
+    context.fillStyle = '#17181b';
     context.fill();
-    context.strokeStyle = '#fff4dd';
+    context.strokeStyle = '#faf9f7';
     context.lineWidth = 3;
     context.stroke();
-    if (context === ctx && !session && labels.length >= 2) {
-      context.fillStyle = '#f5fcff';
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
-      context.font = '800 24px system-ui';
-      context.fillText('SPIN', 0, 1);
-    }
+    const markScale = 1.5;
+    context.save();
+    context.scale(markScale, markScale);
+    context.strokeStyle = '#faf9f7';
+    context.lineCap = 'round';
+    context.lineWidth = 5;
+    context.stroke(markRing);
+    context.fillStyle = '#fc5b05';
+    context.fill(markPointer);
+    context.fillStyle = '#faf9f7';
+    context.beginPath();
+    context.arc(0, 0, 4.5, 0, tau);
+    context.fill();
+    context.restore();
     context.restore();
   }
 
-  function updatePreview(labels) {
+  function updatePreview(labels, foodIdeas) {
+    if (get('find-ideas')) get('find-ideas').hidden = !foodIdeas;
     const best = Number(bestOf.value);
     get('rules').textContent = rules({ entries: labels, bestOf: Number.isInteger(best) && best > 0 ? best : 1 });
     if (!session) {
@@ -183,6 +166,7 @@ function mount(root) {
     if (get('spin-guide')) get('spin-guide').hidden = true;
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
+    if (get('spin-presets')) get('spin-presets').hidden = true;
     if (get('find-ideas')) get('find-ideas').hidden = true;
     get('spin-now').hidden = true;
     get('wheel-panel').dataset.state = next.status;
@@ -452,7 +436,7 @@ function mount(root) {
   get('share-spin').addEventListener('click', () => void perform(async () => {
     const url = spinOrigin + '/';
     if (typeof navigator.share === 'function') {
-      try { await navigator.share({ title: 'App Composer Spin', url }); return; }
+      try { await navigator.share({ title: spinDiscovery.name, url }); return; }
       catch (error) { if (error?.name === 'AbortError') return; }
     }
     if (!navigator.clipboard) throw new Error('Open the Spin sharing kit to copy the app link.');

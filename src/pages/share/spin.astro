@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinOrigin } from '../../lib/spin-site.mjs';
 
 const campaign = '/campaign/spin/';
-const caption = `Maccas, Hungry Jack’s or KFC? Put your takeaway picks on App Composer Spin, give the wheel a go and send your mates the draw. ${spinDiscovery.href}`;
+const caption = `Dinner, game night or who goes first? Put your choices on Spin by App Composer, give the wheel a go and send your mates the draw. ${spinDiscovery.href}`;
 const formats = [
   { file: 'wide', label: 'Link preview', width: 1200, height: 630 },
   { file: 'square', label: 'Square feed', width: 1080, height: 1080 },
@@ -14,15 +14,15 @@ const formats = [
 const qr = campaign + 'spin-qr-20261127d.png';
 ---
 
-<Base title="App Composer Spin launch kit" description="Watch a takeaway draw and download the App Composer Spin launch kit, logos, social images, captions and the QR code."
+<Base title="Spin launch kit" description="Try Spin for dinner, game night or your own choices. Download the logo, social images, captioned demo and QR card."
   shareImage={spinArtwork} shareAlt={spinArtworkAlt} shareType="image/jpeg" shareWidth={1200} shareHeight={630}>
   <article class="spin-feature">
     <a class="back" href="/share"><ArrowLeft size={16} aria-hidden="true" /> Share</a>
     <header class="opening">
       <img src={spinArtwork} alt={spinArtworkAlt} width="1200" height="630" fetchpriority="high" />
       <div>
-        <h1>Takeaway roulette</h1>
-        <p>Maccas, Hungry Jack’s or KFC? Give the takeaway wheel a spin and send your mates the draw.</p>
+        <h1>Spin by App Composer</h1>
+        <p>Pick dinner, choose a game or settle who goes first. Put your own choices on the wheel and share the draw.</p>
         <div class="feature-actions">
           <a class="button" href={spinOrigin}>Open Spin <ArrowUpRight size={18} aria-hidden="true" /></a>
           <a href="#watch" data-watch-draw>Watch the draw</a>
@@ -37,13 +37,13 @@ const qr = campaign + 'spin-qr-20261127d.png';
           <h2 id="spin-social-heading">Launch kit</h2>
           <p>Download the artwork for your post, story or link preview.</p>
         </div>
-        <a class="button" href={campaign + 'spin-launch-kit-20261127d.zip'} download>Download kit <ArrowDownToLine size={18} aria-hidden="true" /></a>
+        <a class="button" href={campaign + 'spin-launch-kit-20261127e.zip'} download>Download kit <ArrowDownToLine size={18} aria-hidden="true" /></a>
       </div>
       <div class="social-formats">
         {formats.map(({file, label, width, height}) => (
-          <a class="social-format" href={campaign + `spin-${file}-20261127d.jpg`} download>
+          <a class="social-format" href={campaign + `spin-${file}-20261127e.jpg`} download>
             <div class="format-image">
-              <img src={campaign + `spin-${file}-thumb-20261127d.webp`} width={width} height={height}
+              <img src={campaign + `spin-${file}-thumb-20261127e.webp`} width={width} height={height}
                 alt="" loading="lazy" decoding="async" />
             </div>
             <span class="format-caption"><span>{label}<small>{width} × {height}</small></span><ArrowDownToLine size={18} aria-hidden="true" /></span>
@@ -56,51 +56,61 @@ const qr = campaign + 'spin-qr-20261127d.png';
           <p data-spin-caption>{caption}</p>
           <div class="promotion-actions">
             <button class="button" type="button" data-copy-spin-caption hidden><Copy size={16} aria-hidden="true" /> Copy caption</button>
-            <a href={campaign + 'spin-captions-20261127d.txt'} download>Download captions</a>
+            <a href={campaign + 'spin-captions-20261127e.txt'} download>Download captions</a>
           </div>
           <p class="copy-status" data-spin-copy-status role="status"></p>
           <a class="public-url" href={spinDiscovery.href}>spin.loftwah.com <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
         <figure class="qr-card">
-          <a href={spinDiscovery.href}><img src={qr} alt="Scan the QR code to open App Composer Spin" width="136" height="136" loading="lazy" /></a>
+          <a href={spinDiscovery.href}><img src={qr} alt="Scan the QR code to open Spin by App Composer" width="136" height="136" loading="lazy" /></a>
           <figcaption>
             <a href={qr} download>Download QR <ArrowDownToLine size={16} aria-hidden="true" /></a>
-            <a href={campaign + 'spin-print-qr-20261127d.png'} download>Print card <ArrowDownToLine size={16} aria-hidden="true" /></a>
+            <a href={campaign + 'spin-print-qr-20261127e.png'} download>Print card <ArrowDownToLine size={16} aria-hidden="true" /></a>
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="screening" id="watch" aria-label="Watch App Composer Spin">
+    <section class="screening" id="watch" aria-label="Watch Spin by App Composer">
       <figure class="film">
         <video data-spin-feature-film width="540" height="960" controls playsinline preload="none"
-          poster={campaign + 'wheel-demo-poster-20261127d.webp'}>
-          <source src={campaign + 'wheel-demo-20261127d.mp4'} type="video/mp4" />
-          <track kind="captions" src={campaign + 'wheel-demo-20261127d.en.vtt'} srclang="en-AU" label="English" default />
+          poster={campaign + 'wheel-demo-poster-20261127e.webp'}>
+          <source src={campaign + 'wheel-demo-20261127e.mp4'} type="video/mp4" />
+          <track kind="captions" src={campaign + 'wheel-demo-20261127e.en.vtt'} srclang="en-AU" label="English" default />
         </video>
       </figure>
       <div class="screening-copy">
         <h2>The recorded draw</h2>
-        <p>Pick Pizza and Vegetarian, add a suggestion and spin. The link opens the exact draw shown in the film.</p>
+        <p>Switch from game night to dinner, add a suggestion and spin. The link opens the exact draw shown in the film.</p>
         <ul class="downloads">
-          <li><a href={spinOrigin + '/?example=taste-cloud'}>Verify the draw in the film <ArrowUpRight size={18} aria-hidden="true" /></a></li>
-          <li><a href={campaign + 'wheel-loop-20261127d.gif'} download>Download the looping GIF <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
-          <li><a href={campaign + 'wheel-demo-20261127d.mp4'} download>Download the film <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
-          <li><a href="/share/artwork/composer-spin-takeaway-roulette">Get the campaign poster <ArrowUpRight size={18} aria-hidden="true" /></a></li>
+          <li><a href={spinOrigin + '/?example=any-choice-demo'}>Verify the draw in the film <ArrowUpRight size={18} aria-hidden="true" /></a></li>
+          <li><a href={campaign + 'wheel-loop-20261127e.gif'} download>Download the looping GIF <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+          <li><a href={campaign + 'wheel-demo-20261127e.mp4'} download>Download the film <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+          <li><a href="/share/artwork/composer-spin-make-the-call">Get the campaign poster <ArrowUpRight size={18} aria-hidden="true" /></a></li>
         </ul>
         <figure class="laptop">
-          <img src={campaign + 'wheel-laptop-20261127d.webp'} width="1440" height="950"
-            alt="App Composer Spin on a laptop-sized screen with editable takeaway choices beside the decision wheel and orange Spin button." loading="lazy" decoding="async" />
+          <img src={campaign + 'wheel-laptop-20261127e.webp'} width="1440" height="950"
+            alt="Spin on a laptop with preset shortcuts, editable choices and the orange, ivory and charcoal wheel." loading="lazy" decoding="async" />
           <figcaption>Spin on a laptop.</figcaption>
         </figure>
       </div>
     </section>
     <section class="brand-files" id="brand-assets" aria-labelledby="spin-brand-heading">
       <h2 id="spin-brand-heading">Logos and icons</h2>
-      <ul class="downloads">
-        <li><a href={spinBrandFiles.dark} download>Logo for dark backgrounds <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
-        <li><a href={spinBrandFiles.light} download>Logo for light backgrounds <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+      <div class="lockups">
+        <a class="lockup-item" href={spinBrandFiles.light} download>
+          <span class="lockup-preview on-paper"><img src={spinBrandFiles.light} alt="" width="180" loading="lazy" /></span>
+          <span>Light background <ArrowDownToLine size={17} aria-hidden="true" /></span>
+        </a>
+        <a class="lockup-item" href={spinBrandFiles.dark} download>
+          <span class="lockup-preview on-ink"><img src={spinBrandFiles.dark} alt="" width="180" loading="lazy" /></span>
+          <span>Dark background <ArrowDownToLine size={17} aria-hidden="true" /></span>
+        </a>
+      </div>
+      <ul class="downloads icon-downloads">
+        <li><a href={spinBrandFiles.mark} download>Spin mark SVG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
         <li><a href={spinBrandFiles.icon} download>App icon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+        <li><a href={spinBrandFiles.maskable} download>Maskable install icon <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
         <li><a href={spinBrandFiles.touch} download>Touch icon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
         <li><a href={spinBrandFiles.favicon} download>Favicon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
       </ul>
@@ -144,7 +154,7 @@ const qr = campaign + 'spin-qr-20261127d.png';
   .kit-heading .button { margin-block-start: 10px; }
   .social-formats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .social-format { display: grid; grid-template-rows: 1fr auto; overflow: hidden; border: 1px solid var(--color-border); border-radius: 10px; text-decoration: none; }
-  .format-image { display: grid; place-items: center; padding: 8px; background: #0d2032; aspect-ratio: 4 / 3; }
+  .format-image { display: grid; place-items: center; padding: 8px; background: var(--color-surface); aspect-ratio: 4 / 3; }
   .format-image img { display: block; max-width: 100%; width: auto; height: auto; max-height: 158px; object-fit: contain; }
   .format-caption { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 10px; font-weight: 650; }
   .format-caption svg { flex: none; }
@@ -165,8 +175,17 @@ const qr = campaign + 'spin-qr-20261127d.png';
     margin-block-start: clamp(32px, 6vw, 76px); border-top: 1px solid var(--color-border);
   }
   .film { width: min(100%, 420px); margin-inline: auto; }
-  .film video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; background: #151821; border-radius: 12px; }
-  .brand-files { border-top: 1px solid var(--color-border); margin-block-start: 40px; padding-block-start: 25px; max-width: 620px; }
+  .film video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; background: #17181b; border-radius: 12px; }
+  .brand-files { border-top: 1px solid var(--color-border); margin-block-start: 40px; padding-block-start: 25px; }
+  .lockups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .lockup-item { display: grid; gap: 0; border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; }
+  .lockup-preview { display: grid; min-height: 104px; place-items: center; padding: 14px; }
+  .lockup-preview img { display: block; max-width: 100%; height: auto; }
+  .on-paper { background: #faf9f7; }
+  .on-ink { background: #17181b; }
+  .lockup-item > span:last-child { display: flex; justify-content: space-between; gap: 6px; align-items: center; min-height: 44px; padding: 8px 12px; font-size: .87rem; }
+  .lockup-item svg { flex: none; }
+  .icon-downloads { max-width: 620px; margin-top: 12px; }
   .downloads { list-style: none; margin: 0 0 clamp(20px, 4vw, 40px); padding: 0; }
   .downloads li { margin: 0; border-bottom: 1px solid var(--color-border); }
   .downloads a { display: flex; min-height: 46px; align-items: center; justify-content: space-between; gap: 12px; }

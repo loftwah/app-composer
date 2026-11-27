@@ -1,8 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import SpinTasteCloud from '../components/SpinTasteCloud.astro';
-import { ArrowUpRight, ChevronDown, Clipboard, Plus, RotateCw, Share2, Sparkles, Volume2, VolumeX } from '@lucide/astro';
-import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
+import { ArrowUpRight, CalendarDays, ChevronDown, Clipboard, Gamepad2, Plus, RotateCw, Share2, Utensils, Volume2, VolumeX } from '@lucide/astro';
+import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinPresetGroups } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinLifetimeDays } from '../lib/spin-protocol.mjs';
@@ -11,7 +11,7 @@ const sessionLink = Astro.url.searchParams.has('session');
 const example = !sessionLink && candidate && Object.hasOwn(spinExamples, candidate) ? candidate : '';
 const replay = Boolean(sessionLink || example);
 const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
-const title = replay ? 'Verify a replay · App Composer Spin' : 'Decision Wheel & Random Picker · App Composer Spin';
+const title = replay ? 'Verify a replay · Spin by App Composer' : 'Decision Wheel & Random Picker · Spin by App Composer';
 const description = replay
   ? 'Open an App Composer Spin replay and check the recorded decision.'
   : 'Make a free online decision wheel. Pick dinner, a game or who goes first, then share a replay and a result your friends can verify.';
@@ -35,12 +35,32 @@ const application = JSON.stringify({
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <div class="play">
       <header class="spin-heading">
-        <h1 data-spin-heading>{replay ? 'Spin replay' : 'What’s for dinner?'}</h1>
+        <h1>{replay ? 'Spin replay' : 'Spin the wheel'}</h1>
         <p class="note" data-spin-intro hidden></p>
       </header>
+      {!replay && (
+        <div class="preset-quick" role="group" aria-label="Wheel presets" data-spin-presets>
+          <button type="button" data-quick-chains aria-pressed="false"><Utensils size={16} aria-hidden="true" /> Fast food</button>
+          <button type="button" data-quick-preset="game" aria-pressed="false"><Gamepad2 size={16} aria-hidden="true" /> Game night</button>
+          <button type="button" data-quick-preset="weekend" aria-pressed="false"><CalendarDays size={16} aria-hidden="true" /> Weekend</button>
+          <label class="preset-picker">
+            <span class="screen-reader">Choose a preset</span>
+            <select form="spin-setup" data-preset-picker>
+              <option value="">Presets</option>
+              {spinPresetGroups.map(group => <optgroup label={group.label}>
+                {group.presets.map(preset => <option value={preset.id}>{preset.label}</option>)}
+              </optgroup>)}
+            </select>
+            <ChevronDown size={15} aria-hidden="true" />
+          </label>
+        </div>
+      )}
       <div class="wheel-panel" data-wheel-panel>
+        <h2 class="wheel-question" data-spin-heading>{replay ? 'Opening draw…' : 'What’s for dinner?'}</h2>
         <div class="wheel-frame" data-wheel-tap>
-          <span class="pointer" aria-hidden="true"></span>
+          <svg class="pointer" aria-hidden="true" viewBox="0 0 42 48">
+            <path d="M4 4h34l-4 22-13 17L8 26z" fill="var(--color-brand)" stroke="#17181b" stroke-width="3" stroke-linejoin="round" />
+          </svg>
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
         </div>
         <p class="wheel-status" role="status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
@@ -52,7 +72,7 @@ const application = JSON.stringify({
           <button type="button" class="wheel-copy" data-share hidden><Clipboard size={17} aria-hidden="true" /> <span data-share-label>Copy link</span></button>
         </div>
         <aside class="winner-art" data-winner-art hidden>
-          <img alt="" width="72" height="72" decoding="async" />
+          <img src={spinBrandFiles.mark} alt="" width="72" height="72" decoding="async" hidden />
           <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
         </aside>
         <div class="wheel-tools">
@@ -60,7 +80,7 @@ const application = JSON.stringify({
             <Volume2 size={19} aria-hidden="true" data-sound-on /><VolumeX size={19} aria-hidden="true" data-sound-off hidden />
             <span data-sound-label>Sound on</span>
           </button>
-          {!replay && <button type="button" data-find-ideas aria-controls="spin-ideas"><Sparkles size={18} aria-hidden="true" /> Find ideas</button>}
+          {!replay && <button type="button" data-find-ideas aria-controls="spin-ideas"><Utensils size={17} aria-hidden="true" /> Food ideas</button>}
           <button type="button" data-share-spin><Share2 size={17} aria-hidden="true" /> <span data-share-spin-label>Share Spin</span></button>
           <a class="spin-kit" href="https://composer.loftwah.com/share/spin#social-kit">Launch kit <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
@@ -77,20 +97,6 @@ const application = JSON.stringify({
           <div class="add-entry">
             <input type="text" name="entry" maxlength="56" aria-label="New choice" placeholder="Add a choice" autocomplete="off" />
             <button type="button" data-add-choice><Plus size={18} aria-hidden="true" /> Add</button>
-          </div>
-          <div class="preset-quick">
-            <button type="button" data-quick-chains aria-pressed="false">Fast food</button>
-            <button type="button" data-takeaway aria-pressed="false">Takeaway roulette</button>
-            <label class="preset-picker">
-              <span class="screen-reader">Choose a preset</span>
-              <select data-preset-picker>
-                <option value="">More presets</option>
-                {spinPresetGroups.map(group => <optgroup label={group.label}>
-                  {group.presets.map(preset => <option value={preset.id}>{preset.label}</option>)}
-                </optgroup>)}
-              </select>
-              <ChevronDown size={15} aria-hidden="true" />
-            </label>
           </div>
           <p class="note" data-editor-message role="status"></p>
           <SpinTasteCloud />
@@ -192,53 +198,34 @@ const application = JSON.stringify({
 </script>
 
 <style>
-  :global(html[data-product='spin']) {
-    --color-background: #101827;
-    --color-foreground: #eefaff;
-    --color-muted: #b4cad7;
-    --color-border: #50677b;
-    --color-accent: #ff8c5b;
-    --spin-field: #172738;
-    --spin-selection: #314456;
-    --spin-surface: #1d3245;
-  }
-  :global(html[data-product='spin'][data-theme='light']) {
-    --color-background: #f5fcff;
-    --color-foreground: #102137;
-    --color-muted: #405972;
-    --color-border: #a5bacb;
-    --color-accent: #ab3614;
-    --spin-field: #ffffff;
-    --spin-selection: #ffebda;
-    --spin-surface: #e1ebf4;
-  }
   .spin { max-width: 1150px; margin-inline: auto; }
   .play {
     display: grid;
     grid-template-columns: minmax(315px, .82fr) minmax(0, 1.18fr);
-    grid-template-areas: 'heading wheel' 'editor wheel';
-    grid-template-rows: auto 1fr;
+    grid-template-areas: 'heading heading' 'presets presets' 'editor wheel';
+    grid-template-rows: auto auto 1fr;
     align-items: start;
-    gap: 20px clamp(28px, 6vw, 88px);
-    padding-top: clamp(14px, 3.2vw, 40px);
+    gap: 22px clamp(26px, 5vw, 72px);
+    padding-top: clamp(12px, 2.2vw, 28px);
   }
-  .spin-heading { grid-area: heading; padding-block: 6px; min-width: 0; }
-  .spin-heading h1 { max-width: 16ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5.2rem); font-weight: 720; line-height: .99; letter-spacing: -.039em; overflow-wrap: anywhere; }
+  .spin-heading { grid-area: heading; padding-block: 6px 12px; border-bottom: 1px solid var(--color-border); min-width: 0; }
+  .spin-heading h1 { max-width: 16ch; margin: 0; font-size: clamp(2.3rem, 5vw, 4.2rem); font-weight: 700; line-height: 1.02; letter-spacing: -.039em; overflow-wrap: anywhere; }
   .spin-heading p { margin: 10px 0 0; }
+  .wheel-question { margin: 0 0 4px; text-align: center; text-wrap: balance; font: 650 clamp(1.25rem, 3vw, 1.65rem)/1.12 Space, sans-serif; }
   .controls { grid-area: editor; min-width: 0; }
   .wheel-panel {
     grid-area: wheel; min-width: 0; display: grid; justify-items: center;
-    padding: clamp(6px, 1.5vw, 18px) clamp(10px, 2.25vw, 28px) clamp(13px, 2vw, 21px);
-    color: var(--color-foreground); background: var(--spin-surface);
+    padding: clamp(15px, 2vw, 25px) clamp(10px, 2.25vw, 28px) clamp(13px, 2vw, 21px);
+    color: var(--color-foreground); background: var(--color-surface);
     border-radius: 15px;
   }
-  .wheel-frame { width: min(100%, 455px); position: relative; }
+  .wheel-frame { width: min(100%, 385px); position: relative; }
   .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame { cursor: pointer; }
+  .preset-quick button svg { flex: none; }
   canvas { display: block; width: 100%; height: auto; }
   .pointer {
     position: absolute; z-index: 2; top: 1%; left: 50%; width: clamp(22px, 4.2vw, 40px);
     height: clamp(27px, 5vw, 48px); translate: -50% 0;
-    background: #fff0d8; clip-path: polygon(3% 0, 97% 0, 85% 53%, 50% 100%, 15% 53%);
     pointer-events: none;
   }
   .wheel-actions { display: flex; justify-content: center; gap: 8px; width: min(100%, 455px); margin-top: 10px; }
@@ -248,8 +235,8 @@ const application = JSON.stringify({
   .wheel-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
   .wheel-tools button { gap: 5px; }
   .spin-kit { display: inline-flex; align-items: center; gap: 3px; min-height: 44px; padding-inline: 7px; color: var(--color-foreground); text-decoration: underline; text-underline-offset: .2em; font-size: .85rem; }
-  .spin .wheel-tools button:not(.button) { background: var(--spin-field); border-color: transparent; }
-  .spin .wheel-tools button[data-sound][aria-pressed='true'] { color: var(--color-foreground); background: var(--spin-field); }
+  .spin .wheel-tools button:not(.button) { background: var(--color-field); border-color: transparent; }
+  .spin .wheel-tools button[data-sound][aria-pressed='true'] { color: var(--color-foreground); background: var(--color-field); }
   .wheel-panel [data-error] { margin: 8px 0 0; color: var(--color-foreground); }
   .wheel-status { font: 700 clamp(1rem, 2.7vw, 1.3rem)/1.2 Space, sans-serif; margin: 4px 0 0; text-align: center; text-wrap: balance; }
   [data-state='completed'] .wheel-status { font-size: clamp(1.9rem, 5vw, 3.1rem); }
@@ -257,12 +244,12 @@ const application = JSON.stringify({
   form { display: grid; gap: 10px; }
   form[hidden], [hidden] { display: none; }
   label { display: grid; gap: 2px; margin: 0; font-weight: 650; }
-  input, textarea, select { font: inherit; width: 100%; min-height: 44px; padding: 7px 10px; margin: 0; color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border); border-radius: 7px; }
+  input, textarea, select { font: inherit; width: 100%; min-height: 44px; padding: 7px 10px; margin: 0; color: var(--color-foreground); background: var(--color-field); border: 1px solid var(--color-border); border-radius: 7px; }
   textarea { min-height: 75px; }
    .screen-reader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .add-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
   .order-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; }
-  .order-toggle input { width: 20px; height: 20px; min-height: 0; accent-color: #eb5526; }
+  .order-toggle input { width: 20px; height: 20px; min-height: 0; accent-color: var(--color-brand); }
   .choice-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; flex-wrap: wrap; margin-bottom: -7px; }
   .choice-heading h2 { font-size: 1.08rem; margin: 0; }
   .choice-heading p { margin: 0; font-size: .82rem; }
@@ -275,19 +262,20 @@ const application = JSON.stringify({
   .choice-list:not([data-reorder='true']) :global(button[data-control='down']) { display: none; }
   .choice-list[data-reorder='true'] :global(li) { grid-template-columns: 38px minmax(0, 1fr) 32px 32px 42px; }
   .choice-list :global(li[data-enabled='false'] input[type='text']) { color: var(--color-muted); text-decoration: line-through; }
-  .choice-list :global(input[type='text']:focus) { background: var(--spin-field); }
-  .choice-list :global(input[type='checkbox']) { width: 20px; height: 20px; margin: 0; accent-color: #cc4b26; }
+  .choice-list :global(input[type='text']:focus) { background: var(--color-field); }
+  .choice-list :global(input[type='checkbox']) { width: 20px; height: 20px; margin: 0; accent-color: var(--color-brand); }
   .choice-list :global(input[type='text']) { min-height: 41px; width: 100%; font: inherit; font-size: 1rem; padding: 2px 4px; color: var(--color-foreground); background: transparent; border: 0; margin: 0; border-radius: 4px; }
   .choice-list :global(button) { min-height: 40px; padding: 0; font: 650 1.2rem/1 system-ui; color: var(--color-foreground); background: transparent; border: 0; }
-  .choice-list :global(button:hover) { background: var(--spin-field); }
+  .choice-list :global(button:hover) { background: var(--color-field); }
   .choice-list :global(button:disabled) { opacity: .35; cursor: default; }
   .button-row { display: flex; flex-wrap: wrap; gap: 7px; }
   .spin button:not(.spin-hub, .button) { min-height: 44px; padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 7px; background: transparent; color: var(--color-foreground); font-size: .9rem; }
-  .spin button:not(.spin-hub, .button):hover { background: var(--spin-field); }
-  .spin button:not(.spin-hub, .button)[aria-pressed='true'] { background: var(--spin-selection); border-color: var(--color-accent); color: var(--color-foreground); }
+  .spin button:not(.spin-hub, .button):hover { background: var(--color-field); }
+  .spin button:not(.spin-hub, .button)[aria-pressed='true'] { background: var(--color-selected); border-color: var(--color-accent); color: var(--color-foreground); }
   .spin button:disabled { cursor: default; }
-  .preset-quick { display: flex; flex-wrap: wrap; gap: 7px; padding-block: 3px; }
-  .preset-picker { flex: 0 1 148px; position: relative; min-width: 0; }
+  .preset-quick { grid-area: presets; display: flex; flex-wrap: wrap; gap: 7px; }
+  .preset-quick[hidden] { display: none; }
+  .preset-picker { flex: 0 1 114px; position: relative; min-width: 0; }
   .preset-picker select { appearance: none; height: 44px; padding-inline-end: 29px; background: transparent; font-size: .9rem; cursor: pointer; }
   .preset-picker svg { position: absolute; top: 15px; right: 10px; pointer-events: none; }
   .preset-quick button { text-align: left; justify-content: space-between; }
@@ -298,23 +286,30 @@ const application = JSON.stringify({
   summary { cursor: pointer; padding-block: 8px; }
   details code { overflow-wrap: anywhere; }
   .result-actions, .secondary-actions { margin-block: 12px; }
-  [data-verification] { display: inline-block; color: var(--color-foreground); background: var(--spin-field); padding: 8px 12px; border-radius: 7px; }
+  [data-verification] { display: inline-block; color: var(--color-foreground); background: var(--color-field); padding: 8px 12px; border-radius: 7px; }
   .scores { list-style: none; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
   .scores :global(li) { padding: 4px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; }
   .scores :global(.winner) { color: var(--color-accent); font-weight: 700; }
   [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a, .winner-art a { align-self: center; text-decoration: underline; text-underline-offset: .22em; }
   .winner-art { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 13px; }
+  .winner-art[hidden], .winner-art [hidden] { display: none; }
   .winner-art img { display: block; width: 58px; height: 58px; border-radius: 9px; }
   .winner-art a { min-height: 44px; display: inline-flex; align-items: center; font-size: .9rem; }
   .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; font-size: .89rem; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
   @media (max-width: 760px) {
-    .play { grid-template-columns: 1fr; grid-template-areas: 'heading' 'wheel' 'editor'; grid-template-rows: auto; row-gap: 13px; padding-top: 8px; }
-    .spin-heading h1 { font-size: clamp(2.25rem, 10vw, 3.5rem); }
-    .wheel-frame { width: min(100%, 275px); }
-    .wheel-panel { padding-block-start: 5px; }
+    .play { grid-template-columns: 1fr; grid-template-areas: 'heading' 'presets' 'wheel' 'editor'; grid-template-rows: auto; row-gap: 13px; padding-top: 8px; }
+    .spin-heading h1 { font-size: clamp(2.05rem, 8vw, 3rem); }
+    .wheel-frame { width: min(100%, 258px); }
+    .wheel-panel { padding-block-start: 12px; }
+    .preset-quick { gap: 5px; }
+    .spin .preset-quick button { padding-inline: 7px; font-size: .78rem; gap: 5px; }
+    .preset-quick .preset-picker { flex-basis: 78px; }
+    .preset-picker select { font-size: .78rem; padding-inline: 6px 16px; }
+    .preset-picker svg { right: 3px; width: 12px; }
+    .preset-quick button svg { width: 14px; }
     .wheel-status { font-size: .94rem; }
     [data-state='completed'] .wheel-status { font-size: 1.95rem; }
   }

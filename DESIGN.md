@@ -326,21 +326,20 @@ recipe and verification contract is
 
 ## App Composer Spin identity — 27 November 2026
 
-Spin is a first-party mini-app at `spin.loftwah.com`. Use the approved orange
-Composer tile with the Space Grotesk Spin wordmark on matching light and dark
-backgrounds. The app icon uses a three-segment wheel and an orange pointer on
-navy. Use navy, off-white and Composer orange in the interface and exports.
-The campaign uses AI-generated photographic still life in four layouts. Use the
-native social crop for each placement. The QR opens the public Spin homepage.
+Spin is a first-party mini-app at `spin.loftwah.com`. The wordmark reads
+Spin by App Composer. The ring, axle and orange pointer are Spin’s distinct
+mark. The Composer tile remains the parent product’s identity. Use Composer’s
+paper, ink and orange across the Spin header, play surface, controls and result
+exports. The campaign uses separate ImageGen compositions for the four social
+formats. The QR opens the public Spin homepage.
 
 ## Spin play surface — 27 November 2026
 
-Spin uses the official Composer tile and bundled Space Grotesk in a
-horizontal wordmark with matching transparent light and dark files. The
-active wheel question is the page title. A laptop shows the editor beside
-the wheel, and a phone puts the title, wheel and primary action ahead of
-the choices. The wheel is also a pointer target. Start with the three
-takeaway choices on a clean device and retain an existing draft.
+The app heading describes the action and the wheel shows the active question.
+Fast food, Game night, Weekend and the preset picker sit before the wheel. A
+laptop places the wheel beside the editor. A phone places the wheel and Spin
+button first. A fresh visit loads the three takeaway choices and existing
+drafts retain their own choices. Selecting a non-food preset hides food ideas.
 
 Choice entry and toggles live together. Multi-select food tiles suggest individual
 choices to add. Keep sound, Find ideas and Share Spin next to the wheel. Keep

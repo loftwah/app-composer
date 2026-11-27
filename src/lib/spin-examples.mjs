@@ -1,4 +1,5 @@
 export const spinExamples = Object.freeze({
+  'any-choice-demo': 'Spin demo draw',
   'taste-cloud': 'Takeaway ideas demo draw',
   takeaway: 'Australian takeaway',
   'share-draw': 'First Share film draw',
@@ -8,6 +9,7 @@ export const spinExamples = Object.freeze({
 });
 
 const loaders = {
+  'any-choice-demo': () => import('../data/spin-examples/any-choice-demo.json', { with: { type: 'json' } }),
   'taste-cloud': () => import('../data/spin-examples/taste-cloud.json', { with: { type: 'json' } }),
   'editor-draw': () => import('../data/spin-examples/editor-draw.json', { with: { type: 'json' } }),
   'share-draw': () => import('../data/spin-examples/share-draw.json', { with: { type: 'json' } }),

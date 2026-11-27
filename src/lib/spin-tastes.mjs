@@ -1,4 +1,4 @@
-const artPrefix = '/spin-brand/taste/';
+const artPrefix = '/spin-brand/taste-20261127e/';
 export const spinTastes = [
   { id: 'burgers', label: 'Burgers', art: artPrefix + 'burgers.webp' },
   { id: 'chicken', label: 'Chicken', art: artPrefix + 'chicken.webp' },

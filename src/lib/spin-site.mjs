@@ -1,17 +1,21 @@
 export const spinOrigin = 'https://spin.loftwah.com';
-export const spinArtwork = '/campaign/spin/spin-wide-20261127d.jpg';
-export const spinArtworkAlt = 'App Composer Spin. Takeaway roulette. An orange, cream and navy wheel beside a paper takeaway bag and hot chips.';
-export const spinIcon = '/spin-brand/spin-icon-192-20261127d.png';
+export const spinArtwork = '/campaign/spin/spin-wide-20261127e.jpg';
+export const spinArtworkAlt = 'Spin by App Composer. Make the call. An orange and ivory decision wheel beside the Spin mark.';
+export const spinIcon = '/spin-brand/spin-icon-192-20261127e.png';
 export const spinBrandFiles = {
-  dark: '/spin-brand/spin-lockup-dark-20261127c.png',
-  light: '/spin-brand/spin-lockup-light-20261127c.png',
-  icon: '/spin-brand/spin-icon-512-20261127d.png',
-  favicon: '/spin-brand/spin-icon-32-20261127d.png',
-  touch: '/spin-brand/spin-icon-180-20261127d.png',
+  mark: '/spin-brand/spin-mark-20261127e.svg',
+  manifest: '/spin-brand/site-20261127e.webmanifest',
+  dark: '/spin-brand/spin-lockup-dark-20261127e.png',
+  light: '/spin-brand/spin-lockup-light-20261127e.png',
+  icon: '/spin-brand/spin-icon-512-20261127e.png',
+  favicon: '/spin-brand/spin-icon-32-20261127e.png',
+  faviconSmall: '/spin-brand/spin-icon-16-20261127e.png',
+  maskable: '/spin-brand/spin-icon-maskable-20261127e.png',
+  touch: '/spin-brand/spin-icon-180-20261127e.png',
 };
 export const spinDiscovery = Object.freeze({
   id: 'spin',
-  name: 'App Composer Spin',
+  name: 'Spin by App Composer',
   category: 'Creative',
   description: 'Pick dinner, choose a game or settle a decision with a custom wheel and a result friends can verify.',
   href: spinOrigin + '/',
