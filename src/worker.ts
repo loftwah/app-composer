@@ -14,6 +14,7 @@ import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 import {builderNavigationRedirect} from './lib/builder-context.mjs';
 import {publicAgentSearch} from './lib/public-agent-search.mjs';
 import {printsDomainRequest} from './lib/prints-site.mjs';
+import {spinDomainRequest} from './lib/spin-site.mjs';
 import {printsFieldKitAsset} from './lib/prints-downloads.mjs';
 import {publicPageRedirect} from './lib/public-pages.mjs';
 import {runScheduledPluginTrustWatch} from './lib/plugin-trust-watch-run.ts';
@@ -27,6 +28,9 @@ const mountedAppRoute=new RegExp(`^/(${composedApps.join('|')})(?:/|$)`);
 const usageRoute=new RegExp(`^/api/usage/(${Object.keys(events).join('|')})$`);
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
+ const spinRequest=spinDomainRequest(request);
+ if(spinRequest instanceof Response)return spinRequest;
+ if(spinRequest instanceof Request)return handler.fetch!(spinRequest as unknown as typeof request,runtime,context);
  const fieldKit=await printsFieldKitAsset(request,runtime,context);if(fieldKit)return fieldKit;
  const search=await publicAgentSearch(request);if(search)return search;
  const printsRequest=printsDomainRequest(request);

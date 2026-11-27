@@ -1,5 +1,6 @@
 ---
 import { Grid3x3, X, ArrowRight } from '@lucide/astro';
+import { spinDiscovery, spinIcon } from '../lib/spin-site.mjs';
 import { printsDiscovery, printsIcon } from '../lib/prints-site.mjs';
 // The Apps menu follows the shared launcher contract documented in
 // src/browser/launcher.ts. The shared controller supplies the registry and
@@ -21,6 +22,12 @@ const member = Boolean(Astro.locals.user);
     <a href={printsDiscovery.href}>
      <img src={printsIcon} width="40" height="40" alt="" />
      <span>{printsDiscovery.name}<small>Browse the archive and get the desktop preview.</small></span>
+    </a>
+   </li>
+   <li data-destination data-local-launcher-group="apps" data-keywords={spinDiscovery.keywords}>
+    <a href={spinDiscovery.href}>
+     <img src={spinIcon} width="40" height="40" alt="" />
+     <span>{spinDiscovery.name}<small>Pick dinner, a game or a winner.</small></span>
     </a>
    </li>
   </ul>

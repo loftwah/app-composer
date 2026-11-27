@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import DiscoverWork from '../components/DiscoverWork.astro';
 import DiscoveryModes from '../components/DiscoveryModes.astro';
+import { spinDiscovery } from '../lib/spin-site.mjs';
 import { ArrowRight } from '@lucide/astro';
 import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/role-discovery';
 ---
@@ -14,6 +15,7 @@ import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/r
       <nav class="choice-list" aria-label="Choose a job">
         {discoveryJobs.map((job) => <a href={'/jobs/' + job.id}><span class="choice-copy"><strong>{job.label}</strong><small>{job.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
       </nav>
+      <a class="discovery-return" href={spinDiscovery.href}>Make a decision with App Composer Spin <ArrowRight size={17} aria-hidden="true" /></a>
     </section>
     <section id="roles" class="discovery-group" aria-labelledby="roles-heading">
       <div class="group-heading"><h2 id="roles-heading">Or start with who you are</h2><p>Explore paths for {discoveryRoles.length} roles, including WordPress, Shopify and Cloudflare teams. Choose whichever fits your work.</p></div>

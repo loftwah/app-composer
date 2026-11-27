@@ -7,6 +7,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { composerShareCollection, listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
 import { experiencePath, experiences, type ExperienceId } from "../lib/share-experiences.ts";
 import { artworkFilters, galleryPage, readArtworkCuration } from '../lib/share-gallery.ts';
+import { spinDiscovery } from '../lib/spin-site.mjs';
 import { noindexFor } from '../lib/indexing.mjs';
 import { hasShareWallFilters, shareWallQuery } from '../lib/share-wall.ts';
 
@@ -51,6 +52,7 @@ if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/cam
       {internetWorkshop && (
         <nav class="workshop-play" aria-label="Remix an Internet Workshop experience">
           <strong>Play and remix</strong>
+          <a href={spinDiscovery.href}>{spinDiscovery.name} →</a>
           {Object.entries(experiences).map(([id, item]) => <a href={experiencePath(id as ExperienceId)}>{item.title} →</a>)}
         </nav>
       )}

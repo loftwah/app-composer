@@ -1,4 +1,5 @@
 import { publicPageCanonical } from './public-pages.mjs';
+import { spinDiscovery } from './spin-site.mjs';
 import { printsOrigin, printsPreviewVersion } from './prints-site.mjs';
 
 const composerOrigin = publicPageCanonical('/').origin;
@@ -19,6 +20,7 @@ const sites = new Map([
       'Paperwork supports browser-local PDF form filling and visual signatures. The product guide links to the hosted editor and the portable recipe.'],
     ['Create and review media', '/media-studio', 'studio image video film audio media work published gallery tools creative local',
       'Media Studio has browser-local tools, a public gallery and signed-in production workspaces. Open the product guide for the available starting points.'],
+    [spinDiscovery.name, spinDiscovery.href, spinDiscovery.keywords, spinDiscovery.description],
     ['See current capabilities', '/capabilities', 'capability catalogue catalog operations machine readable json contract supported',
       'The public capabilities catalogue lists the supported App Composer operations and their boundaries.'],
     ['Read the architecture', '/architecture', 'architecture storage d1 durable object r2 source data worker database privacy trust boundary',
