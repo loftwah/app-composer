@@ -8,6 +8,7 @@ import {collectResourceAction,resourceActionSummary,purgeResourceActions} from '
 import {portfolioWindow,portfolioSummary} from '../lib/usage/portfolio.mjs';
 import build from './lib/build.json';
 import {publicFilmAsset} from './lib/public-film-assets';
+import {purgeExpiredSpins} from './lib/spin-session.ts';
 import {purgePrivateOutcomes} from './lib/private-outcome-events';
 import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 import {builderNavigationRedirect} from './lib/builder-context.mjs';
@@ -60,5 +61,6 @@ export default {...handler,fetch:guardedFetch,scheduled:async(controller:Schedul
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purge(runtime.DB,date).catch(()=>{console.error('Daily count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgePrivateOutcomes(runtime.DB,date).catch(()=>{console.error('Private outcome retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(runScheduledPluginTrustWatch(runtime.DB,pluginTrustSnapshot.parse(pluginTrustCommitted),date).catch(()=>{console.error('Plugin trust watch unavailable');}));
+ if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgeExpiredSpins(runtime.DB,date.getTime()).catch(()=>{console.error('Spin retention unavailable');}));
  return cmsScheduled(controller,runtime,context);
 }};

@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import { spinLifetimeDays } from '../lib/spin-protocol.mjs';
+const replay = Astro.url.searchParams.has('session');
+---
+<Base title="App Composer Spin" description="Give the wheel a question, spin a fair series and share a result anyone can check." noindex={replay || undefined} focusedExperience>
+  <section class="spin" data-spin>
+    <header>
+      <h1>App Composer Spin</h1>
+      <p>A decision wheel with a replay you can check.</p>
+    </header>
+    <div class="play">
+      <div class="wheel-panel">
+        <div class="wheel-frame">
+          <span class="pointer" aria-hidden="true"></span>
+          <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
+        </div>
+        <p class="wheel-status" role="status" data-result>Set up your wheel to start.</p>
+      </div>
+      <div class="controls">
+        <form data-setup hidden={replay}>
+          <h2>Set up your wheel</h2>
+          <div class="presets" aria-label="Presets">
+            <button type="button" data-preset="dinner">Dinner</button>
+            <button type="button" data-preset="game">Game night</button>
+            <button type="button" data-preset="yes">Yes / no</button>
+            <button type="button" data-preset="coin">Heads / tails</button>
+            <button type="button" data-preset="first">Who goes first?</button>
+            <button type="button" data-preset="custom">Custom</button>
+          </div>
+          <label>Question <input name="question" required maxlength="100" value="What’s for dinner?" /></label>
+          <label>Choices <textarea name="entries" rows="4" aria-describedby="choices-hint">Pizza&#10;Thai&#10;Tacos&#10;Burgers</textarea></label>
+          <p id="choices-hint" class="note">Add 2–12 different choices, one per line. Edit or move the lines to change their order.</p>
+          <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="3" required /></label>
+          <p class="note" data-rules></p>
+          <p class="note">Anyone with the session link can read the question and choices for {spinLifetimeDays} days. Leave personal details out.</p>
+          <button class="button" type="submit">Lock wheel and get link</button>
+        </form>
+        <section data-session hidden aria-labelledby="spin-question">
+          <h2 id="spin-question" data-question></h2>
+          <p class="note" data-series></p>
+          <ol class="scores" aria-label="Series score" data-scores></ol>
+          <div class="button-row">
+            <button class="button" type="button" data-draw hidden>Spin the wheel</button>
+            <button type="button" data-auto hidden>Spin full series</button>
+            <button type="button" data-share>Copy session link</button>
+            <button type="button" data-native-share hidden>Share link</button>
+            <button type="button" data-refresh>Refresh result</button>
+          </div>
+          <div class="button-row" data-exports hidden>
+            <button type="button" data-replay>Replay last spin</button>
+            <button type="button" data-png>Save square PNG</button>
+            <button type="button" data-portrait>Save portrait PNG</button>
+            <button type="button" data-receipt>Download JSON receipt</button>
+          </div>
+          <p data-verification></p>
+          <details>
+            <summary>Commitment and round history</summary>
+            <p class="note">Send the link before spinning so friends can compare the commitment. A fixed session prevents silent rerolls through the app. Someone can still create a separate session or choose which one to share.</p>
+            <code data-commitment></code>
+            <ol data-rounds></ol>
+            <p class="note" data-expiry></p>
+          </details>
+          <div class="button-row secondary-actions">
+            <button type="button" aria-pressed="false" data-sound>Sound</button>
+            <button type="button" data-abandon hidden>Abandon session</button>
+            <a href="/spin">Make a new wheel</a>
+          </div>
+        </section>
+        <p role="alert" data-error></p>
+        {replay && <p data-start-over hidden><a href="/spin">Make a new wheel</a></p>}
+        <noscript><p>Enable JavaScript to use Spin.</p></noscript>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import '../browser/spin.mjs';
+</script>
+
+<style>
+  .spin { max-width: 1080px; margin-inline: auto; padding-bottom: 48px; }
+  header { padding-block: 12px 22px; }
+  h1 { font-size: clamp(2.25rem, 6vw, 4.4rem); line-height: 1; letter-spacing: -.035em; margin: 0 0 10px; }
+  header p { margin: 0; color: var(--color-muted); font-size: 1.08rem; }
+  .play { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); align-items: start; gap: clamp(16px, 5vw, 60px); }
+  .wheel-panel { align-self: start; position: sticky; top: 100px; }
+  .wheel-frame { width: min(100%, 560px); position: relative; margin-inline: auto; }
+  canvas { width: 100%; height: auto; display: block; }
+  .pointer { width: 0; height: 0; border-inline: 13px solid transparent; border-top: 26px solid var(--color-foreground); position: absolute; z-index: 1; top: 2px; left: 50%; transform: translateX(-50%); }
+  .wheel-status { text-align: center; font-weight: 650; font-size: clamp(1.15rem, 3vw, 1.6rem); margin: 8px 0; text-wrap: balance; }
+  .controls { border-top: 1px solid var(--color-border); padding-top: 14px; min-width: 0; }
+  h2 { margin: 0 0 10px; font-size: clamp(1.4rem, 3vw, 1.95rem); overflow-wrap: anywhere; }
+  form { display: grid; gap: 10px; }
+  form[hidden], [hidden] { display: none; }
+  label { display: grid; gap: 4px; margin: 0; font-weight: 600; }
+  input, textarea { font: inherit; width: 100%; min-height: 44px; padding: 8px 10px; color: var(--color-foreground); background: var(--color-background); border: 1px solid var(--color-border); border-radius: 6px; }
+  .series { grid-template-columns: max-content 84px; align-items: center; gap: 12px; }
+  .presets, .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  button:not(.button) { min-height: 44px; padding: 6px 11px; border: 1px solid var(--color-border); border-radius: 6px; background: transparent; color: var(--color-foreground); font: inherit; cursor: pointer; }
+  button[aria-pressed='true'] { background: var(--color-accent); color: var(--color-background); }
+  button:disabled { opacity: .65; cursor: wait; }
+  .note { color: var(--color-muted); font-size: .91rem; margin: 0 0 6px; }
+  .scores { list-style: none; margin: 14px 0; padding: 0; font-variant-numeric: tabular-nums; }
+  .scores li { padding: 6px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; }
+  .scores .winner { color: var(--color-accent); font-weight: 700; }
+  [data-exports], .secondary-actions { margin-top: 10px; }
+  summary { cursor: pointer; padding-block: 9px; }
+  details code { overflow-wrap: anywhere; }
+  [data-error]:empty, [data-verification]:empty { display: none; }
+  .secondary-actions a { align-self: center; }
+  @media (max-width: 750px) {
+    .play { grid-template-columns: 1fr; }
+    .wheel-panel { position: static; }
+    .wheel-frame { width: min(75vw, 350px); }
+  }
+</style>
