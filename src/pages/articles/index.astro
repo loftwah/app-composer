@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { frontmatter as releaseArt } from "./picking-release-art.md";
+import { frontmatter as rehearsal } from "./cloudflare-app-rehearsal.md";
 import { frontmatter as original } from "./workers-ai-to-original.md";
 import { frontmatter as nanochatPufferfish } from "./nanochat-pufferfish.md";
 
@@ -11,6 +12,7 @@ interface ArticleSummary {
 }
 
 const articles = [
+  { frontmatter: rehearsal as ArticleSummary, href: "/articles/cloudflare-app-rehearsal" },
   { frontmatter: nanochatPufferfish as ArticleSummary, href: "/articles/nanochat-pufferfish" },
   { frontmatter: releaseArt as ArticleSummary, href: "/articles/picking-release-art" },
   { frontmatter: original as ArticleSummary, href: "/articles/workers-ai-to-original" },

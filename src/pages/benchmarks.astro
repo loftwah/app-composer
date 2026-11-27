@@ -2,9 +2,11 @@
 import Base from '../layouts/Base.astro';
 import BenchmarksNav from '../components/BenchmarksNav.astro';
 import results from '../../benchmarks/results/latest.json';
+import freeFirst from '../../benchmarks/cloudflare-composition/cases/free-first-01-20261127.json';
 import cloudflareCampaign from '../../benchmarks/cloudflare-composition/cases/scenarios.json';
 import cloudflareProfiles from '../../benchmarks/cloudflare-composition/cases/real-product-profiles.json';
 import { ArrowRight, CheckCircle2, CircleSlash, XCircle } from '@lucide/astro';
+const seconds = (ms: number) => (ms / 1000).toFixed(1) + ' s';
 const source = typeof results.source === 'string' ? results.source : 'unknown';
 const short = source === 'unknown' ? 'unknown' : source.slice(0, 7);
 const totals = results.totals ?? {pass: 0, fail: 0, blocked: 0};
@@ -33,6 +35,26 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   <div class="bench-total bench-pass"><strong>{totals.pass ?? 0}</strong><span>passed</span></div>
   <div class="bench-total bench-fail"><strong>{totals.fail ?? 0}</strong><span>failed</span></div>
   <div class="bench-total bench-blocked"><strong>{totals.blocked ?? 0}</strong><span>blocked</span></div>
+ </section>
+
+ <section class="bench-section" id="free-first-01" aria-labelledby="free-first-title">
+  <h2 id="free-first-title">Free-first Cloudflare apps</h2>
+  <p><code>{freeFirst.id}</code> · Operator rehearsal · 27 November 2026</p>
+  <ul class="bench-cf-grid" aria-label="Observed app trials">
+   <li>
+    <h3>Paperwork PDF editor</h3>
+    <p>First useful edit in <strong>{seconds(freeFirst.static.firstUsefulInteractionMs.desktop1440)}</strong> on desktop and <strong>{seconds(freeFirst.static.firstUsefulInteractionMs.phone390)}</strong> at phone width. Both runs recovered from a damaged file and reopened an edited export.</p>
+    <p>Existing Workers Paid reference. The separate remix passed a local build and Wrangler dry run. Free-account deployment is open.</p>
+    <a href={freeFirst.static.reference}>Try the live fictional form <ArrowRight size={16} aria-hidden="true"/></a>
+   </li>
+   <li>
+    <h3>Prints illustration</h3>
+    <p><strong>{freeFirst.ai.successfulRequests} successful Workers AI requests</strong> in the earlier owner run. A later read and native export returned matching original bytes.</p>
+    <p>Zero new inference calls in the rehearsal. Attributable Neurons, invoice and participant-owned run are open.</p>
+    <a href={freeFirst.ai.result}>Follow the original <ArrowRight size={16} aria-hidden="true"/></a>
+   </li>
+  </ul>
+  <p><a href="/articles/cloudflare-app-rehearsal">Read the results and run the workshop</a> · <a href="/demo/examples/first-app-rehearsal">Open the share pack</a> · <a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/cloudflare-composition/cases/free-first-01-20261127.json">Inspect the receipt</a></p>
  </section>
 
  <section class="bench-section" aria-labelledby="suites-title">

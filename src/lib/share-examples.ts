@@ -171,7 +171,50 @@ const printShop: ShareExample = {
   ],
 };
 
-export const shareExamples = [signalAndType, printShop, creatorHubExample];
+const rehearsalCover = {
+  src: '/articles/free-first-rehearsal-20261127.jpg', width: 1200, height: 630,
+  alt: 'Two Cloudflare app trials. App Composer’s operator rehearsal pairs a Paperwork capture with a Prints illustration.',
+};
+
+const firstAppRehearsal: ShareExample = {
+  id: 'first-app-rehearsal',
+  title: 'Two Cloudflare app trials',
+  description: 'A live PDF recovery, a local app remix and a retained Workers AI original from an operator rehearsal.',
+  href: '/demo/examples/first-app-rehearsal',
+  lead: rehearsalCover,
+  items: [
+    {
+      title: 'Share the rehearsal',
+      image: rehearsalCover,
+      href: rehearsalCover.src, action: 'Download the link cover', download: true,
+      description: 'A wide App Composer card for the workshop results.',
+      source: { href: '/articles/cloudflare-app-rehearsal', label: 'Run notes', note: 'Composer campaign layout using a live reference capture and the published Prints illustration.' },
+    },
+    {
+      title: 'A fictional PDF, edited and reopened',
+      image: { src: '/articles/paperwork-rehearsal-20261127.webp', width: 1440, height: 900, alt: 'Paperwork showing a native form field after reopening the saved fictional lab report.' },
+      href: paperwork.origin + '/?sample=lab', action: 'Try the live sample',
+      description: 'Fill a field, save a copy and reopen it in Paperwork. The editing happens in your browser.',
+      source: { href: '/benchmarks#free-first-01', label: 'Benchmark Studio receipt', note: 'Live captured Paperwork reference, 27 November 2026.' },
+    },
+    {
+      title: 'Club Forms with the follow-up instruction',
+      image: { src: '/articles/club-forms-followup-20261127.webp', width: 1440, height: 900, alt: 'The local Club Forms opening screen tells members to save the completed PDF and bring it to the workshop.' },
+      href: '/init/paperwork', action: 'Configure a copy in Init',
+      description: 'Reuse the configured editor and tell club members what to do with the finished PDF.',
+      source: { href: paperwork.repository + '/tree/' + paperwork.commit, label: 'Reviewed Paperwork source', note: 'Capture of the separate local remix.' },
+    },
+    {
+      title: 'The retained Prints illustration',
+      image: { src: '/articles/workers-ai-original-20261126.jpg', width: 1200, height: 630, alt: 'Orange workshop press producing a blue print and paper slip.' },
+      href: '/articles/workers-ai-to-original', action: 'Trace the original file',
+      description: 'See how Workers AI output was retained and exported from Prints.',
+      source: { href: 'https://github.com/loftwah/app-composer/issues/997#issuecomment-7162591975', label: 'Owner-run evidence', note: 'Published App Composer illustration using Lucid Origin.' },
+    },
+  ],
+};
+
+export const shareExamples = [firstAppRehearsal, signalAndType, printShop, creatorHubExample];
 
 
 // Old pages and their tool names still open the same public examples.
