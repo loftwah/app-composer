@@ -5,9 +5,9 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
 ---
 
 <dialog data-share-dialog aria-labelledby="spin-share-title">
-  <div class="share-inner">
+  <div class="share-inner" data-share-content>
     <header>
-      <h2 id="spin-share-title" data-share-title>Share wheel</h2>
+      <h2 id="spin-share-title" data-share-title tabindex="-1">Share wheel</h2>
       <form method="dialog">
         <button class="close-share secondary" aria-label="Close sharing" autofocus><X size={21} aria-hidden="true" /></button>
       </form>
@@ -15,30 +15,29 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
     <p class="note share-description" data-share-description></p>
 
     <div class="post" data-share-social hidden>
+      <fieldset data-share-formats>
+        <legend>Image size</legend>
+        <div class="formats">
+          {spinImageFormats.map(({ id, name, width, height }) => (
+            <label class="format" data-format={id}>
+              <input type="radio" name="spin-image-format" value={id} checked={id === 'portrait'} />
+              <span class="format-shape" aria-hidden="true"></span>
+              <span><strong>{name}</strong><small>{width} × {height}</small></span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <div class="preview" data-share-preview>
+        <a data-preview-link target="_blank" rel="noopener" aria-label="Open full-size result image in a new tab" hidden></a>
         <p data-image-status>Preparing the image…</p>
       </div>
-      <div class="post-controls">
-        <fieldset data-share-formats>
-          <legend>Image size</legend>
-          <div class="formats">
-            {spinImageFormats.map(({ id, name, width, height }) => (
-              <label class="format" data-format={id}>
-                <input type="radio" name="spin-image-format" value={id} checked={id === 'portrait'} />
-                <span class="format-shape" aria-hidden="true"></span>
-                <span><strong>{name}</strong><small>{width} × {height}</small></span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <div class="actions image-actions">
-          <button class="button" type="button" data-copy-image disabled><Copy size={18} aria-hidden="true" /> Copy image</button>
-          <button class="button secondary" type="button" data-save-image disabled><Download size={18} aria-hidden="true" /> Save PNG</button>
-          <button type="button" class="secondary" data-native-image hidden><Share2 size={17} aria-hidden="true" /> Send image</button>
-          <a class="button secondary" data-open-image target="_blank" rel="noopener" hidden>Open full-size PNG <ArrowUpRight size={16} aria-hidden="true" /></a>
-        </div>
-        <p class="feedback" data-image-feedback role="status"></p>
+      <div class="actions image-actions">
+        <button class="button" type="button" data-copy-image disabled><Copy size={18} aria-hidden="true" /> Copy image</button>
+        <button class="button secondary" type="button" data-save-image disabled><Download size={18} aria-hidden="true" /> Save PNG</button>
+        <button type="button" class="secondary" data-native-image hidden><Share2 size={17} aria-hidden="true" /> Send image</button>
+        <a class="button secondary" data-open-image target="_blank" rel="noopener" hidden>Open full-size PNG <ArrowUpRight size={16} aria-hidden="true" /></a>
       </div>
+      <p class="feedback" data-image-feedback role="status"></p>
     </div>
 
     <div class="replay-tools">
@@ -52,7 +51,7 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
         <p class="note">Anyone with the link can see the question and choices for {spinLifetimeDays} days.</p>
       </div>
       <details data-share-more hidden>
-        <summary>Caption, alt text and downloads</summary>
+        <summary>Caption and more</summary>
         <label>Caption <textarea data-share-caption rows="3" readonly spellcheck="false"></textarea></label>
         <div class="actions">
           <button type="button" class="secondary" data-copy-caption>Copy caption</button>
@@ -60,7 +59,6 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
           <button type="button" class="secondary" data-replay-video hidden>Save video</button>
           <button type="button" class="secondary" data-receipt>Download draw record</button>
         </div>
-        <p class="note">Paste the image before copying the caption.</p>
       </details>
       <div class="actions" data-receipt-actions hidden>
         <button type="button" class="secondary" data-abandoned-receipt>Download draw record</button>
@@ -76,22 +74,27 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
     border: 1px solid var(--color-border); border-radius: 14px;
     background: var(--color-surface); color: var(--color-foreground);
   }
-  dialog::backdrop { background: rgb(12 9 43 / .74); }
+  dialog::backdrop { background: rgb(30 17 13 / .7); }
   .share-inner { padding: clamp(14px, 3vw, 25px); }
+  :global([data-share-result]) .share-inner { padding: 0; }
+  :global([data-share-result]) header form { display: none; }
   header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
   header h2 { margin: 0; font: 700 clamp(1.55rem, 5vw, 2.15rem)/1.05 Space, sans-serif; letter-spacing: -.03em; }
   .close-share { width: 44px; padding: 0; }
   .note { color: var(--color-muted); font-size: .89rem; margin: 7px 0 0; }
   .share-description { margin-bottom: 12px; }
-  .post { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: clamp(12px, 3vw, 24px); }
+  .post { display: grid; gap: 10px; }
+  .actions.image-actions [data-copy-image], .actions.image-actions[data-save-primary] [data-save-image] { flex: 1; }
   .preview {
-    height: clamp(278px, 44vh, 405px); min-width: 0; padding: 12px; background: var(--color-field);
+    height: clamp(315px, 46dvh, 420px); min-width: 0; padding: 14px;
+    background: repeating-linear-gradient(135deg, rgb(81 42 27 / .035) 0 1px, transparent 1px 9px), var(--color-field);
     color: var(--color-muted); border-radius: 9px; display: grid; place-items: center;
     text-align: center; overflow: hidden;
   }
-  .preview :global(img) { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
+  .preview a { display: block; width: 100%; height: 100%; min-height: 0; }
+  .preview :global(img:not([hidden])) { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; filter: drop-shadow(0 5px 12px rgb(39 21 12 / .22)); }
   .preview p { margin: 0; font-size: .9rem; }
-  .post-controls, .replay-tools { display: grid; min-width: 0; gap: 10px; align-content: start; }
+  .replay-tools { display: grid; min-width: 0; gap: 10px; align-content: start; }
   fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
   legend { padding: 0; margin: 0 0 7px; font: 700 .98rem/1.2 Space, sans-serif; }
   .formats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
@@ -100,7 +103,7 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
     padding: 5px 8px; cursor: pointer; border: 1px solid var(--color-control-border); border-radius: 7px;
   }
   .format:hover { background: var(--color-field); }
-  .format:has(input:checked) { background: #edff40; border-color: #25206c; color: #25206c; }
+  .format:has(input:checked) { background: #ffdb9a; border-color: #8a422a; color: #392216; }
   .format:has(input:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 2px; }
   .format input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
   .format-shape { flex: none; width: 13px; height: 17px; border: 1.5px solid currentColor; border-radius: 2px; }
@@ -109,15 +112,15 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
   [data-format='landscape'] .format-shape { width: 15px; height: 9px; }
   .format strong, .format small { display: block; }
   .format small { margin-top: 2px; font: 500 .76rem/1.15 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
-  .post:not([hidden]) + .replay-tools { margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--color-border); }
+  .post:not([hidden]) + .replay-tools { margin-top: 3px; padding-top: 11px; border-top: 1px solid var(--color-border); }
   .actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
   button, .actions a { min-height: 44px; padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 7px; }
   button:not(.button):hover { background: var(--color-field); }
   .actions button, .actions a { gap: 6px; }
   .image-actions [data-copy-image], .image-actions[data-save-primary] [data-save-image] {
-    color: #1a1542; background: #edff40; border-color: #1a1542;
+    color: #fff5e6; background: #a73426; border-color: #a73426; font-weight: 750;
   }
-  .image-actions [data-copy-image]:hover, .image-actions[data-save-primary] [data-save-image]:hover { background: #f9ff88; }
+  .image-actions [data-copy-image]:hover, .image-actions[data-save-primary] [data-save-image]:hover { background: #8d2d21; }
   label { display: grid; gap: 4px; font: 650 .86rem/1.3 Space, sans-serif; margin: 0; }
   .format { display: flex; }
   input, textarea {
@@ -129,12 +132,10 @@ import { spinImageFormats } from '../lib/spin-site.mjs';
   summary { cursor: pointer; padding-block: 5px; }
   details .actions { margin-top: 8px; }
   .feedback { color: var(--color-foreground); font-size: .88rem; line-height: 1.4; margin: 0; overflow-wrap: anywhere; }
-  [data-image-feedback] { min-height: 2lh; }
+  [data-image-feedback] { min-height: 1.4lh; }
   [data-share-feedback]:empty { display: none; }
   [hidden] { display: none; }
   @media (max-width: 620px) {
-    .post { grid-template-columns: minmax(0, 1fr); }
-    .preview { height: clamp(164px, 30dvh, 255px); padding: 8px; }
-    .image-actions [data-copy-image], .image-actions[data-save-primary] [data-save-image] { flex: 1; }
+    .preview { height: clamp(298px, 45dvh, 380px); padding: 10px; }
   }
 </style>

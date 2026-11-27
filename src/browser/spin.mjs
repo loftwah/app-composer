@@ -1,5 +1,6 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
 import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, turn, winnerAngle } from './spin-wheel.mjs';
+import { loadSpinPhotos } from './spin-art.mjs';
 import { mountSpinShare } from './spin-share.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
@@ -34,7 +35,7 @@ function mount(root) {
   let wheelLabels = [];
   let direction = 1;
   const panel = get('wheel-panel');
-  const sharing = mountSpinShare(get('share-dialog'), () => {
+  const sharing = mountSpinShare(get('share-dialog'), get('share-result'), () => {
     armSound();
     return sound ? audio : undefined;
   }, reduced);
@@ -65,6 +66,17 @@ function mount(root) {
     if (control && !playing && !control.disabled) control.click();
   }
 
+  function warmWheelPhotos(labels) {
+    const loading = loadSpinPhotos(labels);
+    if (!loading) return;
+    void loading.then(() => {
+      if (playing || wheelLabels !== labels) return;
+      const completed = session?.status === 'completed';
+      const winner = completed ? session.winner : session?.rounds.at(-1)?.winner ?? -1;
+      paintSpinWheel(ctx, labels, angle, { winner, shade: completed });
+    });
+  }
+
   function updatePreview(labels) {
     const best = Number(bestOf.value);
     get('rules').textContent = rules({ entries: labels, bestOf: best });
@@ -72,6 +84,7 @@ function mount(root) {
       get('spin-heading').textContent = question.value.trim() || 'What should we pick?';
       get('spin-heading').title = get('spin-heading').textContent;
       wheelLabels = labels;
+      warmWheelPhotos(labels);
       paintSpinWheel(ctx, labels, angle);
       get('result-label').textContent = labels.length < 2 ? 'Build your wheel' :
         reduced.matches ? 'Tap the wheel or press Spin' : 'Tap or flick the wheel';
@@ -165,10 +178,13 @@ function mount(root) {
     if (settledWinner !== undefined) angle = winnerAngle(settledWinner, next.config.entries.length);
     else if (!keepAngle) angle = 0;
     wheelLabels = next.config.entries;
+    warmWheelPhotos(wheelLabels);
     paintSpinWheel(ctx, wheelLabels, angle, { winner: completed ? next.winner : isOpen ? (last?.winner ?? -1) : -1, shade: completed });
     showResult(next.status === 'completed' ? (next.winner < 0 ? 'It’s a tie' : next.config.entries[next.winner]) :
       next.status === 'abandoned' ? 'This spin was stopped' :
         last ? next.config.entries[last.winner] : 'Ready to spin');
+    if (completed) sharing.present({ session: next, link: shareUrl(next.id), question: next.config.question });
+    else sharing.hideResult();
     const result = get('result');
     result.toggleAttribute('data-long-result', result.textContent.length > 18);
     syncHub();

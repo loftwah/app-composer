@@ -1,15 +1,17 @@
 import { spinImageFormats } from '../lib/spin-site.mjs';
 import { renderSpinPng, renderSpinVideo, replayVideoType } from './spin-export.mjs';
 
-export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
-  const get = name => dialog.querySelector('[data-' + name + ']');
+export function mountSpinShare(dialog, result, getVideoAudio, reducedMotion) {
+  const content = dialog.querySelector('[data-share-content]');
+  const get = name => content.querySelector('[data-' + name + ']');
   const url = get('share-url');
   const formats = get('share-formats');
   const image = new Image();
   image.dataset.shareImage = '';
   image.alt = '';
   image.hidden = true;
-  get('share-preview').prepend(image);
+  const previewLink = get('preview-link');
+  previewLink.append(image);
   const saveImage = get('save-image');
   const copyImage = get('copy-image');
   const nativeImage = get('native-image');
@@ -38,6 +40,8 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
   function releasePreview() {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     imageUrl = undefined;
+    previewLink.removeAttribute('href');
+    previewLink.hidden = true;
     image.removeAttribute('src');
     image.hidden = true;
     saveImage.disabled = true;
@@ -85,6 +89,8 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
       if (selection !== active) return;
       selection.file = file;
       image.hidden = false;
+      previewLink.href = src;
+      previewLink.hidden = false;
       status.hidden = true;
       saveImage.disabled = false;
       copyImage.disabled = copying;
@@ -96,16 +102,16 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
       if (selection !== active) return;
       releasePreview();
       copyImage.disabled = true;
-      status.textContent = 'The image didn’t load. Pick another size or reopen sharing to retry.';
+      status.textContent = 'The image didn’t load. Choose another size or try Share result again.';
     }
   }
 
-  function open(data) {
+  function configure(data) {
     if (current?.session !== data.session) images.clear();
     current = data;
     const { session, link, question, isDraft } = data;
     const completed = session?.status === 'completed';
-    get('share-title').textContent = completed ? 'Share result' : isDraft ? 'Share wheel' : 'Share draw';
+    get('share-title').textContent = completed ? 'Share the result' : isDraft ? 'Share wheel' : 'Share draw';
     const description = get('share-description');
     description.hidden = completed;
     description.textContent = isDraft
@@ -122,7 +128,6 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
     get('replay-video').hidden = !completed || !replayVideoType();
     url.value = link;
     feedback.textContent = '';
-    if (!dialog.open) dialog.showModal();
     if (!completed) return;
     const winner = session.config.entries[session.winner];
     const outcome = winner ? `${winner} wins!` : 'It ended in a tie.';
@@ -135,6 +140,37 @@ export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
     get('share-caption').value = `${question}\n${outcome}${tally}\nSee the spin
 ${link}`;
     void preview();
+  }
+
+  function present(data) {
+    if (!result.hidden && current?.session === data.session) return;
+    if (dialog.open) dialog.close();
+    result.append(content);
+    result.hidden = false;
+    configure(data);
+  }
+
+  function hideResult() {
+    if (result.hidden) return;
+    active = undefined;
+    images.clear();
+    releasePreview();
+    result.hidden = true;
+    dialog.append(content);
+  }
+
+  function open(data) {
+    if (data.session?.status === 'completed') {
+      present(data);
+      if (!active?.file) void preview();
+      const title = get('share-title');
+      title.focus({ preventScroll: true });
+      title.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+    } else {
+      hideResult();
+      configure(data);
+      if (!dialog.open) dialog.showModal();
+    }
   }
 
   function setClipboardBusy(value) {
@@ -216,7 +252,7 @@ ${link}`;
   get('replay-video').addEventListener('click', async event => {
     const button = event.currentTarget;
     const { session, link } = current;
-    const report = message => { if (dialog.open && current.session === session) feedback.textContent = message; };
+    const report = message => { if (!result.hidden && current.session === session) feedback.textContent = message; };
     button.disabled = true;
     report('Making the video. Keep this tab open…');
     try {
@@ -234,10 +270,11 @@ ${link}`;
     void preview();
   });
   dialog.addEventListener('close', () => {
+    if (content.parentElement !== dialog) return;
     active = undefined;
     images.clear();
     releasePreview();
   });
 
-  return { open, error: message => { feedback.textContent = message; } };
+  return { open, present, hideResult, error: message => { feedback.textContent = message; } };
 }

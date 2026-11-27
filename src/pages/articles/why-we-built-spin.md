@@ -2,8 +2,8 @@
 layout: "../../layouts/Article.astro"
 title: "Why we built App Composer Spin"
 description: "Put your choices on a wheel, spin, and send the result to your friends."
-cover: "/campaign/spin/going-round-20261127.jpg"
-coverAlt: "Spin by App Composer. Going round in circles? Good. An orange felt hand flicks a blue wheel and sends a slice of felt pizza flying."
+cover: "/campaign/spin/takeaway-counter-wide-20261128.jpg"
+coverAlt: "Dinner’s on the wheel. A painted wooden wheel sits behind takeaway burgers, chips and fried chicken. Spin by App Composer."
 coverCaption: "Original AI-generated campaign artwork for App Composer Spin."
 published: "2026-11-27"
 ---
@@ -14,7 +14,7 @@ For more dinner ideas, pick Australian takeaway roulette or open Food ideas in t
 
 ## Send a spin to a friend
 
-After a spin, choose Share result to copy the link or save a picture. If you want to send the link first, choose Share wheel, then Get a link before spinning. Your friends can use that same link to see the result later. The link lasts 30 days.
+The share image appears after the spin. Pick a post size and copy the image or save it as a PNG. Share result takes you to the image and the result link. If you want to send the link first, choose Share wheel, then Get a link before spinning. Your friends can use that same link to see the result later. The link lasts 30 days.
 
 In a best-of-three series with two choices, the first to two wins takes it. With more choices, Spin counts three rounds and spins again among the leaders if they tie. Open tally keeps counting until you choose Finish and can end in a tie.
 
@@ -40,4 +40,4 @@ Add a suburb or postcode such as Sunbury VIC 3429. Spin keeps it on your device.
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/spin-lockup-dark-round-20261127.png) · [Logo for light backgrounds](/spin-brand/spin-lockup-light-round-20261127.png) · [App icon](/spin-brand/spin-512-round-20261127.png) · [Social preview](/campaign/spin/going-round-20261127.jpg) · [Launch kit and QR](/share/spin#social-kit)
+[Logo for dark backgrounds](/spin-brand/counter/lockup-dark.png) · [Logo for light backgrounds](/spin-brand/counter/lockup-light.png) · [App icon](/spin-brand/counter/spin-512.png) · [Social preview](/campaign/spin/takeaway-counter-wide-20261128.jpg) · [Launch kit and QR](/share/spin#social-kit)

@@ -4,11 +4,11 @@ import Base from '../../layouts/Base.astro';
 import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinDiscovery, spinOrigin } from '../../lib/spin-site.mjs';
 
 const campaign = '/campaign/spin/';
-const caption = `Going round in circles? Good. Let Spin settle dinner, game night or whatever’s up for debate. ${spinDiscovery.href}`;
+const caption = `Dinner’s on the wheel. Give it a spin and send the result to the group chat. ${spinDiscovery.href}`;
 const formats = [
-  { file: 'going-round-portrait', label: 'Feed portrait', width: 1080, height: 1350 },
-  { file: 'going-round-square', label: 'Square feed', width: 1080, height: 1080 },
-  { file: 'going-round-story', label: 'Story', width: 1080, height: 1920 },
+  { file: 'takeaway-counter-portrait', label: 'Feed portrait', width: 1080, height: 1350 },
+  { file: 'takeaway-counter-square', label: 'Square feed', width: 1080, height: 1080 },
+  { file: 'takeaway-counter-story', label: 'Story', width: 1080, height: 1920 },
 ];
 const demo = spinOrigin + '/?example=any-choice-demo';
 ---
@@ -35,13 +35,13 @@ const demo = spinOrigin + '/?example=any-choice-demo';
           <h2 id="spin-social-heading">Share Spin</h2>
           <p>Pick a format, grab the caption and post it wherever you like.</p>
         </div>
-        <a class="button secondary" href={campaign + 'spin-going-round-kit-20261127.zip'} download>Download post package <ArrowDownToLine size={18} aria-hidden="true" /></a>
+        <a class="button secondary" href={campaign + 'spin-takeaway-counter-kit-20261128.zip'} download>Download post package <ArrowDownToLine size={18} aria-hidden="true" /></a>
       </div>
       <div class="social-formats">
         {formats.map(({file, label, width, height}) => (
-          <a class="social-format" href={campaign + `${file}-20261127.jpg`} download>
+          <a class="social-format" href={campaign + `${file}-20261128.jpg`} download>
             <div class="format-image">
-              <img src={campaign + `${file}-thumb-20261127.webp`} width={width} height={height}
+              <img src={campaign + `${file}-thumb-20261128.webp`} width={width} height={height}
                 alt={spinArtworkAlt} loading="lazy" decoding="async" />
             </div>
             <span class="format-caption"><span>{label}<small>{width} × {height}</small></span><ArrowDownToLine size={18} aria-hidden="true" /></span>
@@ -58,7 +58,7 @@ const demo = spinOrigin + '/?example=any-choice-demo';
             <a class="button secondary" href={spinArtwork} download>Save link image <ArrowDownToLine size={16} aria-hidden="true" /></a>
           </div>
           <p class="copy-status" data-spin-copy-status role="status"></p>
-          <a href="/share/artwork/composer-spin-going-round">Open the artwork in Share <ArrowUpRight size={16} aria-hidden="true" /></a>
+          <a href="/share/artwork/composer-spin-takeaway-counter">Open the artwork in Share <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
       </div>
     </section>

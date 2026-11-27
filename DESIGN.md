@@ -326,12 +326,12 @@ recipe and verification contract is
 
 ## App Composer Spin
 
-Spin uses cobalt `#2821b1`, acid yellow `#edff40`, hot pink `#ff6fbc` and
-paper `#fffaf0`. The three-colour disc and angled
-pointer make up the app icon. The campaign takes its practical felt staging
-from App Composer Share's workshop artwork. The square, feed portrait, story
-and link posters each frame the same visual joke for their destination. The
-App Composer parent mark keeps its existing identity.
+Spin takes its palette from an Australian takeaway counter: soft paper, tomato
+red, mustard and bottle green. Photography of the three default choices fills
+the wheel and gives the winning choice the lead in the result artwork. Use the
+plain painted dial for choices without photos. The app icon is a three-colour
+dial with the pointer at twelve o’clock. The App Composer parent mark keeps
+its existing identity.
 
 Fast food, Game night, Weekend and All presets sit above the wheel. The plain
 Spin URL starts with Maccas, Hungry Jack’s and KFC and rounds off. Resume draft
@@ -356,9 +356,9 @@ can be undone. The replay and exports use the same dial artwork.
 
 
 Share wheel sends an editable copy or lets the host lock a draw before spinning.
-Share result opens on the actual image. The result ticket leads with the
-question and winner, with the stopped wheel and replay QR below or beside it
-for the chosen aspect ratio. Story keeps those elements clear of the top and
+A completed spin shows the post on the page. Share result goes straight to
+the image. The card leads with the winner and question. The stopped wheel and
+QR to the draw recompose for the chosen aspect ratio. Story keeps those elements clear of the top and
 bottom edges. All four sizes list their pixel dimensions and Copy image is the primary action. Save PNG and the device share
 sheet use the same export. The selected size is remembered on this device.
 Caption and alt text are separate from the image clipboard action. The result
