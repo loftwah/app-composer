@@ -1,6 +1,7 @@
 const bytes = new TextEncoder();
 export const spinVersion = 'composer.spin/1';
 export const spinLifetimeDays = 30;
+export const spinChoiceLimit = 32;
 export const spinIdPattern = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
 export const spinSecretPattern = /^[a-f0-9]{64}$/;
 const hex = buffer => Array.from(new Uint8Array(buffer), byte => byte.toString(16).padStart(2, '0')).join('');
@@ -17,7 +18,7 @@ export function validateSpinConfig(input) {
   const { question, entries, bestOf } = input;
   const clean = value => typeof value === 'string' ? value.normalize('NFC').trim() : '';
   const plain = value => !/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/.test(value);
-  if (!Array.isArray(entries) || entries.length < 2 || entries.length > 12 ||
+  if (!Array.isArray(entries) || entries.length < 2 || entries.length > spinChoiceLimit ||
       !Number.isInteger(bestOf) || bestOf < 1 || bestOf > 21 || bestOf % 2 !== 1) return null;
   const title = clean(question);
   const labels = entries.map(clean);

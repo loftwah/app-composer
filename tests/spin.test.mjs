@@ -70,3 +70,22 @@ test('abandonment closes the wheel, reveals its seed and never extends retention
   await purgeExpiredSpins(db, Date.parse(next.expiresAt));
   assert.equal(await readSpin(db, session.id, now), null);
 });
+
+test('the Australian takeaway wheel fits and new large wheels stay independently verifiable', async ctx => {
+  const { spinPresetById, spinPresetGroups } = await import('../src/lib/spin-presets.mjs');
+  const { spinChoiceLimit, validateSpinConfig } = await import('../src/lib/spin-protocol.mjs');
+  const presets = spinPresetGroups.flatMap(group => group.presets);
+  assert.ok(presets.length >= 25);
+  for (const preset of presets.filter(item => item.id !== 'custom')) {
+    assert.ok(validateSpinConfig({ question: preset.question, entries: preset.entries, bestOf: 3 }), preset.id);
+  }
+  assert.equal(spinPresetById.takeaway.entries.length, 24);
+  const entries = Array.from({length: spinChoiceLimit}, (_, index) => 'Choice ' + (index + 1));
+  assert.ok(validateSpinConfig({ question: 'Which choice?', entries, bestOf: 3 }));
+  assert.equal(validateSpinConfig({ question: 'Which choice?', entries: [...entries, 'Overflow'], bestOf: 3 }), null);
+  const db = database(ctx);
+  const created = await createSpin(db, { question: 'Which choice?', entries, bestOf: 1 }, now);
+  const outcome = await advanceSpin(db, created.session.id, created.owner, 0, false, now);
+  assert.equal(outcome.session.status, 'completed');
+  assert.equal(await verifySpin(outcome.session), true);
+});
