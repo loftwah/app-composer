@@ -1,7 +1,7 @@
 import { spinImageFormats } from '../lib/spin-site.mjs';
 import { renderSpinPng, renderSpinVideo, replayVideoType } from './spin-export.mjs';
 
-export function mountSpinShare(dialog, paintWheel, getVideoAudio, reducedMotion) {
+export function mountSpinShare(dialog, getVideoAudio, reducedMotion) {
   const get = name => dialog.querySelector('[data-' + name + ']');
   const url = get('share-url');
   const formats = get('share-formats');
@@ -67,7 +67,7 @@ export function mountSpinShare(dialog, paintWheel, getVideoAudio, reducedMotion)
     imageFeedback.textContent = '';
     let pending = images.get(id);
     if (!pending) {
-      pending = renderSpinPng(session, link, id, paintWheel).then(blob =>
+      pending = renderSpinPng(session, link, id).then(blob =>
         new File([blob], `spin-${session.id.slice(0, 8)}-${id}.png`, { type: 'image/png' }),
       );
       images.set(id, pending);
@@ -219,7 +219,7 @@ export function mountSpinShare(dialog, paintWheel, getVideoAudio, reducedMotion)
     button.disabled = true;
     report('Recording the replay. Keep this tab visible…');
     try {
-      const video = await renderSpinVideo(session, link, paintWheel, reducedMotion.matches, getVideoAudio());
+      const video = await renderSpinVideo(session, link, reducedMotion.matches, getVideoAudio());
       download(video.blob, `spin-${session.id.slice(0, 8)}-replay.${video.extension}`);
       report('Replay video downloaded.');
     } catch (error) {

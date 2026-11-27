@@ -78,15 +78,12 @@ const application = JSON.stringify({
           <p id="spin-mode-help" data-rules>One spin decides it. Every enabled choice has equal odds.</p>
         </div>
         <div class="wheel-frame" data-wheel-tap>
-          <svg class="pointer" aria-hidden="true" viewBox="0 0 42 48">
-            <path d="M4 4h34l-4 22-13 17L8 26z" fill="#ff4da4" stroke="#1f1b93" stroke-width="3" stroke-linejoin="round" />
-          </svg>
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
           <div class="wheel-applause" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
-        <div class="wheel-readout">
-          <p class="readout-label" data-result-label>{replay ? 'Shared draw' : 'Ready to spin'}</p>
-          <p class="wheel-status" role="status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
+        <div class="wheel-readout" role="status">
+          <p class="readout-label" data-result-label>{replay ? 'Shared draw' : 'Tap or flick the wheel'}</p>
+          <p class="wheel-status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
         </div>
         <div class="wheel-actions">
           <div class="primary-slot">
@@ -105,6 +102,7 @@ const application = JSON.stringify({
             <span data-sound-label>Sound on</span>
           </button>
           {!replay && <button type="button" data-edit-choices aria-controls="spin-setup">Edit choices</button>}
+          <button type="button" data-auto hidden>Run series</button>
           <button class="finish-session" type="button" data-finish hidden>Finish session</button>
           <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Find it nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
@@ -172,7 +170,6 @@ const application = JSON.stringify({
           <p data-full-question></p>
           <p class="note" data-series></p>
           <div class="result-actions button-row">
-            <button type="button" data-auto hidden>Spin full series</button>
             <button type="button" data-refresh>Refresh result</button>
           </div>
           <div class="result-actions button-row" data-playback hidden>
@@ -258,10 +255,19 @@ const application = JSON.stringify({
   .mode-picker select { display: block; appearance: none; block-size: 44px; padding-inline-end: 27px; color-scheme: light; color: var(--spin-ink); background: var(--spin-paper); border-color: transparent; }
   .mode-picker select:disabled { opacity: 1; cursor: default; color: var(--spin-ink); }
   .mode-picker select:disabled + svg { visibility: hidden; }
-  .wheel-frame { width: min(100%, 355px); aspect-ratio: 1; position: relative; }
+  .wheel-frame {
+    width: min(100%, 355px); aspect-ratio: 1; position: relative; user-select: none;
+  }
   .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame { cursor: pointer; }
+  @media (prefers-reduced-motion: no-preference) {
+    .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame {
+      cursor: grab; touch-action: pan-y pinch-zoom;
+    }
+    .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame:active {
+      cursor: grabbing;
+    }
+  }
   canvas { display: block; width: 100%; height: auto; }
-  .pointer { position: absolute; z-index: 2; top: 1%; left: 50%; width: 10%; translate: -50% 0; pointer-events: none; }
   .wheel-readout {
     width: min(100%, 455px); text-align: center; display: grid; align-content: center; gap: 4px;
     min-width: 0; block-size: 5.25rem; padding-inline: 4px;
@@ -272,6 +278,9 @@ const application = JSON.stringify({
     font: 700 clamp(1.06rem, 2.5vw, 1.45rem)/1.12 Space, sans-serif;
   }
   .wheel-panel[data-state='completed'] .wheel-status { color: var(--spin-acid); }
+  .wheel-panel[data-state='completed'] .wheel-status:not([data-long-result]) {
+    font-size: clamp(1.55rem, 4vw, 2.23rem); line-height: .99; letter-spacing: -.035em;
+  }
   .wheel-applause { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
   .wheel-applause i {
     --dx: 110px; --dy: -125px; --tune: var(--spin-acid); --turn: 40deg;
@@ -284,19 +293,13 @@ const application = JSON.stringify({
   .wheel-applause i:nth-child(5) { --dx: -56px; --dy: -121px; --turn: 70deg; --tune: var(--spin-acid); }
   .wheel-applause i:nth-child(6) { --dx: 126px; --dy: -26px; --turn: 220deg; --tune: var(--spin-blue); }
   @media (prefers-reduced-motion: no-preference) {
-    .wheel-panel[data-state='completed'] .wheel-applause i { animation: fly-out 680ms cubic-bezier(.17,.84,.39,1) both; }
-    .wheel-panel[data-state='completed'] .pointer { animation: settle-pointer 310ms ease-out both; }
+    .wheel-panel[data-celebrate] .wheel-applause i { animation: fly-out 680ms cubic-bezier(.17,.84,.39,1) both; }
   }
   @keyframes fly-out {
     0% { opacity: 0; transform: rotate(0); }
     24% { opacity: 1; }
     62% { opacity: 1; }
     100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--turn)); }
-  }
-  @keyframes settle-pointer {
-    23% { transform: rotate(11deg); }
-    50% { transform: rotate(-5deg); }
-    100% { transform: rotate(0); }
   }
   .wheel-actions { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px; width: min(100%, 455px); }
   .primary-slot { display: grid; min-width: 0; min-height: 50px; }
@@ -313,7 +316,7 @@ const application = JSON.stringify({
   .wheel-tools a:not([hidden]) { display: inline-flex; }
   .spin .wheel-tools button:not(.button), .spin .wheel-tools a { color: var(--spin-paper); border-color: transparent; }
   .spin .wheel-tools button:not(.button):hover { background: rgb(255 255 255 / .12); }
-  .spin .wheel-tools button[data-finish] { border-color: var(--spin-stage-muted); }
+  .spin .wheel-tools :is([data-finish], [data-auto]) { border-color: var(--spin-stage-muted); }
   .spin .wheel-tools button[data-sound][aria-pressed='true'] { color: var(--spin-paper); background: transparent; border-color: transparent; }
   .wheel-panel [data-error] { color: var(--spin-paper); text-align: center; margin: 0; }
   h2 { margin: 0 0 8px; font-size: clamp(1.45rem, 3vw, 2rem); overflow-wrap: anywhere; letter-spacing: -.025em; }

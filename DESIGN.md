@@ -345,9 +345,19 @@ keep the selected mode. Best-of and Open tally explain their rules beside the
 control, then show progress in the stage. Edit choices jumps to the editor,
 which sits beside the stage on desktop and below it on phones.
 
+The play stage looks and sounds like a small mechanical dial. Dragging turns
+the face under the pointer and releasing plays the committed spin in the same
+direction. The pointer reacts as each visible peg passes. The recorded result
+determines where the wheel ends. The selected slice lights up and the winner
+fills the readout. Reduced Motion goes straight to the recorded result.
+The spin button, replay and exports use the same dial artwork.
+
+
 Share wheel sends an editable copy or lets the host lock a draw before spinning.
-Share result opens on the actual image. All four sizes list their pixel
-dimensions and Copy image is the primary action. Save PNG and the device share
+Share result opens on the actual image. The result ticket leads with the
+question and winner, with the stopped wheel and replay QR below or beside it
+for the chosen aspect ratio. Story keeps those elements clear of the top and
+bottom edges. All four sizes list their pixel dimensions and Copy image is the primary action. Save PNG and the device share
 sheet use the same export. The selected size is remembered on this device.
 Caption and alt text are separate from the image clipboard action. The replay
 link remains directly available and the card's QR opens the same draw.
