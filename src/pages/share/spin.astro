@@ -1,7 +1,7 @@
 ---
 import { ArrowDownToLine, ArrowLeft, ArrowUpRight } from '@lucide/astro';
 import Base from '../../layouts/Base.astro';
-import { spinArtwork, spinArtworkAlt, spinOrigin } from '../../lib/spin-site.mjs';
+import { spinArtwork, spinArtworkAlt, spinBrandFiles, spinOrigin } from '../../lib/spin-site.mjs';
 
 const campaign = '/campaign/spin/';
 ---
@@ -13,7 +13,7 @@ const campaign = '/campaign/spin/';
     <header class="opening">
       <img src={spinArtwork} alt={spinArtworkAlt} width="1200" height="630" fetchpriority="high" />
       <div>
-        <h1>App Composer Spin</h1>
+        <h1>Takeaway roulette</h1>
         <p>Maccas, Hungry Jack’s or KFC? Give the takeaway wheel a spin and send your mates the draw.</p>
         <div class="feature-actions">
           <a class="button" href={spinOrigin}>Open Spin <ArrowUpRight size={18} aria-hidden="true" /></a>
@@ -31,7 +31,7 @@ const campaign = '/campaign/spin/';
         </video>
       </figure>
       <div class="screening-copy">
-        <h2>Watch the wheel decide.</h2>
+        <h2>The recorded draw</h2>
         <p>A live draw on a phone-sized screen. Check the original receipt or bring the loop to the group chat.</p>
         <ul class="downloads">
           <li><a href={spinOrigin + '/?example=share-draw'}>Verify the draw in the film <ArrowUpRight size={18} aria-hidden="true" /></a></li>
@@ -45,6 +45,15 @@ const campaign = '/campaign/spin/';
           <figcaption>Spin on a laptop.</figcaption>
         </figure>
       </div>
+    </section>
+    <section class="brand-files" id="brand-assets" aria-labelledby="spin-brand-heading">
+      <h2 id="spin-brand-heading">Logos and icons</h2>
+      <ul class="downloads">
+        <li><a href={spinBrandFiles.dark} download>Logo for dark backgrounds <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+        <li><a href={spinBrandFiles.light} download>Logo for light backgrounds <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+        <li><a href={spinBrandFiles.icon} download>App icon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+        <li><a href={spinBrandFiles.favicon} download>Favicon PNG <ArrowDownToLine size={18} aria-hidden="true" /></a></li>
+      </ul>
     </section>
   </article>
 </Base>
@@ -72,6 +81,7 @@ const campaign = '/campaign/spin/';
   }
   .film { width: min(100%, 420px); margin-inline: auto; }
   .film video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; background: #151821; border-radius: 12px; }
+  .brand-files { border-top: 1px solid var(--color-border); margin-block-start: 40px; padding-block-start: 25px; max-width: 620px; }
   .downloads { list-style: none; margin: 0 0 clamp(20px, 4vw, 40px); padding: 0; }
   .downloads li { margin: 0; border-bottom: 1px solid var(--color-border); }
   .downloads a { display: flex; min-height: 46px; align-items: center; justify-content: space-between; gap: 12px; }

@@ -16,9 +16,9 @@ function mount(root) {
   const setup = get('setup');
   const { question, bestOf } = setup.elements;
   const currentId = new URL(location.href).searchParams.get('session');
-  const example = root.dataset.spinExample;
+  let example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
-  const colors = ['#ff704a', '#ffcb55', '#a7d5fd', '#c2aff8', '#f8a6c3', '#c5e08b', '#a3e3cd'];
+  const colors = ['#ff7c46', '#f8c45c', '#bbd9f0', '#d8c5f2', '#f6b5c9', '#d4e497', '#b7e0cc'];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tau = Math.PI * 2;
   let session;
@@ -30,7 +30,11 @@ function mount(root) {
   let angle = 0;
 
   const showError = message => { get('error').textContent = message; };
-  const showResult = message => { get('result').textContent = message; };
+  const showResult = message => {
+    const status = get('result');
+    if (status.textContent !== message) status.textContent = message;
+  };
+  const focusAction = name => requestAnimationFrame(() => get(name).focus({ preventScroll: true }));
   const rules = config => config.bestOf === 1 ? 'One spin. Every enabled choice has equal odds.' :
     config.entries.length === 2
     ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
@@ -122,23 +126,29 @@ function mount(root) {
     const best = Number(bestOf.value);
     get('rules').textContent = rules({ entries: labels, bestOf: Number.isInteger(best) && best > 0 ? best : 1 });
     if (!session) {
+      get('spin-heading').textContent = question.value.trim() || 'What should we pick?';
       drawWheel(labels);
-      showResult(labels.length >= 2 ? `${labels.length} choices ready to spin.` : 'Enable two choices to spin.');
+      showResult(labels.length >= 2 ? `${labels.length} choices on the wheel` : 'Enable two choices to spin.');
     }
   }
 
   function render(next) {
-    const firstRender = !session;
+    const firstRender = !session || session.id !== next.id;
     session = next;
-    get('spin-heading').textContent = next.status === 'open' ? 'Spin the wheel.' : 'Spin replay';
-    get('spin-intro').textContent = next.status === 'open' ? 'Your choices and series rules are locked.' : 'Watch the recorded wheel and check the result.';
+    get('spin-heading').textContent = next.config.question;
+    const showingExample = Boolean(example);
+    get('spin-intro').hidden = !showingExample;
+    get('spin-intro').textContent = showingExample ? 'Recorded draw' : '';
+    get('share').hidden = false;
+    get('share-label').textContent = next.status === 'completed' ? 'Copy result link' : 'Copy draw link';
+    get('spin-again').hidden = next.status === 'open';
+    if (firstRender) get('export-status').textContent = '';
     if (get('spin-guide')) get('spin-guide').hidden = true;
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
     get('spin-now').hidden = true;
     get('wheel-panel').dataset.state = next.status;
     get('session').hidden = false;
-    get('question').textContent = next.config.question;
     const series = next.status === 'open' && next.tieBreak ? 'The next spin is a tie-break.' : rules(next.config);
     get('series').textContent = `${series} ${next.rounds.length} ${next.rounds.length === 1 ? 'spin' : 'spins'} recorded.`;
     get('scores').replaceChildren(...next.config.entries.map((label, index) => {
@@ -189,6 +199,7 @@ function mount(root) {
       next.status === 'abandoned' ? 'Session abandoned' :
         last ? 'Round ' + (last.index + 1) + ': ' + next.config.entries[last.winner] :
           'Wheel locked. Share the link before spinning.');
+    get('verification').textContent = '';
     if (next.status !== 'open') {
       try { if (!example) localStorage.removeItem(key(next.id)); } catch {}
       get('verification').textContent = 'Checking receipt…';
@@ -278,23 +289,33 @@ function mount(root) {
     download(blob, `spin-${session.id.slice(0, 8)}-${style}.png`);
   }
 
+  async function startDraw(config, spinImmediately) {
+    const created = await request('', config);
+    owner = created.owner;
+    try { localStorage.setItem(key(created.session.id), owner); } catch {}
+    const hasPreviousDraw = Boolean(session);
+    example = '';
+    history[hasPreviousDraw ? 'pushState' : 'replaceState'](null, '', shareUrl(created.session.id));
+    render(created.session);
+    if (spinImmediately) await drawOne();
+    focusAction(spinImmediately && session.status === 'open' ? 'draw' : spinImmediately ? 'spin-again' : 'share');
+  }
+
   const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, get('spin-now'), updatePreview);
   setup.addEventListener('submit', event => {
     event.preventDefault();
     void perform(async () => {
       const config = validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: Number(bestOf.value) });
       if (!config) throw new Error(`Use a question, 2–${spinChoiceLimit} distinct choices, and an odd best-of length from 1 to 21.`);
-      const created = await request('', config);
-      owner = created.owner;
-      try { localStorage.setItem(key(created.session.id), owner); } catch {}
-      history.replaceState(null, '', shareUrl(created.session.id));
-      render(created.session);
-      if (event.submitter === get('spin-now')) {
-        await drawOne();
-        (session.status === 'open' ? get('draw') : get('share')).focus();
-      } else get('share').focus();
+      await startDraw(config, event.submitter === get('spin-now'));
     });
   });
+  get('spin-again').addEventListener('click', () => void perform(() => startDraw(session.config, true)));
+  get('wheel-tap').addEventListener('click', () => {
+    const button = get(session ? 'draw' : 'spin-now');
+    if (!button.hidden && !button.disabled) button.click();
+  });
+  window.addEventListener('popstate', () => location.reload());
 
   async function drawOne() {
     const previous = session;
@@ -306,7 +327,7 @@ function mount(root) {
 
   get('draw').addEventListener('click', () => void perform(async () => {
     await drawOne();
-    (session.status === 'open' ? get('draw') : get('replay')).focus();
+    focusAction(session.status === 'open' ? 'draw' : 'spin-again');
   }));
   get('auto').addEventListener('click', () => {
     if (automatic) {
@@ -323,7 +344,7 @@ function mount(root) {
       } finally {
         automatic = false;
         get('auto').textContent = 'Spin full series';
-        if (session.status !== 'open') get('replay').focus();
+        if (session.status !== 'open') focusAction('spin-again');
       }
     });
   });
@@ -335,10 +356,14 @@ function mount(root) {
   get('share').addEventListener('click', () => void perform(async () => {
     if (!navigator.clipboard) throw new Error('Copy the session link from the address bar.');
     await navigator.clipboard.writeText(shareUrl(session.id));
-    get('share').textContent = 'Session link copied';
+    get('share-label').textContent = 'Link copied';
+    const copiedId = session.id;
+    setTimeout(() => {
+      if (session.id === copiedId) get('share-label').textContent = session.status === 'completed' ? 'Copy result link' : 'Copy draw link';
+    }, 1600);
   }));
   get('copy-template').addEventListener('click', () => void perform(async () => {
-    if (!navigator.clipboard) throw new Error('Open “Use these choices” and copy from the new wheel.');
+    if (!navigator.clipboard) throw new Error('Open “Edit this wheel” to change its choices.');
     await navigator.clipboard.writeText(templateLink(session.config));
     get('copy-template').textContent = 'Wheel link copied';
   }));

@@ -26,9 +26,10 @@ export function nearbySearch(winner) {
 
 export function mountSpinEditor(form, spinButton, onPreview) {
   const find = key => form.querySelector('[data-' + key + ']');
-  const { question, bestOf, suburb, paste } = form.elements;
+  const { question, bestOf, suburb, paste, entry } = form.elements;
   const prefs = readPreferences();
   let draft = prefs.draft ?? fromPreset('fast-food-three');
+  if (draft.preset === 'fast-food-three' && draft.question === 'Which fast food should we get?') draft.question = spinPresetById['fast-food-three'].question;
   const template = new URLSearchParams(location.hash.slice(1)).get('wheel');
   if (template) {
     try {
@@ -59,9 +60,10 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   function update() {
     const entries = active();
     const count = entries.length;
+    list.dataset.numbered = String(count > 12);
     const distinct = new Set(entries.map(entry => entry.normalize('NFC').toLocaleLowerCase('en-AU'))).size === count;
-    const odds = count < 2 ? 'Enable at least two different choices.' :
-      `${count} enabled · ${new Intl.NumberFormat('en-AU', { style: 'percent', maximumFractionDigits: 2 }).format(1 / count)} each at the start`;
+    const odds = count < 2 ? 'Enable at least two choices.' :
+      `${new Intl.NumberFormat('en-AU', { style: 'percent', maximumFractionDigits: 2 }).format(1 / count)} each`;
     find('choice-odds').textContent = distinct ? odds : 'Use different names for each choice.';
     find('lock-wheel').disabled = count < 2 || !distinct;
     spinButton.disabled = count < 2 || !distinct;
@@ -136,6 +138,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
       });
       label.append(check, order);
       item.dataset.index = String(index);
+      item.dataset.enabled = String(choice.enabled);
       item.append(label, field, step(-1, '↑', 'Move up'), step(1, '↓', 'Move down'), remove);
       list.append(item);
     });
@@ -155,6 +158,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     renderOptions(find('favourites'), prefs.favourites.map(id => new Option(spinPresetById[id].label, id)), 'Open a favourite');
     renderOptions(find('recent-wheels'), prefs.recent.map(id => new Option(spinPresetById[id].label, id)), 'Open a recent preset');
     find('quick-chains').setAttribute('aria-pressed', String(draft.preset === 'fast-food-three'));
+    find('takeaway').setAttribute('aria-pressed', String(draft.preset === 'takeaway'));
     const starred = prefs.favourites.includes(draft.preset);
     find('favourite').setAttribute('aria-pressed', String(starred));
     find('favourite').textContent = starred ? 'Remove favourite' : 'Favourite preset';
@@ -162,12 +166,10 @@ export function mountSpinEditor(form, spinButton, onPreview) {
 
   function showDraft(next) {
     draft = next;
-    question.value = draft.question;
+    question.value = draft.question || 'What should we pick?';
     bestOf.value = draft.bestOf;
     search.value = '';
-    for (const picker of presetPickers) {
-      picker.value = [...picker.options].some(option => option.value === draft.preset) ? draft.preset : '';
-    }
+    for (const picker of presetPickers) picker.value = '';
     renderRows();
     renderCollection();
     update();
@@ -185,9 +187,12 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     pick('fast-food-three');
     spinButton.focus();
   });
+  find('show-order').addEventListener('change', event => {
+    list.dataset.reorder = String(event.target.checked);
+  });
   find('clear-wheel').addEventListener('click', () => {
     pick('custom');
-    question.focus();
+    entry.focus();
   });
   find('takeaway').addEventListener('click', () => pick('takeaway'));
   find('reset').addEventListener('click', () => pick(draft.preset));
@@ -252,14 +257,27 @@ export function mountSpinEditor(form, spinButton, onPreview) {
       message.textContent = `A wheel can hold ${spinChoiceLimit} choices. Remove an entry to make room.`;
       return false;
     }
-    const index = draft.choices.length;
     draft.choices.push(...values.map(label => ({ label, enabled: true })));
     search.value = '';
-    renderRows(values.length === 1 ? { index, control: 'label' } : undefined);
+    renderRows();
     update();
     return true;
   }
-  find('add-choice').addEventListener('click', () => addChoices(['']));
+  function addEntry() {
+    const value = entry.value.trim();
+    if (value && addChoices([value])) {
+      entry.value = '';
+      message.textContent = value + ' added.';
+    }
+    entry.focus();
+  }
+  find('add-choice').addEventListener('click', addEntry);
+  entry.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.isComposing) {
+      event.preventDefault();
+      addEntry();
+    }
+  });
   find('paste-choices').addEventListener('click', () => {
     const values = paste.value.split(/\r?\n/).map(text => text.trim()).filter(Boolean);
     if (!values.length || values.some(value => value.length > 56)) {
@@ -272,8 +290,14 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     }
   });
 
+  list.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && event.target.matches('input[type="text"]')) event.preventDefault();
+  });
   search.addEventListener('input', () => renderRows());
   question.addEventListener('input', update);
+  question.addEventListener('keydown', event => {
+    if (event.key === 'Enter') event.preventDefault();
+  });
   bestOf.addEventListener('input', update);
   suburb.value = prefs.suburb;
   suburb.addEventListener('input', persist);

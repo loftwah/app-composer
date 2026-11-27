@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { ArrowUpRight, Plus } from '@lucide/astro';
+import { ChevronDown, Clipboard, Plus, RotateCw } from '@lucide/astro';
 import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinPresetGroups } from '../lib/spin-presets.mjs';
@@ -32,65 +32,61 @@ const application = JSON.stringify({
   shareAlt={spinArtworkAlt} shareType="image/jpeg" noindex={replay || undefined} focusedExperience spinProduct>
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
-    <header class="spin-heading">
-      <h1 data-spin-heading>{replay ? 'Spin replay' : 'Give it a spin.'}</h1>
-      <p data-spin-intro>{replay ? 'Watch the recorded wheel and check the result.' : 'Pick dinner, pick a winner, or settle whatever’s up for debate.'}</p>
-    </header>
     <div class="play">
+      <header class="spin-heading">
+        <h1 data-spin-heading>{replay ? 'Spin replay' : 'What’s for dinner?'}</h1>
+        <p class="note" data-spin-intro hidden></p>
+      </header>
       <div class="wheel-panel" data-wheel-panel>
-        <div class="wheel-frame">
+        <div class="wheel-frame" data-wheel-tap>
           <span class="pointer" aria-hidden="true"></span>
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
-          <button type="submit" class="spin-hub" form="spin-setup" data-spin-now aria-label="Spin now"
-            aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
-          <button type="button" class="spin-hub" data-draw aria-label="Spin the wheel" hidden>Spin</button>
         </div>
-        <p class="wheel-status" role="status" data-result>{replay ? "Opening replay…" : "Loading wheel…" }</p>
+        <p class="wheel-status" role="status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
+        <div class="wheel-actions">
+          <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
+            aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
+          <button type="button" class="button wheel-primary" data-draw hidden>Spin the wheel</button>
+          <button type="button" class="button wheel-primary" data-spin-again hidden><RotateCw size={18} aria-hidden="true" /> Spin again</button>
+          <button type="button" class="wheel-copy" data-share hidden><Clipboard size={17} aria-hidden="true" /> <span data-share-label>Copy link</span></button>
+        </div>
         <aside class="winner-art" data-winner-art hidden>
-          <img alt="" width="112" height="112" loading="lazy" decoding="async" />
+          <img alt="" width="72" height="72" src="/spin-brand/food-20261127.webp" loading="lazy" decoding="async" />
           <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
         </aside>
+        <p role="alert" data-error></p>
+        {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Open Spin</a></p>}
       </div>
       <div class="controls">
-        <form id="spin-setup" data-setup hidden={replay}>
-          <label class="wheel-title">Your wheel <input name="question" required maxlength="100" value="Which fast food should we get?" /></label>
+        <form id="spin-setup" novalidate data-setup hidden={replay}>
           <div class="choice-heading">
             <h2 id="spin-choices">Choices</h2>
             <p class="note" data-choice-odds></p>
           </div>
           <ol class="choice-list" data-choices-list aria-label="Wheel choices"></ol>
-          <div class="choice-actions">
-            <button type="button" data-add-choice><Plus size={17} aria-hidden="true" /> Add choice</button>
-            <button type="button" data-clear-wheel>Start blank</button>
+          <div class="add-entry">
+            <input type="text" name="entry" maxlength="56" aria-label="New choice" placeholder="Add a choice" autocomplete="off" />
+            <button type="button" data-add-choice><Plus size={18} aria-hidden="true" /> Add</button>
           </div>
           <div class="preset-quick">
-            <button type="button" data-quick-chains aria-pressed="false">
-              <strong>Maccas, Hungry Jack’s &amp; KFC</strong>
-            </button>
-            <button type="button" data-takeaway>
-              <strong>Australian takeaway roulette</strong><ArrowUpRight size={16} aria-hidden="true" />
-            </button>
+            <button type="button" data-quick-chains aria-pressed="false">Fast food</button>
+            <button type="button" data-takeaway aria-pressed="false">Takeaway roulette</button>
+            <label class="preset-picker">
+              <span class="screen-reader">Choose a preset</span>
+              <select data-preset-picker>
+                <option value="">More presets</option>
+                {spinPresetGroups.map(group => <optgroup label={group.label}>
+                  {group.presets.map(preset => <option value={preset.id}>{preset.label}</option>)}
+                </optgroup>)}
+              </select>
+              <ChevronDown size={15} aria-hidden="true" />
+            </label>
           </div>
-          <details class="preset-browser">
-            <summary>Browse {spinPresetGroups.flatMap(group => group.presets).length} wheel presets</summary>
-            <div class="preset-groups">
-              {spinPresetGroups.map(group => (
-                <label>
-                  <img src={`/spin-brand/${group.id}-20261127.webp`} alt="" width="44" height="44" loading="lazy" decoding="async" />
-                  <span>{group.label}
-                    <select data-preset-picker aria-label={group.label}>
-                      <option value="">Choose a preset</option>
-                      {group.presets.map(preset => <option value={preset.id}>{preset.label}</option>)}
-                    </select>
-                  </span>
-                </label>
-              ))}
-            </div>
-            <button type="button" data-favourite aria-pressed="false">Favourite preset</button>
-            <button type="button" data-reset>Reset to preset</button>
-          </details>
+          <p class="note" data-editor-message role="status"></p>
           <details class="choice-editor">
-            <summary>Paste, search or toggle all</summary>
+            <summary>Paste or manage choices</summary>
+            <button type="button" data-clear-wheel>Start blank</button>
+            <label class="order-toggle"><input type="checkbox" data-show-order /> Show reorder controls</label>
             <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
             <div class="button-row">
               <button type="button" data-enable="all">Enable all</button>
@@ -101,14 +97,19 @@ const application = JSON.stringify({
             <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
           </details>
           <details class="wheel-options">
-            <summary>Series and session settings</summary>
+            <summary>Wheel settings</summary>
+            <label>Question <input name="question" required maxlength="100" value="What’s for dinner?" /></label>
             <label class="series">Best of <input name="bestOf" type="number" min="1" max="21" step="2" value="1" required /></label>
             <p class="note" data-rules></p>
             <button type="submit" data-lock-wheel aria-describedby="spin-link-privacy">Lock wheel and get link</button>
+            <p class="note" id="spin-link-privacy">Anyone with a session link can see the question and choices for {spinLifetimeDays} days.</p>
           </details>
-          <p class="note session-privacy" id="spin-link-privacy">Session links show the question and choices for {spinLifetimeDays} days.</p>
           <details class="saved-wheels">
-            <summary>Saved wheels and favourites</summary>
+            <summary>Saved wheels</summary>
+            <div class="button-row">
+              <button type="button" data-favourite aria-pressed="false">Favourite preset</button>
+              <button type="button" data-reset>Reset to preset</button>
+            </div>
             <div class="button-row">
               <button type="button" data-save-wheel>Save this wheel</button>
               <button type="button" data-duplicate-wheel>Save a copy</button>
@@ -123,16 +124,13 @@ const application = JSON.stringify({
             <label>Suburb, town or postcode <input name="suburb" maxlength="80" placeholder="e.g. Sunbury VIC 3429" autocomplete="off" /></label>
             <p class="note">Your area stays on this device. On a takeaway result, open Maps to look for the winning choice near you. Check store details there.</p>
           </details>
-          <p class="note" data-editor-message role="status"></p>
         </form>
         <section data-session hidden aria-labelledby="spin-question">
-          <h2 id="spin-question" data-question></h2>
+          <h2 id="spin-question">Draw details</h2>
           <p class="note" data-series></p>
           <div class="result-actions button-row">
-            <a class="button" href={spinDiscovery.href}>New spin</a>
             <button type="button" data-auto hidden>Spin full series</button>
-            <button type="button" data-share>Copy session link</button>
-            <button type="button" data-native-share hidden>Share link</button>
+            <button type="button" data-native-share hidden>Share…</button>
             <button type="button" data-refresh>Refresh result</button>
           </div>
           <details class="export-settings" data-exports hidden>
@@ -164,28 +162,18 @@ const application = JSON.stringify({
           <div class="button-row secondary-actions">
             <button type="button" aria-pressed="false" data-sound>Sound</button>
             <button type="button" data-abandon hidden>Abandon session</button>
-            <a data-remix>Use these choices</a>
+            <a data-remix>Edit this wheel</a>
             <button type="button" data-copy-template>Copy editable wheel link</button>
           </div>
         </section>
-        <p role="alert" data-error></p>
-        {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Make a new wheel</a></p>}
         <noscript><p>Enable JavaScript to use Spin.</p></noscript>
       </div>
     </div>
-    {!replay && <section class="spin-guide" data-spin-guide aria-labelledby="how-spin-works">
-      <img src={spinArtwork} alt={spinArtworkAlt} width="1200" height="630" decoding="async" />
-      <div>
-        <h2 id="how-spin-works">How Spin works</h2>
-        <p>Add your choices and pick a single spin or a best-of series. Each eligible choice has the same odds on its round.</p>
-        <p>Lock the wheel to get a link you can share before the first spin. Once the series ends, friends can replay the recorded result and check the receipt.</p>
-        <a href="https://composer.loftwah.com/share/spin">Watch Spin in App Composer Share</a>
-        <a href="https://composer.loftwah.com/articles/why-we-built-spin">How the verification works</a>
-        <div class="spin-examples">
-          {Object.entries(spinExamples).map(([key, label]) => <a href={spinOrigin + '/?example=' + key}>{label} replay</a>)}
-        </div>
-      </div>
-    </section>}
+    {!replay && <nav class="spin-guide" data-spin-guide aria-label="Spin examples and help">
+      {Object.entries(spinExamples).map(([key, label]) => <a href={spinOrigin + '/?example=' + key}>{label}</a>)}
+      <a href="https://composer.loftwah.com/articles/why-we-built-spin">How verification works</a>
+      <a href="https://composer.loftwah.com/share/spin">Spin in App Composer Share</a>
+    </nav>}
   </section>
 </Base>
 
@@ -195,52 +183,58 @@ const application = JSON.stringify({
 
 <style>
   :global(html[data-product='spin']) {
-    --color-background: #151821;
-    --color-foreground: #fff4e4;
-    --color-muted: #b9bdd0;
-    --color-border: #505772;
-    --color-accent: #ff936b;
-    --spin-field: #1c2130;
-    --spin-selection: #3a2a28;
+    --color-background: #171615;
+    --color-foreground: #fff5e8;
+    --color-muted: #c3b4aa;
+    --color-border: #53483e;
+    --color-accent: #ff9364;
+    --spin-field: #24201c;
+    --spin-selection: #39271e;
   }
   :global(html[data-product='spin'][data-theme='light']) {
-    --color-background: #f8f4eb;
-    --color-foreground: #191c2a;
-    --color-muted: #50566a;
-    --color-border: #9d9baa;
-    --color-accent: #a33113;
-    --spin-field: #fffdf8;
-    --spin-selection: #ffe6d4;
+    --color-background: #faf7f1;
+    --color-foreground: #201a16;
+    --color-muted: #62554b;
+    --color-border: #c6b7a8;
+    --color-accent: #aa3814;
+    --spin-field: #fffdf9;
+    --spin-selection: #ffe3d1;
   }
-  .spin { max-width: 1190px; margin-inline: auto; }
-  .spin-heading { padding-block: clamp(14px, 3.1vw, 40px) 19px; }
-  .spin-heading h1 { max-width: none; margin: 0 0 7px; font-size: clamp(2.3rem, 5.6vw, 4.55rem); letter-spacing: -.035em; }
-  .spin-heading p { margin: 0; color: var(--color-muted); font-size: clamp(.88rem, 1.7vw, 1.08rem); }
-  .play { display: grid; grid-template-columns: minmax(310px, .77fr) minmax(0, 1.23fr); grid-template-areas: 'editor wheel'; align-items: start; gap: clamp(20px, 5vw, 64px); }
+  .spin { max-width: 1150px; margin-inline: auto; }
+  .play {
+    display: grid;
+    grid-template-columns: minmax(315px, .82fr) minmax(0, 1.18fr);
+    grid-template-areas: 'heading wheel' 'editor wheel';
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    gap: 20px clamp(28px, 6vw, 88px);
+    padding-top: clamp(14px, 3.2vw, 40px);
+  }
+  .spin-heading { grid-area: heading; padding-block: 6px; min-width: 0; }
+  .spin-heading h1 { max-width: 16ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5.2rem); font-weight: 720; line-height: .99; letter-spacing: -.039em; overflow-wrap: anywhere; }
+  .spin-heading p { margin: 10px 0 0; }
   .controls { grid-area: editor; min-width: 0; }
   .wheel-panel {
-    grid-area: wheel; min-width: 0; padding: clamp(13px, 2.2vw, 30px) clamp(12px, 3vw, 36px) 20px;
-    border-radius: 16px; color: #fff4e4; background: #2839b6;
-    display: grid; justify-items: center; align-self: start;
+    grid-area: wheel; min-width: 0; display: grid; justify-items: center;
+    padding: clamp(6px, 1.5vw, 18px) clamp(10px, 2.25vw, 28px) clamp(13px, 2vw, 21px);
+    color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border);
+    border-radius: 15px;
   }
-  .wheel-frame { width: min(100%, 505px); position: relative; }
-  canvas { display: block; width: 100%; height: auto; filter: drop-shadow(0 15px 18px #0b15486b); }
+  .wheel-frame { width: min(100%, 455px); position: relative; }
+  .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame { cursor: pointer; }
+  canvas { display: block; width: 100%; height: auto; }
   .pointer {
-    position: absolute; z-index: 2; top: 1%; left: 50%; width: clamp(24px, 4.7vw, 42px);
-    height: clamp(29px, 5.3vw, 50px); translate: -50% 0;
-    background: #fff2d8; clip-path: polygon(4% 0, 96% 0, 83% 52%, 50% 100%, 17% 52%);
+    position: absolute; z-index: 2; top: 1%; left: 50%; width: clamp(22px, 4.2vw, 40px);
+    height: clamp(27px, 5vw, 48px); translate: -50% 0;
+    background: #fff0d8; clip-path: polygon(3% 0, 97% 0, 85% 53%, 50% 100%, 15% 53%);
+    pointer-events: none;
   }
-  .wheel-frame .spin-hub {
-    position: absolute; inset: 50% auto auto 50%; translate: -50% -50%;
-    width: 20.8%; height: auto; aspect-ratio: 1; min-height: 44px; padding: 0;
-    border-radius: 50%; border: 4px solid #171a27; color: #191c2a; background: #fff2d8;
-    font: 700 clamp(1rem, 3.25vw, 1.8rem)/1 Space, sans-serif; box-shadow: 0 4px 0 #111321;
-  }
-  .wheel-frame .spin-hub:hover { background: #ffd275; }
-  .wheel-frame .spin-hub:active { transform: translateY(3px); box-shadow: 0 1px 0 #111321; }
-  .wheel-frame .spin-hub:focus-visible { outline: 3px solid #fff4e4; outline-offset: 4px; }
-  .wheel-frame .spin-hub:disabled { color: #eee8d7; background: #454a60; opacity: 1; cursor: default; }
-  .wheel-status { font: 700 clamp(1rem, 2.7vw, 1.3rem)/1.2 Space, sans-serif; margin: 10px 0 0; text-align: center; text-wrap: balance; }
+  .wheel-actions { display: flex; justify-content: center; gap: 8px; width: min(100%, 455px); margin-top: 10px; }
+  .wheel-actions .wheel-primary { min-height: 49px; flex: 1; font: 700 1.12rem/1 Space, sans-serif; }
+  .wheel-actions .wheel-copy { flex: 1; }
+  .wheel-actions .wheel-copy svg { flex: none; }
+  .wheel-panel [data-error] { margin: 8px 0 0; color: var(--color-foreground); }
+  .wheel-status { font: 700 clamp(1rem, 2.7vw, 1.3rem)/1.2 Space, sans-serif; margin: 4px 0 0; text-align: center; text-wrap: balance; }
   [data-state='completed'] .wheel-status { font-size: clamp(1.9rem, 5vw, 3.1rem); }
   h2 { margin: 0 0 8px; font-size: clamp(1.35rem, 3vw, 1.8rem); overflow-wrap: anywhere; }
   form { display: grid; gap: 10px; }
@@ -248,37 +242,44 @@ const application = JSON.stringify({
   label { display: grid; gap: 2px; margin: 0; font-weight: 650; }
   input, textarea, select { font: inherit; width: 100%; min-height: 44px; padding: 7px 10px; margin: 0; color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border); border-radius: 7px; }
   textarea { min-height: 75px; }
-  .wheel-title { font-size: .86rem; color: var(--color-muted); }
-  .wheel-title input { padding-inline: 0; background: transparent; border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; font: 700 clamp(1.2rem, 2.25vw, 1.65rem)/1.2 Space, sans-serif; }
+   .screen-reader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .add-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+  .order-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+  .order-toggle input { width: 20px; height: 20px; min-height: 0; accent-color: #eb5526; }
   .choice-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; flex-wrap: wrap; margin-bottom: -7px; }
   .choice-heading h2 { font-size: 1.08rem; margin: 0; }
   .choice-heading p { margin: 0; font-size: .82rem; }
   .choice-list { list-style: none; display: block; margin: 0; padding: 0; max-height: 16.8rem; overflow-y: auto; }
-  .choice-list :global(li) { display: grid; grid-template-columns: 39px minmax(0, 1fr) 32px 32px 42px; gap: 3px; align-items: center; margin: 0; padding: 1px 3px; min-height: 44px; border-bottom: 1px solid var(--color-border); }
+  .choice-list :global(li) { display: grid; grid-template-columns: 38px minmax(0, 1fr) 42px; gap: 3px; align-items: center; margin: 0; padding: 1px 3px; min-height: 44px; border-bottom: 1px solid var(--color-border); }
   .choice-list :global(label) { display: flex; align-items: center; gap: 3px; min-height: 43px; margin: 0; cursor: pointer; }
-  .choice-list :global(label span) { color: var(--color-muted); font-size: .69rem; }
+  .choice-list :global(label span) { display: none; color: var(--color-muted); font-size: .69rem; }
+  .choice-list[data-numbered='true'] :global(label span) { display: inline; }
+  .choice-list:not([data-reorder='true']) :global(button[data-control='up']),
+  .choice-list:not([data-reorder='true']) :global(button[data-control='down']) { display: none; }
+  .choice-list[data-reorder='true'] :global(li) { grid-template-columns: 38px minmax(0, 1fr) 32px 32px 42px; }
+  .choice-list :global(li[data-enabled='false'] input[type='text']) { color: var(--color-muted); text-decoration: line-through; }
+  .choice-list :global(input[type='text']:focus) { background: var(--spin-field); }
   .choice-list :global(input[type='checkbox']) { width: 20px; height: 20px; margin: 0; accent-color: #cc4b26; }
   .choice-list :global(input[type='text']) { min-height: 41px; width: 100%; font: inherit; font-size: 1rem; padding: 2px 4px; color: var(--color-foreground); background: transparent; border: 0; margin: 0; border-radius: 4px; }
   .choice-list :global(button) { min-height: 40px; padding: 0; font: 650 1.2rem/1 system-ui; color: var(--color-foreground); background: transparent; border: 0; }
   .choice-list :global(button:hover) { background: var(--spin-field); }
   .choice-list :global(button:disabled) { opacity: .35; cursor: default; }
-  .choice-actions, .button-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .button-row { display: flex; flex-wrap: wrap; gap: 7px; }
   .spin button:not(.spin-hub, .button) { min-height: 44px; padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 7px; background: transparent; color: var(--color-foreground); font-size: .9rem; }
   .spin button:not(.spin-hub, .button):hover { background: var(--spin-field); }
   .spin button:not(.spin-hub, .button)[aria-pressed='true'] { background: var(--spin-selection); border-color: var(--color-accent); color: var(--color-foreground); }
   .spin button:disabled { cursor: default; }
   .preset-quick { display: flex; flex-wrap: wrap; gap: 7px; padding-block: 3px; }
+  .preset-picker { flex: 0 1 148px; position: relative; min-width: 0; }
+  .preset-picker select { appearance: none; height: 44px; padding-inline-end: 29px; background: transparent; font-size: .9rem; cursor: pointer; }
+  .preset-picker svg { position: absolute; top: 15px; right: 10px; pointer-events: none; }
   .preset-quick button { text-align: left; justify-content: space-between; }
-  .preset-quick strong { font-weight: 640; }
   .series { grid-template-columns: max-content 79px; align-items: center; gap: 12px; }
   .note { color: var(--color-muted); font-size: .88rem; margin: 0 0 3px; }
   form details, [data-session] details { border-top: 1px solid var(--color-border); margin: 0; }
   form details > * + *, [data-session] details > * + * { margin-block-end: 8px; }
   summary { cursor: pointer; padding-block: 8px; }
   details code { overflow-wrap: anywhere; }
-  .preset-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .preset-groups label { grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 6px; }
-  .preset-groups img { display: block; border-radius: 5px; }
   .result-actions, .secondary-actions { margin-block: 12px; }
   [data-verification] { display: inline-block; color: var(--color-foreground); background: var(--spin-field); padding: 8px 12px; border-radius: 7px; }
   .scores { list-style: none; margin: 0; padding: 0; font-variant-numeric: tabular-nums; }
@@ -287,17 +288,17 @@ const application = JSON.stringify({
   [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a, .winner-art a { align-self: center; text-decoration: underline; text-underline-offset: .22em; }
   .winner-art { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 13px; }
-  .winner-art img { display: block; width: 74px; height: 74px; border-radius: 9px; }
+  .winner-art img { display: block; width: 58px; height: 58px; border-radius: 9px; }
   .winner-art a { min-height: 44px; display: inline-flex; align-items: center; font-size: .9rem; }
-  .spin-guide { margin-top: clamp(36px, 6vw, 74px); border-top: 1px solid var(--color-border); padding-block: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 4vw, 36px); align-items: center; }
-  .spin-guide img { display: block; width: 100%; height: auto; border-radius: 12px; }
-  .spin-guide p { color: var(--color-muted); }
-  .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; margin-inline-end: 12px; }
+  .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
+  .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; font-size: .89rem; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
   @media (max-width: 760px) {
-    .play { grid-template-columns: 1fr; grid-template-areas: 'wheel' 'editor'; }
-    .wheel-frame { width: min(100%, 320px); }
-    .spin-guide, .preset-groups { grid-template-columns: 1fr; }
-    .wheel-panel { padding-block-start: 10px; }
+    .play { grid-template-columns: 1fr; grid-template-areas: 'heading' 'wheel' 'editor'; grid-template-rows: auto; row-gap: 13px; padding-top: 8px; }
+    .spin-heading h1 { font-size: clamp(2.25rem, 10vw, 3.5rem); }
+    .wheel-frame { width: min(100%, 275px); }
+    .wheel-panel { padding-block-start: 5px; }
+    .wheel-status { font-size: .94rem; }
+    [data-state='completed'] .wheel-status { font-size: 1.95rem; }
   }
 </style>

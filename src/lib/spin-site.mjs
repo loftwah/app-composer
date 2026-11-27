@@ -1,7 +1,14 @@
 export const spinOrigin = 'https://spin.loftwah.com';
 export const spinArtwork = '/campaign/spin/pick-a-side-20261127.jpg';
 export const spinArtworkAlt = 'Pick a side. App Composer Spin. An orange industrial wheel spins beside a takeaway wrapper and hot chips.';
-export const spinIcon = '/spin-brand/icon-192.png';
+export const spinIcon = '/spin-brand/spin-icon-192-20261127c.png';
+export const spinBrandFiles = {
+  dark: '/spin-brand/spin-lockup-dark-20261127c.png',
+  light: '/spin-brand/spin-lockup-light-20261127c.png',
+  icon: '/spin-brand/spin-icon-512-20261127c.png',
+  favicon: '/spin-brand/spin-icon-32-20261127c.png',
+  touch: '/spin-brand/spin-icon-180-20261127c.png',
+};
 export const spinDiscovery = Object.freeze({
   id: 'spin',
   name: 'App Composer Spin',
