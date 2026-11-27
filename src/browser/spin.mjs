@@ -247,7 +247,8 @@ function mount(root) {
     if (playing) return;
     playing = true;
     showError('');
-    const buttons = [...root.querySelectorAll('button')].filter(button => !button.disabled && !button.hasAttribute('data-auto'));
+    const pauseButton = automatic ? get('auto') : null;
+    const buttons = [...root.querySelectorAll('button')].filter(button => !button.disabled && button !== pauseButton);
     for (const button of buttons) button.disabled = true;
     try { await action(); }
     catch (error) { showError(error instanceof Error ? error.message : 'The action could not finish.'); }
@@ -375,7 +376,8 @@ function mount(root) {
   get('auto').addEventListener('click', () => {
     if (automatic) {
       automatic = false;
-      get('auto').textContent = 'Spin full series';
+      get('auto').textContent = 'Pausing…';
+      get('auto').disabled = true;
       return;
     }
     if (playing) return;
@@ -388,6 +390,7 @@ function mount(root) {
       } finally {
         automatic = false;
         get('auto').textContent = 'Spin full series';
+        get('auto').disabled = false;
         if (session.status !== 'open') focusAction('spin-again');
       }
     });
