@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import SpinTasteCloud from '../components/SpinTasteCloud.astro';
 import SpinShareDialog from '../components/SpinShareDialog.astro';
-import { ArrowUpRight, CalendarDays, ChevronDown, Gamepad2, Plus, RotateCw, Share2, Utensils, Volume2, VolumeX } from '@lucide/astro';
+import { ArrowUpRight, CalendarDays, ChevronDown, Gamepad2, Pencil, Plus, RotateCw, Share2, Utensils, Volume2, VolumeX } from '@lucide/astro';
 import { spinLinkArtwork, spinLinkArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
 import { spinDefaultPreset, spinPresetById, spinPresetGroups } from '../lib/spin-presets.mjs';
@@ -84,6 +84,7 @@ const application = JSON.stringify({
           </div>
           <section data-share-result aria-label="Share result" hidden></section>
           <div class="wheel-tools">
+            {!replay && <button type="button" data-edit-choices aria-controls="spin-wheel-editor" aria-expanded="false"><Pencil size={15} aria-hidden="true" /> Edit wheel</button>}
             <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
             <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
             <button type="button" data-undo-wheel hidden>Undo</button>
@@ -91,7 +92,6 @@ const application = JSON.stringify({
               <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
               <span data-sound-label>Sound on</span>
             </button>
-            {!replay && <button type="button" data-edit-choices aria-controls="spin-wheel-editor" aria-expanded="false">Edit wheel</button>}
             <button type="button" data-auto hidden>Run series</button>
             <button class="finish-session" type="button" data-finish aria-label="Finish session" hidden>Finish</button>
             <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
@@ -256,9 +256,13 @@ const application = JSON.stringify({
   .play { display: grid; gap: 17px; padding-top: clamp(8px, 2vw, 26px); }
   .wheel-panel {
     display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1fr);
-    align-items: start; gap: clamp(24px, 5vw, 72px); min-width: 0;
+    align-items: center; gap: clamp(24px, 4.5vw, 64px); min-width: 0;
+    padding: clamp(18px, 3vw, 42px);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-surface);
   }
-  .stage-controls { min-width: 0; display: grid; gap: 10px; align-self: start; padding-block: clamp(8px, 1.6vw, 23px) 0; }
+  .stage-controls { min-width: 0; display: grid; gap: 10px; }
   .stage-heading { min-width: 0; }
   .stage-heading p { position: absolute; clip-path: inset(50%); }
   .wheel-question {
@@ -266,7 +270,7 @@ const application = JSON.stringify({
     overflow: hidden; overflow-wrap: anywhere;
     margin: 0; max-width: none;
     font: 700 clamp(2.5rem, 4.4vw, 3.6rem)/.99 Space, sans-serif;
-    letter-spacing: -.055em;
+    letter-spacing: -.04em;
   }
   .choice-preview {
     display: flex; gap: 7px 15px; align-items: center; flex-wrap: wrap;
@@ -287,8 +291,8 @@ const application = JSON.stringify({
   .wheel-display {
     position: relative; min-width: 0; width: 100%; aspect-ratio: 1;
     display: grid; place-items: center; overflow: hidden;
-    background: radial-gradient(ellipse at 48% 44%, var(--color-field), var(--spin-stage) 72%);
-    border: 1px solid var(--color-border); border-radius: 23px;
+    background: var(--spin-stage);
+    border: 1px solid var(--color-border); border-radius: 12px;
   }
   .wheel-frame { width: 96%; aspect-ratio: 1; position: relative; user-select: none; }
   [data-result-image] .wheel-frame { visibility: hidden; }
@@ -374,7 +378,8 @@ const application = JSON.stringify({
   .wheel-tools a:not([hidden]) { display: inline-flex; }
   .spin .wheel-tools button:not(.button), .spin .wheel-tools a { color: var(--spin-stage-text); border-color: transparent; }
   .spin .wheel-tools button:not(.button):hover { background: var(--spin-stage-hover); }
-  .spin .wheel-tools :is([data-finish], [data-auto]) { border-color: var(--color-control-border); }
+  .spin .wheel-tools :is([data-finish], [data-auto], [data-edit-choices]) { border-color: var(--color-control-border); }
+  .spin .wheel-tools [data-edit-choices] { font-weight: 700; margin-inline-end: 4px; }
   .spin .wheel-tools button[data-sound][aria-pressed='true'] { color: var(--spin-stage-text); background: transparent; border-color: transparent; }
   .wheel-panel [data-error] { color: var(--color-foreground); margin: 0; }
   h2 { margin: 0 0 8px; font-size: clamp(1.45rem, 3vw, 2rem); overflow-wrap: anywhere; letter-spacing: -.025em; }
@@ -442,14 +447,14 @@ const application = JSON.stringify({
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
   @media (max-width: 760px) {
     .play { gap: 11px; padding-top: 8px; }
-    .wheel-panel { grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; }
+    .wheel-panel { grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; padding: 12px; }
     .stage-controls { display: contents; }
     .stage-heading { grid-row: 1; }
     .wheel-question { font-size: clamp(2rem, 8vw, 3rem); }
     .choice-preview { gap: 5px 9px; font-size: .79rem; }
     .choice-preview :global(img) { width: 25px; height: 23px; }
     .stage-mode { grid-row: 2; }
-    .wheel-display { grid-row: 3; width: min(100%, clamp(212px, 33dvh, 285px)); justify-self: center; border-radius: 17px; }
+    .wheel-display { grid-row: 3; width: min(100%, clamp(212px, 33dvh, 285px)); justify-self: center; }
     .wheel-actions { grid-row: 4; }
     .wheel-readout { grid-row: 5; min-block-size: 2.25rem; }
     [data-share-result] { grid-row: 6; }

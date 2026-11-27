@@ -62,16 +62,42 @@ const siteSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
   <div class="composer-home">
     <section class="home-opening campaign-opening" aria-labelledby="home-heading">
-      <div class="campaign-frame">
-        <h1 id="home-heading"><img class="campaign-master" src="/brand/campaign/build-it-keep-it-running.png" width="1728" height="910" fetchpriority="high" alt="App Composer. Build it. Keep it running." /></h1>
-        <div class="campaign-bar">
-          <p>Find a starting point, then use your AI agent to build and run an app in accounts you own.</p>
-          <nav class="home-opening-actions" aria-label="Open App Composer tools">
-            <a class="home-button" href="/ready">Get started — build your first app <ArrowRight size={17} aria-hidden="true" /></a>
-            <a class="home-text-link" href="/media-studio/studio">Media Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
-            <a href="/apps">App library</a><a href="/showcase/">Linkarooie</a><a href="/share">Share</a>
+      <div class="campaign-frame home-container">
+        <div class="campaign-copy">
+          <h1 id="home-heading">Make an app<br />
+            you own<span>.</span></h1>
+          <p>Start with a working example, then build and run your app with your AI agent in accounts you control.</p>
+          <nav class="home-opening-actions" aria-label="Start exploring">
+            <a class="home-button" href="/ready">Build your first app <ArrowRight size={17} aria-hidden="true" /></a>
+            <a class="home-text-link" href="/discover">Find a starting point <ArrowRight size={17} aria-hidden="true" /></a>
           </nav>
         </div>
+        <figure class="campaign-print">
+          <img class="campaign-master" src="/brand/campaign/build-it-keep-it-running-864-20261128.webp"
+            srcset="/brand/campaign/build-it-keep-it-running-864-20261128.webp 864w, /brand/campaign/build-it-keep-it-running-1728-20261128.webp 1728w"
+            sizes="(max-width: 760px) 94vw, (max-width: 1440px) 56vw, 770px" width="1728" height="910"
+            fetchpriority="high" alt="App Composer. Build it. Keep it running. An illuminated workshop press feeds out an app sketch." />
+        </figure>
+      </div>
+      <nav class="campaign-destinations home-container" aria-label="Open App Composer tools">
+        <a href="/media-studio/studio">Media Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a href="/apps">App library <ArrowRight size={16} aria-hidden="true" /></a>
+        <a href="/showcase/">Linkarooie <ArrowRight size={16} aria-hidden="true" /></a>
+        <a href="/share">Share <ArrowRight size={16} aria-hidden="true" /></a>
+      </nav>
+    </section>
+
+    <section class="home-miniapps home-container" aria-labelledby="work-heading">
+      <div class="home-section-head"><h2 id="work-heading">Apps &amp; creative tools</h2><a class="home-text-link" href="/apps">Browse the library <ArrowRight size={18} aria-hidden="true" /></a></div>
+      <div class="home-features">
+        <article><a href="/media-studio"><img src="/brand/campaign/media-studio-og-20261117-v2.jpg" width="1200" height="630" alt="Media Studio. Make something worth keeping." loading="lazy" /><h3>Media Studio</h3></a><p>Create images, edit video and mix sound. Keep the source files, takes and finished work together.</p><a href="/share?view=films">Watch the films →</a></article>
+        <article><a href="/showcase/"><img src="/brand/apps/linkarooie-share-20261018-v2.jpg" width="1200" height="630" alt="Linkarooie’s workshop curator" loading="lazy" /><h3>Linkarooie</h3></a><p>Open Loftwah’s published profile for music, games, writing and the projects behind them.</p><a href="/showcase/">Explore the profile →</a></article>
+        <article><a href="/share"><img src="/brand/campaign/share-og-20261117-v2.jpg" width="1200" height="630" alt="App Composer Share. Find your next idea." loading="lazy" /><h3>App Composer Share</h3></a><p>Browse original artwork by project, see the credits, and take the artwork or its colours into your own work.</p><a href="/share/artwork/atlas-04-composer-family/palette">Sample the Composer palette →</a></article>
+      </div>
+      <ul class="home-tools">{miniApps.map(app => <li><a href={app.href}><img src={app.thumbnail} alt="" width="32" height="32" loading="lazy" />{app.name}<ArrowUpRight size={15} aria-hidden="true" /></a></li>)}</ul>
+      <div class="home-widget-trail">
+        <p>Embed LoftwahFM’s Night Signal player on your site.</p>
+        <a class="home-text-link" href="/widgets">Open the Widget library <ArrowRight size={17} aria-hidden="true" /></a>
       </div>
     </section>
 
@@ -121,20 +147,6 @@ const siteSchema = {
           </div>
           <a class="home-text-link" href="/story">Read the founder story <ArrowUpRight size={17} aria-hidden="true" /></a>
         </div>
-      </div>
-    </section>
-
-    <section class="home-miniapps home-container" aria-labelledby="work-heading">
-      <div class="home-section-head"><h2 id="work-heading">Apps &amp; creative tools</h2><a class="home-text-link" href="/apps">Browse the library <ArrowRight size={18} aria-hidden="true" /></a></div>
-      <div class="home-features">
-        <article><a href="/media-studio"><img src="/brand/campaign/media-studio-og-20261117-v2.jpg" width="1200" height="630" alt="Media Studio. Make something worth keeping." loading="lazy" /><h3>Media Studio</h3></a><p>Create images, edit video and mix sound. Keep the source files, takes and finished work together.</p><a href="/share?view=films">Watch the films →</a></article>
-        <article><a href="/showcase/"><img src="/brand/apps/linkarooie-share-20261018-v2.jpg" width="1200" height="630" alt="Linkarooie’s workshop curator" loading="lazy" /><h3>Linkarooie</h3></a><p>Open Loftwah’s published profile for music, games, writing and the projects behind them.</p><a href="/showcase/">Explore the profile →</a></article>
-        <article><a href="/share"><img src="/brand/campaign/share-og-20261117-v2.jpg" width="1200" height="630" alt="App Composer Share. Find your next idea." loading="lazy" /><h3>App Composer Share</h3></a><p>Browse original artwork by project, see the credits, and take the artwork or its colours into your own work.</p><a href="/share/artwork/atlas-04-composer-family/palette">Sample the Composer palette →</a></article>
-      </div>
-      <ul class="home-tools">{miniApps.map(app => <li><a href={app.href}><img src={app.thumbnail} alt="" width="32" height="32" loading="lazy" />{app.name}<ArrowUpRight size={15} aria-hidden="true" /></a></li>)}</ul>
-      <div class="home-widget-trail">
-        <p>Embed LoftwahFM’s Night Signal player on your site.</p>
-        <a class="home-text-link" href="/widgets">Open the Widget library <ArrowRight size={17} aria-hidden="true" /></a>
       </div>
     </section>
 

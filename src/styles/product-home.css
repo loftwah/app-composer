@@ -282,17 +282,67 @@
 .home-creative-links a:hover h3 {text-decoration: underline;}
 @media(max-width: 700px) {.home-creative-links {grid-template-columns: 1fr;} .home-project-caption svg {width: 18px;}}
 
-/* The supplied campaign is a complete composition, including its typography. */
-.home-shell:has(.campaign-opening) > .site-header {position: relative; min-height: 68px; padding-block: 12px; background: var(--home-hero-bg);}
-.campaign-opening {padding: 0 0 1rem;}
-.campaign-frame {width: min(100%, 1220px); margin-inline: auto;}
-.campaign-opening h1 {max-width: none; line-height: 0;}
-.campaign-master {display: block; width: 100%; height: auto;}
-.campaign-bar {display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 24px; padding: 16px clamp(16px,2.5vw,36px);}
-.campaign-bar p {max-width: 35ch; line-height: 1.4;}
-.campaign-bar .home-opening-actions {margin: 0; gap: .3rem 1.1rem;}
-.campaign-bar a {display: inline-flex; align-items: center; min-height: 44px;}
-.campaign-bar a:not(.home-button):hover, .home-features a:hover, .home-tools a:hover, .home-resource-index a:hover, .home-other a:hover {text-decoration: underline; text-underline-offset: .22em;}
+/* Readable entry beside the intact approved campaign print. */
+.home-shell:has(.campaign-opening) > .site-header {
+  position: relative;
+  min-height: 68px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--home-hero-rule);
+  background: var(--home-hero-bg);
+}
+.campaign-frame {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 70px);
+  padding-block: clamp(32px, 6vw, 90px) clamp(26px, 4vw, 56px);
+}
+.campaign-copy { min-width: 0; }
+.campaign-opening h1 {
+  max-width: none;
+  font-size: clamp(2.6rem, 5.8vw, 5.7rem);
+  font-weight: 650;
+  line-height: .98;
+}
+.campaign-copy > p {
+  margin-block-start: 1.25rem;
+  max-width: 36ch;
+  color: var(--home-hero-muted);
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  line-height: 1.5;
+}
+.campaign-print { background: #151210; }
+.campaign-master { display: block; width: 100%; height: auto; }
+.campaign-destinations {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--home-hero-rule);
+}
+.campaign-destinations a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  min-height: 52px;
+  padding-inline: clamp(.5rem, 1.6vw, 1.5rem);
+  color: var(--home-hero-fg);
+  font-weight: 650;
+}
+.campaign-destinations a + a { border-inline-start: 1px solid var(--home-hero-rule); }
+.campaign-destinations a svg { flex: none; color: var(--home-hero-accent); }
+.campaign-destinations a:hover, .home-features a:hover, .home-tools a:hover, .home-resource-index a:hover, .home-other a:hover {
+  text-decoration: underline;
+  text-underline-offset: .22em;
+}
+@media (max-width: 760px) {
+  .campaign-frame { grid-template-columns: 1fr; gap: 24px; }
+  .campaign-opening h1 { font-size: clamp(2.6rem, 10vw, 4.4rem); }
+  .campaign-copy > p { margin-block-start: .85rem; }
+  .campaign-copy .home-opening-actions { margin-block-start: .9rem; }
+  .campaign-destinations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .campaign-destinations a:nth-child(3) { border-inline-start: 0; }
+  .campaign-destinations a:nth-child(n+3) { border-top: 1px solid var(--home-hero-rule); }
+}
 .home-features {display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(16px,2.5vw,38px);}
 .home-features img {width: 100%; height: auto; display: block;}
 .home-features h3 {font-size: 1.45rem; margin: .65rem 0 .25rem;}
@@ -310,7 +360,5 @@
 .home-other nav {gap: 6px 20px;}
 @media(max-width: 700px) {
   .home-features, .home-resource-index {grid-template-columns: 1fr;}
-  .campaign-bar {display: block;}
-  .campaign-bar .home-opening-actions {margin-top: .65rem;}
   .home-features article + article {padding-top: 10px;}
 }

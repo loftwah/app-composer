@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Maximize2, Search, Sh
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkOrientations, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
+import ShareSections from './ShareSections.astro';
 import '../styles/share-gallery.css';
 
 interface Props {
@@ -36,18 +37,7 @@ const options = {
     <h1 id="artwork-heading">Share<span>.</span></h1>
     <div class="gallery-intro">
       <p>Artwork, sketches and posters from our projects.</p>
-      <p class="gallery-account">
-        <a href="/share/spin">See Spin in action <ArrowUpRight size={13} aria-hidden="true" /></a>
-        <a href="/share?view=films">Watch the films <ArrowUpRight size={13} aria-hidden="true" /></a>
-        {tag !== 'internet-workshop' && <a href="/share?tag=internet-workshop">Play in the Internet Workshop <ArrowUpRight size={13} aria-hidden="true" /></a>}
-      </p>
-      <p class="gallery-account">
-        {signedIn ? (
-          <><strong>Signed in</strong><span>Open any artwork to give private feedback.</span></>
-        ) : (
-          <><span>Private feedback is for invited collaborators.</span> <a href={signIn}>Invited sign-in</a></>
-        )}
-      </p>
+      <ShareSections current="artwork" />
     </div>
     <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a>
   </header>
@@ -57,7 +47,7 @@ const options = {
       <span class="gallery-visually-hidden">Search artwork</span><Search size={18} aria-hidden="true" />
       <input type="search" name="art" placeholder="Search artwork" value={query} maxlength={SHARE_CATALOGUE_QUERY_MAX} />
     </label>
-    <button class="secondary gallery-apply" type="submit">Apply <span class="gallery-visually-hidden">search and filters</span></button>
+    <button class="secondary gallery-apply" type="submit">Apply <span class="gallery-visually-hidden">search and sort</span></button>
     <div class="gallery-sort">
       <label for="gallery-sort">Sort</label>
       <select id="gallery-sort" name="sort">
@@ -110,14 +100,18 @@ const options = {
       ))}
       {facets.length > 1 && <a href={href({ query: '', project: '', category: '', orientation: 'any', tag: '' })}>Clear filters</a>}
     </div>
-    <nav class="gallery-related" aria-label="More to explore">
-      {tag === "computer-club" && <a href="/share/experiences/computer-club">Play Computer Club <ArrowUpRight size={13} aria-hidden="true" /></a>}
-      <a href={shareCalendarHref}>{signedIn ? 'Share calendar' : 'Share calendar (invited access)'} <ArrowUpRight size={13} aria-hidden="true" /></a>
-      <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
-      <a href="/share?view=films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
-      <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={13} aria-hidden="true" /></a>
-      <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
-    </nav>
+    <details class="gallery-more">
+      <summary>More from Share</summary>
+      <nav class="gallery-related" aria-label="More to explore">
+        {tag === "computer-club" && <a href="/share/experiences/computer-club">Play Computer Club <ArrowUpRight size={13} aria-hidden="true" /></a>}
+        <a href={shareCalendarHref}>{signedIn ? 'Share calendar' : 'Share calendar (invited access)'} <ArrowUpRight size={13} aria-hidden="true" /></a>
+        <a href="/widgets">Widget library <ArrowUpRight size={13} aria-hidden="true" /></a>
+        <a href="/share/spin">Spin <ArrowUpRight size={13} aria-hidden="true" /></a>
+        <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={13} aria-hidden="true" /></a>
+        <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
+        {!signedIn && <a href={signIn}>Collaborator sign-in <ArrowUpRight size={13} aria-hidden="true" /></a>}
+      </nav>
+    </details>
   </div>
 
   {!catalogue ? (
