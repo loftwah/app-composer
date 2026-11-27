@@ -23,13 +23,13 @@ composer=public/brand/composer-icon-20261022b-512.png
 for theme in dark light; do
   ink='#fff0d7'
   if [ "$theme" = light ]; then ink='#211521'; fi
-  magick -size 620x235 xc:none \
+  magick -size 620x235 xc:none -background none -alpha on \
     '(' "$composer" -resize 190x190 ')' -gravity northwest -geometry +20+37 -composite \
     -font "$font" -fill "$ink" -pointsize 43 -kerning 2.8 -annotate +239+47 'APP COMPOSER' \
     -pointsize 152 -kerning -5 -annotate +231+76 'Spin' \
     -fill '#fc5b05' -draw 'circle 547,177 562,177' \
-    -trim +repage -bordercolor none -border 12 -gravity west -extent 620x235 \
-    -strip "PNG32:$dest/composer-spin-lockup-$theme-20261127.png"
+    -trim +repage -bordercolor none -border 12 -gravity west -background none -extent 620x235 \
+    -strip "PNG32:$dest/composer-spin-lockup-$theme-20261127b.png"
 done
 
 magick "$source_image" -resize '1200x630^' -gravity center -extent 1200x630 \

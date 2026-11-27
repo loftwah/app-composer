@@ -43,4 +43,4 @@ Set a suburb or postcode such as Sunbury VIC 3429. Spin remembers the area on yo
 
 ## Spin brand assets
 
-[Logo for dark backgrounds](/spin-brand/composer-spin-lockup-dark-20261127.png) · [Logo for light backgrounds](/spin-brand/composer-spin-lockup-light-20261127.png) · [App icon](/spin-brand/icon-512.png) · [Social preview](/spin-brand/decision-wheel-20261127b.jpg)
+[Logo for dark backgrounds](/spin-brand/composer-spin-lockup-dark-20261127b.png) · [Logo for light backgrounds](/spin-brand/composer-spin-lockup-light-20261127b.png) · [App icon](/spin-brand/icon-512.png) · [Social preview](/spin-brand/decision-wheel-20261127b.jpg)
