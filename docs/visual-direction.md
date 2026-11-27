@@ -2,6 +2,18 @@
 
 Owner direction, 18–22 October 2026. This supplements DESIGN.md and the source/asset maintenance contract. Read it before proposing, generating or changing artwork, identity marks, icons or social cards. It applies to App Composer and its five independent mini-apps. Each app retains its own committed assets and release.
 
+## Portfolio design bar
+
+Owner direction, 28 November 2026 AEDT. App Composer carries this direction for the active portfolio and each project applies it in its own context. Track adoption and practical improvements in [#1422](https://github.com/loftwah/app-composer/issues/1422).
+
+**Start far enough out that the owner may want to pull it back.** The owner has described the existing portfolio as okay and lukewarm. Treat earlier releases as evidence of implemented behaviour and identity. Set the quality bar by studying several proven outside products in the same use case. Look at their actual work and interactions. Name the specific decisions that make them good and translate those decisions into the current product.
+
+For visual work the direction is **sharp, modern, bright, fun and neon**. Commit to clear colour choices. Cloudflare is a reference for confident flat colour, with each product bringing its own palette and identity. Composer's public card expresses this with its canonical vivid orange, dark ink and exact interlocking mark. Default mixed palettes, beige retro equipment and generic clip-art imagery have already failed this brief.
+
+Take the same ambition into everything a user sees, reads or touches. Try genuinely different premises when the first one feels familiar, then select and refine the most expressive direction that does the job. A range of swatches following the same composition counts as one premise. Make every visible decision earn its place. Keep copy direct and distinctive, and make the interaction feel quick, clear and rewarding to use. Dense workspaces and high-consequence actions still need readable hierarchy, accessible controls and clear recovery.
+
+Verify rendered pixels at the real display size, including the phone and feed crop where relevant, and operate the real affected journey. Record the outside references, the creative choice and the actual live evidence in the existing PR or issue. Owner taste, technical checks and delivery state each need their own evidence. Follow explicit holds and the owning product's access, safety and release boundaries.
+
 ## What the work needs to express
 
 Useful software with an authored world around it: inventive machinery, strange inhabitants, music and game culture, character and humour. Things have a job. A joke can come from what a character does, what a machine gets wrong, or a small consequence in the scene. Smiling at the viewer with an arbitrary prop does not establish a character.

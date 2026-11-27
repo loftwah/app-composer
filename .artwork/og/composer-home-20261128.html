@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>App Composer · Build it. Own it.</title>
+<style>
+  @font-face {
+    font-family: Space;
+    src: url("FONT_DATA") format("woff2");
+    font-weight: 300 700;
+  }
+  :root { --orange: #fc5b05; --ink: #17181b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--orange);
+    color: var(--ink);
+    font-family: Space, sans-serif;
+  }
+  svg { position: absolute; inset: 0; }
+  .name {
+    position: absolute;
+    top: 53px;
+    left: 59px;
+    margin: 0;
+    font-size: 46px;
+    line-height: 1;
+    font-weight: 650;
+    letter-spacing: -.03em;
+  }
+  h1 {
+    position: absolute;
+    top: 177px;
+    left: 52px;
+    margin: 0;
+    font-size: 144px;
+    font-weight: 700;
+    letter-spacing: -.055em;
+    line-height: .88;
+  }
+  h1 span { display: block; }
+  h1 span + span { margin-top: 12px; }
+</style>
+<main>
+  <svg viewBox="0 0 1200 630" aria-hidden="true" width="1200" height="630">
+    <defs>
+      <path id="ink-field" d="M850 0H1200V630H629Z"/>
+      <clipPath id="on-ink"><use href="#ink-field"/></clipPath>
+      <clipPath id="on-orange"><path d="M0 0H850L629 630H0Z"/></clipPath>
+      COMPOSER_SHAPES
+    </defs>
+    <use href="#ink-field" fill="var(--ink)"/>
+    <g clip-path="url(#on-orange)">
+      <g transform="translate(565 -32) scale(.595)">
+        <use href="#blocks" color="var(--ink)"/>
+        <use href="#join-arrow" color="var(--orange)"/>
+      </g>
+    </g>
+    <g clip-path="url(#on-ink)">
+      <g transform="translate(565 -32) scale(.595)">
+        <use href="#blocks" color="var(--orange)"/>
+        <use href="#join-arrow" color="var(--ink)"/>
+      </g>
+    </g>
+  </svg>
+  <p class="name">App Composer</p>
+  <h1><span>Build it.</span><span>Own it.</span></h1>
+</main>
+</html>
