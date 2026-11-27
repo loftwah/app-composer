@@ -1,0 +1,20 @@
+{
+  "source": "e8a893c32c307fffc11115a45b034fc4e610aab5",
+  "canonical": "https://spin.loftwah.com/",
+  "replay": "https://spin.loftwah.com/?example=share-draw",
+  "recording": "A real signed-out three-choice draw recorded in Chromium at 390 × 844. The clip uses the recorded KFC result. The GIF is a crop of the same recording.",
+  "laptop": "Signed-out production screenshot in Chromium at 1440 × 1000.",
+  "artwork": "Single Codex ImageGen render with lettering and illustration, rescaled for publication.",
+  "artworkMasterSha256": "12f93765adc63e32daa02ef9ba3b964be04f166975d881a4c677a1f8a83cd272",
+  "revision": "20261127",
+  "files": {
+    "pick-a-side-20261127.jpg": "9bb771a97b7b4a9100e12a347da7c295dab0d849caaff08797cfe64b2b774c51",
+    "pick-a-side-thumb-20261127.webp": "f64409a641ff44092dee69eb629052c40fa5117963da46f041dd3d272130993f",
+    "wheel-demo-20261127.mp4": "bb67c7eb1824ce7773a60877813367ef760079e67b9ff787226b326483188b42",
+    "wheel-demo-poster-20261127.webp": "a115b82379f7950c97e11c0604c4addba36b657812f4ae2de571769890552940",
+    "wheel-demo.en.vtt": "e3f867515db71e80e5985792be03d7e07d933878946a9c789981846703652adf",
+    "wheel-laptop-20261127.webp": "a131304407cb8862182223509781f2ffc398be966651a61abae630b17e9f76b2",
+    "wheel-laptop-thumb-20261127.webp": "64f64080fb9e2e2f7d9e6eb3a34617334971cb488ce437a82c6c3f60846742fc",
+    "wheel-loop-20261127.gif": "e76357f2af634d1bbdea9e57430466960718010889636cb941da61ca9f7d9d9b"
+  }
+}

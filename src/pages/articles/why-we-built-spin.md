@@ -26,13 +26,13 @@ The receipt checks consistency within one session. A person can still create sev
 
 [Australian takeaway replay](https://spin.loftwah.com/?example=takeaway) · [Game night replay](https://spin.loftwah.com/?example=game-night) · [Heads or tails replay](https://spin.loftwah.com/?example=coin)
 
-The three public launch examples preserve the original completed receipts so you can replay and verify them after the original session links expire.
+These public launch examples preserve the original completed receipts so you can replay and verify them after the original session links expire.
 
 <figure>
-  <video controls playsinline preload="metadata" width="1080" height="1920" poster="/spin-brand/demo/takeaway-demo-poster-20261127.webp" src="/spin-brand/demo/takeaway-demo-20261127.mp4">
-    <track kind="captions" label="English" srclang="en" src="/spin-brand/demo/takeaway-demo.en.vtt" default>
+  <video controls playsinline preload="metadata" width="540" height="960" poster="/campaign/spin/wheel-demo-poster-20261127.webp" src="/campaign/spin/wheel-demo-20261127.mp4">
+    <track kind="captions" label="English" srclang="en" src="/campaign/spin/wheel-demo.en.vtt" default>
   </video>
-  <figcaption>A short screen recording from Spin, showing an Australian takeaway wheel and the recorded pizza result. <a href="/spin-brand/demo/takeaway-demo-20261127.mp4" download>Download the MP4</a>.</figcaption>
+  <figcaption>A real phone-sized recording of Spin. <a href="/share/spin">Watch it in App Composer Share</a>.</figcaption>
 </figure>
 
 ## If the wheel picks takeaway

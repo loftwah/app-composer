@@ -1,0 +1,39 @@
+{
+  "version": "composer.spin/1",
+  "id": "2d259c35-045d-4587-a5b8-6e01d598a64f",
+  "config": {
+    "question": "Which fast food should we get?",
+    "entries": [
+      "Maccas",
+      "Hungry Jack’s",
+      "KFC"
+    ],
+    "bestOf": 1
+  },
+  "configHash": "872a1b673ddf531b1da8156ba9545da6c463d3eeba10dffa536413f33d594fba",
+  "commitment": "fbfc1e80bd0ef51dff7433e19ccce8aac4c141e4fdcdc6c4ceb06a630cbcd915",
+  "status": "completed",
+  "revision": 1,
+  "rounds": [
+    {
+      "index": 0,
+      "winner": 2,
+      "eligible": [
+        0,
+        1,
+        2
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T09:42:41.092Z"
+    }
+  ],
+  "totals": [
+    0,
+    0,
+    1
+  ],
+  "winner": 2,
+  "tieBreak": false,
+  "expiresAt": "2026-12-27T09:42:41.012Z",
+  "seed": "855675b9012ac1839db5a6223e050b3a6b764ec31371ec96d625c4a86a3be070"
+}
