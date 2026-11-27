@@ -7,10 +7,7 @@ export const spinDuration = 1510;
 const ink = '#1d1c25';
 const paper = '#fff';
 const orange = '#ff681f';
-const sectors = [
-  ['#fed06f', ink], ['#91ded2', ink], ['#ffaec2', ink],
-  ['#aacaff', ink], ['#d6c7ff', ink], ['#ffc39d', ink],
-];
+export const spinSectorColours = ['#edcb74', '#86d9bd', '#c7b8ef', '#a8c7ef', '#efafba', '#f0b38e'];
 
 const wrap = angle => ((angle % turn) + turn) % turn;
 const teeth = count => Math.max(18, count);
@@ -96,7 +93,7 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     const bearing = angle - Math.PI / 2 + index * spacing;
     const first = bearing - spacing / 2;
     const last = bearing + spacing / 2;
-    const [surface, text] = sectors[index % sectors.length];
+    const surface = spinSectorColours[index % spinSectorColours.length];
     context.beginPath();
     context.moveTo(0, 0);
     context.arc(0, 0, radius, first, last);
@@ -140,7 +137,7 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.save();
     context.translate(Math.cos(bearing) * labelRadius, Math.sin(bearing) * labelRadius);
     if (count > 6 && count <= 12) context.rotate(Math.cos(bearing) < 0 ? bearing + Math.PI : bearing);
-    context.fillStyle = text;
+    context.fillStyle = ink;
     context.font = `750 ${labelSize}px system-ui, sans-serif`;
     context.textAlign = 'center';
     context.textBaseline = 'middle';

@@ -1,7 +1,7 @@
 import { spinImageFormats } from '../lib/spin-site.mjs';
 import { renderSpinPng, renderSpinVideo, replayVideoType } from './spin-export.mjs';
 
-export function mountSpinShare(dialog, result, getVideoAudio, reducedMotion) {
+export function mountSpinShare(dialog, result, previewMount, getVideoAudio, reducedMotion) {
   const content = dialog.querySelector('[data-share-content]');
   const get = name => content.querySelector('[data-' + name + ']');
   const url = get('share-url');
@@ -10,7 +10,8 @@ export function mountSpinShare(dialog, result, getVideoAudio, reducedMotion) {
   image.dataset.shareImage = '';
   image.alt = '';
   image.hidden = true;
-  const previewLink = get('preview-link');
+  const previewLink = previewMount.querySelector('[data-preview-link]');
+  const status = previewMount.querySelector('[data-image-status]');
   previewLink.append(image);
   const saveImage = get('save-image');
   const copyImage = get('copy-image');
@@ -65,9 +66,8 @@ export function mountSpinShare(dialog, result, getVideoAudio, reducedMotion) {
     const format = spinImageFormats.find(item => item.id === id);
     const { session, link } = current;
     releasePreview();
-    const status = get('image-status');
     status.hidden = false;
-    status.textContent = 'Preparing the image…';
+    status.textContent = 'Preparing image…';
     imageFeedback.textContent = '';
     let pending = images.get(id);
     if (!pending) {
@@ -102,7 +102,8 @@ export function mountSpinShare(dialog, result, getVideoAudio, reducedMotion) {
       if (selection !== active) return;
       releasePreview();
       copyImage.disabled = true;
-      status.textContent = 'The image didn’t load. Choose another size or try Share result again.';
+      status.textContent = 'The image didn’t load. Choose a size to retry.';
+      imageFeedback.textContent = status.textContent;
     }
   }
 
@@ -160,17 +161,9 @@ ${link}`;
   }
 
   function open(data) {
-    if (data.session?.status === 'completed') {
-      present(data);
-      if (!active?.file) void preview();
-      const title = get('share-title');
-      title.focus({ preventScroll: true });
-      title.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
-    } else {
-      hideResult();
-      configure(data);
-      if (!dialog.open) dialog.showModal();
-    }
+    hideResult();
+    configure(data);
+    if (!dialog.open) dialog.showModal();
   }
 
   function setClipboardBusy(value) {

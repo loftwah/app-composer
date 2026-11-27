@@ -41,6 +41,75 @@ const application = JSON.stringify({
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <div class="play">
+      <div class="wheel-panel" data-wheel-panel>
+        <div class="stage-controls">
+          <header class="stage-heading">
+            <h1 class="wheel-question" data-spin-heading>{replay ? 'Opening draw…' : defaultWheel.question}</h1>
+            <ul class="choice-preview" data-choice-preview aria-label="Choices">
+              {!replay && defaultWheel.entries.map(label => <li>{label}</li>)}
+            </ul>
+            <p class="note" data-spin-intro hidden></p>
+          </header>
+          <div class="stage-mode">
+            <label class="mode-picker">
+              <span>Play mode</span>
+              <span class="mode-select"><select name="bestOf" form="spin-setup" aria-describedby="spin-mode-help" required disabled={replay}>
+                <option value="1">Single spin · Rounds off</option>
+                <option value="3">Best of 3</option>
+                <option value="5">Best of 5</option>
+                <option value="7">Best of 7</option>
+                <option value="0">Open tally</option>
+                <optgroup label="Longer series">
+                  {[9, 11, 13, 15, 17, 19, 21].map(count => <option value={count}>Best of {count}</option>)}
+                </optgroup>
+              </select><ChevronDown size={16} aria-hidden="true" /></span>
+            </label>
+            <p id="spin-mode-help" data-rules></p>
+          </div>
+          <div class="wheel-readout" role="status">
+            <p class="readout-label" data-result-label>{replay ? 'Shared draw' : 'Tap or flick the wheel'}</p>
+            <p class="wheel-status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
+          </div>
+          <section data-share-result aria-label="Share result" hidden></section>
+          <div class="wheel-actions">
+            <div class="primary-slot" data-spin-primary>
+              <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
+                aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
+              <button type="button" class="button wheel-primary" data-draw hidden>Spin</button>
+              <button type="button" class="button wheel-primary" data-spin-again hidden><RotateCw size={17} aria-hidden="true" /> Spin again</button>
+              <button type="button" class="button wheel-primary" data-stage-replay hidden><RotateCw size={17} aria-hidden="true" /> Replay spin</button>
+              <button type="button" class="button wheel-primary" disabled data-waiting hidden>Waiting for host</button>
+            </div>
+            <button type="button" data-share disabled={replay}><Share2 size={17} aria-hidden="true" data-share-icon /> <span data-share-label>Share wheel</span></button>
+          </div>
+          <div class="wheel-tools">
+            <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
+            <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
+            <button type="button" data-undo-wheel hidden>Undo</button>
+            <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
+              <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
+              <span data-sound-label>Sound on</span>
+            </button>
+            {!replay && <button type="button" data-edit-choices aria-controls="spin-wheel-editor" aria-expanded="false">Edit wheel</button>}
+            <button type="button" data-auto hidden>Run series</button>
+            <button class="finish-session" type="button" data-finish aria-label="Finish session" hidden>Finish</button>
+            <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
+          </div>
+          <p role="alert" data-error></p>
+          {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Open Spin</a></p>}
+        </div>
+        <div class="wheel-display">
+          <div class="wheel-frame" data-wheel-tap>
+            <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
+            <button type="button" class="spin-hub" data-spin-hub aria-label="Spin the wheel" disabled></button>
+            <div class="wheel-applause" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="result-display" data-result-display hidden>
+            <a data-preview-link target="_blank" rel="noopener" aria-label="Open full-size result image in a new tab" hidden></a>
+            <p data-image-status role="status">Preparing image…</p>
+          </div>
+        </div>
+      </div>
       <div class="preset-quick" role="group" aria-label="Wheel presets" data-spin-presets>
         <button type="button" data-quick-chains aria-pressed="false"><Utensils size={16} aria-hidden="true" /> Fast food</button>
         <button type="button" data-quick-preset="game" aria-pressed="false"><Gamepad2 size={16} aria-hidden="true" /> Game night</button>
@@ -56,123 +125,66 @@ const application = JSON.stringify({
           <ChevronDown size={15} aria-hidden="true" />
         </label>
       </div>
-      <div class="wheel-panel" data-wheel-panel>
-        <header class="stage-heading">
-          <h1 class="wheel-question" data-spin-heading>{replay ? 'Opening draw…' : defaultWheel.question}</h1>
-          <div class="stage-edit">
-            <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
-            <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
-          </div>
-          <p class="note" data-spin-intro hidden></p>
-        </header>
-        <div class="stage-mode">
-          <label class="mode-picker">
-            <span>Play mode</span>
-            <span class="mode-select"><select name="bestOf" form="spin-setup" aria-describedby="spin-mode-help" required disabled={replay}>
-              <option value="1">Single spin · Rounds off</option>
-              <option value="3">Best of 3</option>
-              <option value="5">Best of 5</option>
-              <option value="7">Best of 7</option>
-              <option value="0">Open tally</option>
-              <optgroup label="Longer series">
-                {[9, 11, 13, 15, 17, 19, 21].map(count => <option value={count}>Best of {count}</option>)}
-              </optgroup>
-            </select><ChevronDown size={16} aria-hidden="true" /></span>
-          </label>
-          <p id="spin-mode-help" data-rules>One spin. Each choice has the same chance.</p>
-        </div>
-        <div class="wheel-frame" data-wheel-tap>
-          <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
-          <button type="button" class="spin-hub" data-spin-hub aria-label="Spin the wheel" disabled></button>
-          <div class="wheel-applause" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        </div>
-        <div class="wheel-readout" role="status">
-          <p class="readout-label" data-result-label>{replay ? 'Shared draw' : 'Tap or flick the wheel'}</p>
-          <p class="wheel-status" data-result>{replay ? 'Opening replay…' : 'Loading wheel…'}</p>
-        </div>
-        <div class="wheel-actions">
-          <div class="primary-slot" data-spin-primary>
-            <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
-              aria-describedby="spin-link-privacy" hidden={replay} disabled>Spin</button>
-            <button type="button" class="button wheel-primary" data-draw hidden>Spin</button>
-            <button type="button" class="button wheel-primary" data-spin-again hidden><RotateCw size={17} aria-hidden="true" /> Spin again</button>
-            <button type="button" class="button wheel-primary" data-stage-replay hidden><RotateCw size={17} aria-hidden="true" /> Replay spin</button>
-            <button type="button" class="button wheel-primary" disabled data-waiting hidden>Waiting for host</button>
-          </div>
-          <button type="button" data-share disabled={replay}><Share2 size={17} aria-hidden="true" /> <span data-share-label>Share wheel</span></button>
-        </div>
-        <div class="wheel-tools">
-          <button type="button" data-undo-wheel hidden>Undo</button>
-          <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
-            <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
-            <span data-sound-label>Sound on</span>
-          </button>
-          {!replay && <button type="button" data-edit-choices aria-controls="spin-setup" aria-label="Edit choices">Edit</button>}
-          <button type="button" data-auto hidden>Run series</button>
-          <button class="finish-session" type="button" data-finish aria-label="Finish session" hidden>Finish</button>
-          <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
-        </div>
-        <p role="alert" data-error></p>
-        {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Open Spin</a></p>}
-      </div>
       <div class="controls">
-        <section data-share-result aria-labelledby="spin-share-title" hidden></section>
-        <form id="spin-setup" novalidate data-setup hidden={replay}>
-          <div class="choice-heading">
-            <h2 id="spin-choices" tabindex="-1">Build your wheel</h2>
-            <div class="button-row editor-shortcuts">
-              <button type="button" data-resume-draft hidden>Resume draft</button>
-              <button type="button" data-food-ideas aria-controls="spin-ideas"><Utensils size={16} aria-hidden="true" /> Food ideas</button>
+        <p class="note verification-warning" data-verification-warning role="alert"></p>
+        <section class="wheel-editor" id="spin-wheel-editor" data-wheel-editor hidden>
+          <form id="spin-setup" novalidate data-setup hidden={replay}>
+            <div class="choice-heading">
+              <h2 id="spin-choices" tabindex="-1">Build your wheel</h2>
+              <div class="button-row editor-shortcuts">
+                <button type="button" data-resume-draft hidden>Resume draft</button>
+                <button type="button" data-food-ideas aria-controls="spin-ideas"><Utensils size={16} aria-hidden="true" /> Food ideas</button>
+              </div>
             </div>
-          </div>
-          <label class="question-field">Question <input name="question" required maxlength="100" value={defaultWheel.question} /></label>
-          <div class="choice-heading choice-caption">
-            <h3>Choices</h3>
-            <p class="note" data-choice-odds></p>
-          </div>
-          <ol class="choice-list" data-choices-list aria-label="Wheel choices"></ol>
-          <div class="add-entry">
-            <input type="text" name="entry" maxlength="56" aria-label="New choice" placeholder="Add a choice" autocomplete="off" />
-            <button type="button" data-add-choice><Plus size={18} aria-hidden="true" /> Add</button>
-          </div>
-          <p class="note" data-editor-message role="status"></p>
-          <details class="saved-wheels">
-            <summary>Saved wheels</summary>
-            <div class="button-row">
-              <button type="button" data-favourite aria-pressed="false">Favourite preset</button>
-              <button type="button" data-reset>Reset to preset</button>
+            <label class="question-field">Question <input name="question" required maxlength="100" value={defaultWheel.question} /></label>
+            <div class="choice-heading choice-caption">
+              <h3>Choices</h3>
+              <p class="note" data-choice-odds></p>
             </div>
-            <div class="button-row">
-              <button type="button" data-save-wheel>Save this wheel</button>
-              <button type="button" data-duplicate-wheel>Save a copy</button>
-              <button type="button" data-remove-wheel>Remove saved copy</button>
+            <ol class="choice-list" data-choices-list aria-label="Wheel choices"></ol>
+            <div class="add-entry">
+              <input type="text" name="entry" maxlength="56" aria-label="New choice" placeholder="Add a choice" autocomplete="off" />
+              <button type="button" data-add-choice><Plus size={18} aria-hidden="true" /> Add</button>
             </div>
-            <label>Saved wheels <select data-saved-wheels></select></label>
-            <label>Favourites <select data-favourites></select></label>
-            <label>Recent presets <select data-recent-wheels></select></label>
-          </details>
-          <SpinTasteCloud />
-          <details class="choice-editor">
-            <summary>Paste or manage choices</summary>
-            <label class="order-toggle"><input type="checkbox" data-show-order /> Show reorder controls</label>
-            <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
-            <div class="button-row">
-              <button type="button" data-enable="all">Enable all</button>
-              <button type="button" data-enable="none">Disable all</button>
-            </div>
-            <label>Paste choices <textarea name="paste" rows="2" placeholder="One choice per line"></textarea></label>
-            <button type="button" data-paste-choices>Add pasted choices</button>
-            <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
-          </details>
-          <p class="screen-reader" id="spin-link-privacy">Anyone with the link to a spin can see the question and choices for {spinLifetimeDays} days.</p>
-          <details>
-            <summary>Find takeaway near you</summary>
-            <label>Suburb, town or postcode <input name="suburb" maxlength="80" placeholder="e.g. Sunbury VIC 3429" autocomplete="off" /></label>
-            <p class="note">Your area stays on this device. On a takeaway result, open Maps to look for the winning choice near you. Check store details there.</p>
-          </details>
-        </form>
-        <section data-session hidden aria-labelledby="spin-question">
-          <h2 id="spin-question" data-session-heading>Draw details</h2>
+            <p class="note" data-editor-message role="status"></p>
+            <details class="saved-wheels">
+              <summary>Saved wheels</summary>
+              <div class="button-row">
+                <button type="button" data-favourite aria-pressed="false">Favourite preset</button>
+                <button type="button" data-reset>Reset to preset</button>
+              </div>
+              <div class="button-row">
+                <button type="button" data-save-wheel>Save this wheel</button>
+                <button type="button" data-duplicate-wheel>Save a copy</button>
+                <button type="button" data-remove-wheel>Remove saved copy</button>
+              </div>
+              <label>Saved wheels <select data-saved-wheels></select></label>
+              <label>Favourites <select data-favourites></select></label>
+              <label>Recent presets <select data-recent-wheels></select></label>
+            </details>
+            <SpinTasteCloud />
+            <details class="choice-editor">
+              <summary>Paste or manage choices</summary>
+              <label class="order-toggle"><input type="checkbox" data-show-order /> Show reorder controls</label>
+              <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
+              <div class="button-row">
+                <button type="button" data-enable="all">Enable all</button>
+                <button type="button" data-enable="none">Disable all</button>
+              </div>
+              <label>Paste choices <textarea name="paste" rows="2" placeholder="One choice per line"></textarea></label>
+              <button type="button" data-paste-choices>Add pasted choices</button>
+              <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
+            </details>
+            <p class="screen-reader" id="spin-link-privacy">Anyone with the link to a spin can see the question and choices for {spinLifetimeDays} days.</p>
+            <details>
+              <summary>Find takeaway near you</summary>
+              <label>Suburb, town or postcode <input name="suburb" maxlength="80" placeholder="e.g. Sunbury VIC 3429" autocomplete="off" /></label>
+              <p class="note">Your area stays on this device. On a takeaway result, open Maps to look for the winning choice near you. Check store details there.</p>
+            </details>
+          </form>
+        </section>
+        <details class="draw-info" data-session hidden>
+          <summary data-session-heading>Draw details</summary>
           <p data-full-question></p>
           <p class="note" data-series></p>
           <div class="result-actions button-row">
@@ -183,7 +195,6 @@ const application = JSON.stringify({
             <button type="button" data-replay-series>Replay the series</button>
             <a class="button" data-create-own href={spinDiscovery.href}>Make your own wheel <ArrowUpRight size={16} aria-hidden="true" /></a>
           </div>
-          <p class="note" data-verification-warning role="alert"></p>
           <details data-score-details>
             <summary data-score-heading>Series score</summary>
             <ol class="scores" aria-label="Series score" data-scores></ol>
@@ -205,7 +216,7 @@ const application = JSON.stringify({
             <button type="button" data-abandon hidden>Abandon session</button>
             <a data-remix>Edit a copy of this wheel</a>
           </div>
-        </section>
+        </details>
         <noscript><p>Enable JavaScript to use Spin.</p></noscript>
       </div>
     </div>
@@ -227,12 +238,9 @@ const application = JSON.stringify({
     --spin-accent: #bc3b00;
     --spin-ink: #1d1c25;
     --spin-orange: #ff691f;
-    --spin-mint: #91ded2;
     --spin-pink: #ffaec2;
     --spin-stage: #f1effb;
     --spin-stage-text: #1d1c25;
-    --spin-paper: #fff;
-    --spin-stage-muted: #575365;
     --spin-win: #82310d;
     --spin-stage-hover: rgb(40 34 57 / .08);
     max-width: 1100px; margin-inline: auto; accent-color: var(--spin-accent);
@@ -240,54 +248,64 @@ const application = JSON.stringify({
   :global(html[data-theme='dark']) .spin {
     --spin-stage: #252432;
     --spin-stage-text: #f7f6ff;
-    --spin-stage-muted: #c8c5d7;
     --spin-win: #ffb692;
     --spin-stage-hover: rgb(245 240 255 / .12);
     --spin-accent: #ff9f72;
   }
-  .play {
-    display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr);
-    column-gap: clamp(24px, 4vw, 52px); row-gap: 13px; align-items: start;
-    padding-top: clamp(8px, 2vw, 24px);
+  .play { display: grid; gap: 17px; padding-top: clamp(8px, 2vw, 26px); }
+  .wheel-panel {
+    display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1fr);
+    align-items: start; gap: clamp(24px, 5vw, 72px); min-width: 0;
   }
-  .controls { min-width: 0; }
-  [data-share-result]:not([hidden]) + form + [data-session]:not([hidden]) { margin-top: 22px; }
-  .stage-heading {
-    width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center; gap: 8px;
-  }
-  .stage-edit { display: flex; gap: 4px; }
-  .spin .stage-edit button:not(.button) {
-    color: var(--spin-stage-text); border-color: var(--spin-stage-muted); padding-inline: 7px;
-    min-width: 44px; font-size: .82rem;
-  }
-  .spin .stage-edit button:not(.button):hover { background: var(--spin-stage-hover); }
+  .stage-controls { min-width: 0; display: grid; gap: 10px; align-self: start; padding-block: clamp(8px, 1.6vw, 23px) 0; }
+  .stage-heading { min-width: 0; }
   .stage-heading p { position: absolute; clip-path: inset(50%); }
   .wheel-question {
     display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-    overflow: hidden; overflow-wrap: anywhere; text-wrap: balance;
-    margin: 0; max-width: none; block-size: 2lh;
-    font: 700 clamp(1.4rem, 3vw, 2.5rem)/1.04 Space, sans-serif;
-    letter-spacing: -.042em; align-content: center;
+    overflow: hidden; overflow-wrap: anywhere;
+    margin: 0; max-width: none;
+    font: 700 clamp(2.5rem, 4.4vw, 3.6rem)/.99 Space, sans-serif;
+    letter-spacing: -.055em;
   }
-  .wheel-panel {
-    min-width: 0; display: grid; justify-items: center; gap: 8px;
-    padding: clamp(12px, 1.7vw, 21px);
-    color: var(--spin-stage-text);
-    background: var(--spin-stage);
-    border: 1px solid var(--color-border); border-radius: 24px;
+  .choice-preview {
+    display: flex; gap: 7px 15px; align-items: center; flex-wrap: wrap;
+    list-style: none; min-height: 32px; margin: 8px 0 0; padding: 0;
+    color: var(--color-muted); font: 650 .88rem/1.25 Space, sans-serif;
   }
-  .stage-mode { width: min(100%, 370px); }
-  .stage-mode p { margin: 4px 0 0; block-size: 2lh; overflow: auto; text-align: center; color: var(--spin-stage-muted); font-size: .78rem; line-height: 1.24; }
-  .mode-picker { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; font-size: .88rem; }
+  .choice-preview :global(li) { min-width: 0; display: flex; align-items: center; gap: 5px; margin: 0; overflow-wrap: anywhere; }
+  .choice-preview :global(img) { width: 30px; height: 28px; object-fit: contain; }
+  .stage-mode { width: min(100%, 375px); }
+  .stage-mode p { margin: 4px 0 0; color: var(--color-muted); font-size: .8rem; line-height: 1.25; }
+  .stage-mode p:empty { display: none; }
+  .mode-picker { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: .83rem; }
   .mode-select { position: relative; min-width: 0; }
-  .mode-select svg { position: absolute; right: 9px; top: 14px; color: var(--spin-ink); pointer-events: none; }
-  .mode-picker select { display: block; appearance: none; block-size: 44px; padding-inline-end: 27px; color-scheme: light; color: var(--spin-ink); background: var(--spin-paper); border-color: transparent; }
-  .mode-picker select:disabled { opacity: 1; cursor: default; color: var(--spin-ink); }
+  .mode-select svg { position: absolute; right: 10px; top: 14px; color: var(--color-foreground); pointer-events: none; }
+  .mode-picker select { display: block; appearance: none; block-size: 44px; padding-inline-end: 29px; }
+  .mode-picker select:disabled { opacity: 1; cursor: default; }
   .mode-picker select:disabled + svg { visibility: hidden; }
-  .wheel-frame {
-    width: min(100%, 378px); aspect-ratio: 1; position: relative; user-select: none;
+  .wheel-display {
+    position: relative; min-width: 0; width: 100%; aspect-ratio: 1;
+    display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(ellipse at 48% 44%, var(--color-field), var(--spin-stage) 72%);
+    border: 1px solid var(--color-border); border-radius: 23px;
   }
+  .wheel-frame { width: 96%; aspect-ratio: 1; position: relative; user-select: none; }
+  [data-result-image] .wheel-frame { visibility: hidden; }
+  .result-display { position: absolute; inset: clamp(9px, 3%, 17px); display: grid; place-items: center; color: var(--color-muted); }
+  .result-display a:not([hidden]) { position: absolute; inset: 0; display: grid; place-items: center; }
+  .result-display :global(img:not([hidden])) {
+    position: absolute; inset: 0; margin: auto; display: block; width: auto; height: auto;
+    max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 6px 12px rgb(20 17 33 / .18));
+  }
+  .result-display p { margin: 0; padding: 13px; text-align: center; }
+  .controls { min-width: 0; }
+  .wheel-editor, .draw-info { margin: 0; border-top: 1px solid var(--color-border); }
+  .wheel-editor { padding-block: 15px 0; }
+  .draw-info > summary {
+    min-height: 44px; padding: 11px 0; width: fit-content; font-weight: 700;
+  }
+  .wheel-editor form, .draw-info > :not(summary) { max-width: 700px; }
+  .verification-warning { color: var(--color-accent); font-weight: 650; }
   .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame { cursor: pointer; }
   @media (prefers-reduced-motion: no-preference) {
     .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame {
@@ -308,14 +326,12 @@ const application = JSON.stringify({
   .spin-hub:disabled { pointer-events: none; background: rgb(30 28 40 / .18); }
   .spin-hub:hover:enabled { box-shadow: inset 0 0 0 2px rgb(255 250 240 / .75); }
   .spin-hub:focus-visible { outline: 2px solid var(--spin-stage-text); outline-offset: 3px; }
-  .wheel-readout {
-    width: min(100%, 455px); text-align: center; display: grid; align-content: center; gap: 4px;
-    min-width: 0; block-size: 5.25rem; padding-inline: 4px;
-  }
-  .readout-label { margin: 0; color: var(--spin-stage-muted); font-size: .79rem; font-weight: 650; }
+  .wheel-readout { min-width: 0; display: grid; align-content: center; gap: 1px; min-block-size: 2.8rem; }
+  .readout-label { margin: 0; color: var(--color-muted); font-size: .8rem; font-weight: 650; }
+  .readout-label:empty { display: none; }
   .wheel-status {
-    max-block-size: 3lh; overflow: auto; margin: 0; overflow-wrap: anywhere; text-wrap: balance;
-    font: 700 clamp(1.06rem, 2.5vw, 1.45rem)/1.12 Space, sans-serif;
+    max-block-size: 3lh; overflow: auto; margin: 0; overflow-wrap: anywhere;
+    font: 700 clamp(1rem, 2.4vw, 1.38rem)/1.1 Space, sans-serif;
   }
   .wheel-panel[data-state='completed'] .wheel-status { color: var(--spin-win); }
   .wheel-panel[data-state='completed'] .wheel-status:not([data-long-result]) {
@@ -341,25 +357,29 @@ const application = JSON.stringify({
     62% { opacity: 1; }
     100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--turn)); }
   }
-  .wheel-actions { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 8px; width: min(100%, 455px); }
+  .wheel-actions { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .9fr); gap: 8px; width: min(100%, 400px); }
   .primary-slot { display: grid; min-width: 0; min-height: 50px; }
   .wheel-primary { min-height: 50px; padding-inline: 6px; font: 700 1.03rem/1.12 Space, sans-serif; }
   .wheel-actions button { gap: 5px; }
   .spin .wheel-primary { color: var(--spin-ink); background: var(--spin-orange); border-color: var(--spin-ink); }
   .spin .wheel-primary:hover:enabled { background: #ff8c52; }
   .spin .wheel-primary:disabled { opacity: .68; }
+  .spin [data-state='completed'] .wheel-primary {
+    color: var(--color-foreground); background: var(--color-field); border-color: var(--color-border);
+  }
+  .spin [data-state='completed'] .wheel-primary:hover:enabled { background: var(--color-surface); }
   .spin .wheel-actions > button { background: var(--color-field); font-weight: 700; }
   .spin .wheel-actions > button:hover { border-color: var(--spin-accent); }
   .wheel-actions svg, .wheel-tools svg, .preset-quick button svg { flex: none; }
-  .wheel-tools { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; flex-wrap: wrap; }
+  .wheel-tools { display: flex; align-items: center; justify-content: flex-start; gap: 4px; min-height: 44px; flex-wrap: wrap; }
   .wheel-tools button, .wheel-tools a { gap: 5px; }
   .wheel-tools a { min-height: 44px; padding-inline: 8px; align-items: center; font-size: .85rem; }
   .wheel-tools a:not([hidden]) { display: inline-flex; }
   .spin .wheel-tools button:not(.button), .spin .wheel-tools a { color: var(--spin-stage-text); border-color: transparent; }
   .spin .wheel-tools button:not(.button):hover { background: var(--spin-stage-hover); }
-  .spin .wheel-tools :is([data-finish], [data-auto]) { border-color: var(--spin-stage-muted); }
+  .spin .wheel-tools :is([data-finish], [data-auto]) { border-color: var(--color-control-border); }
   .spin .wheel-tools button[data-sound][aria-pressed='true'] { color: var(--spin-stage-text); background: transparent; border-color: transparent; }
-  .wheel-panel [data-error] { color: var(--spin-stage-text); text-align: center; margin: 0; }
+  .wheel-panel [data-error] { color: var(--color-foreground); margin: 0; }
   h2 { margin: 0 0 8px; font-size: clamp(1.45rem, 3vw, 2rem); overflow-wrap: anywhere; letter-spacing: -.025em; }
   form { display: grid; gap: 10px; }
   form[hidden], [hidden] { display: none; }
@@ -399,7 +419,7 @@ const application = JSON.stringify({
   .spin button:not(.spin-hub, .button)[aria-pressed='true'] { background: var(--color-selected); border-color: var(--color-accent); color: var(--color-foreground); }
   .spin button:disabled { cursor: default; }
   .preset-quick {
-    grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%; max-width: 650px; gap: 7px;
   }
   .preset-quick[hidden] { display: none; }
@@ -423,24 +443,34 @@ const application = JSON.stringify({
   .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; font-size: .89rem; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
+  @media (max-width: 760px) {
+    .play { gap: 11px; padding-top: 8px; }
+    .wheel-panel { grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; }
+    .stage-controls { display: contents; }
+    .stage-heading { grid-row: 1; }
+    .wheel-question { font-size: clamp(2rem, 8vw, 3rem); }
+    .choice-preview { gap: 5px 9px; font-size: .79rem; }
+    .choice-preview :global(img) { width: 25px; height: 23px; }
+    .stage-mode { grid-row: 2; }
+    .wheel-display { grid-row: 3; width: min(100%, clamp(212px, 33dvh, 285px)); justify-self: center; border-radius: 17px; }
+    .wheel-readout { grid-row: 4; min-block-size: 2.25rem; }
+    [data-share-result] { grid-row: 5; }
+    .wheel-actions { grid-row: 6; }
+    .wheel-tools { grid-row: 7; gap: 2px; max-width: 100%; }
+    .wheel-panel [data-error], .wheel-panel [data-start-over] { grid-row: 8; }
+    .spin .wheel-tools button:not(.button), .wheel-tools a {
+      min-width: 44px; padding-inline: 7px; font-size: .81rem;
+    }
+    .wheel-tools [data-sound-label] { display: none; }
+    .preset-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .spin .preset-quick button { padding-inline: 9px; font-size: .83rem; gap: 5px; }
+    .preset-picker select { font-size: .83rem; }
+  }
   @media (max-width: 350px) {
     .mode-picker { grid-template-columns: minmax(0, 1fr); }
     .mode-picker > span:first-child {
       position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
     }
-  }
-  @media (max-width: 760px) {
-    .play { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 7px; }
-    .preset-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .wheel-frame { width: min(100%, clamp(196px, 30.8dvh, 268px)); }
-    .wheel-panel { gap: 7px; }
-    .wheel-readout { block-size: 3.9rem; }
-    .wheel-tools { gap: 2px; max-width: 100%; }
-    .spin .wheel-tools button:not(.button), .wheel-tools a {
-      min-width: 44px; padding-inline: 6px; font-size: .8rem;
-    }
-    .wheel-tools [data-sound-label] { display: none; }
-    .spin .preset-quick button { padding-inline: 9px; font-size: .83rem; gap: 5px; }
-    .preset-picker select { font-size: .83rem; }
+    .choice-preview :global(img) { display: none; }
   }
 </style>

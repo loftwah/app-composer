@@ -14,7 +14,7 @@ For more dinner ideas, pick Australian takeaway roulette or open Food ideas in t
 
 ## Send a spin to a friend
 
-The share image appears after the spin. Pick a post size and copy the image or save it as a PNG. Share result takes you to the image and the result link. If you want to send the link first, choose Share wheel, then Get a link before spinning. Your friends can use that same link to see the result later. The link lasts 30 days.
+The share image takes the wheel’s place after a spin. Copy the image, save the PNG or send the result link. Pick another size if you need it. Show wheel brings back the stopped wheel. If you want to send the link first, choose Share wheel, then Get a link before spinning. Your friends can use that same link to see the result later. The link lasts 30 days.
 
 In a best-of-three series with two choices, the first to two wins takes it. With more choices, Spin counts three rounds and spins again among the leaders if they tie. Open tally keeps counting until you choose Finish and can end in a tie.
 
