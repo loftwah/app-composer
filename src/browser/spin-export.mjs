@@ -2,11 +2,16 @@ import { spinModeLabel } from '../lib/spin-protocol.mjs';
 import { spinBrandFiles, spinImageFormats } from '../lib/spin-site.mjs';
 import { qrMatrix } from '../lib/qr-code.ts';
 import { spinClick, spinChime } from './spin-audio.mjs';
+import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, winnerAngle } from './spin-wheel.mjs';
 
-const palette = { blue: '#2821b1', ink: '#161349', paper: '#fffaf0', acid: '#edff40', pink: '#ff6fbc' };
+const palette = { blue: '#2821b1', ink: '#161349', paper: '#fffaf0', acid: '#edff40' };
 const sizes = Object.fromEntries(spinImageFormats.map(({ id, width, height }) => [id, [width, height]]));
-const turn = Math.PI * 2;
-export const winnerAngle = (winner, count) => -winner * turn / count;
+const layouts = {
+  landscape: { x: 44, brand: 83, ticket: 124, ticketWidth: 535, ticketHeight: 308, dial: [614, 37, 542], footer: 465, title: 84 },
+  square: { x: 55, brand: 99, ticket: 132, ticketWidth: 970, ticketHeight: 228, dial: [282, 367, 516], footer: 911, title: 112 },
+  portrait: { x: 55, brand: 115, ticket: 154, ticketWidth: 970, ticketHeight: 275, dial: [216, 444, 648], footer: 1156, title: 124 },
+  story: { x: 62, brand: 265, ticket: 311, ticketWidth: 956, ticketHeight: 302, dial: [174, 646, 732], footer: 1456, title: 126 },
+};
 const types = ['video/mp4;codecs=avc1.420034', 'video/mp4;codecs=avc1', 'video/webm;codecs=vp8', 'video/webm'];
 const soundTypes = ['video/mp4;codecs=avc1.420034,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/webm;codecs=vp8,opus'];
 
@@ -30,90 +35,118 @@ function line(context, value, x, y, width, size, weight, colour) {
   context.fillText(value, x, y, width);
 }
 
-function wrapped(context, value, x, y, width, size, weight, colour) {
-  context.font = `${weight} ${size}px Space, sans-serif`;
-  const letters = Array.from(value);
+function wrapLines(context, value, width) {
   const lines = [];
   let part = '';
-  while (letters.length) {
-    const next = letters.shift();
-    if (part && context.measureText(part + next).width > width) {
+  for (const glyph of value) {
+    if (part && context.measureText(part + glyph).width > width) {
       const space = part.lastIndexOf(' ');
       if (space > 0) {
-        letters.unshift(...part.slice(space + 1), next);
-        part = part.slice(0, space);
-      } else letters.unshift(next);
-      lines.push(part.trim());
-      part = '';
-    } else part += next;
+        lines.push(part.slice(0, space));
+        part = part.slice(space + 1);
+      } else {
+        lines.push(part);
+        part = '';
+      }
+    }
+    if (part || glyph !== ' ') part += glyph;
   }
-  if (part) lines.push(part.trim());
-  if (lines.length > 2) return wrapped(context, value, x, y, width, size - 3, weight, colour);
-  lines.forEach((text, index) => line(context, text, x, y + index * (size + 5), width, size, weight, colour));
+  if (part) lines.push(part.trimEnd());
+  return lines;
 }
 
-function drawQr(target, qr, x, y) {
-  const scale = 3;
+function fitBlock(target, value, x, y, width, height, maxSize, weight, colour) {
+  let size = maxSize;
+  let lines;
+  let leading;
+  do {
+    target.font = `${weight} ${size}px Space, sans-serif`;
+    leading = Math.round(size * 1.04);
+    lines = wrapLines(target, value, width);
+    if (lines.length * leading <= height || size <= 16) break;
+    size -= 2;
+  } while (true);
+  target.textBaseline = 'top';
+  const offset = Math.max(0, Math.floor((height - lines.length * leading) / 2));
+  lines.forEach((text, index) => line(target, text, x, y + offset + index * leading, width, size, weight, colour));
+  target.textBaseline = 'alphabetic';
+}
+
+function replayQr(url) {
+  const qr = qrMatrix(url);
+  const scale = 4;
   const quiet = 4;
   const size = (qr.size + quiet * 2) * scale;
+  const target = makeCanvas(size, size);
   target.fillStyle = '#fff';
-  target.fillRect(x, y, size, size);
+  target.fillRect(0, 0, size, size);
   target.fillStyle = palette.ink;
   qr.modules.forEach((row, rowIndex) => row.forEach((dark, colIndex) => {
-    if (dark) target.fillRect(x + (colIndex + quiet) * scale, y + (rowIndex + quiet) * scale, scale, scale);
+    if (dark) target.fillRect((colIndex + quiet) * scale, (rowIndex + quiet) * scale, scale, scale);
   }));
-  return size;
+  return target.canvas;
 }
 
 function composition(target, wheel, session, qr, style, frame, mark) {
   const { width, height } = target.canvas;
+  const { x, brand, ticket, ticketWidth, ticketHeight, dial, footer, title } = layouts[style];
   const wide = style === 'landscape';
-  const story = style === 'story';
-  const square = style === 'square';
-  const x = 56;
-  const textWidth = wide ? 570 : width - 2 * x;
-  const wheelSize = wide ? 460 : story ? 650 : square ? 425 : 570;
-  const wheelX = wide ? 695 : (width - wheelSize) / 2;
-  const wheelY = wide ? 78 : story ? 450 : square ? 250 : 278;
-  const brandY = story ? 254 : 82;
-  const resultY = wide ? 282 : wheelY + wheelSize + 15;
-  const resultHeight = wide ? 178 : story ? 255 : 215;
-  const footerY = resultY + resultHeight + 22;
+  const wideDial = dial[2];
   const winner = session.config.entries[session.winner];
+  const wins = session.totals[session.winner];
+  const mode = spinModeLabel(session.config.bestOf);
+  const spins = session.rounds.length;
+  const count = `${spins} ${spins === 1 ? 'spin' : 'spins'}`;
+  const summary = session.config.bestOf === 1
+    ? mode
+    : `${mode} · ${count}` + (winner ? ` · ${wins} ${wins === 1 ? 'win' : 'wins'}` : '');
+
   target.fillStyle = palette.blue;
   target.fillRect(0, 0, width, height);
   target.textAlign = 'left';
-  if (mark) target.drawImage(mark, x, brandY - 42, 51, 51);
-  const wordmarkX = x + (mark ? 65 : 0);
-  line(target, 'Spin.', wordmarkX, brandY, 150, 57, 700, palette.paper);
-  const attributionX = wordmarkX + target.measureText('Spin.').width + 15;
-  line(target, 'by App Composer', attributionX, brandY, 300, 25, 650, palette.paper);
-  wrapped(target, session.config.question, x, brandY + (story ? 95 : 78), textWidth, wide ? 42 : 49, 700, palette.paper);
-
-  target.drawImage(wheel, wheelX, wheelY, wheelSize, wheelSize);
-  target.beginPath();
-  target.moveTo(wheelX + wheelSize * .463, wheelY + wheelSize * .013);
-  target.lineTo(wheelX + wheelSize * .537, wheelY + wheelSize * .013);
-  target.lineTo(wheelX + wheelSize * .5, wheelY + wheelSize * .091);
-  target.closePath();
-  target.fillStyle = palette.pink;
-  target.fill();
+  if (mark) target.drawImage(mark, x, brand - 44, 53, 53);
+  const wordmarkX = x + (mark ? 68 : 0);
+  line(target, 'Spin.', wordmarkX, brand, 160, 59, 700, palette.paper);
+  const attributionX = wordmarkX + target.measureText('Spin.').width + 16;
+  line(target, 'by App Composer', attributionX, brand, 350, 24, 600, palette.paper);
 
   target.fillStyle = palette.acid;
-  target.fillRect(x, resultY, textWidth, resultHeight);
-  const spins = session.rounds.length;
-  const mode = spinModeLabel(session.config.bestOf);
-  const count = `${spins} ${spins === 1 ? 'spin' : 'spins'}`;
-  const wins = session.totals[session.winner];
-  const summary = session.config.bestOf === 1 ? mode :
-    `${mode} · ${count}` + (winner ? ` · ${wins} ${wins === 1 ? 'win' : 'wins'}` : '');
-  line(target, frame.note ?? summary, x + 26, resultY + 39, textWidth - 52, wide ? 22 : 28, 700, palette.ink);
-  wrapped(target, frame.title ?? (winner ? winner + ' wins!' : 'It ended in a tie.'), x + 26, resultY + (wide ? 100 : 111),
-    textWidth - 52, wide ? 48 : story ? 72 : 62, 700, palette.ink);
+  target.beginPath();
+  if (target.roundRect) target.roundRect(x, ticket, ticketWidth, ticketHeight, wide ? 13 : 20);
+  else target.rect(x, ticket, ticketWidth, ticketHeight);
+  target.fill();
+  const innerX = x + (wide ? 22 : 30);
+  const innerWidth = ticketWidth - (wide ? 44 : 60);
+  const divider = ticket + ticketHeight - (wide ? 54 : 62);
+  target.strokeStyle = '#777d27';
+  target.lineWidth = 1.5;
+  target.setLineDash([6, 7]);
+  target.beginPath();
+  target.moveTo(innerX, divider);
+  target.lineTo(innerX + innerWidth, divider);
+  target.stroke();
+  target.setLineDash([]);
+  target.fillStyle = palette.blue;
+  for (const edge of [x, x + ticketWidth]) {
+    target.beginPath();
+    target.arc(edge, divider, wide ? 8 : 11, 0, 2 * Math.PI);
+    target.fill();
+  }
+  const questionHeight = wide ? 78 : 65;
+  fitBlock(target, session.config.question, innerX, ticket + 11, innerWidth, questionHeight, wide ? 32 : 40, 650, palette.ink);
+  const headlineTop = ticket + questionHeight + 12;
+  fitBlock(target, frame.title ?? winner ?? 'It’s a tie', innerX, headlineTop, innerWidth, divider - headlineTop - 6, title, 700, palette.ink);
+  line(target, frame.note ?? summary, innerX, divider + (wide ? 35 : 40), innerWidth, wide ? 24 : 31, 700, palette.ink);
 
-  const qrSize = drawQr(target, qr, x, footerY);
-  line(target, 'Replay the draw', x + qrSize + 20, footerY + 47, textWidth - qrSize - 20, wide ? 24 : 31, 700, palette.paper);
-  line(target, 'spin.loftwah.com', x + qrSize + 20, footerY + 79, textWidth - qrSize - 20, wide ? 20 : 24, 500, palette.paper);
+  target.drawImage(wheel, dial[0], dial[1], wideDial, wideDial);
+
+  const qrSize = Math.min(qr.width, wide ? 126 : 144);
+  const textX = x + qrSize + (wide ? 17 : 23);
+  target.imageSmoothingEnabled = false;
+  target.drawImage(qr, x, footer, qrSize, qrSize);
+  target.imageSmoothingEnabled = true;
+  line(target, 'Replay & verify', textX, footer + 53, ticketWidth - qrSize - 17, wide ? 27 : 38, 700, palette.paper);
+  line(target, 'spin.loftwah.com', textX, footer + 84, ticketWidth - qrSize - 17, wide ? 20 : 25, 500, palette.paper);
 }
 
 async function loadSpinMark() {
@@ -123,19 +156,20 @@ async function loadSpinMark() {
   return logo;
 }
 
-export async function renderSpinPng(session, link, style, paintWheel) {
+export async function renderSpinPng(session, link, style) {
   const output = makeCanvas(...sizes[style]);
   const wheel = makeCanvas(560, 560);
-  paintWheel(session.config.entries, winnerAngle(session.winner < 0 ? session.rounds.at(-1).winner : session.winner, session.config.entries.length), wheel);
+  const settled = session.winner < 0 ? session.rounds.at(-1).winner : session.winner;
+  paintSpinWheel(wheel, session.config.entries, winnerAngle(settled, session.config.entries.length), { winner: session.winner });
   const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready]);
-  const qr = qrMatrix(link);
+  const qr = replayQr(link);
   composition(output, wheel.canvas, session, qr, style, {}, mark);
   const blob = await new Promise(resolve => output.canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Image export did not finish.');
   return blob;
 }
 
-export async function renderSpinVideo(session, link, paintWheel, reduced, audio) {
+export async function renderSpinVideo(session, link, reduced, audio) {
   const audioType = audio ? replayVideoType(true) : '';
   const mimeType = audioType || replayVideoType();
   if (!mimeType) throw new Error('This browser cannot record replay video. Try the story PNG.');
@@ -143,11 +177,11 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
   const output = makeCanvas(...sizes.story);
   const wheel = makeCanvas(560, 560);
   const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready]);
-  const qr = qrMatrix(link);
+  const qr = replayQr(link);
   const rounds = session.rounds.slice(-3);
   const length = session.config.entries.length;
-  const introMs = 1550;
-  const roundMs = 1250;
+  const introMs = 1250;
+  const roundMs = spinDuration + 510;
   const holdMs = 2100;
   const end = introMs + rounds.length * roundMs;
   const duration = end + holdMs;
@@ -170,13 +204,16 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
     const drawing = new Promise((resolve, reject) => {
       const startedAt = performance.now();
       let lastTick = -Infinity;
-      let lastSegment = -1;
+      let lastTooth = -Infinity;
+      let lastKnock = -Infinity;
       let announced = false;
       timer = setTimeout(() => reject(new Error('Keep Spin visible while exporting the replay.')), duration + 3500);
       function draw(now) {
         const elapsed = Math.max(0, now - startedAt);
         let angle = 0;
         let frame = {};
+        let winner = -1;
+        let bend = 0;
         if (elapsed < introMs) {
           frame = { title: 'The replay', note: session.config.bestOf === 1 ? 'Single recorded spin' : `${spinModeLabel(session.config.bestOf)} · Recorded rounds` };
         } else if (elapsed < end) {
@@ -184,25 +221,30 @@ export async function renderSpinVideo(session, link, paintWheel, reduced, audio)
           const round = rounds[index];
           const start = index ? winnerAngle(rounds[index - 1].winner, length) : 0;
           const final = winnerAngle(round.winner, length);
-          const progress = Math.min(1, (elapsed - introMs - index * roundMs) / (roundMs * .72));
-          const distance = (final - start + 3 * turn) % turn + 2 * turn;
-          angle = reduced ? final : start + distance * (1 - (1 - progress) ** 3);
-          const segment = Math.floor(angle / turn * length + .5);
-          if (destination && progress < 1 && !reduced && segment !== lastSegment && elapsed - lastTick >= 45) {
-            spinClick(audio, destination);
-            lastTick = elapsed;
-            lastSegment = segment;
+          const progress = reduced ? 1 : Math.min(1, (elapsed - introMs - index * roundMs) / spinDuration);
+          angle = progress === 1 ? final : spinAngleAt(start, spinDistance(start, final), progress);
+          const tooth = spinDetent(angle, length);
+          if (progress < 1 && tooth !== lastTooth) {
+            lastTooth = tooth;
+            lastKnock = elapsed;
+            if (destination && elapsed - lastTick >= 43) {
+              spinClick(audio, destination, .54 + .46 * progress);
+              lastTick = elapsed;
+            }
           }
+          if (progress === 1) winner = round.winner;
+          else bend = -.23 * Math.max(0, 1 - (elapsed - lastKnock) / 76);
           frame = {
-            title: `Round ${round.index + 1}`,
-            note: progress === 1 || reduced ? session.config.entries[round.winner] : 'Wheel spinning',
+            title: progress === 1 ? session.config.entries[winner] : `Round ${round.index + 1}`,
+            note: progress === 1 ? `Round ${round.index + 1} result` : 'Wheel spinning',
           };
         } else {
           angle = winnerAngle(session.winner < 0 ? session.rounds.at(-1).winner : session.winner, length);
+          winner = session.winner;
           if (destination && !announced) spinChime(audio, destination);
           announced = true;
         }
-        paintWheel(session.config.entries, angle, wheel);
+        paintSpinWheel(wheel, session.config.entries, angle, { winner, bend });
         composition(output, wheel.canvas, session, qr, 'story', frame, mark);
         if (elapsed < duration) frameId = requestAnimationFrame(draw);
         else resolve();
