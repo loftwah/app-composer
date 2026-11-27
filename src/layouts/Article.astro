@@ -7,12 +7,18 @@ interface Props {
     description: string;
     cover: string;
     coverAlt: string;
+    coverCaption?: string;
     published: string;
+    publishedLabel?: string;
   };
 }
 
-const { title, description, cover, coverAlt, published } = Astro.props.frontmatter;
-const publishedLabel = new Intl.DateTimeFormat("en-AU", { dateStyle: "long", timeZone: "UTC" }).format(new Date(published));
+const {
+  title, description, cover, coverAlt, published,
+  coverCaption = "AI-generated editorial illustration for App Composer.",
+  publishedLabel: suppliedPublishedLabel,
+} = Astro.props.frontmatter;
+const publishedLabel = suppliedPublishedLabel ?? new Intl.DateTimeFormat("en-AU", { dateStyle: "long", timeZone: "UTC" }).format(new Date(published));
 ---
 
 <Base title={title} description={description} shareImage={cover} shareAlt={coverAlt} shareWidth={1200} shareHeight={630} ogType="article">
@@ -26,7 +32,7 @@ const publishedLabel = new Intl.DateTimeFormat("en-AU", { dateStyle: "long", tim
     </header>
     <figure class="cover">
       <img src={cover} alt={coverAlt} width="1200" height="630" fetchpriority="high" />
-      <figcaption>AI-generated editorial illustration for App Composer.</figcaption>
+      <figcaption>{coverCaption}</figcaption>
     </figure>
     <div class="prose"><slot /></div>
   </article>
@@ -49,4 +55,6 @@ const publishedLabel = new Intl.DateTimeFormat("en-AU", { dateStyle: "long", tim
   .prose :global(figcaption) { color: var(--color-muted); font-size: .875rem; }
   .prose :global(:not(pre) > code) { overflow-wrap: anywhere; }
   .prose :global(pre) { max-width: 100%; overflow-x: auto; }
+  .prose :global(.table-scroll) { max-width: 100%; overflow-x: auto; }
 </style>
+
