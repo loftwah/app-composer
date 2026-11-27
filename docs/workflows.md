@@ -161,3 +161,14 @@ article and rerun to review the new revision. An export never schedules or sends
 anything. Use the selected workspace's Share Calendar for social drafts and its
 usual approval controls for delivery. Code-owned articles use the normal site
 release.
+
+## Verify Australian AI opportunities
+
+The public directory reads the reviewed records in
+`src/editorial/opportunities/opportunities.json`. Run
+`python3 scripts/check-opportunity-sources.py` to flag missing evidence phrases
+or failed source reads. A marker check alone cannot verify eligibility, price or
+availability. Open the official listing and inspect each material field before
+changing its verification date. Update the record's change date when a public
+claim changes. Keep unavailable or expired opportunities visible with the
+correct status. The same records serve the directory and its RSS feed.

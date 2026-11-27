@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import { categories, opportunities, opportunityDate, opportunityStatus, staleOpportunity, statuses } from '../../lib/opportunities';
+
+const item = opportunities().find(record => record.id === Astro.params.id);
+if (!item) return new Response('Opportunity not found', { status: 404 });
+const now = Date.now();
+const status = opportunityStatus(item, now);
+const eventDate = item.startsAt && new Intl.DateTimeFormat('en-AU', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Australia/Melbourne' }).format(new Date(item.startsAt));
+const type = categories[item.category as keyof typeof categories];
+const watch = status === 'watch' || status === 'past' || status === 'paused';
+---
+<Base title={item.title} description={item.summary}>
+  <article class="opportunity">
+    <a class="back" href="/opportunities">All Australian AI opportunities</a>
+    <h1>{item.title}</h1>
+    <p class="meta">{type} · {statuses[status]} · {item.location}</p>
+    <p class="lead">{item.summary}</p>
+    <dl>
+      <dt>Organiser</dt><dd>{item.organiser}</dd>
+      {eventDate && <><dt>Starts</dt><dd><time datetime={item.startsAt}>{eventDate}</time> Melbourne time</dd></>}
+      <dt>Eligibility</dt><dd>{item.eligibility}</dd>
+      <dt>Cost or funding</dt><dd>{item.terms}</dd>
+      <dt>Last source check</dt><dd><time datetime={item.verifiedOn}>{opportunityDate(item.verifiedOn)}</time>{staleOpportunity(item, now) && ' · Needs recheck'}</dd>
+    </dl>
+    <div class="actions">
+      <a class="button" href={item.action}>{watch ? 'Read the organiser’s current status' : 'Continue to the organiser'}</a>
+      {item.source !== item.action && <a href={item.source}>Read the primary listing</a>}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .opportunity { max-width: 720px; margin: 12px auto 50px; }
+  .back { display: inline-flex; min-height: 44px; align-items: center; }
+  h1 { font-size: clamp(2rem, 6vw, 3.7rem); letter-spacing: -.035em; line-height: 1.07; margin: 10px 0; }
+  .meta { color: var(--color-muted); }
+  .lead { font-size: 1.15rem; }
+  dl { display: grid; grid-template-columns: minmax(115px, .6fr) minmax(0, 2fr); gap: 12px 18px; border-block: 1px solid var(--color-border); padding-block: 18px; }
+  dt { font-weight: 650; }
+  dd { margin: 0; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  @media (max-width: 470px) { dl { display: block; } dd + dt { margin-top: 14px; } }
+</style>

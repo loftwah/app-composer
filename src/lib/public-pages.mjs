@@ -12,7 +12,7 @@ export const publicPagePaths = Object.freeze([
   '/creator-hub', '/cloudflare', '/pitch', '/pitch/vision', '/pitch/briefing', '/pitch/briefing/film',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
   '/media-studio', '/media-studio/films', '/media-studio/tutorial', '/media-studio/direct', '/launcher',
-  '/widgets',
+  '/widgets', '/opportunities',
 ]);
 
 // The named-edition return handoff is deliberately narrower than the indexable
