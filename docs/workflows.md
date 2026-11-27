@@ -139,3 +139,25 @@ races. It exercised the native route function, durable samples, unavailable-sour
 publication scope, duplicate events, stale revisions, pause/revocation, unsafe
 imports and current permissions. This is deterministic local contract evidence,
 not a hosted owner session or external provider proof.
+
+## Prepare an editorial review package
+
+The repository-owned editorial workflow keeps the article in the existing
+`src/pages/articles/` collection and its assignment in
+`src/editorial/assignments/`. An authorised agent edits those source files and
+places a public-safe cover in `public/articles/`. Keep private evidence out of
+the published repository. Use the article and each draft's source IDs to review
+claims against the recorded observations.
+
+```sh
+node scripts/editorial-package.mjs storage-pages-and-runs > review.md
+node scripts/editorial-package.mjs storage-pages-and-runs --json > review.json
+```
+
+Open the Markdown to review the article, cover, captions and newsletter together.
+The JSON includes the article and artwork SHA-256 digests and ready-to-use
+captions checked against Social Studio's channel limits. Edit the assignment or
+article and rerun to review the new revision. An export never schedules or sends
+anything. Use the selected workspace's Share Calendar for social drafts and its
+usual approval controls for delivery. Code-owned articles use the normal site
+release.

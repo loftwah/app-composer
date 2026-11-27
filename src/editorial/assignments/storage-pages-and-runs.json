@@ -1,0 +1,31 @@
+{
+  "version": "composer.editorial-assignment/1",
+  "id": "storage-pages-and-runs",
+  "project": "App Composer",
+  "audience": "Developers choosing storage for a Worker or a retryable background job",
+  "promise": "Explain the work each layout does and give the reader a local receipt example they can run.",
+  "direction": "Lead with the interrupted job and give the reader the operational trade-off. Distinguish inspected source, local observation and proposed deployment patterns. Apply UNSLOP.md.",
+  "article": "why-databases-rewrite-data",
+  "artwork": "storage-pages-and-runs-20261127.png",
+  "alt": "A B-tree follows an index to an ordered leaf. An LSM tree flushes a memory table into sorted runs, then compacts overlapping runs and their delete markers.",
+  "sources": [
+    {"id":"sqlite", "url":"https://www.sqlite.org/fileformat.html#b_tree_pages", "observation":"SQLite tables and indexes use B-tree pages. Its file format documents WAL separately.", "basis":"source"},
+    {"id":"rocks", "url":"https://github.com/meta/rocksdb/wiki/RocksDB-Overview", "observation":"RocksDB describes the memtable, optional WAL, sorted files and compaction.", "basis":"source"},
+    {"id":"bindings", "url":"https://github.com/loftwah/app-composer/blob/849dfc7f4d2fe36bc9913c377509d4f88e10ec85/wrangler.jsonc", "observation":"The reviewed Worker configuration declares D1, R2 and KV. The article uses Queues and Durable Objects as design choices.", "basis":"source"},
+    {"id":"queues", "url":"https://developers.cloudflare.com/queues/reference/delivery-guarantees/", "observation":"Queues can deliver a message more than once, so applications must account for repeated effects.", "basis":"source"},
+    {"id":"replay", "url":"https://github.com/loftwah/app-composer/issues/1357", "observation":"The published SQL snippet was extracted and executed locally with sqlite3. The two inserts returned one grouped receipt, job-42|1.", "basis":"local-check"}
+  ],
+  "posts": [
+    {"channel":"bluesky", "purpose":"Storage layout and the source-linked diagram", "body":"Why does a tiny update become several disk writes? A B-tree can change a page and checkpoint it. An LSM tree flushes a sorted run and later merges it. The diagram follows key 42 through both paths.", "sources":["sqlite","rocks"]},
+    {"channel":"linkedin", "purpose":"A practical Cloudflare storage decision", "body":"A file upload and a receipt commit can fail independently. Keep file bytes in R2 and the receipt in an authoritative database. Use a stable event ID for retries, then reconcile unreferenced objects after the retry window. The article shows Composer’s actual bindings and a local SQLite example you can run.", "sources":["bindings","queues","replay"]}
+  ],
+  "newsletter": {
+    "subject": "What one retry tells you about your database",
+    "body": "This week’s field note follows a repeated job completion. It shows why a B-tree page update and an LSM flush can both lead to later writes, then maps D1, Durable Objects, Queues and R2 to the jobs they suit. Run the short SQLite example and see why two deliveries produce one receipt.",
+    "sources":["sqlite","rocks","bindings","queues","replay"]
+  },
+  "limits": [
+    "The SQLite snippet is a local behavioural check. Managed-service throughput, latency and costs are unmeasured.",
+    "The diagram is original educational artwork. Both social variants and the newsletter remain drafts for destination review."
+  ]
+}
