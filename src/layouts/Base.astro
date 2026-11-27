@@ -8,7 +8,7 @@ import BuilderContext from "../components/BuilderContext.astro";
 import {agentSearchMetadata} from "../lib/public-agent-search.mjs";
 import {noindexFor} from "../lib/indexing.mjs";
 import {publicPageCanonical} from "../lib/public-pages.mjs";
-import {spinDiscovery, spinOrigin} from "../lib/spin-site.mjs";
+import {spinBrandFiles, spinDiscovery, spinOrigin} from "../lib/spin-site.mjs";
 import {printsIcon} from "../lib/prints-site.mjs";
 import {siteShareArtwork, siteShareImageType} from "../lib/site-share-artwork.mjs";
 interface Props {
@@ -40,7 +40,7 @@ const {
 const printsProduct = Astro.props.printsProduct === true;
 const spinProduct = Astro.props.spinProduct === true;
 const themeKey = spinProduct ? "spin-theme" : printsProduct ? "prints-theme" : "composer-theme";
-const themeColors = spinProduct ? { light: "#fff6e5", dark: "#211521" } : printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
+const themeColors = spinProduct ? { light: "#faf7f1", dark: "#171615" } : printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
 const initialTheme = printsProduct ? "light" : "dark";
 const printsNavigation = [
   { href: "/#paths", label: "Try it" },
@@ -89,11 +89,11 @@ Astro.csp?.insertScriptResource(
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {(!spinProduct || Astro.url.origin === spinOrigin) &&
-      <link rel="manifest" href={spinProduct ? "/spin-brand/site.webmanifest" : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
+      <link rel="manifest" href={spinProduct ? "/spin-brand/site-20261127c.webmanifest" : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
     <meta name="theme-color" content={themeColors[initialTheme]} data-light={themeColors.light} data-dark={themeColors.dark} />
     {spinProduct ? <>
-      <link rel="icon" href="/spin-brand/icon-32.png" type="image/png" sizes="32x32" />
-      <link rel="apple-touch-icon" href="/spin-brand/icon-180.png" sizes="180x180" />
+      <link rel="icon" href={spinBrandFiles.favicon} type="image/png" sizes="32x32" />
+      <link rel="apple-touch-icon" href={spinBrandFiles.touch} sizes="180x180" />
     </> : printsProduct ? <>
       <link rel="icon" href="/prints-desktop/icons/aperture-16-20261125.png" type="image/png" sizes="16x16" />
       <link rel="icon" href={printsIcon} type="image/png" sizes="32x32" />
@@ -147,8 +147,8 @@ Astro.csp?.insertScriptResource(
     <header class="site-header">
       {spinProduct ? (
         <a class="brand spin-brand select-none" href={spinDiscovery.href}>
-          <img class="spin-brand-dark" src="/spin-brand/composer-spin-lockup-dark-20261127b.png" width="135" height="51" alt="App Composer Spin" />
-          <img class="spin-brand-light" src="/spin-brand/composer-spin-lockup-light-20261127b.png" width="135" height="51" alt="App Composer Spin" />
+          <img class="spin-brand-dark" src={spinBrandFiles.dark} width="192" height="44" alt="App Composer Spin" />
+          <img class="spin-brand-light" src={spinBrandFiles.light} width="192" height="44" alt="App Composer Spin" />
         </a>
       ) : printsProduct ? (
         <a class="brand select-none" href="/">
@@ -385,7 +385,7 @@ Astro.csp?.insertScriptResource(
 </html>
 
 <style>
-  .spin-brand img { width: 135px; height: 51px; object-fit: contain; }
+  .spin-brand img { width: 192px; height: 44px; object-fit: contain; border-radius: 0; }
   .spin-brand-light, :global(html[data-theme='light']) .spin-brand-dark { display: none; }
   :global(html[data-theme='light']) .spin-brand-light { display: block; }
   .focused-experience .site-header {

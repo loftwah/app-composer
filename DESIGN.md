@@ -337,11 +337,14 @@ and a separate commitment-first action before the optional wheel editor.
 
 ## Spin play surface — 27 November 2026
 
-The wheel is the main control. Its enamel colours, index ring and mechanical
-pointer carry the design. Contrast the blue stage with ink or paper according
-to theme. On a laptop the editor shares the first viewport with the full
-wheel. On a phone the stage and its centre button sit above the editable
-choices. Start with the three fast-food choices on a clean device. Saved
-wheels retain their own selections. Place series rules, link-first creation and
-bulk editing in disclosures. Keep the recorded result, replay and download paths
-with the same stage so the outcome is legible before the technical receipt.
+Spin uses the official Composer tile and bundled Space Grotesk in a
+horizontal wordmark with matching transparent light and dark files. The
+active wheel question is the page title. A laptop shows the editor beside
+the wheel, and a phone puts the title, wheel and primary action ahead of
+the choices. The wheel is also a pointer target. Start with the three
+takeaway choices on a clean device and retain an existing draft.
+
+Choice entry and toggles live together. Keep reorder, bulk operations and
+custom series in disclosures. A completed draw puts Spin again and Copy
+result link below the winner. Repeat creates a separate verified session
+with the original choices and leaves the previous draw in browser history.
