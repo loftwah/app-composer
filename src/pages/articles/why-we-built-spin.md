@@ -29,8 +29,8 @@ The receipt checks consistency within one session. A person can still create sev
 These public launch examples preserve the original completed receipts so you can replay and verify them after the original session links expire.
 
 <figure>
-  <video controls playsinline preload="metadata" width="540" height="960" poster="/campaign/spin/wheel-demo-poster-20261127.webp" src="/campaign/spin/wheel-demo-20261127.mp4">
-    <track kind="captions" label="English" srclang="en" src="/campaign/spin/wheel-demo.en.vtt" default>
+  <video controls playsinline preload="metadata" width="540" height="960" poster="/campaign/spin/wheel-demo-poster-20261127c.webp" src="/campaign/spin/wheel-demo-20261127c.mp4">
+    <track kind="captions" label="English" srclang="en" src="/campaign/spin/wheel-demo-20261127c.en.vtt" default>
   </video>
   <figcaption>A real phone-sized recording of Spin. <a href="/share/spin">Watch it in App Composer Share</a>.</figcaption>
 </figure>

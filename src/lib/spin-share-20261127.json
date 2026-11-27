@@ -41,9 +41,9 @@
     "visibility": "public",
     "reuse": "unconfirmed",
     "credit": "App Composer · production screen capture",
-    "alt": "App Composer Spin with three editable takeaway choices beside the blue wheel and its central Spin button.",
+    "alt": "App Composer Spin with three editable takeaway choices beside the wheel and orange Spin button.",
     "description": "The live laptop layout with Maccas, Hungry Jack’s and KFC ready to spin.",
-    "caption": "The three-chain wheel and its choice editor on a laptop-sized screen.",
+    "caption": "The takeaway wheel on a laptop, with choices and direct entry beside the spin control.",
     "tags": [
       "spin",
       "app-composer",
@@ -53,18 +53,18 @@
     "reviewedAt": "2026-11-27",
     "projectUrl": "https://composer.loftwah.com/share/spin",
     "shareUrl": "https://composer.loftwah.com/share?tag=spin",
-    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127.json",
-    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-thumb-20261127.webp",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127c.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-thumb-20261127c.webp",
     "thumbnailWidth": 600,
-    "thumbnailHeight": 417,
-    "previewUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127.webp",
+    "thumbnailHeight": 396,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127c.webp",
     "original": {
-      "url": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127.webp",
+      "url": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127c.webp",
       "label": "Production capture WebP",
       "width": 1440,
-      "height": 1000,
-      "sha256": "a131304407cb8862182223509781f2ffc398be966651a61abae630b17e9f76b2",
-      "version": "20261127"
+      "height": 950,
+      "sha256": "f86fcf50097f80fff28353394dd2c65d9bfed7df756d2b77524a176c2863c8e8",
+      "version": "20261127c"
     }
   }
 ]
