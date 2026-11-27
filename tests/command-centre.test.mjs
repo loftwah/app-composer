@@ -367,6 +367,32 @@ test("the command centre lists only the three default public repositories", () =
   assert.equal(new Set(names).size, names.length);
 });
 
+test("long issue bodies keep peer rows and bound relationship claims", async () => {
+  clearCommandCentreCache();
+  const responses = baseResponses();
+  const path = `/repos/${repository}/issues`;
+  const original = responses[path];
+  responses[path] = (url) =>
+    url.searchParams.get("state") !== "open" || url.searchParams.has("labels")
+      ? original(url)
+      : json([
+          issue(660, { body: "Blocked by: #661\n" + "x".repeat(66_000) }),
+          issue(661, { body: "A complete short record." }),
+          issue(662, { body: "x".repeat(65_519) + "\nBlocked by: #1234567" }),
+        ]);
+  const fixture = fixtureFetch(responses);
+  const result = await readCommandCentre({
+    repository, now: checkedNow, fetch: fixture.fetch,
+  });
+  assert.equal(result.repo.plan.state, "ok");
+  assert.equal(result.repo.issues.recent.state, "ok");
+  const [linked, peer, truncated] = result.repo.plan.items;
+  assert.equal(linked.blockers[0].title, peer.title);
+  assert.equal(peer.linkState, "none");
+  assert.equal(truncated.linkState, "unknown");
+  assert.deepEqual(truncated.blockers, []);
+});
+
 test("a normal read maps counts, history, plan, forecasts, releases and commits", async () => {
   const { report, calls, requests } = await readNormal();
   commandCentreReport.parse(report);
@@ -1647,7 +1673,7 @@ test("the Plan lens shows explicit relationships and an accessible table", async
   assert.match(html, /Reopened work/);
   assert.match(html, /cc-table-scroll/);
   assert.match(html, /No explicit parent, sub-issue, blocker/);
-  assert.match(html, /the issue body was not read/);
+  assert.match(html, /The issue body was unavailable or incomplete/);
   assert.doesNotMatch(html, /No open issues\./);
   assert.doesNotMatch(html, /Unknown — checked at/);
 });
