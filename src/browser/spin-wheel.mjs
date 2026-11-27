@@ -12,7 +12,7 @@ const sectors = [
 ];
 
 const wrap = angle => ((angle % turn) + turn) % turn;
-const teeth = count => Math.max(18, Math.min(48, count));
+const teeth = count => Math.max(18, count);
 
 export function spinDistance(start, target, direction = 1) {
   return direction * (4 * turn + wrap((target - start) * direction));
@@ -68,7 +68,7 @@ function paintPointer(context, bend) {
   context.restore();
 }
 
-export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend = 0 } = {}) {
+export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend = 0, shade = true } = {}) {
   if (!context) return;
   const choices = labels.length > 1 ? labels : ['Add choices', 'Make a wheel'];
   const count = choices.length;
@@ -91,7 +91,6 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
   }
 
   const labelSize = count < 5 ? 31 : count < 13 ? 23 : count < 29 ? 18 : 13;
-  const stride = Math.ceil(count / 48);
   for (const [index, label] of choices.entries()) {
     const bearing = angle - Math.PI / 2 + index * spacing;
     const first = bearing - spacing / 2;
@@ -103,11 +102,11 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.closePath();
     context.fillStyle = surface;
     context.fill();
-    context.lineWidth = count > 40 ? 1 : 2.8;
+    context.lineWidth = 2.8;
     context.strokeStyle = ink;
     context.stroke();
 
-    if (winner >= 0 && index !== winner) {
+    if (shade && winner >= 0 && index !== winner) {
       context.fillStyle = 'rgba(22,19,73,.28)';
       context.fill();
     }
@@ -115,13 +114,12 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
       context.beginPath();
       context.arc(0, 0, radius - 8, first + spacing * .07, last - spacing * .07);
       context.strokeStyle = surface === paper ? '#6954e0' : paper;
-      context.lineWidth = count > 40 ? 4 : 7;
+      context.lineWidth = 7;
       context.lineCap = 'round';
       context.stroke();
       context.lineCap = 'butt';
     }
 
-    if (index !== winner && index % stride !== 0) continue;
     // Paint labels after the dividers and avoid crowded body text on large wheels.
     const labelRadius = count < 5 ? 145 : count > 12 ? 184 : 161;
     context.save();

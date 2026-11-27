@@ -148,7 +148,7 @@ function mount(root) {
     if (settledWinner !== undefined) angle = winnerAngle(settledWinner, next.config.entries.length);
     else if (!keepAngle) angle = 0;
     wheelLabels = next.config.entries;
-    paintSpinWheel(ctx, wheelLabels, angle, { winner: completed ? next.winner : -1 });
+    paintSpinWheel(ctx, wheelLabels, angle, { winner: completed ? next.winner : isOpen ? (last?.winner ?? -1) : -1, shade: completed });
     showResult(next.status === 'completed' ? (next.winner < 0 ? 'Session ended in a tie' : next.config.entries[next.winner]) :
       next.status === 'abandoned' ? 'Session abandoned' :
         last ? next.config.entries[last.winner] : 'The wheel is locked');
@@ -338,9 +338,10 @@ function mount(root) {
   const wheelTap = get('wheel-tap');
   const spinControl = () => get(session ? 'draw' : 'spin-now');
   let gesture;
-  let clickedByFlick = false;
+  let suppressPointerClick = false;
   const bearingAt = (event, rect) => Math.atan2(event.clientY - rect.y - rect.height / 2, event.clientX - rect.x - rect.width / 2);
   wheelTap.addEventListener('pointerdown', event => {
+    if (event.isPrimary) suppressPointerClick = false;
     const control = spinControl();
     if (!event.isPrimary || event.button !== 0 || control.disabled || control.hidden || reduced.matches) return;
     const rect = wheelTap.getBoundingClientRect();
@@ -373,8 +374,7 @@ function mount(root) {
     const { moved, delta, angle: start } = gesture;
     gesture = undefined;
     if (!moved) return;
-    clickedByFlick = true;
-    setTimeout(() => { clickedByFlick = false; }, 0);
+    suppressPointerClick = true;
     if (Math.abs(delta) < .13) {
       angle = start;
       paintSpinWheel(ctx, wheelLabels, angle);
@@ -384,8 +384,12 @@ function mount(root) {
     spinControl().click();
   });
   wheelTap.addEventListener('click', () => {
+    if (suppressPointerClick) {
+      suppressPointerClick = false;
+      return;
+    }
     const button = spinControl();
-    if (!clickedByFlick && !button.hidden && !button.disabled) button.click();
+    if (!button.hidden && !button.disabled) button.click();
   });
   window.addEventListener('popstate', () => location.reload());
 

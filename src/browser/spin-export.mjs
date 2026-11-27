@@ -112,7 +112,8 @@ function composition(target, wheel, session, qr, style, frame, mark) {
 
   target.fillStyle = palette.acid;
   target.beginPath();
-  target.roundRect(x, ticket, ticketWidth, ticketHeight, wide ? 13 : 20);
+  if (target.roundRect) target.roundRect(x, ticket, ticketWidth, ticketHeight, wide ? 13 : 20);
+  else target.rect(x, ticket, ticketWidth, ticketHeight);
   target.fill();
   const innerX = x + (wide ? 22 : 30);
   const innerWidth = ticketWidth - (wide ? 44 : 60);
