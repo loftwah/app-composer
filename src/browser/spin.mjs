@@ -1,4 +1,6 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
+import { renderSpinPng, renderSpinVideo, replayVideoType, winnerAngle } from './spin-export.mjs';
+import { winnerArtwork } from './spin-winner-art.mjs';
 import { spinOrigin } from '../lib/spin-site.mjs';
 import { spinPresetById } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
@@ -39,45 +41,45 @@ function mount(root) {
     return text === value ? text : text + '…';
   }
 
-  function drawWheel(labels, offset = angle) {
-    if (!ctx) return;
-    const center = canvas.width / 2;
+  function drawWheel(labels, offset = angle, context = ctx) {
+    if (!context) return;
+    const center = context.canvas.width / 2;
     const choices = labels.length > 1 ? labels : ['Add choices', 'Start a wheel'];
     const step = tau / choices.length;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(center, center);
-    ctx.rotate(offset - Math.PI / 2 - step / 2);
+    context.clearRect(0, 0, context.canvas.width, canvas.height);
+    context.save();
+    context.translate(center, center);
+    context.rotate(offset - Math.PI / 2 - step / 2);
     choices.forEach((label, index) => {
-      ctx.save();
-      ctx.rotate(index * step);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, center - 14, 0, step);
-      ctx.closePath();
-      ctx.fillStyle = colors[index % colors.length];
-      ctx.fill();
-      ctx.strokeStyle = '#211521';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      ctx.rotate(step / 2);
-      ctx.fillStyle = '#15161a';
-      ctx.font = '700 20px system-ui';
+      context.save();
+      context.rotate(index * step);
+      context.beginPath();
+      context.moveTo(0, 0);
+      context.arc(0, 0, center - 14, 0, step);
+      context.closePath();
+      context.fillStyle = colors[index % colors.length];
+      context.fill();
+      context.strokeStyle = '#211521';
+      context.lineWidth = 3;
+      context.stroke();
+      context.rotate(step / 2);
+      context.fillStyle = '#15161a';
+      context.font = '700 20px system-ui';
       const facingLeft = Math.cos(offset - Math.PI / 2 + index * step) < -.01;
-      if (facingLeft) ctx.rotate(Math.PI);
-      ctx.textAlign = facingLeft ? 'left' : 'right';
-      ctx.fillText(choices.length > 12 ? String(index + 1) : fit(ctx, label, 164),
+      if (facingLeft) context.rotate(Math.PI);
+      context.textAlign = facingLeft ? 'left' : 'right';
+      context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, 164),
         (center - 43) * (facingLeft ? -1 : 1), 7);
-      ctx.restore();
+      context.restore();
     });
-    ctx.restore();
-    ctx.beginPath();
-    ctx.arc(center, center, 37, 0, tau);
-    ctx.fillStyle = '#17181b';
-    ctx.fill();
-    ctx.strokeStyle = '#fff0dc';
-    ctx.lineWidth = 4;
-    ctx.stroke();
+    context.restore();
+    context.beginPath();
+    context.arc(center, center, 37, 0, tau);
+    context.fillStyle = '#17181b';
+    context.fill();
+    context.strokeStyle = '#fff0dc';
+    context.lineWidth = 4;
+    context.stroke();
   }
 
   function updatePreview(labels) {
@@ -87,7 +89,12 @@ function mount(root) {
   }
 
   function render(next) {
+    const firstRender = !session;
     session = next;
+    get('spin-heading').textContent = next.status === 'open' ? 'Spin the wheel.' : 'Spin replay';
+    get('spin-intro').textContent = next.status === 'open' ? 'Your choices and series rules are locked.' : 'Watch the recorded wheel and check the result.';
+    if (get('spin-guide')) get('spin-guide').hidden = true;
+    if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
     get('session').hidden = false;
     get('question').textContent = next.config.question;
@@ -115,18 +122,25 @@ function mount(root) {
     get('abandon').hidden = !owner || next.status !== 'open';
     get('exports').hidden = next.status === 'open';
     get('replay').hidden = next.rounds.length === 0;
+    get('replay-series').hidden = next.rounds.length < 2;
     const winner = next.config.entries[next.winner];
     const takeaway = next.status === 'completed' && spinPresetById.takeaway.entries.includes(winner);
-    const fishAndChips = winner === 'Fish and chips';
-    get('winner-art').hidden = !takeaway;
-    get('winner-art').querySelector('img').hidden = !fishAndChips;
+    const art = next.status === 'completed' ? winnerArtwork(winner) : '';
+    const artwork = get('winner-art').querySelector('img');
+    get('winner-art').hidden = !takeaway && !art;
+    artwork.hidden = !art;
+    if (art) artwork.src = art;
+    get('nearby').hidden = !takeaway;
     if (takeaway) get('nearby').href = nearbySearch(winner);
     get('remix').href = templateLink(next.config);
     get('png').hidden = next.status !== 'completed';
     get('portrait').hidden = next.status !== 'completed';
+    get('story').hidden = next.status !== 'completed';
+    get('landscape').hidden = next.status !== 'completed';
+    get('replay-video').hidden = next.status !== 'completed' || !replayVideoType();
     get('native-share').hidden = typeof navigator.share !== 'function';
     const last = next.rounds.at(-1);
-    angle = last ? -last.winner * tau / next.config.entries.length : 0;
+    angle = last ? winnerAngle(last.winner, next.config.entries.length) : 0;
     drawWheel(next.config.entries);
     showResult(next.status === 'completed' ? next.config.entries[next.winner] + ' wins!' :
       next.status === 'abandoned' ? 'Session abandoned' :
@@ -181,8 +195,9 @@ function mount(root) {
 
   function animate(next, last) {
     const choices = next.config.entries;
-    const target = -last.winner * tau / choices.length;
+    const target = winnerAngle(last.winner, choices.length);
     if (reduced.matches) {
+      angle = target;
       drawWheel(choices, target);
       return Promise.resolve();
     }
@@ -214,33 +229,9 @@ function mount(root) {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  async function makePng(height) {
-    const output = document.createElement('canvas');
-    output.width = 1080;
-    output.height = height;
-    const image = output.getContext('2d');
-    if (!image) throw new Error('Image export is unavailable.');
-    const center = output.width / 2;
-    image.fillStyle = '#17181b';
-    image.fillRect(0, 0, 1080, height);
-    image.textAlign = 'center';
-    image.fillStyle = '#ff9b6d';
-    image.font = '700 30px system-ui';
-    image.fillText('APP COMPOSER SPIN', center, 78);
-    image.fillStyle = '#fff6eb';
-    image.font = '600 42px system-ui';
-    image.fillText(fit(image, session.config.question, 940), center, 153);
-    const size = height === 1080 ? 550 : 700;
-    image.drawImage(canvas, center - size / 2, 185, size, size);
-    image.font = '700 68px system-ui';
-    image.fillText(fit(image, session.config.entries[session.winner] + ' wins!', 940), center, size + 272);
-    image.font = '600 30px system-ui';
-    image.fillText(`Best of ${session.config.bestOf} · ${session.totals.join(' : ')}`, center, size + 330);
-    image.font = '400 20px system-ui';
-    image.fillText(shareUrl(session.id), center, height - 53);
-    const blob = await new Promise(resolve => output.toBlob(resolve, 'image/png'));
-    if (!blob) throw new Error('Image export did not finish.');
-    download(blob, 'app-composer-spin-' + session.id.slice(0, 8) + '.png');
+  async function makePng(style) {
+    const blob = await renderSpinPng(session, shareUrl(session.id), style, drawWheel);
+    download(blob, `spin-${session.id.slice(0, 8)}-${style}.png`);
   }
 
   const localEntries = currentId ? () => [] : mountSpinEditor(setup, updatePreview);
@@ -321,8 +312,30 @@ function mount(root) {
     await animate(next, next.rounds.at(-1));
     render(next);
   }));
-  get('png').addEventListener('click', () => void perform(() => makePng(1080)));
-  get('portrait').addEventListener('click', () => void perform(() => makePng(1350)));
+  get('replay-series').addEventListener('click', () => void perform(async () => {
+    const next = session;
+    angle = 0;
+    for (const round of next.rounds) {
+      await animate(next, round);
+      showResult(`Round ${round.index + 1}: ${next.config.entries[round.winner]}`);
+      await new Promise(resolve => setTimeout(resolve, reduced.matches ? 550 : 410));
+    }
+    render(next);
+  }));
+  for (const [control, style] of [['png', 'square'], ['portrait', 'portrait'], ['story', 'story'], ['landscape', 'landscape']]) {
+    get(control).addEventListener('click', () => void perform(() => makePng(style)));
+  }
+  get('replay-video').addEventListener('click', () => void perform(async () => {
+    get('export-status').textContent = 'Making the replay video…';
+    try {
+      const video = await renderSpinVideo(session, shareUrl(session.id), drawWheel, reduced.matches);
+      download(video.blob, `spin-${session.id.slice(0, 8)}-replay.${video.extension}`);
+      get('export-status').textContent = 'Replay video downloaded.';
+    } catch (error) {
+      get('export-status').textContent = '';
+      throw error;
+    }
+  }));
   get('receipt').addEventListener('click', () => {
     download(new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' }), 'spin-' + session.id + '.json');
   });
