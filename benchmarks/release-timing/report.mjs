@@ -349,8 +349,11 @@ export function loadPack(file) {
   return ingestReceipts(parsePack(readJson(file), { source: file }), { source: file });
 }
 
-/** @param {string} directory */
-export function loadReceiptDirectory(directory) {
+/**
+ * @param {string} directory
+ * @param {{onUnfinished?: () => void}} [options]
+ */
+export function loadReceiptDirectory(directory, { onUnfinished } = {}) {
   if (!existsSync(directory)) throw new Error(`receipt directory not found: ${directory}`);
   const names = readdirSync(directory)
     .filter((name) => /^receipt-.*\.json$/.test(name))
@@ -360,13 +363,24 @@ export function loadReceiptDirectory(directory) {
   const seen = new Map();
   for (const name of names) {
     const source = join(directory, name);
-    const entry = validateReceipt(readJson(source), { source });
+    const receipt = readJson(source);
+    if (receipt?.schema === RECEIPT_SCHEMA && receipt.status === "running") {
+      try {
+        assertReceipt(receipt);
+      } catch (error) {
+        throw new Error(`${source}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      onUnfinished?.();
+      continue;
+    }
+    const entry = validateReceipt(receipt, { source });
     if (seen.has(entry.runId)) {
       throw new Error(`${source}: duplicate run id "${entry.runId}" (already in ${seen.get(entry.runId)})`);
     }
     seen.set(entry.runId, source);
     entries.push(entry);
   }
+  if (entries.length === 0) throw new Error(`no finished receipts in ${directory}`);
   return entries;
 }
 
@@ -480,7 +494,7 @@ const USAGE = `Benchmarks Studio release-timing report
   node benchmarks/release-timing/report.mjs --dir <receipt-dir> [--json]
   node benchmarks/release-timing/report.mjs --pack <pack.json> [--json]
 
-  --dir   read every receipt-*.json file in a directory
+  --dir   compare finished receipt-*.json files and report any unfinished rows
   --pack  read a release-timing-pack/v1 file, or one release-timing/v1 receipt
   --json  print the deterministic comparison report instead of a table
 
@@ -526,7 +540,10 @@ export function main(argv = process.argv.slice(2), io = console) {
     return 0;
   }
   try {
-    const entries = options.pack ? loadPack(options.pack) : loadReceiptDirectory(options.dir);
+    let unfinished = 0;
+    const entries = options.pack ? loadPack(options.pack) :
+      loadReceiptDirectory(options.dir, { onUnfinished: () => { unfinished++; } });
+    if (unfinished) io.error(`release-timing report: skipped ${unfinished} unfinished ${unfinished === 1 ? "receipt" : "receipts"}`);
     const report = buildReport(entries);
     io.log(options.json ? JSON.stringify(report, null, 2) : renderTable(report));
     return 0;
