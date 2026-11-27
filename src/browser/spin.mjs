@@ -68,8 +68,10 @@ function mount(root) {
       ctx.rotate(step / 2);
       ctx.fillStyle = '#15161a';
       ctx.font = '700 20px system-ui';
-      ctx.textAlign = 'right';
-      ctx.fillText(fit(ctx, label, 179), center - 33, 7);
+      const facingLeft = Math.cos(offset - Math.PI / 2 + index * step) < -.01;
+      if (facingLeft) ctx.rotate(Math.PI);
+      ctx.textAlign = facingLeft ? 'left' : 'right';
+      ctx.fillText(fit(ctx, label, 164), (center - 43) * (facingLeft ? -1 : 1), 7);
       ctx.restore();
     });
     ctx.restore();
