@@ -333,11 +333,17 @@ from App Composer Share's workshop artwork. The square, feed portrait, story
 and link posters each frame the same visual joke for their destination. The
 App Composer parent mark keeps its existing identity.
 
+Fast food, Game night, Weekend and All presets sit above the wheel. The plain
+Spin URL starts with Maccas, Hungry Jack’s and KFC and rounds off. Resume draft
+recovers the most recent edited wheel from this device. Saved wheels remain
+available from the editor. Opening a preset from a locked draw opens a fresh
+wheel, with the original draw available at its link.
+
 The stage keeps the question, mode, wheel, result and action row in place
-through setup, spinning, finishing and replay. A fresh wheel starts in Single
-spin, with rounds off. Presets keep the selected mode. Best-of and Open tally
-explain their rules beside the control, then show progress in the stage. The
-editor and draw details sit beside the stage on desktop and below it on phones.
+through setup, spinning, finishing and replay. Preset changes in the editor
+keep the selected mode. Best-of and Open tally explain their rules beside the
+control, then show progress in the stage. Edit choices jumps to the editor,
+which sits beside the stage on desktop and below it on phones.
 
 Share wheel sends an editable copy or lets the host lock a draw before spinning.
 Share result opens on the actual image. All four sizes list their pixel

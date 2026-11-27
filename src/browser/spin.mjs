@@ -4,7 +4,7 @@ import { mountSpinShare } from './spin-share.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
 import { spinOrigin } from '../lib/spin-site.mjs';
-import { spinPresetById } from '../lib/spin-presets.mjs';
+import { spinDefaultPreset, spinPresetById } from '../lib/spin-presets.mjs';
 import { openSpinMode, spinChoiceLimit, spinModeLabel, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
 
 const root = document.querySelector('[data-spin]');
@@ -15,6 +15,7 @@ function mount(root) {
   const canvas = get('wheel');
   const ctx = canvas.getContext('2d');
   const setup = get('setup');
+  const presetBar = get('spin-presets');
   const { question, bestOf } = setup.elements;
   const currentId = new URL(location.href).searchParams.get('session');
   let example = root.dataset.spinExample;
@@ -146,8 +147,7 @@ function mount(root) {
     context.restore();
   }
 
-  function updatePreview(labels, foodIdeas) {
-    if (get('find-ideas')) get('find-ideas').hidden = !foodIdeas;
+  function updatePreview(labels) {
     const best = Number(bestOf.value);
     get('rules').textContent = rules({ entries: labels, bestOf: best });
     if (!session) {
@@ -186,7 +186,8 @@ function mount(root) {
     get('draw').textContent = count ? 'Next spin' : 'Spin';
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
-    if (get('find-ideas')) get('find-ideas').hidden = true;
+    if (get('edit-choices')) get('edit-choices').hidden = true;
+    for (const button of presetBar.querySelectorAll('[aria-pressed]')) button.removeAttribute('aria-pressed');
     get('spin-now').hidden = true;
     get('wheel-panel').dataset.state = next.status;
     get('session').hidden = false;
@@ -266,6 +267,7 @@ function mount(root) {
     playing = true;
     showError('');
     get('share').disabled = true;
+    presetBar.inert = true;
     const pauseButton = automatic ? get('auto') : null;
     const draftBusy = !session;
     if (draftBusy) {
@@ -284,6 +286,7 @@ function mount(root) {
     }
     finally {
       playing = false;
+      presetBar.inert = false;
       get('finish').disabled = !session?.rounds.length;
       get('share').disabled = !session && Boolean(currentId || example);
       if (draftBusy) {
@@ -457,11 +460,23 @@ function mount(root) {
       else tick();
     }
   });
-  get('find-ideas')?.addEventListener('click', () => {
-    const heading = root.querySelector('#spin-taste-heading');
-    heading.focus({preventScroll: true});
-    heading.scrollIntoView({block: 'start'});
+  get('edit-choices')?.addEventListener('click', () => {
+    const heading = root.querySelector('#spin-choices');
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ block: 'start' });
   });
+
+  function openPreset(id) {
+    if ((!session && !currentId && !example) || !Object.hasOwn(spinPresetById, id)) return;
+    const url = new URL(root.dataset.spinPath, location.origin);
+    if (id !== spinDefaultPreset) url.searchParams.set('preset', id);
+    location.assign(url);
+  }
+  presetBar.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (button) openPreset(button.hasAttribute('data-quick-chains') ? spinDefaultPreset : button.dataset.quickPreset);
+  });
+  get('preset-picker').addEventListener('change', event => openPreset(event.currentTarget.value));
   function replayLast() {
     armSound();
     void perform(async () => {

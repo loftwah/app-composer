@@ -49,3 +49,5 @@ export const spinPresetGroups = groups.map(([id, label, presets]) => ({
 }));
 
 export const spinPresetById = Object.fromEntries(spinPresetGroups.flatMap(group => group.presets.map(preset => [preset.id, preset])));
+
+export const spinDefaultPreset = 'fast-food-three';
