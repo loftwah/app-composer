@@ -1,0 +1,295 @@
+{
+  "environment": {
+    "device_used": "CPU via NumPy",
+    "dtype": "float64",
+    "machine": "x86_64",
+    "numpy": "2.3.5",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14"
+  },
+  "exact_factorisation": {
+    "biases_counted": false,
+    "constructed_rank": 16,
+    "dense_weights": 24576,
+    "factor_a_shape": [
+      128,
+      16
+    ],
+    "factor_b_shape": [
+      16,
+      192
+    ],
+    "factored_weights": 5120,
+    "input_shape": [
+      32,
+      128
+    ],
+    "relative_output_frobenius_error": 5.521617068053673e-16,
+    "weight_reduction_percent": 79.16666666666666,
+    "weight_shape": [
+      128,
+      192
+    ]
+  },
+  "experiment": "Synthetic low-rank arithmetic: exact identity and SVD trade-offs",
+  "generated_at_local": "2026/11/27 16:37:34 AEDT (UTC+1100)",
+  "generated_at_utc": "2026/11/27 05:37:34 UTC",
+  "interpretation": [
+    "Low-rank factors can reduce the number of weights while preserving a suitably structured matrix.",
+    "At the same rank and weight count, a random full-rank matrix loses substantially more information.",
+    "Matrix and output reconstruction errors are not language-model accuracy or CORE scores.",
+    "Weight reduction is not a measured training-speed or inference-speed improvement.",
+    "At rank 64 these square factors equal the dense weight count; full-rank factors double it.",
+    "Results are deterministic in construction; last-bit numerical differences may vary with NumPy and BLAS."
+  ],
+  "local_timezone": "Australia/Melbourne",
+  "reference_context": {
+    "nanochat_record_commit": "a825e63f81e62e2e9fd38655e9b2e39417620545",
+    "nanochat_record_url": "https://github.com/karpathy/nanochat/commit/a825e63f81e62e2e9fd38655e9b2e39417620545",
+    "note": "References motivate the article; this script imports code from neither project.",
+    "pufferfish_source_url": "https://github.com/hwang595/Pufferfish"
+  },
+  "schema_version": 1,
+  "scope": {
+    "core_evaluation_run": false,
+    "gpu_used": false,
+    "nanochat_trained": false,
+    "paid_compute_launched": false,
+    "pufferfish_reproduced": false,
+    "synthetic_data_only": true,
+    "timing_measured": false,
+    "training_runs": 0
+  },
+  "seed": 20261127,
+  "source_file": "benchmarks/nanochat/pufferfish_demo.py",
+  "source_sha256": "1bc08ec156b907c51268e294788fd2214335a37ccab18a78b9a814f6b82ba643",
+  "status": "completed_local_cpu_illustration",
+  "truncated_svd": [
+    {
+      "input_shape": [
+        64,
+        128
+      ],
+      "name": "synthetic_low_rank_structure_with_small_full_rank_tail",
+      "numerical_rank": 128,
+      "rank_sweep": [
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            8
+          ],
+          "factor_associativity_relative_error": 5.458454217332148e-16,
+          "factor_b_shape": [
+            8,
+            128
+          ],
+          "factored_weights": 2048,
+          "rank": 8,
+          "relative_matrix_frobenius_error": 0.4960310725682571,
+          "relative_output_frobenius_error": 0.5103478753439262,
+          "retained_singular_value_energy_fraction": 0.7539531750467847,
+          "weight_reduction_percent": 87.5
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            16
+          ],
+          "factor_associativity_relative_error": 5.643111881741845e-16,
+          "factor_b_shape": [
+            16,
+            128
+          ],
+          "factored_weights": 4096,
+          "rank": 16,
+          "relative_matrix_frobenius_error": 0.0006774534943175347,
+          "relative_output_frobenius_error": 0.0006375529042958436,
+          "retained_singular_value_energy_fraction": 0.9999995410567629,
+          "weight_reduction_percent": 75.0
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            32
+          ],
+          "factor_associativity_relative_error": 6.17648472517259e-16,
+          "factor_b_shape": [
+            32,
+            128
+          ],
+          "factored_weights": 8192,
+          "rank": 32,
+          "relative_matrix_frobenius_error": 0.0003487673212347183,
+          "relative_output_frobenius_error": 0.000335956367517399,
+          "retained_singular_value_energy_fraction": 0.9999998783613556,
+          "weight_reduction_percent": 50.0
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            64
+          ],
+          "factor_associativity_relative_error": 7.258394978120105e-16,
+          "factor_b_shape": [
+            64,
+            128
+          ],
+          "factored_weights": 16384,
+          "rank": 64,
+          "relative_matrix_frobenius_error": 9.224850269216954e-05,
+          "relative_output_frobenius_error": 8.894349252769397e-05,
+          "retained_singular_value_energy_fraction": 0.9999999914902137,
+          "weight_reduction_percent": 0.0
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            128
+          ],
+          "factor_associativity_relative_error": 9.151127265940565e-16,
+          "factor_b_shape": [
+            128,
+            128
+          ],
+          "factored_weights": 32768,
+          "rank": 128,
+          "relative_matrix_frobenius_error": 1.400012480096653e-15,
+          "relative_output_frobenius_error": 1.49241235980791e-15,
+          "retained_singular_value_energy_fraction": 1.0,
+          "weight_reduction_percent": -100.0
+        }
+      ],
+      "weight_shape": [
+        128,
+        128
+      ]
+    },
+    {
+      "input_shape": [
+        64,
+        128
+      ],
+      "name": "synthetic_random_full_rank_control",
+      "numerical_rank": 128,
+      "rank_sweep": [
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            8
+          ],
+          "factor_associativity_relative_error": 5.642570618046726e-16,
+          "factor_b_shape": [
+            8,
+            128
+          ],
+          "factored_weights": 2048,
+          "rank": 8,
+          "relative_matrix_frobenius_error": 0.8860517251076752,
+          "relative_output_frobenius_error": 0.8884913668255018,
+          "retained_singular_value_energy_fraction": 0.21491234043371277,
+          "weight_reduction_percent": 87.5
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            16
+          ],
+          "factor_associativity_relative_error": 5.856502341514001e-16,
+          "factor_b_shape": [
+            16,
+            128
+          ],
+          "factored_weights": 4096,
+          "rank": 16,
+          "relative_matrix_frobenius_error": 0.7844486013344737,
+          "relative_output_frobenius_error": 0.7904189070504887,
+          "retained_singular_value_energy_fraction": 0.38464039186438803,
+          "weight_reduction_percent": 75.0
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            32
+          ],
+          "factor_associativity_relative_error": 6.151631195411444e-16,
+          "factor_b_shape": [
+            32,
+            128
+          ],
+          "factored_weights": 8192,
+          "rank": 32,
+          "relative_matrix_frobenius_error": 0.6098154236480203,
+          "relative_output_frobenius_error": 0.6145659954389313,
+          "retained_singular_value_energy_fraction": 0.6281251490809854,
+          "weight_reduction_percent": 50.0
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            64
+          ],
+          "factor_associativity_relative_error": 6.8066536097471e-16,
+          "factor_b_shape": [
+            64,
+            128
+          ],
+          "factored_weights": 16384,
+          "rank": 64,
+          "relative_matrix_frobenius_error": 0.32416367180824035,
+          "relative_output_frobenius_error": 0.3282576400115948,
+          "retained_singular_value_energy_fraction": 0.8949179138797995,
+          "weight_reduction_percent": 0.0
+        },
+        {
+          "biases_counted": false,
+          "dense_weights": 16384,
+          "factor_a_shape": [
+            128,
+            128
+          ],
+          "factor_associativity_relative_error": 8.520942082938348e-16,
+          "factor_b_shape": [
+            128,
+            128
+          ],
+          "factored_weights": 32768,
+          "rank": 128,
+          "relative_matrix_frobenius_error": 2.511719804531507e-15,
+          "relative_output_frobenius_error": 2.5609306853990526e-15,
+          "retained_singular_value_energy_fraction": 1.0,
+          "weight_reduction_percent": -100.0
+        }
+      ],
+      "weight_shape": [
+        128,
+        128
+      ]
+    }
+  ],
+  "validation": {
+    "exact_factor_output_identity": "passed",
+    "factor_output_associativity": "passed",
+    "full_rank_reconstruction": "passed",
+    "matrix_error_nonincreasing_with_rank": "passed",
+    "structured_and_random_control_have_different_error": "passed",
+    "truncated_svd_residual_matches_singular_value_tail": "passed"
+  }
+}

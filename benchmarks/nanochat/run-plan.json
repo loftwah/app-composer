@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "title": "App Composer nanochat challenge: baseline first, then under 90 minutes",
+  "status": "planned_not_launched",
+  "execution": {
+    "launch_paid_compute": false,
+    "default_authorised_spend_usd": 0,
+    "note": "This file describes a proposed experiment. It does not provision compute or authorise spending."
+  },
+  "baseline": {
+    "repository": "https://github.com/karpathy/nanochat",
+    "commit": "a825e63f81e62e2e9fd38655e9b2e39417620545",
+    "published_training_minutes": 99,
+    "published_core_mean": 0.262634,
+    "published_validation_bpb": 0.71800,
+    "published_repetitions": 5,
+    "hardware": "One node with 8 NVIDIA H100 GPUs",
+    "qualification": {"metric": "full DCLM CORE", "operator": ">", "value": 0.256525},
+    "timing": "Upstream total_training_time: training iterations, with upstream warm-up exclusions; evaluation and logging excluded",
+    "source": "https://github.com/karpathy/nanochat/blob/master/dev/LEADERBOARD.md"
+  },
+  "proposed_target": {
+    "counted_training_seconds_operator": "<",
+    "counted_training_seconds": 5400,
+    "full_core_operator": ">",
+    "full_core": 0.256525,
+    "same_hardware_class_as_baseline": true,
+    "same_frozen_evaluator_for_baseline_and_candidate": true,
+    "minimum_independent_baseline_repetitions": 3,
+    "minimum_independent_candidate_repetitions": 3,
+    "note": "A target, not a result or a guarantee of upstream leaderboard acceptance."
+  },
+  "phases": [
+    "Freeze source, dependency lock, hardware, dataset/tokenizer hashes, evaluator bundle hashes and timing semantics.",
+    "Reproduce the pinned baseline, capturing full per-task evaluation and complete cost receipts.",
+    "Screen one hypothesis at a time using smaller models and a fixed development protocol.",
+    "For any Pufferfish-inspired candidate, validate dense warm-up, SVD transfer, chosen layers/ranks, and optimiser-state policy.",
+    "Run independent full-size baseline and candidate replications on equivalent hardware.",
+    "Publish every run, failed attempts, aggregates, complete commands and evidence before claiming an improvement."
+  ],
+  "record_each_run": [
+    "source_commit_and_patch_sha256",
+    "environment_and_hardware_identity",
+    "dataset_tokenizer_and_evaluator_hashes",
+    "seeds_and_randomness_policy",
+    "full_per_task_core_results",
+    "validation_bpb_and_validation_dataset_identity",
+    "upstream_counted_training_seconds",
+    "end_to_end_elapsed_seconds",
+    "svd_and_transition_seconds_if_applicable",
+    "billed_gpu_hours_and_actual_cost",
+    "checkpoint_and_log_artifact_hashes"
+  ],
+  "candidate": {
+    "description": "Hypothesis to be selected after baseline reproduction; low-rank training is one candidate.",
+    "commit": null,
+    "patch_sha256": null,
+    "optimiser_state_transition_policy": null
+  },
+  "measured_results": {
+    "baseline_reproduced": null,
+    "candidate_core": null,
+    "candidate_validation_bpb": null,
+    "candidate_training_seconds": null,
+    "candidate_end_to_end_seconds": null,
+    "candidate_actual_cost_usd": null,
+    "independent_repetitions": null,
+    "record_improvement_verified": null
+  }
+}

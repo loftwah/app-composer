@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Nanochat and Pufferfish: the 90-minute challenge</title>
+  <desc id="desc">The published nanochat reference is 99 minutes. App Composer proposes a target below 90 minutes on eight H100 GPUs with CORE above 0.256525. The target has not been measured.</desc>
+  <rect width="1200" height="630" fill="#151918"/>
+  <rect x="0" y="0" width="16" height="630" fill="#fc5b05"/>
+  <g font-family="DejaVu Sans, sans-serif">
+    <text x="64" y="66" fill="#f6f2e9" font-size="22" font-weight="700" letter-spacing="2">APP COMPOSER / FIELD NOTES</text>
+    <line x1="64" y1="95" x2="1136" y2="95" stroke="#4d5651"/>
+    <text x="64" y="164" fill="#fc5b05" font-size="22" font-weight="700">NANOCHAT + PUFFERFISH</text>
+    <text x="60" y="258" fill="#f6f2e9" font-size="67" font-weight="700" letter-spacing="-3">The 90-minute</text>
+    <text x="60" y="337" fill="#f6f2e9" font-size="67" font-weight="700" letter-spacing="-3">challenge.</text>
+    <text x="64" y="403" fill="#bdc6c0" font-size="25">A measured attempt at faster training.</text>
+    <line x1="730" y1="140" x2="730" y2="456" stroke="#4d5651"/>
+    <text x="782" y="162" fill="#bdc6c0" font-size="20">PUBLISHED REFERENCE</text>
+    <text x="778" y="253" fill="#f6f2e9" font-size="94" font-weight="700">99</text>
+    <text x="935" y="248" fill="#bdc6c0" font-size="27">minutes</text>
+    <line x1="782" y1="282" x2="1136" y2="282" stroke="#4d5651"/>
+    <text x="782" y="326" fill="#fc5b05" font-size="20" font-weight="700">PROPOSED TARGET</text>
+    <text x="778" y="416" fill="#fc5b05" font-size="88" font-weight="700">&lt;90</text>
+    <text x="782" y="453" fill="#bdc6c0" font-size="20">Unmeasured · no GPU result yet</text>
+    <rect x="64" y="501" width="1072" height="81" rx="4" fill="#fc5b05"/>
+    <text x="90" y="550" fill="#151918" font-size="25" font-weight="700">8 × H100</text>
+    <line x1="292" y1="522" x2="292" y2="560" stroke="#151918"/>
+    <text x="322" y="550" fill="#151918" font-size="25" font-weight="700">CORE &gt; 0.256525</text>
+    <text x="1108" y="549" fill="#151918" font-size="21" text-anchor="end">Pinned source and full evaluation</text>
+  </g>
+</svg>
