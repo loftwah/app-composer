@@ -31,7 +31,8 @@ function mount(root) {
 
   const showError = message => { get('error').textContent = message; };
   const showResult = message => { get('result').textContent = message; };
-  const rules = config => config.entries.length === 2
+  const rules = config => config.bestOf === 1 ? 'One spin. Every enabled choice has equal odds.' :
+    config.entries.length === 2
     ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
     : `Play ${config.bestOf} counted spins. Tied leaders get a final spin. Each counted spin starts with all choices.`;
   const templateLink = config => spinOrigin + '/#' + new URLSearchParams({ wheel: JSON.stringify(config) });
@@ -88,7 +89,10 @@ function mount(root) {
   function updatePreview(labels) {
     const best = Number(bestOf.value);
     get('rules').textContent = rules({ entries: labels, bestOf: Number.isInteger(best) && best > 0 ? best : 1 });
-    if (!session) drawWheel(labels);
+    if (!session) {
+      drawWheel(labels);
+      showResult(labels.length >= 2 ? `${labels.length} choices ready to spin.` : 'Enable two choices to spin.');
+    }
   }
 
   function render(next) {

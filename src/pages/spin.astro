@@ -50,7 +50,7 @@ const application = JSON.stringify({
       <div class="controls">
         <form data-setup hidden={replay}>
           <h2>Set up your wheel</h2>
-          <button type="button" class="quick-preset" data-quick-chains>Maccas, Hungry Jack’s &amp; KFC</button>
+          <button type="button" class="quick-preset" data-quick-chains aria-pressed="false">Maccas, Hungry Jack’s &amp; KFC</button>
           <div class="button-row ready-actions">
             <button class="button" type="submit" data-spin-now aria-describedby="spin-link-privacy">Spin now</button>
             <button type="submit" data-lock-wheel aria-describedby="spin-link-privacy">Lock wheel and get link</button>
@@ -224,7 +224,7 @@ const application = JSON.stringify({
   [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a { align-self: center; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
-  .quick-preset { text-align: start; }
+  .quick-preset, button.takeaway { justify-content: flex-start; text-align: start; }
   .ready-actions > button { flex: 1 1 auto; min-height: 44px; }
   .takeaway { display: flex; align-items: center; text-align: left; gap: 14px; }
   .takeaway img, .preset-groups img, .winner-art img { display: block; flex: none; border-radius: 8px; }
