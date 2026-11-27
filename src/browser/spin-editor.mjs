@@ -1,6 +1,6 @@
 import { spinChoiceLimit, validateSpinConfig } from '../lib/spin-protocol.mjs';
 import { recommendTakeaway } from '../lib/spin-tastes.mjs';
-import { spinPresetById, spinPresetGroups } from '../lib/spin-presets.mjs';
+import { spinDefaultPreset, spinPresetById, spinPresetGroups } from '../lib/spin-presets.mjs';
 
 const storageKey = 'composer-spin-wheels-v1';
 const foodPresets = new Set(spinPresetGroups.find(group => group.id === 'food').presets.map(preset => preset.id));
@@ -36,8 +36,12 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   const tasteSuggestions = find('taste-suggestions');
   const tasteAddAll = find('taste-add-all');
   const normalized = label => label.trim().normalize('NFC').toLocaleLowerCase('en-AU');
-  let draft = prefs.draft ?? fromPreset('fast-food-three');
-  if (draft.preset === 'fast-food-three' && draft.question === 'Which fast food should we get?') draft.question = spinPresetById['fast-food-three'].question;
+  const requestedPreset = new URLSearchParams(location.search).get('preset');
+  let draft = fromPreset(Object.hasOwn(spinPresetById, requestedPreset) ? requestedPreset : spinDefaultPreset);
+  if (prefs.draft?.preset === spinDefaultPreset && prefs.draft.question === 'Which fast food should we get?') {
+    prefs.draft.question = spinPresetById[spinDefaultPreset].question;
+  }
+  let usingDraft = false;
   const template = new URLSearchParams(location.hash.slice(1)).get('wheel');
   if (template) {
     try {
@@ -49,27 +53,32 @@ export function mountSpinEditor(form, spinButton, onPreview) {
         };
       }
     } catch {}
-    history.replaceState(null, '', location.pathname + location.search);
   }
   const list = find('choices-list');
   const search = find('choice-search');
   const message = find('editor-message');
+  const resume = find('resume-draft');
   const presets = form.closest('.play').querySelector('[data-spin-presets]');
   const fastFood = presets.querySelector('[data-quick-chains]');
   const quickPresets = [...presets.querySelectorAll('[data-quick-preset]')];
   const presetPickers = [...presets.querySelectorAll('[data-preset-picker]')];
 
   const active = () => draft.choices.filter(item => item.enabled && item.label.trim()).map(item => item.label.trim());
-  const persist = () => {
+  const persist = (remember = false) => {
     draft.question = question.value;
     draft.bestOf = bestOf.value;
-    prefs.draft = draft;
+    if (remember === true) {
+      prefs.draft = structuredClone(draft);
+      usingDraft = true;
+      if (template && location.hash) history.replaceState(null, '', location.pathname + location.search);
+    }
+    resume.hidden = usingDraft || !prefs.draft || JSON.stringify(prefs.draft) === JSON.stringify(draft);
     prefs.suburb = suburb.value.trim();
     prefs.tastes = [...pickedTastes];
     try { localStorage.setItem(storageKey, JSON.stringify(prefs)); } catch {}
   };
 
-  function update() {
+  function update(remember = true) {
     const entries = active();
     const count = entries.length;
     list.dataset.numbered = String(count > 12);
@@ -78,10 +87,11 @@ export function mountSpinEditor(form, spinButton, onPreview) {
       `${new Intl.NumberFormat('en-AU', { style: 'percent', maximumFractionDigits: 2 }).format(1 / count)} each`;
     find('choice-odds').textContent = distinct ? odds : 'Use different names for each choice.';
     spinButton.disabled = count < 2 || !distinct;
-    persist();
+    persist(remember !== false);
     const foodIdeas = foodPresets.has(draft.preset) || draft.preset === 'custom';
     find('taste-cloud').hidden = !foodIdeas;
-    onPreview(entries, foodIdeas);
+    find('food-ideas').hidden = !foodIdeas;
+    onPreview(entries);
     renderTasteSuggestions();
   }
 
@@ -128,6 +138,12 @@ export function mountSpinEditor(form, spinButton, onPreview) {
       (next ?? tasteButtons.find(button => pickedTastes.has(button.dataset.taste)))?.focus({preventScroll: true});
     }
   }
+
+  find('food-ideas').addEventListener('click', () => {
+    const heading = form.querySelector('#spin-taste-heading');
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ block: 'start' });
+  });
 
   for (const button of tasteButtons) button.addEventListener('click', () => {
     const key = button.dataset.taste;
@@ -227,7 +243,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     renderOptions(find('saved-wheels'), prefs.wheels.map(wheel => new Option(wheel.title, wheel.id)), 'Open a saved wheel');
     renderOptions(find('favourites'), prefs.favourites.map(id => new Option(spinPresetById[id].label, id)), 'Open a favourite');
     renderOptions(find('recent-wheels'), prefs.recent.map(id => new Option(spinPresetById[id].label, id)), 'Open a recent preset');
-    fastFood.setAttribute('aria-pressed', String(draft.preset === 'fast-food-three'));
+    fastFood.setAttribute('aria-pressed', String(draft.preset === spinDefaultPreset));
     for (const button of quickPresets) {
       button.setAttribute('aria-pressed', String(draft.preset === button.dataset.quickPreset));
     }
@@ -236,8 +252,9 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     find('favourite').textContent = starred ? 'Remove favourite' : 'Favourite preset';
   }
 
-  function showDraft(next) {
+  function showDraft(next, resumed = false) {
     draft = next;
+    usingDraft = resumed;
     question.value = draft.question || 'What should we pick?';
     bestOf.value = String(draft.bestOf);
     if (!bestOf.value) bestOf.value = '1';
@@ -245,18 +262,23 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     for (const picker of presetPickers) picker.value = '';
     renderRows();
     renderCollection();
-    update();
+    update(false);
   }
 
   function pick(id) {
-    if (!Object.hasOwn(spinPresetById, id)) return;
+    if (form.hidden || form.inert || !Object.hasOwn(spinPresetById, id)) return;
     prefs.recent = [id, ...prefs.recent.filter(item => item !== id)].slice(0, 8);
     showDraft({ ...fromPreset(id), bestOf: bestOf.value });
     message.textContent = spinPresetById[id].label + ' loaded.';
   }
 
   for (const picker of presetPickers) picker.addEventListener('change', () => pick(picker.value));
-  fastFood.addEventListener('click', () => pick('fast-food-three'));
+  fastFood.addEventListener('click', () => pick(spinDefaultPreset));
+  resume.addEventListener('click', () => {
+    showDraft(structuredClone(prefs.draft), true);
+    message.textContent = 'Draft restored.';
+    question.focus({ preventScroll: true });
+  });
   find('show-order').addEventListener('change', event => {
     list.dataset.reorder = String(event.target.checked);
   });
@@ -299,7 +321,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
       saved.draft = structuredClone(draft);
     }
     renderCollection();
-    persist();
+    persist(usingDraft);
     message.textContent = duplicate ? 'Copy saved on this device.' : 'Wheel saved on this device.';
   }
   find('save-wheel').addEventListener('click', () => save(false));
@@ -312,7 +334,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
     prefs.wheels = prefs.wheels.filter(wheel => wheel.id !== draft.savedId);
     delete draft.savedId;
     renderCollection();
-    persist();
+    persist(usingDraft);
     message.textContent = 'Saved copy removed. Your current draft is still open.';
   });
 
@@ -368,7 +390,7 @@ export function mountSpinEditor(form, spinButton, onPreview) {
   question.addEventListener('keydown', event => {
     if (event.key === 'Enter') event.preventDefault();
   });
-  bestOf.addEventListener('input', update);
+  bestOf.addEventListener('input', () => update(usingDraft));
   suburb.value = prefs.suburb;
   suburb.addEventListener('input', persist);
   showDraft(draft);

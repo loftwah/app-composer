@@ -5,13 +5,14 @@ import SpinShareDialog from '../components/SpinShareDialog.astro';
 import { ArrowUpRight, CalendarDays, ChevronDown, Gamepad2, Plus, RotateCw, Share2, Utensils, Volume2, VolumeX } from '@lucide/astro';
 import { spinArtwork, spinArtworkAlt, spinDiscovery, spinOrigin } from '../lib/spin-site.mjs';
 import { spinExamples } from '../lib/spin-examples.mjs';
-import { spinPresetGroups } from '../lib/spin-presets.mjs';
+import { spinDefaultPreset, spinPresetById, spinPresetGroups } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinIdPattern, spinLifetimeDays } from '../lib/spin-protocol.mjs';
 const candidate = Astro.url.searchParams.get('example');
 const sharedId = Astro.url.searchParams.get('session');
 const sessionLink = sharedId !== null;
 const example = !sessionLink && candidate && Object.hasOwn(spinExamples, candidate) ? candidate : '';
 const replay = Boolean(sessionLink || example);
+const defaultWheel = spinPresetById[spinDefaultPreset];
 const spinPath = Astro.url.origin === spinOrigin ? '/' : '/spin';
 const title = replay ? 'Watch a draw · Spin by App Composer' : 'Decision Wheel & Random Picker · Spin by App Composer';
 const description = replay
@@ -40,9 +41,24 @@ const application = JSON.stringify({
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
     <div class="play">
+      <div class="preset-quick" role="group" aria-label="Wheel presets" data-spin-presets>
+        <button type="button" data-quick-chains aria-pressed="false"><Utensils size={16} aria-hidden="true" /> Fast food</button>
+        <button type="button" data-quick-preset="game" aria-pressed="false"><Gamepad2 size={16} aria-hidden="true" /> Game night</button>
+        <button type="button" data-quick-preset="weekend" aria-pressed="false"><CalendarDays size={16} aria-hidden="true" /> Weekend</button>
+        <label class="preset-picker">
+          <span class="screen-reader">Choose a preset</span>
+          <select form="spin-setup" data-preset-picker>
+            <option value="">All presets</option>
+            {spinPresetGroups.map(group => <optgroup label={group.label}>
+              {group.presets.map(preset => <option value={preset.id}>{preset.label}</option>)}
+            </optgroup>)}
+          </select>
+          <ChevronDown size={15} aria-hidden="true" />
+        </label>
+      </div>
       <div class="wheel-panel" data-wheel-panel>
         <header class="stage-heading">
-          <h1 class="wheel-question" data-spin-heading>{replay ? 'Opening draw…' : 'What’s for dinner?'}</h1>
+          <h1 class="wheel-question" data-spin-heading>{replay ? 'Opening draw…' : defaultWheel.question}</h1>
           <p class="note" data-spin-intro hidden></p>
         </header>
         <div class="stage-mode">
@@ -88,7 +104,7 @@ const application = JSON.stringify({
             <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
             <span data-sound-label>Sound on</span>
           </button>
-          {!replay && <button type="button" data-find-ideas aria-controls="spin-ideas"><Utensils size={17} aria-hidden="true" /> Food ideas</button>}
+          {!replay && <button type="button" data-edit-choices aria-controls="spin-setup">Edit choices</button>}
           <button class="finish-session" type="button" data-finish hidden>Finish session</button>
           <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Find it nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
         </div>
@@ -98,24 +114,13 @@ const application = JSON.stringify({
       <div class="controls">
         <form id="spin-setup" novalidate data-setup hidden={replay}>
           <div class="choice-heading">
-            <h2 id="spin-choices">Build your wheel</h2>
+            <h2 id="spin-choices" tabindex="-1">Build your wheel</h2>
+            <div class="button-row editor-shortcuts">
+              <button type="button" data-resume-draft hidden>Resume draft</button>
+              <button type="button" data-food-ideas aria-controls="spin-ideas"><Utensils size={16} aria-hidden="true" /> Food ideas</button>
+            </div>
           </div>
-        <div class="preset-quick" role="group" aria-label="Wheel presets" data-spin-presets>
-          <button type="button" data-quick-chains aria-pressed="false"><Utensils size={16} aria-hidden="true" /> Fast food</button>
-          <button type="button" data-quick-preset="game" aria-pressed="false"><Gamepad2 size={16} aria-hidden="true" /> Game night</button>
-          <button type="button" data-quick-preset="weekend" aria-pressed="false"><CalendarDays size={16} aria-hidden="true" /> Weekend</button>
-          <label class="preset-picker">
-            <span class="screen-reader">Choose a preset</span>
-            <select form="spin-setup" data-preset-picker>
-              <option value="">Presets</option>
-              {spinPresetGroups.map(group => <optgroup label={group.label}>
-                {group.presets.map(preset => <option value={preset.id}>{preset.label}</option>)}
-              </optgroup>)}
-            </select>
-            <ChevronDown size={15} aria-hidden="true" />
-          </label>
-        </div>
-          <label class="question-field">Question <input name="question" required maxlength="100" value="What’s for dinner?" /></label>
+          <label class="question-field">Question <input name="question" required maxlength="100" value={defaultWheel.question} /></label>
           <div class="choice-heading choice-caption">
             <h3>Choices</h3>
             <p class="note" data-choice-odds></p>
@@ -126,21 +131,6 @@ const application = JSON.stringify({
             <button type="button" data-add-choice><Plus size={18} aria-hidden="true" /> Add</button>
           </div>
           <p class="note" data-editor-message role="status"></p>
-          <SpinTasteCloud />
-          <details class="choice-editor">
-            <summary>Paste or manage choices</summary>
-            <button type="button" data-clear-wheel>Start blank</button>
-            <label class="order-toggle"><input type="checkbox" data-show-order /> Show reorder controls</label>
-            <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
-            <div class="button-row">
-              <button type="button" data-enable="all">Enable all</button>
-              <button type="button" data-enable="none">Disable all</button>
-            </div>
-            <label>Paste choices <textarea name="paste" rows="2" placeholder="One choice per line"></textarea></label>
-            <button type="button" data-paste-choices>Add pasted choices</button>
-            <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
-          </details>
-          <p class="screen-reader" id="spin-link-privacy">Starting creates an unlisted draw. Anyone with its link can see the question and choices for {spinLifetimeDays} days.</p>
           <details class="saved-wheels">
             <summary>Saved wheels</summary>
             <div class="button-row">
@@ -156,6 +146,21 @@ const application = JSON.stringify({
             <label>Favourites <select data-favourites></select></label>
             <label>Recent presets <select data-recent-wheels></select></label>
           </details>
+          <SpinTasteCloud />
+          <details class="choice-editor">
+            <summary>Paste or manage choices</summary>
+            <button type="button" data-clear-wheel>Start blank</button>
+            <label class="order-toggle"><input type="checkbox" data-show-order /> Show reorder controls</label>
+            <label>Find a choice <input type="search" data-choice-search autocomplete="off" /></label>
+            <div class="button-row">
+              <button type="button" data-enable="all">Enable all</button>
+              <button type="button" data-enable="none">Disable all</button>
+            </div>
+            <label>Paste choices <textarea name="paste" rows="2" placeholder="One choice per line"></textarea></label>
+            <button type="button" data-paste-choices>Add pasted choices</button>
+            <p class="note">The wheel uses 2–{spinChoiceLimit} enabled choices. The numbers match the wheel on longer lists.</p>
+          </details>
+          <p class="screen-reader" id="spin-link-privacy">Starting creates an unlisted draw. Anyone with its link can see the question and choices for {spinLifetimeDays} days.</p>
           <details>
             <summary>Find takeaway near you</summary>
             <label>Suburb, town or postcode <input name="suburb" maxlength="80" placeholder="e.g. Sunbury VIC 3429" autocomplete="off" /></label>
@@ -226,7 +231,7 @@ const application = JSON.stringify({
   }
   .play {
     display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr);
-    gap: clamp(26px, 5vw, 72px); align-items: start;
+    column-gap: clamp(26px, 5vw, 72px); row-gap: 13px; align-items: start;
     padding-top: clamp(12px, 3vw, 40px);
   }
   .controls { min-width: 0; }
@@ -252,6 +257,7 @@ const application = JSON.stringify({
   .mode-select svg { position: absolute; right: 9px; top: 14px; color: var(--spin-ink); pointer-events: none; }
   .mode-picker select { display: block; appearance: none; block-size: 44px; padding-inline-end: 27px; color-scheme: light; color: var(--spin-ink); background: var(--spin-paper); border-color: transparent; }
   .mode-picker select:disabled { opacity: 1; cursor: default; color: var(--spin-ink); }
+  .mode-picker select:disabled + svg { visibility: hidden; }
   .wheel-frame { width: min(100%, 355px); aspect-ratio: 1; position: relative; }
   .wheel-panel:has([data-spin-now]:enabled:not([hidden]), [data-draw]:enabled:not([hidden])) .wheel-frame { cursor: pointer; }
   canvas { display: block; width: 100%; height: auto; }
@@ -322,6 +328,7 @@ const application = JSON.stringify({
   .order-toggle input { width: 20px; height: 20px; min-height: 0; accent-color: var(--color-brand); }
   .choice-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; flex-wrap: wrap; margin-bottom: -7px; }
   .choice-heading h2 { margin: 0 0 7px; }
+  .editor-shortcuts { margin-bottom: 7px; }
   .choice-caption { border-top: 1px solid var(--color-border); padding-top: 12px; }
   .choice-caption h3 { font-size: 1rem; margin: 0; }
   .question-field { margin-block: 6px; font-size: .9rem; }
@@ -347,7 +354,10 @@ const application = JSON.stringify({
   .spin button:not(.spin-hub, .button):hover { background: var(--color-field); }
   .spin button:not(.spin-hub, .button)[aria-pressed='true'] { background: var(--color-selected); border-color: var(--color-accent); color: var(--color-foreground); }
   .spin button:disabled { cursor: default; }
-  .preset-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .preset-quick {
+    grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%; max-width: 650px; gap: 7px;
+  }
   .preset-quick[hidden] { display: none; }
   .preset-picker { position: relative; min-width: 0; }
   .preset-picker select { appearance: none; height: 44px; padding-inline-end: 29px; background: transparent; font-size: .9rem; cursor: pointer; }
@@ -370,9 +380,12 @@ const application = JSON.stringify({
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; font-size: .89rem; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
   @media (max-width: 760px) {
-    .play { grid-template-columns: minmax(0, 1fr); gap: 22px; padding-top: 7px; }
-    .wheel-frame { width: min(100%, 268px); }
+    .play { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 7px; }
+    .preset-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wheel-frame { width: min(100%, clamp(205px, 33dvh, 268px)); }
     .wheel-panel { gap: 7px; }
+    .wheel-readout { block-size: 4.25rem; }
     .spin .preset-quick button { padding-inline: 9px; font-size: .83rem; gap: 5px; }
+    .preset-picker select { font-size: .83rem; }
   }
 </style>
