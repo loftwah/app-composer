@@ -30,8 +30,8 @@ const application = JSON.stringify({
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath}>
     <header>
-      <h1>{replay ? 'Spin replay' : 'Settle it with a spin.'}</h1>
-      <p>{replay ? 'Watch the recorded wheel and check the result.' : 'A free decision wheel for dinner, game night and anything up for debate.'}</p>
+      <h1 data-spin-heading>{replay ? 'Spin replay' : 'Settle it with a spin.'}</h1>
+      <p data-spin-intro>{replay ? 'Watch the recorded wheel and check the result.' : 'A free decision wheel for dinner, game night and anything up for debate.'}</p>
     </header>
     <div class="play">
       <div class="wheel-panel">
@@ -40,6 +40,10 @@ const application = JSON.stringify({
           <canvas width="560" height="560" aria-hidden="true" data-wheel></canvas>
         </div>
         <p class="wheel-status" role="status" data-result>Set up your wheel to start.</p>
+        <aside class="winner-art" data-winner-art hidden>
+          <img alt="" width="112" height="112" loading="lazy" decoding="async" />
+          <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
+        </aside>
       </div>
       <div class="controls">
         <form data-setup hidden={replay}>
@@ -106,7 +110,6 @@ const application = JSON.stringify({
         <section data-session hidden aria-labelledby="spin-question">
           <h2 id="spin-question" data-question></h2>
           <p class="note" data-series></p>
-          <ol class="scores" aria-label="Series score" data-scores></ol>
           <div class="button-row">
             <button class="button" type="button" data-draw hidden>Spin the wheel</button>
             <button type="button" data-auto hidden>Spin full series</button>
@@ -116,15 +119,20 @@ const application = JSON.stringify({
           </div>
           <div class="button-row" data-exports hidden>
             <button type="button" data-replay>Replay last spin</button>
+            <button type="button" data-replay-series>Replay the series</button>
             <button type="button" data-png>Save square PNG</button>
             <button type="button" data-portrait>Save portrait PNG</button>
+            <button type="button" data-story>Save story PNG</button>
+            <button type="button" data-landscape>Save landscape PNG</button>
+            <button type="button" data-replay-video>Download replay video</button>
             <button type="button" data-receipt>Download JSON receipt</button>
           </div>
-          <aside class="winner-art" data-winner-art hidden>
-            <img src="/spin-brand/food-20261127.webp" alt="" width="112" height="112" loading="lazy" decoding="async" />
-            <a data-nearby target="_blank" rel="noopener noreferrer">Find it near you in Maps</a>
-          </aside>
+          <p class="note" data-export-status role="status"></p>
           <p data-verification></p>
+          <details data-score-details>
+            <summary>Series score</summary>
+            <ol class="scores" aria-label="Series score" data-scores></ol>
+          </details>
           <details>
             <summary>Commitment and round history</summary>
             <p class="note">Send the link before spinning so friends can compare the commitment. A fixed session prevents silent rerolls through the app. Someone can still create a separate session or choose which one to share.</p>
@@ -145,12 +153,13 @@ const application = JSON.stringify({
         <noscript><p>Enable JavaScript to use Spin.</p></noscript>
       </div>
     </div>
-    {!replay && <section class="spin-guide" aria-labelledby="how-spin-works">
+    {!replay && <section class="spin-guide" data-spin-guide aria-labelledby="how-spin-works">
       <img src={spinArtwork} alt={spinArtworkAlt} width="1200" height="630" decoding="async" />
       <div>
         <h2 id="how-spin-works">How Spin works</h2>
         <p>Add your choices and pick a single spin or a best-of series. Each eligible choice has the same odds on its round.</p>
         <p>Lock the wheel to get a link you can share before the first spin. Once the series ends, friends can replay the recorded result and check the receipt.</p>
+        <a href="https://composer.loftwah.com/articles/why-we-built-spin">How the verification works</a>
         {exampleAvailable && <a href={example}>Watch the game night example</a>}
       </div>
     </section>}
@@ -204,7 +213,7 @@ const application = JSON.stringify({
   [data-exports], .secondary-actions { margin-top: 10px; }
   summary { cursor: pointer; padding-block: 9px; }
   details code { overflow-wrap: anywhere; }
-  [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty { display: none; }
+  [data-error]:empty, [data-verification]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a { align-self: center; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
   .takeaway { display: flex; align-items: center; text-align: left; gap: 14px; }
@@ -222,12 +231,14 @@ const application = JSON.stringify({
   .choice-list :global(input[type='text']) { min-height: 42px; width: 100%; font: inherit; padding: 4px 5px; color: var(--color-foreground); background: var(--color-background); border: 1px solid var(--color-border); border-radius: 6px; }
   .choice-list :global(button) { min-height: 44px; padding-inline: 4px; font: inherit; font-size: .83rem; color: var(--color-foreground); background: transparent; border: 1px solid var(--color-border); border-radius: 6px; cursor: pointer; }
   .choice-list :global(button:disabled) { opacity: .46; cursor: default; }
-  .winner-art { margin-block: 12px; display: flex; align-items: center; gap: 12px; }
+  .winner-art { margin-block: 12px; display: flex; justify-content: center; align-items: center; gap: 12px; }
+  .winner-art [hidden] { display: none; }
   .winner-art a { min-height: 44px; display: inline-flex; align-items: center; text-decoration: underline; }
   .spin-guide { margin-top: clamp(42px, 8vw, 90px); border-top: 1px solid var(--color-border); padding-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 4vw, 40px); align-items: center; }
+  .spin-guide[hidden] { display: none; }
   .spin-guide img { display: block; width: 100%; height: auto; border-radius: 12px; }
   .spin-guide p { color: var(--color-muted); }
-  .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; }
+  .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; text-decoration: underline; text-underline-offset: .24em; margin-inline-end: 12px; }
   @media (max-width: 750px) {
     .play, .spin-guide { grid-template-columns: 1fr; }
     .wheel-panel { position: static; }

@@ -6,6 +6,8 @@ import { frontmatter as rehearsal } from "./cloudflare-app-rehearsal.md";
 import { frontmatter as original } from "./workers-ai-to-original.md";
 import { frontmatter as nanochatPufferfish } from "./nanochat-pufferfish.md";
 
+import { frontmatter as spin } from "./why-we-built-spin.md";
+
 interface ArticleSummary {
   title: string;
   description: string;
@@ -13,6 +15,7 @@ interface ArticleSummary {
 }
 
 const articles = [
+  { frontmatter: spin as ArticleSummary, href: "/articles/why-we-built-spin" },
   { frontmatter: storage as ArticleSummary, href: "/articles/why-databases-rewrite-data" },
   { frontmatter: rehearsal as ArticleSummary, href: "/articles/cloudflare-app-rehearsal" },
   { frontmatter: nanochatPufferfish as ArticleSummary, href: "/articles/nanochat-pufferfish" },
