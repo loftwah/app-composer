@@ -32,7 +32,8 @@ const topNine = {
   description: 'Make a 3×3 board of your favourites and download it as an image.',
   href: '/top-nine',
 } as const;
-const entries = [...apps.filter(app => app.id === 'media-studio'), printsDiscovery, ...apps.filter(app => app.id === 'showcase'), topNine, share, benchmarks,
+const spin = { id: 'spin', name: 'App Composer Spin', category: 'Creative', description: 'Settle a decision with a wheel and a result your friends can verify.', href: '/spin' } as const;
+const entries = [...apps.filter(app => app.id === 'media-studio'), printsDiscovery, ...apps.filter(app => app.id === 'showcase'), topNine, spin, share, benchmarks,
   ...apps.filter(app => app.id !== 'media-studio' && app.id !== 'showcase'), widgets];
 const features = {
   'media-studio': { image: '/media-studio/brand/studio-launch-thumb.webp', title: 'Build your own media studio', label: 'Studio launch artwork', href: '/media-studio#made' },
@@ -42,7 +43,7 @@ const actions: Record<string, string> = {
   paperwork: 'Open PDF editor', 'launch-kit': 'Make a profile card', ldraw: 'Open drawing board',
   linkcheck: 'Check a link', guestbook: 'Visit guestbook', showcase: 'Visit profile',
   hello: 'Open starter app', state: 'Try the fictional vault', 'composer-widgets': 'Browse widgets',
-  benchmarks: 'Open Benchmarks Studio', 'top-nine': 'Make a Top Nine board',
+  benchmarks: 'Open Benchmarks Studio', 'top-nine': 'Make a Top Nine board', spin: 'Spin the wheel',
 };
 const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   'prints-desktop': printsDiscovery.keywords,
@@ -151,7 +152,8 @@ const taskSearch: Partial<Record<(typeof entries)[number]['id'], string>> = {
   const search = controls.querySelector<HTMLInputElement>('#app-search')!;
   const category = controls.querySelector<HTMLSelectElement>('#app-category')!;
   const device = controls.querySelector<HTMLSelectElement>('#app-device')!;
-  const entries = [...document.querySelectorAll<HTMLElement>('[data-app]')];
+  const spin = { id: 'spin', name: 'App Composer Spin', category: 'Creative', description: 'Settle a decision with a wheel and a result your friends can verify.', href: '/spin' } as const;
+const entries = [...document.querySelectorAll<HTMLElement>('[data-app]')];
   const results = controls.querySelector<HTMLElement>('#app-results')!;
   const empty = document.querySelector<HTMLElement>('#app-empty')!;
 
