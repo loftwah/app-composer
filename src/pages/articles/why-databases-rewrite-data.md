@@ -43,8 +43,7 @@ App Composer’s [Worker configuration](https://github.com/loftwah/app-composer/
 
 Here is a local SQLite example. Copy it into a shell with `sqlite3` installed. The two inserts model delivery of the same event after an interruption.
 
-```sh
-sqlite3 :memory: <<'SQL'
+<pre><code>sqlite3 :memory: &lt;&lt;'SQL'
 CREATE TABLE receipts (
   job_id TEXT NOT NULL,
   event_id TEXT NOT NULL,
@@ -57,7 +56,7 @@ INSERT INTO receipts VALUES ('job-42', 'completed-1', 'job-42/result.webp')
   ON CONFLICT (job_id, event_id) DO NOTHING;
 SELECT job_id, count(*) FROM receipts GROUP BY job_id;
 SQL
-```
+</code></pre>
 
 The result is `job-42|1`. In a real consumer, derive IDs from the authorised project and job, compare the artifact key and digest on a duplicate, and acknowledge delivery after committing the receipt. An R2 upload and a SQL transaction can fail independently. Use an immutable object key, then reconcile unreferenced objects after the retry window. Retain deduplication records for as long as the event can be replayed and apply the source’s deletion and visibility policy before serving the file.
 

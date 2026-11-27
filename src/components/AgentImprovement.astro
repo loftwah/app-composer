@@ -1,0 +1,95 @@
+---
+import manifest from '../../benchmarks/fixtures/agent-improve-01.json';
+import receipt from '../../benchmarks/results/agent-improve-01.json';
+
+const checks = receipt.suites[0]?.checks ?? [];
+const runnerSource = 'https://github.com/loftwah/app-composer/blob/' + receipt.source;
+const unitByMetric = { elapsedMs: 'ms', tokens: 'tokens', humanMinutes: 'min', incrementalMicroUsd: 'µUSD' };
+const labels = { elapsedMs: 'Time', tokens: 'Tokens', humanMinutes: 'Human effort', incrementalMicroUsd: 'Incremental spend' };
+type Metric = keyof typeof labels;
+const scenarios = manifest.scenarios.map(scenario => {
+  const task = manifest.tasks.find(item => item.id === scenario.task);
+  if (!task) throw new Error('Missing frozen workload for ' + scenario.id);
+  const check = checks.find(item => item.id === scenario.id);
+  return { scenario, task, check, metric: task.metric as Metric };
+});
+const denominator = manifest.scenarios.length + 1;
+const verified = receipt.totals.pass === denominator && receipt.totals.checks === denominator &&
+  checks[0]?.id === 'frozen-plan' && checks[0]?.status === 'pass' &&
+  new Set(checks.map(check => check.id)).size === denominator &&
+  scenarios.every(({ scenario, check }) => check?.status === 'pass' &&
+    check.detail.startsWith(scenario.expected + '.'));
+const decisionLabel = {
+  'accepted-in-simulation': 'Clears simulation',
+  reject: 'Reject',
+  investigate: 'Investigate',
+  retain: 'Retain baseline',
+  stopped: 'Stopped',
+};
+---
+
+<section class="agent-lab" id="agent-improve-01" aria-labelledby="agent-lab-heading">
+  <header>
+    <h2 id="agent-lab-heading">Test an agent improvement before adopting it</h2>
+    <p>AGENT-IMPROVE-01 compares a frozen baseline and candidate on five workloads. The local runner checked the decisions against synthetic evidence. Time, tokens and human effort below are fixture inputs.</p>
+  </header>
+  <p class="receipt">
+    <strong>{verified ? `${receipt.totals.pass}/${denominator} replay checks passed` : 'Replay evidence incomplete'}</strong>
+    <span>Zero provider calls · Real pilot unexecuted</span>
+  </p>
+  <ul class="lab-links">
+    <li><a href={runnerSource + '/benchmarks/fixtures/agent-improve-01.json'}>Frozen tasks and rubric</a></li>
+    <li><a href={runnerSource + '/benchmarks/suites/_agent-improve-evaluator.mjs'}>Evaluator source</a></li>
+    <li><a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/results/agent-improve-01.json">Recorded JSON</a></li>
+  </ul>
+  {scenarios.map(({ scenario, task, check, metric }, index) => (
+    <details open={index === 0}>
+      <summary><span>{task.title}{index >= 5 ? ' · ' + scenario.id.replaceAll('-', ' ') : ''}</span>
+        <strong>{verified ? decisionLabel[scenario.expected as keyof typeof decisionLabel] : 'Unverified'}</strong></summary>
+      <div class="attempt">
+        <p>{task.task}</p>
+        <p><strong>Proposed change.</strong> {task.candidate}</p>
+        <p><strong>{labels[metric]}.</strong> Minimum improvement {task.minimum} {unitByMetric[metric]}.</p>
+        <div class="lab-meters">
+          {(['baseline', 'candidate'] as const).map(side => (
+            <div>
+              <label for={`${scenario.id}-${side}`}>{side === 'baseline' ? 'Baseline' : 'Candidate'} <strong>{scenario[side][metric].toLocaleString('en-AU')} {unitByMetric[metric]}</strong></label>
+              <meter id={`${scenario.id}-${side}`} min="0" max={Math.max(manifest.budget[metric], scenario.baseline[metric], scenario.candidate[metric])} value={scenario[side][metric]}></meter>
+            </div>
+          ))}
+        </div>
+        {verified && <p class="lab-reason">{check?.detail}</p>}
+      </div>
+    </details>
+  ))}
+  <details>
+    <summary>Reproduce the run and review pilot requirements</summary>
+    <div class="attempt">
+      <pre><code>node benchmarks/runner.mjs --suite AGENT-IMPROVE-01</code></pre>
+      <p>{checks[0]?.detail}</p>
+      <p>A real pilot needs a selected agent and model, authorised isolated fixtures, three matched repetitions, independent scoring and a confirmed spend cap. Prices and entitlements remain unknown for the unselected pilot.</p>
+      <p><a href="https://github.com/loftwah/app-composer/issues/1362">Record a pilot, retain or defer decision</a></p>
+    </div>
+  </details>
+</section>
+
+<style>
+  .agent-lab { border-block: 1px solid var(--color-border); margin-block: 42px; padding-block: 32px; }
+  .agent-lab header { max-width: 70ch; margin-bottom: 20px; }
+  h2 { margin: 0 0 14px; font-size: clamp(1.65rem, 3.5vw, 2.55rem); letter-spacing: -.025em; line-height: 1.1; }
+  p { line-height: 1.55; }
+  .receipt, .lab-links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .receipt span { color: var(--color-muted); }
+  .lab-links { padding: 0; list-style: none; margin: 0 0 16px; }
+  .lab-links a { min-height: 44px; display: inline-flex; align-items: center; }
+  details { border-top: 1px solid var(--color-border); }
+  summary { min-height: 48px; padding: 13px 0; cursor: pointer; line-height: 1.4; }
+  summary span { padding-right: 12px; }
+  summary strong { color: var(--color-accent); font-size: .9em; }
+  .attempt { max-width: 75ch; padding: 0 0 12px; overflow-wrap: anywhere; }
+  .lab-meters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; }
+  .lab-meters label { display: flex; gap: 6px; flex-wrap: wrap; }
+  meter { display: block; inline-size: 100%; block-size: 16px; accent-color: var(--color-accent); }
+  pre { overflow-x: auto; }
+  @media (max-width: 440px) { summary strong { display: block; margin-left: 1em; } }
+</style>
