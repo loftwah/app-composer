@@ -2,22 +2,24 @@
 import ShareExamples from '../../../components/ShareExamples.astro';
 import Base from '../../../layouts/Base.astro';
 import { noindexFor } from '../../../lib/indexing.mjs';
-import { creatorHubMedia, shareExamples } from '../../../lib/share-examples';
+import { shareExamples } from '../../../lib/share-examples';
 
 const id = Astro.params.example;
 const example = shareExamples.find((item) => item.id === id);
 if (id && !example) return new Response(null, { status: 404 });
 
-const creatorCover = example?.id === 'creator-hub'
-  ? new URL(creatorHubMedia.card, 'https://composer.loftwah.com').href
+const shareCover = example?.id === 'creator-hub' || example?.id === 'first-app-rehearsal'
+  ? example.lead
   : undefined;
 ---
 
 <Base title={example ? example.title : 'Try a finished project'}
   description={example?.description ?? 'Open editable covers, finished PDFs and working creator apps.'}
   noindex={noindexFor(Astro.url.hostname, true)}
-  shareImage={creatorCover}
-  shareAlt={creatorCover ? 'Creator Hub’s working profile for fictional ceramicist Mara Quinn.' : undefined}>
+  shareImage={shareCover?.src}
+  shareAlt={shareCover?.alt}
+  shareWidth={shareCover?.width}
+  shareHeight={shareCover?.height}>
   <a href="/demo">← Demos</a>
   <ShareExamples example={example} />
 </Base>

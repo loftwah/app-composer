@@ -1,0 +1,54 @@
+{
+  "id": "FREE-FIRST-01",
+  "kind": "operator-rehearsal",
+  "observedOn": "2026-11-27",
+  "status": "partial",
+  "static": {
+    "id": "STATIC-01",
+    "reference": "https://paperwork.loftwah.com/?sample=lab",
+    "source": "e9ed079092f8876dd270802db4ba622e36490cbc",
+    "workerVersion": "e811e929-f4b2-40e5-ae2c-74f50d869074",
+    "referenceRelease": "https://github.com/loftwah/app-composer-paperwork/pull/65#issuecomment-7184631297",
+    "referenceGuardMs": 17943,
+    "referenceFirstEditToLiveMs": 743479,
+    "referencePlan": "Workers Paid",
+    "firstUsefulInteractionMs": {
+      "desktop1440": 1197,
+      "phone390": 1707
+    },
+    "editRecoveryExportReopenMs": {
+      "desktop1440": 2299,
+      "phone390": 2831
+    },
+    "nonGetRequests": 0,
+    "inferenceRequests": 0,
+    "local": {
+      "prepareMs": 1692,
+      "dependencyInstallMs": 11399,
+      "firstBuildMs": 1576,
+      "followUpBuildMs": 487,
+      "wranglerDryRunMs": 1206,
+      "assets": 257,
+      "runtimeBindings": 0,
+      "newDeploymentMs": null
+    },
+    "billedUsd": null,
+    "estimatedMarginalStaticServingUsd": 0
+  },
+  "ai": {
+    "id": "AI-ART-01",
+    "historicalObservedOn": "2026-11-25",
+    "result": "https://composer.loftwah.com/articles/workers-ai-to-original",
+    "providerReceipt": "https://github.com/loftwah/app-composer/issues/997#issuecomment-7162591975",
+    "model": "@cf/leonardo/lucid-origin",
+    "successfulRequests": 3,
+    "newInferenceRequests": 0,
+    "originalSha256": "5bba254c526ea61b840638bd82c7a5c0792a28458df7045850099b268ef23808",
+    "firstUsefulInteractionMs": null,
+    "newDeploymentMs": null,
+    "neurons": null,
+    "billedUsd": null
+  },
+  "agentBuildBilledUsd": null,
+  "independentParticipant": false
+}

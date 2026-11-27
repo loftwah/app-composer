@@ -1,6 +1,6 @@
 # Paperwork acceptance — 24 October 2026
 
-Composer Init now uses Paperwork source `130ebdd7d3c7fab2adbb27f8f93d25c4a3bd1e62`, verified in the standalone editor on 24 November 2026. The October receipt below describes the earlier release. [Composer #264](https://github.com/loftwah/app-composer/issues/264) · [Paperwork release proof](https://github.com/loftwah/app-composer-paperwork/pull/62#issuecomment-7122509546).
+Composer Init uses Paperwork source `e9ed079092f8876dd270802db4ba622e36490cbc`. The 27 November operator rehearsal reproduced this pin and checked recovery on the standalone release. [Benchmark Studio](https://composer.loftwah.com/benchmarks#free-first-01) · [Paperwork recovery release](https://github.com/loftwah/app-composer-paperwork/pull/65). The October receipt below describes the earlier release. [Composer #264](https://github.com/loftwah/app-composer/issues/264) · [Paperwork release proof](https://github.com/loftwah/app-composer-paperwork/pull/62#issuecomment-7122509546).
 
 [Open Paperwork](https://paperwork.loftwah.com/) · [Four-page fictional sample](https://paperwork.loftwah.com/?sample=lab) · [Completed PDF](https://composer.loftwah.com/paperwork/lab-completed-20261024b.pdf) · [Configure in Init](https://composer.loftwah.com/init/paperwork)
 
