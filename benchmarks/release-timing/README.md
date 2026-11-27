@@ -13,8 +13,8 @@ provider, run a hosted job or publish private evidence.
 A receipt records repo, project, exact 40-character source SHA, run ID, release
 kind and path, start/end UTC, target and limit, monotonic total and stage times,
 status (`passed`, `over-budget`, `failed` or `incomplete`), failure text, notes
-and alert state. **Exactly 300,000 ms is a breach.** Only a duration strictly
-below 300,000 ms may be called `passed`. The canonical contract and generator are
+and alert state. **A duration at the recorded 120,000 or 300,000 ms limit is a breach.** Only a duration strictly
+below its recorded limit may be called `passed`. The canonical contract and generator are
 [`lib/delivery/release-timing.mjs`](../../lib/delivery/release-timing.mjs) and
 [issue #624](https://github.com/loftwah/app-composer/issues/624).
 
@@ -40,7 +40,9 @@ node benchmarks/release-timing/report.mjs --dir /path/to/other-repo/.release/tim
 ```
 
 The directory is read in file-name order. Only `receipt-*.json` files are read;
-`breaches.json` and `pending/` are ignored.
+`breaches.json` and `pending/` are ignored. An unfinished `running` receipt
+is excluded from the directory comparison and counted on stderr. Portable
+packs and single-receipt imports still require finished evidence.
 
 Print the deterministic JSON comparison instead of the table:
 
@@ -103,9 +105,9 @@ comparison needs:
   field;
 - a missing total, stage duration, timestamp, coverage label or other required
   field;
-- a `passed` or `over-budget` status that disagrees with the 300,000 ms boundary,
-  or a limit other than 300,000 ms;
-- a status of `running`: an unfinished run is not comparison evidence;
+- a `passed` or `over-budget` status that disagrees with the recorded limit,
+  or a limit other than 120,000 or 300,000 ms;
+- a status of `running` in a portable import;
 - a live revision that is missing for a finished pass, malformed or different
   from the source SHA;
 - a repeated run ID in one batch;

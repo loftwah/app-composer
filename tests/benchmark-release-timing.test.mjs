@@ -4,7 +4,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -81,6 +82,25 @@ test("Composer and Studio fixtures keep genuinely different measured durations",
   assert.equal(studio.slowestStage.name, "Worker upload");
   assert.equal(composer.coveragePct, 93.3);
   assert.equal(studio.coveragePct, 99.99);
+});
+
+test("directory reports finished receipts and discloses unfinished runs", (ctx) => {
+  const dir = mkdtempSync(path.join(tmpdir(), "composer-timing-report-"));
+  ctx.after(() => rmSync(dir, { recursive: true, force: true }));
+  const pending = path.join(dir, "receipt-running.json");
+  writeFileSync(pending, JSON.stringify(validReceipt({ status: "running", endedAt: null })));
+  assert.throws(() => loadReceiptDirectory(dir), /no finished receipts/);
+  assert.throws(() => loadPack(pending), /unsupported status "running"/);
+  writeFileSync(path.join(dir, "receipt-verified.json"), JSON.stringify(validReceipt({
+    runId: "finished-11111111-1111-4111-8111-111111111111",
+  })));
+  const stdout = [];
+  const stderr = [];
+  assert.equal(main(["--dir", dir, "--json"], {
+    log: line => stdout.push(line), error: line => stderr.push(line),
+  }), 0);
+  assert.equal(JSON.parse(stdout[0]).runs, 1);
+  assert.deepEqual(stderr, ["release-timing report: skipped 1 unfinished receipt"]);
 });
 
 test("the strict 300,000 ms boundary is enforced on the receipt status", () => {
