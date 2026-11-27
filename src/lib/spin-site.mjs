@@ -1,5 +1,5 @@
 export const spinOrigin = 'https://spin.loftwah.com';
-export const spinArtwork = '/spin-brand/decision-wheel-20261127.jpg';
+export const spinArtwork = '/spin-brand/decision-wheel-20261127b.jpg';
 export const spinArtworkAlt = 'App Composer Spin. Settle it with a spin. An illustrated decision wheel with fish and chips, a game controller and a flat white.';
 export const spinIcon = '/spin-brand/icon-192.png';
 export const spinDiscovery = Object.freeze({

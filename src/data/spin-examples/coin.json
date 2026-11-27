@@ -1,0 +1,46 @@
+{
+  "version": "composer.spin/1",
+  "id": "adabfe29-c814-4e03-9a86-c286ec0f2e32",
+  "config": {
+    "question": "Heads or tails?",
+    "entries": [
+      "Heads",
+      "Tails"
+    ],
+    "bestOf": 3
+  },
+  "configHash": "c386bba0ff9d56fcaf062728c59d73771f647fafd2cc4024678aa3a112e1e8bf",
+  "commitment": "cc2d8de5d2558d194ece18ab84b9612318a5edc67e1e96203f850ee80ae1d51a",
+  "status": "completed",
+  "revision": 2,
+  "rounds": [
+    {
+      "index": 0,
+      "winner": 0,
+      "eligible": [
+        0,
+        1
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T08:58:39.407Z"
+    },
+    {
+      "index": 1,
+      "winner": 0,
+      "eligible": [
+        0,
+        1
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T08:58:39.522Z"
+    }
+  ],
+  "totals": [
+    2,
+    0
+  ],
+  "winner": 0,
+  "tieBreak": false,
+  "expiresAt": "2026-12-27T08:58:38.713Z",
+  "seed": "8b79aa7f6ab450081d8f651db6da52fb7f8446faaa4777fc32e60ddfb17faf9e"
+}

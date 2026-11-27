@@ -80,6 +80,7 @@ test('the Australian takeaway wheel fits and new large wheels stay independently
     assert.ok(validateSpinConfig({ question: preset.question, entries: preset.entries, bestOf: 3 }), preset.id);
   }
   assert.equal(spinPresetById.takeaway.entries.length, 24);
+  assert.deepEqual(spinPresetById['fast-food-three'].entries, ['Maccas', 'Hungry Jack’s', 'KFC']);
   const entries = Array.from({length: spinChoiceLimit}, (_, index) => 'Choice ' + (index + 1));
   assert.ok(validateSpinConfig({ question: 'Which choice?', entries, bestOf: 3 }));
   assert.equal(validateSpinConfig({ question: 'Which choice?', entries: [...entries, 'Overflow'], bestOf: 3 }), null);
@@ -88,4 +89,15 @@ test('the Australian takeaway wheel fits and new large wheels stay independently
   const outcome = await advanceSpin(db, created.session.id, created.owner, 0, false, now);
   assert.equal(outcome.session.status, 'completed');
   assert.equal(await verifySpin(outcome.session), true);
+});
+
+test('all public Spin examples are completed receipts with no creator key', async () => {
+  const { readSpinExample, spinExamples } = await import('../src/lib/spin-examples.mjs');
+  for (const key of Object.keys(spinExamples)) {
+    const receipt = await readSpinExample(key);
+    assert.equal(receipt.status, 'completed');
+    assert.equal('owner' in receipt, false);
+    assert.equal(await verifySpin(receipt), true);
+  }
+  assert.equal(await readSpinExample('constructor'), null);
 });

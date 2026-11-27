@@ -323,3 +323,13 @@ The owner-facing rule is unchanged: a skin earns its place by keeping every
 control, label, role and action usable and readable in both themes. The full
 recipe and verification contract is
 [the appearance skin contract](docs/appearance-skin-contract.md).
+
+## App Composer Spin identity — 27 November 2026
+
+Spin is a first-party mini-app at `spin.loftwah.com`. Use the approved orange
+Composer tile with the Space Grotesk Spin wordmark in the header and launch
+materials. The three-segment wheel and cream pointer make the app recognisable
+at icon sizes. Plum, cream, coral and teal carry the illustrated product
+identity through the wheel, cards and takeaway art. Use the supplied light and
+dark lockups on their matching backgrounds. The first view offers a quick spin
+and a separate commitment-first action before the optional wheel editor.

@@ -1,6 +1,7 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
 import { renderSpinPng, renderSpinVideo, replayVideoType, winnerAngle } from './spin-export.mjs';
 import { winnerArtwork } from './spin-winner-art.mjs';
+import { readSpinExample } from '../lib/spin-examples.mjs';
 import { spinOrigin } from '../lib/spin-site.mjs';
 import { spinPresetById } from '../lib/spin-presets.mjs';
 import { spinChoiceLimit, spinProgress, validateSpinConfig, verifySpin } from '../lib/spin-protocol.mjs';
@@ -15,6 +16,7 @@ function mount(root) {
   const setup = get('setup');
   const { question, bestOf } = setup.elements;
   const currentId = new URL(location.href).searchParams.get('session');
+  const example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
   const colors = ['#ff946b', '#ffe0a5', '#4eb8aa', '#c9acf0', '#f395b4', '#b7ce78', '#92d2f2'];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -33,7 +35,8 @@ function mount(root) {
     ? `First to ${Math.floor(config.bestOf / 2) + 1} wins. Each round draws from both choices.`
     : `Play ${config.bestOf} counted spins. Tied leaders get a final spin. Each counted spin starts with all choices.`;
   const templateLink = config => spinOrigin + '/#' + new URLSearchParams({ wheel: JSON.stringify(config) });
-  const shareUrl = id => new URL(root.dataset.spinPath + '?session=' + encodeURIComponent(id), location.origin).href;
+  const shareUrl = id => example ? spinOrigin + '/?example=' + encodeURIComponent(example) :
+    new URL(root.dataset.spinPath + '?session=' + encodeURIComponent(id), location.origin).href;
 
   function fit(context, value, max) {
     let text = value;
@@ -116,7 +119,9 @@ function mount(root) {
       return li;
     }));
     get('commitment').textContent = next.commitment;
-    get('expiry').textContent = 'Available until ' + new Date(next.expiresAt).toLocaleDateString('en-AU') + '.';
+    get('expiry').textContent = example ? 'Public launch example from a completed session.' :
+      'Available until ' + new Date(next.expiresAt).toLocaleDateString('en-AU') + '.';
+    get('refresh').hidden = Boolean(example);
     get('draw').hidden = !owner || next.status !== 'open';
     get('auto').hidden = get('draw').hidden || next.config.bestOf === 1;
     get('abandon').hidden = !owner || next.status !== 'open';
@@ -147,7 +152,7 @@ function mount(root) {
         last ? 'Round ' + (last.index + 1) + ': ' + next.config.entries[last.winner] :
           'Wheel locked. Share the link before spinning.');
     if (next.status !== 'open') {
-      try { localStorage.removeItem(key(next.id)); } catch {}
+      try { if (!example) localStorage.removeItem(key(next.id)); } catch {}
       get('verification').textContent = 'Checking receipt…';
       void verifySpin(next).then(verified => {
         if (session === next) get('verification').textContent = verified ?
@@ -234,7 +239,7 @@ function mount(root) {
     download(blob, `spin-${session.id.slice(0, 8)}-${style}.png`);
   }
 
-  const localEntries = currentId ? () => [] : mountSpinEditor(setup, updatePreview);
+  const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, updatePreview);
   setup.addEventListener('submit', event => {
     event.preventDefault();
     void perform(async () => {
@@ -245,7 +250,10 @@ function mount(root) {
       try { localStorage.setItem(key(created.session.id), owner); } catch {}
       history.replaceState(null, '', shareUrl(created.session.id));
       render(created.session);
-      get('share').focus();
+      if (event.submitter === get('spin-now')) {
+        await drawOne();
+        (session.status === 'open' ? get('draw') : get('share')).focus();
+      } else get('share').focus();
     });
   });
 
@@ -340,7 +348,10 @@ function mount(root) {
     download(new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' }), 'spin-' + session.id + '.json');
   });
 
-  if (currentId) {
+  if (example) {
+    showResult('Opening example…');
+    void perform(async () => render(await readSpinExample(example)));
+  } else if (currentId) {
     showResult('Opening session…');
     try { owner = localStorage.getItem(key(currentId)) || ''; } catch {}
     void perform(async () => {

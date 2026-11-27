@@ -1,0 +1,77 @@
+{
+  "version": "composer.spin/1",
+  "id": "677dd723-a74a-4424-a51c-6c71f4803ed3",
+  "config": {
+    "question": "What should we play?",
+    "entries": [
+      "Codenames",
+      "Mario Kart",
+      "Jackbox",
+      "Chess"
+    ],
+    "bestOf": 3
+  },
+  "configHash": "f974bd10b04cd4348086e83e1c40eaf20249bf5591aea36ce7494f33b2369eee",
+  "commitment": "2489a8ea9a8d38a4292b1f784aabfcb118ee9fd339ca7db4f24fda041ad85a0c",
+  "status": "completed",
+  "revision": 4,
+  "rounds": [
+    {
+      "index": 0,
+      "winner": 1,
+      "eligible": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T08:47:37.657Z"
+    },
+    {
+      "index": 1,
+      "winner": 0,
+      "eligible": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T08:47:37.897Z"
+    },
+    {
+      "index": 2,
+      "winner": 2,
+      "eligible": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T08:47:37.985Z"
+    },
+    {
+      "index": 3,
+      "winner": 1,
+      "eligible": [
+        0,
+        1,
+        2
+      ],
+      "tieBreak": true,
+      "at": "2026-11-27T08:47:38.082Z"
+    }
+  ],
+  "totals": [
+    1,
+    2,
+    1,
+    0
+  ],
+  "winner": 1,
+  "tieBreak": false,
+  "expiresAt": "2026-12-27T08:47:37.306Z",
+  "seed": "11d138a787d7cf4a30039c59e239e3aa993b81b543f91f5a20acfaa5a7ad1280"
+}
