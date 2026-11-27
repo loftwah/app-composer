@@ -1,5 +1,6 @@
 ---
-import { ArrowLeft, ArrowUpRight } from '@lucide/astro';
+import { ArrowUpRight } from '@lucide/astro';
+import ShareSections from './ShareSections.astro';
 import { shareFilms, studioFilmPath } from '../lib/share-films.ts';
 
 const [socialKit, studioTeaser, workshop] = shareFilms;
@@ -51,35 +52,37 @@ const films = [
     <h1 id="films-heading">Films<span aria-hidden="true">.</span></h1>
     <div class="films-intro">
       <p>Watch short films from our projects.</p>
-      <nav class="films-links" aria-label="Share films">
-        <a href="/share"><ArrowLeft size={15} aria-hidden="true" /> Artwork</a>
-        <a href="/share?tag=operation-world-domination">Operation World Domination <ArrowUpRight size={14} aria-hidden="true" /></a>
-        <a href="/media-studio/films#my-feedback">Private feedback <ArrowUpRight size={14} aria-hidden="true" /></a>
-      </nav>
+      <ShareSections current="films" />
     </div>
   </header>
 
   <ul class="film-list" role="list">
     {films.map((film) => (
-      <li class="film" id={film.id}>
+      <li class:list={['film', film.id === workshop.id && 'film-feature']} id={film.id}>
         <video controls playsinline preload="none" poster={film.poster} width={film.width} height={film.height}
           class:list={['film-player', film.portrait && 'film-player-portrait']} aria-labelledby={`${film.id}-title`}>
           <source src={film.src} type="video/mp4" />
           <track kind="captions" src={film.captions} srclang="en" label="English captions" default />
           <a href={film.src}>Open {film.title}</a>
         </video>
-        <h2 id={`${film.id}-title`}>{film.title}</h2>
-        <p>{film.detail}</p>
-        {film.credit && <p class="film-credit">{film.credit}</p>}
-        <nav class="film-actions" aria-label={`${film.title} files`}>
-          <a href={film.src} download>Download film</a>
-          {film.transcript && <a href={film.transcript}>Transcript</a>}
-        </nav>
+        <div class="film-copy">
+          <h2 id={`${film.id}-title`}>{film.title}</h2>
+          <p>{film.detail}</p>
+          {film.credit && <p class="film-credit">{film.credit}</p>}
+          <nav class="film-actions" aria-label={`${film.title} files`}>
+            <a href={film.src} download>Download film</a>
+            {film.transcript && <a href={film.transcript}>Transcript</a>}
+          </nav>
+        </div>
       </li>
     ))}
   </ul>
 
-  <p class="films-detail"><a href="/media-studio#watch">Watch the full Studio build <ArrowUpRight size={14} aria-hidden="true" /></a></p>
+  <nav class="films-detail" aria-label="More about the films">
+    <a href="/share?tag=operation-world-domination">Operation World Domination <ArrowUpRight size={14} aria-hidden="true" /></a>
+    <a href="/media-studio#watch">Watch the full Studio build <ArrowUpRight size={14} aria-hidden="true" /></a>
+    <a href="/media-studio/films#my-feedback">Private feedback <ArrowUpRight size={14} aria-hidden="true" /></a>
+  </nav>
 </section>
 
 <style>
@@ -88,18 +91,47 @@ const films = [
   .films-heading h1 { margin: 0; font-size: clamp(3rem, 6vw, 5rem); line-height: .94; letter-spacing: -.04em; }
   .films-heading h1 span { color: var(--color-accent); }
   .films-intro p { margin: 0; max-width: 62ch; color: var(--color-muted); font-size: clamp(.875rem, 1.4vw, 1.1rem); line-height: 1.4; }
-  .films-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1.25rem; margin-block-start: .5rem; font-weight: 650; }
-  .films-links a, .films-detail a { display: inline-flex; align-items: center; gap: .28rem; min-height: 44px; }
-  .films-links a:hover, .films-detail a:hover { color: var(--color-accent); }
-  .film-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: clamp(1.35rem, 2.7vw, 3rem) clamp(.75rem, 1.7vw, 1.75rem); max-width: none; padding: 0; margin: 0; }
-  .film { border-top: 1px solid var(--color-border); padding-block-start: 1rem; }
-  .film-player { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--color-background); }
+  .film-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.3rem, 3vw, 2.75rem);
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  .film {
+    display: grid;
+    grid-template-columns: minmax(0, .7fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+    min-width: 0;
+    border-top: 1px solid var(--color-border);
+    padding-block-start: 1rem;
+  }
+  .film-feature {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1rem, 4vw, 4rem);
+    padding: clamp(.75rem, 2vw, 1.75rem);
+    border: 0;
+    background: var(--color-surface);
+  }
+  .film-player { display: block; width: 100%; height: auto; border-radius: 8px; background: #101214; }
   .film-player-portrait { width: min(100%, 14rem); }
-  .film h2 { margin: .9rem 0 .4rem; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.2; }
+  .film h2 { margin: .15rem 0 .4rem; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.2; }
+  .film-feature h2 { max-width: 13ch; font-size: clamp(1.75rem, 4vw, 3.3rem); line-height: 1.02; }
   .film p { margin: 0 0 .35rem; color: var(--color-muted); font-size: .9rem; }
   .film .film-credit { font-size: .8rem; }
   .film-actions { display: flex; flex-wrap: wrap; gap: 0 1rem; margin-block-start: .35rem; font-size: .875rem; font-weight: 650; }
   .film-actions a { display: inline-flex; align-items: center; min-height: 44px; }
-  .films-detail { margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding-block-start: 1rem; border-top: 1px solid var(--color-border); font-size: .9rem; }
-  .films-detail a { color: var(--color-muted); }
+  .films-detail { display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding-block-start: 1rem; border-top: 1px solid var(--color-border); font-size: .9rem; }
+  .films-detail a { display: inline-flex; align-items: center; gap: .25rem; min-height: 44px; color: var(--color-muted); }
+  .film-actions a:hover, .films-detail a:hover { color: var(--color-accent); }
+  @media (max-width: 700px) {
+    .film-list { grid-template-columns: 1fr; }
+    .film-feature { grid-template-columns: 1fr; }
+    .film-feature h2 { max-width: none; }
+  }
 </style>

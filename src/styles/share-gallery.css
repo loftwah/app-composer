@@ -11,7 +11,7 @@
   grid-template-areas: "title shuffle" "description shuffle";
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.55rem 0.75rem;
-  margin-block-end: clamp(1.2rem, 2.8vw, 2.75rem);
+  margin-block-end: .75rem;
 }
 
 .gallery-heading h1 {
@@ -35,25 +35,6 @@
   color: var(--color-muted);
   font-size: clamp(0.875rem, 1.4vw, 1.1rem);
   line-height: 1.4;
-}
-
-.gallery-account {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.15rem 0.65rem;
-  font-size: 0.9rem;
-}
-
-.gallery-heading .gallery-account {
-  margin-block-start: 0.3rem;
-}
-
-.gallery-account a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-weight: 650;
 }
 
 .gallery-feedback {
@@ -730,6 +711,7 @@ p.gallery-piece-section a {
 @media (max-width: 37rem) {
   .gallery-heading {
     grid-template-areas: "title shuffle" "description description";
+    margin-block-end: .35rem;
   }
 
   .button.gallery-shuffle {

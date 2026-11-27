@@ -1,0 +1,35 @@
+---
+interface Props {
+  current: 'artwork' | 'films';
+}
+const { current } = Astro.props;
+---
+
+<nav class="share-sections" aria-label="Explore Share">
+  <a href="/share" aria-current={current === 'artwork' ? 'page' : undefined}>Artwork</a>
+  <a href="/share?view=films" aria-current={current === 'films' ? 'page' : undefined}>Films</a>
+  <a href="/share?tag=internet-workshop">Internet Workshop</a>
+</nav>
+
+<style>
+  .share-sections {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 clamp(.75rem, 3vw, 1.75rem);
+  }
+  .share-sections a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: .15rem;
+    border-block-end: 2px solid transparent;
+    color: var(--color-muted);
+    font-size: .9rem;
+    font-weight: 650;
+  }
+  .share-sections :is(a:hover, a[aria-current]) {
+    border-block-end-color: var(--color-brand);
+    color: var(--color-foreground);
+  }
+</style>
