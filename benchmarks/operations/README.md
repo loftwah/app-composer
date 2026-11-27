@@ -1,13 +1,14 @@
 # Continuous operations evaluation
 
-**Status: definitions only. No live Cloudflare measurement, scheduled agent, provider execution, production modification or verified benchmark result exists by virtue of these files.**
+**PERF-HILL-01 and AGENT-HORIZON-01 are protocol definitions. AGENT-IMPROVE-01 has a local synthetic replay.**
 
 Recorded 2026/11/23 Australia/Melbourne (AEDT, UTC+11) / 2026/11/23 UTC.
 
-This directory contains two **distinct** protocols inspired by [Rhys Sullivan's long-horizon observability-agent prompt](https://x.com/RhysSullivan/status/2107211178837733444) and the [Rat Stack hill-climb adaptation](https://ratstack.sh/prompts). T3 Code's [Orchestrator V2](https://github.com/pingdotgg/t3code/blob/main/docs/orchestration-v2/orchestrator-mcp-server.md) demonstrates an optional reference implementation of recurring tasks and delegation, not a Composer dependency.
+Two of the protocols below were inspired by [Rhys Sullivan's long-horizon observability-agent prompt](https://x.com/RhysSullivan/status/2107211178837733444) and the [Rat Stack hill-climb adaptation](https://ratstack.sh/prompts). T3 Code's [Orchestrator V2](https://github.com/pingdotgg/t3code/blob/main/docs/orchestration-v2/orchestrator-mcp-server.md) demonstrates an optional reference implementation of recurring tasks and delegation, not a Composer dependency.
 
 | Evaluation | Question | Owning issue | Protocol |
 | --- | --- | --- | --- |
+| AGENT-IMPROVE-01 | Can a frozen evaluator distinguish useful candidates from regressions or missing evidence? | [#1362](https://github.com/loftwah/app-composer/issues/1362) | [agent-improve-01.md](agent-improve-01.md) |
 | PERF-HILL-01 | Can an agent find and **prove** a useful, safe performance improvement? | [#1120](https://github.com/loftwah/app-composer/issues/1120) | [perf-hill-01.md](perf-hill-01.md) |
 | AGENT-HORIZON-01 | Can the maintenance loop operate repeatedly without hallucinated progress, runaway costs or unsafe actions? | [#1121](https://github.com/loftwah/app-composer/issues/1121) | [agent-horizon-01.md](agent-horizon-01.md) |
 

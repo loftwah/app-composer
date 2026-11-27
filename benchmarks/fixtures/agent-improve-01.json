@@ -1,0 +1,448 @@
+{
+  "version": "composer.agent-improvement/1",
+  "id": "AGENT-IMPROVE-01",
+  "evaluator": "agent-improve-evaluator/1",
+  "baselineSource": "849dfc7f4d2fe36bc9913c377509d4f88e10ec85",
+  "baselineConfiguration": {
+    "handoff": "current workflow and unstructured notes",
+    "routing": "existing selected-agent route",
+    "permissions": "fixture-only"
+  },
+  "independentEvaluator": "repository-owned fixture rubric, outside candidate configuration",
+  "budget": {
+    "elapsedMs": 5000,
+    "tokens": 3000,
+    "humanMinutes": 10,
+    "incrementalMicroUsd": 0
+  },
+  "requiredChecks": [
+    "correctness",
+    "quality",
+    "safety",
+    "recovery"
+  ],
+  "tasks": [
+    {
+      "id": "instruction",
+      "title": "Instruction and skill handoff",
+      "task": "Resume a fictional accessibility fix from a compact source-linked handoff.",
+      "candidate": "Use a structured decision and verification note instead of the current free-text handoff.",
+      "metric": "humanMinutes",
+      "minimum": 2,
+      "tuning": "One public synthetic example for calibration",
+      "heldOut": "Three matched, independently scored repetitions reserved for a future authorised pilot"
+    },
+    {
+      "id": "reuse",
+      "title": "Build, buy, integrate or reuse",
+      "task": "Select a path for fictional club forms against privacy, portability and budget requirements.",
+      "candidate": "Compare the existing browser-local tool against buy, build and integration proposals with the same rubric.",
+      "metric": "humanMinutes",
+      "minimum": 2,
+      "tuning": "One public synthetic example for calibration",
+      "heldOut": "Three matched, independently scored repetitions reserved for a future authorised pilot"
+    },
+    {
+      "id": "burden",
+      "title": "Human engineering effort",
+      "task": "Return a fictional staged release with one decision and a reproducible check.",
+      "candidate": "Replace routine operator confirmation with an evidence and approval summary.",
+      "metric": "humanMinutes",
+      "minimum": 2,
+      "tuning": "One public synthetic example for calibration",
+      "heldOut": "Three matched, independently scored repetitions reserved for a future authorised pilot"
+    },
+    {
+      "id": "performance",
+      "title": "Performance and regression",
+      "task": "Replay the same synthetic document journey and verify both save and reopen.",
+      "candidate": "Defer work outside the first useful interaction while keeping save and reopen checks.",
+      "metric": "elapsedMs",
+      "minimum": 200,
+      "tuning": "One public synthetic example for calibration",
+      "heldOut": "Three matched, independently scored repetitions reserved for a future authorised pilot"
+    },
+    {
+      "id": "context",
+      "title": "Token and context efficiency",
+      "task": "Resume a fictional bug report with unrelated history and preserved owner decisions.",
+      "candidate": "Provide the current evidence, scope and recovery state in a smaller context packet.",
+      "metric": "tokens",
+      "minimum": 300,
+      "tuning": "One public synthetic example for calibration",
+      "heldOut": "Three matched, independently scored repetitions reserved for a future authorised pilot"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "instruction-gain",
+      "task": "instruction",
+      "expected": "accepted-in-simulation",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 5,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "reuse-gain",
+      "task": "reuse",
+      "expected": "accepted-in-simulation",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 6,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "human-burden-gain",
+      "task": "burden",
+      "expected": "accepted-in-simulation",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 4,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "performance-regression",
+      "task": "performance",
+      "expected": "reject",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 3100,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "context-gain",
+      "task": "context",
+      "expected": "accepted-in-simulation",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1150,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "required-blocked",
+      "task": "instruction",
+      "expected": "investigate",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "blocked",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 4,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "evidence-missing",
+      "task": "reuse",
+      "expected": "investigate",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 4,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "equal",
+      "task": "performance",
+      "expected": "retain",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "budget-exceeded",
+      "task": "context",
+      "expected": "stopped",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 4200,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "evaluator-changed",
+      "task": "context",
+      "expected": "stopped",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 900,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "unreviewed-evaluator"
+    },
+    {
+      "id": "stale-baseline",
+      "task": "instruction",
+      "expected": "stopped",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 4,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "evaluator": "agent-improve-evaluator/1"
+    },
+    {
+      "id": "recovery-failed",
+      "task": "burden",
+      "expected": "reject",
+      "baseline": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "pass"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 8,
+        "incrementalMicroUsd": 0
+      },
+      "candidate": {
+        "evidence": {
+          "correctness": "pass",
+          "quality": "pass",
+          "safety": "pass",
+          "recovery": "fail"
+        },
+        "elapsedMs": 2600,
+        "tokens": 1700,
+        "humanMinutes": 4,
+        "incrementalMicroUsd": 0
+      },
+      "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+      "evaluator": "agent-improve-evaluator/1"
+    }
+  ],
+  "evaluatorSha256": "1dc93a484159e2391f0e18324444100f2e2144340cb9c9769b485576447ed869"
+}

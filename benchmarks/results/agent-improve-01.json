@@ -1,0 +1,109 @@
+{
+  "source": "1c027088107ad2b987a31f73101d5e5ddbe6d4a3",
+  "generatedAt": "2026-11-27T08:05:00.238Z",
+  "node": "v26.13.1",
+  "platform": "darwin arm64",
+  "totals": {
+    "pass": 13,
+    "fail": 0,
+    "blocked": 0,
+    "checks": 13
+  },
+  "suites": [
+    {
+      "id": "AGENT-IMPROVE-01",
+      "name": "Agent improvement dry run",
+      "status": "pass",
+      "durationMs": 1,
+      "checks": [
+        {
+          "id": "frozen-plan",
+          "name": "Frozen baseline, workload and evaluator",
+          "status": "pass",
+          "detail": "Fixture SHA-256 7f3d3c21d4498e86f215d1817f606e55fb21232631a44b6d6e3abd5563b21d3f; baseline SHA-256 2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9; evaluator SHA-256 1dc93a484159e2391f0e18324444100f2e2144340cb9c9769b485576447ed869. Synthetic replay, zero provider calls."
+        },
+        {
+          "id": "instruction-gain",
+          "name": "instruction gain",
+          "status": "pass",
+          "detail": "accepted-in-simulation. The fixture clears every required check and the improvement minimum. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "reuse-gain",
+          "name": "reuse gain",
+          "status": "pass",
+          "detail": "accepted-in-simulation. The fixture clears every required check and the improvement minimum. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "human-burden-gain",
+          "name": "human burden gain",
+          "status": "pass",
+          "detail": "accepted-in-simulation. The fixture clears every required check and the improvement minimum. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "performance-regression",
+          "name": "performance regression",
+          "status": "pass",
+          "detail": "reject. A measured dimension regressed in the synthetic fixture. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "context-gain",
+          "name": "context gain",
+          "status": "pass",
+          "detail": "accepted-in-simulation. The fixture clears every required check and the improvement minimum. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "required-blocked",
+          "name": "required blocked",
+          "status": "pass",
+          "detail": "investigate. Candidate evidence is blocked, incomplete or unverified. Required checks passed: baseline 4/4, candidate 3/4."
+        },
+        {
+          "id": "evidence-missing",
+          "name": "evidence missing",
+          "status": "pass",
+          "detail": "investigate. The baseline lacks a complete passing denominator. Required checks passed: baseline 1/4, candidate 4/4."
+        },
+        {
+          "id": "equal",
+          "name": "equal",
+          "status": "pass",
+          "detail": "retain. The change is below the predeclared minimum. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "budget-exceeded",
+          "name": "budget exceeded",
+          "status": "pass",
+          "detail": "stopped. The simulated attempt exceeded a predeclared resource ceiling. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "evaluator-changed",
+          "name": "evaluator changed",
+          "status": "pass",
+          "detail": "stopped. Evaluator identity changed. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "stale-baseline",
+          "name": "stale baseline",
+          "status": "pass",
+          "detail": "stopped. Baseline configuration is stale. Required checks passed: baseline 4/4, candidate 4/4."
+        },
+        {
+          "id": "recovery-failed",
+          "name": "recovery failed",
+          "status": "pass",
+          "detail": "reject. At least one required quality, safety, correctness or recovery check failed. Required checks passed: baseline 4/4, candidate 3/4."
+        }
+      ]
+    }
+  ],
+  "pack": {
+    "id": "AGENT-IMPROVE-01",
+    "schema": "benchmark-suite/v1",
+    "providerFree": true,
+    "evidence": {
+      "status": "not-run",
+      "note": "The shared latest runner file is unchanged. The public dry-run report carries the separate synthetic receipt."
+    }
+  }
+}

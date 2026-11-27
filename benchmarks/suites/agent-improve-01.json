@@ -1,0 +1,75 @@
+{
+  "schema": "benchmark-suite/v1",
+  "id": "AGENT-IMPROVE-01",
+  "name": "Agent improvement dry run",
+  "description": "Replay synthetic baseline and candidate evidence across five frozen workload families to check whether the evaluator recommends a bounded pilot.",
+  "kind": "deterministic",
+  "providerFree": true,
+  "requirements": {
+    "network": false,
+    "credentials": [],
+    "spendMicro": 0
+  },
+  "checks": [
+    {
+      "module": "agent-improve-01",
+      "id": "frozen-plan"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "instruction-gain"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "reuse-gain"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "human-burden-gain"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "performance-regression"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "context-gain"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "required-blocked"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "evidence-missing"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "equal"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "budget-exceeded"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "evaluator-changed"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "stale-baseline"
+    },
+    {
+      "module": "agent-improve-01",
+      "id": "recovery-failed"
+    }
+  ],
+  "evidence": {
+    "status": "not-run",
+    "note": "The shared latest runner file is unchanged. The public dry-run report carries the separate synthetic receipt."
+  },
+  "limits": [
+    "All attempt metrics are fictional inputs. Only evaluator logic was exercised.",
+    "The dry run cannot adopt, schedule, spend or start a live pilot."
+  ]
+}

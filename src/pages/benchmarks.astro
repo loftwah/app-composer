@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import AgentImprovement from '../components/AgentImprovement.astro';
 import BenchmarksNav from '../components/BenchmarksNav.astro';
 import results from '../../benchmarks/results/latest.json';
 import freeFirst from '../../benchmarks/cloudflare-composition/cases/free-first-01-20261127.json';
@@ -56,6 +57,8 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   </ul>
   <p><a href="/articles/cloudflare-app-rehearsal">Read the results and run the workshop</a> · <a href="/demo/examples/first-app-rehearsal">Open the share pack</a> · <a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/cloudflare-composition/cases/free-first-01-20261127.json">Inspect the receipt</a></p>
  </section>
+
+ <AgentImprovement />
 
  <section class="bench-section" aria-labelledby="suites-title">
   <h2 id="suites-title">Suites</h2>
