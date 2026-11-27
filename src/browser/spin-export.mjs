@@ -5,7 +5,7 @@ import { loadSpinPhotos, paintSpinPhoto, spinPhoto } from './spin-art.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
 import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, winnerAngle } from './spin-wheel.mjs';
 
-const palette = { rust: '#8e3026', ink: '#302019', paper: '#fff3de' };
+const palette = { orange: '#ff691f', ink: '#1d1c25', paper: '#fbfafe' };
 const sizes = Object.fromEntries(spinImageFormats.map(({ id, width, height }) => [id, [width, height]]));
 const layouts = {
   landscape: { x: 42, top: 76, textWidth: 482, art: [559, 0, 641, 630], footer: 475, title: 94 },
@@ -100,8 +100,13 @@ function composition(target, wheel, session, qr, style, frame, mark) {
   const summary = session.config.bestOf === 1 ? 'One spin' :
     `${spinModeLabel(session.config.bestOf)} · ${spins} ${spins === 1 ? 'spin' : 'spins'}` + (winner ? ` · ${wins} ${wins === 1 ? 'win' : 'wins'}` : '');
 
+  const colours = ['#fed06f', '#91ded2', '#ffaec2', '#aacaff', '#d6c7ff', '#ffc39d'];
+  const colour = colours[session.winner % colours.length] ?? colours[4];
+
   target.fillStyle = palette.paper;
   target.fillRect(0, 0, width, height);
+  target.fillStyle = palette.orange;
+  target.fillRect(0, 0, width, wide ? 9 : 13);
   target.textAlign = 'left';
   if (mark) target.drawImage(mark, x, top - 38, 46, 46);
   const wordmarkX = x + (mark ? 55 : 0);
@@ -112,50 +117,55 @@ function composition(target, wheel, session, qr, style, frame, mark) {
   const questionTop = top + (wide ? 36 : 30);
   const headlineTop = questionTop + (wide ? 87 : 61);
   const baseline = wide ? 422 : artY - 27;
-  fitBlock(target, session.config.question, x, questionTop, textWidth, wide ? 80 : 56, wide ? 33 : 38, 650, palette.rust);
+  fitBlock(target, session.config.question, x, questionTop, textWidth, wide ? 80 : 56, wide ? 33 : 38, 650, '#4e495d');
   fitBlock(target, frame.title ?? winner ?? 'It’s a tie', x, headlineTop, textWidth,
     baseline - headlineTop - 20, title, 750, palette.ink);
-  line(target, frame.note ?? summary, x, baseline, textWidth, wide ? 25 : 30, 650, palette.rust);
+  line(target, frame.note ?? summary, x, baseline, textWidth, wide ? 25 : 30, 650, '#4e495d');
 
   target.save();
   target.beginPath();
-  if (target.roundRect) target.roundRect(artX, artY, artWidth, artHeight, wide ? 0 : 18);
+  if (target.roundRect) target.roundRect(artX, artY, artWidth, artHeight, wide ? 0 : 26);
   else target.rect(artX, artY, artWidth, artHeight);
   target.clip();
-  if (photo) {
-    paintSpinPhoto(target, photo, artX, artY, artWidth, artHeight);
-  } else {
-    target.fillStyle = palette.rust;
-    target.fillRect(artX, artY, artWidth, artHeight);
-    target.strokeStyle = 'rgba(255, 226, 191, .18)';
-    target.lineWidth = 2;
-    for (let radius = 90; radius <= artWidth; radius += 28) {
-      target.beginPath();
-      target.arc(artX + artWidth / 2, artY + artHeight / 2, radius, 0, 2 * Math.PI);
-      target.stroke();
-    }
+  target.fillStyle = colour;
+  target.fillRect(artX, artY, artWidth, artHeight);
+  const centerX = artX + artWidth * .5;
+  const centerY = artY + artHeight * .51;
+  target.lineWidth = 2;
+  target.strokeStyle = 'rgba(29, 28, 37, .22)';
+  const radius = Math.min(artWidth, artHeight) * .42;
+  for (let index = 0; index < 5; index++) {
+    target.beginPath();
+    target.ellipse(centerX, centerY, radius + index * 39, radius * .76 + index * 38, -.51, 0, 2 * Math.PI);
+    target.stroke();
   }
-  const dial = photo ? Math.min(artWidth * .38, artHeight * .55) : Math.min(artWidth * .93, artHeight * .98);
-  const dialX = photo ? artX + artWidth - dial - 22 : artX + (artWidth - dial) / 2;
-  const dialY = photo ? artY + artHeight - dial - 18 : artY + (artHeight - dial) / 2;
-  target.drawImage(wheel, dialX, dialY, dial, dial);
+  if (photo) {
+    const pad = artHeight * .07;
+    target.shadowColor = 'rgba(32, 23, 46, .25)';
+    target.shadowBlur = 24;
+    target.shadowOffsetY = 15;
+    paintSpinPhoto(target, photo, artX + pad, artY + pad * .7, artWidth - 2 * pad, artHeight - pad * 1.55);
+    target.shadowColor = 'transparent';
+  } else {
+    const dial = Math.min(artWidth * .93, artHeight * .98);
+    target.drawImage(wheel, centerX - dial / 2, centerY - dial / 2, dial, dial);
+  }
   target.restore();
 
   const qrSize = Math.min(qr.width, wide ? 116 : 134);
   const textX = x + qrSize + (wide ? 15 : 23);
-  target.strokeStyle = '#a07861';
+  target.strokeStyle = '#bdb8ca';
   target.lineWidth = 1.5;
-  target.setLineDash([5, 7]);
   target.beginPath();
   target.moveTo(x, footer - 19);
   target.lineTo(x + textWidth, footer - 19);
   target.stroke();
-  target.setLineDash([]);
   target.imageSmoothingEnabled = false;
   target.drawImage(qr, x, footer, qrSize, qrSize);
   target.imageSmoothingEnabled = true;
   line(target, 'See the spin', textX, footer + 51, textWidth - qrSize - 23, wide ? 27 : 37, 700, palette.ink);
-  line(target, 'spin.loftwah.com', textX, footer + 81, textWidth - qrSize - 23, wide ? 20 : 24, 550, palette.rust);
+  line(target, 'spin.loftwah.com', textX, footer + 81, textWidth - qrSize - 23, wide ? 20 : 24, 550, '#514b60');
+  if (photo) target.drawImage(wheel, x + textWidth - qrSize, footer, qrSize, qrSize);
 }
 
 async function loadSpinMark() {

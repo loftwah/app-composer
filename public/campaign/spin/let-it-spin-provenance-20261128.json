@@ -1,0 +1,83 @@
+{
+  "title": "What’s for dinner?",
+  "credit": "App Composer · original composition and ImageGen food imagery",
+  "references": {
+    "design": [
+      {
+        "url": "https://composer.loftwah.com/share?tag=internet-workshop",
+        "use": "App Composer colour and typography, artwork-forward composition"
+      },
+      {
+        "url": "https://newsroom.spotify.com/2025-12-03/2025-wrapped-user-experience/",
+        "use": "One decisive outcome per share card"
+      },
+      {
+        "url": "https://blog.google/products-and-platforms/platforms/android/material-3-expressive-android-wearos-launch/",
+        "use": "Expressive colour in the play area and clear controls"
+      }
+    ],
+    "restaurantMenus": [
+      {
+        "choice": "Maccas",
+        "url": "https://www.mcdonalds.com/au/en-au/menu/beef/double-cheeseburger.html"
+      },
+      {
+        "choice": "Hungry Jack’s",
+        "url": "https://www.hungryjacks.com.au/menu/whopper/whopper"
+      },
+      {
+        "choice": "KFC",
+        "url": "https://www.kfc.com.au/menu/chicken/1-piece-of-chicken"
+      }
+    ]
+  },
+  "artwork": [
+    {
+      "variant": "wide",
+      "file": "let-it-spin-wide-20261128.jpg",
+      "width": 1200,
+      "height": 630,
+      "sha256": "cb656c97917ef2b2b2bbd7fcf9b4ddbc9dd8afa3b1a5d027e87e36e54de62de7"
+    },
+    {
+      "variant": "square",
+      "file": "let-it-spin-square-20261128.jpg",
+      "width": 1080,
+      "height": 1080,
+      "sha256": "e59f16331d376bfb43cdf534db77731d85a2155103050fbf8b61e61be3dd2e87"
+    },
+    {
+      "variant": "portrait",
+      "file": "let-it-spin-portrait-20261128.jpg",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "eebde799938803ce5e13eeed695b91c20cb25372ee7aa236b7af99f51ff435d1"
+    },
+    {
+      "variant": "story",
+      "file": "let-it-spin-story-20261128.jpg",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "473bd2c5974601f666bce7366f3b6d1edb5f53a47c5c1543863e631ff64d2793"
+    }
+  ],
+  "photography": {
+    "source": "Built-in Codex ImageGen",
+    "prompt": "Three professional, hyper-real food product cutouts for a contemporary, playful Australian social decision game, on a genuinely transparent background. Compose a VERY WIDE horizontal asset sheet with three equally spaced items, one centred in EACH vertical third, strict generous transparent gaps between them. No item touches an adjacent third. Keep all items fully inside frame. Left: single craveable stack of two craggy crisply battered fried chicken pieces, no plate. Centre: tall flame-grilled beef burger with glossy sesame bun, fresh green lettuce and tomato, distinct char and large profile. Right: one neat smaller double cheeseburger beside a bundle of thin golden fries, held visually together, no package logo. Professional editorial studio photography, front-oblique view with hard modern studio flash and saturated natural food colour, occasional crumbs close to item. No plate, backdrop, shadows on a floor, grids, paper, lettering or marks. Every object and any small crumb must be fully opaque and clearly isolated with fully transparent space between the three, ready for a web game. Wide landscape asset sheet, 3 independent clusters, original content.",
+    "description": "Original food illustrations paired with restaurant choices. The official menus are reference links.",
+    "files": [
+      {
+        "file": "spin-brand/live/chicken.webp",
+        "sha256": "9af09488f32be1a301438e4a73a4fcc6095112b52b7aef1fc30a860650d16383"
+      },
+      {
+        "file": "spin-brand/live/fries.webp",
+        "sha256": "a950207e9e8fa82722f626783dca631c3dc252601f72a2ae90c14073600d247c"
+      },
+      {
+        "file": "spin-brand/live/grill.webp",
+        "sha256": "d706984a80057ef52c19f0cf365b703da5f37a6f54cc01bf8d5c80b8fd174c6b"
+      }
+    ]
+  }
+}
