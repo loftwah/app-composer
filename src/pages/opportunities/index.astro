@@ -24,8 +24,8 @@ const result = filterOpportunities(Astro.url.searchParams, now);
         {Object.entries(categories).map(([value, label]) => <option value={value} selected={value === result.category}>{label}</option>)}
       </select></label>
       <label>Availability <select name="show">
-        <option value="current" selected={result.show === 'current'}>Current programmes</option>
-        <option value="all" selected={result.show === 'all'}>Include watch and past</option>
+        <option value="current" selected={result.show === 'current'}>Current</option>
+        <option value="all" selected={result.show === 'all'}>All statuses</option>
       </select></label>
       <label>Sort <select name="sort">
         <option value="local" selected={result.sort === 'local'}>Local first</option>
@@ -53,12 +53,12 @@ const result = filterOpportunities(Astro.url.searchParams, now);
 
 <style>
   .opportunities { max-width: 1000px; margin-inline: auto; }
-  header { max-width: 70ch; margin-block: 18px 36px; }
+  header { max-width: 70ch; margin-block: 18px 20px; }
   h1 { font-size: clamp(2.35rem, 6vw, 4.5rem); line-height: 1.03; margin: 0 0 .3em; letter-spacing: -.035em; text-wrap: balance; }
   header p { font-size: 1.1rem; max-width: 60ch; }
-  header a, .result-line a { padding-block: 10px; display: inline-block; }
+  header a, .result-line a { padding-block: 6px; display: inline-block; }
   form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: 14px; padding-block: 18px; border-block: 1px solid var(--color-border); }
-  label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: .9rem; }
+  label { margin: 0; display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: .9rem; }
   .search { grid-column: 1 / -1; }
   form button { grid-column: 4; }
   input, select { width: 100%; min-width: 0; min-height: 44px; padding: 6px 9px; font: inherit; color: var(--color-foreground); background: var(--color-background); border: 1px solid var(--color-border); border-radius: 6px; }

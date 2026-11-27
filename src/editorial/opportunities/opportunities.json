@@ -142,12 +142,12 @@
     "summary": "A Victorian co-investment fund for early-stage technology companies, including eligible AI startups. Investors submit on behalf of founders.",
     "eligibility": "Eligible woman-led Victorian startups with an independent qualifying investor and a current round.",
     "terms": "AUD $50,000 to $300,000 in co-investment. Equity and grant components apply.",
-    "source": "https://launchvic.org/our-funds/the-alice-anderson-fund/",
+    "source": "https://launchvic.org/our-funds/the-alice-anderson-fund",
     "sourceMarkers": [
       "300,000",
       "only investors can apply"
     ],
-    "action": "https://launchvic.org/our-funds/the-alice-anderson-fund/",
+    "action": "https://launchvic.org/our-funds/the-alice-anderson-fund",
     "endsAt": null,
     "verifiedOn": "2026-11-27",
     "updatedOn": "2026-11-27",
@@ -227,12 +227,12 @@
     "location": "Australia-wide",
     "category": "funding",
     "status": "paused",
-    "summary": "Commercialisation advice and related grant pathways for eligible SMEs. The official programme is paused to new applications.",
+    "summary": "Commercialisation advice and related grant pathways for eligible SMEs. The official programme is paused to new grant applications.",
     "eligibility": "Australian incorporated SMEs meeting the programme’s turnover, entity and National Reconstruction Fund priority criteria.",
     "terms": "Grant ranges depend on stage and eligibility. Check the official page for the current pause.",
     "source": "https://business.gov.au/grants-and-programs/industry-growth-program",
     "sourceMarkers": [
-      "paused to new applications",
+      "paused to new grant applications",
       "National Reconstruction Fund"
     ],
     "action": "https://business.gov.au/grants-and-programs/industry-growth-program",
