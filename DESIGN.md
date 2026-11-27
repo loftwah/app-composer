@@ -327,13 +327,11 @@ recipe and verification contract is
 ## App Composer Spin identity — 27 November 2026
 
 Spin is a first-party mini-app at `spin.loftwah.com`. Use the approved orange
-Composer tile with the Space Grotesk Spin wordmark in the header and launch
-materials. The three-segment wheel and cream pointer make the app recognisable
-at icon sizes. Plum, cream, coral and teal carry the illustrated product
-identity through the wheel, cards and takeaway art. Use the supplied light and
-dark lockups on their matching backgrounds. The first view offers a quick spin
-and a separate commitment-first action before the optional wheel editor.
-
+Composer tile with the Space Grotesk Spin wordmark on matching light and dark
+backgrounds. The app icon uses a three-segment wheel and an orange pointer on
+navy. Use navy, off-white and Composer orange in the interface and exports.
+The campaign uses AI-generated photographic still life in four layouts. Use the
+native social crop for each placement. The QR opens the public Spin homepage.
 
 ## Spin play surface — 27 November 2026
 
@@ -344,7 +342,9 @@ the wheel, and a phone puts the title, wheel and primary action ahead of
 the choices. The wheel is also a pointer target. Start with the three
 takeaway choices on a clean device and retain an existing draft.
 
-Choice entry and toggles live together. Keep reorder, bulk operations and
+Choice entry and toggles live together. Multi-select food tiles suggest individual
+choices to add. Keep sound, Find ideas and Share Spin next to the wheel. Keep
+reorder, bulk operations and
 custom series in disclosures. A completed draw puts Spin again and Copy
 result link below the winner. Repeat creates a separate verified session
 with the original choices and leaves the previous draw in browser history.

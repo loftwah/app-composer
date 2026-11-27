@@ -40,8 +40,8 @@ const {
 const printsProduct = Astro.props.printsProduct === true;
 const spinProduct = Astro.props.spinProduct === true;
 const themeKey = spinProduct ? "spin-theme" : printsProduct ? "prints-theme" : "composer-theme";
-const themeColors = spinProduct ? { light: "#faf7f1", dark: "#171615" } : printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
-const initialTheme = printsProduct ? "light" : "dark";
+const themeColors = spinProduct ? { light: "#f5fcff", dark: "#101827" } : printsProduct ? { light: "#faf6ef", dark: "#191613" } : { light: "#faf9f7", dark: "#17181b" };
+const initialTheme = printsProduct || spinProduct ? "light" : "dark";
 const printsNavigation = [
   { href: "/#paths", label: "Try it" },
   { href: "/watch", label: "Watch" },
@@ -89,7 +89,7 @@ Astro.csp?.insertScriptResource(
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {(!spinProduct || Astro.url.origin === spinOrigin) &&
-      <link rel="manifest" href={spinProduct ? "/spin-brand/site-20261127c.webmanifest" : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
+      <link rel="manifest" href={spinProduct ? "/spin-brand/site-20261127d.webmanifest" : printsProduct ? "/prints-desktop/site-20261125.webmanifest" : "/site.webmanifest"} />}
     <meta name="theme-color" content={themeColors[initialTheme]} data-light={themeColors.light} data-dark={themeColors.dark} />
     {spinProduct ? <>
       <link rel="icon" href={spinBrandFiles.favicon} type="image/png" sizes="32x32" />

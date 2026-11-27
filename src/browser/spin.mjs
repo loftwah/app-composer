@@ -1,5 +1,7 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
 import { renderSpinPng, renderSpinVideo, replayVideoType, winnerAngle } from './spin-export.mjs';
+import { spinClick, spinChime } from './spin-audio.mjs';
+import { spinTasteArt } from '../lib/spin-tastes.mjs';
 import { winnerArtwork } from './spin-winner-art.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
 import { spinOrigin } from '../lib/spin-site.mjs';
@@ -18,13 +20,15 @@ function mount(root) {
   const currentId = new URL(location.href).searchParams.get('session');
   let example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
-  const colors = ['#ff7c46', '#f8c45c', '#bbd9f0', '#d8c5f2', '#f6b5c9', '#d4e497', '#b7e0cc'];
+  const colors = ['#ff8957', '#e3eef9', '#a7c6e5', '#ffe8be', '#d1d7ec', '#e6c6b0', '#bce4de'];
+  const tasteImages = new Map();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const tau = Math.PI * 2;
   let session;
   let owner = '';
   let playing = false;
-  let sound = false;
+  let sound = true;
+  try { sound = localStorage.getItem('composer-spin-sound') !== 'off'; } catch {}
   let automatic = false;
   let audio;
   let angle = 0;
@@ -47,6 +51,21 @@ function mount(root) {
     let text = value;
     while (text.length > 1 && context.measureText(text + (text !== value ? '…' : '')).width > max) text = Array.from(text).slice(0, -1).join('');
     return text === value ? text : text + '…';
+  }
+
+  function tasteImage(label) {
+    const url = spinTasteArt(label);
+    if (!url) return null;
+    if (!tasteImages.has(url)) {
+      const image = new Image();
+      image.addEventListener('load', () => {
+        if (!playing) drawWheel(session?.config.entries ?? localEntries());
+      }, { once: true });
+      image.src = url;
+      tasteImages.set(url, image);
+    }
+    const image = tasteImages.get(url);
+    return image.complete && image.naturalWidth ? image : null;
   }
 
   function drawWheel(labels, offset = angle, context = ctx) {
@@ -102,12 +121,22 @@ function mount(root) {
       context.font = `750 ${labelSize}px system-ui`;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
+      const art = choices.length <= 5 ? tasteImage(label) : null;
+      const y = art ? 33 : 0;
+      if (art) {
+        context.save();
+        context.beginPath();
+        context.roundRect(-21, -39, 42, 42, 8);
+        context.clip();
+        context.drawImage(art, -21, -39, 42, 42);
+        context.restore();
+      }
       const splitAt = label.lastIndexOf(' ');
       if (choices.length <= 4 && splitAt > 0 && context.measureText(label).width > 145) {
-        context.fillText(fit(context, label.slice(0, splitAt), 145), 0, -labelSize * .53);
-        context.fillText(fit(context, label.slice(splitAt + 1), 145), 0, labelSize * .53);
+        context.fillText(fit(context, label.slice(0, splitAt), 145), 0, y - labelSize * .46);
+        context.fillText(fit(context, label.slice(splitAt + 1), 145), 0, y + labelSize * .46);
       } else {
-        context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, choices.length > 6 ? 115 : 160), 0, 0);
+        context.fillText(choices.length > 12 ? String(index + 1) : fit(context, label, choices.length > 6 ? 115 : 160), 0, y);
       }
       context.restore();
     });
@@ -119,6 +148,13 @@ function mount(root) {
     context.strokeStyle = '#fff4dd';
     context.lineWidth = 3;
     context.stroke();
+    if (context === ctx && !session && labels.length >= 2) {
+      context.fillStyle = '#f5fcff';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.font = '800 24px system-ui';
+      context.fillText('SPIN', 0, 1);
+    }
     context.restore();
   }
 
@@ -147,6 +183,7 @@ function mount(root) {
     if (get('spin-guide')) get('spin-guide').hidden = true;
     if (firstRender) get('score-details').open = next.config.entries.length <= 6;
     setup.hidden = true;
+    if (get('find-ideas')) get('find-ideas').hidden = true;
     get('spin-now').hidden = true;
     get('wheel-panel').dataset.state = next.status;
     get('session').hidden = false;
@@ -236,17 +273,25 @@ function mount(root) {
     }
   }
 
-  function tick() {
-    if (!sound || !audio || audio.state !== 'running') return;
-    const tone = audio.createOscillator();
-    const gain = audio.createGain();
-    tone.frequency.value = 410;
-    gain.gain.setValueAtTime(.035, audio.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .06);
-    tone.connect(gain).connect(audio.destination);
-    tone.start();
-    tone.stop(audio.currentTime + .07);
+  function armSound() {
+    const Audio = window.AudioContext ?? window.webkitAudioContext;
+    if (!sound || !Audio) return;
+    try {
+      audio ??= new Audio();
+      if (audio.state === 'suspended') void audio.resume().catch(() => {});
+    } catch {}
   }
+
+  function soundButton() {
+    get('sound').setAttribute('aria-pressed', String(sound));
+    get('sound-label').textContent = sound ? 'Sound on' : 'Sound off';
+    get('sound-on').toggleAttribute('hidden', !sound);
+    get('sound-off').toggleAttribute('hidden', sound);
+  }
+  soundButton();
+
+  const tick = () => { if (sound && audio?.state === 'running') spinClick(audio); };
+  const chime = () => { if (sound && audio?.state === 'running') spinChime(audio); };
 
   function animate(next, last) {
     const choices = next.config.entries;
@@ -260,6 +305,7 @@ function mount(root) {
     const distance = (target - start + 8 * tau) % tau + 4 * tau;
     const at = performance.now();
     let segment = -1;
+    let lastTick = at - 120;
     get('wheel-panel').dataset.state = 'spinning';
     showResult('Spinning…');
     return new Promise(resolve => {
@@ -268,7 +314,11 @@ function mount(root) {
         const rotation = start + distance * (1 - (1 - fraction) ** 4);
         drawWheel(choices, rotation);
         const current = Math.floor(rotation / (tau / choices.length));
-        if (current !== segment) { segment = current; tick(); }
+        if (current !== segment && now - lastTick > 45) {
+          segment = current;
+          lastTick = now;
+          tick();
+        }
         if (fraction < 1) requestAnimationFrame(frame);
         else { angle = target; resolve(); }
       }
@@ -305,13 +355,17 @@ function mount(root) {
   const localEntries = currentId || example ? () => [] : mountSpinEditor(setup, get('spin-now'), updatePreview);
   setup.addEventListener('submit', event => {
     event.preventDefault();
+    armSound();
     void perform(async () => {
       const config = validateSpinConfig({ question: question.value, entries: localEntries(), bestOf: Number(bestOf.value) });
       if (!config) throw new Error(`Use a question, 2–${spinChoiceLimit} distinct choices, and an odd best-of length from 1 to 21.`);
       await startDraw(config, event.submitter === get('spin-now'));
     });
   });
-  get('spin-again').addEventListener('click', () => void perform(() => startDraw(session.config, true)));
+  get('spin-again').addEventListener('click', () => {
+    armSound();
+    void perform(() => startDraw(session.config, true));
+  });
   get('wheel-tap').addEventListener('click', () => {
     const button = get(session ? 'draw' : 'spin-now');
     if (!button.hidden && !button.disabled) button.click();
@@ -323,13 +377,17 @@ function mount(root) {
     const { session: next } = await request(previous.id, { owner, revision: previous.revision, action: 'spin' });
     if (next.status === 'open' && next.revision === previous.revision) throw new Error('The round did not advance. Refresh the result before trying again.');
     if (next.rounds.length > previous.rounds.length) await animate(next, next.rounds.at(-1));
+    if (next.rounds.length > previous.rounds.length && next.status === 'completed') chime();
     render(next);
   }
 
-  get('draw').addEventListener('click', () => void perform(async () => {
-    await drawOne();
-    focusAction(session.status === 'open' ? 'draw' : 'spin-again');
-  }));
+  get('draw').addEventListener('click', () => {
+    armSound();
+    void perform(async () => {
+      await drawOne();
+      focusAction(session.status === 'open' ? 'draw' : 'spin-again');
+    });
+  });
   get('auto').addEventListener('click', () => {
     if (automatic) {
       automatic = false;
@@ -337,6 +395,7 @@ function mount(root) {
       return;
     }
     if (playing) return;
+    armSound();
     automatic = true;
     get('auto').textContent = 'Pause after this spin';
     void perform(async () => {
@@ -375,43 +434,72 @@ function mount(root) {
     try { await navigator.share({ title: session.config.question, url: shareUrl(session.id) }); }
     catch (error) { if (error?.name !== 'AbortError') throw error; }
   }));
-  get('sound').addEventListener('click', async event => {
+  get('sound').addEventListener('click', () => {
     sound = !sound;
-    event.currentTarget.setAttribute('aria-pressed', String(sound));
-    if (sound && typeof AudioContext !== 'undefined') {
-      audio ??= new AudioContext();
-      await audio.resume().catch(() => {});
+    try { localStorage.setItem('composer-spin-sound', sound ? 'on' : 'off'); } catch {}
+    soundButton();
+    if (sound) {
+      armSound();
+      if (audio?.state === 'suspended') void audio.resume().then(tick).catch(() => {});
+      else tick();
     }
   });
-  get('replay').addEventListener('click', () => void perform(async () => {
-    const next = session;
-    await animate(next, next.rounds.at(-1));
-    render(next);
-  }));
-  get('replay-series').addEventListener('click', () => void perform(async () => {
-    const next = session;
-    angle = 0;
-    for (const round of next.rounds) {
-      await animate(next, round);
-      showResult(`Round ${round.index + 1}: ${next.config.entries[round.winner]}`);
-      await new Promise(resolve => setTimeout(resolve, reduced.matches ? 550 : 410));
+  get('find-ideas')?.addEventListener('click', () => {
+    const heading = root.querySelector('#spin-taste-heading');
+    heading.focus({preventScroll: true});
+    heading.scrollIntoView({block: 'start'});
+  });
+  get('share-spin').addEventListener('click', () => void perform(async () => {
+    const url = spinOrigin + '/';
+    if (typeof navigator.share === 'function') {
+      try { await navigator.share({ title: 'App Composer Spin', url }); return; }
+      catch (error) { if (error?.name === 'AbortError') return; }
     }
-    render(next);
+    if (!navigator.clipboard) throw new Error('Open the Spin sharing kit to copy the app link.');
+    await navigator.clipboard.writeText(url);
+    get('share-spin-label').textContent = 'App link copied';
+    setTimeout(() => { get('share-spin-label').textContent = 'Share Spin'; }, 1600);
   }));
+  get('replay').addEventListener('click', () => {
+    armSound();
+    void perform(async () => {
+      const next = session;
+      await animate(next, next.rounds.at(-1));
+      if (next.status === 'completed') chime();
+      render(next);
+    });
+  });
+  get('replay-series').addEventListener('click', () => {
+    armSound();
+    void perform(async () => {
+      const next = session;
+      angle = 0;
+      for (const round of next.rounds) {
+        await animate(next, round);
+        showResult(`Round ${round.index + 1}: ${next.config.entries[round.winner]}`);
+        await new Promise(resolve => setTimeout(resolve, reduced.matches ? 550 : 410));
+      }
+      if (next.status === 'completed') chime();
+      render(next);
+    });
+  });
   for (const [control, style] of [['png', 'square'], ['portrait', 'portrait'], ['story', 'story'], ['landscape', 'landscape']]) {
     get(control).addEventListener('click', () => void perform(() => makePng(style)));
   }
-  get('replay-video').addEventListener('click', () => void perform(async () => {
-    get('export-status').textContent = 'Making the replay video…';
-    try {
-      const video = await renderSpinVideo(session, shareUrl(session.id), drawWheel, reduced.matches);
-      download(video.blob, `spin-${session.id.slice(0, 8)}-replay.${video.extension}`);
-      get('export-status').textContent = 'Replay video downloaded.';
-    } catch (error) {
-      get('export-status').textContent = '';
-      throw error;
-    }
-  }));
+  get('replay-video').addEventListener('click', () => {
+    armSound();
+    void perform(async () => {
+      get('export-status').textContent = 'Making the replay video…';
+      try {
+        const video = await renderSpinVideo(session, shareUrl(session.id), drawWheel, reduced.matches, sound ? audio : undefined);
+        download(video.blob, `spin-${session.id.slice(0, 8)}-replay.${video.extension}`);
+        get('export-status').textContent = 'Replay video downloaded.';
+      } catch (error) {
+        get('export-status').textContent = '';
+        throw error;
+      }
+    });
+  });
   get('receipt').addEventListener('click', () => {
     download(new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' }), 'spin-' + session.id + '.json');
   });

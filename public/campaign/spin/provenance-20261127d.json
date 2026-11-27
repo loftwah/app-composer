@@ -1,0 +1,86 @@
+{
+  "title": "Takeaway roulette · App Composer Spin",
+  "date": "2026-11-27",
+  "credit": "App Composer · ImageGen and original art direction",
+  "generator": "OpenAI ImageGen",
+  "generationOutputs": {
+    "wide": "c874b3a9-756a-41b8-9781-56fc247988c6",
+    "square": "3ce0f42c-d21b-43e3-a90c-2c574babe4fc",
+    "portrait": "0fb780ac-2cdb-4552-a49d-4c7691778126",
+    "story": "c1451f64-b7ea-4beb-b451-357bed911903",
+    "food contact sheet": "446fe1a6-8ccc-47bd-b62b-97ab46527bdc"
+  },
+  "demo": "Screen capture of the release candidate using an isolated SQLite database and the same Spin session implementation. The MP4 carries the actual app audio. The linked public example preserves the exact demo receipt.",
+  "demoReplayUrl": "https://spin.loftwah.com/?example=taste-cloud",
+  "qrUrl": "https://spin.loftwah.com/",
+  "files": {
+    "spin-captions-20261127d.txt": {
+      "sha256": "133f9a1a91f4404e436d6642b08480e7df38aa42e52de583929d08fc9ab2e544",
+      "bytes": 734
+    },
+    "spin-portrait-20261127d.jpg": {
+      "sha256": "f065ebcb62a6d0e87acdc20b5955cf78d4de00bfee5273e146c33a8161070a9c",
+      "bytes": 232076
+    },
+    "spin-portrait-thumb-20261127d.webp": {
+      "sha256": "0a088b1719fc901365a9262d9b298ad32572e04c9e1b1dd56d9e9435aafaf2a8",
+      "bytes": 20284
+    },
+    "spin-print-qr-20261127d.png": {
+      "sha256": "c96c4276b1b65c55530058a66698f2fe280fa16167809527b946289d148f4291",
+      "bytes": 2491804
+    },
+    "spin-qr-20261127d.png": {
+      "sha256": "549b1febfe567d273f5f111cf2a7c18ad17d1bb25710e251a757a4be3702282a",
+      "bytes": 8425
+    },
+    "spin-square-20261127d.jpg": {
+      "sha256": "26e020e9be89dcabd701cad19bd9e3f0bf982686afe4739eb211c10ad2303878",
+      "bytes": 181175
+    },
+    "spin-square-thumb-20261127d.webp": {
+      "sha256": "9613d6ab2fffca7cf9c48892f7e413a02f7a903b36b5ea753bd272657bb4c7ac",
+      "bytes": 22236
+    },
+    "spin-story-20261127d.jpg": {
+      "sha256": "5a1a35fce004f07cdc262a54c666ac3c5dc442b7658cc9d93e857d07f4e2453b",
+      "bytes": 243803
+    },
+    "spin-story-thumb-20261127d.webp": {
+      "sha256": "58764bacca70b2b6d805b5f629534491b74c7cec5a8eac84db5dd44e996d8531",
+      "bytes": 15682
+    },
+    "spin-wide-20261127d.jpg": {
+      "sha256": "7ee16006bb68ae7423bddac1cd2d90e8e30559bee1b900dad359474f472e8a33",
+      "bytes": 115466
+    },
+    "spin-wide-thumb-20261127d.webp": {
+      "sha256": "25c7f802391b85a3bd86895bbc867621ed5b411c61d35916e752539524777105",
+      "bytes": 18856
+    },
+    "wheel-demo-20261127d.en.vtt": {
+      "sha256": "adc0523fb2c95df056b3f00f9ecd80bdbc590d7db9559615099998f98631758b",
+      "bytes": 344
+    },
+    "wheel-demo-20261127d.mp4": {
+      "sha256": "32b1dd1489d265c937d81772b81940dd84c73635f4ae447ea9ea7e01f6316694",
+      "bytes": 952028
+    },
+    "wheel-demo-poster-20261127d.webp": {
+      "sha256": "91008f61299950f92d6ee145fd97fe129c2a3964ef9aaa64c2fc576c6f114674",
+      "bytes": 32054
+    },
+    "wheel-laptop-20261127d.webp": {
+      "sha256": "97dc085cfcea7657ed6f5df0ddc269fe4a1e8bae4c1f0af4b1af68ffdd7c588f",
+      "bytes": 55998
+    },
+    "wheel-laptop-thumb-20261127d.webp": {
+      "sha256": "531ee3967bc960e1344dac3fd0e7592500dc69d7a800932e874bca29f0245788",
+      "bytes": 18192
+    },
+    "wheel-loop-20261127d.gif": {
+      "sha256": "be42cde7a7271f1a41c46e621525c3480a06cdf3c876cdd1140fae4fb0e9d3c7",
+      "bytes": 1171578
+    }
+  }
+}

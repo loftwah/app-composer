@@ -1,0 +1,42 @@
+{
+  "version": "composer.spin/1",
+  "id": "668f4641-2faa-470f-838b-a995fd4fcded",
+  "config": {
+    "question": "What’s for dinner?",
+    "entries": [
+      "Maccas",
+      "Hungry Jack’s",
+      "KFC",
+      "Veggie pizza"
+    ],
+    "bestOf": 1
+  },
+  "configHash": "6cba9631ada691aaef9206e49c457fd9e48a9936e190963cb7e1702265d1488c",
+  "commitment": "008df0ef3fffb54512ea195e13a53cdf0a39e71f30c854b7f9f9dc4b35417462",
+  "status": "completed",
+  "revision": 1,
+  "rounds": [
+    {
+      "index": 0,
+      "winner": 1,
+      "eligible": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tieBreak": false,
+      "at": "2026-11-27T11:08:06.942Z"
+    }
+  ],
+  "totals": [
+    0,
+    1,
+    0,
+    0
+  ],
+  "winner": 1,
+  "tieBreak": false,
+  "expiresAt": "2026-12-27T11:08:06.935Z",
+  "seed": "ac92696c040cf8ebe2f06e8d873bf7c96405f01ecfe8196e6c220ee49e137c3c"
+}

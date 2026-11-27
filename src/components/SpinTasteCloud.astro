@@ -1,0 +1,40 @@
+---
+import { Plus } from '@lucide/astro';
+import { spinTastes } from '../lib/spin-tastes.mjs';
+---
+<section class="taste-cloud" id="spin-ideas" data-taste-cloud aria-labelledby="spin-taste-heading">
+  <div class="taste-title">
+    <h2 id="spin-taste-heading" tabindex="-1">What sounds good?</h2>
+    <p>Tap a few tastes for takeaway ideas.</p>
+  </div>
+  <div class="taste-tiles" aria-label="Takeaway tastes">
+    {spinTastes.map(taste => (
+      <button type="button" data-taste={taste.id} aria-pressed="false">
+        <img src={taste.art} alt="" width="44" height="44" loading="lazy" decoding="async" />
+        <span>{taste.label}</span>
+      </button>
+    ))}
+  </div>
+  <p class="taste-status" data-taste-status role="status"></p>
+  <div class="taste-suggestions" data-taste-suggestions></div>
+  <button type="button" class="taste-add-all" data-taste-add-all hidden><Plus size={17} aria-hidden="true" /> Add all suggestions</button>
+</section>
+
+<style>
+  .taste-cloud { scroll-margin-top: 16px; margin-block: 4px 1px; padding: 16px; background: var(--spin-surface); border-radius: 14px; }
+  .taste-title h2 { margin: 0; font: 700 clamp(1.24rem, 3vw, 1.68rem)/1.1 Space, sans-serif; }
+  .taste-title p { margin: 5px 0 11px; font-size: .89rem; color: var(--color-muted); }
+  .taste-tiles { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 6px; }
+  .taste-tiles button { display: grid; justify-items: center; width: 100%; gap: 2px; color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border); border-radius: 9px; padding: 6px 2px; font: 650 .76rem/1.2 system-ui; text-wrap: balance; }
+  .taste-tiles button:hover, .taste-tiles button[aria-pressed="true"] { background: var(--spin-selection); outline: 2px solid var(--color-accent); outline-offset: -2px; }
+  .taste-tiles img { display: block; width: 44px; height: 44px; border-radius: 6px; }
+  .taste-tiles span { min-height: 1.15em; }
+  .taste-suggestions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .taste-status { font-size: .88rem; color: var(--color-muted); margin: 10px 0 6px; }
+  .taste-status:empty { display: none; }
+  .taste-suggestions :global(button), .taste-add-all { color: var(--color-foreground); background: var(--spin-field); border: 1px solid var(--color-border); border-radius: 8px; min-height: 44px; padding: 4px 7px; font-size: .84rem; }
+  .taste-suggestions :global(button:hover), .taste-add-all:hover { background: var(--spin-selection); }
+  .taste-suggestions :global(button img) { display: block; border-radius: 5px; }
+  .taste-add-all { margin-block-start: 8px; }
+  @media (max-width: 365px) { .taste-cloud { padding: 12px; } .taste-tiles button { font-size: .70rem; } }
+</style>

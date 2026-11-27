@@ -1,5 +1,73 @@
 [
   {
+    "id": "composer-spin-takeaway-roulette",
+    "project": "app-composer",
+    "title": "Takeaway roulette · App Composer Spin",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · Codex ImageGen and original art direction",
+    "alt": "App Composer Spin. Takeaway roulette. An orange, cream and navy wheel beside a paper takeaway bag and hot chips.",
+    "description": "Photographic launch artwork for App Composer Spin, a decision wheel for takeaway and everyday choices.",
+    "caption": "Tap a few tastes, spin the wheel and share the draw. Open the Spin launch kit for the social crops, QR and demo.",
+    "tags": [
+      "spin",
+      "app-composer",
+      "takeaway"
+    ],
+    "use": "social",
+    "stage": "share poster",
+    "kind": "editorial composition",
+    "reviewedAt": "2026-11-27",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127d.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/spin-wide-thumb-20261127d.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 315,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/spin-wide-20261127d.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/spin-wide-20261127d.jpg",
+      "label": "Campaign JPEG",
+      "width": 1200,
+      "height": 630,
+      "sha256": "7ee16006bb68ae7423bddac1cd2d90e8e30559bee1b900dad359474f472e8a33",
+      "version": "20261127d"
+    }
+  },
+  {
+    "id": "composer-spin-laptop",
+    "project": "app-composer",
+    "title": "Spin on a laptop",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · release candidate screen capture",
+    "alt": "App Composer Spin with Maccas, Hungry Jack’s and KFC beside a wheel, an orange Spin button and takeaway taste tiles.",
+    "description": "The laptop layout with the illustrated taste picker, editable choices and the decision wheel.",
+    "caption": "A laptop view of the Spin mini-app showing the three takeaway defaults and the photographic taste picker.",
+    "tags": [
+      "spin",
+      "app-composer",
+      "takeaway"
+    ],
+    "kind": "production screenshot",
+    "reviewedAt": "2026-11-27",
+    "projectUrl": "https://composer.loftwah.com/share/spin",
+    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
+    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127d.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-thumb-20261127d.webp",
+    "thumbnailWidth": 600,
+    "thumbnailHeight": 396,
+    "previewUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127d.webp",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127d.webp",
+      "label": "Laptop capture WebP",
+      "width": 1440,
+      "height": 950,
+      "sha256": "97dc085cfcea7657ed6f5df0ddc269fe4a1e8bae4c1f0af4b1af68ffdd7c588f",
+      "version": "20261127d"
+    }
+  },
+  {
     "id": "composer-spin-pick-a-side",
     "project": "app-composer",
     "title": "Pick a side · App Composer Spin",
@@ -32,39 +100,6 @@
       "height": 630,
       "sha256": "9bb771a97b7b4a9100e12a347da7c295dab0d849caaff08797cfe64b2b774c51",
       "version": "20261127"
-    }
-  },
-  {
-    "id": "composer-spin-laptop",
-    "project": "app-composer",
-    "title": "Spin on a laptop",
-    "visibility": "public",
-    "reuse": "unconfirmed",
-    "credit": "App Composer · production screen capture",
-    "alt": "App Composer Spin with three editable takeaway choices beside the wheel and orange Spin button.",
-    "description": "The live laptop layout with Maccas, Hungry Jack’s and KFC ready to spin.",
-    "caption": "The takeaway wheel on a laptop, with choices and direct entry beside the spin control.",
-    "tags": [
-      "spin",
-      "app-composer",
-      "takeaway"
-    ],
-    "kind": "production screenshot",
-    "reviewedAt": "2026-11-27",
-    "projectUrl": "https://composer.loftwah.com/share/spin",
-    "shareUrl": "https://composer.loftwah.com/share?tag=spin",
-    "sourceUrl": "https://composer.loftwah.com/campaign/spin/provenance-20261127c.json",
-    "thumbnailUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-thumb-20261127c.webp",
-    "thumbnailWidth": 600,
-    "thumbnailHeight": 396,
-    "previewUrl": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127c.webp",
-    "original": {
-      "url": "https://composer.loftwah.com/campaign/spin/wheel-laptop-20261127c.webp",
-      "label": "Production capture WebP",
-      "width": 1440,
-      "height": 950,
-      "sha256": "f86fcf50097f80fff28353394dd2c65d9bfed7df756d2b77524a176c2863c8e8",
-      "version": "20261127c"
     }
   }
 ]
