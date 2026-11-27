@@ -5,6 +5,7 @@ import "../styles/prints-theme.css";
 import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
 import BuilderContext from "../components/BuilderContext.astro";
+import {agentSearchMetadata} from "../lib/public-agent-search.mjs";
 import {noindexFor} from "../lib/indexing.mjs";
 import {publicPageCanonical} from "../lib/public-pages.mjs";
 import {printsIcon} from "../lib/prints-site.mjs";
@@ -60,6 +61,7 @@ const pageTitle = title.includes(siteName)
 const canonical = Astro.props.canonical
   ? new URL(Astro.props.canonical)
   : publicPageCanonical(Astro.url.pathname);
+const searchMetadata = !noindex && agentSearchMetadata(Astro.url.origin);
 const focusedExperience = Astro.props.focusedExperience === true;
 const artwork = siteShareArtwork(canonical.pathname);
 const shareImage = new URL(Astro.props.shareImage ?? artwork.path, canonical);
@@ -125,6 +127,7 @@ Astro.csp?.insertScriptResource(
     <meta name="twitter:image" content={shareImage.href} />
     <meta name="twitter:image:alt" content={shareAlt} />
     <meta name="robots" content={noindex ? "noindex,nofollow" : "max-image-preview:large"} />
+    {searchMetadata && Object.entries(searchMetadata).map(([key, value]) => <meta name={`agent:${key}`} content={value} />)}
     <slot name="head" />
     <script is:inline src="/brand/theme-bootstrap.js?v=2"></script>
     <link rel="stylesheet" href="/brand/page-share.css" />
