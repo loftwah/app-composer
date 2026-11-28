@@ -1,3 +1,4 @@
+import type { SocialReview } from "./decision-research-contract.ts";
 import type { D1Database } from "@cloudflare/workers-types";
 import {
   normalizeShareAssetId,
@@ -17,6 +18,8 @@ export const artworkCategories: Record<string, string> = {
 
 export const artworkSorts = {
   featured: "Featured",
+  clef: "Clef’s best",
+  "clef-variety": "Clef’s best · variety",
   newest: "Newest",
   oldest: "Oldest",
   title: "Title A–Z",
@@ -127,14 +130,21 @@ function shuffleKey(id: string, seed: string) {
   return (hash ^ (hash >>> 16)) >>> 0;
 }
 
+export function compareArtworkScores(a?: SocialReview, b?: SocialReview) {
+  return (b?.score ?? -1) - (a?.score ?? -1);
+}
+
 export function galleryPage(
   catalogue: CatalogueArtwork[],
   curation: ArtworkCuration[],
   filters: ArtworkFilters,
   likedIds?: ReadonlySet<string>,
+  reviews?: ReadonlyMap<string, SocialReview | undefined>,
 ) {
   const edits = new Map(curation.map((item) => [item.assetId, item]));
-  const visible = filters.liked ? catalogue.filter((item) => likedIds?.has(item.assetId)) : catalogue;
+  const visible = filters.liked
+    ? catalogue.filter((item) => likedIds?.has(item.assetId))
+    : catalogue;
   const all = visible.map((item) => {
     const edit = edits.get(item.assetId);
     return {
@@ -183,6 +193,14 @@ export function galleryPage(
   matches.sort((a, b) => {
     if (filters.legacy) return a.assetId < b.assetId ? -1 : 1;
     switch (filters.sort) {
+      case "clef":
+      case "clef-variety":
+        return (
+          compareArtworkScores(
+            reviews?.get(a.assetId),
+            reviews?.get(b.assetId),
+          ) || idOrder(a, b)
+        );
       case "featured":
         return Number(b.featured) - Number(a.featured) || newest(a, b);
       case "oldest":
@@ -223,6 +241,29 @@ export function galleryPage(
     );
     matches.sort((a, b) => rank.get(a.assetId)! - rank.get(b.assetId)!);
   }
+  if (filters.sort === "clef-variety" && reviews) {
+    // Give each project a turn within the same quarter-point score band.
+    const rounds = new Map<string, number>();
+    const order = new Map(
+      matches.map((item, position) => {
+        const score = reviews.get(item.assetId)?.score;
+        const band = score === undefined ? -1 : Math.floor(score * 4);
+        const key = `${band}:${item.project}`;
+        const round = rounds.get(key) ?? 0;
+        rounds.set(key, round + 1);
+        return [item.assetId, { band, round, position }];
+      }),
+    );
+    matches.sort((a, b) => {
+      const left = order.get(a.assetId)!;
+      const right = order.get(b.assetId)!;
+      return (
+        right.band - left.band ||
+        left.round - right.round ||
+        left.position - right.position
+      );
+    });
+  }
   const start = filters.legacy
     ? matches.filter((item) => item.assetId <= filters.after).length
     : filters.after
@@ -230,7 +271,10 @@ export function galleryPage(
       : 0;
   const items = matches.slice(start, start + 24);
   return {
-    items,
+    items: items.map((item) => ({
+      ...item,
+      social: reviews?.get(item.assetId),
+    })),
     total: matches.length,
     projects,
     tags,

@@ -838,3 +838,8 @@ p.gallery-piece-section a {
     transform: scale(1.018);
   }
 }
+
+.gallery-ranking-note {
+  margin: .85rem 0 0;
+  max-inline-size: 65ch;
+}

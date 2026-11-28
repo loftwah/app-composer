@@ -37,6 +37,9 @@ export type SocialReview = {
   placement: string;
   fix: string;
   score: number;
+  revision: string;
+  reviewedAt: string;
+  rubric: string;
 };
 
 export const researchInput = z
@@ -48,6 +51,7 @@ export const researchInput = z
     query: z.string().trim().max(100).optional(),
     project: reference.optional(),
     social: z.enum(socialStatuses).optional(),
+    sort: z.enum(["clef"]).optional(),
     feedbackProject: z.string().trim().max(80).optional(),
     category: z.enum(decisionCategories).optional(),
     page: z.number().int().min(1).max(1000).optional(),

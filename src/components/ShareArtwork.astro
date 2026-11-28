@@ -25,6 +25,7 @@ const facets = [
   { key: 'orientation', label: orientation !== 'any' && artworkOrientations[orientation] },
   { key: 'tag', label: tag && artworkLabel(tag) },
 ].filter(facet => facet.label);
+const ranked = sort === 'clef' || sort === 'clef-variety';
 const facetCount = [category, orientation !== 'any', tag].filter(Boolean).length;
 const showStarts = !liked && !after && !legacy && !facets.length && sort === 'featured';
 const starts = [
@@ -108,6 +109,13 @@ const options = {
     </nav>
   )}
 
+  {ranked && (
+    <p class="gallery-ranking-note">
+      Clef scored each reviewed artwork for its first impression in a social feed.
+      {sort === 'clef-variety' ? ' Projects take turns within quarter-point score bands.' : ' Highest scores come first.'}
+      {' Artwork awaiting a review follows.'}
+    </p>
+  )}
   <div class="gallery-readout">
     <div class="gallery-results">
       {catalogue && <p>{catalogue.total.toLocaleString('en-AU')} {catalogue.total === 1 ? 'piece' : 'pieces'}{facets.length > 0 && ' found'}</p>}
@@ -150,6 +158,7 @@ const options = {
               <div>
                 <h2>{item.title}</h2>
                 <p>{artworkLabel(item.project)} <span aria-hidden="true">·</span> {artworkCategories[item.category]}</p>
+                {ranked && <p>{item.social ? `Clef · ${item.social.score.toFixed(2)} / 4` : 'Needs a current review'}</p>}
               </div>
               <Maximize2 size={15} aria-hidden="true" />
             </div>

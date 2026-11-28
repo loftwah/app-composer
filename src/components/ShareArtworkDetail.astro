@@ -4,6 +4,7 @@ import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
 import { artworkFiles, artworkRevision, SHARE_CATALOGUE_ORIGIN, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
 import { artworkPostBrief, artworkPostText } from '../lib/share-artwork-post.ts';
+import { socialReview } from '../lib/decision-intelligence.ts';
 import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
 import '../styles/share-gallery.css';
@@ -17,6 +18,7 @@ const [revision, shareUrl] = await Promise.all([
   artworkRevision(artwork),
   currentShareURL(canonical, artwork.title.includes('App Composer') ? artwork.title : `${artwork.title} · App Composer`, artwork.alt, artwork.previewUrl),
 ]);
+const assessment = await socialReview(artwork.assetId, revision, artwork.thumbnailUrl);
 const postText = artworkPostText(artwork, canonical);
 const files = artworkFiles(artwork);
 const primary = files[0].url;
@@ -63,6 +65,17 @@ const packageData = JSON.stringify({
     </div>
     <div class="gallery-image-status" role="status" data-gallery-image-status></div>
     {artwork.description && <p class="gallery-description">{artwork.description}</p>}
+    <details class="gallery-piece-section">
+      <summary>Why this ranks here</summary>
+      {assessment ? (
+        <>
+          <p>Clef-flash rated the first impression in a social feed <strong>{assessment.score.toFixed(2)} / 4</strong>. Suggested placement: {assessment.placement}.</p>
+          <p>{assessment.fix}. The saved assessment has no confidence estimate.</p>
+          <p>Review snapshot <time datetime={assessment.reviewedAt}>{assessment.reviewedAt.slice(0, 10)} UTC</time> · {assessment.rubric}.</p>
+          <p>Source revision <code title={revision}>{revision.slice(0, 12)}</code></p>
+        </>
+      ) : <p>Clef has no saved review that matches this artwork revision and thumbnail.</p>}
+    </details>
     {signedIn ? (
       <details id="artwork-feedback" class="gallery-piece-section gallery-feedback" data-artwork-review open>
         <summary>Private feedback</summary>

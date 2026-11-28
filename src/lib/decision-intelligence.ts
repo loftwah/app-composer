@@ -1,5 +1,9 @@
 import social from "../data/share-social-intelligence.json";
-import { sha256Bytes } from "./share-catalogue-asset.ts";
+import {
+  artworkRevision,
+  sha256Bytes,
+  type CatalogueArtwork,
+} from "./share-catalogue-asset.ts";
 import type { Decision } from "./portfolio-decision-contract.ts";
 import {
   socialFixes,
@@ -28,7 +32,17 @@ export async function socialReview(
   thumbnailUrl: string,
 ): Promise<SocialReview | undefined> {
   const row = assetReviews[id];
-  if (!row || row[0] !== revision) return undefined;
+  if (
+    !Object.hasOwn(assetReviews, id) ||
+    !row ||
+    row[0] !== revision ||
+    !Number.isFinite(row[4]) ||
+    row[4] < 0 ||
+    row[4] > 4 ||
+    !Object.hasOwn(socialPlacements, row[2]) ||
+    !Object.hasOwn(socialFixes, row[3])
+  )
+    return undefined;
   const thumbKey = await sha256Bytes(new TextEncoder().encode(thumbnailUrl));
   if (thumbKey !== row[6]) return undefined;
   return {
@@ -36,7 +50,39 @@ export async function socialReview(
     placement: socialPlacements[row[2]],
     fix: socialFixes[row[3]],
     score: row[4],
+    revision,
+    reviewedAt: social.evaluatedAt,
+    rubric: social.rubric,
   };
+}
+
+const assessmentCache = new Map<
+  string,
+  {
+    source: string;
+    thumbnail: string;
+    review: Promise<SocialReview | undefined>;
+  }
+>();
+
+export function artworkSocialReview(item: CatalogueArtwork) {
+  if (!Object.hasOwn(assetReviews, item.assetId))
+    return Promise.resolve(undefined);
+  const prior = assessmentCache.get(item.assetId);
+  if (
+    prior?.source === item.revisionSource &&
+    prior.thumbnail === item.thumbnailUrl
+  )
+    return prior.review;
+  const review = artworkRevision(item).then((revision) =>
+    socialReview(item.assetId, revision, item.thumbnailUrl),
+  );
+  assessmentCache.set(item.assetId, {
+    source: item.revisionSource,
+    thumbnail: item.thumbnailUrl,
+    review,
+  });
+  return review;
 }
 
 const filmHooks = {
