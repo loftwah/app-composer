@@ -174,15 +174,29 @@ async function loadSpinMark() {
   return logo;
 }
 
-export async function renderSpinPng(session, link, style) {
+export async function renderSpinPoster(session, link, style) {
+  let mark;
+  const assets = Promise.allSettled([
+    loadSpinMark().then(logo => { mark = logo; }),
+    document.fonts.load('650 38px Space'),
+    loadSpinPhotos([session.config.entries[session.winner]]),
+  ]);
+  // A slow optional asset can fall back to the wheel, text or system font.
+  let timeout;
+  await Promise.race([assets, new Promise(resolve => { timeout = setTimeout(resolve, 350); })]);
+  clearTimeout(timeout);
+
   const output = makeCanvas(...sizes[style]);
   const wheel = makeCanvas(560, 560);
   const settled = session.winner < 0 ? session.rounds.at(-1).winner : session.winner;
-  const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready, loadSpinPhotos(session.config.entries)]);
   paintSpinWheel(wheel, session.config.entries, winnerAngle(settled, session.config.entries.length), { winner: session.winner });
   const qr = replayQr(link);
   composition(output, wheel.canvas, session, qr, style, {}, mark);
-  const blob = await new Promise(resolve => output.canvas.toBlob(resolve, 'image/png'));
+  return output.canvas;
+}
+
+export async function encodeSpinPng(canvas) {
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Image export did not finish.');
   return blob;
 }
