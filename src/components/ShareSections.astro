@@ -10,6 +10,7 @@ const { current, showLiked } = Astro.props;
   <a href="/share" aria-current={current === 'artwork' ? 'page' : undefined}>Artwork</a>
   <a href="/share?view=films" aria-current={current === 'films' ? 'page' : undefined}>Films</a>
   {showLiked && <a href="/share?view=liked" aria-current={current === 'liked' ? 'page' : undefined}>Liked artwork</a>}
+  <a href="/share/who-keeps-the-map">Who Keeps the Map?</a>
   <a href="/share?tag=internet-workshop">Internet Workshop</a>
 </nav>
 

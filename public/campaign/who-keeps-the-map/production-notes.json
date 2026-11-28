@@ -1,0 +1,228 @@
+{
+  "title": "Who Keeps the Map?",
+  "campaign": "https://composer.loftwah.com/share/who-keeps-the-map",
+  "observedOn": "2026-11-28",
+  "originals": {
+    "release": "https://fm.loftwah.com/album/who-keeps-the-map",
+    "manifest": "https://github.com/loftwah/loftwahfm/blob/71c6839/src/content/albums/who-keeps-the-map.yaml",
+    "changeTheDefault": "https://fm.loftwah.com/media/who-keeps-the-map/change-the-default-rhythm-1becbd4f.mp4",
+    "encoreCut": "https://fm.loftwah.com/media/who-keeps-the-map/who-gets-the-change-encore-12d59070.mp4",
+    "sleeve": "https://fm.loftwah.com/media/who-keeps-the-map/cover.jpg",
+    "comic": "https://fm.loftwah.com/media/who-keeps-the-map/listening-comic.pdf",
+    "sundryRights": "LoftwahFM retains the release. The Encore Cut includes the credited CC BY 2.0 photo listed below.",
+    "context": "The release manifest records Suno paid-commercial provenance. The original film workflows are documented under App Composer #1356 and in retained local production records. The derivative below uses a later and independently exercised edit path."
+  },
+  "campaignTreatments": {
+    "keepACopy": {
+      "purpose": "A 35-second music-first invitation to the two finished films and album.",
+      "production": "Studio CompositionV1 → local editor bridge at b96f955; trim from the two released masters with continuous Change the Default sound and an end card using the actual album sleeve.",
+      "source": {
+        "sources": {
+          "rhythm": {
+            "filename": "Change-The-Default-Rhythm-Cut.mp4",
+            "sha256": "1becbd4fcf064de8968175193f21a98dbab3ed9c7db752abf9dc5f33b329873c"
+          },
+          "encore": {
+            "filename": "who-gets-the-change-encore-cut.mp4",
+            "sha256": "12d590707bd5b6f7a714b24fef80dffc5059a6b05bed7ce8c7bcb5c5e400f061"
+          },
+          "cover": {
+            "filename": "cover.jpg",
+            "sha256": "66cf3cd73b0eb9d445c54d956b21aa316cb60c8bcb68aa3a79248b48964a905b"
+          },
+          "captions": {
+            "filename": "change-the-default-rhythm-1becbd4f-en.vtt",
+            "sha256": "8d716f3886195d77289327e945f9270958c07844a40fcadbb3a1bd02fb1c8464"
+          }
+        },
+        "shots": [
+          {
+            "asset": "keys",
+            "source": "rhythm",
+            "source_in_ms": 51000,
+            "duration_ms": 4600
+          },
+          {
+            "asset": "first_hook",
+            "source": "rhythm",
+            "source_in_ms": 55600,
+            "duration_ms": 8300
+          },
+          {
+            "asset": "pursuit",
+            "source": "encore",
+            "source_in_ms": 173700,
+            "duration_ms": 5000
+          },
+          {
+            "asset": "handoff",
+            "source": "encore",
+            "source_in_ms": 164900,
+            "duration_ms": 5000
+          },
+          {
+            "asset": "keep_the_keys",
+            "source": "rhythm",
+            "source_in_ms": 68900,
+            "duration_ms": 5500
+          },
+          {
+            "asset": "raise_the_map",
+            "source": "encore",
+            "source_in_ms": 184700,
+            "duration_ms": 6400
+          },
+          {
+            "asset": "release_sleeve",
+            "source": "card",
+            "source_in_ms": 0,
+            "duration_ms": 5200
+          }
+        ],
+        "audio_source": "rhythm",
+        "audio_source_in_ms": 51000,
+        "output_duration_ms": 35000,
+        "photo_credit": {
+          "creator": "Leonardo Angelini",
+          "work": "Gran Via, Madrid, at night",
+          "license": "CC BY 2.0",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Gran_Via,_Madrid,_at_night.jpg",
+          "license_url": "https://creativecommons.org/licenses/by/2.0/",
+          "notes": "Credit retained for original Encore Cut. This derivative uses no city-photo insert."
+        }
+      },
+      "selectiveRevision": {
+        "format": "studio-editor-bridge-owned-media-revision/v1",
+        "title": "Keep a Copy",
+        "composition_id": "loftwahfm-keep-a-copy",
+        "first_output_sha256": "ea1bd15c7d05b9f864d3bdfbf6294b0966327841d1e2b1b14d2ebf381f9fc0c3",
+        "revised_output_sha256": "ad6432b4a2fd02991671ead1f18b49e3d00a4d350a1fb79afa52b6fa937e5032",
+        "total_ms": 35000,
+        "fps": 30,
+        "total_decoded_frames_per_master": 1050,
+        "changed_shot": 3,
+        "changed_range_ms": [
+          12900,
+          17900
+        ],
+        "changed_frame_range_zero_based_exclusive_end": [
+          387,
+          537
+        ],
+        "changed_decoded_frames": 150,
+        "unchanged_decoded_frames_exact_match": 900,
+        "decoded_audio_sha256_both_masters": "171cf240ccb36faadc9a3534bc4a008b31c1b00a894d29dc2837b0dc42e54f40",
+        "earlier_master_sha256_still_matches_original_receipt": true,
+        "revision_cache_hits": [
+          true,
+          true,
+          false,
+          true,
+          true,
+          true
+        ],
+        "comparison_playhead_ms": 16700,
+        "comparison_frame_zero_based": 501,
+        "before": "Encore at 02:57.500 shows the red car in motion.",
+        "after": "Encore 02:48.700 frame shows the release paperwork passing between two people.",
+        "creative_reason": "The red car was a strong movement beat, but the handoff makes the lyric about keeping the keys visible as a useful original changing hands.",
+        "bridge_sha256": "48be4c991cf89b8b0b5d78466a9ae0fe56e75ba905634753af2b118def04529a",
+        "incremental_provider_charges": 0,
+        "provider_calls": 0
+      }
+    },
+    "askTheOwner": {
+      "purpose": "A deadpan permission-slip joke about retaining your own work, with a real path to start a project.",
+      "production": "Built-in Codex ImageGen, followed by an uncropped square feed edition and a portrait edition.",
+      "prompt": "Original 4:5 portrait feed ad for App Composer and the release Who Keeps the Map?. Make it look like a genuine one-minute handwritten sign photographed neatly face on, white ordinary A4 paper filling almost all of the image, thin warm charcoal desk visible at the very edge. In blue ballpoint, sparse thick uppercase casual handwriting. Layout: first large heading 'PERMISSION TO KEEP YOUR MAP'. A simple drawn little folded trail map with a winding line and X in the centre, a diagonally drawn small arrow pointing from the words 'ASK THE OWNER' down to a handwritten signature line. On the signature line, in very large deadpan lettering 'THAT’S YOU.' The reveal is the signature; generous blank paper around it. At bottom in small but perfectly legible biro write exactly 'composer.loftwah.com'. No other words, objects, logos, happy doodle figures, stains, exaggerated creases, highlight, or marketing graphics. A confident real handwriting gag. Exactly reproduce the four text strings; leave clear margins on all four edges. Colour only blue ink on pure paper. The destination is the verified root domain. Keep it readable viewed at 330 px wide.",
+      "charges": "Per-image cost and host-side resource use were not available to this run."
+    },
+    "atTheCut": {
+      "purpose": "Let a viewer inspect the same moment across two revisions and download the recipe.",
+      "example": "16.700 seconds into Keep a Copy. The first edit follows the red car and the revised edit shows the papers being handed over.",
+      "validation": "900 equal decoded frames outside shot 3 and matching decoded audio."
+    }
+  },
+  "printsDesktop": {
+    "operation": "Imported the album cover in the installed native Mac app and used Export original.",
+    "inputSha256": "66cf3cd73b0eb9d445c54d956b21aa316cb60c8bcb68aa3a79248b48964a905b",
+    "outputSha256": "66cf3cd73b0eb9d445c54d956b21aa316cb60c8bcb68aa3a79248b48964a905b",
+    "outcome": "Byte-identical JPEG. Local workflow."
+  },
+  "references": [
+    {
+      "url": "https://blog.cloudflare.com/cloudflare-cf-cli-launch/",
+      "application": "Show a particular action, evidence and a way to try it. The Studio edit and native original export are the worked example."
+    },
+    {
+      "url": "https://liquiddeath.com/pages/greatesthates",
+      "application": "Use the actual music and sleeve as part of the release’s own world. Keep the concept legible across all of its objects."
+    },
+    {
+      "url": "https://github.com/loftwah/app-composer/issues/1356",
+      "application": "Let performance and physical action carry the lyrics. Preserve the approved Rhythm Cut, its timing and the good coverage."
+    }
+  ],
+  "outputs": {
+    "album-og-v1.jpg": {
+      "bytes": 482687,
+      "sha256": "9a4fe85579443df08d7e9a51c572d252619ca9afebf212ba4613a2843408355c"
+    },
+    "ask-the-owner-480-v1.webp": {
+      "bytes": 20318,
+      "sha256": "0dd9bc334b14b67936f1bf3c84fa27b6f3255d6386a75e197d8de8b4608217e2"
+    },
+    "ask-the-owner-square-v1.webp": {
+      "bytes": 82004,
+      "sha256": "3a2541b47a349eeb816761c8f035356b14489da4ed1c5fcd33d27ed697438861"
+    },
+    "ask-the-owner-v1.webp": {
+      "bytes": 90622,
+      "sha256": "cea9dd283fe8068b4572aaa6bd762c768c60a34addee9a06adcbd788b7c73a60"
+    },
+    "edit-after.webp": {
+      "bytes": 22324,
+      "sha256": "37aae5de6db064a5ab84a0c9dfd1855b4bd20e5e13b8c9f434803c996fb261b4"
+    },
+    "edit-before.webp": {
+      "bytes": 34392,
+      "sha256": "bb1edb5ca793754ad5753e1e37e24a58d73fe9942fbac0b19d93970e0269f8bd"
+    },
+    "edit-source-v1.zip": {
+      "bytes": 10049,
+      "sha256": "6d67c6e6d801a41ecc1b7629f03aaed91b9dbea789125f0481f870ce9c62a75b"
+    },
+    "first-page-440-v1.webp": {
+      "bytes": 69684,
+      "sha256": "5de69089f4c3d9c5c4ad8ba442f71042e21481d3f9751e275055e0df412d4a22"
+    },
+    "first-page-v1.webp": {
+      "bytes": 252328,
+      "sha256": "9bd1be4086e057f44c89dd9d0852d90e3ab586be73664828a52d74690c1a33a7"
+    },
+    "keep-a-copy-en.vtt": {
+      "bytes": 622,
+      "sha256": "e2a06d2b6c8475f383a1957499b308648e3c5006ffb95dd5eb6483f843332e1f"
+    },
+    "keep-a-copy-poster-480.webp": {
+      "bytes": 29522,
+      "sha256": "486fac6669b07a5f67276b6be084fead58d337b82b52c27a91769c88273a9d6c"
+    },
+    "keep-a-copy-poster.jpg": {
+      "bytes": 236981,
+      "sha256": "4b899d6da692139a97231fad00ba91cacb492d7cde1185612f25e0f3c05ea33f"
+    },
+    "keep-a-copy.mp4": {
+      "bytes": 7068149,
+      "sha256": "ad6432b4a2fd02991671ead1f18b49e3d00a4d350a1fb79afa52b6fa937e5032"
+    },
+    "sleeve-440-v1.webp": {
+      "bytes": 107614,
+      "sha256": "4df0726879d86c6181ce1b877bf4a1f77d44c3d35d91298c165ee9b822de1f01"
+    },
+    "sleeve-v1.webp": {
+      "bytes": 426158,
+      "sha256": "c64bf572684d94d1178f240e6aba774ab88610b06726e1c5da059a8d7558650a"
+    }
+  }
+}

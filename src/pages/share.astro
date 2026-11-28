@@ -25,6 +25,7 @@ if (!filmsView && (params.get('view') === 'stacks' || hasShareWallFilters(shareW
 }
 const filters = artworkFilters(params);
 const dominationFilm = !filmsView && filters.tag === "operation-world-domination";
+const albumArtwork = !filmsView && filters.tag === "who-keeps-the-map";
 const internetWorkshop = !filmsView && filters.tag === "internet-workshop";
 if (!filmsView && filters.liked) Astro.response.headers.set('X-Robots-Tag', 'noindex');
 const user = Astro.locals.user;
@@ -63,6 +64,12 @@ if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/cam
           <a href="https://media.loftwah.com/gallery?project=d5fQQNhQ7sU">Full release in Media Studio</a>
           <a href="/campaign/operation-world-domination/captions.en.vtt" download>English captions</a>
           <a href="/campaign/operation-world-domination/campaign-art-and-captions.zip" download>Download the campaign art</a>
+        </nav>
+      )}
+      {albumArtwork && (
+        <nav class="workshop-play" aria-label="Who Keeps the Map? album and films">
+          <strong>Who Keeps the Map?</strong>
+          <a href="/share/who-keeps-the-map">Open the album, films and making-of</a>
         </nav>
       )}
       {internetWorkshop && (

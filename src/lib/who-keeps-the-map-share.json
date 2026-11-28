@@ -1,0 +1,131 @@
+[
+  {
+    "id": "map-release-sleeve",
+    "title": "Who Keeps the Map? · Album sleeve",
+    "project": "loftwahfm",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "LoftwahFM · Who Keeps the Map?",
+    "alt": "Masked Levi holds a map above a festival crowd, a red balloon and rows of mushroom hats.",
+    "description": "The original LoftwahFM album sleeve, scaled for the Share catalogue.",
+    "tags": [
+      "who-keeps-the-map",
+      "music-release"
+    ],
+    "reviewedAt": "2026-11-28",
+    "kind": "illustration",
+    "use": "social",
+    "projectUrl": "https://fm.loftwah.com/album/who-keeps-the-map",
+    "shareUrl": "https://composer.loftwah.com/share?tag=who-keeps-the-map",
+    "sourceUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/production-notes.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/sleeve-440-v1.webp",
+    "thumbnailWidth": 440,
+    "thumbnailHeight": 440,
+    "previewUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/sleeve-v1.webp",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/who-keeps-the-map/sleeve-v1.webp",
+      "label": "Campaign edition",
+      "width": 900,
+      "height": 900,
+      "sha256": "c64bf572684d94d1178f240e6aba774ab88610b06726e1c5da059a8d7558650a",
+      "version": "v1"
+    }
+  },
+  {
+    "id": "map-comic-opening",
+    "title": "Who Keeps the Map? · First page",
+    "project": "loftwahfm",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "LoftwahFM · Who Keeps the Map?",
+    "alt": "The first illustrated page of the Who Keeps the Map? listening comic.",
+    "description": "Open the whole eight-page comic from the release.",
+    "tags": [
+      "who-keeps-the-map",
+      "music-release"
+    ],
+    "reviewedAt": "2026-11-28",
+    "kind": "illustration",
+    "use": "social",
+    "projectUrl": "https://fm.loftwah.com/media/who-keeps-the-map/listening-comic.pdf",
+    "shareUrl": "https://composer.loftwah.com/share?tag=who-keeps-the-map",
+    "sourceUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/production-notes.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/first-page-440-v1.webp",
+    "thumbnailWidth": 293,
+    "thumbnailHeight": 440,
+    "previewUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/first-page-v1.webp",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/who-keeps-the-map/first-page-v1.webp",
+      "label": "Campaign edition",
+      "width": 600,
+      "height": 900,
+      "sha256": "9bd1be4086e057f44c89dd9d0852d90e3ab586be73664828a52d74690c1a33a7",
+      "version": "v1"
+    }
+  },
+  {
+    "id": "map-ask-the-owner",
+    "title": "Ask the owner",
+    "project": "app-composer",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "App Composer · Codex ImageGen and campaign direction",
+    "alt": "Blue pen on paper. Permission to keep your map. Ask the owner. An arrow lands on the signature: That’s you. composer.loftwah.com.",
+    "description": "A permission slip for the person who already owns the map.",
+    "tags": [
+      "who-keeps-the-map",
+      "music-release"
+    ],
+    "reviewedAt": "2026-11-28",
+    "kind": "poster",
+    "use": "social",
+    "projectUrl": "https://composer.loftwah.com/share/who-keeps-the-map",
+    "shareUrl": "https://composer.loftwah.com/share?tag=who-keeps-the-map",
+    "sourceUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/production-notes.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/ask-the-owner-480-v1.webp",
+    "thumbnailWidth": 384,
+    "thumbnailHeight": 480,
+    "previewUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/ask-the-owner-v1.webp",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/who-keeps-the-map/ask-the-owner-v1.webp",
+      "label": "Campaign edition",
+      "width": 864,
+      "height": 1080,
+      "sha256": "cea9dd283fe8068b4572aaa6bd762c768c60a34addee9a06adcbd788b7c73a60",
+      "version": "v1"
+    },
+    "stage": "share poster"
+  },
+  {
+    "id": "map-keep-a-copy",
+    "title": "Keep a Copy · Film still",
+    "project": "loftwahfm",
+    "visibility": "public",
+    "reuse": "unconfirmed",
+    "credit": "LoftwahFM · Who Keeps the Map?",
+    "alt": "A frame from the 35-second Keep a Copy edit.",
+    "description": "A new edit from both released music films, assembled through Studio’s local editor bridge.",
+    "tags": [
+      "who-keeps-the-map",
+      "music-release"
+    ],
+    "reviewedAt": "2026-11-28",
+    "kind": "illustration",
+    "use": "social",
+    "projectUrl": "https://composer.loftwah.com/share/who-keeps-the-map#trailer",
+    "shareUrl": "https://composer.loftwah.com/share?tag=who-keeps-the-map",
+    "sourceUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/production-notes.json",
+    "thumbnailUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/keep-a-copy-poster-480.webp",
+    "thumbnailWidth": 480,
+    "thumbnailHeight": 270,
+    "previewUrl": "https://composer.loftwah.com/campaign/who-keeps-the-map/keep-a-copy-poster.jpg",
+    "original": {
+      "url": "https://composer.loftwah.com/campaign/who-keeps-the-map/keep-a-copy-poster.jpg",
+      "label": "Campaign edition",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4b899d6da692139a97231fad00ba91cacb492d7cde1185612f25e0f3c05ea33f",
+      "version": "v1"
+    }
+  }
+]
