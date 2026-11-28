@@ -1,8 +1,10 @@
+import { compareArtworkScores } from "./share-gallery.ts";
 import type { D1Database } from "@cloudflare/workers-types";
 import { PluginRouteError } from "emdash";
 import type { z } from "zod";
 import clef from "../data/decision-research-clef.json";
 import {
+  artworkSocialReview,
   filmOpeningReview,
   intelligenceFindings,
   intelligenceNotes,
@@ -193,27 +195,31 @@ async function share(
       .toLowerCase();
     return queries.every((query) => text.includes(query));
   });
-  const filtered = input.social
-    ? (
-        await Promise.all(
-          rows.map(async (item) => {
-            const record = records.get(item.id);
-            if (!record) return null;
-            const revision = await artworkRevision(record);
-            const assessment = await socialReview(
-              item.id,
-              revision,
-              record.thumbnailUrl,
-            );
-            return (assessment?.status ?? "unreviewed") === input.social
-              ? { ...item, revision, social: assessment }
-              : null;
-          }),
+  const filtered =
+    input.social || input.sort === "clef"
+      ? (
+          await Promise.all(
+            rows.map(async (item) => {
+              const record =
+                item.kind === "artwork" ? records.get(item.id) : undefined;
+              const assessment = record
+                ? await artworkSocialReview(record)
+                : undefined;
+              return !input.social ||
+                (assessment?.status ?? "unreviewed") === input.social
+                ? { ...item, social: assessment }
+                : null;
+            }),
+          )
         )
-      )
-        .filter((item) => item !== null)
-        .sort((a, b) => (b.social?.score ?? 0) - (a.social?.score ?? 0))
-    : rows;
+          .filter((item) => item !== null)
+          .sort(
+            (a, b) =>
+              compareArtworkScores(a.social, b.social) ||
+              a.id.localeCompare(b.id, "en") ||
+              a.kind.localeCompare(b.kind, "en"),
+          )
+      : rows;
   const window = pageOf<ResearchShareItem>(filtered, page);
   const items = await Promise.all(
     window.items.map(async (item) => {
@@ -222,7 +228,7 @@ async function share(
         return item.kind === "film"
           ? { ...item, filmOpening: filmOpeningReview(item.id, item.href) }
           : item;
-      const revision = item.revision ?? (await artworkRevision(record));
+      const revision = item.social?.revision ?? (await artworkRevision(record));
       const assessment = artworkScores[item.id];
       const withRevision = {
         ...item,

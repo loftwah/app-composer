@@ -53,24 +53,67 @@ export function DecisionResearch({
   initialSocial: string | null;
   initialKind: string | null;
 }) {
-  const [query, setQuery] = useState("");
-  const [search, setSearch] = useState("");
+  const params =
+    typeof window === "undefined"
+      ? new URLSearchParams()
+      : new URLSearchParams(window.location.search);
+  const initialQuery =
+    view === "share" ? (params.get("query") ?? "").trim().slice(0, 100) : "";
+  const [query, setQuery] = useState(initialQuery);
+  const [search, setSearch] = useState(initialQuery);
+  const [sort, setSort] = useState(
+    view === "share" && params.get("sort") === "clef" ? "clef" : "",
+  );
   const [social, setSocial] = useState<SocialStatus | "">(
     socialStatuses.find((status) => status === initialSocial) ?? "",
   );
   const [kind, setKind] = useState<keyof typeof kindChoices>(
-    social ? "artwork" : initialKind === "film" ? "film" : "all",
+    social
+      ? "artwork"
+      : initialKind && Object.hasOwn(kindChoices, initialKind)
+        ? (initialKind as keyof typeof kindChoices)
+        : "all",
   );
-  const [project, setProject] = useState("");
+  const urlProject = params.get("project") ?? "";
+  const [project, setProject] = useState(
+    view === "share" && /^[a-z0-9][a-z0-9-]{0,127}$/.test(urlProject)
+      ? urlProject
+      : "",
+  );
   const [category, setCategory] = useState<
     (typeof decisionCategories)[number] | ""
   >("");
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(
+    view === "share"
+      ? Math.min(
+          1000,
+          Math.max(1, Number.parseInt(params.get("page") ?? "", 10) || 1),
+        )
+      : 1,
+  );
   const [result, setResult] = useState<ResearchReply>();
   const [busy, setBusy] = useState(true);
   const [creating, setCreating] = useState("");
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (view !== "share") return;
+    const url = new URL(window.location.href);
+    for (const [key, value] of Object.entries({
+      query: search,
+      kind: kind === "all" ? "" : kind,
+      project,
+      social,
+      sort,
+      page: page === 1 ? "" : String(page),
+    })) {
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
+    }
+    if (url.href !== window.location.href)
+      window.history.replaceState(window.history.state, "", url);
+  }, [view, search, kind, project, social, sort, page]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -83,6 +126,7 @@ export function DecisionResearch({
             kind,
             ...(project ? { project } : {}),
             ...(social ? { social } : {}),
+            ...(sort === "clef" ? { sort: "clef" as const } : {}),
           }
         : view === "feedback"
           ? {
@@ -101,7 +145,18 @@ export function DecisionResearch({
         if (!signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [view, load, search, kind, project, category, page, attempt, social]);
+  }, [
+    view,
+    load,
+    search,
+    kind,
+    project,
+    category,
+    page,
+    attempt,
+    social,
+    sort,
+  ]);
 
   function searchNow(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -140,8 +195,10 @@ export function DecisionResearch({
       )}
       {view === "share" && (
         <p>
-          Find public artwork, films and examples. Social review labels apply to
-          the exact artwork revision Clef saw.
+          Find public artwork, films and examples.{" "}
+          {sort === "clef"
+            ? "Clef’s best orders reviewed artwork by first impression in a social feed. Other work follows."
+            : "Social review labels apply to the artwork revision Clef saw."}
         </p>
       )}
       {view === "feedback" && (
@@ -180,6 +237,19 @@ export function DecisionResearch({
                       {label}
                     </option>
                   ))}
+                </select>
+              </label>
+              <label>
+                Sort
+                <select
+                  value={sort}
+                  onChange={(event) => {
+                    setSort(event.currentTarget.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="">Catalogue order</option>
+                  <option value="clef">Clef’s best</option>
                 </select>
               </label>
               <label>
@@ -354,11 +424,36 @@ export function DecisionResearch({
                         <strong>Opening review</strong> · {item.filmOpening}
                       </p>
                     )}
-                    {item.social && (
-                      <p>
-                        <strong>{socialLabels[item.social.status]}</strong> ·{" "}
-                        {item.social.placement}. {item.social.fix}.
-                      </p>
+                    {item.social ? (
+                      <details>
+                        <summary>
+                          Why this ranks here · {item.social.score.toFixed(2)} /
+                          4
+                        </summary>
+                        <p>
+                          <strong>{socialLabels[item.social.status]}</strong> ·{" "}
+                          {item.social.placement}. {item.social.fix}.
+                        </p>
+                        <p>
+                          Clef-flash · first impression in a social feed ·{" "}
+                          {item.social.rubric}. No saved confidence estimate.
+                        </p>
+                        <p>
+                          Review snapshot {item.social.reviewedAt.slice(0, 10)}{" "}
+                          UTC · source revision{" "}
+                          <code title={item.social.revision}>
+                            {item.social.revision.slice(0, 12)}
+                          </code>
+                        </p>
+                      </details>
+                    ) : (
+                      sort === "clef" && (
+                        <p>
+                          {item.kind === "artwork"
+                            ? "Needs a current artwork review"
+                            : "Outside the artwork ranking"}
+                        </p>
+                      )
                     )}
                     {item.assessment && (
                       <p>

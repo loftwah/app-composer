@@ -71,6 +71,29 @@ test("artwork facets and featured picks apply before pagination and shuffle stay
   assert.notDeepEqual(walk("1234abcd"), walk("4321abcd"));
 });
 
+test("Clef scores order the entire filtered cohort and leave unknowns browseable", () => {
+  const entries = Array.from({ length: 28 }, (_, index) => ({
+    assetId: `piece-${String(index).padStart(2, "0")}`,
+    title: "Lantern",
+    project: index === 27 ? "elsewhere" : "bubbles",
+    category: "illustration",
+    tags: [],
+  }));
+  const scores = new Map(entries.slice(0, 26).map((entry, index) =>
+    [entry.assetId, { score: index === 0 ? 0 : index > 23 ? 4 : 2 }]));
+  scores.set("piece-27", { score: 4 });
+  const filters = artworkFilters(new URLSearchParams("sort=clef&project=bubbles&art=lantern"));
+  const first = galleryPage(entries, [], filters, undefined, scores);
+  assert.deepEqual(first.items.slice(0, 2).map(item => item.assetId), ["piece-24", "piece-25"]);
+  assert.equal(first.total, 27);
+  assert.equal(first.items.length, 24);
+  const next = new URL(galleryHref(filters, { after: first.nextAfter }), "https://composer.test");
+  const second = galleryPage(entries, [], artworkFilters(next.searchParams), undefined, scores);
+  assert.deepEqual(second.items.map(item => item.assetId), ["piece-23", "piece-00", "piece-26"]);
+  assert.equal(second.items[1].social.score, 0);
+  assert.equal(second.items[2].social, undefined);
+});
+
 test("orientation filter uses recorded original dimensions and survives gallery URLs", () => {
   const piece = (assetId, original, thumbnail) => ({
     assetId,

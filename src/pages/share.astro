@@ -7,6 +7,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { composerShareCollection, listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
 import { experiencePath, experiences, type ExperienceId } from "../lib/share-experiences.ts";
 import { artworkFilters, galleryPage, readArtworkCuration } from '../lib/share-gallery.ts';
+import { artworkSocialReview } from '../lib/decision-intelligence.ts';
 import { readLikedArtworkIds } from '../lib/share-feedback.ts';
 import { spinDiscovery } from '../lib/spin-site.mjs';
 import { noindexFor } from '../lib/indexing.mjs';
@@ -40,7 +41,12 @@ const shareData = filmsView || !canBrowse ? null : await Promise.all([
 ]);
 const artwork = shareData?.[0] ?? null;
 const likedIds = shareData?.[2];
-const catalogue = artwork && likedIds !== null ? galleryPage(artwork, shareData?.[1] ?? [], filters, likedIds) : null;
+const ranked = filters.sort === 'clef' || filters.sort === 'clef-variety';
+const reviews = ranked && artwork ? new Map(await Promise.all(
+  artwork.filter(item => !filters.liked || likedIds?.has(item.assetId)).map(async item =>
+    [item.assetId, await artworkSocialReview(item)] as const),
+)) : undefined;
+const catalogue = artwork && likedIds !== null ? galleryPage(artwork, shareData?.[1] ?? [], filters, likedIds, reviews) : null;
 if (!filmsView && canBrowse && !catalogue) Astro.response.status = 503;
 if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 ---
