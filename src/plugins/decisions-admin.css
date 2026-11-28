@@ -359,7 +359,7 @@ html[data-mode="dark"] .portfolio-decisions {
 .decision-index li button {
   display: grid;
   width: 100%;
-  grid-template-columns: 2ch minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.65rem;
   justify-items: start;
@@ -367,7 +367,24 @@ html[data-mode="dark"] .portfolio-decisions {
   border: 0;
 }
 
-.decision-number,
+.decision-index-question {
+  display: grid;
+  overflow-wrap: anywhere;
+}
+
+.decision-index-question > small {
+  color: var(--review-muted);
+}
+
+.decision-index-group,
+.decision-review-context {
+  margin-block: 0.75rem 1rem;
+}
+
+.decision-review-context li {
+  overflow-wrap: anywhere;
+}
+
 .portfolio-decisions [data-status] {
   color: var(--review-muted);
   font-variant-numeric: tabular-nums;
@@ -402,12 +419,9 @@ html[data-mode="dark"] .portfolio-decisions {
   }
 
   .decision-index li button {
-    grid-template-columns: 2ch minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.18rem;
     padding-block: 0.5rem;
-  }
-
-  .decision-index li small {
-    grid-column: 2;
   }
 }
 

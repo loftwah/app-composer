@@ -8,6 +8,7 @@ import {
   decisionImageTypes,
   decisionImageUrl,
   decisionMediaUrl,
+  decisionPriorityFactors,
   decisionReactionLabels,
   maxDecisionImageBytes,
   specialDecisionChoices,
@@ -97,10 +98,21 @@ const startArtwork = async (assetId: string, revision: string) =>
   (await call<{ decision: { id: string } }>("artwork", { assetId, revision }))
     .decision.id;
 
-const statuses = {
-  open: "Unanswered",
-  context: "Feedback saved",
-  selected: "Answered",
+const readinessLabels = {
+  ready: "Ready for your decision",
+  "needs-evidence": "Needs evidence",
+  "needs-reframing": "Needs reframing",
+  "already-answered": "Direction available",
+  superseded: "Earlier question",
+  deferred: "Deferred",
+};
+const meaningLabels = {
+  "supports-choice": "Supports the selected direction",
+  "rejects-premise": "Question or choices need work",
+  mixed: "Keep parts and reframe the question",
+  unclear: "Meaning needs a closer read",
+  deferred: "Owner deferred the question",
+  delegated: "Owner delegated the question",
 };
 
 function QuestionIndex({
@@ -110,20 +122,34 @@ function QuestionIndex({
   decisions: DecisionSummary[];
   onGo: (id: string) => void;
 }) {
-  const sections = new Map<
-    string,
-    { entry: DecisionSummary; number: number }[]
-  >();
-  decisions.forEach((entry, index) => {
-    const section = entry.archived ? "Earlier questions" : entry.project;
-    const group = sections.get(section) ?? [];
-    group.push({ entry, number: index + 1 });
-    sections.set(section, group);
-  });
+  const ready = decisions.filter((entry) => entry.readiness === "ready");
+  const agent = decisions.filter((entry) => entry.nextActor === "agent");
+  const deferred = decisions.filter((entry) => entry.readiness === "deferred");
+  const earlier = decisions.filter((entry) => entry.readiness === "superseded");
+  const next = ready[0];
 
-  const next = decisions.find(
-    (entry) => !entry.archived && entry.status === "open",
-  );
+  function list(entries: DecisionSummary[]) {
+    return (
+      <ul>
+        {entries.map((entry) => (
+          <li key={entry.id}>
+            <button type="button" onClick={() => onGo(entry.id)}>
+              <span className="decision-index-question">
+                <small>{entry.project}</small>
+                <span>{entry.question}</span>
+              </span>
+              <small data-status={entry.status}>
+                {entry.priority
+                  ? `${entry.priority.score}/100`
+                  : readinessLabels[entry.readiness]}
+              </small>
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <section className="decision-index" aria-labelledby="decision-index-title">
       <div className="decision-index-heading">
@@ -136,31 +162,135 @@ function QuestionIndex({
             className="decision-primary"
             onClick={() => onGo(next.id)}
           >
-            Continue review
+            Start with the highest priority
           </button>
         )}
       </div>
-      {Array.from(sections, ([project, entries]) => (
-        <section key={project}>
-          <h3>{project}</h3>
-          <ul>
-            {entries.map(({ entry, number }) => (
-              <li key={entry.id}>
-                <button type="button" onClick={() => onGo(entry.id)}>
-                  <span className="decision-number">
-                    {entry.archived ? "–" : number}
-                  </span>
-                  <span>{entry.question}</span>
-                  <small data-status={entry.status}>
-                    {statuses[entry.status]}
-                  </small>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      {ready.length ? (
+        <>
+          <h3>Ready for your decision</h3>
+          {list(ready)}
+        </>
+      ) : (
+        <p>
+          No questions are ready for your decision. Agent work and saved
+          responses are below.
+        </p>
+      )}
+      {[
+        { label: "Agent follow-up", entries: agent },
+        { label: "Deferred", entries: deferred },
+        { label: "Earlier questions", entries: earlier },
+      ]
+        .filter(({ entries }) => entries.length > 0)
+        .map(({ label, entries }) => (
+          <details
+            className="decision-evidence decision-index-group"
+            key={label}
+          >
+            <summary>
+              {label} ({entries.length})
+            </summary>
+            {list(entries)}
+          </details>
+        ))}
     </section>
+  );
+}
+
+function ReviewContext({
+  review,
+  interpretation,
+}: Pick<DecisionDetail, "review" | "interpretation">) {
+  const { priority, nextActor, source } = review;
+  const next =
+    nextActor === "owner"
+      ? "Your decision"
+      : nextActor === "agent"
+        ? "Agent follow-up"
+        : null;
+  return (
+    <details className="decision-evidence decision-review-context">
+      <summary>
+        {interpretation
+          ? "How the saved response reads"
+          : priority
+            ? `Why this ranks here · ${priority.score}/100`
+            : readinessLabels[review.readiness]}
+      </summary>
+      <div className="decision-evidence-inner">
+        {next && (
+          <p>
+            <strong>{next}</strong>
+          </p>
+        )}
+        {interpretation && (
+          <>
+            <p>
+              {meaningLabels[interpretation.kind]} · response revision{" "}
+              {interpretation.responseRevision}
+            </p>
+            <p>Assessment: {interpretation.confidence}</p>
+            {interpretation.reason !== review.reason && (
+              <p>{interpretation.reason}</p>
+            )}
+            {[
+              { label: "Accepted parts", values: interpretation.accepted },
+              { label: "Rejected parts", values: interpretation.rejected },
+              {
+                label: "Unresolved context",
+                values: interpretation.unresolved,
+              },
+            ]
+              .filter(({ values }) => values.length > 0)
+              .map(({ label, values }) => (
+                <div key={label}>
+                  <p>
+                    <strong>{label}</strong>
+                  </p>
+                  <ul>
+                    {values.map((value, index) => (
+                      <li key={index}>{value}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+          </>
+        )}
+        <p>{review.reason}</p>
+        {source && <a href={source.url}>{source.label}</a>}
+        {priority && (
+          <>
+            <p>
+              Provisional priority policy. Factors run from 0 (no evidence of
+              contribution) to 4 (strong evidence).
+            </p>
+            <dl>
+              {Object.entries(decisionPriorityFactors).map(
+                ([key, { label, weight }]) => (
+                  <div key={key}>
+                    <dt>{label}</dt>
+                    <dd>
+                      {
+                        priority.factors[
+                          key as keyof typeof decisionPriorityFactors
+                        ]
+                      }
+                      /4 · {weight}% weight
+                    </dd>
+                  </div>
+                ),
+              )}
+            </dl>
+            <p>
+              Effort tiebreakers · owner {priority.ownerEffort}/4 ·
+              implementation {priority.implementationEffort}/4
+            </p>
+            <a href={priority.source.url}>{priority.source.label}</a>
+          </>
+        )}
+      </div>
+    </details>
   );
 }
 
@@ -252,6 +382,7 @@ function DecisionForm({
       if (isDirty || suggestedChoice) {
         const saved = await call<{ response: DecisionResponse }>("record", {
           id: decision.id,
+          briefRevision: detail.briefRevision,
           selected: suggestedChoice ? [suggestedChoice] : selected,
           ...(suggestedChoice
             ? { recommendationToken: recommendationReview?.token }
@@ -390,13 +521,17 @@ function DecisionForm({
         {decision.archived && <span>Earlier question</span>}
         {response && (
           <span data-status={response.selected.length ? "selected" : "context"}>
-            {response.selected.length ? "Answer saved" : "Feedback saved"}
+            Response saved
           </span>
         )}
       </div>
       <h2 tabIndex={-1} data-decision-heading>
         {decision.question}
       </h2>
+      <ReviewContext
+        review={detail.review}
+        interpretation={detail.interpretation}
+      />
       {recommendation && preferred && (
         <section className="decision-suggestion" aria-label="Suggested answer">
           <p className="decision-suggestion-title">
@@ -866,6 +1001,8 @@ function DecisionsPage() {
     research ?? (view === overview ? overview : params.get("id"));
   const router = useRouter();
   const [decisions, setDecisions] = useState<DecisionSummary[]>([]);
+  const [sessionOrder, setSessionOrder] = useState<string[]>([]);
+  const reviewStarted = useRef(false);
   const [detail, setDetail] = useState<DecisionDetail>();
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -897,12 +1034,14 @@ function DecisionsPage() {
       );
       if (signal.aborted) return;
       setDecisions(index.decisions);
-      const id =
-        requested ??
-        index.decisions.find(
-          (entry) =>
-            !entry.archived && !entry.interview && entry.status === "open",
-        )?.id;
+      const ready = index.decisions.filter(
+        (entry) => !entry.interview && entry.readiness === "ready",
+      );
+      if (!reviewStarted.current || requested === overview) {
+        setSessionOrder(ready.map(({ id }) => id));
+        reviewStarted.current = true;
+      }
+      const id = requested ?? ready[0]?.id;
       if (!requested && id) {
         router.history.replace(questionLocation(id), undefined, {
           ignoreBlocker: true,
@@ -937,11 +1076,13 @@ function DecisionsPage() {
 
   const interview = detail?.decision.interview;
   const primaryQuestions = decisions.filter((entry) => !entry.interview);
-  const active = (
-    interview
-      ? decisions.filter((entry) => entry.interview === interview)
-      : primaryQuestions
-  ).filter((entry) => !entry.archived);
+  const active = interview
+    ? decisions.filter(
+        (entry) => !entry.archived && entry.interview === interview,
+      )
+    : sessionOrder.flatMap(
+        (id) => primaryQuestions.find((entry) => entry.id === id) ?? [],
+      );
   const backTo =
     interview === "policy"
       ? "intel"
@@ -969,7 +1110,7 @@ function DecisionsPage() {
           <h1 id="decisions-title">Decisions</h1>
           {!research && active.length > 0 && (
             <p>
-              {completed} of {active.length} current questions reviewed
+              {completed} of {active.length} questions reviewed in this queue
             </p>
           )}
         </div>
@@ -1087,12 +1228,7 @@ function DecisionsPage() {
                 backTo={backTo}
                 onSave={(response, announce = true) => {
                   setDetail({ ...detail, response });
-                  if (announce)
-                    setStatus(
-                      response.selected.length
-                        ? "Answer saved"
-                        : "Feedback saved",
-                    );
+                  if (announce) setStatus("Response saved");
                 }}
               />
             </>

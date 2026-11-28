@@ -10,6 +10,7 @@ import {
   decisionRecommendationLifetimeMs,
 } from "./decision-recommendation.ts";
 import { feedbackFollowUps, replacedDecisions } from "./decision-followups.ts";
+import { interpretDecision, reviewDecision } from "./decision-review.ts";
 import { policyQuestions, socialReview } from "./decision-intelligence.ts";
 import { interviewQuestions } from "./decision-interviews.ts";
 import {
@@ -122,6 +123,22 @@ const briefLink = ({ id, question }: Decision) => ({
   question,
   url: `${adminDecisions}?id=${id}`,
 });
+
+async function briefRevision(decision: Decision) {
+  const values = [
+    await decisionRecommendationKey(decision),
+    decision.id,
+    decision.subject?.revision,
+    decision.followUpTo,
+  ];
+  const hash = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(JSON.stringify(values)),
+  );
+  return Array.from(new Uint8Array(hash), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+}
 
 type Assessment = {
   key: string;
@@ -239,6 +256,16 @@ export async function getDecision(
       .bind(owner, id)
       .all<BriefRow>(),
   ]);
+  const response = history.revisions[0] ?? null;
+  const interpretation = interpretDecision(
+    decision,
+    response,
+    previous?.[1].revisions[0],
+  );
+  const [revision, review] = await Promise.all([
+    briefRevision(decision),
+    reviewDecision(decision, interpretation),
+  ]);
   return {
     decision: visual
       ? {
@@ -246,7 +273,10 @@ export async function getDecision(
           context: `${decision.context} Clef’s thumbnail review suggests ${visual.placement.toLowerCase()}. ${visual.fix}.`,
         }
       : decision,
-    response: history.revisions[0] ?? null,
+    briefRevision: revision,
+    interpretation,
+    review,
+    response,
     earlier: history.revisions.slice(1),
     historyHasMore: history.hasMore,
     url: briefLink(decision).url,
@@ -270,9 +300,8 @@ export async function listDecisions(
   db: D1Database,
   owner: string,
 ): Promise<DecisionSummary[]> {
-  const [briefs, replies] = await db.batch<
-    BriefRow | { decision_id: string; selected: string }
-  >([
+  type Reply = ResponseRow & { decision_id: string };
+  const [briefs, replies] = await db.batch<BriefRow | Reply>([
     db
       .prepare(
         `
@@ -284,7 +313,7 @@ export async function listDecisions(
     db
       .prepare(
         `
-      SELECT decision_id, selected FROM composer_decision_responses AS response
+      SELECT decision_id, ${responseFields} FROM composer_decision_responses AS response
       WHERE owner_id = ? AND revision = (
         SELECT MAX(revision) FROM composer_decision_responses
         WHERE owner_id = response.owner_id AND decision_id = response.decision_id
@@ -293,50 +322,72 @@ export async function listDecisions(
       )
       .bind(owner),
   ]);
-  const selections = new Map(
+  const responses = new Map(
     replies.results.map((row) => {
-      const { decision_id, selected } = row as {
-        decision_id: string;
-        selected: string;
-      };
-      return [decision_id, selected] as const;
+      const { decision_id } = row as Reply;
+      return [decision_id, readResponse(row as Reply)] as const;
     }),
   );
   const submitted = briefs.results.map(
     (row) => JSON.parse((row as BriefRow).brief) as Decision,
   );
-  return [
+  const candidates = [
     ...initial.filter((brief) => !brief.archived),
     ...submitted,
     ...interviewQuestions,
     ...policyQuestions,
     ...initial.filter((brief) => brief.archived),
-  ].map(
-    ({
-      id,
-      project,
-      question,
-      options,
-      archived,
-      interview,
-      category,
-      tags,
-    }) => ({
-      id,
-      project,
-      question,
-      archived,
-      interview,
-      category,
-      tags,
-      status: !selections.has(id)
-        ? "open"
-        : selections.get(id) === "[]"
-          ? "context"
-          : "selected",
-      hasArtwork: options.some((option) => Boolean(option.preview)),
+  ];
+  const queue = await Promise.all(
+    candidates.map(async (decision): Promise<DecisionSummary> => {
+      const {
+        id,
+        project,
+        question,
+        options,
+        archived,
+        interview,
+        category,
+        tags,
+      } = decision;
+      const response = responses.get(id) ?? null;
+      const prior = decision.followUpTo
+        ? responses.get(decision.followUpTo)
+        : undefined;
+      const review = await reviewDecision(
+        decision,
+        interpretDecision(decision, response, prior),
+      );
+      return {
+        id,
+        project,
+        question,
+        archived,
+        interview,
+        category,
+        tags,
+        ...review,
+        status: !response
+          ? "open"
+          : !response.selected.length
+            ? "context"
+            : "selected",
+        hasArtwork: options.some((option) => Boolean(option.preview)),
+      };
     }),
   );
+  return queue.sort((left, right) => {
+    const a = left.priority;
+    const b = right.priority;
+    if (a && b)
+      return (
+        b.score - a.score ||
+        a.ownerEffort - b.ownerEffort ||
+        a.implementationEffort - b.implementationEffort ||
+        left.id.localeCompare(right.id)
+      );
+    return Number(Boolean(b)) - Number(Boolean(a));
+  });
 }
 
 export async function recordDecision(
@@ -345,6 +396,15 @@ export async function recordDecision(
   input: z.infer<typeof saveDecision>,
 ) {
   const decision = await getBrief(db, owner, input.id);
+  if (
+    input.briefRevision &&
+    input.briefRevision !== (await briefRevision(decision))
+  )
+    throw new PluginRouteError(
+      "STALE_BRIEF",
+      "The question changed. Read the current brief before saving an answer.",
+      409,
+    );
   if (
     input.recommendationToken !== undefined &&
     (input.recommendationToken !== decision.recommendationReview?.token ||

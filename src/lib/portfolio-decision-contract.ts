@@ -67,6 +67,10 @@ export const saveDecision = z
   .object({
     id,
     revision: z.number().int().nonnegative(),
+    briefRevision: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
     selected: z.array(id).max(5),
     note: z.string().trim().max(4000),
     reaction: z.enum(["useful", "needs-work"]).nullable().optional(),
@@ -131,6 +135,7 @@ export const newDecision = z
       ids.size !== input.options.length ||
       ids.has("all-of-the-above") ||
       ids.has("none-of-the-above") ||
+      additionalChoices.some((choice) => ids.has(choice.id)) ||
       !ids.has(input.recommendation.choice) ||
       input.maxSelections > ids.size
     )
@@ -171,6 +176,15 @@ export type Decision = {
 
 export const allDecisionChoices = "all-of-the-above";
 export const noDecisionChoice = "none-of-the-above";
+export const rejectDecisionChoice = "reject-the-premise";
+export const deferDecisionChoice = "defer-this-question";
+export const delegateDecisionChoice = "delegate-this-question";
+
+const additionalChoices = [
+  { id: rejectDecisionChoice, title: "Reject the premise" },
+  { id: deferDecisionChoice, title: "Defer this question" },
+  { id: delegateDecisionChoice, title: "Delegate this question" },
+];
 
 export function specialDecisionChoices(decision: Decision) {
   return [
@@ -181,6 +195,9 @@ export function specialDecisionChoices(decision: Decision) {
     ...(decision.options.some((option) => option.id === "none")
       ? []
       : [{ id: noDecisionChoice, title: "None of the above" }]),
+    ...additionalChoices.filter(
+      (choice) => !decision.options.some((option) => option.id === choice.id),
+    ),
   ];
 }
 
@@ -207,13 +224,75 @@ export type DecisionResponse = {
   image: DecisionImage | null;
 };
 
+export type DecisionReadiness =
+  | "ready"
+  | "needs-evidence"
+  | "needs-reframing"
+  | "already-answered"
+  | "superseded"
+  | "deferred";
+
+export type DecisionInterpretation = {
+  version: string;
+  responseRevision: number;
+  kind:
+    | "supports-choice"
+    | "rejects-premise"
+    | "mixed"
+    | "unclear"
+    | "deferred"
+    | "delegated";
+  accepted: string[];
+  rejected: string[];
+  unresolved: string[];
+  evidence: {
+    decisionId: string;
+    responseRevision: number;
+    selected: string[];
+    reaction: DecisionReaction | null;
+    noteExcerpts: string[];
+    referenceCount: number;
+    prior?: { decisionId: string; responseRevision: number };
+  };
+  reason: string;
+  confidence: "explicit" | "inferred" | "uncertain";
+};
+
+export const decisionPriorityFactors = {
+  mission: { label: "Mission contribution", weight: 30 },
+  impact: { label: "Evidenced owner or user impact", weight: 25 },
+  unblocks: { label: "Ready work unblocked", weight: 20 },
+  information: { label: "How much an answer changes the action", weight: 15 },
+  timing: { label: "Time sensitivity", weight: 10 },
+} as const;
+
+export type DecisionPriority = {
+  version: string;
+  briefKey: string;
+  score: number;
+  factors: Record<keyof typeof decisionPriorityFactors, number>;
+  rationale: string;
+  source: { label: string; url: string };
+  ownerEffort: number;
+  implementationEffort: number;
+};
+
+export type DecisionReview = {
+  readiness: DecisionReadiness;
+  reason: string;
+  nextActor: "owner" | "agent" | "none";
+  source?: DecisionPriority["source"];
+  priority?: DecisionPriority;
+};
+
 export type DecisionSummary = Pick<
   Decision,
   "id" | "project" | "question" | "archived" | "interview" | "category" | "tags"
-> & {
-  status: "open" | "context" | "selected";
-  hasArtwork: boolean;
-};
+> &
+  DecisionReview & {
+    status: "open" | "context" | "selected";
+    hasArtwork: boolean;
+  };
 
 export type LinkedDecision = Pick<Decision, "id" | "question"> & {
   url: string;
@@ -221,6 +300,9 @@ export type LinkedDecision = Pick<Decision, "id" | "question"> & {
 
 export type DecisionDetail = {
   decision: Decision;
+  briefRevision: string;
+  review: DecisionReview;
+  interpretation: DecisionInterpretation | null;
   response: DecisionResponse | null;
   earlier: DecisionResponse[];
   historyHasMore: boolean;
