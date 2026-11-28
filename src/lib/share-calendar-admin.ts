@@ -1,3 +1,4 @@
+import { listBlueskyObservations } from "./bluesky-observations.ts";
 // Owner-only route logic for the Share calendar (#604).
 // The host authenticates the caller and checks the EmDash permission before
 // dispatch. This second boundary rechecks the creator role, the exact origin,
@@ -461,6 +462,9 @@ async function snapshot(
     .bind(workspace.id)
     .all<ApprovalRow>();
   const deliveries = await listBlueskyDeliveries(db, workspace.id);
+  const blueskyObservations = deliveries.some(({ state }) => state === "published")
+    ? await listBlueskyObservations(db, workspace.id).catch(() => null)
+    : undefined;
   const revisions = new Map(
     (rows.results ?? []).map((row) => [row.id, row.revision]),
   );
@@ -499,6 +503,7 @@ async function snapshot(
       };
     }),
     deliveries,
+    ...(blueskyObservations === undefined ? {} : { blueskyObservations }),
     bluesky: { configuredHandle, connection, schedulerAvailable },
     now: now.toISOString(),
     changed,
