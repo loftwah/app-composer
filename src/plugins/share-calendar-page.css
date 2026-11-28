@@ -311,14 +311,17 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-.sc-badge-draft {
+.sc-badge-drafts {
   color: var(--sc-muted);
 }
-.sc-badge-scheduled {
+.sc-badge-automatic {
   color: var(--sc-accent);
 }
+.sc-badge-attention {
+  color: var(--sc-danger);
+}
 .sc-badge-published,
-.sc-badge-shared {
+.sc-badge-local {
   color: var(--sc-green);
 }
 .sc-channel {
@@ -944,6 +947,13 @@
   .sc-source-switch button,
   .sc-list-filter button {
     flex: 1 1 100%;
+  }
+  .sc-delivery-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sc-delivery-filters button {
+    min-width: 0;
   }
   .sc-catalogue-preview img,
   .sc-item-art img {
