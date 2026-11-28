@@ -18,6 +18,7 @@ test("artwork facets and featured picks apply before pagination and shuffle stay
     project: index % 2 ? "fighter" : "bubbles",
     title: `Lantern ${index}`,
     alt: "Festival",
+    thumbnailUrl: `https://woodhouse.loftwah.com/campaign/collection/asset-${index}.webp`,
     description: "",
     credit: "Composer",
     category: "illustration",

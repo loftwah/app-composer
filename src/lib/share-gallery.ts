@@ -204,8 +204,8 @@ export function galleryPage(
         return newest(a, b);
     }
   });
-  // The first piece from each project gets a turn. Within that pass, keep
-  // curated work first, and avoid filling the opening with one series.
+  // The first piece from each project gets a turn. Keep curated work first
+  // within each project without treating shared hosting folders as a series.
   if (
     filters.sort === "featured" &&
     !filters.legacy &&
@@ -214,15 +214,11 @@ export function galleryPage(
     !filters.query
   ) {
     const projectsSeen = new Map<string, number>();
-    const collections = new Map<string, number>();
     const rank = new Map(
       matches.map((item) => {
         const project = projectsSeen.get(item.project) ?? 0;
-        const collection = item.thumbnailUrl?.split("/")[4] ?? item.assetId;
-        const series = collections.get(collection) ?? 0;
         projectsSeen.set(item.project, project + 1);
-        collections.set(collection, series + 1);
-        return [item.assetId, Math.max(project, series)];
+        return [item.assetId, project];
       }),
     );
     matches.sort((a, b) => rank.get(a.assetId)! - rank.get(b.assetId)!);
