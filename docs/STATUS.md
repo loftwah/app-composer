@@ -2,6 +2,36 @@
 
 Reviewed 25 October 2026 and updated 19 November 2026 AEDT. [Issue #11](https://github.com/loftwah/app-composer/issues/11) records exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record.
 
+## Contextual owner feedback · 28 November 2026 AEDT
+
+The [Inbox](https://composer.loftwah.com/_emdash/admin/plugins/composer-stacks/enquiries#owner-feedback)
+opens correspondence from a Share artwork, a campaign film position, a
+Decisions question and supported Composer pages. The original note and target
+revision survive follow-up, delivery evidence and incident review. The
+initial feature release, [PR #1460](https://github.com/loftwah/app-composer/pull/1460),
+served `99909179e29c918e5806d72cd748b351111a0dfb`, Worker
+`5a2df8c6-bcaa-4402-971a-1c3cea89cf86`. A labelled production note reopened in
+Inbox after reload, and the artwork form worked at 390 CSS pixels. The
+original direction is available in
+[Decisions](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review?id=owner-feedback-next).
+
+[PR #1461](https://github.com/loftwah/app-composer/pull/1461) adds an alternate
+[paper ending](https://composer.loftwah.com/share/who-keeps-the-map?cut=paper&at=29.8#trailer),
+[a captioned feedback demonstration](https://composer.loftwah.com/share/who-keeps-the-map#feedback-demo)
+and [fresh judgement results](https://composer.loftwah.com/share/who-keeps-the-map/replay#feedback-judgement).
+The edit preserves all 894 earlier decoded frames, the full soundtrack and
+the captions. The current Clef framing remains the default after the candidate
+lost on the held-out cases. Owner review of the paper cut is pending.
+
+The feedback observer uses its own read/propose scope and an expiring EmDash
+credential. The installed Composer endpoint and token exchange still require
+Cloudflare Access. Emilio's external client connection, real external replay
+and a Composer-hosted recurring review are open in
+[#311](https://github.com/loftwah/app-composer/issues/311) and
+[#289](https://github.com/loftwah/app-composer/issues/289). The existing ChatGPT
+Composer Daily Brief is the interim schedule. Exact production receipts live
+in [#11](https://github.com/loftwah/app-composer/issues/11).
+
 ## Prints Desktop Creative Archive · 25 November 2026 AEDT
 
 [prints.loftwah.com](https://prints.loftwah.com/) is the canonical product home.

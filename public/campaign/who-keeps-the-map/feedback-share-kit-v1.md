@@ -20,7 +20,7 @@ release paperwork to another person outside a workshop.
 Permission to keep your map. Ask the owner. That’s you.
 
 We gave the permission slip the last shot of *Keep a Copy*. Open at 00:29.8
-and switch between endings. The first 894 frames and the full soundtrack
+and switch endings. The first 894 frames and soundtrack
 match the sleeve cut.
 
 Destination: https://composer.loftwah.com/share/who-keeps-the-map?cut=paper&at=29.8#trailer
@@ -31,9 +31,8 @@ reads “Permission to keep your map”. An arrow points to “That’s you.”
 ## Developers · Evidence-led Bluesky post
 
 Our smarter prompt lost. It caught the original false approval twice, then
-got fewer of 28 fresh cases right in both orders. We kept the existing
-default. Open the example where a selected option and a written rejection
-disagree.
+scored lower on 28 fresh cases in both orders. The default stays. Open
+the example where a selected option and a written rejection disagree.
 
 Destination: https://composer.loftwah.com/share/who-keeps-the-map/replay#feedback-judgement
 

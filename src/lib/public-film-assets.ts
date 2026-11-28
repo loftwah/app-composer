@@ -1,6 +1,8 @@
 // Only the explicitly listed, reviewed public MP4s use this transport. Access checks
 // run in the Worker before this helper; ordinary static/admin routing is intact.
 import { demoFilms, reviewedDemoFilms } from "./platform-demo.ts";
+import mapCampaign from "../../public/campaign/who-keeps-the-map/production-notes.json" with { type: "json" };
+import paperEdit from "../../public/campaign/who-keeps-the-map/keep-a-copy-paper-v1.json" with { type: "json" };
 
 const origin = "https://composer.loftwah.com";
 const films = new Map<string, { href: string; bytes: number; sha256: string }>(
@@ -40,6 +42,19 @@ films.set("/brand/campaign/take-it-with-you-20261118.mp4", {
   bytes: 4689521,
   sha256: "187134b76dc0687d95e263d7b3bb2b7cf6507affb4204e61c2badaeff567d046",
 });
+const mapFilmRoot = "/campaign/who-keeps-the-map/";
+for (const { file, bytes, sha256 } of [
+  { file: "keep-a-copy.mp4", ...mapCampaign.outputs["keep-a-copy.mp4"] },
+  paperEdit.output,
+  {
+    file: "feedback-to-paper-v1.mp4",
+    bytes: 5752167,
+    sha256: "8155192f20bbdac77b53ea33a1d663332805805dd979e04bf50221f83941f2e6",
+  },
+]) {
+  const href = mapFilmRoot + file;
+  films.set(href, { href, bytes, sha256 });
+}
 interface Assets {
   fetch(request: Request): Promise<Response>;
 }
