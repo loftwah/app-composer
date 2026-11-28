@@ -93,7 +93,8 @@
       "height": 1080,
       "sha256": "cea9dd283fe8068b4572aaa6bd762c768c60a34addee9a06adcbd788b7c73a60",
       "version": "v1"
-    }
+    },
+    "stage": "share poster"
   },
   {
     "id": "map-keep-a-copy",
