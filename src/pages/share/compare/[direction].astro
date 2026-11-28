@@ -1,0 +1,169 @@
+---
+import { ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight, Copy, Search } from '@lucide/astro';
+import Base from '../../../layouts/Base.astro';
+import { spinOrigin } from '../../../lib/spin-site.mjs';
+import '../../../styles/share-compare.css';
+
+const directions = {
+  projects: { name: 'Project Index', description: 'Find public work by project and open the source or the tool that made it.' },
+  palette: { name: 'Colour Bench', description: 'Choose a set of solid colours and copy the exact CSS.' },
+  social: { name: 'Social Kit', description: 'See one original as four posts and download the exports.' },
+};
+const direction = Astro.params.direction;
+if (!direction || !Object.hasOwn(directions, direction)) return new Response(null, { status: 404 });
+const option = direction as keyof typeof directions;
+const { name, description } = directions[option];
+const shots = '/brand/campaign/share-directions-20261128/';
+const studio = 'https://media.loftwah.com/tools/images';
+const projects = [
+  { label: 'Prints Desktop', detail: 'Take a poster brief, see the finished print and make your own.', collection: '/share?project=prints-desktop', source: '/prints-desktop/make#brief', action: 'Open the brief' },
+  { label: 'LoftwahFM', detail: 'Explore sleeve art and the records it belongs to.', collection: '/share?project=loftwahfm', source: 'https://loftwahfm.com/', action: 'Listen' },
+  { label: 'Spin', detail: 'Find the artwork, then let the wheel pick dinner.', collection: '/share?project=app-composer&art=spin', source: spinOrigin + '/', action: 'Play Spin' },
+  { label: 'App Composer', detail: 'See how the apps fit together and open the editable diagrams.', collection: '/share?project=app-composer', source: '/diagrams', action: 'Open diagrams' },
+];
+const formats = [
+  { id: 'portrait', name: 'Portrait', width: 1080, height: 1350 },
+  { id: 'square', name: 'Square', width: 1080, height: 1080 },
+  { id: 'story', name: 'Story', width: 1080, height: 1920 },
+  { id: 'landscape', name: 'Landscape', width: 1920, height: 1080 },
+];
+const initialCss = ':root {\n  --accent: #fc5b05;\n  --paper: #ffffff;\n  --ink: #17181b;\n}';
+---
+
+<Base title={name + ' · Share · App Composer'} description={description} noindex>
+  <div class:list={['share-compare', 'direction-' + option]}>
+    <nav class="compare-nav" aria-label="Compare Share directions">
+      <a href="/share"><ArrowLeft size={17} aria-hidden="true" /> Share</a>
+      <ul>
+        {Object.entries(directions).map(([key, value]) => (
+          <li><a href={`/share/compare/${key}`} aria-current={key === option ? 'page' : undefined}>{value.name}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    {option === 'projects' && (
+      <section class="project-index" aria-labelledby="project-index-title">
+        <header class="project-marquee">
+          <h1 id="project-index-title">Find work<br />by project.</h1>
+          <p>Open a collection, follow its source or take something into your own work.</p>
+          <form method="get" action="/share" role="search" aria-label="Search Share artwork">
+            <label for="compare-query">Search all artwork</label>
+            <div>
+              <input id="compare-query" name="art" type="search" maxlength="100" placeholder="e.g. poster or diagram" />
+              <button class="secondary" type="submit" aria-label="Search"><Search size={23} aria-hidden="true" /></button>
+            </div>
+          </form>
+        </header>
+        <ul class="project-register">
+          {projects.map(project => (
+            <li>
+              <h2><a href={project.collection}>{project.label}<ArrowUpRight size={25} aria-hidden="true" /></a></h2>
+              <p>{project.detail}</p>
+              <a class="compare-text-action" href={project.source}>{project.action}<ArrowRight size={16} aria-hidden="true" /></a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {option === 'palette' && (
+      <section class="colour-bench" data-colour-bench aria-labelledby="colour-bench-title">
+        <header class="bench-header">
+          <div>
+            <h1 id="colour-bench-title">Colour you<br />can take<span>.</span></h1>
+            <p>Pick a palette and take the exact colours into your project.</p>
+          </div>
+          <div class="bench-tools">
+            <label for="compare-palette">Palette</label>
+            <select id="compare-palette" data-palette-choice>
+              <option value="composer">App Composer</option>
+              <option value="signal">Night Signal</option>
+              <option value="print">Two Inks</option>
+            </select>
+          </div>
+        </header>
+        <dl class="bench-swatches" data-swatches aria-label="Palette colours">
+          <div class="bench-accent"><dt>Accent</dt><dd>#FC5B05</dd></div>
+          <div class="bench-paper"><dt>Paper</dt><dd>#FFFFFF</dd></div>
+          <div class="bench-ink"><dt>Ink</dt><dd>#17181B</dd></div>
+        </dl>
+        <div class="bench-export">
+          <div>
+            <label for="compare-css">CSS variables</label>
+            <textarea id="compare-css" rows="5" readonly>{initialCss}</textarea>
+          </div>
+          <div class="bench-export-actions">
+            <button class="compare-primary palette-copy" type="button" data-palette-copy hidden><Copy size={18} aria-hidden="true" /> Copy CSS</button>
+            <p data-palette-status role="status"></p>
+            <a href="/share/artwork/atlas-04-composer-family/palette">Sample colours from artwork <ArrowRight size={16} aria-hidden="true" /></a>
+          </div>
+        </div>
+      </section>
+    )}
+
+    {option === 'social' && (
+      <section class="social-sheet" aria-labelledby="social-sheet-title">
+        <header class="social-header">
+          <div>
+            <h1 id="social-sheet-title">Make it fit<span>.</span></h1>
+            <p>One Spin poster. Four social sizes, exported in Media Studio.</p>
+          </div>
+          <a class="compare-primary" href={shots + 'spin-dinner-social-kit.zip'} download><ArrowDownToLine size={20} aria-hidden="true" /> Download the kit</a>
+        </header>
+        <div class="format-proof">
+          {formats.map(({ id, name, width, height }) => (
+            <a class:list={['format', 'format-' + id]} href={shots + id + '.webp'} download aria-label={`Download ${name} (${width} by ${height})`}>
+              <figure>
+                <img src={shots + id + '.webp'} alt={`Spin poster reading Pick Dinner, in ${name.toLowerCase()} format`} width={width} height={height} decoding="async" />
+                <figcaption><strong>{name}</strong><span>{width} × {height}</span><ArrowDownToLine size={17} aria-hidden="true" /></figcaption>
+              </figure>
+            </a>
+          ))}
+        </div>
+        <nav class="social-source" aria-label="Original artwork and tools">
+          <a href={studio}>Make your own kit <ArrowUpRight size={17} aria-hidden="true" /></a>
+          <a href={shots + 'spin-dinner-original.png'} download>Download the original <ArrowDownToLine size={17} aria-hidden="true" /></a>
+          <a href={spinOrigin + '/'}>Play Spin <ArrowUpRight size={17} aria-hidden="true" /></a>
+        </nav>
+      </section>
+    )}
+  </div>
+</Base>
+
+<script>
+  const bench = document.querySelector<HTMLElement>('[data-colour-bench]');
+  const choice = bench?.querySelector<HTMLSelectElement>('[data-palette-choice]');
+  const swatches = bench?.querySelector<HTMLElement>('[data-swatches]');
+  const codes = swatches?.querySelectorAll('dd');
+  const css = bench?.querySelector<HTMLTextAreaElement>('#compare-css');
+  const copy = bench?.querySelector<HTMLButtonElement>('[data-palette-copy]');
+  const status = bench?.querySelector<HTMLElement>('[data-palette-status]');
+  if (choice && swatches && codes && css && copy && status) {
+    const colours = {
+      composer: ['#fc5b05', '#ffffff', '#17181b'],
+      signal: ['#c7ff00', '#ffffff', '#17181b'],
+      print: ['#ff299a', '#ffffff', '#17181b'],
+    };
+    choice.addEventListener('change', () => {
+      const palette = colours[choice.value as keyof typeof colours];
+      palette.forEach((hex, index) => {
+        codes[index].textContent = hex.toUpperCase();
+      });
+      const [accent, paper, ink] = palette;
+      swatches.style.setProperty('--bench-swatch', accent);
+      css.value = `:root {\n  --accent: ${accent};\n  --paper: ${paper};\n  --ink: ${ink};\n}`;
+      status.textContent = '';
+    });
+    copy.hidden = false;
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(css.value);
+        status.textContent = 'CSS copied.';
+      } catch {
+        css.focus();
+        css.select();
+        status.textContent = 'CSS selected. Copy it from the text field.';
+      }
+    });
+  }
+</script>
