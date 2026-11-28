@@ -1,0 +1,124 @@
+---
+import { ArrowLeft, ArrowUpRight, Download } from '@lucide/astro';
+import Base from '../../../layouts/Base.astro';
+import clef from '../../../../public/campaign/who-keeps-the-map/clef-counterfactual-order-v1.json';
+import replay from '../../../../public/campaign/who-keeps-the-map/quest-replay-v1.json';
+
+const records = [
+  ['The assignment', replay.request],
+  ['What the editor had', replay.evidenceAtTheTime],
+  ['What the first cut did', replay.historicalAttempt],
+  ['What the artist kept', replay.ownerFeedback],
+  ['What changed', replay.actualCorrection],
+  ['The accepted result', replay.actualResult],
+];
+const { comparison } = replay;
+const campaign = '/campaign/who-keeps-the-map';
+---
+
+<Base title={replay.title} description={replay.subtitle} shareImage={`${campaign}/album-og-v1.jpg`} shareAlt="Who Keeps the Map? by LoftwahFM, illustrated as a coloured-pencil festival scene." ogType="article">
+  <article class="quest">
+    <header class="quest-header">
+      <a href="/share/who-keeps-the-map#making-of"><ArrowLeft size={17} aria-hidden="true" /> Back to the album</a>
+      <h1>{replay.title}</h1>
+      <p>{replay.subtitle}</p>
+    </header>
+
+    <div class="quest-story">
+      <section aria-labelledby="edit-title">
+        <h2 id="edit-title">The edit</h2>
+        <dl class="quest-timeline">
+          {records.map(([label, detail]) => (
+            <div><dt>{label}</dt><dd>{detail}</dd></div>
+          ))}
+        </dl>
+        <a class="quest-link" href={replay.film}>Watch the approved Rhythm Cut <ArrowUpRight size={17} aria-hidden="true" /></a>
+      </section>
+
+      <section class="run" aria-labelledby="run-title">
+        <h2 id="run-title">Replay the brief</h2>
+        <p>{comparison.question}</p>
+        <p class="method">{comparison.model} · {comparison.caseCount} historical cases · {comparison.maximumCompletionTokensPerArm.toLocaleString('en-AU')} completion tokens per arm.</p>
+        <ul class="arm-list">
+          {comparison.arms.map(arm => (
+            <li>
+              <div class="arm-heading">
+                <h3>{arm.name}</h3>
+                <strong>{arm.coveredChecks === null ? 'Unscored' : `${arm.coveredChecks}/${comparison.coveredChecksDenominator} checks`}</strong>
+              </div>
+              {arm.excerpt && <blockquote>“{arm.excerpt}”</blockquote>}
+              <p>{arm.observation}</p>
+              <p class="method">{arm.completedCases}/{comparison.caseCount} cases returned · {arm.seconds.toFixed(1)} sec</p>
+            </li>
+          ))}
+        </ul>
+        <p class="outcome">{comparison.conclusion}</p>
+      </section>
+    </div>
+
+    <section class="quest-evidence" aria-labelledby="evidence-title">
+      <h2 id="evidence-title">Open the evidence</h2>
+      <div class="evidence-grid">
+        {replay.evidenceViews.map(axis => (
+          <details>
+            <summary>{axis.name} <span>{'current' in axis && axis.current ? `Current ${axis.current} · revised ${axis.revised}` : axis.name === 'Impact' ? 'Unmeasured' : 'Artist-reviewed film'}</span></summary>
+            <p>{axis.scope}</p>
+            <p>{'example' in axis ? axis.example : axis.observation ?? 'No audience or adoption observations can be attributed to this replay.'}</p>
+            {'retrieval' in axis && axis.retrieval && <p>Retrieval completed {axis.retrieval} cases.</p>}
+          </details>
+        ))}
+      </div>
+      <details class="limitations">
+        <summary>How Clef handled conflicting evidence</summary>
+        <p>Clef-flash matched the expected decision on {clef.first.correct}/{clef.caseCount} cases, then {clef.reordered.correct}/{clef.caseCount} with the case and choice order shuffled. The runs agreed on {clef.matchedAcrossOrders} cases.</p>
+        <p>In one order it rejected the headline choice with a rejecting note. In the other it accepted the same choice. Keep the note available and leave consequential calls with an accountable reviewer.</p>
+        <a class="quest-link" href={`${campaign}/clef-counterfactual-order-v1.json`} download><Download size={16} aria-hidden="true" /> Download the synthetic cases and both results</a>
+      </details>
+      <details class="limitations">
+        <summary>Method, cost and sources</summary>
+        <p>{replay.methodLimit}</p>
+        <p>{comparison.totalReportedTokens.toLocaleString('en-AU')} reported tokens, estimated US${comparison.estimatedListCostUsd.toFixed(5)} at list rates. Invoiced cost is unknown.</p>
+        <ul>
+          {replay.sources.map(source => <li><a href={source.url}>{source.label}</a></li>)}
+        </ul>
+        <a class="quest-link" href={`${campaign}/quest-replay-v1.json`} download><Download size={16} aria-hidden="true" /> Download the replay evidence</a>
+      </details>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .quest { --quest-ink: #23152d; --quest-surface: #f3fb55; --quest-rule: var(--color-border); max-inline-size: 1130px; margin-inline: auto; }
+  .quest-header { padding: clamp(1.2rem, 4vw, 3.6rem); border-radius: 1rem; color: var(--quest-ink); background: var(--quest-surface); }
+  .quest-header a, .quest-link { display: inline-flex; align-items: center; gap: .4rem; min-block-size: 44px; }
+  .quest-header a:hover, .quest-link:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .quest-header h1 { max-inline-size: 13ch; margin-block: .75rem .4rem; font-weight: 680; letter-spacing: -.04em; }
+  .quest-header p { font-size: clamp(1.1rem, 2.6vw, 1.5rem); margin-block: .6rem 0; }
+  .quest-story { display: grid; grid-template-columns: minmax(0, .87fr) minmax(0, 1fr); gap: clamp(1.6rem, 6vw, 6rem); margin-block: clamp(2rem, 5vw, 5rem); }
+  .quest-story h2, .quest-evidence h2 { margin-block-end: .65rem; }
+  .quest-timeline { margin: 0; }
+  .quest-timeline > div { border-block-end: 1px solid var(--quest-rule); padding-block: .9rem; }
+  .quest-timeline dt { font-weight: 700; }
+  .quest-timeline dd { color: var(--color-muted); margin: .2rem 0 0; }
+  .quest-link { text-decoration: underline; text-underline-offset: .23em; }
+  .run > p, .arm-list p { margin-block: .35rem; }
+  .method { color: var(--color-muted); font-size: .9rem; }
+  .arm-list { list-style: none; margin: .85rem 0 1rem; padding: 0; }
+  .arm-list li { border-block-start: 1px solid var(--quest-rule); margin: 0; padding-block: .9rem; }
+  .arm-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .25rem .8rem; }
+  .arm-heading h3 { margin: 0; font-size: 1.25rem; }
+  .arm-heading strong { font-size: .94rem; font-variant-numeric: tabular-nums; }
+  blockquote { margin: .45rem 0; font-size: 1.13rem; font-weight: 670; }
+  .outcome { font-weight: 650; }
+  .quest-evidence { border-block-start: 1px solid var(--quest-rule); padding-block-start: 1.5rem; }
+  .evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; align-items: start; }
+  .evidence-grid details, .limitations { border-block-end: 1px solid var(--quest-rule); margin: 0; }
+  .evidence-grid details p { margin-block-start: 0; color: var(--color-muted); }
+  .evidence-grid summary span { display: block; font-size: .9rem; color: var(--color-muted); font-weight: 500; padding-inline-start: 1rem; }
+  .limitations { margin-block-start: 1.5rem; }
+  .limitations a { text-decoration: underline; text-underline-offset: .2em; }
+  @media (max-width: 720px) {
+    .quest-story, .evidence-grid { grid-template-columns: minmax(0, 1fr); }
+    .quest-header h1 { font-size: clamp(2.65rem, 12.5vw, 4.75rem); }
+  }
+</style>

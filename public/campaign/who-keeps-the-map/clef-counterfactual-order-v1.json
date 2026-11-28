@@ -1,0 +1,200 @@
+{
+  "schema": "composer.clef-counterfactual-order-check/1",
+  "observedAt": "2026-11-28T10:29:23.815Z",
+  "model": "@cf/cloudflare/clef-flash",
+  "caseCount": 12,
+  "scope": "Two text-only runs on one synthetic set. The second shuffled case and option order with a different seed. Missing choices and disagreements were kept. Model probabilities are not human calibration.",
+  "seeds": [
+    "composer-20261128-quest-clef",
+    "composer-20261128-quest-clef-reorder"
+  ],
+  "first": {
+    "inputTokens": 2345,
+    "estimatedListCostUsd": 0.00008911,
+    "elapsedMs": 2758,
+    "correct": 10,
+    "falseAccepts": 0,
+    "falseRejects": 0,
+    "missedAbstentions": 0
+  },
+  "reordered": {
+    "inputTokens": 2345,
+    "estimatedListCostUsd": 0.00008911,
+    "elapsedMs": 5071,
+    "correct": 9,
+    "falseAccepts": 1,
+    "falseRejects": 1,
+    "missedAbstentions": 0
+  },
+  "matchedAcrossOrders": 9,
+  "results": [
+    {
+      "id": "s3",
+      "label": "Strong-looking film with invented provenance",
+      "facts": "The preview is compelling. Its page says the full original was made in Studio; the only receipt is for a 35-second derivative made later. The delivery claims accurate production provenance.",
+      "expected": "reject",
+      "first": "reject",
+      "reordered": "reject",
+      "probabilities": {
+        "abstain": 0.4549,
+        "accept": 0.0364,
+        "reject": 0.5087
+      },
+      "confidence": 0.2005
+    },
+    {
+      "id": "s2",
+      "label": "The same headline option with a rejecting note",
+      "facts": "Choice: Spin. Note: “I selected one to get through the question. These aren’t exciting. Ask what the demo should do first.” The action proposed is leading with Spin.",
+      "expected": "reject",
+      "first": "reject",
+      "reordered": "accept",
+      "probabilities": {
+        "reject": 0.3066,
+        "accept": 0.4956,
+        "abstain": 0.1978
+      },
+      "confidence": 0.0681
+    },
+    {
+      "id": "s12",
+      "label": "Exact source for a ranked image",
+      "facts": "The current artwork, thumbnail and review have the same recorded version and bytes, and the explanation labels the scope first-glance feed suitability. The claim is that this evidence is suitable for the displayed artwork score.",
+      "expected": "accept",
+      "first": "abstain",
+      "reordered": "accept",
+      "probabilities": {
+        "accept": 0.5497,
+        "reject": 0.1664,
+        "abstain": 0.2839
+      },
+      "confidence": 0.1157
+    },
+    {
+      "id": "s10",
+      "label": "Verified exact original export",
+      "facts": "The requested JPEG was actually selected and exported in Prints. The input and output are byte-identical with the same SHA-256. The claim is that native export preserved this file.",
+      "expected": "accept",
+      "first": "accept",
+      "reordered": "reject",
+      "probabilities": {
+        "reject": 0.4554,
+        "accept": 0.276,
+        "abstain": 0.2686
+      },
+      "confidence": 0.0336
+    },
+    {
+      "id": "s9",
+      "label": "Specific acceptance within wider rejection",
+      "facts": "Artist keeps the lip-sync, rejects the typography and asks to return to the earlier edit for the base. The agent asks whether this constitutes approval of the whole in-scene cut.",
+      "expected": "reject",
+      "first": "abstain",
+      "reordered": "abstain",
+      "probabilities": {
+        "reject": 0.0812,
+        "abstain": 0.8708,
+        "accept": 0.048
+      },
+      "confidence": 0.6508
+    },
+    {
+      "id": "s1",
+      "label": "The same headline option with an affirmative note",
+      "facts": "Choice: Spin. Note: “This is exactly the headline I want. Lead with Spin.” The action is to select the headline direction only.",
+      "expected": "accept",
+      "first": "accept",
+      "reordered": "accept",
+      "probabilities": {
+        "accept": 0.9366,
+        "reject": 0.0284,
+        "abstain": 0.035
+      },
+      "confidence": 0.8188
+    },
+    {
+      "id": "s7",
+      "label": "Mission language with no useful evidence",
+      "facts": "A report claims creators have returned to a workflow. It includes only mission statements and a list of issues. There is no observed repeat use to inspect.",
+      "expected": "abstain",
+      "first": "abstain",
+      "reordered": "abstain",
+      "probabilities": {
+        "accept": 0.0644,
+        "reject": 0.4014,
+        "abstain": 0.5342
+      },
+      "confidence": 0.1759
+    },
+    {
+      "id": "s8",
+      "label": "More internal model calls called adoption",
+      "facts": "Evaluation tokens doubled. The team added no creator workload or return event. The report claims there is a measured increase in useful creator adoption.",
+      "expected": "reject",
+      "first": "reject",
+      "reordered": "reject",
+      "probabilities": {
+        "reject": 0.9305,
+        "accept": 0.0186,
+        "abstain": 0.0509
+      },
+      "confidence": 0.8031
+    },
+    {
+      "id": "s5",
+      "label": "Deployed page with its promised film missing",
+      "facts": "The new page passed release checks and loads. The brief also requires a finished 35-second downloadable film; the play button leads to a still. The delivery is claimed complete.",
+      "expected": "reject",
+      "first": "reject",
+      "reordered": "reject",
+      "probabilities": {
+        "reject": 0.9553,
+        "abstain": 0.03,
+        "accept": 0.0147
+      },
+      "confidence": 0.8705
+    },
+    {
+      "id": "s4",
+      "label": "Recolours called new concepts",
+      "facts": "The brief requests three distinct creative mechanisms. The results use the same drawing, punchline, framing and audience interaction with three different accent colours.",
+      "expected": "reject",
+      "first": "reject",
+      "reordered": "reject",
+      "probabilities": {
+        "abstain": 0.0481,
+        "accept": 0.0307,
+        "reject": 0.9212
+      },
+      "confidence": 0.7777
+    },
+    {
+      "id": "s11",
+      "label": "Lack of audience observations",
+      "facts": "The route shipped, and two controlled test plays completed. No audience click or listening observations are available. Decide if audiences liked the new cut.",
+      "expected": "abstain",
+      "first": "abstain",
+      "reordered": "abstain",
+      "probabilities": {
+        "accept": 0.0122,
+        "reject": 0.0354,
+        "abstain": 0.9524
+      },
+      "confidence": 0.8627
+    },
+    {
+      "id": "s6",
+      "label": "Changed artwork with an earlier score",
+      "facts": "Current artwork revision is B and its source bytes changed. The score reviewed revision A. An agent proposes showing the old score as current for B.",
+      "expected": "reject",
+      "first": "reject",
+      "reordered": "reject",
+      "probabilities": {
+        "accept": 0.0294,
+        "reject": 0.9179,
+        "abstain": 0.0527
+      },
+      "confidence": 0.7693
+    }
+  ]
+}
