@@ -11,6 +11,8 @@ import {
 } from "../lib/portfolio-decision-contract";
 import "./decisions-admin.css";
 
+class StaleDecisionResponse extends Error {}
+
 const endpoint = "/_emdash/api/plugins/composer-decisions/";
 const percentage = new Intl.NumberFormat("en-AU", {
   style: "percent",
@@ -31,6 +33,8 @@ async function call<T>(
     signal,
     cache: "no-store",
   });
+  if (route === "record" && result.status === 409)
+    throw new StaleDecisionResponse("A newer response exists.");
   return parseApiResponse<T>(
     result,
     "The decision could not be loaded or saved.",
@@ -96,6 +100,7 @@ function DecisionForm({
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [conflict, setConflict] = useState<DecisionResponse>();
   const { maxSelections, options, recommendation } = decision;
   const showArt = options.some((option) => option.preview);
   const single = maxSelections === 1;
@@ -129,12 +134,29 @@ function DecisionForm({
         revision: response?.revision ?? 0,
       });
       onSave(saved.response);
+      setConflict(undefined);
       setNote(saved.response.note);
       setResult(
         saved.response.selected.length ? "Decision saved." : "Context saved.",
       );
     } catch (failure) {
-      setError(errorMessage(failure));
+      if (failure instanceof StaleDecisionResponse) {
+        try {
+          const latest = await call<DecisionDetail>("read", {
+            id: decision.id,
+          });
+          if (latest.response) {
+            setConflict(latest.response);
+            onSave(latest.response);
+          }
+        } catch (refreshFailure) {
+          setError(
+            `Your draft is still here. The latest response could not be loaded. ${errorMessage(refreshFailure)}`,
+          );
+        }
+      } else {
+        setError(errorMessage(failure));
+      }
     } finally {
       setPending(false);
     }
@@ -259,7 +281,39 @@ function DecisionForm({
             />
           </div>
         </fieldset>
+        {conflict && (
+          <div className="decision-recommendation" role="status">
+            <p>
+              <strong>A newer response was saved.</strong> Your draft is still
+              in the form.
+            </p>
+            <p>
+              Saved choices{" "}
+              {conflict.selected
+                .map(
+                  (id) =>
+                    options.find((option) => option.id === id)?.title ?? id,
+                )
+                .join(", ") || "None"}
+            </p>
+            {conflict.note && <p>Saved context {conflict.note}</p>}
+          </div>
+        )}
         <div className="decision-actions">
+          {conflict && (
+            <button
+              type="button"
+              className="decision-clear"
+              disabled={pending}
+              onClick={() => {
+                setSelected(conflict.selected);
+                setNote(conflict.note);
+                setConflict(undefined);
+              }}
+            >
+              Use saved response
+            </button>
+          )}
           <button
             type="submit"
             disabled={
@@ -270,7 +324,9 @@ function DecisionForm({
               ? "Saving…"
               : !selected.length && note.trim()
                 ? "Save context"
-                : "Save decision"}
+                : conflict
+                  ? "Save my choices"
+                  : "Save decision"}
           </button>
           {result && <span role="status">{result}</span>}
         </div>
