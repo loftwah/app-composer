@@ -363,11 +363,13 @@ function DecisionForm({
 
   const advance = next ?? backTo;
   const backLabel =
-    backTo === "share"
-      ? "Share index"
-      : backTo === "projects"
-        ? "Projects"
-        : "Question list";
+    backTo === "intel"
+      ? "Intelligence"
+      : backTo === "share"
+        ? "Share index"
+        : backTo === "projects"
+          ? "Projects"
+          : "Question list";
   const primaryLabel = pending
     ? "Saving…"
     : isDirty && !empty
@@ -941,7 +943,13 @@ function DecisionsPage() {
       : primaryQuestions
   ).filter((entry) => !entry.archived);
   const backTo =
-    interview === "artwork" ? "share" : interview ? "projects" : overview;
+    interview === "policy"
+      ? "intel"
+      : interview === "artwork"
+        ? "share"
+        : interview
+          ? "projects"
+          : overview;
   const completed = active.filter((entry) => entry.status !== "open").length;
   const position = detail
     ? active.findIndex((entry) => entry.id === detail.decision.id)
@@ -985,7 +993,9 @@ function DecisionsPage() {
           type="button"
           aria-current={
             research === "projects" ||
-            Boolean(interview && interview !== "artwork")
+            Boolean(
+              interview && interview !== "artwork" && interview !== "policy",
+            )
               ? "page"
               : undefined
           }
@@ -1004,6 +1014,15 @@ function DecisionsPage() {
         </button>
         <button
           type="button"
+          aria-current={
+            research === "intel" || interview === "policy" ? "page" : undefined
+          }
+          onClick={() => go("intel", false)}
+        >
+          Intelligence
+        </button>
+        <button
+          type="button"
           aria-current={research === "feedback" ? "page" : undefined}
           onClick={() => go("feedback", false)}
         >
@@ -1012,8 +1031,10 @@ function DecisionsPage() {
       </nav>
       {research && (
         <DecisionResearch
-          key={research}
+          key={search}
           view={research}
+          initialSocial={params.get("social")}
+          initialKind={params.get("kind")}
           load={loadResearch}
           ask={startArtwork}
           onGo={go}

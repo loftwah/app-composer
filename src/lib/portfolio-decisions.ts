@@ -10,6 +10,7 @@ import {
   decisionRecommendationLifetimeMs,
 } from "./decision-recommendation.ts";
 import { feedbackFollowUps, replacedDecisions } from "./decision-followups.ts";
+import { policyQuestions, socialReview } from "./decision-intelligence.ts";
 import { interviewQuestions } from "./decision-interviews.ts";
 import {
   artworkRevision,
@@ -85,7 +86,10 @@ const scored: Decision[] = [
 
 const initial = [...feedbackFollowUps, ...scored];
 const seedBriefs = new Map(
-  [...initial, ...interviewQuestions].map((brief) => [brief.id, brief]),
+  [...initial, ...interviewQuestions, ...policyQuestions].map((brief) => [
+    brief.id,
+    brief,
+  ]),
 );
 
 type ResponseRow = {
@@ -209,6 +213,13 @@ export async function getDecision(
   id: string,
 ): Promise<DecisionDetail> {
   const decision = await getBrief(db, owner, id);
+  const visual =
+    decision.subject?.thumbnailUrl &&
+    (await socialReview(
+      decision.subject.assetId,
+      decision.subject.revision,
+      decision.subject.thumbnailUrl,
+    ));
   const [history, previous, linked] = await Promise.all([
     decisionHistory(db, owner, id),
     decision.followUpTo
@@ -229,7 +240,12 @@ export async function getDecision(
       .all<BriefRow>(),
   ]);
   return {
-    decision,
+    decision: visual
+      ? {
+          ...decision,
+          context: `${decision.context} Clef’s thumbnail review suggests ${visual.placement.toLowerCase()}. ${visual.fix}.`,
+        }
+      : decision,
     response: history.revisions[0] ?? null,
     earlier: history.revisions.slice(1),
     historyHasMore: history.hasMore,
@@ -293,6 +309,7 @@ export async function listDecisions(
     ...initial.filter((brief) => !brief.archived),
     ...submitted,
     ...interviewQuestions,
+    ...policyQuestions,
     ...initial.filter((brief) => brief.archived),
   ].map(
     ({

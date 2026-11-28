@@ -11,6 +11,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
+import { reviewShareFilms } from "./review-share-films.mjs";
+import { reviewShareSocial } from "./review-share-social.mjs";
 
 const mode = process.argv[2];
 const modeArg = process.argv[3];
@@ -21,18 +23,26 @@ const {
   CLOUDFLARE_API_KEY: key,
 } = process.env;
 if (
-  !["--run", "--recommend", "--visual"].includes(mode) ||
+  ![
+    "--run",
+    "--recommend",
+    "--visual",
+    "--social",
+    "--methods",
+    "--films",
+  ].includes(mode) ||
   !account ||
   !email ||
   !key
 )
   throw Error(
-    "Choose --run, --recommend [public-observations.json], or --visual manifest.json using the existing Workers AI account credentials.",
+    "Choose --run, --recommend [public-observations.json], --visual manifest.json, --social output-directory [sample-count], --methods manifest.json, or --films output-directory using the existing Workers AI account credentials.",
   );
 const require = createRequire(import.meta.url);
-const { build } = createRequire(
+const astroRequire = createRequire(
   await realpath(require.resolve("astro/package.json")),
-)("esbuild");
+);
+const { build } = astroRequire("esbuild");
 const artworkCriteria = {
   artwork: "Lead with the original artwork or visual story.",
   product: "Show a real product, workflow, result or usable demo.",
@@ -72,16 +82,18 @@ const directory = await mkdtemp(join(tmpdir(), "composer-decision-research-"));
 const receipts = [];
 let inputTokens = 0;
 
-async function evaluate(state, questions, images) {
+async function evaluate(state, questions, images, videos) {
+  const selectedModel = videos ? "@cf/cloudflare/clef-omni" : model;
   const payload = {
-    model: "clef-flash",
+    model: videos ? "clef-omni" : "clef-flash",
     state,
     questions,
     ...(images ? { images } : {}),
+    ...(videos ? { videos } : {}),
   };
   for (let attempt = 0; attempt < 3; attempt++) {
     const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`,
+      `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${selectedModel}`,
       {
         method: "POST",
         headers: {
@@ -354,20 +366,25 @@ async function visual() {
   const results = [];
   for (const group of groups) {
     if (
-      !Array.isArray(group.images) ||
-      group.images.length < 1 ||
-      group.images.length > 4
+      mode !== "--methods" &&
+      (!Array.isArray(group.images) ||
+        group.images.length < 1 ||
+        group.images.length > 4)
     )
       throw Error(
         "Each visual comparison must contain one to four public PNG captures.",
       );
     const images = await Promise.all(
-      group.images.map(
+      (mode === "--methods" ? [] : group.images).map(
         async (path) =>
           `data:image/png;base64,${(await readFile(path)).toString("base64")}`,
       ),
     );
-    const answers = await evaluate(group.state, group.questions, images);
+    const answers = await evaluate(
+      group.state,
+      group.questions,
+      images.length ? images : undefined,
+    );
     const imageHashes = images.map((image) => contentHash(image));
     results.push({
       state: group.state,
@@ -376,7 +393,10 @@ async function visual() {
       answers,
     });
   }
-  const path = join(dirname(modeArg), "clef-visual.json");
+  const path = join(
+    dirname(modeArg),
+    mode === "--methods" ? "clef-methods.json" : "clef-visual.json",
+  );
   await writeFile(
     path,
     JSON.stringify(
@@ -545,10 +565,84 @@ async function fullResearch() {
   );
 }
 
+async function social() {
+  if (!modeArg)
+    throw Error("Provide an ignored output directory for the public review.");
+  const limit =
+    process.argv[4] === undefined ? undefined : Number(process.argv[4]);
+  if (
+    limit !== undefined &&
+    (!Number.isInteger(limit) || limit < 1 || limit > 64)
+  )
+    throw Error("An explicit sample must contain 1–64 assets.");
+  const modulePath = join(directory, "share-social.mjs");
+  await build({
+    stdin: {
+      contents: `
+        export { listShareArtwork, artworkRevision } from "./src/lib/share-catalogue-asset.ts";
+        export { shareFilms, loadStudioShowcase } from "./src/lib/share-films.ts";
+      `,
+      resolveDir: process.cwd(),
+    },
+    bundle: true,
+    platform: "node",
+    format: "esm",
+    outfile: modulePath,
+    logLevel: "silent",
+  });
+  const { listShareArtwork, artworkRevision, shareFilms, loadStudioShowcase } =
+    await import(pathToFileURL(modulePath));
+  const [catalogue, studio] = await Promise.all([
+    listShareArtwork({ timeoutMs: 20000 }),
+    loadStudioShowcase(),
+  ]);
+  if (!catalogue?.length)
+    throw Error("The public Share catalogue could not be read.");
+  const films = [
+    ...shareFilms.map(({ id, title, href }) => ({
+      id,
+      title,
+      href: new URL(href, "https://composer.loftwah.com").href,
+    })),
+    ...(studio ?? []).map(({ slug, title }) => ({
+      id: slug,
+      title,
+      href: `https://media.loftwah.com/p/${slug}`,
+    })),
+  ];
+  const result = await reviewShareSocial({
+    catalogue,
+    films,
+    artworkRevision,
+    evaluate,
+    sharp: astroRequire("sharp"),
+    output: modeArg,
+    limit,
+  });
+  console.log(
+    JSON.stringify({
+      eligible: result.eligible,
+      status: result.statusCounts,
+      films: films.length,
+      requests: receipts.length,
+      inputTokens,
+    }),
+  );
+}
+
 try {
   if (mode === "--recommend") await recommend();
-  else if (mode === "--visual") await visual();
-  else await fullResearch();
+  else if (mode === "--visual" || mode === "--methods") await visual();
+  else if (mode === "--social") await social();
+  else if (mode === "--films") {
+    if (!modeArg)
+      throw Error("Provide the completed Share social review directory.");
+    const { films } = JSON.parse(
+      await readFile(join(modeArg, "social-review.json"), "utf8"),
+    );
+    await reviewShareFilms({ films, evaluate, directory, output: modeArg });
+    console.log(JSON.stringify({ requests: receipts.length, inputTokens }));
+  } else await fullResearch();
 } finally {
   await rm(directory, { recursive: true, force: true });
 }

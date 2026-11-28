@@ -149,7 +149,7 @@ export type Decision = {
   followUpTo?: string;
   allowAll?: boolean;
   interview?: string;
-  subject?: { assetId: string; revision: string };
+  subject?: { assetId: string; revision: string; thumbnailUrl?: string };
   project: string;
   question: string;
   context: string;
