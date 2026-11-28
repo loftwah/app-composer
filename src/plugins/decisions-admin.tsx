@@ -406,6 +406,22 @@ function DecisionForm({
               </div>
             </details>
           )}
+          {!recommendation &&
+            decision.interview !== "artwork" &&
+            decision.sources.length > 0 && (
+              <details className="decision-evidence">
+                <summary>Sources and examples</summary>
+                <ul className="decision-evidence-inner">
+                  {decision.sources.map((source) => (
+                    <li key={source.url}>
+                      <a href={source.url} target="_blank" rel="noreferrer">
+                        {source.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           <div className="decision-note">
             <label htmlFor="decision-note">
               Extra context <span>Optional</span>
