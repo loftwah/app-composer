@@ -1,0 +1,127 @@
+{
+  "source": "unknown",
+  "generatedAt": "2026-11-28T08:11:52.418Z",
+  "node": "v24.22.3",
+  "platform": "linux x64",
+  "totals": {
+    "pass": 16,
+    "fail": 0,
+    "blocked": 0,
+    "checks": 16
+  },
+  "suites": [
+    {
+      "id": "PERSONAL-MODEL-01",
+      "name": "Personal model and voice mock",
+      "status": "pass",
+      "durationMs": 3,
+      "checks": [
+        {
+          "id": "mock-boundary",
+          "name": "Seven lanes remain unrun with no provider side effects",
+          "status": "pass",
+          "detail": "Fixture SHA-256 19105f9e96bc19209d9265b732049b77d7085d8ca0f59ad2132c06290700c167. Seven plans, no measured model scores, inference or training."
+        },
+        {
+          "id": "prompt-variables",
+          "name": "Prompt and retrieval variables are recorded separately",
+          "status": "pass",
+          "detail": "A/B change the system prompt; B/C preserve the system prompt and change retrieval. No prompt comparison has run."
+        },
+        {
+          "id": "shared-budget",
+          "name": "All experiment lanes share one strict AUD ceiling",
+          "status": "pass",
+          "detail": "A$240 planned including overhead and contingency; A$250 is a strict shared ceiling, not a per-run allowance."
+        },
+        {
+          "id": "budget-admit",
+          "name": "A fully quoted bounded proposal can pass the mock",
+          "status": "pass",
+          "detail": "Fictional A$40 settled + A$60 reserved + A$55 all-inclusive quote = A$155."
+        },
+        {
+          "id": "budget-strict-cap",
+          "name": "An exact A$250 proposal is refused",
+          "status": "pass",
+          "detail": "A$250.00 is refused; A$249.99 satisfies the arithmetic only. This does not authorise or enforce billing."
+        },
+        {
+          "id": "active-reservations",
+          "name": "Active worst-case reservations count before another job",
+          "status": "pass",
+          "detail": "Fictional A$80 settled + A$80 active + A$100 proposed = A$260: stop."
+        },
+        {
+          "id": "uncertain-effects",
+          "name": "Unknown remote effects prevent a duplicate submission",
+          "status": "pass",
+          "detail": "Reconcile the existing operation before resubmission; its reservation remains counted."
+        },
+        {
+          "id": "retry-charges",
+          "name": "Retry accounting retains failed charged attempts",
+          "status": "pass",
+          "detail": "A$30 failed-but-charged plus a proposed A$220 retry reaches the strict ceiling and is refused."
+        },
+        {
+          "id": "storage-after-stop",
+          "name": "Stopping compute does not erase retained storage cost",
+          "status": "pass",
+          "detail": "Fictional A$230 settled + A$3 retained storage + A$19 proposed = A$252: stop."
+        },
+        {
+          "id": "incomplete-quote",
+          "name": "Missing price, FX or fees cannot pass as free",
+          "status": "pass",
+          "detail": "An unknown or unconverted quote requires a bounded all-inclusive AUD quote; no fabricated zero cost."
+        },
+        {
+          "id": "dataset-group-split",
+          "name": "A known related-episode split leak is rejected",
+          "status": "pass",
+          "detail": "The same synthetic episode cannot appear in both training and held-out sets. Semantic leakage remains separately unverified."
+        },
+        {
+          "id": "positive-outcome-label",
+          "name": "Unknown and rejected outcomes are not positive targets",
+          "status": "pass",
+          "detail": "Only an explicitly accepted outcome qualifies in this synthetic label check; acceptance provenance is not fabricated."
+        },
+        {
+          "id": "voice-prerequisite",
+          "name": "Missing own-voice recordings remain visible",
+          "status": "pass",
+          "detail": "Voice reference, adaptation and conversion are separate unrun lanes. No tone fixture or transcript is called a voice clone."
+        },
+        {
+          "id": "synthetic-accepted",
+          "name": "synthetic accepted",
+          "status": "pass",
+          "detail": "SYNTHETIC: accepted-in-simulation. The fixture clears every required check and the improvement minimum. No measured model improvement."
+        },
+        {
+          "id": "synthetic-rejected",
+          "name": "synthetic rejected",
+          "status": "pass",
+          "detail": "SYNTHETIC: reject. At least one required quality, safety, correctness or recovery check failed. No measured model improvement."
+        },
+        {
+          "id": "synthetic-missing",
+          "name": "synthetic missing",
+          "status": "pass",
+          "detail": "SYNTHETIC: investigate. Candidate evidence is blocked, incomplete or unverified. No measured model improvement."
+        }
+      ]
+    }
+  ],
+  "pack": {
+    "id": "PERSONAL-MODEL-01",
+    "schema": "benchmark-suite/v1",
+    "providerFree": true,
+    "evidence": {
+      "status": "not-run",
+      "note": "A separate local synthetic receipt records mock execution. No prompt, trained-model or voice quality result is claimed by this pack."
+    }
+  }
+}

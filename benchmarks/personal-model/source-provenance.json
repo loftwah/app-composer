@@ -1,0 +1,73 @@
+{
+  "repository": "loftwah/app-composer",
+  "ref": "96c9f6ebe005bd201440e099b6e6ea01c8472884",
+  "scope": "Exact source subset for provider-free replay; no synthetic Git history",
+  "files": [
+    {
+      "path": "benchmarks/runner.mjs",
+      "blobSha": "6f2db091d89b53223b6c0ade0f7132f37661e49f",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/runner.mjs"
+    },
+    {
+      "path": "src/lib/benchmark-suite.mjs",
+      "blobSha": "7fb47476b738368196ddfc61f66dc0c616d1279a",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/src/lib/benchmark-suite.mjs"
+    },
+    {
+      "path": "benchmarks/operations/agent-improve-01.md",
+      "blobSha": "39c2f080419d6ff012a84f3750fc3a29a53e6492",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/operations/agent-improve-01.md"
+    },
+    {
+      "path": "benchmarks/suites/agent-improve-01.mjs",
+      "blobSha": "02b652e2745cd7521ec46c1f17e1af080fd1e961",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/suites/agent-improve-01.mjs"
+    },
+    {
+      "path": "benchmarks/suites/agent-improve-01.json",
+      "blobSha": "17939bbaa68fefcea221f188e6ba251d2134833f",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/suites/agent-improve-01.json"
+    },
+    {
+      "path": "benchmarks/suites/_agent-improve-evaluator.mjs",
+      "blobSha": "34e5f7090be4fdc38bad30d41fb2cfc9549ccbde",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/suites/_agent-improve-evaluator.mjs"
+    },
+    {
+      "path": "benchmarks/suites/_checks.mjs",
+      "blobSha": "944540d8896c307226dc53293ba7557b96a8f4b8",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/suites/_checks.mjs"
+    },
+    {
+      "path": "benchmarks/fixtures/agent-improve-01.json",
+      "blobSha": "7d78886639a7267ab60bd4faf32a72ec9a6e318c",
+      "sourceUrl": "https://github.com/loftwah/app-composer/blob/96c9f6ebe005bd201440e099b6e6ea01c8472884/benchmarks/fixtures/agent-improve-01.json"
+    }
+  ],
+  "integrationBase": "c39c686bdb7c88cc672f1d30ed8c7db8e4194772",
+  "integrationNote": "Compared the source snapshot to the integration base; none of the eight recorded upstream files changed. The runner truthfully reports source=unknown because this was an exact source subset, not a Git checkout.",
+  "authoredPack": [
+    {
+      "path": "benchmarks/suites/personal-model-01.json",
+      "sha256": "c799869a2886c4c85b817ec52682063528777f27a24da6ec35daececcd7f8265"
+    },
+    {
+      "path": "benchmarks/suites/personal-model-01.mjs",
+      "sha256": "1f02788319e03b1c60573d43c289a81377621a68a93d92ec3d66dd5d036fe5e7"
+    },
+    {
+      "path": "benchmarks/fixtures/personal-model-01.json",
+      "sha256": "19105f9e96bc19209d9265b732049b77d7085d8ca0f59ad2132c06290700c167"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "benchmarks/personal-model/receipts/agent-improve-replay.json",
+      "sha256": "9bc913b2b5bae355bab1525f96e8b3ba39511554b431e6659acf5952373e3bc3"
+    },
+    {
+      "path": "benchmarks/personal-model/receipts/personal-model-01.json",
+      "sha256": "4004c5f577d2af22a8c11b9312cc2f9f6a8abc534003e005e4e773e2a944c049"
+    }
+  ]
+}

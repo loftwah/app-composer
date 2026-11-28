@@ -1,0 +1,88 @@
+{
+  "schema": "benchmark-suite/v1",
+  "id": "PERSONAL-MODEL-01",
+  "name": "Personal model and voice mock",
+  "description": "Rehearse seven unrun prompt, text-model and own-voice lanes with shared budget, data-selection and synthetic decision checks; no provider calls or training.",
+  "kind": "deterministic",
+  "providerFree": true,
+  "requirements": {
+    "network": false,
+    "credentials": [],
+    "spendMicro": 0
+  },
+  "checks": [
+    {
+      "module": "personal-model-01",
+      "id": "mock-boundary"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "prompt-variables"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "shared-budget"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "budget-admit"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "budget-strict-cap"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "active-reservations"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "uncertain-effects"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "retry-charges"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "storage-after-stop"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "incomplete-quote"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "dataset-group-split"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "positive-outcome-label"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "voice-prerequisite"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "synthetic-accepted"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "synthetic-rejected"
+    },
+    {
+      "module": "personal-model-01",
+      "id": "synthetic-missing"
+    }
+  ],
+  "evidence": {
+    "status": "not-run",
+    "note": "A separate local synthetic receipt records mock execution. No prompt, trained-model or voice quality result is claimed by this pack."
+  },
+  "limits": [
+    "All candidate quality and usage measurements remain null and not-run; synthetic examples exercise decision logic only.",
+    "The mock does not quote, submit, cancel, reserve or enforce any real provider bill.",
+    "Known group-ID leakage is checked; semantic contamination, genuine source rights and real voice quality require the actual selected data."
+  ]
+}

@@ -1,0 +1,513 @@
+{
+  "schema": "composer.personal-model-experiment/1",
+  "id": "PERSONAL-MODEL-01",
+  "mode": "synthetic-mock",
+  "firstEditUtc": "2026-11-28 08:11:50 UTC",
+  "purpose": "Provider-free rehearsal of experiment records and decisions; no model quality result or provider billing enforcement.",
+  "scope": {
+    "network": false,
+    "providerCalls": 0,
+    "modelDownloads": 0,
+    "trainingJobs": 0,
+    "productionChanges": 0
+  },
+  "actualIncrementalSpendAud": 0,
+  "providerBillingEnforcement": false,
+  "lanes": [
+    {
+      "id": "prompt",
+      "name": "System prompt comparison",
+      "variable": "prompt",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "runner": "not-selected",
+        "model": "not-selected"
+      }
+    },
+    {
+      "id": "retrieval",
+      "name": "Same prompt with relevant retrieved context",
+      "variable": "context",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "runner": "not-selected",
+        "model": "not-selected"
+      }
+    },
+    {
+      "id": "text-finetune",
+      "name": "Adapt a small text model",
+      "variable": "weights",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "runner": "not-selected",
+        "model": "not-selected"
+      }
+    },
+    {
+      "id": "scratch-training",
+      "name": "Tiny from-scratch learning experiment",
+      "variable": "weights",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "runner": "not-selected",
+        "model": "not-selected"
+      }
+    },
+    {
+      "id": "voice-reference",
+      "name": "Reference-conditioned own-voice synthesis",
+      "variable": "inference",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "recordings": "missing",
+        "identity": "owner's own voice",
+        "provider": "not-selected"
+      }
+    },
+    {
+      "id": "voice-finetune",
+      "name": "Adapt an own-voice model",
+      "variable": "weights",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "recordings": "missing",
+        "identity": "owner's own voice",
+        "provider": "not-selected"
+      }
+    },
+    {
+      "id": "voice-conversion",
+      "name": "Convert an owned vocal performance",
+      "variable": "inference",
+      "status": "not-run",
+      "measured": {
+        "quality": null,
+        "latencyMs": null,
+        "inputTokens": null,
+        "outputTokens": null,
+        "costAud": null
+      },
+      "prerequisites": {
+        "recordings": "missing",
+        "identity": "owner's own voice",
+        "provider": "not-selected"
+      }
+    }
+  ],
+  "prompts": {
+    "A": {
+      "version": "baseline/1",
+      "variable": "baseline",
+      "system": "Complete the user's requested project task and report the result."
+    },
+    "B": {
+      "version": "project-standards/1",
+      "variable": "system-prompt",
+      "system": "Complete the requested useful outcome using the owning project's current source and authorised tools. Apply relevant accepted corrections and quality references. Reuse existing capabilities. Keep changes scoped, verify the affected result proportionately, and report the actual delivery state with evidence. Ask only when a consequential missing decision blocks progress."
+    },
+    "C": {
+      "version": "project-standards-with-retrieval/1",
+      "variable": "retrieval-context",
+      "system": "Complete the requested useful outcome using the owning project's current source and authorised tools. Apply relevant accepted corrections and quality references. Reuse existing capabilities. Keep changes scoped, verify the affected result proportionately, and report the actual delivery state with evidence. Ask only when a consequential missing decision blocks progress.",
+      "retrievalContext": "SYNTHETIC EXAMPLE ONLY: An earlier fictional task was rejected because the final publication was omitted. The accepted correction completed the existing publication path and linked the actual result."
+    }
+  },
+  "budget": {
+    "currency": "AUD",
+    "strictCeilingAudCents": 25000,
+    "plannedAudCents": 24000,
+    "allocations": [
+      {
+        "name": "prompt",
+        "audCents": 2000
+      },
+      {
+        "name": "text-adaptation",
+        "audCents": 7000
+      },
+      {
+        "name": "voice",
+        "audCents": 6000
+      },
+      {
+        "name": "scratch-training",
+        "audCents": 2000
+      },
+      {
+        "name": "overhead",
+        "audCents": 3000
+      },
+      {
+        "name": "contingency",
+        "audCents": 4000
+      }
+    ]
+  },
+  "budgetExamples": {
+    "bounded": {
+      "settled": [
+        {
+          "amountAudCents": 4000,
+          "status": "settled"
+        }
+      ],
+      "reservations": [
+        {
+          "worstCaseAudCents": 6000,
+          "kind": "compute",
+          "state": "reserved"
+        }
+      ],
+      "quote": {
+        "worstCaseAudCents": 5500,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    },
+    "exactCap": {
+      "settled": [
+        {
+          "amountAudCents": 5000,
+          "status": "settled"
+        }
+      ],
+      "reservations": [
+        {
+          "worstCaseAudCents": 10000,
+          "kind": "compute",
+          "state": "reserved"
+        }
+      ],
+      "quote": {
+        "worstCaseAudCents": 10000,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    },
+    "underCap": {
+      "settled": [
+        {
+          "amountAudCents": 5000,
+          "status": "settled"
+        }
+      ],
+      "reservations": [
+        {
+          "worstCaseAudCents": 10000,
+          "kind": "compute",
+          "state": "reserved"
+        }
+      ],
+      "quote": {
+        "worstCaseAudCents": 9999,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    },
+    "activeReservations": {
+      "settled": [
+        {
+          "amountAudCents": 8000,
+          "status": "settled"
+        }
+      ],
+      "reservations": [
+        {
+          "worstCaseAudCents": 8000,
+          "kind": "compute",
+          "state": "reserved"
+        }
+      ],
+      "quote": {
+        "worstCaseAudCents": 10000,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    },
+    "uncertainRetry": {
+      "settled": [],
+      "reservations": [
+        {
+          "worstCaseAudCents": 3000,
+          "kind": "compute",
+          "state": "reserved"
+        }
+      ],
+      "quote": {
+        "worstCaseAudCents": 3000,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": [
+        "job-with-unknown-remote-effect"
+      ]
+    },
+    "chargedRetry": {
+      "settled": [
+        {
+          "amountAudCents": 3000,
+          "status": "failed-but-charged"
+        }
+      ],
+      "reservations": [],
+      "quote": {
+        "worstCaseAudCents": 22000,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    },
+    "stoppedCompute": {
+      "computeState": "stopped",
+      "settled": [
+        {
+          "amountAudCents": 23000,
+          "status": "settled"
+        }
+      ],
+      "reservations": [
+        {
+          "worstCaseAudCents": 300,
+          "kind": "storage",
+          "state": "reserved"
+        }
+      ],
+      "quote": {
+        "worstCaseAudCents": 1900,
+        "currency": "AUD",
+        "fxAndFeesIncluded": true,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    },
+    "incompleteQuote": {
+      "settled": [],
+      "reservations": [],
+      "quote": {
+        "worstCaseAudCents": null,
+        "currency": "USD",
+        "fxAndFeesIncluded": false,
+        "effectState": "new"
+      },
+      "unknownEffects": []
+    }
+  },
+  "datasetExamples": {
+    "clean": [
+      {
+        "group": "episode-a",
+        "split": "train",
+        "outcome": "accepted",
+        "positive": true
+      },
+      {
+        "group": "episode-b",
+        "split": "held-out",
+        "outcome": "accepted",
+        "positive": false
+      }
+    ],
+    "leaked": [
+      {
+        "group": "episode-a",
+        "split": "train",
+        "outcome": "accepted",
+        "positive": true
+      },
+      {
+        "group": "episode-a",
+        "split": "held-out",
+        "outcome": "accepted",
+        "positive": false
+      }
+    ],
+    "unknownPositive": [
+      {
+        "group": "episode-c",
+        "split": "train",
+        "outcome": "unknown",
+        "positive": true
+      }
+    ],
+    "rejectedPositive": [
+      {
+        "group": "episode-d",
+        "split": "train",
+        "outcome": "rejected",
+        "positive": true
+      }
+    ]
+  },
+  "evaluatorMock": {
+    "notice": "Fictional values below exercise the existing evaluator; they are not measured model outcomes.",
+    "plan": {
+      "evaluator": "agent-improve-evaluator/1",
+      "baselineConfiguration": {
+        "handoff": "current workflow and unstructured notes",
+        "routing": "existing selected-agent route",
+        "permissions": "fixture-only"
+      },
+      "budget": {
+        "elapsedMs": 5000,
+        "tokens": 3000,
+        "humanMinutes": 10,
+        "incrementalMicroUsd": 0
+      },
+      "requiredChecks": [
+        "correctness",
+        "quality",
+        "safety",
+        "recovery"
+      ]
+    },
+    "task": {
+      "metric": "humanMinutes",
+      "minimum": 2
+    },
+    "scenarios": [
+      {
+        "id": "synthetic-accepted",
+        "evaluator": "agent-improve-evaluator/1",
+        "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+        "baseline": {
+          "elapsedMs": 1500,
+          "tokens": 1800,
+          "humanMinutes": 8,
+          "incrementalMicroUsd": 0,
+          "evidence": {
+            "correctness": "pass",
+            "quality": "pass",
+            "safety": "pass",
+            "recovery": "pass"
+          }
+        },
+        "candidate": {
+          "elapsedMs": 1500,
+          "tokens": 1800,
+          "humanMinutes": 4,
+          "incrementalMicroUsd": 0,
+          "evidence": {
+            "correctness": "pass",
+            "quality": "pass",
+            "safety": "pass",
+            "recovery": "pass"
+          }
+        },
+        "expected": "accepted-in-simulation"
+      },
+      {
+        "id": "synthetic-rejected",
+        "evaluator": "agent-improve-evaluator/1",
+        "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+        "baseline": {
+          "elapsedMs": 1500,
+          "tokens": 1800,
+          "humanMinutes": 8,
+          "incrementalMicroUsd": 0,
+          "evidence": {
+            "correctness": "pass",
+            "quality": "pass",
+            "safety": "pass",
+            "recovery": "pass"
+          }
+        },
+        "candidate": {
+          "elapsedMs": 1500,
+          "tokens": 1800,
+          "humanMinutes": 4,
+          "incrementalMicroUsd": 0,
+          "evidence": {
+            "correctness": "pass",
+            "quality": "fail",
+            "safety": "pass",
+            "recovery": "pass"
+          }
+        },
+        "expected": "reject"
+      },
+      {
+        "id": "synthetic-missing",
+        "evaluator": "agent-improve-evaluator/1",
+        "baselineDigest": "2c57be1c5b8b1e388849f98630a2c8a53d856c8c1598e8655f27ada539e57fc9",
+        "baseline": {
+          "elapsedMs": 1500,
+          "tokens": 1800,
+          "humanMinutes": 8,
+          "incrementalMicroUsd": 0,
+          "evidence": {
+            "correctness": "pass",
+            "quality": "pass",
+            "safety": "pass",
+            "recovery": "pass"
+          }
+        },
+        "candidate": {
+          "elapsedMs": 1500,
+          "tokens": 1800,
+          "humanMinutes": 4,
+          "incrementalMicroUsd": 0,
+          "evidence": {
+            "correctness": "pass",
+            "quality": "blocked",
+            "safety": "pass",
+            "recovery": "pass"
+          }
+        },
+        "expected": "investigate"
+      }
+    ]
+  }
+}
