@@ -6,8 +6,8 @@ export const spinDuration = 1510;
 
 const ink = '#1d1c25';
 const paper = '#fff';
-const orange = '#ff681f';
-export const spinSectorColours = ['#edcb74', '#86d9bd', '#c7b8ef', '#a8c7ef', '#efafba', '#f0b38e'];
+const orange = '#fc5b05';
+export const spinSectorColours = ['#ffca00', '#00d7a7', '#a982ff', '#4bb9ff', '#ff78b5', '#ff8b46'];
 
 const wrap = angle => ((angle % turn) + turn) % turn;
 const teeth = count => Math.max(18, count);

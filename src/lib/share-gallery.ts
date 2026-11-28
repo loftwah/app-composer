@@ -204,7 +204,8 @@ export function galleryPage(
         return newest(a, b);
     }
   });
-  // Honour featured picks across the catalogue and mix the other projects and series.
+  // The first piece from each project gets a turn. Within that pass, keep
+  // curated work first, and avoid filling the opening with one series.
   if (
     filters.sort === "featured" &&
     !filters.legacy &&
@@ -212,15 +213,14 @@ export function galleryPage(
     !filters.tag &&
     !filters.query
   ) {
-    const unfeatured = new Map<string, number>();
+    const projectsSeen = new Map<string, number>();
     const collections = new Map<string, number>();
     const rank = new Map(
       matches.map((item) => {
-        if (item.featured) return [item.assetId, -1];
-        const project = unfeatured.get(item.project) ?? 0;
+        const project = projectsSeen.get(item.project) ?? 0;
         const collection = item.thumbnailUrl?.split("/")[4] ?? item.assetId;
         const series = collections.get(collection) ?? 0;
-        unfeatured.set(item.project, project + 1);
+        projectsSeen.set(item.project, project + 1);
         collections.set(collection, series + 1);
         return [item.assetId, Math.max(project, series)];
       }),

@@ -43,9 +43,9 @@ test("artwork facets and featured picks apply before pagination and shuffle stay
   const composer = { ...entries[0], project: "app-composer", assetId: "composer-study" };
   const studio = { ...entries[0], project: "composer-media-studio", assetId: "studio-study" };
   const mixed = [...entries, studio, composer];
-  const first = galleryPage(mixed, curation, forURL("/share")).items.slice(0, 5);
+  const first = galleryPage(mixed, curation, forURL("/share")).items.slice(0, 4);
   assert.equal(first[0].assetId, "asset-52");
-  assert.equal(new Set(first.slice(1).map(item => item.project)).size, 4);
+  assert.equal(new Set(first.map(item => item.project)).size, 4);
   const liked = forURL("/share?view=liked");
   assert.deepEqual(galleryPage(mixed, curation, liked, new Set(["composer-study", "withdrawn"])).items.map(item => item.assetId), ["composer-study"]);
   assert.equal(new URL(galleryHref(liked, { after: "composer-study" }), "https://composer.test").searchParams.get("view"), "liked");
