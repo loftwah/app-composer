@@ -1,0 +1,466 @@
+[
+  {
+    "id": "composer-art",
+    "project": "App Composer",
+    "question": "What should the next Composer campaign look like?",
+    "context": "The orange-and-white mark is already approved. These three directions use it unchanged. Each gives a first-time visitor a different reason to pay attention.",
+    "target": "Choose the clearest high-character campaign for indie makers. Judge the actual posters in order: Press Run, Signal Test, App Parts. Weigh authorship and memorable art alongside the product promise.",
+    "maxSelections": 1,
+    "sources": [
+      {
+        "label": "Portfolio design review",
+        "url": "https://github.com/loftwah/app-composer/issues/1422"
+      },
+      {
+        "label": "Existing Composer campaign",
+        "url": "https://composer.loftwah.com/brand/campaign/build-it-keep-it-running-1728-20261128.webp"
+      }
+    ],
+    "options": [
+      {
+        "id": "press",
+        "title": "Press Run",
+        "pitch": "An orange workshop poster with the real Composer press as the single subject.",
+        "outcome": "Visitors associate Composer with making and operating something they own.",
+        "pro": "Distinctive campaign artwork and a clear, direct promise.",
+        "con": "The machine needs a product example beside it on the landing page.",
+        "preview": "press"
+      },
+      {
+        "id": "signal",
+        "title": "Signal Test",
+        "pitch": "An ink-and-electric-cyan field report with LoftwahFM’s Low Tide cover from the published 30-second Studio film.",
+        "outcome": "A finished piece earns the click and leads into how it was made.",
+        "pro": "Shows the calibre of published work and gives the campaign an editorial voice.",
+        "con": "Film-led imagery can make Composer look like Studio unless the story names the connection.",
+        "preview": "signal"
+      },
+      {
+        "id": "parts",
+        "title": "App Parts",
+        "pitch": "A white, orange and acid-yellow parts diagram. Three real jobs form the product story.",
+        "outcome": "A new visitor understands the mechanics before taking a first step.",
+        "pro": "Strong silhouette at small size and a system that can extend to documentation.",
+        "con": "An art-led release can feel more expressive than a product diagram.",
+        "preview": "parts"
+      }
+    ]
+  },
+  {
+    "id": "composer-entry",
+    "project": "App Composer",
+    "question": "What should the Composer homepage show first?",
+    "context": "The homepage needs to bring newcomers into an actual first success while giving the brand a recognisable opening.",
+    "target": "For a new indie builder, prioritise understanding the product and finding a useful first action. Consider the art-removal regression.",
+    "maxSelections": 1,
+    "sources": [
+      { "label": "Current homepage", "url": "https://composer.loftwah.com/" },
+      {
+        "label": "First impression and roadmap",
+        "url": "https://github.com/loftwah/app-composer/issues/7"
+      }
+    ],
+    "options": [
+      {
+        "id": "working-app",
+        "title": "A live app with its build path",
+        "pitch": "Feature one working app, its source and a direct route to build something like it.",
+        "outcome": "Newcomers can connect the promise to a real result and see what to do first.",
+        "pro": "Shows ownership and use in the same opening.",
+        "con": "Needs a strong maintained example with reproducible instructions."
+      },
+      {
+        "id": "workshop",
+        "title": "Workshop art paired with a live handoff",
+        "pitch": "Keep one large authored scene beside the actual first-app action and a linked result.",
+        "outcome": "The opening has more character while the first action stays visible.",
+        "pro": "Gives Composer an immediately recognisable visual world.",
+        "con": "The art competes for space on small screens."
+      },
+      {
+        "id": "task-select",
+        "title": "Choose a job first",
+        "pitch": "Lead with Build an app, Connect an existing app and Find a resource.",
+        "outcome": "People with a specific goal can go straight to the matching workflow.",
+        "pro": "Fast to scan and easy to maintain.",
+        "con": "The opening has less room to show why Composer feels different."
+      }
+    ]
+  },
+  {
+    "id": "share-discovery",
+    "project": "Share",
+    "question": "How should Share help you find something worth using?",
+    "context": "The catalogue can open with artwork and still make finding relevant, reusable work easy. Saved feedback is available when signed in.",
+    "target": "Pick the best starting point for reaching one useful item and understanding reuse. Consider both deliberate lookup and browsing.",
+    "maxSelections": 1,
+    "sources": [
+      { "label": "Share", "url": "https://composer.loftwah.com/share" },
+      {
+        "label": "Discovery and library workload",
+        "url": "https://github.com/loftwah/app-composer/issues/1020"
+      }
+    ],
+    "options": [
+      {
+        "id": "curated",
+        "title": "Three useful collections",
+        "pitch": "Lead with a print, an editable asset and a palette. Each opens a working resource with credit and reuse details.",
+        "outcome": "People who are browsing find distinct useful objects sooner.",
+        "pro": "Gives the artwork an editorial reason to be featured.",
+        "con": "Picks need upkeep and rights review."
+      },
+      {
+        "id": "search",
+        "title": "Search with reuse filters",
+        "pitch": "Lead with search and project, rights and file-type filters. Show matched artwork immediately.",
+        "outcome": "Visitors with a particular need spend less time opening irrelevant work.",
+        "pro": "Scales to a large collection.",
+        "con": "A person browsing for inspiration may have no good query."
+      },
+      {
+        "id": "related",
+        "title": "Follow a collection from one strong piece",
+        "pitch": "Feature a relevant original, then let visitors follow its project and related formats.",
+        "outcome": "Readers understand one object in depth and get useful discovery paths from it.",
+        "pro": "Feeds curiosity with a real creative story.",
+        "con": "A weak lead makes the whole entry feel irrelevant."
+      }
+    ]
+  },
+  {
+    "id": "share-feedback",
+    "project": "Share",
+    "question": "Which feedback controls should be easiest to reach?",
+    "context": "A signed-in owner needs to react when the problem is evident, including weak features and hard-to-find resources.",
+    "target": "Choose the feedback affordance that captures the most actionable evidence with the least distraction. Evaluate options individually. The owner can choose multiple.",
+    "maxSelections": 3,
+    "sources": [
+      {
+        "label": "Share discovery and feedback issues",
+        "url": "https://github.com/loftwah/app-composer/issues/1020"
+      }
+    ],
+    "options": [
+      {
+        "id": "item",
+        "title": "On the item",
+        "pitch": "Give each artwork detail a private action for featuring, hiding or explaining an issue.",
+        "outcome": "Feedback carries the exact artwork context.",
+        "pro": "Easy to act at the moment of judgement.",
+        "con": "Does little for the problem of never finding an item."
+      },
+      {
+        "id": "results",
+        "title": "On search results",
+        "pitch": "Offer a quick note when a query disappoints, with an explicit choice to include that query.",
+        "outcome": "Search misses become directly diagnosable.",
+        "pro": "Captures failed discovery before a visitor leaves.",
+        "con": "The prompt needs careful placement to keep results readable."
+      },
+      {
+        "id": "shortlist",
+        "title": "In a private shortlist",
+        "pitch": "Compare saved pieces and record why one earns a place over another.",
+        "outcome": "Useful reasoning travels with creative selections.",
+        "pro": "Supports considered editorial work in batches.",
+        "con": "Adds a step when the owner wants immediate feedback."
+      }
+    ]
+  },
+  {
+    "id": "studio-proof",
+    "project": "Media Studio",
+    "question": "What should Studio feature as proof of its work?",
+    "context": "A striking frame can invite interest. A visible process and a finished result tell creators what Studio can do for them.",
+    "target": "Choose the strongest honest proof for a visitor deciding whether to try Studio. Check that the evidence gives Studio a distinctive voice.",
+    "maxSelections": 1,
+    "sources": [
+      { "label": "Studio", "url": "https://media.loftwah.com/" },
+      {
+        "label": "Studio creative experience",
+        "url": "https://github.com/loftwah/composer-media-studio/issues/67"
+      }
+    ],
+    "options": [
+      {
+        "id": "frame-to-cut",
+        "title": "A finished cut with its edit",
+        "pitch": "Use the published 30-second Studio film, which opens on LoftwahFM’s Low Tide cover. Put a strong final frame beside the edit and link directly to playback.",
+        "outcome": "Visitors can see the finished work and understand how the shot became a cut.",
+        "pro": "Turns artwork into credible workflow proof.",
+        "con": "A film-forward story can underrepresent image and audio work."
+      },
+      {
+        "id": "three-outputs",
+        "title": "Three finished formats",
+        "pitch": "Show one strong finished still, one video frame and one audio release, each with its source when available.",
+        "outcome": "Visitors can identify the format they want to make.",
+        "pro": "Shows breadth and puts genuinely different work in view.",
+        "con": "Three pieces compete for the same headline."
+      },
+      {
+        "id": "open-tool",
+        "title": "A playable sample project",
+        "pitch": "Offer one guided sample edit with its published export and a direct editing entry.",
+        "outcome": "Visitors experience the tool before making an account commitment where access permits.",
+        "pro": "Demonstrates utility by doing.",
+        "con": "Needs a safe maintained demo and a clear recovery path."
+      }
+    ]
+  },
+  {
+    "id": "paperwork-character",
+    "project": "Paperwork",
+    "question": "How much character should Paperwork put around signing?",
+    "context": "The paper press gives the product a recognisable opening. Signing and legitimate document handling remain the priority.",
+    "target": "For a person who has a PDF ready, balance an immediate clear action, perceived trust and distinctiveness. Avoid relying on actual personal documents.",
+    "maxSelections": 1,
+    "sources": [
+      { "label": "Paperwork", "url": "https://paperwork.loftwah.com/" },
+      {
+        "label": "Paperwork project scope",
+        "url": "https://github.com/loftwah/app-composer/issues/264"
+      }
+    ],
+    "options": [
+      {
+        "id": "press",
+        "title": "Paper press beside the drop zone",
+        "pitch": "Put the authored press in a bounded visual panel and keep the signing action visible at phone size.",
+        "outcome": "Visitors get a recognisable product without hunting for the PDF action.",
+        "pro": "Recovers character while keeping the task obvious.",
+        "con": "On small screens the press may need a tighter, purpose-made crop."
+      },
+      {
+        "id": "sample",
+        "title": "Let the sample do the talking",
+        "pitch": "Show a clean white sample document with a visible place to sign and a clear try-it action.",
+        "outcome": "People understand the workflow before using their own document.",
+        "pro": "The visual demonstrates the actual job.",
+        "con": "A document preview needs strong art direction to earn attention."
+      },
+      {
+        "id": "direct",
+        "title": "Straight to signing",
+        "pitch": "Lead with drop or choose PDF. Use the press as the campaign and editorial signature.",
+        "outcome": "Repeat signers reach the tool with the least friction.",
+        "pro": "Protects clarity when the job is urgent.",
+        "con": "Gives the public opening less identity."
+      }
+    ]
+  },
+  {
+    "id": "spin-character",
+    "project": "Spin",
+    "question": "Where should Spin put its energy?",
+    "context": "The wheel is both the action and the signature. The current direction needs stronger character without making the controls harder to find.",
+    "target": "Recommend a visibly lively opening that lets a new visitor add choices and spin within seconds. Treat the prior Clef tie as unresolved evidence.",
+    "maxSelections": 1,
+    "sources": [
+      { "label": "Spin", "url": "https://spin.loftwah.com/" },
+      {
+        "label": "Spin tracking",
+        "url": "https://github.com/loftwah/app-composer/issues/1280"
+      }
+    ],
+    "options": [
+      {
+        "id": "showtime",
+        "title": "Make the live wheel the show",
+        "pitch": "Give the functioning wheel the largest space, with saturated wedges, clear inputs and a deliberate result reveal.",
+        "outcome": "A visitor learns Spin by doing the one memorable action.",
+        "pro": "The expressive element is the actual product.",
+        "con": "The layout and motion need restraint around accessibility and long lists."
+      },
+      {
+        "id": "host",
+        "title": "Give it a host",
+        "pitch": "Put an original game-show host in presets and result states beside a clean wheel.",
+        "outcome": "Repeat use gains a distinctive voice and surprise.",
+        "pro": "Character can change by context without moving the controls.",
+        "con": "Requires excellent original character work and carries higher taste risk."
+      },
+      {
+        "id": "night",
+        "title": "Run it like a party tool",
+        "pitch": "Lead with event-ready wheel presets, easy editing and a large audience view.",
+        "outcome": "Hosts move faster from idea to a usable live game.",
+        "pro": "Gives Spin a clear audience and purpose.",
+        "con": "A party-first presentation can feel excessive for everyday decisions."
+      }
+    ]
+  },
+  {
+    "id": "public-graphics",
+    "project": "Portfolio",
+    "question": "What belongs in the next set of public shareables?",
+    "context": "The first image needs to earn its placement. A useful object, a real result or a specific announcement gives it something to say.",
+    "target": "For earning a meaningful click from builders or creators in a feed, rank each format. Prefer a concrete link destination and avoid judging by polish alone.",
+    "maxSelections": 2,
+    "sources": [
+      {
+        "label": "Campaign design and production",
+        "url": "https://github.com/loftwah/app-composer/issues/1408"
+      },
+      {
+        "label": "Cloudflare CLI launch reference",
+        "url": "https://blog.cloudflare.com/cloudflare-cf-cli-launch/"
+      }
+    ],
+    "options": [
+      {
+        "id": "one-object",
+        "title": "An original people can use",
+        "pitch": "Feature one usable resource, its creator and the exact destination. Compose for a readable feed crop.",
+        "outcome": "People can see the value and reach the item in one step.",
+        "pro": "The card can show the actual asset at a meaningful size.",
+        "con": "Needs reliable rights, credits and a useful destination."
+      },
+      {
+        "id": "one-change",
+        "title": "Show what changed",
+        "pitch": "Use one frame pair, real product detail or concrete before-and-after for a meaningful release.",
+        "outcome": "People can understand the improvement without reading a long post.",
+        "pro": "Makes a product claim easy to verify.",
+        "con": "Weak changes and cluttered screenshots produce weak cards."
+      },
+      {
+        "id": "event-card",
+        "title": "One event or invitation",
+        "pitch": "Use committed brand colour, a crisp headline and only the details a reader needs to act.",
+        "outcome": "The announcement is identifiable and useful at small sizes.",
+        "pro": "Strong composition with very little material.",
+        "con": "Needs a real occasion or the card will feel generic."
+      }
+    ]
+  },
+  {
+    "id": "prints-discovery",
+    "project": "Prints Desktop",
+    "question": "What should make someone want to try Prints?",
+    "context": "Prints Desktop can compare actual cuts and keep work attached to its source. The published walkthrough is an existing piece of proof.",
+    "target": "Pick the best entry for an unfamiliar creator to understand why Prints is worth installing. Keep platforms and proof accurate.",
+    "maxSelections": 1,
+    "sources": [
+      {
+        "label": "Prints Desktop",
+        "url": "https://composer.loftwah.com/prints-desktop"
+      },
+      {
+        "label": "Current release evidence",
+        "url": "https://github.com/loftwah/prints-desktop/releases/tag/v0.6.1"
+      }
+    ],
+    "options": [
+      {
+        "id": "compare",
+        "title": "Compare things you almost kept",
+        "pitch": "Lead with real alternate cuts and the decision that selected the original.",
+        "outcome": "Creators recognise a workflow they can use immediately.",
+        "pro": "A specific judgement reveals the value of the product.",
+        "con": "Requires source and alternate cuts that are cleared for use."
+      },
+      {
+        "id": "first-use",
+        "title": "Show one source-linked export",
+        "pitch": "Walk from an owned image to an exported copy with the source connection visible.",
+        "outcome": "People see how the app makes creative work easier to trace.",
+        "pro": "Demonstrates a concrete capability in a tight sequence.",
+        "con": "The procedure may be less memorable than a good creative comparison."
+      },
+      {
+        "id": "gallery",
+        "title": "Lead with a finished series",
+        "pitch": "Open with a cohesive published series, then show the underlying workflow.",
+        "outcome": "People encounter the calibre of the work before the software.",
+        "pro": "Makes space for artwork with a real story.",
+        "con": "The product benefit can disappear behind the gallery."
+      }
+    ]
+  },
+  {
+    "id": "loftwahfm-entry",
+    "project": "LoftwahFM",
+    "question": "What should the next LoftwahFM release invite people to do?",
+    "context": "Recent releases include a complete album and playable music videos. Different entry points reward different listening habits.",
+    "target": "Recommend the invitation with the strongest listener payoff and an honest use of actual release artefacts. Treat plays and listener preference as unmeasured here.",
+    "maxSelections": 1,
+    "sources": [
+      {
+        "label": "LoftwahFM releases",
+        "url": "https://fm.loftwah.com/releases"
+      }
+    ],
+    "options": [
+      {
+        "id": "video",
+        "title": "Watch the performance cut",
+        "pitch": "Lead with a strong moment from a published video and link straight to playback.",
+        "outcome": "People can experience the song and the performance in one tap.",
+        "pro": "Gives the release a specific moment to talk about.",
+        "con": "The opening needs a quiet alternative for people browsing without sound."
+      },
+      {
+        "id": "album",
+        "title": "Play the record from the start",
+        "pitch": "Give the cover, first track and album sequence the lead.",
+        "outcome": "People who listen in order reach the intended album experience.",
+        "pro": "Preserves the arc of a complete release.",
+        "con": "Requires a bigger time commitment from first-time listeners."
+      },
+      {
+        "id": "radio",
+        "title": "Turn on the station",
+        "pitch": "Use a real radio programme or set to introduce the release in context.",
+        "outcome": "People can discover the work as part of an ongoing listening session.",
+        "pro": "Expresses LoftwahFM as a station with a point of view.",
+        "con": "Makes the individual track or video less immediate."
+      }
+    ]
+  },
+  {
+    "id": "portfolio-next",
+    "project": "Portfolio",
+    "question": "Which work should get the next focused round?",
+    "context": "The five priority surfaces need useful improvements and a higher creative bar. Choose work that can be evaluated against a visible result.",
+    "target": "Rank options independently for current owner value and visible outcomes. Do not assume traffic analytics or a delivery effort that is not given.",
+    "maxSelections": 2,
+    "sources": [
+      {
+        "label": "Portfolio design bar",
+        "url": "https://github.com/loftwah/app-composer/issues/1422"
+      },
+      {
+        "label": "Project Command Centre",
+        "url": "https://github.com/loftwah/app-composer/issues/658"
+      }
+    ],
+    "options": [
+      {
+        "id": "share-studio",
+        "title": "Share discovery and Studio proof",
+        "pitch": "Pick a small set of editable or usable work, build the discovery path and show its Studio source.",
+        "outcome": "Visitors can find a relevant resource and understand where it came from.",
+        "pro": "Addresses the reported discovery regression and the weak display choices.",
+        "con": "Needs cross-project curation and actual usage checks."
+      },
+      {
+        "id": "composer",
+        "title": "Composer opening and campaigns",
+        "pitch": "Take a selected art direction through a flagship landing view and one real social placement.",
+        "outcome": "The public identity becomes tangible across two high-visibility surfaces.",
+        "pro": "Lets the owner judge expression at the actual size of use.",
+        "con": "Does little for the everyday resource search and signing flows."
+      },
+      {
+        "id": "spin-paperwork",
+        "title": "Spin and Paperwork task openings",
+        "pitch": "Prototype the most expressive usable first screen for a spin and for a clean PDF signing task.",
+        "outcome": "Both tools become easier to recognise and use on a phone.",
+        "pro": "Puts creative intensity and first-action performance in the same test.",
+        "con": "Two separate apps need specific visual and workflow decisions."
+      }
+    ]
+  }
+]
