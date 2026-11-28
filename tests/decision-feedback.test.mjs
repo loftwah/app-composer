@@ -30,7 +30,7 @@ const hooks = registerHooks({
     );
   },
 });
-const { getDecision, recordDecision } =
+const { getDecision, listDecisions, recordDecision } =
   await import("../src/lib/portfolio-decisions.ts");
 const { decisionRecommendationLifetimeMs } =
   await import("../src/lib/decision-recommendation.ts");
@@ -72,6 +72,8 @@ test("a follow-up keeps earlier answers and private media across revisions", asy
     }
   }
   const db = {
+    batch: async (statements) =>
+      Promise.all(statements.map((stmt) => stmt.all())),
     prepare(query) {
       const statement = sql.prepare(query);
       return {
@@ -100,6 +102,81 @@ test("a follow-up keeps earlier answers and private media across revisions", asy
     null,
   );
   assert.equal((await read(earlier)).followUps[0].id, followUp);
+  const queue = () => listDecisions(db, owner);
+  const ready = (entries) =>
+    entries.filter(({ readiness }) => readiness === "ready");
+  const initial = await queue();
+  assert.deepEqual(
+    ready(initial).map(({ id }) => id),
+    [
+      "composer-opening-design",
+      "share-opening-design",
+      "studio-opening-design",
+    ],
+  );
+  assert.equal(ready(initial)[0].priority.score, 90);
+  assert.equal(
+    initial.find(({ id }) => id === earlier).readiness,
+    "superseded",
+  );
+  assert.equal(
+    initial.find(({ id }) => id === "composer-newcomer-proof").nextActor,
+    "agent",
+  );
+  assert.equal(
+    initial.find(({ id }) => id === "composer-newcomer-proof").readiness,
+    "already-answered",
+  );
+
+  const target = await read("composer-opening-design");
+  const choose = (revision, note, briefRevision = target.briefRevision) =>
+    recordDecision(
+      db,
+      owner,
+      saveDecision.parse({
+        id: target.decision.id,
+        revision,
+        briefRevision,
+        selected: ["first"],
+        note,
+      }),
+    );
+  await assert.rejects(choose(0, "I like this.", "0".repeat(64)), {
+    code: "STALE_BRIEF",
+  });
+  await choose(0, "I like this.");
+  const approved = await read(target.decision.id);
+  assert.equal(approved.interpretation.kind, "supports-choice");
+  assert.equal(approved.review.readiness, "already-answered");
+  await choose(
+    1,
+    "I like the colour, but these examples aren't very exciting.",
+  );
+  const mixed = await read(target.decision.id);
+  assert.deepEqual(mixed.response.selected, approved.response.selected);
+  assert.equal(mixed.interpretation.responseRevision, 2);
+  assert.equal(mixed.interpretation.kind, "mixed");
+  assert.equal(mixed.interpretation.accepted[0], "I like the colour,");
+  assert.equal(
+    mixed.interpretation.rejected[0],
+    "these examples aren't very exciting.",
+  );
+  assert.equal(mixed.review.readiness, "needs-reframing");
+  assert.equal(mixed.review.nextActor, "agent");
+  assert.equal(
+    (await read(target.decision.id, "other-owner")).interpretation,
+    null,
+  );
+  assert.equal(ready(await queue())[0].id, "share-opening-design");
+  assert.equal(
+    JSON.stringify(await queue()).includes("I like the colour"),
+    false,
+  );
+  await choose(2, "I like the colour.");
+  const partial = await read(target.decision.id);
+  assert.equal(partial.interpretation.kind, "unclear");
+  assert.deepEqual(partial.interpretation.accepted, ["I like the colour."]);
+  assert.equal(partial.review.nextActor, "agent");
   await assert.rejects(
     write({ revision: 0, selected: ["all-of-the-above", "first"] }),
     { code: "INVALID_CHOICES" },

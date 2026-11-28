@@ -150,13 +150,23 @@ is a private admin queue. It includes written alternatives, a recommendation,
 expected outcomes, pros and cons, sources, and rendered artwork where available.
 Save choices, a reaction to the question, a note about what you think or feel,
 or media. A save keeps a private revision without applying the decision. Use
-**All of the above** where the question allows a combined answer and **None of
-the above** to record an explicit rejection. **Skip for now** leaves a question
-open. Attach a PNG, JPEG or WebP up to 512 KB, or add up to four HTTPS references
+**All of the above** where the question allows a combined answer. **Reject the
+premise**, **Defer this question** and **Delegate this question** record what
+should happen next. **Skip for now** leaves a question open.
+Attach a PNG, JPEG or WebP up to 512 KB, or add up to four HTTPS references
 for audio, video or larger files. Earlier versions of an answer and its image
-are available under **Earlier responses for this question**. The review opens on
-the first unanswered current question. Back and next save edits before
-moving, and the question list shows current progress and earlier responses.
+are available under **Earlier responses for this question**.
+
+The review opens on the highest-priority ready question. **Why this ranks
+here** shows the evidence and provisional policy behind its score. The initial
+rank uses the 28 November rendered portfolio comparison and the five mission
+weights. Earlier and unassessed questions stay in the question list, and the
+active review keeps its order until you return to the question list. **How the
+saved response reads** shows a conservative assessment linked to the exact
+response revision. It can identify explicit phrasing, split mixed feedback and
+leave unclear meaning for an agent to investigate. The original response and
+its history remain available. Record delivery and owner satisfaction in the
+owning work and incident records.
 
 EmDash and MCP use the same records for the signed-in administrator. MCP access
 uses the existing Cloudflare Access boundary and an owner-issued EmDash token
@@ -168,8 +178,8 @@ satisfy the Access policy. In EmDash Plugins, an administrator enables the
 
 | Tool | Use |
 | --- | --- |
-| `composer-decisions__read` | Call with `{}` to list the queue or `{"id":"composer-art"}` to read the artwork brief, its preview links and your current response. Preview links open in the signed-in admin browser. |
-| `composer-decisions__record` | Save choices and context after explicit owner direction. Send `id`, the current `revision` (or 0), the full `selected` list and the full `note`. Read again after a stale-revision response. |
+| `composer-decisions__read` | Call with `{}` for mission order, readiness and next actor. Pass `{"id":"composer-art"}` for the brief, its revision, the original response and the separate interpretation. Preview links open in the signed-in admin browser. |
+| `composer-decisions__record` | Save choices and context after explicit owner direction. Send `id`, the current `briefRevision`, the response `revision` (or 0), the full `selected` list and the full `note`. Read again after a stale-revision response. |
 | `composer-decisions__feedback` | Search your private question responses and Share artwork reactions. Use `query`, `feedbackProject`, `category` and `page` to find the source material. |
 | `composer-decisions__add` | Add a private brief with distinct options, sources, a choice limit and recommendation evidence. Add `category`, `tags` and `followUpTo` when the brief responds to a previous question. Supply a client UUID in `requestId` and reuse it on retries. |
 
