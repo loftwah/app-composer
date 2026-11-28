@@ -3,6 +3,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { env } from "cloudflare:workers";
 import { z } from "zod";
 import build from "../lib/build.json";
+import paperEdit from "../../public/campaign/who-keeps-the-map/keep-a-copy-paper-v1.json";
 import campaign from "../../public/campaign/who-keeps-the-map/production-notes.json";
 import { adminDecisions } from "../lib/portfolio-decision-contract.ts";
 import { getDecision } from "../lib/portfolio-decisions.ts";
@@ -41,13 +42,15 @@ async function contextFor(target: FeedbackTarget, db: D1Database, owner: string,
       return { ...context, project: "Composer Share", title: result.artwork.title, url: new URL("/share/artwork/" + target.id, origin).href };
     }
     case "film": {
-      if (target.revision !== filmRevision) throw stale;
+      const paper = target.revision === paperEdit.output.sha256;
+      if (target.revision !== filmRevision && !paper) throw stale;
       if (target.endMs !== undefined && target.endMs <= target.startMs)
         throw new FeedbackError("Choose an end time after the start time.", 400);
       const url = new URL("/share/who-keeps-the-map", origin);
+      if (paper) url.searchParams.set("cut", "paper");
       url.searchParams.set("at", String(target.startMs / 1000));
       url.hash = "trailer";
-      return { ...context, project: "Who Keeps the Map?", title: "Keep a Copy", url: url.href };
+      return { ...context, project: "Who Keeps the Map?", title: paper ? "Keep a Copy · Paper ending" : "Keep a Copy", url: url.href };
     }
     case "decision": {
       const detail = await getDecision(db, owner, target.id).catch((error: unknown) => {

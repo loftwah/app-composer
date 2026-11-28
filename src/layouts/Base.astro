@@ -283,7 +283,7 @@ Astro.csp?.insertScriptResource(
       <slot name="page-share" />
       {Astro.locals.user?.role === 50 && !printsProduct && !spinProduct && !focusedExperience &&
         publicPagePaths.includes(canonical.pathname) && (
-          <OwnerFeedback client:visible target={{type:"page",path:canonical.pathname,revision:build.commit}}
+          <OwnerFeedback client:load target={{type:"page",path:canonical.pathname,revision:build.commit}}
             label="Give feedback on this page" />
         )}
     </main>

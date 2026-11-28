@@ -70,6 +70,7 @@ export default function OwnerFeedback({ target, label, player }: {
   const [note, setNote] = useState("");
   const [kind, setKind] = useState<keyof typeof feedbackKinds>("improvement");
   const [incident, setIncident] = useState(false);
+  const [annotation, setAnnotation] = useState("");
   const [startMs, setStartMs] = useState(0);
   const [end, setEnd] = useState("");
   const [threads, setThreads] = useState<FeedbackThread[]>([]);
@@ -94,8 +95,9 @@ export default function OwnerFeedback({ target, label, player }: {
 
   const playhead = () => {
     const video = player ? document.getElementById(player) : null;
-    return video instanceof HTMLVideoElement && Number.isFinite(video.currentTime)
-      ? Math.min(35000, Math.round(video.currentTime * 1000)) : 0;
+    return video instanceof HTMLVideoElement && video.readyState > 0 && Number.isFinite(video.currentTime)
+      ? Math.min(35000, Math.round(video.currentTime * 1000))
+      : target.type === "film" ? target.startMs : 0;
   };
 
   function close() {
@@ -108,11 +110,14 @@ export default function OwnerFeedback({ target, label, player }: {
     const exactTarget = target.type === "film" ? {
       ...target, startMs, ...(end ? { endMs: Math.round(Number(end) * 1000) } : {}),
     } : target;
-    const thread = await write({ action: "open", target: exactTarget, note, kind, incident });
+    const thread = await write({ action: "open", target: exactTarget, note, kind, incident,
+      ...(annotation.trim() ? { annotation: annotation.trim() } : {}),
+    });
     if (!thread) return;
     setNote("");
     setEnd("");
     setIncident(false);
+    setAnnotation("");
     setSaved(thread.id);
     setThreads((previous) => [thread, ...previous.filter(({ id }) => id !== thread.id)]);
   }
@@ -151,6 +156,13 @@ export default function OwnerFeedback({ target, label, player }: {
             {Object.entries(feedbackKinds).map(([value, name]) => <option value={value} key={value}>{name}</option>)}
           </select>
         </label>
+        <details>
+          <summary>Add an annotation</summary>
+          <label>Detail to look at
+            <input type="text" maxLength={300} value={annotation} onChange={(event) => setAnnotation(event.target.value)} />
+          </label>
+          {annotation.trim() && <p>Preview · {annotation.trim()}</p>}
+        </details>
         <label className="owner-feedback-check">
           <input type="checkbox" checked={incident} onChange={(event) => setIncident(event.target.checked)} /> Raise an incident
         </label>
@@ -206,6 +218,7 @@ function ThreadDetail({ initial }: { initial: FeedbackThread }) {
         {context.target.endMs !== undefined && ` to ${formatTime(context.target.endMs)}`}
       </>}
     </p>
+    {context.annotation && <p>Annotation · {context.annotation}</p>}
     <ol className="owner-feedback-history">{events.map((entry) => (
       <li key={entry.id}>
         <strong>{entry.isOwner ? "You" : entry.actor}</strong>
