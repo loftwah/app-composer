@@ -97,7 +97,8 @@ main:has(> .share-compare) {
   color: inherit;
   font: inherit;
 }
-.project-marquee form button {
+.project-marquee input::placeholder { color: #5d636e; opacity: 1; }
+.share-compare .project-marquee form button {
   display: grid;
   min-width: 52px;
   place-items: center;
@@ -221,7 +222,7 @@ main:has(> .share-compare) {
   gap: .4rem;
 }
 
-.share-compare .compare-primary {
+.share-compare .compare-primary:is(a,button) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -235,7 +236,7 @@ main:has(> .share-compare) {
   font: inherit;
   font-weight: 700;
 }
-.share-compare .compare-primary:hover { background: #ff7a33; }
+.share-compare .compare-primary:is(a,button):hover { background: #ff7a33; }
 .share-compare .compare-primary[hidden] { display: none; }
 
 .format-proof {
