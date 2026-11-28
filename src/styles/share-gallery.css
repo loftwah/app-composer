@@ -285,6 +285,7 @@
 }
 
 .gallery-starts {
+  --color-accent-hover: var(--color-on-action);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-block: 1rem 0.5rem;
@@ -303,7 +304,7 @@
 }
 
 .gallery-starts a + a { border-inline-start: 1px solid currentColor; }
-.gallery-starts a:hover strong { text-decoration: underline; }
+.gallery-starts a:hover { background: var(--color-action-hover); }
 .gallery-starts a:focus-visible { outline: 2px solid currentColor; outline-offset: -5px; }
 .gallery-starts strong { display: block; font-size: clamp(1.35rem, 2.6vw, 2.25rem); line-height: 1.06; letter-spacing: -.035em; }
 .gallery-starts a > span > span { display: block; margin-block-start: .3rem; font-size: .9rem; }
