@@ -120,7 +120,7 @@ test("observations replay durable exact receipts, claim once, and retain nulls a
     assert.equal(requests[0].url.origin, "https://public.api.bsky.app");
     assert.deepEqual(requests[0].url.searchParams.getAll("uris"), [active.uri]);
     assert.equal(requests[0].options.method, "GET");
-    assert.equal(requests[0].options.redirect, "error");
+    assert.equal(requests[0].options.redirect, "manual");
     assert.equal(requests[0].options.headers.authorization, undefined);
     await tick(db, "2026-11-29T11:00:00.000Z", collected);
     [observed] = await listBlueskyObservations(db, workspace);
