@@ -1,0 +1,55 @@
+.owner-feedback {
+  --feedback-line: color-mix(in srgb, currentColor 24%, transparent);
+  font-size: .9375rem;
+  line-height: 1.5;
+  margin-block: .75rem;
+}
+.owner-feedback :where(button, select, input, textarea) {
+  border: 1px solid var(--feedback-line);
+  border-radius: .5rem;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  min-height: 44px;
+  padding: .45rem .7rem;
+}
+.owner-feedback button { cursor: pointer; font-weight: 600; }
+.owner-feedback button:hover:not(:disabled) { background: color-mix(in srgb, currentColor 9%, transparent); }
+.owner-feedback button:disabled { opacity: .65; cursor: default; }
+.owner-feedback :where(button, summary, input, textarea, select, a):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.owner-feedback-panel, .owner-feedback-inbox {
+  border: 1px solid var(--feedback-line);
+  border-radius: .75rem;
+  max-width: 40rem;
+  padding: 1rem;
+  margin-block: .75rem;
+  overflow-wrap: anywhere;
+}
+.owner-feedback-heading, .owner-feedback-search {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem;
+}
+.owner-feedback-heading { align-items: center; }
+.owner-feedback form, .owner-feedback label { display: grid; gap: .35rem; }
+.owner-feedback form { gap: .7rem; justify-items: start; margin-block: .75rem; }
+.owner-feedback label:has(textarea), .owner-feedback textarea { width: 100%; box-sizing: border-box; }
+.owner-feedback textarea { resize: vertical; }
+.owner-feedback .owner-feedback-check { display: flex; gap: .55rem; align-items: center; }
+.owner-feedback input[type=checkbox] { min-height: 0; }
+.owner-feedback summary, .owner-feedback-check { min-height: 44px; cursor: pointer; }
+.owner-feedback summary { padding-block: .55rem; }
+.owner-feedback fieldset { display: grid; justify-items: start; gap: .4rem; border: 1px solid var(--feedback-line); }
+.owner-feedback p { margin-block: .3rem; }
+.owner-feedback a { font-weight: 600; }
+.owner-feedback-context { font-variant-numeric: tabular-nums; }
+.owner-feedback-list, .owner-feedback-history { padding-inline-start: 1.25rem; }
+.owner-feedback-list > li, .owner-feedback-history > li { margin-block: .65rem; }
+.owner-feedback-list span { margin-inline-start: .6rem; }
+.owner-feedback-list p, .owner-feedback-history p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.owner-feedback-search { display: flex !important; justify-content: flex-start; }

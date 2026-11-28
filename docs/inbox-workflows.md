@@ -292,3 +292,23 @@ node --test tests/private-enquiries.test.mjs tests/resend-delivery.test.mjs
 
 The rendered acceptance captures and their exact measurements are in
 [`docs/evidence/inbox-workflow-20261025/`](evidence/inbox-workflow-20261025/README.md).
+
+## Owner feedback in context
+
+An administrator can leave a private note on a Composer page, a Share artwork
+detail, the Keep a Copy playhead or a Decisions question. Use one sentence and
+optionally choose a type or raise an incident. The form shows the selected
+target and revision. The Inbox retains the exact note, original URL, deployed
+source and environment. On a film note, the original link seeks to the saved
+time. A later revision can still find earlier notes for the same target.
+
+Open **Inbox → Owner feedback** to search text and see open incidents or
+attempts awaiting review. Record an attempt with a preview, release or evidence
+link. An administrator can accept parts, return feedback or explicitly close
+an incident after reviewing a delivered attempt. Reopening keeps the earlier
+closure and notes. Visitor enquiries remain in the same Inbox.
+
+The Composer shared layout covers the indexable Composer pages named in
+`public-pages.mjs`. Mounted and standalone apps, Prints Desktop, and the
+Media Studio editor retain their own interaction and authentication. Link back
+to a published result through its Composer share or page when available.

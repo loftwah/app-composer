@@ -27,6 +27,7 @@ import type {
   ResearchReply,
 } from "../lib/decision-research-contract";
 import type { z } from "zod";
+import OwnerFeedback from "../components/OwnerFeedback";
 import { DecisionResponseContent } from "./decision-response-content";
 import "./decisions-admin.css";
 
@@ -528,6 +529,18 @@ function DecisionForm({
       <h2 tabIndex={-1} data-decision-heading>
         {decision.question}
       </h2>
+      <OwnerFeedback
+        key={`${decision.id}:${detail.briefRevision}`}
+        target={{ type: "decision", id: decision.id, revision: detail.briefRevision }}
+        label="Give feedback on this question"
+      />
+      {(decision.id === "owner-feedback-next" || decision.id === "composer-feedback-entry") && (
+        <p>
+          Feedback is available at the artwork, film playhead, question and Composer page.
+          {" "}<a href="/_emdash/admin/plugins/composer-stacks/enquiries#owner-feedback">Open owner feedback in Inbox</a>.
+          {" "}Attempt delivered. Awaiting owner review.
+        </p>
+      )}
       <ReviewContext
         review={detail.review}
         interpretation={detail.interpretation}
