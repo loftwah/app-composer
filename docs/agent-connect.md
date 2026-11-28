@@ -149,7 +149,9 @@ that `hasScope(["mcp:tools:composer-stacks"], "admin")` is false.
 is a private admin queue. It includes written alternatives, a recommendation,
 expected outcomes, pros and cons, sources, and rendered artwork where available.
 Save the allowed number of choices, context alone, or both. A save records a
-response and its revision without applying the decision.
+response and its revision without applying the decision. The review opens on
+the first unanswered current question. Back and next save edits before
+moving, and the question list shows current progress and earlier responses.
 
 EmDash and MCP use the same records for the signed-in administrator. MCP access
 uses the existing Cloudflare Access boundary and an owner-issued EmDash token

@@ -2,6 +2,8 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { PluginRouteError } from "emdash";
 import briefs from "../data/portfolio-decisions.json";
 import evidence from "../data/portfolio-decision-results.json";
+import followups from "../data/portfolio-decision-followups.json";
+import followupEvidence from "../data/portfolio-decision-followup-results.json";
 import {
   adminDecisions,
   type Decision,
@@ -21,8 +23,12 @@ type Score = {
 const scores: Record<string, Score> = Object.assign(
   {},
   ...evidence.calls.map((call) => call.answers),
+  followupEvidence.answers,
 );
-const initial = briefs.map(({ target: _, ...brief }): Decision => {
+const initial = [
+  ...followups,
+  ...briefs.map((brief) => ({ ...brief, archived: true })),
+].map(({ target: _, ...brief }): Decision => {
   const score = scores[brief.id.replaceAll("-", "_")];
   return {
     ...brief,
@@ -139,19 +145,22 @@ export async function listDecisions(
   const submitted = briefs.results.map(
     (row) => JSON.parse((row as BriefRow).brief) as Decision,
   );
-  return [...initial, ...submitted].map(
-    ({ id, project, question, options }) => ({
-      id,
-      project,
-      question,
-      status: !selections.has(id)
-        ? "open"
-        : selections.get(id) === "[]"
-          ? "context"
-          : "selected",
-      hasArtwork: options.some((option) => Boolean(option.preview)),
-    }),
-  );
+  return [
+    ...initial.filter((brief) => !brief.archived),
+    ...submitted,
+    ...initial.filter((brief) => brief.archived),
+  ].map(({ id, project, question, options, archived }) => ({
+    id,
+    project,
+    question,
+    archived,
+    status: !selections.has(id)
+      ? "open"
+      : selections.get(id) === "[]"
+        ? "context"
+        : "selected",
+    hasArtwork: options.some((option) => Boolean(option.preview)),
+  }));
 }
 
 export async function recordDecision(
