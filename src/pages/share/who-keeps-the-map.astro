@@ -63,7 +63,7 @@ Astro.csp?.insertDirective("media-src 'self'");
           ? "The permission slip takes the closing shot. The performances and soundtrack stay in place."
           : "A short cut from the two finished films, set to “Change the Default”."}</p>
       </div>
-      <video id="keep-a-copy-player" controls playsinline preload={start ? "auto" : "none"} width="1280" height="720" poster={start ? undefined : `${assets}/keep-a-copy-poster.jpg`}>
+      <video id="keep-a-copy-player" data-start-seconds={start || undefined} controls playsinline preload={start ? "auto" : "none"} width="1280" height="720" poster={start ? undefined : `${assets}/keep-a-copy-poster.jpg`}>
         <source src={cutUrl + (start ? `#t=${start}` : "")} type="video/mp4" />
         <track kind="captions" srclang="en" label="English" src={`${assets}/keep-a-copy-en.vtt`} />
         <a href={cutUrl}>Open Keep a Copy</a>
@@ -184,6 +184,7 @@ Astro.csp?.insertDirective("media-src 'self'");
       </div>
     </section>
   </div>
+  {start && <script is:inline src="/campaign/who-keeps-the-map/keep-a-copy-playhead-v1.js" defer></script>}
 </Base>
 
 <style>
