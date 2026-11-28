@@ -558,6 +558,7 @@ export interface ShareCalendarSnapshot {
   deliveries: BlueskyDeliveryRecord[];
   bluesky: {
     configuredHandle: string | null;
+    schedulerAvailable?: boolean;
     connection: {
       state: "configured" | "not_configured";
       handle: string | null;
@@ -855,6 +856,7 @@ export const shareCalendarSnapshot = z
     bluesky: z
       .object({
         configuredHandle: z.string().min(3).max(253).nullable(),
+        schedulerAvailable: z.boolean().optional(),
         connection: z
           .object({
             state: z.enum(["configured", "not_configured"]),
@@ -907,44 +909,132 @@ export function hasPublishedBlueskyRevision(
   );
 }
 
-type ShareDeliveryFilter = "published" | "attention";
-export type ShareListFilter =
-  "all" | "drafts" | "scheduled" | ShareDeliveryFilter;
+export const SHARE_LIST_FILTERS = {
+  all: "All",
+  automatic: "Future automatic jobs",
+  published: "Published receipts",
+  manual: "Manual handoffs",
+  drafts: "Drafts",
+  attention: "Needs attention",
+  local: "Local share records",
+} as const;
 
-// "published" is only a genuine persisted provider receipt for the displayed
-// approval revision. "attention" is an exact delivery that is unknown, failed
-// or needs authorisation, or a stale source with no published receipt. A
-// locally exported, scheduled or draft item has no delivery and stays in "all".
-export function shareListFilterForItem(
-  snapshot: ShareCalendarSnapshot,
-  item: ShareCalendarItem,
-): ShareDeliveryFilter | null {
-  const { delivery } = itemApprovalAndDelivery(snapshot, item);
-  if (delivery?.state === "published") return "published";
-  if (
-    delivery?.state === "unknown" ||
-    delivery?.state === "failed" ||
-    delivery?.state === "needs_auth" ||
-    !item.sourceCurrent
-  )
-    return "attention";
-  return null;
+export type ShareListFilter = keyof typeof SHARE_LIST_FILTERS;
+type ShareListStatus = Exclude<ShareListFilter, "all">;
+
+export interface ShareDeliveryStatus {
+  category: ShareListStatus;
+  label: string;
+  detail?: string;
 }
 
-// Every list view an item belongs to. Drafts and Scheduled come only from the
-// authoritative local item.state: they describe the calendar, not a job or a
-// delivery. They are independent of the delivery classification above, so an
-// error item also appears in Drafts or Scheduled when its current local state
-// matches. Published and Needs attention keep their unchanged delivery logic.
+export function shareDeliveryStatus(
+  snapshot: ShareCalendarSnapshot,
+  item: ShareCalendarItem,
+  now = Date.parse(snapshot.now),
+): ShareDeliveryStatus {
+  const { approval, delivery } = itemApprovalAndDelivery(snapshot, item);
+  const exact = approval?.draftRevision === item.revision;
+  if (hasPublishedBlueskyRevision(item, approval, delivery))
+    return { category: "published", label: "Published" };
+
+  if (delivery?.state === "sending" || delivery?.state === "unknown")
+    return {
+      category: "attention",
+      label: BLUESKY_DELIVERY_LABELS[delivery.state],
+      detail: delivery.errorMessage || "Delivery is awaiting confirmation from Bluesky.",
+    };
+
+  if (exact && delivery && ["failed", "needs_auth"].includes(delivery.state))
+    return {
+      category: "attention",
+      label: BLUESKY_DELIVERY_LABELS[delivery.state],
+      detail: delivery.errorMessage,
+    };
+
+  if (item.state === "shared")
+    return {
+      category: "local",
+      label: "Shared locally",
+      detail: "The calendar has a local share record. Network publication is unconfirmed.",
+    };
+
+  if (!item.sourceCurrent)
+    return { category: "attention", label: "Source changed" };
+
+  const intendedAt = item.scheduledAt ? Date.parse(item.scheduledAt) : NaN;
+  if (!Number.isFinite(intendedAt))
+    return { category: "drafts", label: "Draft", detail: "Choose an intended time when the draft is ready." };
+
+  if (exact && approval?.state === "approved" && approval.scheduledAt === item.scheduledAt) {
+    if (approval.automatic) {
+      if (intendedAt > now && (
+        snapshot.bluesky.connection.state !== "configured" ||
+        snapshot.bluesky.configuredHandle !== approval.accountHandle
+      ))
+        return {
+          category: "attention",
+          label: "Automatic job blocked",
+          detail: `The job is registered. Restore the approved @${approval.accountHandle} connection before it runs.`,
+        };
+      if (intendedAt > now)
+        return {
+          category: "automatic",
+          label: "Automatic job",
+          detail: `Bluesky will use the saved approval for @${approval.accountHandle}.`,
+        };
+      return {
+        category: "attention",
+        label: "Awaiting delivery",
+        detail: "The automatic job is due. Refresh for a receipt before taking another action.",
+      };
+    }
+    if (snapshot.bluesky.schedulerAvailable === false)
+      return {
+        category: "attention",
+        label: "Job status unavailable",
+        detail: "The scheduler did not report this approval’s job status. Refresh before taking another action.",
+      };
+    if (Date.parse(approval.expiresAt) <= now)
+      return {
+        category: "attention",
+        label: "Approval expired",
+        detail: "There is no current publication receipt. Review the Bluesky panel for recovery.",
+      };
+  }
+
+  return {
+    category: "manual",
+    label: intendedAt <= now ? "Overdue handoff" : "Manual handoff",
+    detail: intendedAt <= now
+      ? "The intended time passed. This handoff is still outstanding."
+      : "This date is a handoff reminder. Use the recorded destination to share.",
+  };
+}
+
+// Earlier provider receipts remain available alongside the current draft,
+// including after a newer approval has replaced the original one.
+export function earlierBlueskyPublication(
+  snapshot: Pick<ShareCalendarSnapshot, "approvals" | "deliveries">,
+  item: ShareCalendarItem,
+) {
+  const { approval, delivery } = itemApprovalAndDelivery(snapshot, item);
+  return snapshot.deliveries.find((entry) =>
+    entry.itemId === item.id &&
+    entry.state === "published" &&
+    Boolean(entry.permalink?.startsWith("https://bsky.app/profile/")) &&
+    !(entry === delivery && hasPublishedBlueskyRevision(item, approval, delivery)),
+  );
+}
+
 export function shareListItemFilters(
   snapshot: ShareCalendarSnapshot,
   item: ShareCalendarItem,
+  status = shareDeliveryStatus(snapshot, item),
 ): ShareListFilter[] {
-  const filters: ShareListFilter[] = ["all"];
-  if (item.state === "draft") filters.push("drafts");
-  if (item.state === "scheduled") filters.push("scheduled");
-  const deliveryFilter = shareListFilterForItem(snapshot, item);
-  if (deliveryFilter) filters.push(deliveryFilter);
+  const filters: ShareListFilter[] = ["all", status.category];
+  if (status.category !== "published" && earlierBlueskyPublication(snapshot, item))
+    filters.push("published");
   return filters;
 }
 

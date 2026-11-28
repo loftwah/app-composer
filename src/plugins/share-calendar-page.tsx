@@ -7,6 +7,7 @@ import {
   calendarFilename,
   captionProblem,
   captionUsage,
+  earlierBlueskyPublication,
   cataloguePreviewReplySchema,
   isSafeShareLink,
   isXVariant,
@@ -21,6 +22,7 @@ import {
   SHARE_ITEM_LINK_RECOVERY,
   shareCalendarSnapshot,
   shareConnectionsItemHref,
+  shareDeliveryStatus,
   shareItemLink,
   shareItemLinkSelection,
   shareListItemFilters,
@@ -33,8 +35,7 @@ import {
   SHARE_CHANNEL_LIMITS,
   SHARE_DESTINATION_MAX,
   SHARE_X_CHANNEL,
-  SHARE_STATES,
-  SHARE_STATE_LABELS,
+  SHARE_LIST_FILTERS,
   SHARE_VARIANT_MAX,
   type CatalogueAssetDescriptor,
   type CatalogueResolvedAsset,
@@ -476,10 +477,6 @@ function displayDate(value: string | null) {
   if (!value) return "No date";
   const labels = scheduleLabels(value);
   return labels ? `${labels.melbourne} · ${labels.utc}` : "Unreadable date";
-}
-
-function stateNote(state: ShareCalendarItem["state"]) {
-  return SHARE_STATES.find((entry) => entry.id === state)?.note ?? "";
 }
 
 function captionAndLink(item: ShareCalendarItem) {
@@ -1558,12 +1555,18 @@ export function ShareCalendarPage() {
 
 const emptyShareList: Record<ShareListFilter, string> = {
   all: "No items in this view.",
+  automatic: "No future automatic jobs confirmed for this workspace.",
+  published: "No Bluesky publication receipts in this workspace yet.",
+  manual: "No outstanding manual handoffs.",
   drafts: "No drafts in this workspace.",
-  scheduled: "No scheduled items in this workspace.",
-  published: "No published posts in this workspace yet.",
-  attention:
-    "No failed or unconfirmed deliveries or stale sources in this view.",
+  attention: "No unresolved deliveries or stale sources in this view.",
+  local: "No local share records in this workspace.",
 };
+
+const shareListFilters = Object.entries(SHARE_LIST_FILTERS) as [
+  ShareListFilter,
+  string,
+][];
 
 function readArtworkHandoff(search: string) {
   const params = new URLSearchParams(search);
@@ -1632,16 +1635,14 @@ function ShareCalendar({ search }: { search: string }) {
     preview: QueueNextPreview;
   }>();
   const [queueChecking, setQueueChecking] = useState(false);
-  // The same approval/delivery resolution as the item card drives the Published
-  // and Needs attention counts. Drafts and Scheduled come from the local
-  // item.state, so an error item also appears in the view matching its state.
-  // This filter is read-only and keeps item order.
   const classified = snapshot
-    ? snapshot.items.map((item) => ({
-        item,
-        filters: shareListItemFilters(snapshot, item),
-      }))
+    ? snapshot.items.map((item) => {
+        const now = Date.parse(snapshot.now);
+        const status = shareDeliveryStatus(snapshot, item, now);
+        return { item, status, filters: shareListItemFilters(snapshot, item, status) };
+      })
     : [];
+  const statusById = new Map(classified.map(({ item, status }) => [item.id, status]));
   const searchTerm = calendarQuery.trim().toLowerCase();
   const statusItems = classified
     .filter(({ filters }) => filters.includes(listFilter))
@@ -1661,17 +1662,6 @@ function ShareCalendar({ search }: { search: string }) {
         return values.some((value) => value?.toLowerCase().includes(searchTerm));
       })
     : statusItems;
-  const listCounts: Record<ShareListFilter, number> = {
-    all: classified.length,
-    drafts: classified.filter(({ filters }) => filters.includes("drafts"))
-      .length,
-    scheduled: classified.filter(({ filters }) => filters.includes("scheduled"))
-      .length,
-    published: classified.filter(({ filters }) => filters.includes("published"))
-      .length,
-    attention: classified.filter(({ filters }) => filters.includes("attention"))
-      .length,
-  };
   // The agenda is derived from the same filtered items; it owns no state and
   // only shows intended dates, never a new action or permission.
   const agendaDays =
@@ -2414,8 +2404,8 @@ function ShareCalendar({ search }: { search: string }) {
           scheduledAt,
         },
         detail
-          ? `Scheduled ${previewAsset.title} for ${detail.melbourne} · ${detail.utc}. Choose automatic Bluesky delivery after approval.`
-          : `Saved ${previewAsset.title} as a Bluesky draft. Nothing is on the calendar and nothing was posted.`,
+          ? `Saved ${previewAsset.title} with intended time ${detail.melbourne} · ${detail.utc}. Automatic delivery requires a separate approval and job.`
+          : `Saved ${previewAsset.title} as an undated Bluesky draft.`,
       );
       if (saved) {
         setAssetId("");
@@ -2480,11 +2470,10 @@ function ShareCalendar({ search }: { search: string }) {
       link: link.trim(),
       scheduledAt,
     };
-    const verb = scheduledAt ? "Scheduled" : "Draft saved";
     const detail = scheduledAt ? scheduleLabels(scheduledAt) : null;
     const message = detail
-      ? `${verb} for ${detail.melbourne} · ${detail.utc}. Choose automatic Bluesky delivery after approval.`
-      : `${verb}. Nothing is on the calendar and nothing was posted.`;
+      ? `Saved intended time ${detail.melbourne} · ${detail.utc}.`
+      : "Saved as an undated draft.";
 
     const primaryPayload = editing
       ? {
@@ -3457,7 +3446,7 @@ function ShareCalendar({ search }: { search: string }) {
                 </label>
               )}
               <label className="sc-field">
-                Date and time (Australia/Melbourne, leave empty for a draft)
+                Intended date and time (Australia/Melbourne, optional)
                 <input
                   ref={dateInputRef}
                   type="datetime-local"
@@ -3487,8 +3476,8 @@ function ShareCalendar({ search }: { search: string }) {
                 >
                   {scheduledLocal
                     ? editing
-                      ? "Save scheduled changes"
-                      : "Schedule share"
+                      ? "Save changes and date"
+                      : "Save share with date"
                     : editing
                       ? "Save draft changes"
                       : "Save draft"}
@@ -3527,35 +3516,24 @@ function ShareCalendar({ search }: { search: string }) {
               <div>
                 <h2>Calendar</h2>
                 <p className="sc-hint">
-                  {scheduled.length} dates available to export ·{" "}
-                  {
-                    snapshot.items.filter((item) => item.state === "shared")
-                      .length
-                  }{" "}
-                  shared locally. Published deliveries keep their intended dates here.
+                  {scheduled.length} intended dates available to export. Items
+                  with earlier publication receipts can also appear in their
+                  current status.
                 </p>
               </div>
               <div
-                className="sc-list-filter"
+                className="sc-list-filter sc-delivery-filters"
                 role="group"
                 aria-label="Filter calendar items"
               >
-                {(
-                  [
-                    ["all", "All"],
-                    ["drafts", "Drafts"],
-                    ["scheduled", "Scheduled"],
-                    ["published", "Published"],
-                    ["attention", "Needs attention"],
-                  ] as const
-                ).map(([value, label]) => (
+                {shareListFilters.map(([value, label]) => (
                   <button
                     key={value}
                     type="button"
                     aria-pressed={listFilter === value}
                     onClick={() => setListFilter(value)}
                   >
-                    {label} ({listCounts[value]})
+                    {label} ({classified.filter(({ filters }) => filters.includes(value)).length})
                   </button>
                 ))}
               </div>
@@ -3748,24 +3726,14 @@ function ShareCalendar({ search }: { search: string }) {
                         const labels = item.scheduledAt
                           ? scheduleLabels(item.scheduledAt)
                           : null;
-                        const { approval, delivery } = itemApprovalAndDelivery(
-                          snapshot,
-                          item,
-                        );
-                        const published = hasPublishedBlueskyRevision(
-                          item,
-                          approval,
-                          delivery,
-                        );
+                        const status = statusById.get(item.id)!;
                         return (
                           <li key={item.id} className="sc-agenda-item">
                             <div className="sc-item-top">
                               <span
-                                className={`sc-badge sc-badge-${published ? "published" : item.state}`}
+                                className={`sc-badge sc-badge-${status.category}`}
                               >
-                                {published
-                                  ? "Published"
-                                  : SHARE_STATE_LABELS[item.state]}
+                                {status.label}
                               </span>
                               <span className="sc-channel">
                                 {SHARE_CHANNEL_LABELS[item.channel]}
@@ -3811,7 +3779,8 @@ function ShareCalendar({ search }: { search: string }) {
                   snapshot,
                   item,
                 );
-                const published = hasPublishedBlueskyRevision(item, approval, delivery);
+                const status = statusById.get(item.id)!;
+                const earlierReceipt = earlierBlueskyPublication(snapshot, item);
                 const publishedReceipt = sharePackagePublishedReceipt(item, approval, delivery);
                 const hasBluesky = hasBlueskyDraft(item);
                 const portfolio = item.catalogue;
@@ -3827,16 +3796,15 @@ function ShareCalendar({ search }: { search: string }) {
                     className={`sc-item sc-state-${item.state}`}
                   >
                     <div className="sc-item-top">
-                      <span className={`sc-badge sc-badge-${published ? "published" : item.state}`}>
-                        {published ? "Published" : SHARE_STATE_LABELS[item.state]}
+                      <span className={`sc-badge sc-badge-${status.category}`}>
+                        {status.label}
                       </span>
                       <span className="sc-channel">
                         {SHARE_CHANNEL_LABELS[item.channel]}
                       </span>
                       {labels && (
                         <span className="sc-when">
-                          {published && "Intended time · "}
-                          {labels.melbourne} · {labels.utc}
+                          Intended time · {labels.melbourne} · {labels.utc}
                         </span>
                       )}
                       {publishedReceipt && (
@@ -3933,15 +3901,12 @@ function ShareCalendar({ search }: { search: string }) {
                     <p className={`sc-caption sc-caption-${item.state}`}>
                       {item.caption}
                     </p>
-                    {!published &&
-                      approval &&
-                      delivery?.state === "published" &&
-                      delivery.permalink && (
+                    {earlierReceipt?.permalink && (
                         <p className="sc-hint">
-                          Bluesky published revision {approval.draftRevision}.{" "}
+                          Earlier Bluesky publication · {displayDate(earlierReceipt.publishedAt)}.{" "}
                           <a
                             className="sc-text-link"
-                            href={delivery.permalink}
+                            href={earlierReceipt.permalink}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -3960,18 +3925,7 @@ function ShareCalendar({ search }: { search: string }) {
                         </a>
                       </p>
                     )}
-                    {!published && <p className="sc-hint">{stateNote(item.state)}</p>}
-                    {!published && item.state === "scheduled" &&
-                      item.scheduledAt &&
-                      item.scheduledAt < snapshot.now && (
-                        <p className="sc-hint">
-                          This time has passed.
-                          {hasBluesky &&
-                            " Check the Bluesky panel below for delivery status."}
-                          {item.channel !== "bluesky" &&
-                            " Record a local share only after you share the main caption."}
-                        </p>
-                      )}
+                    {status.detail && <p className="sc-hint">{status.detail}</p>}
                     {item.sharedAt && (
                       <p className="sc-hint">
                         Local share recorded {displayDate(item.sharedAt)}

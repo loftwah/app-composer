@@ -31,7 +31,8 @@ import {
   shareItemLink,
   shareItemLinkSelection,
   shareQueuePresetsReplySchema,
-  shareListFilterForItem,
+  earlierBlueskyPublication,
+  shareDeliveryStatus,
   shareListItemFilters,
   hasPublishedBlueskyRevision,
 } from "../src/lib/share-calendar.ts";
@@ -63,109 +64,82 @@ const schema = [
 const owner = { id: "fictional-calendar-owner", role: 20 };
 const other = { id: "fictional-calendar-other", role: 20 };
 
-test("share calendar list filter classifies only genuine published deliveries and attention", () => {
+test("calendar queue distinguishes native jobs, receipts, handoffs, drafts and uncertain outcomes", () => {
+  const now = "2026-11-28T10:00:00.000Z";
+  const future = "2026-11-28T12:00:00.000Z";
+  const past = "2026-11-28T09:00:00.000Z";
   const item = (over = {}) => ({
     id: "fictional-item",
+    revision: 3,
     sourceCurrent: true,
     state: "scheduled",
+    scheduledAt: future,
     ...over,
   });
-  const snapshot = (states) => ({
-    approvals: [{ itemId: "fictional-item", approvalRevision: 2 }],
-    deliveries: states.map((state, index) => ({
-      itemId: "fictional-item",
-      approvalRevision: index === 0 ? 2 : 3,
-      state,
-    })),
+  const approval = {
+    itemId: "fictional-item",
+    draftRevision: 3,
+    approvalRevision: 4,
+    accountHandle: "fictional.example",
+    state: "approved",
+    scheduledAt: future,
+    expiresAt: "2026-11-28T14:00:00.000Z",
+    automatic: true,
+  };
+  const receipt = {
+    itemId: "fictional-item",
+    approvalRevision: 4,
+    state: "published",
+    permalink: "https://bsky.app/profile/fictional.example/post/12345",
+  };
+  const snapshot = (approvals, deliveries = [], schedulerAvailable = true) => ({
+    now,
+    approvals,
+    deliveries,
+    bluesky: {
+      schedulerAvailable,
+      configuredHandle: "fictional.example",
+      connection: { state: "configured" },
+    },
   });
-  const classify = (states, over) =>
-    shareListFilterForItem(snapshot(states), item(over));
-
-  assert.equal(classify([], {}), null, "a scheduled item has no receipt");
+  const base = snapshot([]);
+  const classified = (view, over) => shareDeliveryStatus(view, item(over));
+  assert.equal(classified(base).category, "manual", "an intended date is only a handoff");
+  assert.equal(classified(base, { scheduledAt: past }).label, "Overdue handoff");
+  assert.equal(classified(base, { state: "draft", scheduledAt: null }).category, "drafts");
+  assert.equal(classified(base, { state: "shared" }).category, "local");
+  assert.equal(classified(base, { sourceCurrent: false }).category, "attention");
+  assert.equal(classified(snapshot([approval])).category, "automatic");
   assert.equal(
-    classify([], { state: "shared" }),
-    null,
-    "a local export is never published",
-  );
-  assert.equal(classify(["published"]), "published");
-  assert.equal(
-    classify(["approved", "published"]),
-    null,
-    "a receipt from another approval revision cannot mark this item published",
-  );
-  assert.equal(classify(["unknown"]), "attention");
-  assert.equal(classify(["failed"]), "attention");
-  assert.equal(classify(["needs_auth"]), "attention");
-  assert.equal(classify(["sending"]), null);
-  assert.equal(classify(["approved"]), null);
-  assert.equal(classify(["cancelled"]), null);
-  assert.equal(
-    classify([], { sourceCurrent: false }),
-    "attention",
-    "a stale source without a published receipt needs attention",
-  );
-  assert.equal(classify(["failed"], { sourceCurrent: false }), "attention");
-  assert.equal(
-    classify(["published"], { sourceCurrent: false }),
-    "published",
-    "a published receipt clears a stale source",
+    classified({ ...base, approvals: [approval], bluesky: {
+      ...base.bluesky,
+      configuredHandle: "changed.example",
+    } }).label,
+    "Automatic job blocked",
   );
   assert.equal(
-    shareListFilterForItem(
-      { approvals: [], deliveries: [] },
-      item({ sourceCurrent: false }),
-    ),
-    "attention",
-    "a stale item without an approval needs attention",
+    classified(snapshot([{ ...approval, scheduledAt: past }]), { scheduledAt: past }).label,
+    "Awaiting delivery",
   );
-});
-
-test("the list filters use local state for drafts and scheduled while keeping delivery views", () => {
-  const item = (over = {}) => ({
-    id: "fictional-item",
-    sourceCurrent: true,
-    state: "draft",
-    ...over,
-  });
-  const snapshot = (states) => ({
-    approvals: [{ itemId: "fictional-item", approvalRevision: 2 }],
-    deliveries: states.map((state, index) => ({
-      itemId: "fictional-item",
-      approvalRevision: index === 0 ? 2 : 3,
-      state,
-    })),
-  });
-  const empty = { approvals: [], deliveries: [] };
-
-  assert.deepEqual(shareListItemFilters(empty, item()), ["all", "drafts"]);
-  assert.deepEqual(
-    shareListItemFilters(empty, item({ state: "scheduled" })),
-    ["all", "scheduled"],
-    "Scheduled is the local calendar state, not a job or delivery claim",
+  assert.equal(classified(snapshot([{ ...approval, draftRevision: 2 }])).category, "manual");
+  assert.equal(classified(snapshot([{ ...approval, scheduledAt: past }])).category, "manual");
+  assert.equal(
+    classified(snapshot([{ ...approval, automatic: false }], [], false)).label,
+    "Job status unavailable",
   );
-  assert.deepEqual(shareListItemFilters(empty, item({ state: "shared" })), [
+  assert.deepEqual(shareListItemFilters(snapshot([approval], [receipt]), item()), [
     "all",
-  ]);
-  assert.deepEqual(
-    shareListItemFilters(empty, item({ sourceCurrent: false })),
-    ["all", "drafts", "attention"],
-    "a stale item still appears in its local Drafts view",
-  );
-  assert.deepEqual(
-    shareListItemFilters(snapshot(["failed"]), item({ state: "scheduled" })),
-    ["all", "scheduled", "attention"],
-    "an error item also appears in Scheduled when its local state matches",
-  );
-  assert.deepEqual(
-    shareListItemFilters(snapshot(["published"]), item({ state: "scheduled" })),
-    ["all", "scheduled", "published"],
-    "a published receipt does not hide the item from its local calendar view",
-  );
-  assert.deepEqual(shareListItemFilters(snapshot(["published"]), item()), [
-    "all",
-    "drafts",
     "published",
   ]);
+  for (const state of ["sending", "unknown", "failed", "needs_auth"])
+    assert.deepEqual(
+      shareListItemFilters(snapshot([approval], [{ ...receipt, state }]), item()),
+      ["all", "attention"],
+    );
+  const historical = snapshot([approval], [{ ...receipt, approvalRevision: 2 }]);
+  assert.deepEqual(shareListItemFilters(historical, item()), ["all", "automatic", "published"]);
+  assert.equal(earlierBlueskyPublication(historical, item())?.permalink, receipt.permalink);
+  assert.deepEqual(shareListItemFilters(base, item({ state: "shared" })), ["all", "local"]);
 });
 
 test("only the exact item and approval revision can display a published badge", () => {

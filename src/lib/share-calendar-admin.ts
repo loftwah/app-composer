@@ -465,9 +465,11 @@ async function snapshot(
     (rows.results ?? []).map((row) => [row.id, row.revision]),
   );
   let taskNames = new Set<string>();
+  let schedulerAvailable = false;
   if (cron && approvalRows.results?.some((row) => row.state === "approved")) {
     try {
       taskNames = new Set((await cron.list()).map(({ name }) => name));
+      schedulerAvailable = true;
     } catch {
       // The calendar and exact approval remain readable during a scheduler fault.
     }
@@ -497,7 +499,7 @@ async function snapshot(
       };
     }),
     deliveries,
-    bluesky: { configuredHandle, connection },
+    bluesky: { configuredHandle, connection, schedulerAvailable },
     now: now.toISOString(),
     changed,
   });
