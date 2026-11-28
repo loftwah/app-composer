@@ -533,18 +533,6 @@ html[data-mode="dark"] .portfolio-decisions {
   margin-block: 0.45rem;
 }
 
-.decision-recommendation-label {
-  font-size: 1rem;
-  font-weight: 730;
-}
-
-.decision-recommendation-detail {
-  display: block;
-  color: var(--review-muted);
-  margin-inline-start: 1.1rem;
-  font-weight: 500;
-}
-
 .portfolio-decisions .decision-reaction {
   display: flex;
   gap: 0.45rem;
@@ -610,4 +598,40 @@ html[data-mode="dark"] .portfolio-decisions {
 
 .decision-history > li {
   margin-block: 0.65rem;
+}
+
+.decision-suggestion {
+  margin-block: 0.7rem 1rem;
+  border: 1px solid var(--review-line);
+  border-radius: 0.6rem;
+  background: var(--review-panel);
+  padding: 0.85rem 1rem;
+}
+
+.decision-suggestion p {
+  margin-block: 0 0.45rem;
+}
+
+.decision-suggestion-title {
+  font-size: 1.03rem;
+  font-weight: 650;
+}
+
+.decision-suggestion-open,
+.decision-suggestion-date {
+  color: var(--review-muted);
+  font-size: 0.9rem;
+}
+
+.decision-suggestion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.65rem;
+}
+
+.decision-recommendation-evidence summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 0.9rem;
 }

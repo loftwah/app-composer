@@ -4,6 +4,11 @@ import briefs from "../data/portfolio-decisions.json";
 import evidence from "../data/portfolio-decision-results.json";
 import followups from "../data/portfolio-decision-followups.json";
 import followupEvidence from "../data/portfolio-decision-followup-results.json";
+import recommendationRun from "../data/decision-recommendations.json";
+import {
+  decisionRecommendationKey,
+  decisionRecommendationLifetimeMs,
+} from "./decision-recommendation.ts";
 import { feedbackFollowUps, replacedDecisions } from "./decision-followups.ts";
 import { interviewQuestions } from "./decision-interviews.ts";
 import {
@@ -114,9 +119,53 @@ const briefLink = ({ id, question }: Decision) => ({
   url: `${adminDecisions}?id=${id}`,
 });
 
+type Assessment = {
+  key: string;
+  choice?: string;
+  confidence?: number;
+  weights?: Record<string, number>;
+  reason?: "owner-judgement" | "weak-evidence";
+};
+const assessments: Record<string, Assessment> =
+  recommendationRun.decisions as Record<string, Assessment>;
+async function assessedBrief(decision: Decision): Promise<Decision> {
+  const assessment = assessments[decision.id];
+  if (!assessment) return decision;
+  const evaluatedAt = recommendationRun.evaluated;
+  const stale =
+    Date.now() - Date.parse(evaluatedAt) > decisionRecommendationLifetimeMs ||
+    assessment.key !== (await decisionRecommendationKey(decision));
+  const { choice, confidence, weights, reason } = assessment;
+  const status = stale ? "stale" : (reason ?? "supported");
+  return {
+    ...decision,
+    recommendationReview: {
+      status,
+      evaluatedAt,
+      ...(status === "supported"
+        ? { token: `${evaluatedAt}:${assessment.key}` }
+        : {}),
+    },
+    recommendation:
+      status === "supported" && choice && confidence !== undefined
+        ? {
+            choice,
+            confidence,
+            method: "clef",
+            basis:
+              "Clef compared the written choices against the supplied public project evidence. It can flag what the evidence supports.",
+          }
+        : undefined,
+    options: decision.options.map((option) => ({
+      ...option,
+      weight: status === "supported" ? weights?.[option.id] : undefined,
+    })),
+  };
+}
+
 export async function getBrief(db: D1Database, owner: string, id: string) {
   const seed = seedBriefs.get(id);
-  if (seed) return seed;
+  if (seed) return assessedBrief(seed);
   const row = await db
     .prepare(
       "SELECT brief FROM composer_decision_briefs WHERE owner_id = ? AND decision_id = ?",
@@ -279,6 +328,17 @@ export async function recordDecision(
   input: z.infer<typeof saveDecision>,
 ) {
   const decision = await getBrief(db, owner, input.id);
+  if (
+    input.recommendationToken !== undefined &&
+    (input.recommendationToken !== decision.recommendationReview?.token ||
+      input.selected.length !== 1 ||
+      input.selected[0] !== decision.recommendation?.choice)
+  )
+    throw new PluginRouteError(
+      "STALE_RECOMMENDATION",
+      "This suggestion changed. Reload the question or choose your own answer.",
+      409,
+    );
   if (decision.subject) {
     const current = await publicShareArtwork(decision.subject.assetId);
     if (current.status === 503)

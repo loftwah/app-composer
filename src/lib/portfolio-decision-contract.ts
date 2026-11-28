@@ -70,6 +70,7 @@ export const saveDecision = z
     selected: z.array(id).max(5),
     note: z.string().trim().max(4000),
     reaction: z.enum(["useful", "needs-work"]).nullable().optional(),
+    recommendationToken: z.string().max(120).optional(),
     media: z.array(decisionMediaUrl).max(4).optional(),
     image: image.nullable().optional(),
   })
@@ -155,6 +156,11 @@ export type Decision = {
   maxSelections: number;
   sources: z.infer<typeof source>[];
   options: (z.infer<typeof option> & { weight?: number })[];
+  recommendationReview?: {
+    status: "supported" | "owner-judgement" | "weak-evidence" | "stale";
+    evaluatedAt: string;
+    token?: string;
+  };
   recommendation?: {
     choice: string;
     confidence: number;

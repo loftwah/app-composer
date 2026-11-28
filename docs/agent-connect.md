@@ -228,6 +228,23 @@ To refresh the public batch deliberately, run
 Workers AI account. Keep prior evidence in source history and inspect the build
 before release. See [Cloudflare’s Clef documentation](https://developers.cloudflare.com/workers-ai/models/clef-flash/).
 
+Use `node --env-file=.env scripts/evaluate-decision-research.mjs --recommend`
+to run a bounded public preflight for the active authored Decisions queue.
+An optional file argument supplies observed public tasks for the selected
+projects. The existing full research command refreshes the broader index
+and is independent of this preflight. The review keeps the run date and a
+hash of the exact question, choices and links. The suggested answer expires
+after 14 days or a change to the brief. Refresh when the linked release or
+evidence changes. Weak leads and working preferences are surfaced as
+questions requiring judgement. Private replies and attachments are excluded.
+
+In Decisions, **Use suggestion & next** records the shown choice as an
+ordinary revision before advancing. **Choose my answer** moves to the
+options. An existing response can be edited through the regular form and
+its earlier revisions stay accessible. Read the [first quick portfolio
+comparison](design-evidence/20261128/quick/README.md) for the screens and
+checks that informed the new design questions.
+
 ## Refusals
 
 | Case                                             | Result                                                       |
