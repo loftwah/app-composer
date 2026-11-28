@@ -47,6 +47,7 @@ function prompt(
   choices: string[],
   limit: number,
   url: string,
+  sourceLabel?: string,
 ): Decision {
   return {
     id: `interview-${interview}-${suffix}`,
@@ -57,7 +58,9 @@ function prompt(
     maxSelections: limit,
     sources: [
       {
-        label: interview === preferencesId ? "Current Decisions flow" : name,
+        label:
+          sourceLabel ??
+          (interview === preferencesId ? "Current Decisions flow" : name),
         url,
       },
     ],
@@ -73,7 +76,8 @@ function prompt(
 }
 
 const composer = "https://composer.loftwah.com/";
-const preferences: [string, string, string, string[], number][] = [
+const fieldReport = `${composer}articles/asking-the-ai-twice`;
+const preferences: [string, string, string, string[], number, string?][] = [
   [
     "visual-lead",
     "What earns a big image on a page?",
@@ -230,9 +234,51 @@ const preferences: [string, string, string, string[], number][] = [
     ],
     3,
   ],
+  [
+    "regression-replay",
+    "Which repeat failure should we turn into a regression exercise first?",
+    "Pick a case where you had to ask twice. Add the project, what the agent missed and what a useful first attempt would have looked like.",
+    [
+      "A campaign led with artwork for the wrong job",
+      "A phone interaction looked fine until I used it",
+      "A save or export looked successful but lost something",
+      "A release was reported without a real production check",
+      "An earlier correction was forgotten in the next project",
+    ],
+    2,
+    fieldReport,
+  ],
+  [
+    "creative-retry",
+    "When a creative attempt misses, what should we change first?",
+    "Think of a recent draft that felt wrong. Name the actual item, placement or audience so we can choose the right kind of second attempt.",
+    [
+      "Change the subject or the work we chose to show",
+      "Rework what the page or campaign promises",
+      "Find a stronger reference and explain what to borrow",
+      "Keep the idea and improve composition or execution",
+      "Bring several substantially different ideas to compare",
+    ],
+    2,
+    fieldReport,
+  ],
+  [
+    "second-prompt",
+    "Which follow-up from you should count as an avoidable interruption?",
+    "Add an example of a question you regularly have to repeat when the agent could have answered it from the work, tools or existing decision records.",
+    [
+      "Asking what actually works in production",
+      "Pointing out a defect in the normal user journey",
+      "Restating a standing constraint or previously rejected approach",
+      "Asking for the rest of a deliverable the brief already implied",
+      "Asking the agent to use tools or evidence already in reach",
+    ],
+    3,
+    fieldReport,
+  ],
 ];
 export const preferenceQuestions = preferences.map(
-  ([id, question, context, choices, limit]) =>
+  ([id, question, context, choices, limit, source]) =>
     prompt(
       preferencesId,
       "Your preferences",
@@ -241,7 +287,8 @@ export const preferenceQuestions = preferences.map(
       context,
       choices,
       limit,
-      composer,
+      source ?? composer,
+      source ? "I kept asking the AI twice" : undefined,
     ),
 );
 
