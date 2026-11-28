@@ -26,6 +26,12 @@ const facets = [
   { key: 'tag', label: tag && artworkLabel(tag) },
 ].filter(facet => facet.label);
 const facetCount = [category, orientation !== 'any', tag].filter(Boolean).length;
+const showStarts = !liked && !after && !legacy && !facets.length && sort === 'featured';
+const starts = [
+  { title: 'Make a poster', description: 'Copy a brief and see the finished print.', href: '/prints-desktop/make#brief' },
+  { title: 'Build a palette', description: 'Sample the artwork and export the colours as CSS.', href: '/share/artwork/atlas-04-composer-family/palette' },
+  { title: 'Make a social kit', description: 'Export four sizes from one image in Media Studio.', href: 'https://media.loftwah.com/tools/images' },
+];
 const options = {
   projects: [...new Set([...(catalogue?.projects ?? []), ...(project ? [project] : [])])],
   tags: [...new Set([...(catalogue?.tags ?? []), ...(tag ? [tag] : [])])],
@@ -91,6 +97,17 @@ const options = {
     {filters.seed && <input type="hidden" name="seed" value={filters.seed} />}
   </form>}
 
+  {showStarts && (
+    <nav class="gallery-starts" aria-label="Make something with Share">
+      {starts.map(({ title, description, href }) => (
+        <a href={href}>
+          <span><strong>{title}</strong><span>{description}</span></span>
+          <ArrowUpRight size={23} aria-hidden="true" />
+        </a>
+      ))}
+    </nav>
+  )}
+
   <div class="gallery-readout">
     <div class="gallery-results">
       {catalogue && <p>{catalogue.total.toLocaleString('en-AU')} {catalogue.total === 1 ? 'piece' : 'pieces'}{facets.length > 0 && ' found'}</p>}
@@ -122,7 +139,7 @@ const options = {
   ) : catalogue.items.length ? (
     <div class="gallery-grid" data-artwork-grid>
       {catalogue.items.map((item, index) => (
-        <article class="gallery-tile" id={`artwork-${item.assetId}`} data-artwork-id={item.assetId} data-gallery-lead={!after && index === 0 ? "" : undefined}>
+        <article class="gallery-tile" id={`artwork-${item.assetId}`} data-artwork-id={item.assetId}>
           <a href={`/share/artwork/${item.assetId}${browse}`} data-artwork-open aria-label={`View ${item.title}`}>
             <div class="gallery-thumbnail" data-width={item.thumbnailSize?.width} data-height={item.thumbnailSize?.height}>
               <img src={item.thumbnailUrl} width={item.thumbnailSize?.width ?? undefined} height={item.thumbnailSize?.height ?? undefined}

@@ -301,9 +301,8 @@ function mountMasonry(grid: HTMLElement) {
       if (width <= 0) return;
       const heights = Array<number>(columns).fill(0);
       grid.dataset.masonry = "";
-      const lead = tiles[0]?.hasAttribute("data-gallery-lead");
-      for (const [index, tile] of tiles.entries()) {
-        tile.style.width = `${index === 0 && lead ? 2 * width + columnGap : width}px`;
+      for (const tile of tiles) {
+        tile.style.width = `${width}px`;
       }
       const tileHeights = tiles.map(
         (tile) => tile.getBoundingClientRect().height,
@@ -313,7 +312,6 @@ function mountMasonry(grid: HTMLElement) {
         tile.style.insetInlineStart = `${column * (width + columnGap)}px`;
         tile.style.top = `${heights[column]}px`;
         heights[column] += tileHeights[index] + rowGap;
-        if (index === 0 && lead) heights[1] = heights[0];
         if (!watched.has(tile)) {
           watched.add(tile);
           sizes.observe(tile);
