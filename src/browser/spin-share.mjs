@@ -1,5 +1,5 @@
 import { spinImageFormats } from '../lib/spin-site.mjs';
-import { renderSpinPng, renderSpinVideo, replayVideoType } from './spin-export.mjs';
+import { encodeSpinPng, renderSpinPoster, renderSpinVideo, replayVideoType } from './spin-export.mjs';
 
 export function mountSpinShare(dialog, result, previewMount, getVideoAudio, reducedMotion) {
   const content = dialog.querySelector('[data-share-content]');
@@ -27,6 +27,7 @@ export function mountSpinShare(dialog, result, previewMount, getVideoAudio, redu
   let current;
   let active;
   let imageUrl;
+  let previewCanvas;
   let copying = false;
   let alt = '';
   try {
@@ -39,6 +40,8 @@ export function mountSpinShare(dialog, result, previewMount, getVideoAudio, redu
   saveImage.parentElement.toggleAttribute('data-save-primary', !canCopyImage);
 
   function releasePreview() {
+    previewCanvas?.remove();
+    previewCanvas = undefined;
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     imageUrl = undefined;
     previewLink.removeAttribute('href');
@@ -69,17 +72,28 @@ export function mountSpinShare(dialog, result, previewMount, getVideoAudio, redu
     status.hidden = false;
     status.textContent = 'Preparing image…';
     imageFeedback.textContent = '';
-    let pending = images.get(id);
-    if (!pending) {
-      pending = renderSpinPng(session, link, id).then(blob =>
-        new File([blob], `spin-${session.id.slice(0, 8)}-${id}.png`, { type: 'image/png' }),
-      );
-      images.set(id, pending);
+    let entry = images.get(id);
+    if (!entry) {
+      entry = { poster: renderSpinPoster(session, link, id) };
+      images.set(id, entry);
     }
     const selection = { format, file: undefined, showOpen: !canCopyImage };
     active = selection;
     try {
-      const file = await pending;
+      const poster = await entry.poster;
+      if (selection !== active) return;
+      if (poster) {
+        poster.dataset.previewCanvas = '';
+        poster.setAttribute('role', 'img');
+        poster.setAttribute('aria-label', alt);
+        previewCanvas = poster;
+        previewMount.prepend(poster);
+        status.hidden = true;
+        entry.file ??= encodeSpinPng(poster).then(blob =>
+          new File([blob], `spin-${session.id.slice(0, 8)}-${id}.png`, { type: 'image/png' }),
+        ).finally(() => { entry.poster = undefined; });
+      }
+      const file = await entry.file;
       if (selection !== active) return;
       const src = URL.createObjectURL(file);
       imageUrl = src;
@@ -88,6 +102,8 @@ export function mountSpinShare(dialog, result, previewMount, getVideoAudio, redu
       await image.decode();
       if (selection !== active) return;
       selection.file = file;
+      previewCanvas?.remove();
+      previewCanvas = undefined;
       image.hidden = false;
       previewLink.href = src;
       previewLink.hidden = false;
@@ -98,10 +114,11 @@ export function mountSpinShare(dialog, result, previewMount, getVideoAudio, redu
       openImage.hidden = !selection.showOpen;
       nativeImage.hidden = typeof navigator.share !== 'function' || !navigator.canShare?.({ files: [file] });
     } catch {
-      if (images.get(id) === pending) images.delete(id);
+      if (images.get(id) === entry) images.delete(id);
       if (selection !== active) return;
       releasePreview();
       copyImage.disabled = true;
+      status.hidden = false;
       status.textContent = 'The image didn’t load. Choose a size to retry.';
       imageFeedback.textContent = status.textContent;
     }
