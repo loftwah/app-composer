@@ -30,6 +30,7 @@ import { DecisionResponseContent } from "./decision-response-content";
 import "./decisions-admin.css";
 
 class StaleDecisionResponse extends Error {}
+class StaleDecisionRecommendation extends Error {}
 
 function readImage(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -75,6 +76,10 @@ async function call<T>(
       .clone()
       .json()
       .catch(() => null)) as { error?: { code?: string } } | null;
+    if (body?.error?.code === "STALE_RECOMMENDATION")
+      throw new StaleDecisionRecommendation(
+        "This suggestion changed. Reload the question or choose your own answer.",
+      );
     if (body?.error?.code === "STALE_RESPONSE")
       throw new StaleDecisionResponse("A newer response exists.");
   }
@@ -188,9 +193,12 @@ function DecisionForm({
   const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [staleSuggestion, setStaleSuggestion] = useState("");
   const [conflict, setConflict] = useState<DecisionResponse>();
   const moving = useRef(false);
-  const { maxSelections, options, recommendation } = decision;
+  const choiceGroup = useRef<HTMLFieldSetElement>(null);
+  const { maxSelections, options, recommendation, recommendationReview } =
+    decision;
   const single = maxSelections === 1;
   const special = specialDecisionChoices(decision);
   const mediaLinks = media.map((entry) => entry.trim()).filter(Boolean);
@@ -225,9 +233,9 @@ function DecisionForm({
         )),
   });
 
-  async function move(id: string) {
+  async function move(id: string, suggestedChoice?: string) {
     if (moving.current || pending) return;
-    if (isDirty && empty) {
+    if (!suggestedChoice && isDirty && empty) {
       setError("Choose an answer or leave feedback, or select Undo changes.");
       return;
     }
@@ -241,10 +249,13 @@ function DecisionForm({
     setError("");
     setPending(true);
     try {
-      if (isDirty) {
+      if (isDirty || suggestedChoice) {
         const saved = await call<{ response: DecisionResponse }>("record", {
           id: decision.id,
-          selected,
+          selected: suggestedChoice ? [suggestedChoice] : selected,
+          ...(suggestedChoice
+            ? { recommendationToken: recommendationReview?.token }
+            : {}),
           note,
           reaction,
           media: mediaLinks,
@@ -267,7 +278,9 @@ function DecisionForm({
       }
       onGo(id);
     } catch (failure) {
-      if (failure instanceof StaleDecisionResponse) {
+      if (failure instanceof StaleDecisionRecommendation) {
+        setStaleSuggestion(failure.message);
+      } else if (failure instanceof StaleDecisionResponse) {
         try {
           const latest = await call<DecisionDetail>("read", {
             id: decision.id,
@@ -282,7 +295,8 @@ function DecisionForm({
             )
               setMedia(saved.media);
             if (note.trim() === (response?.note ?? "")) setNote(saved.note);
-            if (
+            if (suggestedChoice) setSelected([suggestedChoice]);
+            else if (
               selected.length === (response?.selected.length ?? 0) &&
               selected.every((id) => response?.selected.includes(id))
             )
@@ -381,6 +395,117 @@ function DecisionForm({
       <h2 tabIndex={-1} data-decision-heading>
         {decision.question}
       </h2>
+      {recommendation && preferred && (
+        <section className="decision-suggestion" aria-label="Suggested answer">
+          <p className="decision-suggestion-title">
+            {recommendation.method === "clef"
+              ? "Clef suggests"
+              : "Suggested answer"}{" "}
+            · <strong>{preferred.title}</strong>
+          </p>
+          {preferred.pitch && <p>{preferred.pitch}</p>}
+          {recommendationReview && (
+            <p className="decision-suggestion-date">
+              Evidence reviewed{" "}
+              <time dateTime={recommendationReview.evaluatedAt}>
+                {new Date(recommendationReview.evaluatedAt).toLocaleDateString(
+                  "en-AU",
+                  { dateStyle: "medium" },
+                )}
+              </time>
+            </p>
+          )}
+          {staleSuggestion && <p role="alert">{staleSuggestion}</p>}
+          {recommendationReview?.token &&
+            !staleSuggestion &&
+            !response &&
+            !decision.archived &&
+            selected.length === 0 && (
+              <div className="decision-suggestion-actions">
+                <button
+                  type="button"
+                  className="decision-primary"
+                  disabled={pending}
+                  onClick={() => void move(advance, preferred.id)}
+                >
+                  {pending
+                    ? "Saving…"
+                    : next
+                      ? "Use suggestion & next"
+                      : "Use suggestion"}
+                </button>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() =>
+                    choiceGroup.current?.querySelector("input")?.focus()
+                  }
+                >
+                  Choose my answer
+                </button>
+              </div>
+            )}
+          {recommendation && preferred && (
+            <details className="decision-recommendation-evidence">
+              <summary>Reasoning, trade-offs and sources</summary>
+              <div className="decision-evidence-inner">
+                <p>{recommendation.basis}</p>
+                <p>
+                  {percent.format(recommendation.confidence)} reported
+                  confidence
+                </p>
+                <dl>
+                  {options.map((option) => (
+                    <div key={option.id}>
+                      <dt>
+                        {option.title}{" "}
+                        {option.weight !== undefined && (
+                          <small>
+                            · {percent.format(option.weight)} option weight
+                          </small>
+                        )}
+                      </dt>
+                      {option.outcome && (
+                        <dd>
+                          <strong>Expected outcome</strong> {option.outcome}
+                        </dd>
+                      )}
+                      {option.pro && (
+                        <dd>
+                          <strong>Pro</strong> {option.pro}
+                        </dd>
+                      )}
+                      {option.con && (
+                        <dd>
+                          <strong>Con</strong> {option.con}
+                        </dd>
+                      )}
+                    </div>
+                  ))}
+                </dl>
+                <ul>
+                  {decision.sources.map((source, index) => (
+                    <li key={`${source.url}-${index}`}>
+                      <a href={source.url} target="_blank" rel="noreferrer">
+                        {source.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          )}
+        </section>
+      )}
+      {!recommendation && recommendationReview && (
+        <p className="decision-suggestion decision-suggestion-open">
+          {recommendationReview.status === "stale"
+            ? "The earlier recommendation needs a fresh check."
+            : recommendationReview.status === "owner-judgement"
+              ? "This one needs your judgement."
+              : "Clef found too little evidence to recommend an answer."}
+        </p>
+      )}
       <p className="decision-context">{decision.context}</p>
       {detail.previousBrief && (
         <details className="decision-evidence">
@@ -422,7 +547,7 @@ function DecisionForm({
           void move(advance);
         }}
       >
-        <fieldset disabled={pending}>
+        <fieldset disabled={pending} ref={choiceGroup}>
           <legend>
             {single ? "Choose one" : `Choose up to ${maxSelections}`}
           </legend>
@@ -503,60 +628,6 @@ function DecisionForm({
               </button>
             )}
           </div>
-          {recommendation && (
-            <details className="decision-evidence">
-              <summary>
-                <span className="decision-recommendation-label">
-                  {recommendation.method === "clef"
-                    ? "Clef suggests"
-                    : "Suggested answer"}
-                  {preferred && <> · {preferred.title}</>}
-                </span>
-                <span className="decision-recommendation-detail">
-                  Reasoning, trade-offs and sources
-                </span>
-              </summary>
-              <div className="decision-evidence-inner">
-                <p>{recommendation.basis}</p>
-                <p>
-                  {percent.format(recommendation.confidence)} reported
-                  confidence
-                </p>
-                <dl>
-                  {options.map((option) => (
-                    <div key={option.id}>
-                      <dt>
-                        {option.title}{" "}
-                        {option.weight !== undefined && (
-                          <small>
-                            · {percent.format(option.weight)} option weight
-                          </small>
-                        )}
-                      </dt>
-                      <dd>
-                        <strong>Expected outcome</strong> {option.outcome}
-                      </dd>
-                      <dd>
-                        <strong>Pro</strong> {option.pro}
-                      </dd>
-                      <dd>
-                        <strong>Con</strong> {option.con}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-                <ul>
-                  {decision.sources.map((source, index) => (
-                    <li key={`${source.url}-${index}`}>
-                      <a href={source.url} target="_blank" rel="noreferrer">
-                        {source.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </details>
-          )}
           {!recommendation &&
             decision.interview !== "artwork" &&
             decision.sources.length > 0 && (

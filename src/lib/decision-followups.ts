@@ -10,6 +10,7 @@ type FollowUp = {
   context: string;
   choices: string[];
   source: [string, string];
+  visualComparison?: boolean;
 };
 
 const briefs: FollowUp[] = [
@@ -147,16 +148,79 @@ const briefs: FollowUp[] = [
       "https://composer.loftwah.com/articles/asking-the-ai-twice",
     ],
   },
+  {
+    id: "composer-opening-design",
+    previous: "composer-homepage-promise",
+    project: "App Composer",
+    category: "Creative review",
+    tags: ["homepage", "visual direction", "first action"],
+    question: "What should visually lead the Composer homepage?",
+    context:
+      "The current phone opening keeps the workshop artwork and a direct path to Get Ready. The earlier opening put three working examples immediately under its main action. Compare the actual screens before choosing what the next composition should emphasise.",
+    choices: [
+      "Keep the workshop artwork with the direct Build your first app action",
+      "Put one visible working app and its build path first",
+      "Put a small set of starting points first, as in the earlier opening",
+    ],
+    source: ["Try Build your first app", "https://composer.loftwah.com/"],
+    visualComparison: true,
+  },
+  {
+    id: "studio-opening-design",
+    previous: "studio-commission-purpose",
+    project: "Media Studio",
+    category: "Creative review",
+    tags: ["first action", "film", "visual direction"],
+    question:
+      "What should a first-time Media Studio visitor see beside the editing tools?",
+    context:
+      "The current opening makes Clip, Image and Audio tools easy to reach and names a finished film. The earlier opening led with a larger block of editing actions and put the artefact later. Decide how much of the real work earns space in the opening.",
+    choices: [
+      "Keep the direct editing actions and one finished film in view",
+      "Lead with the actual finished piece and show the matching edit action beside it",
+      "Give the editing tools the opening and put the finished work further down",
+    ],
+    source: [
+      "Compare the current Media Studio opening",
+      "https://media.loftwah.com/",
+    ],
+    visualComparison: true,
+  },
+  {
+    id: "share-opening-design",
+    previous: "share-wall-discovery",
+    project: "Share",
+    category: "Creative review",
+    tags: ["gallery", "visual direction", "search"],
+    question: "What should earn the first big spot in the Share artwork wall?",
+    context:
+      "The earlier phone opening gave the poster, palette and social-kit tools a strip above the artwork. The current view shows distinct real work near the opening and still links to the tools. Look at the rows and decide what would make you want to keep browsing.",
+    choices: [
+      "Let work from several projects lead and keep tools close to the relevant piece",
+      "Give one striking piece the lead, with the rest of the wall immediately below",
+      "Bring back a tools-first strip for the three common reuse jobs",
+    ],
+    source: [
+      "Browse the current artwork wall",
+      "https://composer.loftwah.com/share?view=artwork",
+    ],
+    visualComparison: true,
+  },
 ];
 
 export const replacedDecisions = new Set([
-  ...briefs.map((brief) => brief.previous),
+  ...briefs
+    .filter((brief) => !brief.visualComparison)
+    .map((brief) => brief.previous),
   "public-card-proof",
 ]);
 
 const individuallyChoose = new Set([
   "composer-homepage-promise",
   "studio-commission-purpose",
+  "composer-opening-design",
+  "studio-opening-design",
+  "share-opening-design",
 ]);
 export const feedbackFollowUps: Decision[] = briefs.map((brief) => ({
   id: brief.id,
@@ -167,7 +231,17 @@ export const feedbackFollowUps: Decision[] = briefs.map((brief) => ({
   question: brief.question,
   context: brief.context,
   maxSelections: individuallyChoose.has(brief.id) ? 1 : brief.choices.length,
-  sources: [{ label: brief.source[0], url: brief.source[1] }],
+  sources: [
+    { label: brief.source[0], url: brief.source[1] },
+    ...(brief.visualComparison
+      ? [
+          {
+            label: "Compare the captured phone layouts",
+            url: "https://github.com/loftwah/app-composer/blob/main/docs/design-evidence/20261128/quick/README.md",
+          },
+        ]
+      : []),
+  ],
   options: brief.choices.map((title, index) => ({
     id: ["first", "second", "third", "fourth", "fifth"][index],
     title,

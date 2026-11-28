@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
+import assessment from "../src/data/decision-recommendations.json" with { type: "json" };
 import { saveDecision } from "../src/lib/portfolio-decision-contract.ts";
 
 const hooks = registerHooks({
@@ -31,6 +32,8 @@ const hooks = registerHooks({
 });
 const { getDecision, recordDecision } =
   await import("../src/lib/portfolio-decisions.ts");
+const { decisionRecommendationLifetimeMs } =
+  await import("../src/lib/decision-recommendation.ts");
 hooks.deregister();
 
 const owner = "fictional-owner";
@@ -127,6 +130,53 @@ test("a follow-up keeps earlier answers and private media across revisions", asy
   assert.equal(detail.response.image, null);
   assert.deepEqual(detail.earlier[1], first);
   assert.equal((await read(followUp, "other-owner")).response, null);
+  const supported = Object.entries(assessment.decisions).find(
+    ([, entry]) => entry.choice,
+  );
+  assert.ok(supported);
+  const [id] = supported;
+  const clock = t.mock.method(Date, "now", () =>
+    Date.parse(assessment.evaluated),
+  );
+  const detailWithSuggestion = await read(id);
+  const { decision } = detailWithSuggestion;
+  assert.equal(decision.recommendationReview.status, "supported");
+  const input = {
+    id,
+    revision: 0,
+    selected: [decision.recommendation.choice],
+    note: "",
+    recommendationToken: decision.recommendationReview.token,
+  };
+  await assert.rejects(
+    recordDecision(
+      db,
+      owner,
+      saveDecision.parse({
+        ...input,
+        recommendationToken: "older-version",
+      }),
+    ),
+    { code: "STALE_RECOMMENDATION" },
+  );
+  const accepted = await recordDecision(db, owner, saveDecision.parse(input));
+  assert.deepEqual(accepted.selected, input.selected);
+  clock.mock.mockImplementation(
+    () =>
+      Date.parse(assessment.evaluated) + decisionRecommendationLifetimeMs + 1,
+  );
+  assert.equal((await read(id)).decision.recommendation, undefined);
+  await assert.rejects(
+    recordDecision(
+      db,
+      owner,
+      saveDecision.parse({
+        ...input,
+        revision: 1,
+      }),
+    ),
+    { code: "STALE_RECOMMENDATION" },
+  );
 });
 
 test("malformed media produce validation errors without throwing", () => {
