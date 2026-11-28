@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  decisionCategories,
+  type DecisionReaction,
+  type DecisionImage,
+} from "./portfolio-decision-contract.ts";
 
 const reference = z.string().regex(/^[a-z0-9][a-z0-9-]{0,127}$/);
 export const researchInput = z
@@ -9,9 +14,18 @@ export const researchInput = z
       .optional(),
     query: z.string().trim().max(100).optional(),
     project: reference.optional(),
+    feedbackProject: z.string().trim().max(80).optional(),
+    category: z.enum(decisionCategories).optional(),
     page: z.number().int().min(1).max(1000).optional(),
   })
   .strict();
+export const feedbackInput = researchInput.pick({
+  query: true,
+  page: true,
+  feedbackProject: true,
+  category: true,
+});
+
 export const artworkBriefInput = z
   .object({ assetId: reference, revision: z.string().regex(/^[a-f0-9]{64}$/) })
   .strict();
@@ -64,6 +78,12 @@ export type ResearchFeedback = {
   title: string;
   href: string;
   choices: string[];
+  project?: string;
+  category?: (typeof decisionCategories)[number];
+  tags?: string[];
+  media?: string[];
+  image?: DecisionImage;
+  reaction?: DecisionReaction | null;
   note: string;
   updatedAt: string;
 };
@@ -85,6 +105,7 @@ export type ResearchReply =
   | {
       view: "feedback";
       items: ResearchFeedback[];
+      projects: string[];
       total: number;
       page: number;
       hasMore: boolean;

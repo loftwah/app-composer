@@ -525,3 +525,89 @@ html[data-mode="dark"] .portfolio-decisions {
 .decision-feedback-note {
   white-space: pre-wrap;
 }
+
+.decision-special-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-block: 0.45rem;
+}
+
+.decision-recommendation-label {
+  font-size: 1rem;
+  font-weight: 730;
+}
+
+.decision-recommendation-detail {
+  display: block;
+  color: var(--review-muted);
+  margin-inline-start: 1.1rem;
+  font-weight: 500;
+}
+
+.portfolio-decisions .decision-reaction {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-block: 0 0.9rem;
+}
+
+.decision-reaction button[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px var(--review-accent);
+  border-color: var(--review-accent);
+}
+
+.decision-attachments {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  padding-block-start: 0.55rem;
+}
+
+.decision-attachments input[type="file"] {
+  max-width: 100%;
+}
+
+.decision-attachment-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.decision-attachment-row label {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.decision-attachment-row input {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--review-line);
+  border-radius: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+}
+
+.decision-attachments p {
+  margin: 0;
+  color: var(--review-muted);
+  font-size: 0.875rem;
+}
+
+.decision-media-links,
+.decision-history {
+  padding-inline-start: 1.15rem;
+}
+
+.decision-media-links a,
+.decision-attachments a {
+  color: var(--review-accent);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.decision-history > li {
+  margin-block: 0.65rem;
+}

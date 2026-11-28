@@ -1,5 +1,10 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import type { z } from "zod";
+import {
+  decisionCategories,
+  decisionReactionLabels,
+} from "../lib/portfolio-decision-contract";
+import { DecisionMedia } from "./decision-response-content";
 import type {
   researchInput,
   ResearchReply,
@@ -39,6 +44,9 @@ export function DecisionResearch({
   const [search, setSearch] = useState("");
   const [kind, setKind] = useState<keyof typeof kindChoices>("all");
   const [project, setProject] = useState("");
+  const [category, setCategory] = useState<
+    (typeof decisionCategories)[number] | ""
+  >("");
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<ResearchReply>();
   const [busy, setBusy] = useState(true);
@@ -52,7 +60,14 @@ export function DecisionResearch({
     setBusy(true);
     setError("");
     const filters =
-      view === "share" ? { kind, ...(project ? { project } : {}) } : {};
+      view === "share"
+        ? { kind, ...(project ? { project } : {}) }
+        : view === "feedback"
+          ? {
+              ...(project ? { feedbackProject: project } : {}),
+              ...(category ? { category } : {}),
+            }
+          : {};
     void load({ view, ...filters, query: search, page }, signal)
       .then((value) => {
         if (!signal.aborted) setResult(value);
@@ -64,7 +79,7 @@ export function DecisionResearch({
         if (!signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [view, load, search, kind, project, page, attempt]);
+  }, [view, load, search, kind, project, category, page, attempt]);
 
   function searchNow(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -158,6 +173,45 @@ export function DecisionResearch({
                         {id}
                       </option>
                     ))}
+                </select>
+              </label>
+            </>
+          )}
+          {view === "feedback" && (
+            <>
+              <label>
+                Project
+                <select
+                  value={project}
+                  onChange={(event) => {
+                    setProject(event.currentTarget.value);
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All projects</option>
+                  {result?.view === "feedback" &&
+                    result.projects.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <label>
+                Category
+                <select
+                  value={category}
+                  onChange={(event) => {
+                    setCategory(event.currentTarget.value as typeof category);
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All categories</option>
+                  {decisionCategories.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
                 </select>
               </label>
             </>
@@ -282,15 +336,27 @@ export function DecisionResearch({
           {result.items.map((item) => (
             <li key={`${item.source}-${item.id}`}>
               <p className="decision-research-meta">
-                {item.source === "share" ? "Share" : "Decision"}
+                {[
+                  item.project ?? "Decision",
+                  item.category,
+                  ...(item.tags ?? []),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
               <h3>
                 <a href={item.href}>{item.title}</a>
               </h3>
+              {item.reaction && <p>{decisionReactionLabels[item.reaction]}</p>}
               {item.choices.length > 0 && <p>{item.choices.join(" · ")}</p>}
               {item.note && (
                 <p className="decision-feedback-note">{item.note}</p>
               )}
+              <DecisionMedia
+                id={item.id}
+                links={item.media}
+                image={item.image}
+              />
             </li>
           ))}
           {!result.items.length && <li>No saved feedback matches.</li>}

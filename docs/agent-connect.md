@@ -148,8 +148,13 @@ that `hasScope(["mcp:tools:composer-stacks"], "admin")` is false.
 [Decisions](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review)
 is a private admin queue. It includes written alternatives, a recommendation,
 expected outcomes, pros and cons, sources, and rendered artwork where available.
-Save the allowed number of choices, context alone, or both. A save records a
-response and its revision without applying the decision. The review opens on
+Save choices, a reaction to the question, a note about what you think or feel,
+or media. A save keeps a private revision without applying the decision. Use
+**All of the above** where the question allows a combined answer and **None of
+the above** to record an explicit rejection. **Skip for now** leaves a question
+open. Attach a PNG, JPEG or WebP up to 512 KB, or add up to four HTTPS references
+for audio, video or larger files. Earlier versions of an answer and its image
+are available under **Earlier responses for this question**. The review opens on
 the first unanswered current question. Back and next save edits before
 moving, and the question list shows current progress and earlier responses.
 
@@ -165,7 +170,8 @@ satisfy the Access policy. In EmDash Plugins, an administrator enables the
 | --- | --- |
 | `composer-decisions__read` | Call with `{}` to list the queue or `{"id":"composer-art"}` to read the artwork brief, its preview links and your current response. Preview links open in the signed-in admin browser. |
 | `composer-decisions__record` | Save choices and context after explicit owner direction. Send `id`, the current `revision` (or 0), the full `selected` list and the full `note`. Read again after a stale-revision response. |
-| `composer-decisions__add` | Add a private brief with distinct options, sources, a choice limit and recommendation evidence. Supply a client UUID in `requestId` and reuse it on retries. |
+| `composer-decisions__feedback` | Search your private question responses and Share artwork reactions. Use `query`, `feedbackProject`, `category` and `page` to find the source material. |
+| `composer-decisions__add` | Add a private brief with distinct options, sources, a choice limit and recommendation evidence. Add `category`, `tags` and `followUpTo` when the brief responds to a previous question. Supply a client UUID in `requestId` and reuse it on retries. |
 
 The starter queue uses Clef-flash responses and keeps provider confidence separate
 from each option weight. The numbers are model judgements, with no audience
@@ -193,8 +199,13 @@ searches the current eligible public artwork catalogue, films, experiences and
 examples. **Review artwork** opens a private question bound to that asset
 revision. Use [Saved feedback](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review?view=feedback)
 to find the owner’s saved Decisions responses and existing Share reactions.
-Project and artwork interview questions also use the existing MCP read, record
-and add tools. The cross-source Saved feedback view is in EmDash.
+Filter by project or category and search the brief's tags, the reaction or the
+words you wrote. Project and artwork interviews use the same Decisions tools.
+When drafting follow-up work, read the relevant saved feedback first and link the
+new question to its predecessor. The follow-up displays the earlier context and
+the original question links to its follow-ups. Feedback stays in the owner's
+store and supplies context to authorised agents. It is separate from Clef
+evaluation and the public Share catalogue.
 
 The useful Clef questions have a specific job and an evidence source:
 
