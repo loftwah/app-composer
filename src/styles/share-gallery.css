@@ -310,8 +310,10 @@
 .gallery-starts svg { flex: none; }
 
 @media (max-width: 45rem) {
-  .gallery-starts { grid-template-columns: 1fr; }
-  .gallery-starts a + a { border-inline-start: 0; border-block-start: 1px solid currentColor; }
+  .gallery-starts a { flex-direction: column; gap: .45rem; padding: .65rem .55rem; }
+  .gallery-starts strong { font-size: clamp(.95rem, 4.2vw, 1.3rem); }
+  .gallery-starts a > span > span { display: none; }
+  .gallery-starts svg { width: 16px; height: 16px; }
 }
 
 .gallery-tile > a {
