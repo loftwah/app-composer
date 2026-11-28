@@ -194,11 +194,11 @@ const briefs: FollowUp[] = [
     tags: ["gallery", "visual direction", "search"],
     question: "What should earn the first big spot in the Share artwork wall?",
     context:
-      "The earlier phone opening gave the poster, palette and social-kit tools a strip above the artwork. The current view shows distinct real work near the opening and still links to the tools. Look at the rows and decide what would make you want to keep browsing.",
+      "Both phone captures put the poster, palette and social-kit tools above the artwork. Look at how much actual work fits on the first screen and decide what the next layout should emphasise.",
     choices: [
-      "Let work from several projects lead and keep tools close to the relevant piece",
+      "Keep a compact tool strip and bring more work into the first screen",
       "Give one striking piece the lead, with the rest of the wall immediately below",
-      "Bring back a tools-first strip for the three common reuse jobs",
+      "Open with the mixed artwork wall and move tools to a separate view",
     ],
     source: [
       "Browse the current artwork wall",
