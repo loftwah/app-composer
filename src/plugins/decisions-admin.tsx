@@ -152,12 +152,12 @@ function DecisionForm({
     disabled: !isDirty && !pending,
     enableBeforeUnload: isDirty || pending,
     shouldBlockFn: () =>
-      !moving.current &&
-      (pending ||
-        (isDirty &&
-          !window.confirm(
-            "Leave this question and discard your unsaved changes?",
-          ))),
+      moving.current ||
+      pending ||
+      (isDirty &&
+        !window.confirm(
+          "Leave this question and discard your unsaved changes?",
+        )),
   });
 
   async function move(id: string) {
