@@ -24,6 +24,7 @@ function mount(root) {
   let example = root.dataset.spinExample;
   const key = id => 'composer-spin-owner:' + id;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const phoneLayout = matchMedia('(max-width: 760px)');
   let session;
   let owner = '';
   let playing = false;
@@ -74,7 +75,7 @@ function mount(root) {
     wheelTap.inert = visible;
     panel.toggleAttribute('data-result-image', visible);
     if (session?.status === 'completed') {
-      get('share-label').textContent = visible ? 'Show wheel' : 'Show image';
+      get('share-label').textContent = visible ? 'Show wheel' : phoneLayout.matches ? 'Share result' : 'Show image';
     }
   }
 
@@ -228,7 +229,7 @@ function mount(root) {
         last ? next.config.entries[last.winner] : 'Ready to spin');
     if (completed) sharing.present({ session: next, link: shareUrl(next.id), question: next.config.question });
     else sharing.hideResult();
-    showImage(completed);
+    showImage(completed && !phoneLayout.matches);
     const result = get('result');
     result.toggleAttribute('data-long-result', result.textContent.length > 18);
     syncHub();
@@ -415,6 +416,10 @@ function mount(root) {
     });
   }
   get('share').addEventListener('click', openShare);
+  get('wheel-options').addEventListener('click', event => {
+    const expanded = get('play').toggleAttribute('data-options-open');
+    event.currentTarget.setAttribute('aria-expanded', String(expanded));
+  });
   shareResult.addEventListener('change', event => {
     if (!playing && event.target.name === 'spin-image-format') showImage(true);
   });
