@@ -172,6 +172,11 @@ test("a follow-up keeps earlier answers and private media across revisions", asy
     JSON.stringify(await queue()).includes("I like the colour"),
     false,
   );
+  await choose(2, "I like the colour.");
+  const partial = await read(target.decision.id);
+  assert.equal(partial.interpretation.kind, "unclear");
+  assert.deepEqual(partial.interpretation.accepted, ["I like the colour."]);
+  assert.equal(partial.review.nextActor, "agent");
   await assert.rejects(
     write({ revision: 0, selected: ["all-of-the-above", "first"] }),
     { code: "INVALID_CHOICES" },

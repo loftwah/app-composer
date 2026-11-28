@@ -23,6 +23,8 @@ const reject =
   /\b(?:reject|wrong (?:question|premise|options?)|(?:choices?|options?|examples?|premise|question|goal|voice) (?:are |is |don't |doesn't |didn't )?(?:wrong|(?:do|does) not fit|(?:miss|capture|address) (?:the point|the goal|what I))|(?:don't|do not) (?:agree|like|approve|want)|(?:doesn't|does not) (?:fit|work|make sense|capture|answer)|(?:not|isn't|aren't) (?:really |very |particularly )?(?:what I|right|good|exciting|clear|useful|interesting)|none of (?:these|the above)|needs? (?:a different|reframing|rewriting))\b/i;
 const accept =
   /\b(?:I (?:do )?(?:like|love|support|approve|agree)|works for me|(?:does|did) work|looks good|good as is|yes[,! ]|keep (?:the|this|that|those)|I(?:'m| am) happy with)\b/i;
+const support =
+  /^(?:yes[.!]?|(?:this|that) works for me[.!]?|(?:looks good|good as is|I like this)[.!]?)$/i;
 const uncertain =
   /\b(?:(?:I(?:'m| am) )?not sure|unsure|unclear|(?:I )?don'?t know|do not know|not convinced|I guess|probably|might|maybe|need (?:more|to see|to know)|what do you mean)\b/i;
 
@@ -54,7 +56,7 @@ export function interpretDecision(
         ? "rejected"
         : uncertain.test(normalized)
           ? "uncertain"
-          : accept.test(normalized)
+          : accept.test(normalized) || support.test(normalized)
             ? "accepted"
             : "unclassified",
     };
@@ -74,6 +76,16 @@ export function interpretDecision(
     flags.has(rejectDecisionChoice) || flags.has(noDecisionChoice);
   const hasRejection =
     explicitRejection || rejected.length > 0 || reaction === "needs-work";
+  const supportsSelection =
+    !note ||
+    support.test(note.trim()) ||
+    classified.some(
+      ({ text, kind }) =>
+        kind === "accepted" &&
+        choices.some((title) =>
+          text.toLowerCase().includes(title.toLowerCase()),
+        ),
+    );
   let kind: DecisionInterpretation["kind"] = "unclear";
   let reason =
     "Read the saved context and establish what the owner wants before acting.";
@@ -97,6 +109,7 @@ export function interpretDecision(
       explicitRejection || reaction === "needs-work" ? "explicit" : "inferred";
   } else if (
     choices.length &&
+    supportsSelection &&
     ambiguous.length === 0 &&
     !media.length &&
     !image
