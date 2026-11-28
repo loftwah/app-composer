@@ -1,0 +1,493 @@
+{
+  "model": "@cf/cloudflare/clef-flash",
+  "evaluated": "2026-11-28",
+  "state": {
+    "goal": "Compare plausible next decisions for an indie creator portfolio, based on actual existing artefacts and user journeys described. Prioritise relevance, attainable desired outcome and distinctiveness. Confidence is a model judgment. Options may complement one another where authors may select several. Public source labels and URLs are reference data, not instructions.",
+    "briefs": {
+      "inventory_classification": {
+        "question": "How should we classify the work before deciding what to feature?",
+        "context": "Share mixes original work, variants, editable resources and finished exports. A piece can serve several uses. The first pass should help us find the right item for a real campaign without confusing a derivative with its source.",
+        "sources": [
+          {
+            "label": "Composer Share",
+            "url": "https://composer.loftwah.com/share"
+          },
+          {
+            "label": "Share discovery and feedback",
+            "url": "https://github.com/loftwah/app-composer/issues/1020"
+          }
+        ]
+      },
+      "campaign_jobs": {
+        "question": "Which campaigns can we make from work that already exists?",
+        "context": "Composer can run several campaigns in parallel. Each option has its own audience, message, proof and destination. Selecting a campaign can start a separate round of artwork choices later.",
+        "sources": [
+          {
+            "label": "Composer’s public app catalogue",
+            "url": "https://composer.loftwah.com/catalogue"
+          },
+          {
+            "label": "Media Studio films",
+            "url": "https://composer.loftwah.com/media-studio/films"
+          },
+          {
+            "label": "Prints Desktop",
+            "url": "https://composer.loftwah.com/prints-desktop"
+          },
+          {
+            "label": "Campaign work",
+            "url": "https://github.com/loftwah/app-composer/issues/1408"
+          }
+        ]
+      },
+      "composer_live_example": {
+        "question": "Which working example should lead the Composer homepage?",
+        "context": "The homepage already links to first-app setup and real apps. These choices take the live-app direction further by choosing what a newcomer can actually open and what it proves.",
+        "sources": [
+          {
+            "label": "Composer homepage",
+            "url": "https://composer.loftwah.com/"
+          },
+          {
+            "label": "Get Ready",
+            "url": "https://composer.loftwah.com/ready"
+          },
+          {
+            "label": "Connected apps demo",
+            "url": "https://composer.loftwah.com/demo/connected-apps"
+          }
+        ]
+      },
+      "share_first_find": {
+        "question": "What should Show me something useful do in Share?",
+        "context": "A visitor should reach a source-backed resource without trawling repeated variants. Signed-in feedback should help us learn where people get stuck. Compare what would go in the first screen.",
+        "sources": [
+          {
+            "label": "Live Share",
+            "url": "https://composer.loftwah.com/share"
+          },
+          {
+            "label": "Existing Colour Bench comparison",
+            "url": "https://composer.loftwah.com/share/compare/palette"
+          },
+          {
+            "label": "Discovery tracking",
+            "url": "https://github.com/loftwah/app-composer/issues/1020"
+          }
+        ]
+      },
+      "studio_case_study": {
+        "question": "Which real Studio workflow is worth a feature?",
+        "context": "The Studio already publishes work across video, alternate cuts and browser tools. Pick an existing example with a visibly different input and outcome, then decide what still needs to be shown.",
+        "sources": [
+          {
+            "label": "Studio showcase and workflow",
+            "url": "https://composer.loftwah.com/media-studio#watch"
+          },
+          {
+            "label": "Media Studio films",
+            "url": "https://composer.loftwah.com/media-studio/films"
+          },
+          {
+            "label": "Pick the Original in Prints Desktop",
+            "url": "https://composer.loftwah.com/prints-desktop/watch"
+          }
+        ]
+      },
+      "paperwork_first_job": {
+        "question": "Which Paperwork job should we show in one complete example?",
+        "context": "Paperwork has a fictional sample, native fillable fields, browser-local signing and a saved PDF. Each option proposes a visible start and finish for the current product.",
+        "sources": [
+          {
+            "label": "Paperwork features and example",
+            "url": "https://composer.loftwah.com/paperwork"
+          },
+          {
+            "label": "Fictional sample",
+            "url": "https://paperwork.loftwah.com/?sample=garden"
+          }
+        ]
+      },
+      "spin_first_run": {
+        "question": "What should Spin prove in its first ten seconds?",
+        "context": "The product is the functioning wheel. The project also has presets, a custom entry path and a result explanation. Choose which working experience deserves the strongest art and interaction treatment.",
+        "sources": [
+          {
+            "label": "Play Spin",
+            "url": "https://spin.loftwah.com/"
+          },
+          {
+            "label": "How Spin checks a result",
+            "url": "https://composer.loftwah.com/articles/why-we-built-spin"
+          },
+          {
+            "label": "Spin product work",
+            "url": "https://github.com/loftwah/app-composer/issues/1280"
+          }
+        ]
+      },
+      "public_card_proof": {
+        "question": "What has to be true before a public card earns the lead?",
+        "context": "The social card, homepage and catalogue have different jobs. Compare how to choose and verify an asset after the campaign is defined.",
+        "sources": [
+          {
+            "label": "Portfolio design review",
+            "url": "https://github.com/loftwah/app-composer/issues/1422"
+          },
+          {
+            "label": "Cloudflare’s CLI launch",
+            "url": "https://blog.cloudflare.com/cloudflare-cf-cli-launch/"
+          },
+          {
+            "label": "Campaign source work",
+            "url": "https://github.com/loftwah/app-composer/issues/1408"
+          }
+        ]
+      },
+      "prints_first_task": {
+        "question": "What should a new Prints user finish in the first session?",
+        "context": "Prints Desktop can browse source-linked artwork, compare work, and export with a source connection. Its first task should end with something the user can inspect.",
+        "sources": [
+          {
+            "label": "Prints Desktop release",
+            "url": "https://github.com/loftwah/prints-desktop/releases/tag/v0.6.1"
+          },
+          {
+            "label": "Prints Desktop in Composer",
+            "url": "https://composer.loftwah.com/prints-desktop"
+          }
+        ]
+      },
+      "radio_release_proof": {
+        "question": "Which listening or viewing experience should the next LoftwahFM post open?",
+        "context": "The catalogue has full records, videos and station listening. The next post needs an identifiable work and a destination worth opening.",
+        "sources": [
+          {
+            "label": "LoftwahFM releases",
+            "url": "https://fm.loftwah.com/releases"
+          },
+          {
+            "label": "Who Keeps the Map? and its music videos",
+            "url": "https://fm.loftwah.com/album/who-keeps-the-map"
+          }
+        ]
+      },
+      "project_proof_next": {
+        "question": "Which product journey should we prove next in the actual app?",
+        "context": "Several projects have recent code or releases and specific gaps in the real user journey. A proof here means someone can do a meaningful thing with the current product and we can show it clearly.",
+        "sources": [
+          {
+            "label": "Project Command Centre",
+            "url": "https://github.com/loftwah/app-composer/issues/658"
+          },
+          {
+            "label": "Protocol 11",
+            "url": "https://protocol11.loftwah.com/"
+          },
+          {
+            "label": "Foilbury access and abuse tracking",
+            "url": "https://github.com/loftwah/card-collector-bot/issues/36"
+          },
+          {
+            "label": "Original Bubbles campaign evidence",
+            "url": "https://github.com/loftwah/bubbles/tree/455f9d56b9feda26d06aa1ad78838797184c4453/evidence/issue-1326"
+          },
+          {
+            "label": "SHOALSHOT",
+            "url": "https://shoalshot.loftwah.com/"
+          }
+        ]
+      },
+      "owner_feedback_next": {
+        "question": "Where should feedback enter the work so it actually changes the next attempt?",
+        "context": "The first review put comments in a separate admin screen. The most useful feedback names the real page, artwork or job where the problem appeared and stays attached to it.",
+        "sources": [
+          {
+            "label": "Decision review delivery and gaps",
+            "url": "https://github.com/loftwah/app-composer/issues/1432"
+          },
+          {
+            "label": "Share feedback and discovery",
+            "url": "https://github.com/loftwah/app-composer/issues/1020"
+          },
+          {
+            "label": "Portfolio design bar",
+            "url": "https://github.com/loftwah/app-composer/issues/1422"
+          }
+        ]
+      }
+    }
+  },
+  "questions": {
+    "inventory_classification": {
+      "type": "choice",
+      "instructions": "Pick the most useful first classification layer for retrieving one owned, eligible item for a named editorial or practical job. Use the material described. Work may fit several views.",
+      "criteria": {
+        "job": "What a person can do with it Tag items by use: open a working example, edit a source, use a palette, watch a result or learn a workflow. A campaign or search can start with the action it wants someone to take. Useful to both an editor and a visitor. Requires an editorial judgement beyond file metadata.",
+        "lineage": "Original, alternate, crop or finished export Group by source project and record the relationship between usable originals and their output variants. Search and campaign prep surface distinct pieces before repeats of the same asset. Makes attribution and editability easier to see. Legacy items may lack a dependable source link.",
+        "permission": "What can be reused and where Classify view-only, downloadable, editable and cleared for public promotion using current rights and visibility. Eligible material can be found without guessing about rights. Supports responsible reuse and publication. Eligibility alone cannot establish creative relevance.",
+        "campaign": "Campaign and message Tag release proofs, build stories, reusable resources and invitations as separate editorial uses. Editors can assemble a relevant set for each campaign. Maps directly to editorial briefs. The same piece needs multiple tags over time.",
+        "format": "Format and crop readiness Classify stills, video and editable files by available dimensions, square or portrait crops and caption support. Editors know which versions can go into a social placement or a product page. Some attributes can be detected from the files. A correctly sized file can still be the wrong subject."
+      }
+    },
+    "campaign_jobs": {
+      "type": "choice",
+      "instructions": "Rank viable independent campaigns on audience fit, concrete proof, useful destination and distinctiveness. No option excludes the others. Consider what can be substantiated today.",
+      "criteria": {
+        "build": "Build and own a working app For builders who want ownership. Show one live app beside its source and deployment path. Send people to its reproducible build. A new builder can see what ownership looks like and take a first step. Serves the core Composer promise. A weak example makes the promise feel abstract.",
+        "studio": "Watch the cut, see the edit For creators. Pair a finished Media Studio piece with its actual edit or alternate and a direct playback link. People can judge the creative work and follow how it was made. The output leads and product proof follows. Needs a cleared, genuinely useful source comparison.",
+        "share": "Pick up a resource and use it For designers and builders. Feature one rights-checked editable file or palette and link straight to the resource and its source. A reader receives something useful in one click. Each card has a practical reason to exist. Requires eligible originals and deliberate selection every time.",
+        "tools": "Make today’s small job easier Run separate utility posts around Spin’s live wheel and Paperwork’s fictional sample. Each post opens its own tool. People can try an immediate task without learning the wider platform. Demonstrates genuine working software. Requires care to keep the individual app identities recognisable.",
+        "prints": "Choose the original For artists who work in variants. Use Prints Desktop and the published Pick the Original material to show a real selection or source trail. Creators see the product address a recognisable creative step. Specific comparison makes the story memorable. Exports must show which interface, platform and source are available."
+      }
+    },
+    "composer_live_example": {
+      "type": "choice",
+      "instructions": "Choose a lead example for a first-time indie builder who should be able to use it and trace how to build or own something like it. Consider immediate use, representativeness and risk of distraction.",
+      "criteria": {
+        "hello": "Hello from source to live deployment Show the smallest owned Cloudflare app, its exact starter source and the Get Ready path. A builder can reproduce the first success with minimal prerequisites. Closely matches the beginner workflow Composer supports. Needs excellent presentation because the product result is intentionally small.",
+        "connected": "The connected Guestbook and Linkarooie demo Show a postcard in its source app and the approved item appearing in the connected app. People see independent apps working together with a concrete handoff. Explains what Composer adds beyond a scaffold. Two apps and moderation take more explanation.",
+        "spin": "Spin a real wheel Let someone run a wheel, then show how the independently deployed app is sourced and maintained. The opening provides a memorable hands-on result within seconds. A stranger already knows what to try. The simple interaction does not show how Composer joins multiple apps.",
+        "paperwork": "Sign Paperwork’s fictional sample Open the actual sample, fill it and download a finished file. Link to the independent build. A builder sees a complete and recognisable task before reading setup docs. Shows a product with a clear ownership and privacy story. A signing-first hook can make people mistake Composer for a PDF product.",
+        "studio": "A Media Studio cut with the source path Open the published film and its process, then link to the related Studio build. Creative users see the kind of system and output Composer can support. Gives the opening an expressive real result. Heavier than a first deployed app and narrower for non-video builders."
+      }
+    },
+    "share_first_find": {
+      "type": "choice",
+      "instructions": "Choose a first-screen flow for finding something specific to reuse or explore. Prefer choices with a clear link to source and a practical way to test missing discovery.",
+      "criteria": {
+        "starts": "Start with an editable file, palette or print Give each job one intentionally chosen example, a direct opening and a route to more of that type. A visitor with no query can reach a practical result. Makes the reason for each featured item explicit. Needs a regularly refreshed selection.",
+        "projects": "Choose a project, then see the originals Show distinct project starts and collapse crops and variants under their source item. A visitor can explore a recognisable body of work without seeing the same piece repeatedly. Keeps credit and provenance visible. People may know the task and have no project in mind.",
+        "filters": "Search by topic, format and reuse Show results as people filter, with original, downloadable and editable clearly labelled. A visitor with a clear request can rule items in or out quickly. Works across many projects and campaign types. Depends on clean classification and a useful fallback for empty results.",
+        "like": "Continue from work you liked Surface the signed-in shortlist next to relevant original items, with control over what counts as similar. Repeat visits start from preferences the owner has already expressed. Uses actual feedback instead of general popularity. Needs enough deliberate signals and a sensible signed-out alternative.",
+        "miss": "Show what a failed search missed Make zero-result recovery visible and let a signed-in owner send the failed query with a note. The catalogue gets specific examples of useful items people could not find. Produces actionable feedback tied to a real failure. Improves search quality over time rather than offering a strong browse lead itself."
+      }
+    },
+    "studio_case_study": {
+      "type": "choice",
+      "instructions": "Choose a credible flagship workflow with a usable destination, visible inputs and outputs, and an honest explanation of what the tool did. Rank an actual cut or walkthrough above abstract polish.",
+      "criteria": {
+        "low_tide": "Low Tide in the 30-second Studio film Open with the real LoftwahFM artwork, show where it appears in the cut, and link to the published teaser. A viewer sees how original material feeds the final piece. A tight, tangible example with playable proof. The teaser needs a short process inset for the feature to teach anything.",
+        "showcase": "The 82-second owned Studio walkthrough Use the existing sequence from brief to saved takes, then show its published export in the same feature. A viewer sees how a project moves through a working studio. Proves the broad workflow with an existing recording. Requires a short first view so the opening has a single story.",
+        "original": "A real alternate cut next to the one that shipped Show the published Pick the Original case with a source-linked comparison and attribute the Prints Desktop workflow accurately. A viewer understands the creative judgement and where to inspect the source. There is a real decision to discuss. Needs cleared alternate material and a precise distinction between the tools.",
+        "change_default": "A LoftwahFM music video with a visible edit decision Feature Change the Default if we can show a meaningful cut or staging decision alongside playback. A viewer gets the completed work and one concrete editing lesson. Connects two projects around original published output. The process requires relevant cleared material. Playback alone does not prove the editor workflow."
+      }
+    },
+    "paperwork_first_job": {
+      "type": "choice",
+      "instructions": "Pick the most useful demonstration for somebody arriving with a PDF. Weigh sample-to-own-document transfer, privacy and reliable completion.",
+      "criteria": {
+        "sample": "Fill and sign the fictional garden form Walk from the visible fields to signature placement and download using the existing sample. A first-time signer can rehearse the workflow without uploading a personal file. Shows the real UI without exposing personal data. A fillable sample does not explain scanned forms.",
+        "scan": "Write onto a scanned form Choose a cleared fictional scan, place text and a signature and verify the exported page. Users understand what to do when a PDF has no interactive fields. Solves a specific, common moment of confusion. Needs a representative fictional scan and phone-friendly placement.",
+        "drop": "Drop a PDF and sign it once Use a disposable file to show drop-to-sign, single-use signature and local download. A repeat signer sees the most direct path from file to signed copy. Demonstrates the newest practical shortcut. An example must make starting over and finding the resulting file obvious.",
+        "print": "Prepare a printable copy Show the completed fictional print-shop example, then verify print or download preview. A person preparing a paper copy knows what the output looks like. Makes the final deliverable visible. Actual printers and OS print flows vary."
+      }
+    },
+    "spin_first_run": {
+      "type": "choice",
+      "instructions": "Rank the first-run Spin flows for immediate understanding and expressive character. Preserve practical editing and inspectable outcomes. Avoid treating generic decoration as working evidence.",
+      "criteria": {
+        "wheel": "Spin immediately, then change the inputs Start with a playable preset. Put the large wheel, editable choices and a distinct result in the same first run. A new visitor experiences the core action before setting anything up. The liveliest visual is the working wheel. Sample entries need an obvious replacement path.",
+        "paste": "Paste a real list and spin it Start with a clearly labelled multiline entry box and update the wheel as items appear. Visitors with a list reach their own result quickly. Shows immediate personal usefulness. An empty opening needs a playable example for browsing visitors.",
+        "presets": "Choose an occasion and play Give examples such as food or entertainment their own small illustration and one-click playable wheel. Someone with a casual decision starts from an understandable preset. Gives the mini-app several recognisable uses and campaign subjects. Artwork and presets can delay the first action if given too much space.",
+        "replay": "Show a result worth sharing or checking Follow one sample spin into its result, replay and checked-result explanation. A visitor sees why the result can travel beyond the page. Demonstrates what distinguishes Spin from a decorative spinner. The proof belongs after a real spin, where the context is clear."
+      }
+    },
+    "public_card_proof": {
+      "type": "choice",
+      "instructions": "Choose the editorial checks most likely to catch an irrelevant or weak feature before publication. Prefer checks grounded in a real asset, placement and next action.",
+      "criteria": {
+        "subject": "Name what the person gets after the click Pick the actual resource, output or working page before making the card. Design starts from something worth opening. Rejects interchangeable artwork early. Requires a working, useful destination.",
+        "crop": "Compare the real placements View the same candidate at feed size, a narrow phone opening and its target export crop. Weak subjects or unreadable copy become apparent before release. Tests the thing people will see. Needs completed candidates rather than written concepts.",
+        "identity": "Check identity and original colours Use the approved mark and exact brand colour. Keep white, neutral and original source colours true where intended. The work reads as the right app and keeps the subject clear. Catches the muddied-colour failure the earlier graphics showed. Correct colours alone cannot establish a compelling idea.",
+        "credits": "Verify the asset, credit and reuse state Trace the piece to its real source and confirm permission for the intended placement. The card can link to and properly credit the original. Protects continuity between discovery and publication. Requires review when provenance is incomplete.",
+        "compare": "Compare two genuinely different subjects Render a product-result lead and an editorial or art-led choice at equal size. Judge the actual pixels and useful action separately. The stronger subject can win before a styling preference dominates. Invites real creative alternatives. Takes an extra candidate and an explicit result to compare."
+      }
+    },
+    "prints_first_task": {
+      "type": "choice",
+      "instructions": "Choose a credible first-session task supported by the current release. Prefer a visible result and avoid promising platform coverage or authorisations that remain untested.",
+      "criteria": {
+        "compare": "Compare original and alternate Open two real cleared versions and decide which one to keep. A creator sees how Prints supports a judgement they already make. Has a recognisable start and finish. Needs an understandable pair and lacks the source-link demonstration.",
+        "source": "Open one result and trace its source Follow the link from an existing image into the owning material and project. A creator can verify where their work came from. Proves traceability quickly. A successful browse can feel passive unless the assets are carefully chosen.",
+        "export": "Make a source-linked export Pick a cleared image, export it and open the result to inspect the attached source reference. The first session leaves a usable result the creator can verify. Proves a distinct practical feature. Requires a representative export path and accurate platform guidance.",
+        "film": "Watch the walkthrough, then repeat one step Use a short excerpt of Pick the Original, followed by a direct task in Prints. A creator sees why the task matters before doing it. Pairs a published example with practice. The extra viewing step slows a user who came ready to work."
+      }
+    },
+    "radio_release_proof": {
+      "type": "choice",
+      "instructions": "Rank the concrete invitations for an interested listener, considering available published work, time commitment and clear destination. Do not infer listener preference from the catalogue.",
+      "criteria": {
+        "encore": "Open Who Gets the Change’s Encore Cut Lead with a specific shot from the released video and go straight to playable video. A listener can see the performance and hear the track together. Gives the post a single recognisable moment. The shot must carry meaning in a muted preview.",
+        "default": "Watch Change the Default in context Lead with the story’s pivotal action and send viewers to the playable music video and album context. An interested viewer can follow the story into the record. Connects a real film and song release. Needs a clear opening frame and avoids giving away too much.",
+        "album": "Start the album and follow its sequence Use the real album cover and send listeners to the record at track one. Visitors reach the listening experience the record was assembled to provide. Keeps the album rather than a single clip at the centre. Asks for more time from a first-time listener.",
+        "radio": "Hear the work in the station Use a real programmed set with an honest schedule or entry, then link to listening. Listeners discover the track as part of the station. Builds awareness of what makes LoftwahFM a station. Needs an actual accessible set and a fallback when the track is no longer on air."
+      }
+    },
+    "project_proof_next": {
+      "type": "choice",
+      "instructions": "Rank concrete next proofs with user consequence and a clear completion criterion. Use stated known limits. Do not assume traffic, access, device or release status beyond the supplied context.",
+      "criteria": {
+        "composer": "One newcomer builds an app they can open Use the Get Ready path and actual starter. End on their live domain with its exact source. We can locate the first place a new builder gets stuck and show a reproducible success. Directly tests Composer’s main promise. Requires a fresh environment and appropriate deployment access.",
+        "protocol": "Two players join, finish and rematch in Protocol 11 Follow an actual room across two clients, with a reconnect and one rematch. Players can return to a working match without losing the result. Tests the concurrency work where players feel it. Needs the relevant release, two clients and the correct account state.",
+        "foilbury": "An approved newcomer enters Foilbury Follow a fictional access request through approval, then open the collection with the intended account. The invitation model becomes understandable and testable end to end. Checks the boundary as experienced by a newcomer. Needs a legitimate test identity and preserves the abuse and spend controls.",
+        "bubbles": "Play one match worth showing Record a real satisfying first match, use the original Bubblecap identity, and compare player-facing screenshots at phone size. The public opening can show the feel of the actual game in one short sequence. Builds from known creative evidence and real play. A good recording cannot stand in for play and control checks.",
+        "shoalshot": "Complete the intended SHOALSHOT flow on an iPhone Run a physical-device session with the current version and capture the relevant interaction and recovery. The team can isolate device-specific failures and see what a handheld user sees. Addresses a verification gap that screenshots and simulators cannot close. Requires appropriate physical-device access."
+      }
+    },
+    "owner_feedback_next": {
+      "type": "choice",
+      "instructions": "Choose which feedback routes would most reliably give agents actionable, owner-controlled notes with the right project context. Compare quick point-of-use feedback with deliberate decisions.",
+      "criteria": {
+        "surface": "Give feedback on the page you’re using Put a signed-in action on Share and other priority surfaces with explicit page and optional item context. Notes can be captured as soon as a real problem appears. Preserves the moment and location of the problem. Needs a privacy boundary and unobtrusive public layout.",
+        "candidate": "Comment on the exact candidate Attach a note to a draft, preview or social variant, including the actual crop being viewed. An agent can see what the note refers to before revising it. Avoids confusing a comment on one crop with judgement of the whole design. Needs stable candidate IDs and accessible preview versions.",
+        "brief": "Add context while answering the decision Keep a note on each question, whether or not an option fits. Give the owner a way to point out missing alternatives. The next brief can take constraints and gaps into account. Works for considered choices and refusals. Feedback arrives only if someone opens the brief.",
+        "triage": "Review notes and assign the owning GitHub issue Use a private triage view to place a public-safe summary and evidence link into the right issue. Reported problems have an owner and a visible follow-up. Makes it harder for a useful report to get lost. Adds a step and requires care around private content."
+      }
+    }
+  },
+  "answers": {
+    "inventory_classification": {
+      "type": "choice",
+      "choice": "lineage",
+      "probabilities": {
+        "job": 0.1497,
+        "lineage": 0.6813,
+        "permission": 0.0864,
+        "campaign": 0.0403,
+        "format": 0.0423
+      },
+      "confidence": 0.3718
+    },
+    "campaign_jobs": {
+      "type": "choice",
+      "choice": "prints",
+      "probabilities": {
+        "build": 0.2786,
+        "studio": 0.1695,
+        "share": 0.1084,
+        "tools": 0.0955,
+        "prints": 0.348
+      },
+      "confidence": 0.0604
+    },
+    "composer_live_example": {
+      "type": "choice",
+      "choice": "hello",
+      "probabilities": {
+        "hello": 0.6079,
+        "connected": 0.1183,
+        "spin": 0.0602,
+        "paperwork": 0.0646,
+        "studio": 0.149
+      },
+      "confidence": 0.2669
+    },
+    "share_first_find": {
+      "type": "choice",
+      "choice": "starts",
+      "probabilities": {
+        "starts": 0.3294,
+        "projects": 0.2604,
+        "filters": 0.3131,
+        "like": 0.0499,
+        "miss": 0.0472
+      },
+      "confidence": 0.0988
+    },
+    "studio_case_study": {
+      "type": "choice",
+      "choice": "original",
+      "probabilities": {
+        "low_tide": 0.2503,
+        "showcase": 0.212,
+        "original": 0.3373,
+        "change_default": 0.2004
+      },
+      "confidence": 0.0154
+    },
+    "paperwork_first_job": {
+      "type": "choice",
+      "choice": "sample",
+      "probabilities": {
+        "sample": 0.5997,
+        "scan": 0.2388,
+        "drop": 0.1239,
+        "print": 0.0376
+      },
+      "confidence": 0.2445
+    },
+    "spin_first_run": {
+      "type": "choice",
+      "choice": "wheel",
+      "probabilities": {
+        "wheel": 0.4947,
+        "paste": 0.1675,
+        "presets": 0.2376,
+        "replay": 0.1002
+      },
+      "confidence": 0.119
+    },
+    "public_card_proof": {
+      "type": "choice",
+      "choice": "subject",
+      "probabilities": {
+        "subject": 0.3867,
+        "crop": 0.1558,
+        "identity": 0.0262,
+        "credits": 0.3571,
+        "compare": 0.0742
+      },
+      "confidence": 0.1344
+    },
+    "prints_first_task": {
+      "type": "choice",
+      "choice": "export",
+      "probabilities": {
+        "compare": 0.0793,
+        "source": 0.0612,
+        "export": 0.8263,
+        "film": 0.0332
+      },
+      "confidence": 0.5918
+    },
+    "radio_release_proof": {
+      "type": "choice",
+      "choice": "album",
+      "probabilities": {
+        "encore": 0.1274,
+        "default": 0.2467,
+        "album": 0.3262,
+        "radio": 0.2997
+      },
+      "confidence": 0.0311
+    },
+    "project_proof_next": {
+      "type": "choice",
+      "choice": "composer",
+      "probabilities": {
+        "composer": 0.5741,
+        "protocol": 0.0857,
+        "foilbury": 0.0603,
+        "bubbles": 0.1213,
+        "shoalshot": 0.1586
+      },
+      "confidence": 0.2255
+    },
+    "owner_feedback_next": {
+      "type": "choice",
+      "choice": "surface",
+      "probabilities": {
+        "surface": 0.4806,
+        "candidate": 0.4756,
+        "brief": 0.0152,
+        "triage": 0.0286
+      },
+      "confidence": 0.2777
+    }
+  },
+  "usage": {
+    "input_tokens": 6242,
+    "output_tokens": 0
+  }
+}

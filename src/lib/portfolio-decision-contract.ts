@@ -90,6 +90,7 @@ export const newDecision = z
 
 export type Decision = {
   id: string;
+  archived?: boolean;
   project: string;
   question: string;
   context: string;
@@ -111,7 +112,10 @@ export type DecisionResponse = {
   savedAt: string;
 };
 
-export type DecisionSummary = Pick<Decision, "id" | "project" | "question"> & {
+export type DecisionSummary = Pick<
+  Decision,
+  "id" | "project" | "question" | "archived"
+> & {
   status: "open" | "context" | "selected";
   hasArtwork: boolean;
 };
