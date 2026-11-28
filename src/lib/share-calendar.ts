@@ -5,6 +5,7 @@
 // module records a provider receipt only after an explicit send of an exact
 // approval; this contract stores no credential or token.
 import { z } from "zod";
+import { blueskyObservationSchema, type BlueskyObservation } from "./bluesky-observation-contract.ts";
 import { shareCalendarEntry } from "./share-calendar-entry.ts";
 import { isBlueskyDid, normalizeBlueskyHandle } from "./bluesky-account.ts";
 
@@ -556,6 +557,7 @@ export interface ShareCalendarSnapshot {
   items: ShareCalendarItem[];
   approvals: BlueskyApprovalRecord[];
   deliveries: BlueskyDeliveryRecord[];
+  blueskyObservations?: BlueskyObservation[] | null;
   bluesky: {
     configuredHandle: string | null;
     schedulerAvailable?: boolean;
@@ -853,6 +855,7 @@ export const shareCalendarSnapshot = z
     items: z.array(shareCalendarItemSchema).max(200),
     approvals: z.array(blueskyApprovalRecordSchema).max(200),
     deliveries: z.array(blueskyDeliveryRecordSchema).max(200),
+    blueskyObservations: z.array(blueskyObservationSchema).max(800).nullable().optional(),
     bluesky: z
       .object({
         configuredHandle: z.string().min(3).max(253).nullable(),
