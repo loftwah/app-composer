@@ -81,7 +81,7 @@ export function blueskyObservationSchedule(
     else if (row?.retryAt) status = "Retry scheduled";
     else if (row?.leaseUntil && Date.parse(row.leaseUntil) > now)
       status = "Collecting";
-    else if (row && (row.failedAt || row.attempts >= 3))
+    else if (row && (row.attempts >= 3 || (row.failedAt && !row.leaseUntil)))
       status = "Collection stopped";
     else if (dueAt && Date.parse(dueAt) > now) status = "Scheduled";
     return { hours, dueAt, row, status };

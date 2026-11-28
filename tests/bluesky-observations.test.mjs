@@ -146,6 +146,17 @@ test("observations replay durable exact receipts, claim once, and retain nulls a
       [observed],
       observed.observedAt,
     );
+    const expiredLease = {
+      ...observed,
+      observedAt: null,
+      leaseUntil: "2026-11-29T11:05:00.000Z",
+    };
+    const retriable = blueskyObservationSchedule(
+      publishedAt,
+      [expiredLease],
+      "2026-11-29T11:15:00.000Z",
+    );
+    assert.equal(retriable[0].status, "Awaiting collection");
     assert.deepEqual(
       timeline.map(({ hours, status }) => [hours, status]),
       [
