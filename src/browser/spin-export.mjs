@@ -1,11 +1,11 @@
 import { spinModeLabel } from '../lib/spin-protocol.mjs';
 import { spinBrandFiles, spinImageFormats } from '../lib/spin-site.mjs';
 import { qrMatrix } from '../lib/qr-code.ts';
-import { loadSpinPhotos, paintSpinPhoto, spinPhoto } from './spin-art.mjs';
+import { loadSpinChoiceIcons } from './spin-art.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
-import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, spinSectorColours, winnerAngle } from './spin-wheel.mjs';
+import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, winnerAngle } from './spin-wheel.mjs';
 
-const palette = { orange: '#ff691f', ink: '#1d1c25', paper: '#fbfafe' };
+const palette = { orange: '#ff691f', ink: '#1d1c25', paper: '#fff' };
 const sizes = Object.fromEntries(spinImageFormats.map(({ id, width, height }) => [id, [width, height]]));
 const layouts = {
   landscape: { x: 42, top: 76, textWidth: 482, art: [559, 0, 641, 630], footer: 475, title: 94 },
@@ -94,13 +94,10 @@ function composition(target, wheel, session, qr, style, frame, mark) {
   const [artX, artY, artWidth, artHeight] = art;
   const wide = style === 'landscape';
   const winner = session.config.entries[session.winner];
-  const photo = frame.title ? null : spinPhoto(winner);
   const wins = session.totals[session.winner];
   const spins = session.rounds.length;
   const summary = session.config.bestOf === 1 ? 'One spin' :
     `${spinModeLabel(session.config.bestOf)} · ${spins} ${spins === 1 ? 'spin' : 'spins'}` + (winner ? ` · ${wins} ${wins === 1 ? 'win' : 'wins'}` : '');
-
-  const colour = spinSectorColours[session.winner % spinSectorColours.length] ?? spinSectorColours[2];
 
   target.fillStyle = palette.paper;
   target.fillRect(0, 0, width, height);
@@ -121,35 +118,10 @@ function composition(target, wheel, session, qr, style, frame, mark) {
     baseline - headlineTop - 20, title, 750, palette.ink);
   line(target, frame.note ?? summary, x, baseline, textWidth, wide ? 25 : 30, 650, '#4e495d');
 
-  target.save();
-  target.beginPath();
-  if (target.roundRect) target.roundRect(artX, artY, artWidth, artHeight, wide ? 0 : 26);
-  else target.rect(artX, artY, artWidth, artHeight);
-  target.clip();
-  target.fillStyle = colour;
-  target.fillRect(artX, artY, artWidth, artHeight);
   const centerX = artX + artWidth * .5;
   const centerY = artY + artHeight * .51;
-  target.lineWidth = 2;
-  target.strokeStyle = 'rgba(29, 28, 37, .22)';
-  const radius = Math.min(artWidth, artHeight) * .42;
-  for (let index = 0; index < 5; index++) {
-    target.beginPath();
-    target.ellipse(centerX, centerY, radius + index * 39, radius * .76 + index * 38, -.51, 0, 2 * Math.PI);
-    target.stroke();
-  }
-  if (photo) {
-    const pad = artHeight * .07;
-    target.shadowColor = 'rgba(32, 23, 46, .25)';
-    target.shadowBlur = 24;
-    target.shadowOffsetY = 15;
-    paintSpinPhoto(target, photo, artX + pad, artY + pad * .7, artWidth - 2 * pad, artHeight - pad * 1.55);
-    target.shadowColor = 'transparent';
-  } else {
-    const dial = Math.min(artWidth * .93, artHeight * .98);
-    target.drawImage(wheel, centerX - dial / 2, centerY - dial / 2, dial, dial);
-  }
-  target.restore();
+  const dial = Math.min(artWidth * .97, artHeight * .98);
+  target.drawImage(wheel, centerX - dial / 2, centerY - dial / 2, dial, dial);
 
   const qrSize = Math.min(qr.width, wide ? 116 : 134);
   const textX = x + qrSize + (wide ? 15 : 23);
@@ -164,7 +136,6 @@ function composition(target, wheel, session, qr, style, frame, mark) {
   target.imageSmoothingEnabled = true;
   line(target, 'See the spin', textX, footer + 51, textWidth - qrSize - 23, wide ? 27 : 37, 700, palette.ink);
   line(target, 'spin.loftwah.com', textX, footer + 81, textWidth - qrSize - 23, wide ? 20 : 24, 550, '#514b60');
-  if (photo) target.drawImage(wheel, x + textWidth - qrSize, footer, qrSize, qrSize);
 }
 
 async function loadSpinMark() {
@@ -179,9 +150,9 @@ export async function renderSpinPoster(session, link, style) {
   const assets = Promise.allSettled([
     loadSpinMark().then(logo => { mark = logo; }),
     document.fonts.load('650 38px Space'),
-    loadSpinPhotos([session.config.entries[session.winner]]),
+    loadSpinChoiceIcons(session.config.entries),
   ]);
-  // A slow optional asset can fall back to the wheel, text or system font.
+  // The title and wheel labels work even when optional artwork is slow.
   let timeout;
   await Promise.race([assets, new Promise(resolve => { timeout = setTimeout(resolve, 350); })]);
   clearTimeout(timeout);
@@ -208,7 +179,7 @@ export async function renderSpinVideo(session, link, reduced, audio) {
   if (document.hidden) throw new Error('Keep this tab open while Spin makes the video.');
   const output = makeCanvas(...sizes.story);
   const wheel = makeCanvas(560, 560);
-  const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready, loadSpinPhotos(session.config.entries)]);
+  const [mark] = await Promise.all([loadSpinMark(), document.fonts.ready, loadSpinChoiceIcons(session.config.entries)]);
   const qr = replayQr(link);
   const rounds = session.rounds.slice(-3);
   const length = session.config.entries.length;

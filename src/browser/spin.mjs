@@ -1,6 +1,6 @@
 import { mountSpinEditor, nearbySearch } from './spin-editor.mjs';
 import { paintSpinWheel, spinAngleAt, spinDetent, spinDistance, spinDuration, turn, winnerAngle } from './spin-wheel.mjs';
-import { loadSpinPhotos, spinPhotoUrl } from './spin-art.mjs';
+import { loadSpinChoiceIcons, spinChoiceIconUrl } from './spin-art.mjs';
 import { mountSpinShare } from './spin-share.mjs';
 import { spinClick, spinChime } from './spin-audio.mjs';
 import { readSpinExample } from '../lib/spin-examples.mjs';
@@ -82,7 +82,7 @@ function mount(root) {
   function showChoices(labels) {
     const choices = labels.slice(0, 3).map(label => {
       const item = document.createElement('li');
-      const source = spinPhotoUrl(label);
+      const source = spinChoiceIconUrl(label);
       if (source) {
         const image = new Image(30, 28);
         image.src = source;
@@ -100,8 +100,8 @@ function mount(root) {
     get('choice-preview').replaceChildren(...choices);
   }
 
-  function warmWheelPhotos(labels) {
-    const loading = loadSpinPhotos(labels);
+  function warmWheelIcons(labels) {
+    const loading = loadSpinChoiceIcons(labels);
     if (!loading) return;
     void loading.then(() => {
       if (playing || wheelLabels !== labels) return;
@@ -119,7 +119,7 @@ function mount(root) {
       get('spin-heading').title = get('spin-heading').textContent;
       wheelLabels = labels;
       showChoices(labels);
-      warmWheelPhotos(labels);
+      warmWheelIcons(labels);
       paintSpinWheel(ctx, labels, angle);
       get('result-label').textContent = '';
       showResult(labels.length >= 2 ? '' : 'Add at least two choices.');
@@ -222,7 +222,7 @@ function mount(root) {
     else if (!keepAngle) angle = 0;
     wheelLabels = next.config.entries;
     showChoices(wheelLabels);
-    warmWheelPhotos(wheelLabels);
+    warmWheelIcons(wheelLabels);
     paintSpinWheel(ctx, wheelLabels, angle, { winner: completed ? next.winner : isOpen ? (last?.winner ?? -1) : -1, shade: completed });
     showResult(next.status === 'completed' ? (next.winner < 0 ? 'It’s a tie' : next.config.entries[next.winner]) :
       next.status === 'abandoned' ? 'This spin was stopped' :

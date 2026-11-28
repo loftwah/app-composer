@@ -1,0 +1,9 @@
+Spin choice icons
+
+Restaurant mark paths are from Simple Icons at 801eaab5b70f4933137069397ebbd2ce5f9ad56e. Spin adds the square backing and display colours. Restaurant marks identify the corresponding wheel choices and belong to their respective owners.
+
+McDonald's: https://github.com/simple-icons/simple-icons/blob/801eaab5b70f4933137069397ebbd2ce5f9ad56e/icons/mcdonalds.svg
+Hungry Jack's: https://github.com/simple-icons/simple-icons/blob/801eaab5b70f4933137069397ebbd2ce5f9ad56e/icons/hungryjacks.svg
+KFC: https://github.com/simple-icons/simple-icons/blob/801eaab5b70f4933137069397ebbd2ce5f9ad56e/icons/kfc.svg
+
+Other symbols use geometry from the locked @lucide/astro 1.72.0 package with Spin's foreground colour. See LUCIDE-LICENSE.txt.
