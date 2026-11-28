@@ -4,6 +4,11 @@ import briefs from "../data/portfolio-decisions.json";
 import evidence from "../data/portfolio-decision-results.json";
 import followups from "../data/portfolio-decision-followups.json";
 import followupEvidence from "../data/portfolio-decision-followup-results.json";
+import { interviewQuestions } from "./decision-interviews.ts";
+import {
+  artworkRevision,
+  publicShareArtwork,
+} from "./share-catalogue-asset.ts";
 import {
   adminDecisions,
   type Decision,
@@ -67,7 +72,9 @@ const readResponse = (row: ResponseRow): DecisionResponse => ({
 });
 
 async function getBrief(db: D1Database, owner: string, id: string) {
-  const seed = initial.find((brief) => brief.id === id);
+  const seed =
+    initial.find((brief) => brief.id === id) ??
+    interviewQuestions.find((brief) => brief.id === id);
   if (seed) return seed;
   const row = await db
     .prepare(
@@ -148,12 +155,14 @@ export async function listDecisions(
   return [
     ...initial.filter((brief) => !brief.archived),
     ...submitted,
+    ...interviewQuestions,
     ...initial.filter((brief) => brief.archived),
-  ].map(({ id, project, question, options, archived }) => ({
+  ].map(({ id, project, question, options, archived, interview }) => ({
     id,
     project,
     question,
     archived,
+    interview,
     status: !selections.has(id)
       ? "open"
       : selections.get(id) === "[]"
@@ -169,6 +178,24 @@ export async function recordDecision(
   input: z.infer<typeof saveDecision>,
 ) {
   const decision = await getBrief(db, owner, input.id);
+  if (decision.subject) {
+    const current = await publicShareArtwork(decision.subject.assetId);
+    if (current.status === 503)
+      throw new PluginRouteError(
+        "CATALOGUE_UNAVAILABLE",
+        "Share is unavailable. Your answer has not been saved.",
+        503,
+      );
+    if (
+      current.status !== 200 ||
+      (await artworkRevision(current.artwork)) !== decision.subject.revision
+    )
+      throw new PluginRouteError(
+        "ARTWORK_CHANGED",
+        "This artwork revision is no longer current. Open the latest item from the Share index.",
+        409,
+      );
+  }
   if (
     input.selected.length > decision.maxSelections ||
     input.selected.some(
@@ -224,6 +251,14 @@ export async function addDecision(
     id: `brief-${requestId}`,
     recommendation: { ...recommendation, method: "submitted" },
   };
+  return storeDecisionBrief(db, owner, decision);
+}
+
+export async function storeDecisionBrief(
+  db: D1Database,
+  owner: string,
+  decision: Decision,
+) {
   const encoded = JSON.stringify(decision);
   const inserted = await db
     .prepare(
@@ -234,14 +269,20 @@ export async function addDecision(
     )
     .bind(owner, decision.id, encoded, new Date().toISOString())
     .first<BriefRow>();
-  if (
-    !inserted &&
-    JSON.stringify(await getBrief(db, owner, decision.id)) !== encoded
-  )
-    throw new PluginRouteError(
-      "DUPLICATE_BRIEF",
-      "This request ID already belongs to a different brief.",
-      409,
-    );
+  if (!inserted) {
+    const existing = await getBrief(db, owner, decision.id);
+    const sameArtwork =
+      decision.subject &&
+      existing.subject?.assetId === decision.subject.assetId &&
+      existing.subject?.revision === decision.subject.revision;
+    if (sameArtwork)
+      return { decision: existing, url: `${adminDecisions}?id=${decision.id}` };
+    if (JSON.stringify(existing) !== encoded)
+      throw new PluginRouteError(
+        "DUPLICATE_BRIEF",
+        "This request ID already belongs to a different brief.",
+        409,
+      );
+  }
   return { decision, url: `${adminDecisions}?id=${decision.id}` };
 }

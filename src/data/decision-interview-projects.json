@@ -1,0 +1,301 @@
+[
+  [
+    "app-composer",
+    "App Composer",
+    "https://composer.loftwah.com/",
+    "Build or own a working web app",
+    [
+      "Deploy the Hello starter",
+      "Connect two existing apps",
+      "Use an already working tool",
+      "Trace a live app to its source"
+    ],
+    "First live deployment, ownership clarity or independent app handoff"
+  ],
+  [
+    "woodhouse",
+    "Woodhouse",
+    "https://woodhouse.loftwah.com/",
+    "Find a project and understand what it does",
+    [
+      "Open the actual project",
+      "Understand the portfolio relationships",
+      "See what has shipped",
+      "Find its current public evidence"
+    ],
+    "Time to a relevant project or a verified update"
+  ],
+  [
+    "media-studio",
+    "Media Studio",
+    "https://media.loftwah.com/",
+    "Make a piece of media and retain its source",
+    [
+      "Cut or export a clip",
+      "Compare alternate takes",
+      "Carry a brief through to a published cut",
+      "Build a reusable artwork kit"
+    ],
+    "An actual export, revision trace or useful project example"
+  ],
+  [
+    "share",
+    "App Composer Share",
+    "https://composer.loftwah.com/share",
+    "Discover useful original work",
+    [
+      "Find an editable file",
+      "Find work from a specific project",
+      "Get a palette or print",
+      "Review saved or rejected material"
+    ],
+    "A relevant asset with credit, rights and a usable source or destination"
+  ],
+  [
+    "prints-desktop",
+    "Prints Desktop",
+    "https://composer.loftwah.com/prints-desktop",
+    "Review work and choose what to keep",
+    [
+      "Compare two alternatives",
+      "Trace an image to its source",
+      "Make a source-linked export",
+      "Resume an earlier review"
+    ],
+    "A completed review or export that can be traced back"
+  ],
+  [
+    "paperwork",
+    "Paperwork",
+    "https://paperwork.loftwah.com/",
+    "Finish a PDF without uploading personal documents",
+    [
+      "Fill a document’s fields",
+      "Write on a flat or scanned page",
+      "Sign a copy once",
+      "Download or print the finished PDF"
+    ],
+    "A finished fictional sample on the device you actually use"
+  ],
+  [
+    "spin",
+    "Spin",
+    "https://spin.loftwah.com/",
+    "Use a working wheel to settle a choice",
+    [
+      "Spin a preset",
+      "Paste a custom list",
+      "Share or check a result",
+      "Run repeated spins for a group"
+    ],
+    "An edit, real spin and result that work together"
+  ],
+  [
+    "guestbook",
+    "Here / there",
+    "https://guestbook.loftwah.com/",
+    "Collect a postcard and review before it appears",
+    [
+      "Send a message",
+      "Add a photo",
+      "Review a submission",
+      "Share an approved postcard"
+    ],
+    "A fictional contribution through the proper review and publication boundary"
+  ],
+  [
+    "showcase",
+    "Linkarooie",
+    "https://showcase.loftwah.com/",
+    "Make a public page that feels like its author",
+    [
+      "Arrange profile links",
+      "Bring in approved postcards",
+      "Show a strong project or artwork",
+      "See the shared page at phone size"
+    ],
+    "A clear public profile with correct credit and a useful destination"
+  ],
+  [
+    "linkcheck",
+    "Link Check",
+    "https://share.loftwah.com/",
+    "Understand why a link or share preview behaves as it does",
+    [
+      "Check a public URL",
+      "Find a wrong title or preview",
+      "Review robots or sitemap details",
+      "Decide what to fix first"
+    ],
+    "One concrete discrepancy reproduced at its source"
+  ],
+  [
+    "hello",
+    "Hello World",
+    "https://ready.loftwah.com/",
+    "Get one small app running",
+    [
+      "Follow the shortest setup path",
+      "Recover a failed first run",
+      "Check which source is deployed",
+      "Go from the starter to a real project"
+    ],
+    "A fresh builder reaching a working first deployment"
+  ],
+  [
+    "state",
+    "Carry / forward",
+    "https://ai.loftwah.com/",
+    "Try portable assistant memory with fictional data",
+    [
+      "Understand the local model",
+      "Reopen an encrypted fictional file",
+      "Choose which sample fields to share",
+      "Understand recovery and the limits"
+    ],
+    "A controlled fictional round trip with the intended permissions"
+  ],
+  [
+    "loftwahfm",
+    "LoftwahFM",
+    "https://fm.loftwah.com/",
+    "Find and experience worthwhile original music",
+    [
+      "Listen to a full album",
+      "Watch a music video",
+      "Tune in to a station",
+      "Use the player from another project"
+    ],
+    "Meaningful playback and a reason to continue listening"
+  ],
+  [
+    "bubbles",
+    "Bubbles",
+    "https://bubbles.loftwah.com/",
+    "Get into a satisfying quick round",
+    [
+      "Land the first match",
+      "Read the remaining board",
+      "Start another round quickly",
+      "Recognise Bubblecap and the game’s identity"
+    ],
+    "A real phone round with clear shot, feedback and restart"
+  ],
+  [
+    "fighter",
+    "Fighter",
+    "https://fighter.loftwah.com/",
+    "Understand and enjoy a squad battle",
+    [
+      "Choose a squad",
+      "Read the Charge Strip",
+      "Understand the outcome of a move",
+      "Find a mode worth returning to"
+    ],
+    "A full match where you can explain the decisions that mattered"
+  ],
+  [
+    "shoalshot",
+    "SHOALSHOT",
+    "https://shoalshot.loftwah.com/",
+    "Read the water and land a catch",
+    [
+      "Understand the first input",
+      "Place the shot confidently",
+      "Read what happened after the attempt",
+      "Complete a phone session"
+    ],
+    "A real handheld session and its recovery path"
+  ],
+  [
+    "protocol-11",
+    "Protocol 11",
+    "https://protocol11.loftwah.com/",
+    "Play a readable round with real stakes in the game",
+    [
+      "Learn the first Protocol",
+      "Finish a solo hand",
+      "Join and finish a private room",
+      "Reconnect and rematch"
+    ],
+    "A real play-through on the relevant client or clients"
+  ],
+  [
+    "foilbury",
+    "Foilbury",
+    "https://foilbury.loftwah.com/",
+    "Find and collect original character cards",
+    [
+      "Browse the public cabinet",
+      "Find a character or finish",
+      "Understand an invite or access state",
+      "Keep track of a collected copy"
+    ],
+    "A legitimate journey that respects invitation and collection boundaries"
+  ],
+  [
+    "liferaft",
+    "Liferaft",
+    "https://liferaft.loftwah.com/",
+    "Find and recover something from an email archive",
+    [
+      "Open a representative archive",
+      "Find a message",
+      "Recover its attachment",
+      "Export selected messages"
+    ],
+    "A local recovery exercise with a fictional archive"
+  ],
+  [
+    "max",
+    "MAX",
+    "https://max.loftwah.com/",
+    "Understand the documented assistive-system workflow",
+    [
+      "Understand FIND and its limits",
+      "Read the supported companion flow",
+      "Review the documented demo evidence",
+      "Identify what requires qualified on-device review"
+    ],
+    "A clear, truthful account of what has been verified and what requires qualified review"
+  ],
+  [
+    "pirates",
+    "Pirates",
+    "https://woodhouse.loftwah.com/projects/pirates/",
+    "Understand the documented recreation while work is paused",
+    [
+      "Preserve source evidence",
+      "Inspect a historical behaviour comparison",
+      "Find what the reconstruction still lacks",
+      "Keep it paused and find current context"
+    ],
+    "A clear historical record and an explicit decision before any restart"
+  ],
+  [
+    "social-club",
+    "Plans With You",
+    "https://woodhouse.loftwah.com/projects/social-club/",
+    "Understand the retired calendar experiment",
+    [
+      "Keep the original idea discoverable",
+      "Preserve what was learned",
+      "Point people to current work",
+      "Keep it archived"
+    ],
+    "A useful retrospective and an accurate retired status"
+  ],
+  [
+    "asset-hunter",
+    "Asset Hunter",
+    "https://woodhouse.loftwah.com/projects/asset-hunter/",
+    "Carry useful archive lessons into Share",
+    [
+      "Keep source attribution patterns",
+      "Preserve reuse-rights information",
+      "Use useful discovery ideas in Share",
+      "Keep the retired implementation archived"
+    ],
+    "A traceable feature or lesson that belongs in the current catalogue"
+  ]
+]

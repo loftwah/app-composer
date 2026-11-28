@@ -9,14 +9,26 @@ import {
   type DecisionResponse,
   type DecisionSummary,
 } from "../lib/portfolio-decision-contract";
+import {
+  DecisionResearch,
+  researchViews,
+  type ResearchView,
+} from "./decisions-research";
+import type {
+  researchInput,
+  ResearchReply,
+} from "../lib/decision-research-contract";
+import type { z } from "zod";
 import "./decisions-admin.css";
 
 class StaleDecisionResponse extends Error {}
 
 const overview = "overview";
+const isResearchView = (value: string | null): value is ResearchView =>
+  researchViews.some((view) => view === value);
 function questionLocation(id: string) {
   const query = new URLSearchParams(
-    id === overview ? { view: overview } : { id },
+    id === overview || isResearchView(id) ? { view: id } : { id },
   );
   return `${adminDecisions}?${query}`;
 }
@@ -29,7 +41,7 @@ const errorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Please try again.";
 
 async function call<T>(
-  route: "read" | "record",
+  route: "read" | "record" | "research" | "artwork",
   payload: object,
   signal?: AbortSignal,
 ) {
@@ -40,13 +52,27 @@ async function call<T>(
     signal,
     cache: "no-store",
   });
-  if (route === "record" && result.status === 409)
-    throw new StaleDecisionResponse("A newer response exists.");
+  if (route === "record" && result.status === 409) {
+    const body = (await result
+      .clone()
+      .json()
+      .catch(() => null)) as { error?: { code?: string } } | null;
+    if (body?.error?.code === "STALE_RESPONSE")
+      throw new StaleDecisionResponse("A newer response exists.");
+  }
   return parseApiResponse<T>(
     result,
     "The decision could not be loaded or saved.",
   );
 }
+
+const loadResearch = (
+  input: z.infer<typeof researchInput>,
+  signal: AbortSignal,
+) => call<ResearchReply>("research", input, signal);
+const startArtwork = async (assetId: string, revision: string) =>
+  (await call<{ decision: { id: string } }>("artwork", { assetId, revision }))
+    .decision.id;
 
 const statuses = {
   open: "Unanswered",
@@ -122,6 +148,7 @@ function DecisionForm({
   next,
   onSave,
   onGo,
+  backTo,
 }: {
   detail: DecisionDetail;
   position: number;
@@ -129,6 +156,7 @@ function DecisionForm({
   next?: string;
   onSave: (response: DecisionResponse) => void;
   onGo: (id: string) => void;
+  backTo: string;
 }) {
   const { decision, response } = detail;
   const [selected, setSelected] = useState(response?.selected ?? []);
@@ -145,7 +173,7 @@ function DecisionForm({
     selected.some((id) => !response?.selected.includes(id));
   const empty = !selected.length && !note.trim();
   const preferred = options.find(
-    (option) => option.id === recommendation.choice,
+    (option) => option.id === recommendation?.choice,
   );
 
   useBlocker({
@@ -215,7 +243,13 @@ function DecisionForm({
     );
   }
 
-  const advance = next ?? overview;
+  const advance = next ?? backTo;
+  const backLabel =
+    backTo === "share"
+      ? "Share index"
+      : backTo === "projects"
+        ? "Projects"
+        : "Question list";
   const primaryLabel = pending
     ? "Saving…"
     : isDirty && !empty
@@ -243,6 +277,13 @@ function DecisionForm({
         {decision.question}
       </h2>
       <p className="decision-context">{decision.context}</p>
+      {decision.interview === "artwork" && (
+        <p className="decision-context">
+          <a href={decision.sources[0]?.url} target="_blank" rel="noreferrer">
+            Open the original artwork
+          </a>
+        </p>
+      )}
       <form
         onSubmit={(event: SubmitEvent<HTMLFormElement>) => {
           event.preventDefault();
@@ -277,7 +318,7 @@ function DecisionForm({
                     />
                     <span>
                       <strong>{option.title}</strong>
-                      <small>{option.pitch}</small>
+                      {option.pitch && <small>{option.pitch}</small>}
                     </span>
                   </label>
                   {option.preview && (
@@ -320,48 +361,51 @@ function DecisionForm({
               </button>
             )}
           </div>
-          <details className="decision-evidence">
-            <summary>Recommendation, trade-offs and sources</summary>
-            <div className="decision-evidence-inner">
-              <p>
-                <strong>{preferred?.title}</strong> ·{" "}
-                {percent.format(recommendation.confidence)} reported confidence
-              </p>
-              <p>{recommendation.basis}</p>
-              <dl>
-                {options.map((option) => (
-                  <div key={option.id}>
-                    <dt>
-                      {option.title}{" "}
-                      {option.weight !== undefined && (
-                        <small>
-                          · {percent.format(option.weight)} option weight
-                        </small>
-                      )}
-                    </dt>
-                    <dd>
-                      <strong>Expected outcome</strong> {option.outcome}
-                    </dd>
-                    <dd>
-                      <strong>Pro</strong> {option.pro}
-                    </dd>
-                    <dd>
-                      <strong>Con</strong> {option.con}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <ul>
-                {decision.sources.map((source, index) => (
-                  <li key={`${source.url}-${index}`}>
-                    <a href={source.url} target="_blank" rel="noreferrer">
-                      {source.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </details>
+          {recommendation && (
+            <details className="decision-evidence">
+              <summary>Recommendation, trade-offs and sources</summary>
+              <div className="decision-evidence-inner">
+                <p>
+                  <strong>{preferred?.title}</strong> ·{" "}
+                  {percent.format(recommendation.confidence)} reported
+                  confidence
+                </p>
+                <p>{recommendation.basis}</p>
+                <dl>
+                  {options.map((option) => (
+                    <div key={option.id}>
+                      <dt>
+                        {option.title}{" "}
+                        {option.weight !== undefined && (
+                          <small>
+                            · {percent.format(option.weight)} option weight
+                          </small>
+                        )}
+                      </dt>
+                      <dd>
+                        <strong>Expected outcome</strong> {option.outcome}
+                      </dd>
+                      <dd>
+                        <strong>Pro</strong> {option.pro}
+                      </dd>
+                      <dd>
+                        <strong>Con</strong> {option.con}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <ul>
+                  {decision.sources.map((source, index) => (
+                    <li key={`${source.url}-${index}`}>
+                      <a href={source.url} target="_blank" rel="noreferrer">
+                        {source.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          )}
           <div className="decision-note">
             <label htmlFor="decision-note">
               Extra context <span>Optional</span>
@@ -423,9 +467,9 @@ function DecisionForm({
           <button
             type="button"
             disabled={pending}
-            onClick={() => void move(overview)}
+            onClick={() => void move(backTo)}
           >
-            Question list
+            {backLabel}
           </button>
           <button
             type="submit"
@@ -448,8 +492,10 @@ function DecisionForm({
 function DecisionsPage() {
   const search = useLocation({ select: (location) => location.searchStr });
   const params = new URLSearchParams(search);
+  const view = params.get("view");
+  const research = isResearchView(view) ? view : null;
   const requested =
-    params.get("view") === overview ? overview : params.get("id");
+    research ?? (view === overview ? overview : params.get("id"));
   const router = useRouter();
   const [decisions, setDecisions] = useState<DecisionSummary[]>([]);
   const [detail, setDetail] = useState<DecisionDetail>();
@@ -460,11 +506,9 @@ function DecisionsPage() {
   const content = useRef<HTMLElement>(null);
   const focusNext = useRef(false);
 
-  function go(id: string) {
+  function go(id: string, ignoreBlocker = true) {
     focusNext.current = true;
-    router.history.push(questionLocation(id), undefined, {
-      ignoreBlocker: true,
-    });
+    router.history.push(questionLocation(id), undefined, { ignoreBlocker });
   }
 
   useEffect(() => {
@@ -472,6 +516,11 @@ function DecisionsPage() {
     const { signal } = controller;
     setLoading(true);
     setLoadError("");
+    if (research) {
+      setDetail(undefined);
+      setLoading(false);
+      return () => controller.abort();
+    }
     async function load() {
       const index = await call<{ decisions: DecisionSummary[] }>(
         "read",
@@ -483,7 +532,8 @@ function DecisionsPage() {
       const id =
         requested ??
         index.decisions.find(
-          (entry) => !entry.archived && entry.status === "open",
+          (entry) =>
+            !entry.archived && !entry.interview && entry.status === "open",
         )?.id;
       if (!requested && id) {
         router.history.replace(questionLocation(id), undefined, {
@@ -505,7 +555,7 @@ function DecisionsPage() {
         if (!signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [requested, attempt, router.history]);
+  }, [requested, research, attempt, router.history]);
 
   useEffect(() => {
     if (!loading && focusNext.current) {
@@ -517,7 +567,15 @@ function DecisionsPage() {
     }
   }, [loading]);
 
-  const active = decisions.filter((entry) => !entry.archived);
+  const interview = detail?.decision.interview;
+  const primaryQuestions = decisions.filter((entry) => !entry.interview);
+  const active = (
+    interview
+      ? decisions.filter((entry) => entry.interview === interview)
+      : primaryQuestions
+  ).filter((entry) => !entry.archived);
+  const backTo =
+    interview === "artwork" ? "share" : interview ? "projects" : overview;
   const completed = active.filter((entry) => entry.status !== "open").length;
   const position = detail
     ? active.findIndex((entry) => entry.id === detail.decision.id)
@@ -535,13 +593,13 @@ function DecisionsPage() {
       <header className="decision-progress">
         <div>
           <h1 id="decisions-title">Decisions</h1>
-          {active.length > 0 && (
+          {!research && active.length > 0 && (
             <p>
               {completed} of {active.length} current questions reviewed
             </p>
           )}
         </div>
-        {active.length > 0 && (
+        {!research && active.length > 0 && (
           <progress
             aria-label="Questions reviewed"
             value={completed}
@@ -549,59 +607,114 @@ function DecisionsPage() {
           />
         )}
       </header>
+      <nav className="decision-research-nav" aria-label="Decision sections">
+        <button
+          type="button"
+          aria-current={!research && !interview ? "page" : undefined}
+          onClick={() => go(overview, false)}
+        >
+          Reviews
+        </button>
+        <button
+          type="button"
+          aria-current={
+            research === "projects" ||
+            Boolean(interview && interview !== "artwork")
+              ? "page"
+              : undefined
+          }
+          onClick={() => go("projects", false)}
+        >
+          Projects & preferences
+        </button>
+        <button
+          type="button"
+          aria-current={
+            research === "share" || interview === "artwork" ? "page" : undefined
+          }
+          onClick={() => go("share", false)}
+        >
+          Share index
+        </button>
+        <button
+          type="button"
+          aria-current={research === "feedback" ? "page" : undefined}
+          onClick={() => go("feedback", false)}
+        >
+          Saved feedback
+        </button>
+      </nav>
+      {research && (
+        <DecisionResearch
+          key={research}
+          view={research}
+          load={loadResearch}
+          ask={startArtwork}
+          onGo={go}
+        />
+      )}
       <p className="decision-saved-status" role="status">
         {status}
       </p>
-      {earlierResponses > 0 && requested !== overview && (
-        <p className="decision-previous-responses">
-          {earlierResponses} earlier{" "}
-          {earlierResponses === 1 ? "response" : "responses"} saved. Open the
-          question list to review them.
-        </p>
-      )}
-      <div aria-busy={loading}>
-        {loading && <p role="status">Loading question…</p>}
-        {!loading && loadError && (
-          <div className="decision-error" role="alert">
-            <p>{loadError}</p>
-            <button
-              type="button"
-              onClick={() => setAttempt((value) => value + 1)}
-            >
-              Retry
-            </button>
-            <button type="button" onClick={() => void go(overview)}>
-              Review questions
-            </button>
-          </div>
+      {!research &&
+        !interview &&
+        earlierResponses > 0 &&
+        requested !== overview && (
+          <p className="decision-previous-responses">
+            {earlierResponses} earlier{" "}
+            {earlierResponses === 1 ? "response" : "responses"} saved. Open the
+            question list to review them.
+          </p>
         )}
-        {!loading && !loadError && detail && (
-          <>
-            {position >= 0 && (
-              <p className="decision-position">
-                Question {position + 1} of {active.length}
-              </p>
-            )}
-            <DecisionForm
-              key={detail.decision.id}
-              detail={detail}
-              position={position + 1}
-              previous={active[position - 1]?.id}
-              next={position === -1 ? undefined : active[position + 1]?.id}
-              onGo={go}
-              onSave={(response) => {
-                setDetail({ ...detail, response });
-                setStatus(
-                  response.selected.length ? "Answer saved" : "Context saved",
-                );
-              }}
+      {!research && (
+        <div aria-busy={loading}>
+          {loading && <p role="status">Loading question…</p>}
+          {!loading && loadError && (
+            <div className="decision-error" role="alert">
+              <p>{loadError}</p>
+              <button
+                type="button"
+                onClick={() => setAttempt((value) => value + 1)}
+              >
+                Retry
+              </button>
+              <button type="button" onClick={() => void go(overview)}>
+                Review questions
+              </button>
+            </div>
+          )}
+          {!loading && !loadError && detail && (
+            <>
+              {position >= 0 && (
+                <p className="decision-position">
+                  Question {position + 1} of {active.length}
+                </p>
+              )}
+              <DecisionForm
+                key={detail.decision.id}
+                detail={detail}
+                position={position + 1}
+                previous={active[position - 1]?.id}
+                next={position === -1 ? undefined : active[position + 1]?.id}
+                onGo={go}
+                backTo={backTo}
+                onSave={(response) => {
+                  setDetail({ ...detail, response });
+                  setStatus(
+                    response.selected.length ? "Answer saved" : "Context saved",
+                  );
+                }}
+              />
+            </>
+          )}
+          {!loading && !loadError && !detail && (
+            <QuestionIndex
+              decisions={primaryQuestions}
+              onGo={(id) => void go(id)}
             />
-          </>
-        )}
-        {!loading && !loadError && !detail && (
-          <QuestionIndex decisions={decisions} onGo={(id) => void go(id)} />
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
