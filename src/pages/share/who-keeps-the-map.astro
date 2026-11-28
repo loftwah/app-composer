@@ -1,5 +1,7 @@
 ---
 import { ArrowLeft, ArrowUpRight, Download, Play } from '@lucide/astro';
+import OwnerFeedback from '../../components/OwnerFeedback.tsx';
+import campaign from '../../../public/campaign/who-keeps-the-map/production-notes.json';
 import Base from '../../layouts/Base.astro';
 
 const title = 'Who Keeps the Map?';
@@ -50,11 +52,14 @@ Astro.csp?.insertDirective("media-src 'self'");
         <h2 id="trailer-title">Keep a Copy</h2>
         <p>A new short cut from the two finished films, set to “Change the Default”.</p>
       </div>
-      <video controls playsinline preload="none" width="1280" height="720" poster={`${assets}/keep-a-copy-poster.jpg`}>
+      <video id="keep-a-copy-player" controls playsinline preload="none" width="1280" height="720" poster={`${assets}/keep-a-copy-poster.jpg`}>
         <source src={`${assets}/keep-a-copy.mp4`} type="video/mp4" />
         <track kind="captions" srclang="en" label="English" src={`${assets}/keep-a-copy-en.vtt`} />
         <a href={`${assets}/keep-a-copy.mp4`}>Open Keep a Copy</a>
       </video>
+      {Astro.locals.user?.role === 50 && <OwnerFeedback client:visible
+        target={{type:"film",id:"keep-a-copy",revision:campaign.outputs["keep-a-copy.mp4"].sha256,startMs:0}}
+        label="Give feedback at this timecode" player="keep-a-copy-player" />}
       <div class="release-links">
         <a href={`${assets}/keep-a-copy.mp4`} download><Download size={16} aria-hidden="true" /> Download the short</a>
         <a href={`${assets}/keep-a-copy-en.vtt`} download>Download English captions</a>
@@ -146,6 +151,17 @@ Astro.csp?.insertDirective("media-src 'self'");
     </section>
   </div>
 </Base>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>("#keep-a-copy-player");
+  const requested = new URLSearchParams(window.location.search).get("at");
+  if (video && requested && /^\d{1,2}(\.\d{1,3})?$/.test(requested) && Number(requested) <= 35) {
+    video.preload = "metadata";
+    const seek = () => { video.currentTime = Number(requested); };
+    if (video.readyState >= 1) seek();
+    else video.addEventListener("loadedmetadata", seek, { once: true });
+  }
+</script>
 
 <style>
   .map-release {

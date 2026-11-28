@@ -69,7 +69,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           label: "Workspace maintenance",
           icon: "wrench",
         },
-        { path: "/enquiries", label: "Private enquiries", icon: "inbox" },
+        { path: "/enquiries", label: "Inbox", icon: "inbox" },
         { path: "/workflows", label: "Workflows", icon: "arrows-clockwise" },
         { path: "/overview", label: "Needs attention", icon: "warning" },
         { path: "/orders", label: "Orders", icon: "receipt" },

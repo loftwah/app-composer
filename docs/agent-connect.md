@@ -299,3 +299,19 @@ until that turn is run.
   existing `SOURCE_UNVERIFIED` rule.
 - No execution adapter exists. Accepting a digest executes nothing; the handoff
   remains a prepared artifact for the existing release flow.
+
+## Contextual feedback observer
+
+The distinct `composer-feedback-observer` MCP plugin exposes **read** and
+**propose** against the issuing administrator's contextual Inbox threads in this
+Composer installation. Pass `workspace: "app-composer"`. A proposal needs the
+thread's latest revision, a request UUID to reuse on retry and at least one
+HTTPS evidence reference. The stored author is the named credential.
+
+The plugin accepts only a named EmDash API token with exactly
+`mcp:tools:composer-feedback-observer` and an expiry within 30 days. Use the
+existing EmDash token settings to inspect expiry and last use or revoke the
+token. Enable the two MCP tools in EmDash Plugins only for the intended grant.
+Both Cloudflare Access and EmDash must accept the external client. Use a
+supported client credential for the MCP route and retain administrator browser
+credentials in their existing sign-in path.

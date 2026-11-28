@@ -209,6 +209,7 @@ const briefs: FollowUp[] = [
 ];
 
 export const replacedDecisions = new Set([
+  "composer-feedback-entry",
   ...briefs
     .filter((brief) => !brief.visualComparison)
     .map((brief) => brief.previous),
@@ -224,6 +225,7 @@ const individuallyChoose = new Set([
 ]);
 export const feedbackFollowUps: Decision[] = briefs.map((brief) => ({
   id: brief.id,
+  archived: replacedDecisions.has(brief.id),
   project: brief.project,
   category: brief.category,
   tags: brief.tags,

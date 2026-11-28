@@ -4,10 +4,12 @@ import "../styles/header.css";
 import "../styles/prints-theme.css";
 import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
+import OwnerFeedback from "../components/OwnerFeedback.tsx";
+import build from "../lib/build.json";
 import BuilderContext from "../components/BuilderContext.astro";
 import {agentSearchMetadata} from "../lib/public-agent-search.mjs";
 import {noindexFor} from "../lib/indexing.mjs";
-import {publicPageCanonical} from "../lib/public-pages.mjs";
+import {publicPageCanonical, publicPagePaths} from "../lib/public-pages.mjs";
 import {spinBrandFiles, spinDiscovery, spinOrigin} from "../lib/spin-site.mjs";
 import {printsIcon} from "../lib/prints-site.mjs";
 import {siteShareArtwork, siteShareImageType} from "../lib/site-share-artwork.mjs";
@@ -279,6 +281,11 @@ Astro.csp?.insertScriptResource(
       {!printsProduct && !focusedExperience && <BuilderContext />}
       <slot />
       <slot name="page-share" />
+      {Astro.locals.user?.role === 50 && !printsProduct && !spinProduct && !focusedExperience &&
+        publicPagePaths.includes(canonical.pathname) && (
+          <OwnerFeedback client:visible target={{type:"page",path:canonical.pathname,revision:build.commit}}
+            label="Give feedback on this page" />
+        )}
     </main>
     {printsProduct ? <footer class="prints-footer">
       <p>Prints Desktop by <a href="https://loftwah.com">Loftwah</a>.</p>

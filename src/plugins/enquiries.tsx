@@ -16,6 +16,7 @@ import {
 } from "../lib/enquiry-protocol";
 import { enquiryLabels, enquiryState } from "../lib/inbox-journey-contract";
 import { enquiriesLead } from "../lib/enquiries-lead";
+import { OwnerFeedbackInbox } from "../components/OwnerFeedback";
 import { InboxJourneyPanel } from "./inbox-journey-panel";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
@@ -656,8 +657,12 @@ function WorkspaceEnquiries({ search }: { search: string }) {
               : lead.kind === "book"
                 ? lead.book.label
                 : "";
+  const feedback = new URLSearchParams(window.location.search).get("feedback");
   return (
-    <div
+    <div className="ce-inbox">
+      <h1>Inbox</h1>
+      <OwnerFeedbackInbox selected={feedback} />
+      {!feedback && <div
       className="ce-inbox"
       aria-busy={busy || detailBusy || (!options && !error)}
     >
@@ -668,7 +673,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         <p className="ce-kicker">
           PRIVATE WORKSPACE · {options?.workspace.name ?? "Loading"}
         </p>
-        <h1>Enquiries</h1>
+        <h2>Visitor enquiries</h2>
         <p>
           Read a brief, mark it reviewed, or remove it. Guestbook owns the
           records. Notifications are separate from review and start off. No
@@ -1236,6 +1241,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             )}
           </details>
         )}
+      </div>}
     </div>
   );
 }

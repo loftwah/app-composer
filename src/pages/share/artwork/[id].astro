@@ -1,4 +1,5 @@
 ---
+import OwnerFeedback from '../../../components/OwnerFeedback.tsx';
 import Base from '../../../layouts/Base.astro';
 import { ArrowLeft } from '@lucide/astro';
 import { env } from 'cloudflare:workers';
@@ -7,7 +8,7 @@ import ShareArtworkDetail from '../../../components/ShareArtworkDetail.astro';
 import { readArtworkCuration } from '../../../lib/share-gallery.ts';
 import { noindexFor } from '../../../lib/indexing.mjs';
 import { publicPageCanonical } from '../../../lib/public-pages.mjs';
-import { publicShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../../../lib/share-catalogue-asset.ts';
+import { artworkRevision, publicShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../../../lib/share-catalogue-asset.ts';
 
 const result = await publicShareArtwork(Astro.params.id ?? '');
 Astro.response.status = result.status;
@@ -24,6 +25,7 @@ for (const key of ['view', 'art', 'project', 'category', 'orientation', 'tag', '
   if (value && (key !== 'view' || value === 'liked')) filters.set(key, value.slice(0, 128));
 }
 const browseHref = filters.size ? `/share?${filters}#artwork-${artwork?.assetId ?? ''}` : '/share';
+const feedbackRevision = artwork && Astro.locals.user?.role === 50 ? await artworkRevision(artwork) : null;
 const format = artwork?.previewUrl.split('.').pop()?.toLowerCase();
 const shareType = format === 'png' || format === 'webp' ? `image/${format}` : 'image/jpeg';
 Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
@@ -44,6 +46,9 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
       <p>{result.status === 404 ? 'This piece is no longer in the public catalogue or the link is incomplete.' : 'The catalogue did not respond. Reload this page to try again.'}</p>
     </section>
   )}
+  {artwork && feedbackRevision &&
+    <OwnerFeedback client:visible target={{type:"artwork",id:artwork.assetId,revision:feedbackRevision}}
+      label="Give feedback on this artwork" />}
   <Fragment slot="page-share" />
 </Base>
 
