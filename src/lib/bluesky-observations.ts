@@ -12,7 +12,8 @@ const hour = 3_600_000;
 const maxAttempts = 3;
 const maxPerTick = 8;
 const leaseDuration = 5 * 60_000;
-const nextRetryDelay = [15, 45].map((minutes) => minutes * 60_000);
+const checkInterval = 15 * 60_000;
+const nextRetryDelay = [checkInterval, 3 * checkInterval];
 const latestWindow = blueskyObservationWindows.at(-1)!;
 const appView = "https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts";
 
@@ -208,7 +209,8 @@ export async function runScheduledBlueskyObservations(
           );
       }
       const retryAt = new Date(
-        finished.getTime() + (nextRetryDelay[record.attempts - 1] ?? 0),
+        Math.floor(finished.getTime() / checkInterval) * checkInterval +
+          (nextRetryDelay[record.attempts - 1] ?? 0),
       );
       const canRetry =
         outcome.failure !== "revision_changed" &&
