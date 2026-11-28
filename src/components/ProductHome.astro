@@ -3,7 +3,6 @@ import Base from "../layouts/Base.astro";
 import { portfolioProjects } from "../lib/portfolio-projects";
 import { ArrowRight, ArrowUpRight } from "@lucide/astro";
 import { apps } from "../lib/apps";
-import { mediaStudioShareArtwork, shareGalleryArtwork } from "../lib/site-share-artwork.mjs";
 import instance from "../../config/instance.json";
 import "../styles/product-home.css";
 
@@ -74,14 +73,12 @@ const siteSchema = {
             <a class="home-text-link" href="/discover">Find a starting point <ArrowRight size={17} aria-hidden="true" /></a>
           </nav>
         </div>
-        <section class="campaign-start" aria-labelledby="campaign-start-title">
-          <h2 id="campaign-start-title">Start with a<br />working app.</h2>
-          <ul>
-            <li><a href="/creator-hub"><span><strong>Creator Hub</strong>Public profile and guestbook</span><ArrowUpRight size={24} aria-hidden="true" /></a></li>
-            <li><a href="https://paperwork.loftwah.com/"><span><strong>Paperwork</strong>Fill and sign a PDF in your browser</span><ArrowUpRight size={24} aria-hidden="true" /></a></li>
-            <li><a href="https://spin.loftwah.com/"><span><strong>Spin</strong>Put a decision on the wheel</span><ArrowUpRight size={24} aria-hidden="true" /></a></li>
-          </ul>
-        </section>
+        <figure class="campaign-print">
+          <img src="/brand/campaign/build-it-keep-it-running-864-20261128.webp"
+            srcset="/brand/campaign/build-it-keep-it-running-864-20261128.webp 864w, /brand/campaign/build-it-keep-it-running-1728-20261128.webp 1728w"
+            sizes="(max-width: 760px) 94vw, (max-width: 1440px) 56vw, 770px" width="1728" height="910"
+            fetchpriority="high" alt="App Composer. Build it. Keep it running. An illuminated workshop press feeds out an app sketch." />
+        </figure>
       </div>
       <nav class="campaign-destinations home-container" aria-label="Open App Composer tools">
         <a href="/media-studio/studio">Media Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
@@ -89,14 +86,19 @@ const siteSchema = {
         <a href="/showcase/">Linkarooie <ArrowRight size={16} aria-hidden="true" /></a>
         <a href="/share">Share <ArrowRight size={16} aria-hidden="true" /></a>
       </nav>
+      <nav class="campaign-apps home-container" aria-label="Try a working app">
+        <a href="/creator-hub"><span><strong>Creator Hub</strong>Open a profile and guestbook</span><ArrowUpRight size={20} aria-hidden="true" /></a>
+        <a href="https://paperwork.loftwah.com/"><span><strong>Paperwork</strong>Fill and sign a PDF</span><ArrowUpRight size={20} aria-hidden="true" /></a>
+        <a href="https://spin.loftwah.com/"><span><strong>Spin</strong>Put a decision on the wheel</span><ArrowUpRight size={20} aria-hidden="true" /></a>
+      </nav>
     </section>
 
     <section class="home-miniapps home-container" aria-labelledby="work-heading">
       <div class="home-section-head"><h2 id="work-heading">Apps &amp; creative tools</h2><a class="home-text-link" href="/apps">Browse the library <ArrowRight size={18} aria-hidden="true" /></a></div>
       <div class="home-features">
-        <article><a href="/media-studio"><img src={mediaStudioShareArtwork.path} width="1200" height="630" alt={mediaStudioShareArtwork.alt} loading="lazy" /><h3>Media Studio</h3></a><p>Create images, edit video and mix sound. Keep the source files, takes and finished work together.</p><a href="/share?view=films">Watch the films →</a></article>
+        <article><a href="/media-studio/films#studio-teaser"><img src="/media-studio/low-tide-teaser-art-20261128.webp" width="442" height="252" alt="Low Tide by LoftwahFM, in white lettering over a violet and pink coastline." loading="lazy" /><h3>Watch the Media Studio teaser</h3></a><p>See Low Tide and other finished work in the Studio reel.</p><a href="/media-studio">Explore Media Studio →</a></article>
         <article><a href="/showcase/"><img src="/brand/apps/linkarooie-share-20261018-v2.jpg" width="1200" height="630" alt="Linkarooie’s workshop curator" loading="lazy" /><h3>Linkarooie</h3></a><p>Open Loftwah’s published profile for music, games, writing and the projects behind them.</p><a href="/showcase/">Explore the profile →</a></article>
-        <article><a href="/share"><img src={shareGalleryArtwork.path} width="1200" height="630" alt={shareGalleryArtwork.alt} loading="lazy" /><h3>App Composer Share</h3></a><p>Browse original artwork by project, see the credits, and take the artwork or its colours into your own work.</p><a href="/share/artwork/atlas-04-composer-family/palette">Sample the Composer palette →</a></article>
+        <article><a href="/share/artwork/atlas-04-composer-family/palette"><img src="/brand/campaign/composer-family-atlas.webp" width="640" height="429" alt="The Composer family artwork shows a workshop opening onto an orange mountain landscape." loading="lazy" /><h3>Take a colour from the artwork</h3></a><p>Sample the Composer family illustration and export the colours you pick.</p><a href="/share">Browse Share →</a></article>
       </div>
       <ul class="home-tools">{miniApps.map(app => <li><a href={app.href}><img src={app.thumbnail} alt="" width="32" height="32" loading="lazy" />{app.name}<ArrowUpRight size={15} aria-hidden="true" /></a></li>)}</ul>
       <div class="home-widget-trail">
