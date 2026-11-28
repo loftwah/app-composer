@@ -178,6 +178,45 @@ and the approved Composer mark and type. The comp review does not replace the
 separate [portfolio design work](https://github.com/loftwah/app-composer/issues/1422).
 See [#1432](https://github.com/loftwah/app-composer/issues/1432) for delivery and verification.
 
+### Project interviews, Share index and saved feedback
+
+The [project directory](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review?view=projects)
+combines the public Woodhouse portfolio register with Composer’s working apps.
+It records active, paused and retired status. Start an interview from a project
+or choose **Your preferences**. Interviews ask about familiar tasks, knowledge
+gaps, what the owner actually values, where the real journey goes wrong and
+what evidence would justify showing it to someone else. A note alone is a valid
+answer. Personal taste has no model-selected answer.
+
+The [Share index](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review?view=share)
+searches the current eligible public artwork catalogue, films, experiences and
+examples. **Review artwork** opens a private question bound to that asset
+revision. Use [Saved feedback](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review?view=feedback)
+to find the owner’s saved Decisions responses and existing Share reactions.
+Project and artwork interview questions also use the existing MCP read, record
+and add tools. The cross-source Saved feedback view is in EmDash.
+
+The useful Clef questions have a specific job and an evidence source:
+
+- **Choice** for an editorial role, a plausible next project question or a
+  comparison of genuinely different alternatives. Include an unclear choice.
+- **Yes/no** for a testable condition such as whether an actual user example is
+  still needed. Ask one thing per question.
+- **Score** for a defined rubric such as evidence quality, from no evidence
+  through a complete repeatable task. Keep scores and human judgements visible.
+
+[The public Clef run](../src/data/decision-research-clef.json) stores the exact
+project state, score distributions, input receipts and artwork revision-scoped
+metadata classifications. Artwork labels do not establish image quality,
+reuse rights or a preference. The catalogue and human records remain in their
+owning systems. Clef evaluates supplied evidence. Composer retains the output
+and D1 retains the owner’s feedback. The batch runner reads public project and
+Share information only. No private response is sent to Workers AI by the app.
+To refresh the public batch deliberately, run
+`node scripts/evaluate-decision-research.mjs --run` with the existing authorised
+Workers AI account. Keep prior evidence in source history and inspect the build
+before release. See [Cloudflare’s Clef documentation](https://developers.cloudflare.com/workers-ai/models/clef-flash/).
+
 ## Refusals
 
 | Case                                             | Result                                                       |

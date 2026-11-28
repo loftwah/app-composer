@@ -2,6 +2,11 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { env } from "cloudflare:workers";
 import { definePlugin, PluginRouteError } from "emdash";
 import {
+  artworkBriefInput,
+  researchInput,
+} from "../lib/decision-research-contract.ts";
+import { askAboutArtwork, decisionResearch } from "../lib/decision-research.ts";
+import {
   decisionPreview,
   newDecision,
   readDecisions,
@@ -65,6 +70,28 @@ export function createPlugin(options: { adminEntry: string }) {
                 : [],
             ),
           };
+        },
+      },
+      research: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        request: { body: "json", maxBytes: 2048 },
+        input: researchInput,
+        handler: async ({ input, user }) => {
+          const { db, owner } = database(user);
+          return decisionResearch(db, owner, researchInput.parse(input));
+        },
+      },
+      artwork: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        request: { body: "json", maxBytes: 1024 },
+        input: artworkBriefInput,
+        handler: async ({ input, user, request }) => {
+          const { db, owner } = database(user);
+          const { assetId, revision } = artworkBriefInput.parse(input);
+          const result = await askAboutArtwork(db, owner, assetId, revision);
+          return { ...result, url: new URL(result.url, request.url).href };
         },
       },
       record: {

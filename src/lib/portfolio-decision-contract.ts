@@ -91,13 +91,15 @@ export const newDecision = z
 export type Decision = {
   id: string;
   archived?: boolean;
+  interview?: string;
+  subject?: { assetId: string; revision: string };
   project: string;
   question: string;
   context: string;
   maxSelections: number;
   sources: z.infer<typeof source>[];
   options: (z.infer<typeof option> & { weight?: number })[];
-  recommendation: {
+  recommendation?: {
     choice: string;
     confidence: number;
     basis: string;
@@ -114,7 +116,7 @@ export type DecisionResponse = {
 
 export type DecisionSummary = Pick<
   Decision,
-  "id" | "project" | "question" | "archived"
+  "id" | "project" | "question" | "archived" | "interview"
 > & {
   status: "open" | "context" | "selected";
   hasArtwork: boolean;

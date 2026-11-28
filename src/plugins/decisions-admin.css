@@ -416,3 +416,112 @@ html[data-mode="dark"] .portfolio-decisions {
   color: var(--review-muted);
   font-size: 0.82rem;
 }
+
+.decision-research-nav,
+.decision-research-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+.decision-research-nav {
+  margin-block: 1rem;
+}
+
+.decision-research-nav button[aria-current] {
+  border-color: var(--review-accent);
+}
+
+.decision-research h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.decision-research h3 {
+  font-size: 1rem;
+  font-weight: 730;
+}
+
+.decision-research p {
+  margin: 0.26rem 0;
+  overflow-wrap: anywhere;
+}
+
+.decision-research a,
+.decision-question a {
+  color: var(--review-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.decision-research-form {
+  margin-block: 1rem;
+}
+
+.decision-research-form label {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.decision-research-form label:first-child {
+  flex: 1 1 12rem;
+}
+
+.decision-research-form :is(input, select) {
+  width: 100%;
+  min-height: 2.75rem;
+  max-width: 18rem;
+  padding-inline: 0.5rem;
+  border: 1px solid var(--review-line);
+  border-radius: 0.5rem;
+  color: inherit;
+  background: var(--review-panel);
+}
+
+.decision-research-form input {
+  max-width: none;
+}
+
+.decision-research-list {
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.decision-research-list > li {
+  border-top: 1px solid var(--review-line);
+  padding-block: 0.8rem;
+}
+
+.decision-research-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: start;
+  gap: 0.5rem 1rem;
+}
+
+.decision-research-row > div {
+  flex: 1 1 20rem;
+  min-width: 0;
+}
+
+.decision-research-meta,
+.decision-research-list summary {
+  color: var(--review-muted);
+  font-size: 0.825rem;
+}
+
+.decision-research-list summary {
+  cursor: pointer;
+  margin-top: 0.4rem;
+}
+
+.decision-feedback-note {
+  white-space: pre-wrap;
+}
