@@ -1,12 +1,20 @@
 ---
 import { ArrowLeft, ArrowUpRight, Download, Play } from '@lucide/astro';
 import OwnerFeedback from '../../components/OwnerFeedback.tsx';
+import paperEdit from '../../../public/campaign/who-keeps-the-map/keep-a-copy-paper-v1.json';
 import campaign from '../../../public/campaign/who-keeps-the-map/production-notes.json';
 import Base from '../../layouts/Base.astro';
 
 const title = 'Who Keeps the Map?';
 const description = 'A Loftwah release about a shortcut that vanished and the people who opened it again. Watch both films, open the sleeve and see what changed in the edit.';
 const assets = '/campaign/who-keeps-the-map';
+const paper = Astro.url.searchParams.get('cut') === 'paper';
+const at = Astro.url.searchParams.get('at') ?? '';
+const start = /^\d{1,2}(\.\d{1,3})?$/.test(at) && Number(at) <= 35 ? at : '';
+const cut = paper ? paperEdit.output.file : 'keep-a-copy.mp4';
+const cutRevision = paper ? paperEdit.output.sha256 : campaign.outputs['keep-a-copy.mp4'].sha256;
+const cutUrl = `${assets}/${cut}`;
+
 const fm = 'https://fm.loftwah.com';
 const album = `${fm}/album/who-keeps-the-map`;
 const media = `${fm}/media/who-keeps-the-map`;
@@ -27,6 +35,7 @@ Astro.csp?.insertDirective("media-src 'self'");
       <nav aria-label="Album collection">
         <a href="#films">Films</a>
         <a href="#sleeve">Sleeve</a>
+        <a href="#feedback-demo">Feedback demo</a>
         <a href="#making-of">Making-of</a>
       </nav>
     </header>
@@ -49,20 +58,23 @@ Astro.csp?.insertDirective("media-src 'self'");
 
     <section class="release-section" id="trailer" aria-labelledby="trailer-title">
       <div class="section-head">
-        <h2 id="trailer-title">Keep a Copy</h2>
-        <p>A new short cut from the two finished films, set to “Change the Default”.</p>
+        <h2 id="trailer-title">{paper ? "Keep a Copy · Paper ending" : "Keep a Copy"}</h2>
+        <p>{paper
+          ? "The permission slip takes the closing shot. The performances and soundtrack stay in place."
+          : "A short cut from the two finished films, set to “Change the Default”."}</p>
       </div>
-      <video id="keep-a-copy-player" controls playsinline preload="none" width="1280" height="720" poster={`${assets}/keep-a-copy-poster.jpg`}>
-        <source src={`${assets}/keep-a-copy.mp4`} type="video/mp4" />
+      <video id="keep-a-copy-player" controls playsinline preload={start ? "auto" : "none"} width="1280" height="720" poster={start ? undefined : `${assets}/keep-a-copy-poster.jpg`}>
+        <source src={cutUrl + (start ? `#t=${start}` : "")} type="video/mp4" />
         <track kind="captions" srclang="en" label="English" src={`${assets}/keep-a-copy-en.vtt`} />
-        <a href={`${assets}/keep-a-copy.mp4`}>Open Keep a Copy</a>
+        <a href={cutUrl}>Open Keep a Copy</a>
       </video>
-      {Astro.locals.user?.role === 50 && <OwnerFeedback client:visible
-        target={{type:"film",id:"keep-a-copy",revision:campaign.outputs["keep-a-copy.mp4"].sha256,startMs:0}}
+      {Astro.locals.user?.role === 50 && <OwnerFeedback client:load
+        target={{type:"film",id:"keep-a-copy",revision:cutRevision,startMs:Math.round(Number(start) * 1000)}}
         label="Give feedback at this timecode" player="keep-a-copy-player" />}
       <div class="release-links">
-        <a href={`${assets}/keep-a-copy.mp4`} download><Download size={16} aria-hidden="true" /> Download the short</a>
+        <a href={cutUrl} download><Download size={16} aria-hidden="true" /> Download the short</a>
         <a href={`${assets}/keep-a-copy-en.vtt`} download>Download English captions</a>
+        <a href={paper ? "/share/who-keeps-the-map#trailer" : "/share/who-keeps-the-map?cut=paper#trailer"}>{paper ? "Watch the sleeve ending" : "Watch the paper ending"}</a>
       </div>
     </section>
 
@@ -115,6 +127,22 @@ Astro.csp?.insertDirective("media-src 'self'");
       </div>
     </section>
 
+    <section class="release-section" id="feedback-demo" aria-labelledby="feedback-demo-title">
+      <div class="section-head">
+        <h2 id="feedback-demo-title">From a note to a new ending</h2>
+        <p>Follow a demonstration report from the playhead to the Inbox and back to the paper cut. The note and review record use isolated demonstration data.</p>
+      </div>
+      <video controls playsinline preload="none" width="1280" height="720" poster={`${assets}/feedback-to-paper-poster-v1.webp`}>
+        <source src={`${assets}/feedback-to-paper-v1.mp4`} type="video/mp4" />
+        <track kind="captions" srclang="en" label="English" src={`${assets}/feedback-to-paper-en-v1.vtt`} />
+        <a href={`${assets}/feedback-to-paper-v1.mp4`}>Open the demonstration film</a>
+      </video>
+      <div class="release-links">
+        <a href={`${assets}/feedback-to-paper-v1.mp4`} download><Download size={16} aria-hidden="true" /> Download the demonstration</a>
+        <a href={`${assets}/feedback-to-paper-en-v1.vtt`} download>Download English captions</a>
+      </div>
+    </section>
+
     <section class="release-section" id="making-of" aria-labelledby="making-title">
       <div class="section-head">
         <h2 id="making-title">At the cut</h2>
@@ -128,7 +156,13 @@ Astro.csp?.insertDirective("media-src 'self'");
             <figure><img src={`${assets}/edit-before.webp`} width="640" height="360" loading="lazy" alt="A red car in motion in the first master at 16.7 seconds" /><figcaption>First master</figcaption></figure>
             <figure><img src={`${assets}/edit-after.webp`} width="640" height="360" loading="lazy" alt="Masked Levi passes release paperwork to a black-clad recipient in the revised master at 16.7 seconds" /><figcaption>Revised master</figcaption></figure>
           </div>
-          <p>Five seconds changed. The remaining 900 decoded frames and the soundtrack match the first cut exactly.</p>
+          <p>For the paper ending, only 00:29.800 to 00:35.000 changes. All 894 earlier frames, the soundtrack and the captions carry through.</p>
+          <div class="release-links">
+            <a href="/share/who-keeps-the-map?cut=paper&amp;at=29.8#trailer">Compare the paper ending</a>
+            <a href={`${assets}/keep-a-copy-paper-v1.json`}>View the paper edit receipt</a>
+            <a href={`${assets}/feedback-share-kit-v1.md`} download>Download the share kit</a>
+          </div>
+          <p>Five seconds changed in the earlier handoff edit. The remaining 900 decoded frames and the soundtrack match the first cut exactly.</p>
           <div class="release-links">
             <a href={`${assets}/keep-a-copy.mp4#t=12.9,17.9`}>Play the revised shot</a>
             <a href="/share/who-keeps-the-map/replay">Explore the edit and its replay <ArrowUpRight size={16} aria-hidden="true" /></a>
@@ -151,17 +185,6 @@ Astro.csp?.insertDirective("media-src 'self'");
     </section>
   </div>
 </Base>
-
-<script>
-  const video = document.querySelector<HTMLVideoElement>("#keep-a-copy-player");
-  const requested = new URLSearchParams(window.location.search).get("at");
-  if (video && requested && /^\d{1,2}(\.\d{1,3})?$/.test(requested) && Number(requested) <= 35) {
-    video.preload = "metadata";
-    const seek = () => { video.currentTime = Number(requested); };
-    if (video.readyState >= 1) seek();
-    else video.addEventListener("loadedmetadata", seek, { once: true });
-  }
-</script>
 
 <style>
   .map-release {

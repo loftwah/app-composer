@@ -124,10 +124,11 @@ export async function saveOwnerFeedback(
     const context = existing?.context ?? {
       ...(await resolve(input.target)),
       incident: input.incident,
+      ...(input.annotation ? { annotation: input.annotation } : {}),
       key: feedbackKey(input.target),
       target: input.target,
     };
-    if (JSON.stringify(context.target) !== JSON.stringify(input.target) || context.incident !== input.incident)
+    if (JSON.stringify(context.target) !== JSON.stringify(input.target) || context.incident !== input.incident || context.annotation !== input.annotation)
       throw new FeedbackError("Start a new report for the changed target.", 409);
     return appendFeedback(db, owner, {
       requestId: input.requestId, threadId: input.requestId, revision: 0,

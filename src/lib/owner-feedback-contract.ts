@@ -61,6 +61,7 @@ export const feedbackMutation = z.discriminatedUnion("action", [
     kind: z.enum(Object.keys(feedbackKinds) as [keyof typeof feedbackKinds]),
     note,
     incident: z.boolean(),
+    annotation: z.string().trim().min(1).max(300).optional(),
   }),
   z.strictObject({
     action: z.literal("attempt"),
@@ -88,6 +89,7 @@ export type FeedbackContext = {
   build: string;
   target: FeedbackTarget;
   incident: boolean;
+  annotation?: string;
 };
 
 export type FeedbackEvent = {

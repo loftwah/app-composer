@@ -43,7 +43,9 @@ function fixture(t) {
 
 test("exact source and owner text survive retries and a scoped, searchable read", async (t) => {
   const { db, input, save, update } = fixture(t);
+  input.annotation = "Right edge of the closing card";
   const first = await save(input);
+  assert.equal(first.context.annotation, input.annotation);
   assert.deepEqual(first.context.target, input.target);
   assert.equal(first.events[0].note, input.note);
   assert.equal(first.events[0].isOwner, true);

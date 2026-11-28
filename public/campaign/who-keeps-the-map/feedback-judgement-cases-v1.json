@@ -1,0 +1,282 @@
+[
+  {
+    "id": "rejection-1",
+    "family": "rejection-1",
+    "coverage": "rejection",
+    "label": "synthetic",
+    "title": "Quote widget",
+    "facts": "The owner selected 'quote widget' and wrote: I only chose it to see the next screen. Drop this direction and show me the actual workflow. The proposed action is to proceed with the quote widget.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "rejection-2",
+    "family": "rejection-2",
+    "coverage": "rejection",
+    "label": "synthetic",
+    "title": "Print margin",
+    "facts": "The dropdown says narrow margin. The saved note says: Narrow margins won't work with the binding. Return with a wider margin. The proposed action is to keep the narrow margin.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "rejection-3",
+    "family": "rejection-3",
+    "coverage": "rejection",
+    "label": "synthetic",
+    "title": "Supplier order",
+    "facts": "No option is selected. The owner explicitly says: Keep the current supplier. The proposed action is to retain that supplier only.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "rejection-4",
+    "family": "rejection-4",
+    "coverage": "rejection",
+    "label": "synthetic",
+    "title": "Keyboard shortcut",
+    "facts": "A keyboard shortcut is selected. The note asks: Does this conflict with system shortcuts on my computer? There is no answer in the record. The proposed action is to treat the shortcut as an approved default.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "partial-1",
+    "family": "partial-1",
+    "coverage": "partial",
+    "label": "synthetic",
+    "title": "Museum tour",
+    "facts": "The owner says: Keep the introduction. Rewrite the guide’s ending. The proposed action is to keep the introduction while editing the ending.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "partial-2",
+    "family": "partial-2",
+    "coverage": "partial",
+    "label": "synthetic",
+    "title": "Translated handout",
+    "facts": "The owner approves the Japanese body text and asks for a different headline. The proposed action is to publish the complete current handout as approved.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "partial-3",
+    "family": "partial-3",
+    "coverage": "partial",
+    "label": "synthetic",
+    "title": "Checklist ordering",
+    "facts": "The owner says the first two steps work but asks whether the later sequence is final. The proposed action is to declare the final sequence accepted.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "partial-4",
+    "family": "partial-4",
+    "coverage": "partial",
+    "label": "synthetic",
+    "title": "Gift card proof",
+    "facts": "The owner says the price and currency are correct but the footer is unacceptable. The proposed action is to ask a printer to produce the current design with that footer.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "stale-1",
+    "family": "stale-1",
+    "coverage": "stale",
+    "label": "synthetic",
+    "title": "Permission guide",
+    "facts": "The administrator approved guide revision 4. Revision 5 changes the permission requested. The proposed action is to release revision 5 on the strength of the revision 4 approval.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "stale-2",
+    "family": "stale-2",
+    "coverage": "stale",
+    "label": "synthetic",
+    "title": "Map legend",
+    "facts": "A frozen planning review refers to legend revision 8 and the proposed action explicitly preserves revision 8 in the archive. Publication is outside the claim.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "stale-3",
+    "family": "stale-3",
+    "coverage": "stale",
+    "label": "synthetic",
+    "title": "Booking connector",
+    "facts": "A probe succeeded for the sandbox booking connector. Production has a different configuration. The claim is that this probe verifies availability on production.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "stale-4",
+    "family": "stale-4",
+    "coverage": "stale",
+    "label": "synthetic",
+    "title": "Caption proof",
+    "facts": "A signed review was recorded before a revision change, but the receipt does not identify which caption version it covered. The proposed action is to use it as proof for the current caption.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "missing-1",
+    "family": "missing-1",
+    "coverage": "missing",
+    "label": "synthetic",
+    "title": "Payment callback",
+    "facts": "The payment provider accepted submission. No callback, settled receipt or payout check exists. The claim is that the payout settled.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "missing-2",
+    "family": "missing-2",
+    "coverage": "missing",
+    "label": "synthetic",
+    "title": "Reduced motion",
+    "facts": "The gallery reportedly responded correctly to reduced motion. The supplied browser capture shows animation still running with reduced motion enabled. The claim is that motion stopped.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "missing-3",
+    "family": "missing-3",
+    "coverage": "missing",
+    "label": "synthetic",
+    "title": "Offline mode",
+    "facts": "Two isolated devices opened the same cached instructions in airplane mode after a restart. The claim is that this exact cached page loads offline after restart.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "missing-4",
+    "family": "missing-4",
+    "coverage": "missing",
+    "label": "synthetic",
+    "title": "Kitchen counter tablet",
+    "facts": "The website looked usable at 390 CSS pixels in desktop emulation. The claim is that the store's tablet touch workflow was exercised. No actual tablet or touch-path record was supplied.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "provenance-1",
+    "family": "provenance-1",
+    "coverage": "provenance",
+    "label": "synthetic",
+    "title": "Saxophone stem",
+    "facts": "An edit receipt confirms the saxophone stem came from the contributor’s original take. The proposed credit names that contributor for that stem only.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "provenance-2",
+    "family": "provenance-2",
+    "coverage": "provenance",
+    "label": "synthetic",
+    "title": "Warehouse training clip",
+    "facts": "The receipt attributes the interview to a licensed stock agency and the B-roll to the team. The proposed claim credits the team with recording the interview.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "provenance-3",
+    "family": "provenance-3",
+    "coverage": "provenance",
+    "label": "synthetic",
+    "title": "Risograph scan",
+    "facts": "A JPEG follows the look of a risograph scan. The transfer log does not identify the source printer or demonstrate a licence. The claim is that the scan is cleared for reuse.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "provenance-4",
+    "family": "provenance-4",
+    "coverage": "provenance",
+    "label": "synthetic",
+    "title": "Station notice",
+    "facts": "An automatic summary misquotes the source as 'doors shut at 6'. The signed station notice reads 'last boarding at 6'. The claim is that doors shut at 6.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "mission-1",
+    "family": "mission-1",
+    "coverage": "mission",
+    "label": "synthetic",
+    "title": "Garden planner",
+    "facts": "A creator completed an actual seed plan and reopened and revised it a week later. The claim is one observed creator returning to this workflow, without attributing why.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "mission-2",
+    "family": "mission-2",
+    "coverage": "mission",
+    "label": "synthetic",
+    "title": "Fleet dashboard",
+    "facts": "A spike in test jobs coincided with a team migration. The only dataset counts synthetic jobs. The proposed report claims a measured increase in real fleet operators using their dashboards.",
+    "expected": "reject",
+    "next": "rework"
+  },
+  {
+    "id": "mission-3",
+    "family": "mission-3",
+    "coverage": "mission",
+    "label": "synthetic",
+    "title": "Campus guide",
+    "facts": "A musician asks whether a tour guide or album link earns more return visits. One public post received three likes, and no return figures exist. The proposal declares one placement the winner.",
+    "expected": "abstain",
+    "next": "verify"
+  },
+  {
+    "id": "mission-4",
+    "family": "mission-4",
+    "coverage": "mission",
+    "label": "synthetic",
+    "title": "Volunteer roster",
+    "facts": "The team needs evidence of a second use. A signed job run shows the exact same volunteer reopened and successfully used the roster the following month. The claim is one retained workflow use.",
+    "expected": "accept",
+    "next": "continue"
+  },
+  {
+    "id": "r1",
+    "family": "commit-attribution",
+    "coverage": "source-backed",
+    "label": "researcher",
+    "facts": "An identity guard refuses placeholder author addresses and lane labels for a new commit. It does not rewrite published history. Claim: earlier history has been rewritten to repair authorship.",
+    "expected": "reject",
+    "source": "https://github.com/loftwah/app-composer/issues/478",
+    "next": "rework"
+  },
+  {
+    "id": "r2",
+    "family": "browser-clipboard",
+    "coverage": "source-backed",
+    "label": "researcher",
+    "facts": "The live Firefox and WebKit fallback selected all 341 characters when copying was denied. The report claims this observed browser fallback completed for those browser engines only.",
+    "expected": "accept",
+    "source": "https://github.com/loftwah/app-composer/issues/489",
+    "next": "continue"
+  },
+  {
+    "id": "r3",
+    "family": "gallery-delivery",
+    "coverage": "source-backed",
+    "label": "researcher",
+    "facts": "A public gallery replay measured 16 previews and verified controls. Owner library, hero detail and portfolio still had distinct payload findings. Claim: the gallery evidence alone qualifies all three other surfaces as fast.",
+    "expected": "reject",
+    "source": "https://github.com/loftwah/composer-media-studio/issues/12",
+    "next": "rework"
+  },
+  {
+    "id": "r4",
+    "family": "workspace-restore",
+    "coverage": "source-backed",
+    "label": "researcher",
+    "facts": "A restore compared two isolated local D1/R2 installations and matched the checked data. A separate Cloudflare account was outside the run. Claim: the separate production-account migration has been proven.",
+    "expected": "abstain",
+    "source": "https://github.com/loftwah/composer-media-studio/issues/157",
+    "next": "verify"
+  }
+]

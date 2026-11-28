@@ -1,0 +1,1602 @@
+{
+  "schema": "composer.feedback-judgement-comparison/1",
+  "observedAt": "2026-11-28T12:15:19.025Z",
+  "model": "@cf/cloudflare/clef-flash",
+  "policies": {
+    "current": "Review each case. Accept a supported claim or action, reject a contradicted one, and abstain if there is insufficient evidence.",
+    "revised": "For each case, identify the exact claim or action and its scope. The owner's explicit words govern any selected option. Keep the supported part of partial acceptance. Refuse mismatched revisions, environments or provenance. Missing proof means verify, and activity is not an adoption outcome. Accept only the part backed by the stated evidence. Reject a contradiction, otherwise abstain when proof is missing."
+  },
+  "historicalLabelCount": 0,
+  "holdoutLabels": {
+    "synthetic": 24,
+    "researcher": 4
+  },
+  "limitations": "Hand-authored text cases. Action agreement is a prioritisation proxy. No actual owner correction, task completion, ranking by mission utility or adoption was observed. Billed cost is unknown.",
+  "holdoutSha256": "4fab17aad54081518662d214cfb5f17cf0e732aa41541c3a6c72999b53b3642e",
+  "runs": {
+    "regression": {
+      "deterministic": {
+        "cases": 12,
+        "exact": 5,
+        "falseAccepts": 0,
+        "falseRejects": 0,
+        "abstentions": 9,
+        "covered": 3,
+        "complete": 12,
+        "nextActionExact": 5,
+        "results": [
+          {
+            "id": "s3",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "s2",
+            "expected": "reject",
+            "verdict": "reject",
+            "nextExpected": "rework",
+            "next": "rework"
+          },
+          {
+            "id": "s12",
+            "expected": "accept",
+            "verdict": "abstain",
+            "nextExpected": "continue",
+            "next": "verify"
+          },
+          {
+            "id": "s10",
+            "expected": "accept",
+            "verdict": "accept",
+            "nextExpected": "continue",
+            "next": "continue"
+          },
+          {
+            "id": "s9",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "s1",
+            "expected": "accept",
+            "verdict": "accept",
+            "nextExpected": "continue",
+            "next": "continue"
+          },
+          {
+            "id": "s7",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "s8",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "s5",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "s4",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "s11",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "s6",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          }
+        ],
+        "inputTokens": 0,
+        "elapsedMs": 0.7404170000000008,
+        "estimatedListCostUsd": 0,
+        "orderAgreement": 12
+      },
+      "current": {
+        "first": {
+          "cases": 12,
+          "exact": 9,
+          "falseAccepts": 0,
+          "falseRejects": 0,
+          "abstentions": 5,
+          "covered": 7,
+          "complete": 12,
+          "nextActionExact": 10,
+          "results": [
+            {
+              "id": "s3",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s12",
+              "expected": "accept",
+              "verdict": "abstain",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s10",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s9",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s7",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s8",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s5",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s11",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s6",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            }
+          ],
+          "elapsedMs": 672,
+          "tokens": 2942,
+          "estimatedListCostUsd": 0.00011179599999999998,
+          "inputSha256": "a1c2759869be8cfa8300e0dc76fd340fda12d3d01d832dd022640800dd969120",
+          "inputQuestionCount": 24
+        },
+        "reversed": {
+          "cases": 12,
+          "exact": 11,
+          "falseAccepts": 0,
+          "falseRejects": 0,
+          "abstentions": 3,
+          "covered": 9,
+          "complete": 12,
+          "nextActionExact": 8,
+          "results": [
+            {
+              "id": "s3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s12",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s10",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s9",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s7",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s8",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s5",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s11",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s6",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            }
+          ],
+          "elapsedMs": 340,
+          "tokens": 2942,
+          "estimatedListCostUsd": 0.00011179599999999998,
+          "inputSha256": "240d78585029d80c1c6c7029cda8612eed33448dc992e48a7a08e7a80c75eaf0",
+          "inputQuestionCount": 24
+        },
+        "orderAgreement": 8
+      },
+      "revised": {
+        "first": {
+          "cases": 12,
+          "exact": 10,
+          "falseAccepts": 0,
+          "falseRejects": 0,
+          "abstentions": 4,
+          "covered": 8,
+          "complete": 12,
+          "nextActionExact": 9,
+          "results": [
+            {
+              "id": "s3",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s12",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s10",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s9",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s7",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s8",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s5",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s11",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s6",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            }
+          ],
+          "elapsedMs": 359,
+          "tokens": 2994,
+          "estimatedListCostUsd": 0.000113772,
+          "inputSha256": "c51720f975d4752ffa344ca0e8d74032d73b9491ec4ad408e380347c0ce07f68",
+          "inputQuestionCount": 24
+        },
+        "reversed": {
+          "cases": 12,
+          "exact": 11,
+          "falseAccepts": 0,
+          "falseRejects": 0,
+          "abstentions": 3,
+          "covered": 9,
+          "complete": 12,
+          "nextActionExact": 8,
+          "results": [
+            {
+              "id": "s3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s12",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s10",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s9",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "s7",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s8",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "s5",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "s11",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "s6",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            }
+          ],
+          "elapsedMs": 232,
+          "tokens": 2994,
+          "estimatedListCostUsd": 0.000113772,
+          "inputSha256": "6e65b1415a6a0cdb2a19f48c095657788aea318dbb31be380cdc219b19dcfccf",
+          "inputQuestionCount": 24
+        },
+        "orderAgreement": 10
+      }
+    },
+    "holdout": {
+      "deterministic": {
+        "cases": 28,
+        "exact": 14,
+        "falseAccepts": 0,
+        "falseRejects": 1,
+        "abstentions": 20,
+        "covered": 8,
+        "complete": 28,
+        "nextActionExact": 14,
+        "results": [
+          {
+            "id": "rejection-1",
+            "expected": "reject",
+            "verdict": "reject",
+            "nextExpected": "rework",
+            "next": "rework"
+          },
+          {
+            "id": "rejection-2",
+            "expected": "reject",
+            "verdict": "reject",
+            "nextExpected": "rework",
+            "next": "rework"
+          },
+          {
+            "id": "rejection-3",
+            "expected": "accept",
+            "verdict": "accept",
+            "nextExpected": "continue",
+            "next": "continue"
+          },
+          {
+            "id": "rejection-4",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "partial-1",
+            "expected": "accept",
+            "verdict": "abstain",
+            "nextExpected": "continue",
+            "next": "verify"
+          },
+          {
+            "id": "partial-2",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "partial-3",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "partial-4",
+            "expected": "reject",
+            "verdict": "reject",
+            "nextExpected": "rework",
+            "next": "rework"
+          },
+          {
+            "id": "stale-1",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "stale-2",
+            "expected": "accept",
+            "verdict": "abstain",
+            "nextExpected": "continue",
+            "next": "verify"
+          },
+          {
+            "id": "stale-3",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "stale-4",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "missing-1",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "missing-2",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "missing-3",
+            "expected": "accept",
+            "verdict": "accept",
+            "nextExpected": "continue",
+            "next": "continue"
+          },
+          {
+            "id": "missing-4",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "provenance-1",
+            "expected": "accept",
+            "verdict": "abstain",
+            "nextExpected": "continue",
+            "next": "verify"
+          },
+          {
+            "id": "provenance-2",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "provenance-3",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "provenance-4",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "mission-1",
+            "expected": "accept",
+            "verdict": "accept",
+            "nextExpected": "continue",
+            "next": "continue"
+          },
+          {
+            "id": "mission-2",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "mission-3",
+            "expected": "abstain",
+            "verdict": "abstain",
+            "nextExpected": "verify",
+            "next": "verify"
+          },
+          {
+            "id": "mission-4",
+            "expected": "accept",
+            "verdict": "accept",
+            "nextExpected": "continue",
+            "next": "continue"
+          },
+          {
+            "id": "r1",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "r2",
+            "expected": "accept",
+            "verdict": "abstain",
+            "nextExpected": "continue",
+            "next": "verify"
+          },
+          {
+            "id": "r3",
+            "expected": "reject",
+            "verdict": "abstain",
+            "nextExpected": "rework",
+            "next": "verify"
+          },
+          {
+            "id": "r4",
+            "expected": "abstain",
+            "verdict": "reject",
+            "nextExpected": "verify",
+            "next": "rework"
+          }
+        ],
+        "inputTokens": 0,
+        "elapsedMs": 0.1546659999999065,
+        "estimatedListCostUsd": 0,
+        "orderAgreement": 28
+      },
+      "current": {
+        "first": {
+          "cases": 28,
+          "exact": 27,
+          "falseAccepts": 0,
+          "falseRejects": 1,
+          "abstentions": 7,
+          "covered": 21,
+          "complete": 28,
+          "nextActionExact": 25,
+          "results": [
+            {
+              "id": "rejection-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "rejection-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "partial-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "partial-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "stale-3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-1",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "missing-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "missing-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "provenance-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "provenance-3",
+              "expected": "abstain",
+              "verdict": "reject",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "mission-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "rework"
+            },
+            {
+              "id": "mission-4",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "r1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "r2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "r3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "r4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            }
+          ],
+          "elapsedMs": 781,
+          "tokens": 6861,
+          "estimatedListCostUsd": 0.00026071799999999995,
+          "inputSha256": "f88fe4b4cf26bf7f79c08a059e5551f947afeb1aaf13a73072e1e9294a43a376",
+          "inputQuestionCount": 56
+        },
+        "reversed": {
+          "cases": 28,
+          "exact": 25,
+          "falseAccepts": 1,
+          "falseRejects": 1,
+          "abstentions": 9,
+          "covered": 19,
+          "complete": 28,
+          "nextActionExact": 25,
+          "results": [
+            {
+              "id": "rejection-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "rejection-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "partial-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "partial-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-4",
+              "expected": "reject",
+              "verdict": "accept",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "stale-3",
+              "expected": "reject",
+              "verdict": "abstain",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-1",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "missing-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "missing-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "provenance-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "provenance-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "mission-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "mission-4",
+              "expected": "accept",
+              "verdict": "reject",
+              "nextExpected": "continue",
+              "next": "rework"
+            },
+            {
+              "id": "r1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "r2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "r3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "r4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            }
+          ],
+          "elapsedMs": 608,
+          "tokens": 6861,
+          "estimatedListCostUsd": 0.00026071799999999995,
+          "inputSha256": "e87489296f9bea745a2e019df36cc14b1651b52ca18de83ea7bf1fe18f4e0b0a",
+          "inputQuestionCount": 56
+        },
+        "orderAgreement": 23
+      },
+      "revised": {
+        "first": {
+          "cases": 28,
+          "exact": 26,
+          "falseAccepts": 0,
+          "falseRejects": 2,
+          "abstentions": 6,
+          "covered": 22,
+          "complete": 28,
+          "nextActionExact": 25,
+          "results": [
+            {
+              "id": "rejection-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "rejection-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "partial-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "partial-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "stale-3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "stale-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-1",
+              "expected": "abstain",
+              "verdict": "reject",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "missing-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "missing-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "provenance-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "provenance-3",
+              "expected": "abstain",
+              "verdict": "reject",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "mission-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "rework"
+            },
+            {
+              "id": "mission-4",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "r1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "r2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "r3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "r4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            }
+          ],
+          "elapsedMs": 453,
+          "tokens": 6913,
+          "estimatedListCostUsd": 0.00026269399999999995,
+          "inputSha256": "c08cf94f1d5a94dd77ffeef87d6456505e14aa79e8be4c086421964766e53bf7",
+          "inputQuestionCount": 56
+        },
+        "reversed": {
+          "cases": 28,
+          "exact": 24,
+          "falseAccepts": 1,
+          "falseRejects": 3,
+          "abstentions": 6,
+          "covered": 22,
+          "complete": 28,
+          "nextActionExact": 25,
+          "results": [
+            {
+              "id": "rejection-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "rejection-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "rejection-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "partial-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "partial-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "partial-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "rework"
+            },
+            {
+              "id": "partial-4",
+              "expected": "reject",
+              "verdict": "accept",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "stale-3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "stale-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-1",
+              "expected": "abstain",
+              "verdict": "reject",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "missing-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "missing-3",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "missing-4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "provenance-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "provenance-3",
+              "expected": "abstain",
+              "verdict": "reject",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "provenance-4",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-1",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "mission-2",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "mission-3",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            },
+            {
+              "id": "mission-4",
+              "expected": "accept",
+              "verdict": "reject",
+              "nextExpected": "continue",
+              "next": "rework"
+            },
+            {
+              "id": "r1",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "rework"
+            },
+            {
+              "id": "r2",
+              "expected": "accept",
+              "verdict": "accept",
+              "nextExpected": "continue",
+              "next": "continue"
+            },
+            {
+              "id": "r3",
+              "expected": "reject",
+              "verdict": "reject",
+              "nextExpected": "rework",
+              "next": "verify"
+            },
+            {
+              "id": "r4",
+              "expected": "abstain",
+              "verdict": "abstain",
+              "nextExpected": "verify",
+              "next": "verify"
+            }
+          ],
+          "elapsedMs": 611,
+          "tokens": 6913,
+          "estimatedListCostUsd": 0.00026269399999999995,
+          "inputSha256": "cd1421e68c33beb82c9a9268a403d3b111e82d9d2bf40bdc82e5cbe130d2da31",
+          "inputQuestionCount": 56
+        },
+        "orderAgreement": 21
+      }
+    }
+  }
+}

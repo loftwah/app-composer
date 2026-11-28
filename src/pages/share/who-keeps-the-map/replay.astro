@@ -2,6 +2,7 @@
 import { ArrowLeft, ArrowUpRight, Download } from '@lucide/astro';
 import Base from '../../../layouts/Base.astro';
 import clef from '../../../../public/campaign/who-keeps-the-map/clef-counterfactual-order-v1.json';
+import judgement from '../../../../public/campaign/who-keeps-the-map/feedback-judgement-v1.json';
 import replay from '../../../../public/campaign/who-keeps-the-map/quest-replay-v1.json';
 
 const records = [
@@ -14,6 +15,27 @@ const records = [
 ];
 const { comparison } = replay;
 const campaign = '/campaign/who-keeps-the-map';
+const held = judgement.runs.holdout;
+const { current, revised, deterministic } = held;
+const pair = (a: number, b: number) => `${a} / ${b}`;
+const outcome = (arm: typeof current) => [
+  pair(arm.first.exact, arm.reversed.exact),
+  pair(arm.first.falseAccepts, arm.reversed.falseAccepts),
+  pair(arm.first.abstentions, arm.reversed.abstentions),
+  arm.orderAgreement.toString(),
+  pair(arm.first.nextActionExact, arm.reversed.nextActionExact),
+];
+const rows = [
+  ['Current framing', ...outcome(current)],
+  ['Conservative rules', deterministic.exact, deterministic.falseAccepts, deterministic.abstentions, deterministic.orderAgreement, deterministic.nextActionExact],
+  ['Revised Clef', ...outcome(revised)],
+];
+const exampleId = 's2';
+const example = clef.results.find(({ id }) => id === exampleId);
+const repaired = judgement.runs.regression.revised;
+const repairFirst = repaired.first.results.find(({ id }) => id === exampleId);
+const repairReordered = repaired.reversed.results.find(({ id }) => id === exampleId);
+
 ---
 
 <Base title={replay.title} description={replay.subtitle} shareImage={`${campaign}/album-og-v1.jpg`} shareAlt="Who Keeps the Map? by LoftwahFM, illustrated as a coloured-pencil festival scene." ogType="article">
@@ -56,6 +78,29 @@ const campaign = '/campaign/who-keeps-the-map';
       </section>
     </div>
 
+    <section class="quest-evidence" id="feedback-judgement" aria-labelledby="feedback-judgement-title">
+      <h2 id="feedback-judgement-title">The narrower prompt still lost</h2>
+      <p>We froze {judgement.holdoutLabels.synthetic} synthetic cases and {judgement.holdoutLabels.researcher} cases labelled by a researcher from public receipts. The new wording repaired the original false acceptance in both orders. On the fresh cases, the current framing got one more right in each order and was more stable. The default stays.</p>
+      {example && <details class="limitations">
+        <summary>Open the false acceptance</summary>
+        <p>{example.facts}</p>
+        <p>Original Clef runs: {example.first}, then {example.reordered}. Revised reruns: {repairFirst?.verdict}, then {repairReordered?.verdict}. The proposed action contradicted the note.</p>
+      </details>}
+      <div class="quest-table" tabindex="0" role="region" aria-label="Judgement comparison results">
+        <table>
+          <caption>Fresh cases. Paired values show the first order and the reverse order.</caption>
+          <thead><tr><th scope="col">Method</th><th scope="col">Correct of 28</th><th scope="col">False accepts</th><th scope="col">Abstained</th><th scope="col">Stable of 28</th><th scope="col">Next action of 28</th></tr></thead>
+          <tbody>{rows.map(([label, ...values]) => <tr><th scope="row">{label}</th>{values.map(value => <td>{value}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+      <p>Stability requires the same judgement and next action. Cases measure evidence and suggested follow-through. Owner satisfaction, audience behaviour and adoption remain unmeasured.</p>
+      <div class="quest-receipt-links">
+        <a href={`${campaign}/feedback-judgement-v1.json`} download>Download run results</a>
+        <a href={`${campaign}/feedback-judgement-cases-v1.json`} download>Download held-out cases</a>
+        <a href="https://github.com/loftwah/app-composer/blob/main/scripts/evaluate-feedback-judgement.mjs">Open the evaluator</a>
+      </div>
+    </section>
+
     <section class="quest-evidence" aria-labelledby="evidence-title">
       <h2 id="evidence-title">Open the evidence</h2>
       <div class="evidence-grid">
@@ -88,6 +133,12 @@ const campaign = '/campaign/who-keeps-the-map';
 </Base>
 
 <style>
+  .quest-table { overflow-x: auto; margin-block: 1rem; }
+  .quest-table table { width: 100%; min-width: 36rem; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .quest-table caption { text-align: left; margin-bottom: .5rem; }
+  .quest-table th, .quest-table td { text-align: left; padding: .55rem; border-bottom: 1px solid color-mix(in srgb,currentColor 25%,transparent); }
+  .quest-receipt-links { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+
   .quest { --quest-ink: #23152d; --quest-surface: #f3fb55; --quest-rule: var(--color-border); max-inline-size: 1130px; margin-inline: auto; }
   .quest-header { padding: clamp(1.2rem, 4vw, 3.6rem); border-radius: 1rem; color: var(--quest-ink); background: var(--quest-surface); }
   .quest-header a, .quest-link { display: inline-flex; align-items: center; gap: .4rem; min-block-size: 44px; }

@@ -47,7 +47,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
     </section>
   )}
   {artwork && feedbackRevision &&
-    <OwnerFeedback client:visible target={{type:"artwork",id:artwork.assetId,revision:feedbackRevision}}
+    <OwnerFeedback client:load target={{type:"artwork",id:artwork.assetId,revision:feedbackRevision}}
       label="Give feedback on this artwork" />}
   <Fragment slot="page-share" />
 </Base>

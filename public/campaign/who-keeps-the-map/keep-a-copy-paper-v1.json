@@ -1,0 +1,35 @@
+{
+  "schema": "composer.keep-a-copy-paper-edit/1",
+  "base": {
+    "file": "keep-a-copy.mp4",
+    "sha256": "ad6432b4a2fd02991671ead1f18b49e3d00a4d350a1fb79afa52b6fa937e5032"
+  },
+  "output": {
+    "file": "keep-a-copy-paper-v1.mp4",
+    "sha256": "69ef10cd9e3a56ce7a6116e6b0de7bd70db8f8721acbfa29a71a41ed95e14ba6",
+    "bytes": 7026363
+  },
+  "closingCard": {
+    "file": "keep-a-copy-paper-card-v1.png",
+    "sha256": "3d1f42fe3fe9e41c683a207e030360a212c32c479495ad1211d5e1a99256ade1",
+    "artwork": "ask-the-owner-v1.webp",
+    "artworkSha256": "cea9dd283fe8068b4572aaa6bd762c768c60a34addee9a06adcbd788b7c73a60"
+  },
+  "changedTimeMs": [
+    29800,
+    35000
+  ],
+  "frames": {
+    "fps": 30,
+    "unchanged": 894,
+    "changed": 156,
+    "total": 1050
+  },
+  "decodedAudioSha256": "171cf240ccb36faadc9a3534bc4a008b31c1b00a894d29dc2837b0dc42e54f40",
+  "captions": {
+    "file": "keep-a-copy-en.vtt",
+    "sha256": "e2a06d2b6c8475f383a1957499b308648e3c5006ffb95dd5eb6483f843332e1f"
+  },
+  "ownerReview": "pending",
+  "providerCalls": 0
+}
