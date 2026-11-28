@@ -12,14 +12,14 @@
 .home-shell {
   /* The opening is a theme surface, not a fixed dark slab: dark ink in dark
      mode, warm paper in light mode. The orange plane and app sheets stay. */
-  --home-hero-bg: #101214;
-  --home-hero-fg: #f4f2ec;
+  --home-hero-bg: #17181b;
+  --home-hero-fg: #ffffff;
   --home-hero-muted: #c0c1c2;
   --home-hero-accent: #ff793b;
   --home-hero-rule: #ffffff25;
 }
 :root[data-theme="light"] .home-shell {
-  --home-hero-bg: #f2f0e9;
+  --home-hero-bg: #ffffff;
   --home-hero-fg: #151719;
   --home-hero-muted: #4b4f54;
   --home-hero-accent: #c74400;
@@ -311,8 +311,31 @@
   font-size: clamp(1rem, 1.4vw, 1.25rem);
   line-height: 1.5;
 }
-.campaign-print { background: #151210; }
-.campaign-master { display: block; width: 100%; height: auto; }
+.campaign-start {
+  padding: clamp(1rem, 3vw, 2.75rem);
+  background: #fc5b05;
+  color: #17181b;
+}
+.campaign-start h2 {
+  font-size: clamp(2.3rem, 4.8vw, 4.8rem);
+  letter-spacing: -.04em;
+  line-height: .95;
+}
+.campaign-start ul { list-style: none; margin: 1.25rem 0 0; padding: 0; max-width: none; }
+.campaign-start li { margin: 0; border-top: 1px solid currentColor; }
+.composer-home .campaign-start li a,
+.composer-home .campaign-start li a:hover {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: .5rem 0;
+  color: #17181b;
+  text-decoration: none;
+}
+.campaign-start li a:hover strong { box-shadow: inset 0 -2px currentColor; }
+.campaign-start li a:focus-visible { outline-color: #17181b; outline-offset: 1px; }
+.campaign-start strong { display: block; font-size: clamp(1.2rem, 2.1vw, 1.8rem); }
 .campaign-destinations {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

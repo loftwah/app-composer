@@ -6,15 +6,15 @@ import source from '../../lib/paperwork/source.json';
 const editor=source.origin;
 ---
 <Base
-  shareImage="https://composer.loftwah.com/paperwork/share-20261024.png"
-  shareAlt="Paperwork: Fill it. Sign it. Get on with your day. An orange stamp press on charcoal."
+  shareImage="/brand/campaign/paperwork-sign-a-pdf-20261128.png"
+  shareAlt="Paperwork. Fill and sign a PDF in your browser. A real sample PDF on signature orange."
   shareType="image/png"
   shareWidth={1200}
   shareHeight={630}
   title="Paperwork — Fill and sign PDFs" description="A browser-local PDF editor. Fill the actual fields, write on scanned forms, add your signature and save or print one completed PDF.">
 <div class="paperwork-intro">
   <div>
-    <h1>A form shouldn’t need a printer and scanner.</h1>
+    <h1>Fill and sign a PDF.</h1>
     <p class="lede">Fill PDF fields, draw or type on the page, and add your signature in Paperwork. Then download or print the completed document.</p>
     <div class="actions">
       <a class="button" href={editor}>Open Paperwork</a>
@@ -25,7 +25,7 @@ const editor=source.origin;
     <p>Your documents and signatures stay in your browser. Paperwork needs no account and does not upload or store your documents in the cloud or track them with document analytics.</p>
   </div>
   <figure class="print-shop-art">
-    <img src="/paperwork/press-20261024.webp" width="1152" height="768" alt="An orange stamp press and pencil arm put ink and a tick on a form."/>
+    <a href={editor+'/?sample=garden'}><img src="/brand/campaign/paperwork-sign-a-pdf-20261128.png" width="1200" height="630" alt="Paperwork. Fill and sign a PDF in your browser. A real sample PDF on signature orange."/></a>
   </figure>
 </div>
 <TutorialQuickStart guide={paperworkQuickStart} />

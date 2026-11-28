@@ -69,7 +69,7 @@
 .gallery-controls {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(9rem, 1fr) minmax(9rem, .55fr) auto auto auto;
+  grid-template-columns: minmax(9rem, 1fr) minmax(9rem, .55fr) auto auto;
   align-items: stretch;
   gap: 0.55rem;
   margin: 0;
@@ -766,7 +766,7 @@ p.gallery-piece-section a {
 
 @media (max-width: 55rem) {
   .gallery-controls { grid-template-columns: minmax(0, 1fr) auto auto; }
-  .gallery-search { grid-column: span 2; }
+  .gallery-search { grid-column: 1 / -1; }
   .gallery-project { grid-column: span 1; }
 }
 @media (max-width: 37rem) {
@@ -782,12 +782,12 @@ p.gallery-piece-section a {
   }
 
   .gallery-controls {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     padding-block-start: 0.75rem;
   }
 
-  .gallery-search, .gallery-project { grid-column: 1 / -1; }
-  .gallery-apply { grid-column: 1 / -1; }
+  .gallery-controls .gallery-apply, .gallery-filter-menu summary { padding-inline: .55rem; }
+  .gallery-controls .gallery-project { padding-inline: .6rem; }
   .gallery-sort {
     justify-content: space-between;
   }
@@ -798,8 +798,8 @@ p.gallery-piece-section a {
   }
 
   .gallery-sort select {
-    width: auto;
-    max-width: 100%;
+    width: 100%;
+    min-width: 0;
   }
 
   .gallery-readout,

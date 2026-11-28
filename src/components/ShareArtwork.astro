@@ -60,15 +60,15 @@ const options = {
         {options.projects.map(value => <option value={value} selected={value === project}>{artworkLabel(value)}</option>)}
       </select>
     </div>
-    <div class="gallery-sort">
-      <label for="gallery-sort">Sort</label>
-      <select id="gallery-sort" name="sort">
-        {Object.entries(artworkSorts).map(([value, label]) => <option value={value} selected={value === sort}>{label}</option>)}
-      </select>
-    </div>
     <details class="gallery-filter-menu">
       <summary><SlidersHorizontal size={16} aria-hidden="true" /> Filters{facetCount > 0 && ` (${facetCount})`} <ChevronDown size={14} aria-hidden="true" /></summary>
       <div class="gallery-filters">
+        <div>
+          <label for="gallery-sort">Sort</label>
+          <select id="gallery-sort" name="sort">
+            {Object.entries(artworkSorts).map(([value, label]) => <option value={value} selected={value === sort}>{label}</option>)}
+          </select>
+        </div>
         <div>
           <label for="gallery-category">Category</label>
           <select id="gallery-category" name="category">
