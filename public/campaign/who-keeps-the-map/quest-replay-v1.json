@@ -1,0 +1,69 @@
+{
+  "schema": "composer.public-quest-replay/1",
+  "slug": "the-crossing-lost-the-beat",
+  "title": "The crossing lost the beat",
+  "subtitle": "How a real edit got back on the piano, and what a replay still missed.",
+  "request": "Keep the song’s ownership story moving. Give the singer visible performance, fit the lettering into the world, and land the piano crossings on the beat.",
+  "evidenceAtTheTime": "The original film, the lyric cut, the exact stereo master and the retained takes were already on hand. The opening used deliberate voice-over. Sung passages and instrumental gaps needed different coverage.",
+  "historicalAttempt": "The in-scene cut put lettering on several surfaces while retiming crossings and adding visible chorus performance.",
+  "ownerFeedback": "The artist preferred the earlier edit, rejected the lettering and kept the lip-sync. That response preserved a specific part of an otherwise rejected attempt.",
+  "actualCorrection": "The earlier picture became the base. The accepted vocal inserts and original stereo track stayed. The unwanted lettering was removed, and later rhythm inserts and a keyboard cutaway were repaired.",
+  "actualResult": "The artist approved the Rhythm Cut on 26 November 2026. The published film preserves the accepted performance.",
+  "film": "https://fm.loftwah.com/album/who-keeps-the-map#music-video",
+  "comparison": {
+    "question": "Could a more explicit prompt help a model plan the next cut from the evidence available at the time?",
+    "model": "Cloudflare Workers AI gpt-oss-20b",
+    "coveredChecksDenominator": 12,
+    "caseCount": 2,
+    "maximumCompletionTokensPerArm": 1200,
+    "arms": [
+      {
+        "name": "Current guidance",
+        "coveredChecks": 4,
+        "completedCases": 2,
+        "seconds": 10.805,
+        "excerpt": "syncs piano key crossings to the beat",
+        "observation": "Named the right rhythmic action. It still omitted separate handling of voice-over and a small unlettered comparison."
+      },
+      {
+        "name": "Revised prompt",
+        "coveredChecks": 2,
+        "completedCases": 2,
+        "seconds": 9.241,
+        "excerpt": "syncs piano crossings off‑beat",
+        "observation": "The action conflicted with the request and with its own verification line."
+      },
+      {
+        "name": "Revised prompt with retrieved example",
+        "coveredChecks": null,
+        "completedCases": 0,
+        "seconds": 11.693,
+        "excerpt": null,
+        "observation": "Reached the shared response token cap without returning proposal text."
+      }
+    ],
+    "conclusion": "The revised prompt covered fewer requirements on this pilot. The retrieval proposal was unavailable for quality review. Keep the current guidance and test a narrower revision on fresh cases.",
+    "actualAcceptanceForReplayCandidates": null,
+    "billingInvoiceAud": null,
+    "estimatedListCostUsd": 0.0024199,
+    "totalReportedTokens": 10863
+  },
+  "evidenceViews": [
+    { "name": "Intelligence", "scope": "Requirements covered in two proposals", "current": "4/12", "revised": "2/12", "example": "The revised action put the piano crossing off-beat despite a correct-sounding verification line." },
+    { "name": "Wisdom", "scope": "Small lettering sample with an unlettered comparison", "current": "0/1", "revised": "0/1", "example": "Both proposals put lettering into the preview without isolating the risk to a single inspectable sample." },
+    { "name": "Endurance", "scope": "Proposals returned under the response limit", "current": "2/2", "revised": "2/2", "retrieval": "0/2", "example": "Two arms filled both cases. The third reached its cap without an answer." },
+    { "name": "Creativity", "scope": "An external mechanism and meaningful portfolio alternatives", "current": "0/1", "revised": "0/1", "example": "Both suggested broad neon prototype passes without the alternative compositions required for a comparison." },
+    { "name": "Knowledge", "scope": "Prior edit and exact stereo clock preserved in the proposal", "current": "1/1", "revised": "1/1", "example": "Both kept the source edit and recording in their proposed next pass." },
+    { "name": "Alignment", "scope": "Beat, vocal mode and owner criticism handled", "current": "1/3", "revised": "0/3", "example": "The revised prompt mishandled the beat and proposed keeping two portfolio lead images the owner had questioned." },
+    { "name": "Craft", "scope": "Historical owner-reviewed music video", "observation": "The artist accepted the Rhythm Cut after rejecting the in-scene typography treatment and keeping the performances." },
+    { "name": "Impact", "scope": "Audience or adoption outcomes attributable to the replay", "observation": null }
+  ],
+  "methodLimit": "Two grouped cases and one proposal pass per variant. The reviewer used a frozen rubric and shuffled response labels, and had seen prompt lengths during setup. Only the historical edit received owner acceptance. The replay tested planning proposals without tools, media analysis or deployment.",
+  "sources": [
+    { "label": "Artist-approved Rhythm Cut and known pitfalls", "url": "https://github.com/loftwah/app-composer/issues/1356" },
+    { "label": "Portfolio response after deployment", "url": "https://github.com/loftwah/app-composer/issues/1422#issuecomment-7233963874" },
+    { "label": "Learning corpus", "url": "https://github.com/loftwah/app-composer/issues/1446" },
+    { "label": "Research programme", "url": "https://github.com/loftwah/app-composer/issues/1445" },
+    { "label": "Workers AI unit pricing", "url": "https://developers.cloudflare.com/workers-ai/platform/pricing/" }
+  ]
+}
