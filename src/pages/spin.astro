@@ -41,7 +41,7 @@ const application = JSON.stringify({
   <meta slot="head" property="og:locale" content="en_AU" />
   {!replay && <script slot="head" type="application/ld+json" set:html={application} />}
   <section class="spin" data-spin data-spin-path={spinPath} data-spin-example={example || undefined}>
-    <div class="play">
+    <div class="play" data-play>
       <div class="wheel-panel" data-wheel-panel>
         <div class="stage-controls">
           <header class="stage-heading">
@@ -51,22 +51,6 @@ const application = JSON.stringify({
             </ul>
             <p class="note" data-spin-intro hidden></p>
           </header>
-          <div class="stage-mode">
-            <label class="mode-picker">
-              <span>Play mode</span>
-              <span class="mode-select"><select name="bestOf" form="spin-setup" aria-describedby="spin-mode-help" required disabled={replay}>
-                <option value="1">Single spin · Rounds off</option>
-                <option value="3">Best of 3</option>
-                <option value="5">Best of 5</option>
-                <option value="7">Best of 7</option>
-                <option value="0">Open tally</option>
-                <optgroup label="Longer series">
-                  {[9, 11, 13, 15, 17, 19, 21].map(count => <option value={count}>Best of {count}</option>)}
-                </optgroup>
-              </select><ChevronDown size={16} aria-hidden="true" /></span>
-            </label>
-            <p id="spin-mode-help" data-rules></p>
-          </div>
           <div class="wheel-actions">
             <div class="primary-slot" data-spin-primary>
               <button type="submit" class="button wheel-primary" form="spin-setup" data-spin-now
@@ -85,16 +69,35 @@ const application = JSON.stringify({
           <section data-share-result aria-label="Share result" hidden></section>
           <div class="wheel-tools">
             {!replay && <button type="button" data-edit-choices aria-controls="spin-wheel-editor" aria-expanded="false"><Pencil size={15} aria-hidden="true" /> Edit wheel</button>}
-            <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
-            <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
-            <button type="button" data-undo-wheel hidden>Undo</button>
-            <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
-              <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
-              <span data-sound-label>Sound on</span>
-            </button>
+            <button type="button" data-wheel-options aria-expanded="false" aria-controls="spin-mode spin-settings spin-presets">Options <ChevronDown size={15} aria-hidden="true" /></button>
+            <div class="wheel-settings" id="spin-settings">
+              <button type="button" data-clear-wheel aria-label="Clear choices">Clear</button>
+              <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
+              <button type="button" data-undo-wheel hidden>Undo</button>
+              <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
+                <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
+                <span data-sound-label>Sound on</span>
+              </button>
+            </div>
             <button type="button" data-auto hidden>Run series</button>
             <button class="finish-session" type="button" data-finish aria-label="Finish session" hidden>Finish</button>
             <a data-nearby target="_blank" rel="noopener noreferrer" hidden>Nearby <ArrowUpRight size={15} aria-hidden="true" /></a>
+          </div>
+          <div class="stage-mode" id="spin-mode">
+            <label class="mode-picker">
+              <span>Play mode</span>
+              <span class="mode-select"><select name="bestOf" form="spin-setup" aria-describedby="spin-mode-help" required disabled={replay}>
+                <option value="1">Single spin · Rounds off</option>
+                <option value="3">Best of 3</option>
+                <option value="5">Best of 5</option>
+                <option value="7">Best of 7</option>
+                <option value="0">Open tally</option>
+                <optgroup label="Longer series">
+                  {[9, 11, 13, 15, 17, 19, 21].map(count => <option value={count}>Best of {count}</option>)}
+                </optgroup>
+              </select><ChevronDown size={16} aria-hidden="true" /></span>
+            </label>
+            <p id="spin-mode-help" data-rules></p>
           </div>
           <p role="alert" data-error></p>
           {replay && <p data-start-over hidden><a href={spinDiscovery.href}>Open Spin</a></p>}
@@ -111,7 +114,7 @@ const application = JSON.stringify({
           </div>
         </div>
       </div>
-      <div class="preset-quick" role="group" aria-label="Wheel presets" data-spin-presets>
+      <div class="preset-quick" id="spin-presets" role="group" aria-label="Wheel presets" data-spin-presets>
         <button type="button" data-quick-chains aria-pressed="false"><Utensils size={16} aria-hidden="true" /> Fast food</button>
         <button type="button" data-quick-preset="game" aria-pressed="false"><Gamepad2 size={16} aria-hidden="true" /> Game night</button>
         <button type="button" data-quick-preset="weekend" aria-pressed="false"><CalendarDays size={16} aria-hidden="true" /> Weekend</button>
@@ -222,11 +225,14 @@ const application = JSON.stringify({
       </div>
     </div>
     <SpinShareDialog />
-    {!replay && <nav class="spin-guide" aria-label="Spin examples and help">
-      {Object.entries(spinExamples).map(([key, label]) => <a href={spinOrigin + '/?example=' + key}>{label}</a>)}
-      <a href="https://composer.loftwah.com/articles/why-we-built-spin">How Spin checks a result</a>
-      <a href="https://composer.loftwah.com/share/spin">Spin in App Composer Share</a>
-    </nav>}
+    {!replay && <details class="spin-guide">
+      <summary>Examples and help</summary>
+      <nav aria-label="Spin examples and help">
+        {Object.entries(spinExamples).map(([key, label]) => <a href={spinOrigin + '/?example=' + key}>{label}</a>)}
+        <a href="https://composer.loftwah.com/articles/why-we-built-spin">How Spin checks a result</a>
+        <a href="https://composer.loftwah.com/share/spin">Spin in App Composer Share</a>
+      </nav>
+    </details>}
   </section>
 </Base>
 
@@ -276,7 +282,7 @@ const application = JSON.stringify({
   }
   .choice-preview :global(li) { min-width: 0; display: flex; align-items: center; gap: 5px; margin: 0; overflow-wrap: anywhere; }
   .choice-preview :global(img) { width: 30px; height: 28px; object-fit: contain; }
-  .stage-mode { width: min(100%, 375px); }
+  .stage-mode { grid-row: 2; width: min(100%, 375px); }
   .stage-mode p { margin: 4px 0 0; color: var(--color-muted); font-size: .8rem; line-height: 1.25; }
   .stage-mode p:empty { display: none; }
   .mode-picker { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: .83rem; }
@@ -370,6 +376,8 @@ const application = JSON.stringify({
   .spin .wheel-actions > button:hover { border-color: var(--spin-accent); }
   .wheel-actions svg, .wheel-tools svg, .preset-quick button svg { flex: none; }
   .wheel-tools { display: flex; align-items: center; justify-content: flex-start; gap: 4px; min-height: 44px; flex-wrap: wrap; }
+  .wheel-settings { display: contents; }
+  .spin [data-wheel-options] { display: none; }
   .wheel-tools button, .wheel-tools a { gap: 5px; }
   .wheel-tools a { min-height: 44px; padding-inline: 8px; align-items: center; font-size: .85rem; }
   .wheel-tools a:not([hidden]) { display: inline-flex; }
@@ -439,24 +447,33 @@ const application = JSON.stringify({
   .scores :global(.winner) { color: var(--color-accent); font-weight: 700; }
   [data-error]:empty, [data-verification]:empty, [data-verification-warning]:empty, [data-editor-message]:empty, [data-export-status]:empty { display: none; }
   .secondary-actions a { align-self: center; font-weight: 650; }
-  .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 0 20px; }
+  .spin-guide { margin-top: 36px; padding-top: 8px; border-top: 1px solid var(--color-border); }
+  .spin-guide nav { display: flex; flex-wrap: wrap; gap: 0 20px; }
   .spin-guide a { display: inline-flex; min-height: 44px; align-items: center; font-size: .89rem; }
   :global(html[data-product='spin'] .focused-experience footer) { display: flex; flex-wrap: wrap; gap: .7rem 1.5rem; }
   @media (max-width: 760px) {
+    :global(body.spin-experience > main) { padding-inline: 12px; }
     .play { gap: 11px; padding-top: 8px; }
-    .wheel-panel { grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: start; padding: 0; }
+    .wheel-panel { display: flex; flex-direction: column; gap: 8px; align-items: stretch; padding: 0; }
     .stage-controls { display: contents; }
-    .stage-heading { grid-row: 1; }
+    .stage-heading { order: -3; }
     .wheel-question { font-size: clamp(2rem, 8vw, 3rem); }
-    .choice-preview { gap: 5px 9px; font-size: .79rem; }
-    .choice-preview :global(img) { width: 25px; height: 23px; }
-    .stage-mode { grid-row: 2; }
-    .wheel-display { grid-area: 3 / 1; width: min(100%, clamp(236px, 40dvh, 360px)); justify-self: center; }
-    .wheel-actions { grid-row: 4; }
-    .wheel-readout { grid-row: 5; min-block-size: 2.25rem; }
-    [data-share-result] { grid-row: 6; }
-    .wheel-tools { grid-row: 7; gap: 2px; max-width: 100%; }
-    .wheel-panel [data-error], .wheel-panel [data-start-over] { grid-row: 8; }
+    .choice-preview { position: absolute; width: 1px; height: 1px; min-height: 0; overflow: hidden; clip-path: inset(50%); }
+    .stage-mode { width: 100%; }
+    .wheel-display {
+      order: -2; align-self: center; width: min(calc(100% + 16px), clamp(300px, 65svh, 480px));
+      background: transparent; border: 0;
+    }
+    .wheel-frame { width: 100%; }
+    .wheel-actions { width: 100%; }
+    .wheel-readout { order: -1; min-block-size: 0; }
+    .wheel-readout:has([data-result-label]:empty):has([data-result]:empty) { display: none; }
+    .wheel-panel:not([data-result-image]) [data-share-result] { display: none; }
+    .wheel-tools { gap: 4px; max-width: 100%; }
+    .spin [data-wheel-options] { display: inline-flex; gap: 6px; border-color: var(--color-control-border); }
+    [data-wheel-options][aria-expanded='true'] svg { transform: rotate(180deg); }
+    .wheel-settings { display: flex; flex-wrap: wrap; flex-basis: 100%; gap: 4px; order: 1; }
+    .play:not([data-options-open]) :is(.stage-mode, .wheel-settings, .preset-quick) { display: none; }
     .spin .wheel-tools button:not(.button), .wheel-tools a {
       min-width: 44px; padding-inline: 7px; font-size: .81rem;
     }
@@ -464,6 +481,7 @@ const application = JSON.stringify({
     .preset-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .spin .preset-quick button { padding-inline: 9px; font-size: .83rem; gap: 5px; }
     .preset-picker select { font-size: .83rem; }
+    .spin-guide { margin-top: 20px; }
   }
   @media (max-width: 350px) {
     .spin .wheel-actions > button { padding-inline: 7px; font-size: .82rem; }
@@ -471,6 +489,5 @@ const application = JSON.stringify({
     .mode-picker > span:first-child {
       position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
     }
-    .choice-preview :global(img) { display: none; }
   }
 </style>
