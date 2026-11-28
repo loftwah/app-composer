@@ -75,7 +75,8 @@ const shareImage = new URL(Astro.props.shareImage ?? artwork.path, canonical);
 const shareAlt = Astro.props.shareAlt ?? artwork.alt;
 const shareType = (Astro.props.shareImage ? Astro.props.shareType : undefined) ?? siteShareImageType(shareImage.pathname);
 const { shareWidth = 1200, shareHeight = 630 } = Astro.props;
-Astro.response.headers.set("Cache-Control", "no-store");
+if (!Astro.response.headers.get("Cache-Control")?.includes("no-store"))
+  Astro.response.headers.set("Cache-Control", "no-store");
 // Cloudflare reads the SSR CSP header to nonce its own detection scripts.
 // Keep Astro's generated hashes; never add nonces to untrusted page content.
 Astro.csp?.insertScriptResource(

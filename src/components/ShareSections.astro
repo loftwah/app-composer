@@ -1,13 +1,15 @@
 ---
 interface Props {
-  current: 'artwork' | 'films';
+  current: 'artwork' | 'films' | 'liked';
+  showLiked?: boolean;
 }
-const { current } = Astro.props;
+const { current, showLiked } = Astro.props;
 ---
 
 <nav class="share-sections" aria-label="Explore Share">
   <a href="/share" aria-current={current === 'artwork' ? 'page' : undefined}>Artwork</a>
   <a href="/share?view=films" aria-current={current === 'films' ? 'page' : undefined}>Films</a>
+  {showLiked && <a href="/share?view=liked" aria-current={current === 'liked' ? 'page' : undefined}>Liked artwork</a>}
   <a href="/share?tag=internet-workshop">Internet Workshop</a>
 </nav>
 

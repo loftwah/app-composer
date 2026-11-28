@@ -462,15 +462,18 @@ export function mountShareGallery(wall: HTMLElement) {
   async function show(
     link: HTMLAnchorElement,
     historyMode: "push" | "replace" | "restore",
+    feedbackOpener?: HTMLAnchorElement,
   ) {
     previewRequest?.abort();
     const request = new AbortController();
     previewRequest = request;
     if (historyMode === "push") {
-      opener = link;
-      history.pushState({ shareArtwork: true }, "", new URL(link.href).pathname);
+      opener = feedbackOpener ?? link;
+      const url = new URL(link.href);
+      history.pushState({ shareArtwork: true }, "", url.pathname + url.search + (feedbackOpener ? "#artwork-feedback" : ""));
     } else if (historyMode === "replace") {
-      history.replaceState({ shareArtwork: true }, "", new URL(link.href).pathname);
+      const url = new URL(link.href);
+      history.replaceState({ shareArtwork: true }, "", url.pathname + url.search);
     } else if (!opener) {
       opener = link;
     }
@@ -510,11 +513,13 @@ export function mountShareGallery(wall: HTMLElement) {
       // entry has the artwork's permanent URL.
       content.replaceChildren(piece);
       mountArtworkActions(piece, request.signal);
+      if (feedbackOpener || location.hash === "#artwork-feedback")
+        piece.querySelector<HTMLElement>("[data-artwork-review] summary")?.focus();
     } catch {
       if (request.signal.aborted) return;
       message.textContent = "Couldn’t load the preview. ";
       const fallback = document.createElement("a");
-      fallback.href = link.href;
+      fallback.href = feedbackOpener?.href ?? link.href;
       fallback.textContent = "Open artwork page";
       message.append(fallback);
     }
@@ -543,12 +548,17 @@ export function mountShareGallery(wall: HTMLElement) {
   }
 
   grid.addEventListener("click", (event) => {
-    const link = (event.target as Element).closest<HTMLAnchorElement>(
-      "[data-artwork-open]",
+    const opener = (event.target as Element).closest<HTMLAnchorElement>(
+      "[data-artwork-open], [data-artwork-feedback]",
     );
-    if (!link || modified(event)) return;
+    if (!opener || modified(event)) return;
+    const isFeedback = opener.hasAttribute("data-artwork-feedback");
+    const link = isFeedback
+      ? opener.closest("article")?.querySelector<HTMLAnchorElement>("[data-artwork-open]")
+      : opener;
+    if (!link) return;
     event.preventDefault();
-    void show(link, "push");
+    void show(link, "push", isFeedback ? opener : undefined);
   });
 
   const dismiss = () => {

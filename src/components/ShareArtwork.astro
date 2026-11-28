@@ -1,5 +1,5 @@
 ---
-import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Maximize2, Search, Shuffle, SlidersHorizontal, X } from '@lucide/astro';
+import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, MessageSquare, Maximize2, Search, Shuffle, SlidersHorizontal, X } from '@lucide/astro';
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkOrientations, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import { shareCalendarEntry } from '../lib/share-calendar-entry';
@@ -13,7 +13,7 @@ interface Props {
 }
 const { catalogue, filters, signedIn } = Astro.props;
 const shareCalendarHref = shareCalendarEntry(signedIn);
-const { query, project, sort, category, orientation, tag, after, legacy } = filters;
+const { query, project, sort, category, orientation, tag, after, legacy, liked } = filters;
 const href = (updates: Partial<ArtworkFilters> = {}) => galleryHref(filters, { after: '', ...updates });
 const browse = new URL(href({ after }), 'https://composer.loftwah.com').search;
 const signIn = '/_emdash/admin/login?' + new URLSearchParams({ redirect: href({ after }) });
@@ -25,7 +25,7 @@ const facets = [
   { key: 'orientation', label: orientation !== 'any' && artworkOrientations[orientation] },
   { key: 'tag', label: tag && artworkLabel(tag) },
 ].filter(facet => facet.label);
-const facetCount = [project, category, orientation !== 'any', tag].filter(Boolean).length;
+const facetCount = [category, orientation !== 'any', tag].filter(Boolean).length;
 const options = {
   projects: [...new Set([...(catalogue?.projects ?? []), ...(project ? [project] : [])])],
   tags: [...new Set([...(catalogue?.tags ?? []), ...(tag ? [tag] : [])])],
@@ -34,20 +34,26 @@ const options = {
 
 <section class="share-gallery" aria-labelledby="artwork-heading" data-share-artwork>
   <header class="gallery-heading">
-    <h1 id="artwork-heading">Share<span>.</span></h1>
+    <h1 id="artwork-heading">{liked ? 'Liked artwork' : <>Share<span>.</span></>}</h1>
     <div class="gallery-intro">
-      <p>Artwork, sketches and posters from our projects.</p>
-      <ShareSections current="artwork" />
+      <p>{liked ? 'Artwork you’ve given a thumbs-up in private feedback.' : 'Artwork, sketches and posters across our projects.'}</p>
+      <ShareSections current={liked ? 'liked' : 'artwork'} showLiked={signedIn || liked} />
     </div>
-    <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a>
+    {catalogue?.items.length ? <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a> : null}
   </header>
 
-  <form class="gallery-controls" method="get" action="/share" role="search" aria-label="Browse artwork">
+  {catalogue && <form class="gallery-controls" method="get" action="/share" role="search" aria-label="Browse artwork">
     <label class="gallery-search">
       <span class="gallery-visually-hidden">Search artwork</span><Search size={18} aria-hidden="true" />
       <input type="search" name="art" placeholder="Search artwork" value={query} maxlength={SHARE_CATALOGUE_QUERY_MAX} />
     </label>
-    <button class="secondary gallery-apply" type="submit">Apply <span class="gallery-visually-hidden">search and sort</span></button>
+    <div class="gallery-sort gallery-project">
+      <label for="gallery-project">Project</label>
+      <select id="gallery-project" name="project">
+        <option value="">All projects</option>
+        {options.projects.map(value => <option value={value} selected={value === project}>{artworkLabel(value)}</option>)}
+      </select>
+    </div>
     <div class="gallery-sort">
       <label for="gallery-sort">Sort</label>
       <select id="gallery-sort" name="sort">
@@ -57,13 +63,6 @@ const options = {
     <details class="gallery-filter-menu">
       <summary><SlidersHorizontal size={16} aria-hidden="true" /> Filters{facetCount > 0 && ` (${facetCount})`} <ChevronDown size={14} aria-hidden="true" /></summary>
       <div class="gallery-filters">
-        <div>
-          <label for="gallery-project">Project</label>
-          <select id="gallery-project" name="project">
-            <option value="">All projects</option>
-            {options.projects.map(value => <option value={value} selected={value === project}>{artworkLabel(value)}</option>)}
-          </select>
-        </div>
         <div>
           <label for="gallery-category">Category</label>
           <select id="gallery-category" name="category">
@@ -87,8 +86,10 @@ const options = {
         <button type="submit">Apply filters</button>
       </div>
     </details>
+    <button class="secondary gallery-apply" type="submit">Apply <span class="gallery-visually-hidden">search, project and sort</span></button>
+    {liked && <input type="hidden" name="view" value="liked" />}
     {filters.seed && <input type="hidden" name="seed" value={filters.seed} />}
-  </form>
+  </form>}
 
   <div class="gallery-readout">
     <div class="gallery-results">
@@ -114,8 +115,10 @@ const options = {
     </details>
   </div>
 
-  {!catalogue ? (
-    <div class="gallery-empty"><h2>Artwork is temporarily unavailable</h2><a href={href()}>Try again</a></div>
+  {liked && !signedIn ? (
+    <div class="gallery-empty"><h2>Sign in to see your liked artwork</h2><a href={signIn}>Continue to sign-in</a></div>
+  ) : !catalogue ? (
+    <div class="gallery-empty"><h2>{liked ? 'Liked artwork is temporarily unavailable' : 'Artwork is temporarily unavailable'}</h2><a href={href()}>Try again</a></div>
   ) : catalogue.items.length ? (
     <div class="gallery-grid" data-artwork-grid>
       {catalogue.items.map((item, index) => (
@@ -134,11 +137,16 @@ const options = {
               <Maximize2 size={15} aria-hidden="true" />
             </div>
           </a>
+          {signedIn && <a class="gallery-tile-feedback" data-artwork-feedback href={`/share/artwork/${item.assetId}${browse}#artwork-feedback`} aria-label={`Give feedback on ${item.title}`}><MessageSquare size={16} aria-hidden="true" /> Feedback</a>}
         </article>
       ))}
     </div>
   ) : (
-    <div class="gallery-empty"><h2>No artwork matches these filters</h2><a href="/share">Browse all artwork</a></div>
+    <div class="gallery-empty">
+      <h2>{facets.length ? 'No artwork matches these filters' : liked ? 'No liked artwork yet' : 'No artwork available'}</h2>
+      {liked && !facets.length && <p>Give a piece a thumbs-up using Feedback, then find it here.</p>}
+      <a href={liked && facets.length ? "/share?view=liked" : "/share"}>{liked && facets.length ? 'Clear filters' : 'Browse all artwork'}</a>
+    </div>
   )}
 
   {catalogue && (after || catalogue.nextAfter) && (
