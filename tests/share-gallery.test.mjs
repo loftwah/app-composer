@@ -9,7 +9,7 @@ import {
   artworkRevision,
   publicShareArtwork,
 } from "../src/lib/share-catalogue-asset.ts";
-import { handleShareFeedback } from "../src/lib/share-feedback.ts";
+import { handleShareFeedback, readLikedArtworkIds } from "../src/lib/share-feedback.ts";
 import { migration, sqliteD1 } from "./helpers/stacks-sqlite.mjs";
 
 test("artwork facets and featured picks apply before pagination and shuffle stays stable", () => {
@@ -43,8 +43,12 @@ test("artwork facets and featured picks apply before pagination and shuffle stay
   const composer = { ...entries[0], project: "app-composer", assetId: "composer-study" };
   const studio = { ...entries[0], project: "composer-media-studio", assetId: "studio-study" };
   const mixed = [...entries, studio, composer];
-  assert.deepEqual(galleryPage(mixed, curation, forURL("/share")).items.slice(0, 3).map(item => item.assetId),
-    ["composer-study", "studio-study", "asset-52"]);
+  const first = galleryPage(mixed, curation, forURL("/share")).items.slice(0, 5);
+  assert.equal(first[0].assetId, "asset-52");
+  assert.equal(new Set(first.slice(1).map(item => item.project)).size, 4);
+  const liked = forURL("/share?view=liked");
+  assert.deepEqual(galleryPage(mixed, curation, liked, new Set(["composer-study", "withdrawn"])).items.map(item => item.assetId), ["composer-study"]);
+  assert.equal(new URL(galleryHref(liked, { after: "composer-study" }), "https://composer.test").searchParams.get("view"), "liked");
   assert.ok(galleryPage(mixed, curation, forURL("/share?project=fighter")).items.every(item => item.project === "fighter"));
 
   const walk = (seed) => {
@@ -203,6 +207,8 @@ test("artwork feedback stores the current public revision privately without ente
       save.note,
     );
     assert.equal((await (await call("bob", itemUrl)).json()).item, null);
+    assert.deepEqual([...await readLikedArtworkIds("alice", db)], [record.id]);
+    assert.deepEqual([...await readLikedArtworkIds("bob", db)], []);
     assert.deepEqual((await (await call("alice", base)).json()).items, []);
     record.original.version = "2";
     assert.equal((await call("alice", base, save)).status, 409);
@@ -211,6 +217,7 @@ test("artwork feedback stores the current public revision privately without ente
       200,
     );
     assert.equal((await (await call("alice", itemUrl)).json()).item, null);
+    assert.equal((await readLikedArtworkIds("alice", db)).size, 0);
   } finally {
     db.cleanup();
   }

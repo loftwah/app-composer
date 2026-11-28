@@ -7,6 +7,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { composerShareCollection, listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
 import { experiencePath, experiences, type ExperienceId } from "../lib/share-experiences.ts";
 import { artworkFilters, galleryPage, readArtworkCuration } from '../lib/share-gallery.ts';
+import { readLikedArtworkIds } from '../lib/share-feedback.ts';
 import { spinDiscovery } from '../lib/spin-site.mjs';
 import { noindexFor } from '../lib/indexing.mjs';
 import { hasShareWallFilters, shareWallQuery } from '../lib/share-wall.ts';
@@ -24,14 +25,23 @@ if (!filmsView && (params.get('view') === 'stacks' || hasShareWallFilters(shareW
 const filters = artworkFilters(params);
 const dominationFilm = !filmsView && filters.tag === "operation-world-domination";
 const internetWorkshop = !filmsView && filters.tag === "internet-workshop";
-const shareData = filmsView ? null : await Promise.all([
+if (!filmsView && filters.liked) Astro.response.headers.set('X-Robots-Tag', 'noindex');
+const user = Astro.locals.user;
+const db = (env as unknown as {DB?: D1Database}).DB;
+if (!filmsView) {
+  Astro.response.headers.set('Cache-Control', 'private, no-store');
+  Astro.response.headers.set('Vary', 'Cookie');
+}
+const canBrowse = !filters.liked || Boolean(user);
+const shareData = filmsView || !canBrowse ? null : await Promise.all([
   composerShareCollection(filters.tag) ?? listShareArtwork(),
-  readArtworkCuration((env as unknown as {DB?: D1Database}).DB).catch(() => []),
+  readArtworkCuration(db).catch(() => []),
+  filters.liked && user ? readLikedArtworkIds(user.id, db).catch(() => null) : undefined,
 ]);
 const artwork = shareData?.[0] ?? null;
-const curation = shareData?.[1] ?? [];
-const catalogue = !filmsView && artwork ? galleryPage(artwork, curation, filters) : null;
-if (!filmsView && !catalogue) Astro.response.status = 503;
+const likedIds = shareData?.[2];
+const catalogue = artwork && likedIds !== null ? galleryPage(artwork, shareData?.[1] ?? [], filters, likedIds) : null;
+if (!filmsView && canBrowse && !catalogue) Astro.response.status = 503;
 if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 ---
 
@@ -67,7 +77,7 @@ if (catalogue) Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/cam
     '#briefing-cards': '/share?tag=briefing-cards',
     '#diagram-artwork': '/share?tag=engineering-artwork',
     '#films': '/share?view=films',
-    '#my-feedback': '/media-studio/films#my-feedback',
+    '#my-feedback': '/share?view=films#my-feedback',
     '#published-stacks': '/studio/published',
   };
   if (Object.hasOwn(moved, location.hash)) location.replace(moved[location.hash]);

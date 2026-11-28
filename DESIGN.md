@@ -16,6 +16,10 @@ rounded: {native-field: "6px", native-button: "8px"}
 # Design
 Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
 
+## Share discovery and feedback — 28 November 2026 AEDT
+
+Artwork is the working gallery. The project filter is visible beside search, and the unfiltered featured view gives curated work priority and brings distinct projects forward. Signed-in collaborators can start a private review directly on a piece or film. Liked artwork gives the actor a return path to their latest positive reviews of currently public work. The catalogue and image colours remain the source of the wall.
+
 ## Share artwork — 18 November 2026
 
 Share is an exhibition of actual catalogue artwork. A larger first piece sets

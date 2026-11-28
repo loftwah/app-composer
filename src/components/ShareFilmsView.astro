@@ -1,13 +1,17 @@
 ---
 import { ArrowUpRight } from '@lucide/astro';
 import ShareSections from './ShareSections.astro';
+import ShareFilmVotes from './ShareFilmVotes.astro';
+import ShareFilmFeedback from './ShareFilmFeedback.astro';
 import { shareFilms, studioFilmPath } from '../lib/share-films.ts';
 
+const signedIn = Boolean(Astro.locals.user);
 const [socialKit, studioTeaser, workshop] = shareFilms;
 const workshopWatch = '/brand/campaign/take-it-with-you-20261118';
 const teaserWatch = '/media-studio/watch/media-studio-teaser-recut';
 const films = [
   {
+    feedback: workshop,
     id: workshop.id,
     title: workshop.title,
     detail: workshop.detail,
@@ -20,6 +24,7 @@ const films = [
     portrait: false,
   },
   {
+    feedback: studioTeaser,
     id: studioTeaser.id,
     title: studioTeaser.title,
     detail: '30 seconds · From a brief to a published motion study.',
@@ -33,6 +38,7 @@ const films = [
     portrait: true,
   },
   {
+    feedback: socialKit,
     id: socialKit.id,
     title: socialKit.title,
     detail: '17 seconds · Image Tools turns one PNG into four sizes and downloads a ZIP.',
@@ -52,7 +58,7 @@ const films = [
     <h1 id="films-heading">Films<span aria-hidden="true">.</span></h1>
     <div class="films-intro">
       <p>Watch short films from our projects.</p>
-      <ShareSections current="films" />
+      <ShareSections current="films" showLiked={signedIn} />
     </div>
   </header>
 
@@ -73,15 +79,18 @@ const films = [
             <a href={film.src} download>Download film</a>
             {film.transcript && <a href={film.transcript}>Transcript</a>}
           </nav>
+          {signedIn && <ShareFilmVotes film={film.feedback} />}
         </div>
       </li>
     ))}
   </ul>
 
+  {signedIn && <ShareFilmFeedback />}
+
   <nav class="films-detail" aria-label="More about the films">
     <a href="/share?tag=operation-world-domination">Operation World Domination <ArrowUpRight size={14} aria-hidden="true" /></a>
     <a href="/media-studio#watch">Watch the full Studio build <ArrowUpRight size={14} aria-hidden="true" /></a>
-    <a href="/media-studio/films#my-feedback">Private feedback <ArrowUpRight size={14} aria-hidden="true" /></a>
+    {!signedIn && <a href="/_emdash/admin/login?redirect=/share%3Fview%3Dfilms">Sign in to give feedback <ArrowUpRight size={14} aria-hidden="true" /></a>}
   </nav>
 </section>
 

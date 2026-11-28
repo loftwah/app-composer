@@ -64,10 +64,10 @@ const packageData = JSON.stringify({
     <div class="gallery-image-status" role="status" data-gallery-image-status></div>
     {artwork.description && <p class="gallery-description">{artwork.description}</p>}
     {signedIn ? (
-      <details class="gallery-piece-section gallery-feedback" data-artwork-review open>
+      <details id="artwork-feedback" class="gallery-piece-section gallery-feedback" data-artwork-review open>
         <summary>Private feedback</summary>
         <form data-review-form data-asset-id={artwork.assetId} data-revision={revision}>
-          <p>Signed in. Only you can see your vote and note.</p>
+          <p>Only you can see your vote and note. Thumbs-up adds this piece to Liked artwork.</p>
           <fieldset disabled>
             <legend>Your vote</legend>
             <label><input type="radio" name="vote" value="up" required /> <span>Thumbs up</span></label>

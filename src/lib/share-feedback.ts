@@ -63,6 +63,18 @@ const decode = (row: StoredFeedback): ShareFeedback => ({
 const reply = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } });
 
+export async function readLikedArtworkIds(actorId: string, db?: D1Database) {
+  if (!db) throw new Error("Feedback unavailable");
+  const { results } = await db.prepare(`SELECT asset_id AS assetId FROM (
+    SELECT asset_id, vote, ROW_NUMBER() OVER (
+      PARTITION BY asset_id ORDER BY updated_at DESC, vote ASC, asset_revision
+    ) AS latest
+    FROM composer_share_feedback
+    WHERE actor_id=? AND asset_url LIKE '/share/artwork/%'
+  ) WHERE latest=1 AND vote='up'`).bind(actorId).all<{assetId: string}>();
+  return new Set(results.map(({ assetId }) => assetId));
+}
+
 export async function handleShareFeedback(request: Request, actorId: string | undefined, db: D1Database | undefined, resolveArtwork = publicShareArtwork) {
   if (!actorId) return reply({ error: "Sign in to give feedback." }, 401);
   if (!db) return reply({ error: "Feedback is unavailable. Try again shortly." }, 503);

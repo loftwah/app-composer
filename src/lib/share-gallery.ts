@@ -76,6 +76,7 @@ export function artworkFilters(params: URLSearchParams) {
   const rawCategory = params.get("category") ?? "";
   const rawOrientation = params.get("orientation") ?? "";
   return {
+    liked: params.get("view") === "liked",
     query: (params.get("art") ?? "").slice(0, SHARE_CATALOGUE_QUERY_MAX).trim(),
     project: normalizeShareAssetId(params.get("project")) ?? "",
     category: Object.hasOwn(artworkCategories, rawCategory) ? rawCategory : "",
@@ -104,6 +105,7 @@ export function galleryHref(
   const state = { ...filters, ...updates };
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries({
+    view: state.liked ? "liked" : "",
     art: state.query,
     project: state.project,
     category: state.category,
@@ -129,9 +131,11 @@ export function galleryPage(
   catalogue: CatalogueArtwork[],
   curation: ArtworkCuration[],
   filters: ArtworkFilters,
+  likedIds?: ReadonlySet<string>,
 ) {
   const edits = new Map(curation.map((item) => [item.assetId, item]));
-  const all = catalogue.map((item) => {
+  const visible = filters.liked ? catalogue.filter((item) => likedIds?.has(item.assetId)) : catalogue;
+  const all = visible.map((item) => {
     const edit = edits.get(item.assetId);
     return {
       ...item,
@@ -200,11 +204,12 @@ export function galleryPage(
         return newest(a, b);
     }
   });
-  // Within each part of the collection, keep featured picks and rotate series.
+  // Honour featured picks across the catalogue and mix the other projects and series.
   if (
     filters.sort === "featured" &&
     !filters.legacy &&
     !filters.project &&
+    !filters.tag &&
     !filters.query
   ) {
     const unfeatured = new Map<string, number>();
@@ -220,14 +225,7 @@ export function galleryPage(
         return [item.assetId, Math.max(project, series)];
       }),
     );
-    const familyOrder = (project: string) => {
-      if (project === "app-composer") return 0;
-      if (project === "composer-media-studio" || project.startsWith("app-composer-")) return 1;
-      return 2;
-    };
-    matches.sort((a, b) =>
-      familyOrder(a.project) - familyOrder(b.project) || rank.get(a.assetId)! - rank.get(b.assetId)!,
-    );
+    matches.sort((a, b) => rank.get(a.assetId)! - rank.get(b.assetId)!);
   }
   const start = filters.legacy
     ? matches.filter((item) => item.assetId <= filters.after).length
