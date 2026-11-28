@@ -117,6 +117,7 @@ export async function reviewShareSocial({
   sharp,
   output,
   limit,
+  refreshBudget,
 }) {
   if (!catalogue.length || catalogue.length > 8000)
     throw Error("Unexpected public catalogue size");
@@ -159,16 +160,35 @@ export async function reviewShareSocial({
           ],
       )
     : eligible;
-  const pending = target.filter(({ id, revision, artwork }) => {
+  const sameContext = (prior, artwork) =>
+    prior?.title === artwork.title &&
+    prior?.project === artwork.project &&
+    prior?.category === artwork.category;
+  const cached = ({ id, revision, artwork }) => {
     const prior = saved.get(`${id}:${revision}`);
+    return prior?.thumbnailUrl === artwork.thumbnailUrl &&
+      sameContext(prior, artwork)
+      ? prior
+      : undefined;
+  };
+  const pending = target.filter((entry) => {
+    const prior = cached(entry);
     return (
-      prior?.thumbnailUrl !== artwork.thumbnailUrl ||
+      !prior ||
       !(Date.now() - Date.parse(prior.checkedAt) < 14 * 24 * 60 * 60 * 1000)
     );
   });
+  // Check new or changed work before periodic byte revalidation.
+  const reviewedNow =
+    refreshBudget === undefined
+      ? pending
+      : [
+          ...pending.filter((entry) => !cached(entry)),
+          ...pending.filter((entry) => cached(entry)),
+        ].slice(0, refreshBudget);
   const batches = Array.from(
-    { length: Math.ceil(pending.length / 16) },
-    (_, index) => pending.slice(index * 16, index * 16 + 16),
+    { length: Math.ceil(reviewedNow.length / 16) },
+    (_, index) => reviewedNow.slice(index * 16, index * 16 + 16),
   );
   let cursor = 0;
   let batchesDone = 0;
@@ -207,8 +227,12 @@ export async function reviewShareSocial({
         continue;
       }
       const prior = saved.get(`${id}:${revision}`);
-      if (prior?.hash === result.value.hash)
-        reused.push({ ...prior, ...context });
+      if (prior?.hash === result.value.hash && sameContext(prior, artwork))
+        reused.push({
+          ...prior,
+          ...context,
+          reviewedAt: prior.reviewedAt ?? prior.checkedAt,
+        });
       else captured.push({ context, ...result.value });
     }
     if (reused.length) {
@@ -271,6 +295,7 @@ export async function reviewShareSocial({
       return {
         ...context,
         hash,
+        reviewedAt: context.checkedAt,
         status: "reviewed",
         placement,
         fix,
@@ -304,10 +329,11 @@ export async function reviewShareSocial({
       }
     }),
   );
-  const items = target.map(
-    ({ id, revision, artwork }) =>
+  const items = target.map((entry) => {
+    const { id, revision, artwork } = entry;
+    return (
       observed.get(id) ??
-      saved.get(`${id}:${revision}`) ?? {
+      cached(entry) ?? {
         id,
         revision,
         title: artwork.title,
@@ -315,8 +341,9 @@ export async function reviewShareSocial({
         category: artwork.category,
         shareUrl: artwork.shareUrl,
         status: "unreviewed",
-      },
-  );
+      }
+    );
+  });
   const statusCounts = {};
   for (const { status } of items)
     statusCounts[status] = (statusCounts[status] ?? 0) + 1;
@@ -327,6 +354,8 @@ export async function reviewShareSocial({
     reviewed: statusCounts.reviewed ?? 0,
     statusCounts,
     sample: !!limit,
+    refreshBudget,
+    refreshRemaining: pending.length - reviewedNow.length,
     stoppedBy,
     placements,
     improvements,

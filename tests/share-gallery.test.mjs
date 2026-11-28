@@ -7,6 +7,7 @@ import {
 } from "../src/lib/share-gallery.ts";
 import {
   artworkRevision,
+  composerShareCollection,
   publicShareArtwork,
 } from "../src/lib/share-catalogue-asset.ts";
 import { handleShareFeedback, readLikedArtworkIds } from "../src/lib/share-feedback.ts";
@@ -92,6 +93,16 @@ test("Clef scores order the entire filtered cohort and leave unknowns browseable
   assert.deepEqual(second.items.map(item => item.assetId), ["piece-23", "piece-00", "piece-26"]);
   assert.equal(second.items[1].social.score, 0);
   assert.equal(second.items[2].social, undefined);
+});
+
+test("a new title or thumbnail retires a cached Clef assessment", async () => {
+  const { artworkSocialReview } = await import("../src/lib/decision-intelligence.ts");
+  const artwork = composerShareCollection("who-keeps-the-map")
+    .find(item => item.assetId === "map-ask-the-owner");
+  assert.ok(await artworkSocialReview(artwork));
+  assert.equal(await artworkSocialReview({ ...artwork, title: "A materially different title" }), undefined);
+  assert.equal(await artworkSocialReview({ ...artwork, thumbnailUrl: artwork.previewUrl }), undefined);
+  assert.ok(await artworkSocialReview(artwork));
 });
 
 test("orientation filter uses recorded original dimensions and survives gallery URLs", () => {

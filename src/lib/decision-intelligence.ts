@@ -1,4 +1,4 @@
-import social from "../data/share-social-intelligence.json";
+import social from "../data/share-social-intelligence.json" with { type: "json" };
 import {
   artworkRevision,
   sha256Bytes,
@@ -23,13 +23,20 @@ type SocialRow = [
   number,
   string,
   string,
+  string?,
+  string?,
 ];
 const assetReviews = social.assets as unknown as Record<string, SocialRow>;
+type ArtworkContext = Pick<CatalogueArtwork, "title" | "project" | "category">;
+const assessmentContext = (item: ArtworkContext) =>
+  JSON.stringify([item.title, item.project, item.category]);
+const digest = (value: string) => sha256Bytes(new TextEncoder().encode(value));
 
 export async function socialReview(
   id: string,
   revision: string,
   thumbnailUrl: string,
+  context?: ArtworkContext,
 ): Promise<SocialReview | undefined> {
   const row = assetReviews[id];
   if (
@@ -43,45 +50,42 @@ export async function socialReview(
     !Object.hasOwn(socialFixes, row[3])
   )
     return undefined;
-  const thumbKey = await sha256Bytes(new TextEncoder().encode(thumbnailUrl));
-  if (thumbKey !== row[6]) return undefined;
+  if (
+    row[7] &&
+    (!context || (await digest(assessmentContext(context))) !== row[7])
+  )
+    return undefined;
+  if ((await digest(thumbnailUrl)) !== row[6]) return undefined;
   return {
     status: row[1],
     placement: socialPlacements[row[2]],
     fix: socialFixes[row[3]],
     score: row[4],
     revision,
-    reviewedAt: social.evaluatedAt,
+    reviewedAt: row[8] ?? social.evaluatedAt,
     rubric: social.rubric,
   };
 }
 
 const assessmentCache = new Map<
   string,
-  {
-    source: string;
-    thumbnail: string;
-    review: Promise<SocialReview | undefined>;
-  }
+  { identity: string; review: Promise<SocialReview | undefined> }
 >();
 
 export function artworkSocialReview(item: CatalogueArtwork) {
   if (!Object.hasOwn(assetReviews, item.assetId))
     return Promise.resolve(undefined);
+  const identity = JSON.stringify([
+    item.revisionSource,
+    item.thumbnailUrl,
+    assessmentContext(item),
+  ]);
   const prior = assessmentCache.get(item.assetId);
-  if (
-    prior?.source === item.revisionSource &&
-    prior.thumbnail === item.thumbnailUrl
-  )
-    return prior.review;
+  if (prior?.identity === identity) return prior.review;
   const review = artworkRevision(item).then((revision) =>
-    socialReview(item.assetId, revision, item.thumbnailUrl),
+    socialReview(item.assetId, revision, item.thumbnailUrl, item),
   );
-  assessmentCache.set(item.assetId, {
-    source: item.revisionSource,
-    thumbnail: item.thumbnailUrl,
-    review,
-  });
+  assessmentCache.set(item.assetId, { identity, review });
   return review;
 }
 

@@ -230,13 +230,20 @@ export async function getDecision(
   id: string,
 ): Promise<DecisionDetail> {
   const decision = await getBrief(db, owner, id);
+  const art = decision.subject?.thumbnailUrl
+    ? await publicShareArtwork(decision.subject.assetId)
+    : null;
   const visual =
-    decision.subject?.thumbnailUrl &&
-    (await socialReview(
-      decision.subject.assetId,
-      decision.subject.revision,
-      decision.subject.thumbnailUrl,
-    ));
+    art?.status === 200 &&
+    decision.subject?.thumbnailUrl === art.artwork.thumbnailUrl &&
+    (await artworkRevision(art.artwork)) === decision.subject.revision
+      ? await socialReview(
+          decision.subject.assetId,
+          decision.subject.revision,
+          art.artwork.thumbnailUrl,
+          art.artwork,
+        )
+      : undefined;
   const [history, previous, linked] = await Promise.all([
     decisionHistory(db, owner, id),
     decision.followUpTo

@@ -235,7 +235,7 @@ async function share(
         revision,
         social:
           item.social ??
-          (await socialReview(item.id, revision, record.thumbnailUrl)),
+          (await socialReview(item.id, revision, record.thumbnailUrl, record)),
       };
       if (!assessment || assessment[0] !== revision) return withRevision;
       const [, label, confidence] = assessment;
