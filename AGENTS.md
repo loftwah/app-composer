@@ -1,5 +1,9 @@
 # App Composer agent entry point
 
+## Ambitious outcomes
+
+Apply [the ambitious outcomes guidance](docs/ambitious-outcomes.md) when planning, delegating or executing an authorised task. Establish the intended user result, use relevant raw evidence and professional methods, and choose the concrete tools or disciplines that improve it. Supply ordinary missing work and carry the result through the existing delivery route. Preserve the task boundary, BYO agents, two active implementation units, the routine 120-second budget and proportionate independent verification. [#426](https://github.com/loftwah/app-composer/issues/426) owns observed adoption; recording this guidance alone does not prove the product outcome.
+
 ## Product work first — owner direction, 6 November 2026
 
 Deliver the requested useful product outcome. Testing, review and release evidence support that work; they are not separate campaigns or reasons to defer it. Choose checks for the actual change and its risks, run them once at the appropriate point, and continue through integration and the authorised production release. Do not expand a task into an audit, test-recovery project or qualification programme without a concrete defect or an explicit request.
