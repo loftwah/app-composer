@@ -36,7 +36,7 @@ if (
   !key
 )
   throw Error(
-    "Choose --run, --recommend [public-observations.json], --visual manifest.json, --social output-directory [sample-count], --methods manifest.json, or --films output-directory using the existing Workers AI account credentials.",
+    "Choose --run, --recommend [public-observations.json], --visual manifest.json, --social output-directory [sample-count|--refresh MAX], --methods manifest.json, or --films output-directory using the existing Workers AI account credentials.",
   );
 const require = createRequire(import.meta.url);
 const astroRequire = createRequire(
@@ -568,8 +568,17 @@ async function fullResearch() {
 async function social() {
   if (!modeArg)
     throw Error("Provide an ignored output directory for the public review.");
+  const refresh = process.argv[4] === "--refresh";
+  const refreshBudget = refresh ? Number(process.argv[5] ?? 16) : undefined;
+  if (
+    refreshBudget !== undefined &&
+    (!Number.isInteger(refreshBudget) ||
+      refreshBudget < 1 ||
+      refreshBudget > 64)
+  )
+    throw Error("A bounded refresh must allow 1–64 assets.");
   const limit =
-    process.argv[4] === undefined ? undefined : Number(process.argv[4]);
+    !refresh && process.argv[4] ? Number(process.argv[4]) : undefined;
   if (
     limit !== undefined &&
     (!Number.isInteger(limit) || limit < 1 || limit > 64)
@@ -594,7 +603,7 @@ async function social() {
     await import(pathToFileURL(modulePath));
   const [catalogue, studio] = await Promise.all([
     listShareArtwork({ timeoutMs: 20000 }),
-    loadStudioShowcase(),
+    refresh ? Promise.resolve([]) : loadStudioShowcase(),
   ]);
   if (!catalogue?.length)
     throw Error("The public Share catalogue could not be read.");
@@ -618,6 +627,7 @@ async function social() {
     sharp: astroRequire("sharp"),
     output: modeArg,
     limit,
+    refreshBudget,
   });
   console.log(
     JSON.stringify({

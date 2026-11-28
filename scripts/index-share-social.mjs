@@ -19,6 +19,8 @@ if (
   throw Error(
     "Use a complete public catalogue snapshot. Keep pilot results in output.",
   );
+const indexPath = "src/data/share-social-intelligence.json";
+const previous = JSON.parse(await readFile(indexPath, "utf8"));
 const seen = new Set();
 const assets = {};
 const counts = { promising: 0, revise: 0, reference: 0, unreviewed: 0 };
@@ -53,6 +55,19 @@ for (const item of run.items) {
         ? "promising"
         : "revise";
   counts[status]++;
+  const prior = previous.assets[item.id];
+  const unchangedEvidence =
+    prior?.[0] === item.revision &&
+    prior[4] === item.score &&
+    prior[5] === item.hash;
+  const reviewedAt =
+    item.reviewedAt ??
+    (unchangedEvidence ? (prior[8] ?? previous.evaluatedAt) : item.checkedAt);
+  if (!Number.isFinite(Date.parse(reviewedAt)))
+    throw Error("Invalid date for artwork review.");
+  const contextHash = createHash("sha256")
+    .update(JSON.stringify([item.title, item.project, item.category]))
+    .digest("hex");
   assets[item.id] = [
     item.revision,
     status,
@@ -61,6 +76,8 @@ for (const item of run.items) {
     item.score,
     item.hash,
     createHash("sha256").update(item.thumbnailUrl).digest("hex"),
+    contextHash,
+    reviewedAt,
   ];
 }
 const filmRun = await readFile(
@@ -73,58 +90,63 @@ const filmRun = await readFile(
     return null;
   });
 const filmRows = new Map((filmRun?.items ?? []).map((item) => [item.id, item]));
-const films = run.films.map(({ id, title, href }) => {
-  const url = URL.parse(href);
-  if (
-    !/^[A-Za-z0-9_-]{1,80}$/.test(id) ||
-    typeof title !== "string" ||
-    !title.trim() ||
-    title.length > 160 ||
-    !url ||
-    url.username ||
-    url.password ||
-    url.search ||
-    ![
-      "https://composer.loftwah.com",
-      "https://media.loftwah.com",
-      "https://woodhouse.loftwah.com",
-    ].includes(url.origin)
-  )
-    throw Error("Invalid public film identity.");
-  const film = { id, title, href };
-  const evidence = filmRows.get(id);
-  if (
-    !evidence ||
-    evidence.href !== film.href ||
-    evidence.status !== "reviewed"
-  )
-    return film;
-  const hook = evidence.hook?.choice;
-  const score = evidence.fit?.score;
-  if (
-    !["use", "faster", "context", "captions", "reference"].includes(hook) ||
-    !Number.isFinite(score) ||
-    score < 0 ||
-    score > 4 ||
-    !/^[a-f0-9]{64}$/.test(evidence.sampleHash)
-  )
-    throw Error("Invalid film opening review.");
-  return {
-    ...film,
-    opening: [hook, Math.round(score * 100) / 100, evidence.sampleHash],
-  };
-});
+const films =
+  run.refreshBudget === undefined
+    ? run.films.map(({ id, title, href }) => {
+        const url = URL.parse(href);
+        if (
+          !/^[A-Za-z0-9_-]{1,80}$/.test(id) ||
+          typeof title !== "string" ||
+          !title.trim() ||
+          title.length > 160 ||
+          !url ||
+          url.username ||
+          url.password ||
+          url.search ||
+          ![
+            "https://composer.loftwah.com",
+            "https://media.loftwah.com",
+            "https://woodhouse.loftwah.com",
+          ].includes(url.origin)
+        )
+          throw Error("Invalid public film identity.");
+        const film = { id, title, href };
+        const evidence = filmRows.get(id);
+        if (
+          !evidence ||
+          evidence.href !== film.href ||
+          evidence.status !== "reviewed"
+        )
+          return film;
+        const hook = evidence.hook?.choice;
+        const score = evidence.fit?.score;
+        if (
+          !["use", "faster", "context", "captions", "reference"].includes(
+            hook,
+          ) ||
+          !Number.isFinite(score) ||
+          score < 0 ||
+          score > 4 ||
+          !/^[a-f0-9]{64}$/.test(evidence.sampleHash)
+        )
+          throw Error("Invalid film opening review.");
+        return {
+          ...film,
+          opening: [hook, Math.round(score * 100) / 100, evidence.sampleHash],
+        };
+      })
+    : previous.films;
 const index = {
   rubric: run.rubric,
   evaluatedAt: run.evaluatedAt,
   artwork: run.eligible,
   counts,
   films,
-  filmUnique: filmRun?.unique ?? 0,
+  filmUnique:
+    run.refreshBudget === undefined
+      ? (filmRun?.unique ?? 0)
+      : previous.filmUnique,
   assets,
 };
-await writeFile(
-  "src/data/share-social-intelligence.json",
-  JSON.stringify(index) + "\n",
-);
+await writeFile(indexPath, JSON.stringify(index) + "\n");
 console.log(JSON.stringify(counts));

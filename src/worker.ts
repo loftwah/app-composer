@@ -17,6 +17,7 @@ import {printsDomainRequest} from './lib/prints-site.mjs';
 import {spinDomainRequest} from './lib/spin-site.mjs';
 import {printsFieldKitAsset} from './lib/prints-downloads.mjs';
 import {publicPageRedirect} from './lib/public-pages.mjs';
+import {runScheduledBlueskyObservations} from './lib/bluesky-observations.ts';
 import {runScheduledPluginTrustWatch} from './lib/plugin-trust-watch-run.ts';
 import {pluginTrustSnapshot} from './lib/plugin-trust-contract.ts';
 import pluginTrustCommitted from './data/plugin-trust-20261107.json' with {type:'json'};
@@ -61,6 +62,11 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
 const cmsScheduled=createScheduledHandler();
 export default {...handler,fetch:guardedFetch,scheduled:async(controller:ScheduledController,runtime:Runtime,context:ExecutionContext)=>{
  const date=new Date(controller.scheduledTime);
+ if(runtime.PUBLIC_ORIGIN==='https://composer.loftwah.com'&&date.getUTCMinutes()%15===0) {
+  context.waitUntil(runScheduledBlueskyObservations(runtime.DB,new Date()).catch(()=>{
+   console.error('Bluesky public observations unavailable');
+  }));
+ }
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgeResourceActions(runtime.DB,date).catch(()=>{console.error('Resource count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purge(runtime.DB,date).catch(()=>{console.error('Daily count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgePrivateOutcomes(runtime.DB,date).catch(()=>{console.error('Private outcome retention unavailable');}));

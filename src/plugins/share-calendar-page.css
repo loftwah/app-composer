@@ -960,3 +960,36 @@
     max-width: 100%;
   }
 }
+
+.sc-observations {
+  border-block: 1px solid var(--sc-line);
+  margin-block: 12px;
+  padding-block: 8px;
+}
+.sc-observations > summary {
+  cursor: pointer;
+  font-weight: 650;
+  padding-block: 6px;
+}
+.sc-observation-windows {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sc-observation-counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 4px 0;
+  font-variant-numeric: tabular-nums;
+}
+.sc-observation-counters div {
+  display: inline-flex;
+  gap: 5px;
+}
+.sc-observation-counters dd {
+  margin: 0;
+  font-weight: 650;
+}

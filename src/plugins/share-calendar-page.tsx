@@ -49,6 +49,11 @@ import {
   type ShareListFilter,
   type ShareQueuePresetsReply,
 } from "../lib/share-calendar";
+import {
+  blueskyObservationFailures,
+  blueskyObservationSchedule,
+  type BlueskyObservation,
+} from "../lib/bluesky-observation-contract.ts";
 import { shareCalendarAgenda } from "../lib/share-calendar-agenda";
 import {
   catalogueSearchReplySchema,
@@ -477,6 +482,156 @@ function displayDate(value: string | null) {
   if (!value) return "No date";
   const labels = scheduleLabels(value);
   return labels ? `${labels.melbourne} · ${labels.utc}` : "Unreadable date";
+}
+
+function BlueskyObservationDetails({
+  receipt,
+  observations,
+  now,
+}: {
+  receipt: BlueskyDeliveryRecord;
+  observations: BlueskyObservation[] | null | undefined;
+  now: string;
+}) {
+  if (!receipt.publishedAt || !receipt.providerUri || !receipt.providerCid)
+    return null;
+  const rows =
+    observations?.filter(
+      (row) =>
+        row.itemId === receipt.itemId &&
+        row.approvalRevision === receipt.approvalRevision,
+    ) ?? [];
+  const timeline = blueskyObservationSchedule(receipt.publishedAt, rows, now);
+  const collected = rows
+    .filter((row) => row.observedAt)
+    .sort((a, b) => a.observedAt!.localeCompare(b.observedAt!));
+  const last = rows
+    .map(({ attemptedAt }) => attemptedAt)
+    .sort()
+    .at(-1);
+  const next = timeline
+    .flatMap(({ status, dueAt, row }) =>
+      status === "Scheduled" && dueAt
+        ? [dueAt]
+        : status === "Retry scheduled" && row?.retryAt
+          ? [row.retryAt]
+          : [],
+    )
+    .sort()[0];
+  const awaiting = timeline.some(
+    ({ status }) => status === "Awaiting collection",
+  );
+
+  return (
+    <details className="sc-observations">
+      <summary>
+        Bluesky post observations · approval {receipt.approvalRevision}
+      </summary>
+      {receipt.permalink?.startsWith("https://bsky.app/profile/") && (
+        <a
+          className="sc-text-link"
+          href={receipt.permalink}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open this Bluesky post
+        </a>
+      )}
+      {observations === null ? (
+        <p className="sc-hint">
+          Observation records are unavailable. Refresh the calendar to check
+          again.
+        </p>
+      ) : (
+        <>
+          <p className="sc-hint">
+            Public AppView counters are cumulative totals for this receipt’s
+            post revision. Site arrivals, listens and reuse are unmeasured here.
+          </p>
+          <p className="sc-hint">
+            Last attempt {last ? displayDate(last) : "pending"}.
+            {awaiting && " A measurement is due at the next scheduled check."}
+            {next && ` Next planned time ${displayDate(next)}.`}
+          </p>
+          <ol className="sc-observation-windows">
+            {timeline.map(({ hours, dueAt, row, status }) => {
+              const prior = row?.observedAt
+                ? collected[collected.indexOf(row) - 1]
+                : undefined;
+              return (
+                <li key={hours}>
+                  <strong>
+                    {hours === 0
+                      ? "Current baseline"
+                      : hours === 168
+                        ? "7 days"
+                        : `${hours} hours`}
+                  </strong>
+                  {" · "}
+                  {status}
+                  {dueAt && (
+                    <div className="sc-hint">Target {displayDate(dueAt)}</div>
+                  )}
+                  {row?.observedAt && (
+                    <div>
+                      <span className="sc-hint">
+                        Collected {displayDate(row.observedAt)}
+                      </span>
+                      <dl className="sc-observation-counters">
+                        {(
+                          [
+                            ["Likes", "likes"],
+                            ["Replies", "replies"],
+                            ["Reposts", "reposts"],
+                            ["Quotes", "quotes"],
+                          ] as const
+                        ).map(([label, field]) => {
+                          const count = row[field];
+                          const previous = prior?.[field];
+                          const delta =
+                            count !== null && typeof previous === "number"
+                              ? count - previous
+                              : null;
+                          return (
+                            <div key={label}>
+                              <dt>{label}</dt>
+                              <dd>
+                                {count?.toLocaleString("en-AU") ?? "Unknown"}
+                                {delta !== null && (
+                                  <span>
+                                    {" "}
+                                    ({delta > 0 ? "+" : ""}
+                                    {delta})
+                                  </span>
+                                )}
+                              </dd>
+                            </div>
+                          );
+                        })}
+                      </dl>
+                      {prior?.observedAt && (
+                        <p className="sc-hint">
+                          Changes in parentheses since{" "}
+                          {displayDate(prior.observedAt)}.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {row?.lastFailure && row.failedAt && (
+                    <div className="sc-hint">
+                      {row.observedAt ? "Recovered after: " : "Last failure: "}
+                      {blueskyObservationFailures[row.lastFailure]} ·{" "}
+                      {displayDate(row.failedAt)}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </>
+      )}
+    </details>
+  );
 }
 
 function captionAndLink(item: ShareCalendarItem) {
@@ -3926,6 +4081,16 @@ function ShareCalendar({ search }: { search: string }) {
                       </p>
                     )}
                     {status.detail && <p className="sc-hint">{status.detail}</p>}
+                    {snapshot.deliveries
+                      .filter((receipt) => receipt.itemId === item.id && receipt.state === "published")
+                      .map((receipt) => (
+                        <BlueskyObservationDetails
+                          key={receipt.approvalRevision}
+                          receipt={receipt}
+                          observations={snapshot.blueskyObservations}
+                          now={snapshot.now}
+                        />
+                      ))}
                     {item.sharedAt && (
                       <p className="sc-hint">
                         Local share recorded {displayDate(item.sharedAt)}

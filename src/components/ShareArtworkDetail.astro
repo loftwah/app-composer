@@ -18,7 +18,7 @@ const [revision, shareUrl] = await Promise.all([
   artworkRevision(artwork),
   currentShareURL(canonical, artwork.title.includes('App Composer') ? artwork.title : `${artwork.title} · App Composer`, artwork.alt, artwork.previewUrl),
 ]);
-const assessment = await socialReview(artwork.assetId, revision, artwork.thumbnailUrl);
+const assessment = await socialReview(artwork.assetId, revision, artwork.thumbnailUrl, artwork);
 const postText = artworkPostText(artwork, canonical);
 const files = artworkFiles(artwork);
 const primary = files[0].url;
