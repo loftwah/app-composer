@@ -18,6 +18,11 @@ main:has(> .share-compare) {
 .share-compare .social-source a,
 .share-compare .format-proof a,
 .share-compare .bench-export-actions a { color: inherit; text-decoration: none; }
+.share-compare nav.compare-nav a[href]:hover,
+.share-compare .project-register a.compare-text-action:hover,
+.share-compare .social-source a[href]:hover,
+.share-compare .format-proof a.format:hover,
+.share-compare .bench-export-actions a[href]:hover { color: inherit; }
 .share-compare :is(a,button,input,select,textarea):focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 4px;
@@ -237,6 +242,7 @@ main:has(> .share-compare) {
   font-weight: 700;
 }
 .share-compare .compare-primary:is(a,button):hover { background: #ff7a33; }
+.share-compare .social-header a.compare-primary:hover { color: var(--compare-ink); }
 .share-compare .compare-primary[hidden] { display: none; }
 
 .format-proof {
