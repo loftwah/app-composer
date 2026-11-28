@@ -6,9 +6,15 @@ import { indexedProjects, preferencesId } from "./decision-interviews.ts";
 import {
   listDecisions,
   storeDecisionBrief,
-  getDecision,
+  getBrief,
 } from "./portfolio-decisions.ts";
-import { adminDecisions } from "./portfolio-decision-contract.ts";
+import {
+  adminDecisions,
+  decisionChoiceTitle,
+  decisionReactionLabels,
+  type DecisionReaction,
+  type DecisionImage,
+} from "./portfolio-decision-contract.ts";
 import type { Decision } from "./portfolio-decision-contract.ts";
 import {
   artworkRevision,
@@ -210,10 +216,10 @@ async function share(
 async function feedback(
   db: D1Database,
   owner: string,
-  query: string | undefined,
+  input: z.infer<typeof researchInput>,
   page: number,
 ): Promise<ResearchReply> {
-  const [decisions, shareNotes] = await Promise.all([
+  const [decisions, shareNotes, saved] = await Promise.all([
     listDecisions(db, owner),
     db
       .prepare(
@@ -232,29 +238,59 @@ async function feedback(
         note: string;
         updatedAt: string;
       }>(),
+    db
+      .prepare(
+        `
+      SELECT decision_id AS id, note, saved_at AS updatedAt, selected, media, image_revision, image_name, reaction
+      FROM composer_decision_responses AS response
+      WHERE owner_id=? AND revision=(SELECT MAX(revision) FROM composer_decision_responses
+      WHERE owner_id=response.owner_id AND decision_id=response.decision_id)
+    `,
+      )
+      .bind(owner)
+      .all<{
+        id: string;
+        note: string;
+        updatedAt: string;
+        selected: string;
+        media: string;
+        image_revision: number | null;
+        image_name: string | null;
+        reaction: DecisionReaction | null;
+      }>(),
   ]);
   const known = new Map(decisions.map((item) => [item.id, item]));
-  const saved = await db
-    .prepare(
-      `SELECT decision_id AS id, note, saved_at AS updatedAt FROM composer_decision_responses AS response
-    WHERE owner_id=? AND revision=(SELECT MAX(revision) FROM composer_decision_responses
-    WHERE owner_id=response.owner_id AND decision_id=response.decision_id)`,
-    )
-    .bind(owner)
-    .all<{ id: string; note: string; updatedAt: string }>();
-  // Fetch detail only for the selected page; only responses of this owner are in the ordered list.
-  const terms = words(query);
+  const projects = new Set<string>();
+  const terms = words(input.query);
   const matches = (haystack: string) =>
     terms.every((term) => haystack.toLowerCase().includes(term));
   const decisionItems = saved.results.flatMap((item) => {
     const row = known.get(item.id);
-    return row && matches(`${row.project} ${row.question} ${item.note}`)
-      ? [{ source: "decision" as const, ...item, title: row.question }]
-      : [];
+    if (!row) return [];
+    projects.add(row.project);
+    if (
+      (input.feedbackProject && row.project !== input.feedbackProject) ||
+      (input.category && row.category !== input.category) ||
+      !matches(
+        `${row.project} ${row.question} ${row.category ?? ""} ${row.tags?.join(" ") ?? ""} ${item.note} ${item.reaction ? decisionReactionLabels[item.reaction] : ""}`,
+      )
+    )
+      return [];
+    return [
+      { source: "decision" as const, item, row, updatedAt: item.updatedAt },
+    ];
   });
   const shareItems = shareNotes.results
-    .filter((item) => matches(`${item.title} ${item.note} ${item.reasons}`))
+    .filter(
+      (item) =>
+        (!input.feedbackProject || input.feedbackProject === "Share") &&
+        (!input.category || input.category === "Creative review") &&
+        matches(
+          `Share Creative review ${item.title} ${item.note} ${item.reasons}`,
+        ),
+    )
     .map((item) => ({ source: "share" as const, ...item }));
+  if (shareNotes.results.length) projects.add("Share");
   const window = pageOf(
     [...decisionItems, ...shareItems].sort(
       (a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt),
@@ -267,26 +303,39 @@ async function feedback(
         return {
           ...item,
           id: `${item.id}-${item.revision}`,
+          project: "Share",
+          category: "Creative review",
           choices: [
             item.vote === "up" ? "Liked" : "Disliked",
             ...(JSON.parse(item.reasons) as string[]),
           ],
         };
-      const detail = await getDecision(db, owner, item.id);
+      const { item: saved, row } = item;
+      const decision = await getBrief(db, owner, saved.id);
+      const image: DecisionImage | undefined =
+        saved.image_revision && saved.image_name
+          ? { revision: saved.image_revision, name: saved.image_name }
+          : undefined;
       return {
-        ...item,
-        href: detail.url,
-        choices:
-          detail.response?.selected.map(
-            (id) =>
-              detail.decision.options.find((option) => option.id === id)
-                ?.title ?? id,
-          ) ?? [],
-        note: detail.response?.note ?? "",
+        source: item.source,
+        id: saved.id,
+        title: row.question,
+        href: `${adminDecisions}?id=${saved.id}`,
+        project: row.project,
+        category: row.category,
+        tags: row.tags,
+        choices: (JSON.parse(saved.selected) as string[]).map((id) =>
+          decisionChoiceTitle(decision, id),
+        ),
+        note: saved.note,
+        updatedAt: saved.updatedAt,
+        media: JSON.parse(saved.media) as string[],
+        image,
+        reaction: saved.reaction,
       };
     }),
   );
-  return { view: "feedback", ...window, items };
+  return { view: "feedback", ...window, items, projects: [...projects].sort() };
 }
 
 export async function decisionResearch(
@@ -297,7 +346,7 @@ export async function decisionResearch(
   const page = input.page ?? 1;
   if (input.view === "projects") return projects(db, owner);
   if (input.view === "share") return share(input, page);
-  return feedback(db, owner, input.query, page);
+  return feedback(db, owner, input, page);
 }
 
 export async function askAboutArtwork(
@@ -324,6 +373,8 @@ export async function askAboutArtwork(
   const brief: Decision = {
     id: `art-${revision.slice(0, 48)}`,
     interview: "artwork",
+    category: "Creative review",
+    tags: ["artwork"],
     project: "Share artwork",
     subject: { assetId: artwork.assetId, revision },
     question: `What should we do with “${artwork.title.slice(0, 137)}”?`,

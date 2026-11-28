@@ -75,7 +75,8 @@ const application = JSON.stringify({
               <button type="button" data-reset-wheel aria-label="Reset wheel">Reset</button>
               <button type="button" data-undo-wheel hidden>Undo</button>
               <button type="button" data-sound aria-pressed="true" aria-label="Wheel sound">
-                <Volume2 size={18} aria-hidden="true" data-sound-on /><VolumeX size={18} aria-hidden="true" data-sound-off hidden />
+                <span data-sound-on aria-hidden="true"><Volume2 size={18} /></span>
+                <span data-sound-off aria-hidden="true" hidden><VolumeX size={18} /></span>
                 <span data-sound-label>Sound on</span>
               </button>
             </div>

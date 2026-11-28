@@ -53,6 +53,7 @@ function prompt(
     id: `interview-${interview}-${suffix}`,
     interview,
     project: name,
+    category: interview === preferencesId ? "Working preferences" : "Workflow",
     question,
     context,
     maxSelections: limit,

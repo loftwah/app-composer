@@ -82,7 +82,7 @@ export async function advanceSpin(db: D1Database, id: string, owner: string, rev
     const result = await spinRound(row.seed, row.config_hash, config, rounds);
     rounds.push({ ...result, at: new Date(now).toISOString() });
   }
-  const status = action === 'abandon' ? 'abandoned' : action === 'finish' || spinProgress(config, rounds).winner >= 0 ? 'completed' : 'open';
+  const status: Session['status'] = action === 'abandon' ? 'abandoned' : action === 'finish' || spinProgress(config, rounds).winner >= 0 ? 'completed' : 'open';
   const changed = await db.prepare(`UPDATE composer_spin_sessions
     SET rounds=?,status=?,revision=revision+1 WHERE id=? AND revision=? AND status='open' AND expires_at>?`)
     .bind(JSON.stringify(rounds), status, id, revision, now).run();

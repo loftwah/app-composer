@@ -5,6 +5,13 @@ import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   adminDecisions,
   decisionPreview,
+  decisionImageTypes,
+  decisionImageUrl,
+  decisionMediaUrl,
+  decisionReactionLabels,
+  maxDecisionImageBytes,
+  specialDecisionChoices,
+  type DecisionReaction,
   type DecisionDetail,
   type DecisionResponse,
   type DecisionSummary,
@@ -19,9 +26,20 @@ import type {
   ResearchReply,
 } from "../lib/decision-research-contract";
 import type { z } from "zod";
+import { DecisionResponseContent } from "./decision-response-content";
 import "./decisions-admin.css";
 
 class StaleDecisionResponse extends Error {}
+
+function readImage(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",", 2)[1]);
+    reader.onerror = () =>
+      reject(new Error("The image could not be read. Choose it again."));
+    reader.readAsDataURL(file);
+  });
+}
 
 const overview = "overview";
 const isResearchView = (value: string | null): value is ResearchView =>
@@ -76,7 +94,7 @@ const startArtwork = async (assetId: string, revision: string) =>
 
 const statuses = {
   open: "Unanswered",
-  context: "Context saved",
+  context: "Feedback saved",
   selected: "Answered",
 };
 
@@ -154,24 +172,43 @@ function DecisionForm({
   position: number;
   previous?: string;
   next?: string;
-  onSave: (response: DecisionResponse) => void;
+  onSave: (response: DecisionResponse, announce?: boolean) => void;
   onGo: (id: string) => void;
   backTo: string;
 }) {
   const { decision, response } = detail;
   const [selected, setSelected] = useState(response?.selected ?? []);
   const [note, setNote] = useState(response?.note ?? "");
+  const [reaction, setReaction] = useState(response?.reaction ?? null);
+  const [media, setMedia] = useState(response?.media ?? []);
+  const [image, setImage] = useState<File | null | undefined>();
+  const [history, setHistory] = useState(detail.earlier);
+  const [moreHistory, setMoreHistory] = useState(detail.historyHasMore);
+  const [historyError, setHistoryError] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [conflict, setConflict] = useState<DecisionResponse>();
   const moving = useRef(false);
   const { maxSelections, options, recommendation } = decision;
   const single = maxSelections === 1;
+  const special = specialDecisionChoices(decision);
+  const mediaLinks = media.map((entry) => entry.trim()).filter(Boolean);
+  const savedImage = image === undefined ? response?.image : null;
   const isDirty =
     note.trim() !== (response?.note ?? "") ||
+    reaction !== (response?.reaction ?? null) ||
+    JSON.stringify(mediaLinks) !== JSON.stringify(response?.media ?? []) ||
+    image !== undefined ||
     selected.length !== (response?.selected.length ?? 0) ||
     selected.some((id) => !response?.selected.includes(id));
-  const empty = !selected.length && !note.trim();
+  const empty =
+    !selected.length &&
+    !note.trim() &&
+    !reaction &&
+    !mediaLinks.length &&
+    !image &&
+    !savedImage;
   const preferred = options.find(
     (option) => option.id === recommendation?.choice,
   );
@@ -191,7 +228,13 @@ function DecisionForm({
   async function move(id: string) {
     if (moving.current || pending) return;
     if (isDirty && empty) {
-      setError("Add a choice or context, or select Undo changes.");
+      setError("Choose an answer or leave feedback, or select Undo changes.");
+      return;
+    }
+    if (mediaLinks.some((url) => !decisionMediaUrl.safeParse(url).success)) {
+      setError(
+        "Use HTTPS links without credentials. Check the media links and try again.",
+      );
       return;
     }
     moving.current = true;
@@ -203,10 +246,23 @@ function DecisionForm({
           id: decision.id,
           selected,
           note,
+          reaction,
+          media: mediaLinks,
+          ...(image === undefined
+            ? {}
+            : {
+                image: image
+                  ? {
+                      name: image.name,
+                      type: image.type,
+                      data: await readImage(image),
+                    }
+                  : null,
+              }),
           revision: response?.revision ?? 0,
         });
         onSave(saved.response);
-        setNote(saved.response.note);
+        restore(saved.response);
         setConflict(undefined);
       }
       onGo(id);
@@ -217,8 +273,24 @@ function DecisionForm({
             id: decision.id,
           });
           if (latest.response) {
-            setConflict(latest.response);
-            onSave(latest.response);
+            const saved = latest.response;
+            if (reaction === (response?.reaction ?? null))
+              setReaction(saved.reaction);
+            if (
+              JSON.stringify(mediaLinks) ===
+              JSON.stringify(response?.media ?? [])
+            )
+              setMedia(saved.media);
+            if (note.trim() === (response?.note ?? "")) setNote(saved.note);
+            if (
+              selected.length === (response?.selected.length ?? 0) &&
+              selected.every((id) => response?.selected.includes(id))
+            )
+              setSelected(saved.selected);
+            setHistory(latest.earlier);
+            setMoreHistory(latest.historyHasMore);
+            setConflict(saved);
+            onSave(saved, false);
           }
         } catch (refreshFailure) {
           setError(`Your draft is still here. ${errorMessage(refreshFailure)}`);
@@ -232,15 +304,47 @@ function DecisionForm({
     }
   }
 
+  function restore(saved?: DecisionResponse | null) {
+    setSelected(saved?.selected ?? []);
+    setNote(saved?.note ?? "");
+    setReaction(saved?.reaction ?? null);
+    setMedia(saved?.media ?? []);
+    setImage(undefined);
+    setConflict(undefined);
+    setError("");
+  }
+
   function setChoice(id: string, checked: boolean) {
     setError("");
-    setSelected((current) =>
-      single
-        ? [id]
-        : checked
-          ? [...current, id]
-          : current.filter((value) => value !== id),
-    );
+    setSelected((current) => {
+      if (single || special.some((option) => option.id === id))
+        return checked ? [id] : [];
+      const ordinary = current.filter(
+        (value) => !special.some((option) => option.id === value),
+      );
+      return checked
+        ? [...ordinary, id]
+        : ordinary.filter((value) => value !== id);
+    });
+  }
+
+  async function loadEarlier() {
+    const oldest = history.at(-1);
+    if (!oldest || historyLoading) return;
+    setHistoryLoading(true);
+    setHistoryError("");
+    try {
+      const page = await call<{
+        revisions: DecisionResponse[];
+        hasMore: boolean;
+      }>("read", { id: decision.id, beforeRevision: oldest.revision });
+      setHistory([...history, ...page.revisions]);
+      setMoreHistory(page.hasMore);
+    } catch (error) {
+      setHistoryError(errorMessage(error));
+    } finally {
+      setHistoryLoading(false);
+    }
   }
 
   const advance = next ?? backTo;
@@ -266,10 +370,11 @@ function DecisionForm({
     <article className="decision-question">
       <div className="decision-question-meta">
         <span>{decision.project}</span>
+        {decision.category && <span>{decision.category}</span>}
         {decision.archived && <span>Earlier question</span>}
         {response && (
           <span data-status={response.selected.length ? "selected" : "context"}>
-            {response.selected.length ? "Answer saved" : "Context saved"}
+            {response.selected.length ? "Answer saved" : "Feedback saved"}
           </span>
         )}
       </div>
@@ -277,6 +382,33 @@ function DecisionForm({
         {decision.question}
       </h2>
       <p className="decision-context">{decision.context}</p>
+      {detail.previousBrief && (
+        <details className="decision-evidence">
+          <summary>Feedback from the earlier question</summary>
+          <div className="decision-evidence-inner">
+            <a href={detail.previousBrief.url}>
+              {detail.previousBrief.question}
+            </a>
+            {detail.previousBrief.response ? (
+              <DecisionResponseContent
+                decision={detail.previousBrief.decision}
+                response={detail.previousBrief.response}
+              />
+            ) : (
+              <p>No feedback saved on the earlier question.</p>
+            )}
+          </div>
+        </details>
+      )}
+      {detail.followUps.length > 0 && (
+        <ul className="decision-media-links" aria-label="Follow-up questions">
+          {detail.followUps.map((brief) => (
+            <li key={brief.id}>
+              <a href={brief.url}>Follow-up · {brief.question}</a>
+            </li>
+          ))}
+        </ul>
+      )}
       {decision.interview === "artwork" && (
         <p className="decision-context">
           <a href={decision.sources[0]?.url} target="_blank" rel="noreferrer">
@@ -309,7 +441,10 @@ function DecisionForm({
                       name={single ? `option-${decision.id}` : undefined}
                       checked={checked}
                       disabled={
-                        !single && !checked && selected.length >= maxSelections
+                        !single &&
+                        !checked &&
+                        selected.length >= maxSelections &&
+                        !special.some((choice) => selected.includes(choice.id))
                       }
                       aria-label={option.title}
                       onChange={(event) =>
@@ -341,6 +476,21 @@ function DecisionForm({
               );
             })}
           </ol>
+          <div className="decision-special-choices">
+            {special.map((option) => (
+              <label key={option.id} className="decision-choice">
+                <input
+                  type={single ? "radio" : "checkbox"}
+                  name={single ? `option-${decision.id}` : undefined}
+                  checked={selected.includes(option.id)}
+                  onChange={(event) =>
+                    setChoice(option.id, event.currentTarget.checked)
+                  }
+                />
+                <span>{option.title}</span>
+              </label>
+            ))}
+          </div>
           <div className="decision-choice-tools">
             {selected.length > 0 && (
               <button type="button" onClick={() => setSelected([])}>
@@ -348,29 +498,30 @@ function DecisionForm({
               </button>
             )}
             {isDirty && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelected(response?.selected ?? []);
-                  setNote(response?.note ?? "");
-                  setConflict(undefined);
-                  setError("");
-                }}
-              >
+              <button type="button" onClick={() => restore(response)}>
                 Undo changes
               </button>
             )}
           </div>
           {recommendation && (
             <details className="decision-evidence">
-              <summary>Recommendation, trade-offs and sources</summary>
+              <summary>
+                <span className="decision-recommendation-label">
+                  {recommendation.method === "clef"
+                    ? "Clef suggests"
+                    : "Suggested answer"}
+                  {preferred && <> · {preferred.title}</>}
+                </span>
+                <span className="decision-recommendation-detail">
+                  Reasoning, trade-offs and sources
+                </span>
+              </summary>
               <div className="decision-evidence-inner">
+                <p>{recommendation.basis}</p>
                 <p>
-                  <strong>{preferred?.title}</strong> ·{" "}
                   {percent.format(recommendation.confidence)} reported
                   confidence
                 </p>
-                <p>{recommendation.basis}</p>
                 <dl>
                   {options.map((option) => (
                     <div key={option.id}>
@@ -422,9 +573,26 @@ function DecisionForm({
                 </ul>
               </details>
             )}
+          <fieldset className="decision-reaction">
+            <legend>How was this question?</legend>
+            {Object.entries(decisionReactionLabels).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={reaction === value}
+                onClick={() =>
+                  setReaction(
+                    reaction === value ? null : (value as DecisionReaction),
+                  )
+                }
+              >
+                {label}
+              </button>
+            ))}
+          </fieldset>
           <div className="decision-note">
             <label htmlFor="decision-note">
-              Extra context <span>Optional</span>
+              Thoughts or feelings <span>Optional</span>
             </label>
             <textarea
               id="decision-note"
@@ -436,8 +604,110 @@ function DecisionForm({
                 setError("");
               }}
             />
-            <p>You can leave a note on its own.</p>
+            <p>
+              You can leave feedback without picking an answer. It stays in your
+              private decision history.
+            </p>
           </div>
+          <details className="decision-evidence">
+            <summary>
+              Attach media
+              {(savedImage || image || mediaLinks.length > 0) && (
+                <>
+                  {" "}
+                  · {Number(Boolean(savedImage || image)) +
+                    mediaLinks.length}{" "}
+                  added
+                </>
+              )}
+            </summary>
+            <div className="decision-attachments">
+              <label htmlFor="decision-image">Image or screenshot</label>
+              <input
+                id="decision-image"
+                type="file"
+                accept={decisionImageTypes.join(",")}
+                aria-describedby="decision-image-hint"
+                onChange={(event) => {
+                  const input = event.currentTarget;
+                  const file = input.files?.[0];
+                  input.value = "";
+                  if (!file) return;
+                  if (
+                    file.size > maxDecisionImageBytes ||
+                    !decisionImageTypes.some((type) => type === file.type)
+                  ) {
+                    setError("Choose a PNG, JPEG or WebP image up to 512 KB.");
+                    return;
+                  }
+                  setImage(file);
+                  setError("");
+                }}
+              />
+              <p id="decision-image-hint">
+                PNG, JPEG or WebP up to 512 KB. Use a link for audio, video or
+                larger files.
+              </p>
+              {(image || savedImage) && (
+                <p>
+                  {image?.name ??
+                    (savedImage && (
+                      <a
+                        href={decisionImageUrl(
+                          decision.id,
+                          savedImage.revision,
+                        )}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {savedImage.name}
+                      </a>
+                    ))}{" "}
+                  <button
+                    type="button"
+                    onClick={() => setImage(response?.image ? null : undefined)}
+                  >
+                    Remove from this response
+                  </button>
+                </p>
+              )}
+              {media.map((url, index) => (
+                <div className="decision-attachment-row" key={index}>
+                  <label>
+                    Media link {index + 1}
+                    <input
+                      type="url"
+                      value={url}
+                      maxLength={2048}
+                      onChange={(event) => {
+                        const value = event.currentTarget.value;
+                        setMedia(
+                          media.map((entry, offset) =>
+                            index === offset ? value : entry,
+                          ),
+                        );
+                        setError("");
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    aria-label={`Remove media link ${index + 1}`}
+                    onClick={() =>
+                      setMedia(media.filter((_, offset) => index !== offset))
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              {media.length < 4 && (
+                <button type="button" onClick={() => setMedia([...media, ""])}>
+                  Add a media link
+                </button>
+              )}
+            </div>
+          </details>
         </fieldset>
         {conflict && (
           <div className="decision-conflict" role="status">
@@ -445,24 +715,8 @@ function DecisionForm({
               <strong>A newer response was saved.</strong> Your draft is still
               in the form.
             </p>
-            <p>
-              Saved choices{" "}
-              {conflict.selected
-                .map(
-                  (id) =>
-                    options.find((option) => option.id === id)?.title ?? id,
-                )
-                .join(", ") || "None"}
-            </p>
-            {conflict.note && <p>Saved context {conflict.note}</p>}
-            <button
-              type="button"
-              onClick={() => {
-                setSelected(conflict.selected);
-                setNote(conflict.note);
-                setConflict(undefined);
-              }}
-            >
+            <DecisionResponseContent decision={decision} response={conflict} />
+            <button type="button" onClick={() => restore(conflict)}>
               Use saved response
             </button>
           </div>
@@ -501,6 +755,31 @@ function DecisionForm({
           </button>
         </div>
       </form>
+      {history.length > 0 && (
+        <details className="decision-evidence">
+          <summary>Earlier responses for this question</summary>
+          <ol className="decision-history">
+            {history.map((entry) => (
+              <li key={entry.revision}>
+                <time dateTime={entry.savedAt}>
+                  {new Date(entry.savedAt).toLocaleString("en-AU")}
+                </time>
+                <DecisionResponseContent decision={decision} response={entry} />
+              </li>
+            ))}
+          </ol>
+          {moreHistory && (
+            <button
+              type="button"
+              disabled={historyLoading}
+              onClick={() => void loadEarlier()}
+            >
+              {historyLoading ? "Loading…" : "Load earlier responses"}
+            </button>
+          )}
+          {historyError && <p role="alert">{historyError}</p>}
+        </details>
+      )}
     </article>
   );
 }
@@ -714,11 +993,14 @@ function DecisionsPage() {
                 next={position === -1 ? undefined : active[position + 1]?.id}
                 onGo={go}
                 backTo={backTo}
-                onSave={(response) => {
+                onSave={(response, announce = true) => {
                   setDetail({ ...detail, response });
-                  setStatus(
-                    response.selected.length ? "Answer saved" : "Context saved",
-                  );
+                  if (announce)
+                    setStatus(
+                      response.selected.length
+                        ? "Answer saved"
+                        : "Feedback saved",
+                    );
                 }}
               />
             </>

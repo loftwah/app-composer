@@ -8,6 +8,7 @@ const arms: Record<string, string> = {
 const harnesses: Record<string, string> = { codex: 'Codex CLI', opencode: 'OpenCode' };
 const seconds = (ms: number | null) => ms === null ? 'Unavailable' : (ms / 1000).toFixed(1) + ' s';
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString('en-AU');
+const cost = (usd: number | null) => usd === null ? 'Unavailable' : 'US$' + usd.toFixed(2);
 const bytes = (value: number | null) => value === null ? 'Unavailable' : Math.round(value / 1000) + ' kB';
 const maxSeconds = Math.max(...evidence.views.map(row => row.durationMs ?? 0));
 const externalSource = new URL(evidence.protocol.externalTask.source, evidence.protocol.controlOrigin).href;
@@ -55,7 +56,7 @@ const externalSource = new URL(evidence.protocol.externalTask.source, evidence.p
               <div><dt>Median body bytes</dt><dd>{bytes(row.bytesMedian)}</dd></div>
               <div><dt>Median input / output tokens</dt><dd>{number(row.inputMedian)} / {number(row.outputMedian)}</dd></div>
               <div><dt>Unsupported abstentions</dt><dd>{row.abstained}/{row.unsupported}</dd></div>
-              <div><dt>Harness-reported cost</dt><dd>{row.reportedUsd === null ? 'Unavailable' : 'US$' + row.reportedUsd.toFixed(2)}</dd></div>
+              <div><dt>Harness-reported cost</dt><dd>{cost(row.reportedUsd)}</dd></div>
             </dl>
           </section>
         ))}
