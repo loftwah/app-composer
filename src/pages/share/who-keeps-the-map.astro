@@ -1,0 +1,228 @@
+---
+import { ArrowLeft, ArrowUpRight, Download, Play } from '@lucide/astro';
+import Base from '../../layouts/Base.astro';
+
+const title = 'Who Keeps the Map?';
+const description = 'A Loftwah release about a shortcut that vanished and the people who opened it again. Watch both films, open the sleeve and see what changed in the edit.';
+const assets = '/campaign/who-keeps-the-map';
+const fm = 'https://fm.loftwah.com';
+const album = `${fm}/album/who-keeps-the-map`;
+const media = `${fm}/media/who-keeps-the-map`;
+const coverAlt = 'Illustrated album sleeve. Masked Levi holds a map above a festival crowd with a red balloon and rows of mushroom hats.';
+const shareAlt = 'Who Keeps the Map? by LoftwahFM. Masked Levi crowdsurfs as a mushroom-hatted listener holds a folded map near a red balloon.';
+const films = [
+  { title: 'Change the Default', file: 'change-the-default-rhythm-1becbd4f', line: 'Mara opens a second route through the workshop and keeps the original address working.' },
+  { title: 'Who Gets the Change?', file: 'who-gets-the-change-encore-12d59070', line: 'A release starts at a pay counter and gets out the door in the Encore Cut.' },
+];
+Astro.csp?.insertDirective(`img-src ${fm}`);
+Astro.csp?.insertDirective("media-src 'self'");
+---
+
+<Base title={title} description={description} shareImage={`${assets}/album-og-v1.jpg`} shareAlt={shareAlt}>
+  <div class="map-release">
+    <header class="release-header">
+      <a href="/share" class="return-link"><ArrowLeft size={17} aria-hidden="true" /> Back to Share</a>
+      <nav aria-label="Album collection">
+        <a href="#films">Films</a>
+        <a href="#sleeve">Sleeve</a>
+        <a href="#making-of">Making-of</a>
+      </nav>
+    </header>
+
+    <section class="release-hero" aria-labelledby="release-title">
+      <div class="hero-copy">
+        <h1 id="release-title">Who Keeps<br />the Map<span>?</span></h1>
+        <p class="album-line">Loftwah <span aria-hidden="true">·</span> 19 tracks</p>
+        <p class="album-intro">Someone took the shortcut off the map. So the neighbourhood drew it back in. This is the record they made about it.</p>
+        <div class="hero-actions">
+          <a class="button listen" href={album}><Play size={17} aria-hidden="true" /> Listen on LoftwahFM</a>
+          <a href="#trailer">Watch Keep a Copy</a>
+        </div>
+      </div>
+      <a class="hero-sleeve" href="#sleeve" aria-label="Open the album sleeve and comic">
+        <img src={`${assets}/sleeve-v1.webp`} srcset={`${assets}/sleeve-440-v1.webp 440w, ${assets}/sleeve-v1.webp 900w`}
+          sizes="(max-width: 720px) 90vw, 46vw" width="900" height="900" alt={coverAlt} fetchpriority="high" />
+      </a>
+    </section>
+
+    <section class="release-section" id="trailer" aria-labelledby="trailer-title">
+      <div class="section-head">
+        <h2 id="trailer-title">Keep a Copy</h2>
+        <p>A new short cut from the two finished films, set to “Change the Default”.</p>
+      </div>
+      <video controls playsinline preload="none" width="1280" height="720" poster={`${assets}/keep-a-copy-poster.jpg`}>
+        <source src={`${assets}/keep-a-copy.mp4`} type="video/mp4" />
+        <track kind="captions" srclang="en" label="English" src={`${assets}/keep-a-copy-en.vtt`} />
+        <a href={`${assets}/keep-a-copy.mp4`}>Open Keep a Copy</a>
+      </video>
+      <div class="release-links">
+        <a href={`${assets}/keep-a-copy.mp4`} download><Download size={16} aria-hidden="true" /> Download the short</a>
+        <a href={`${assets}/keep-a-copy-en.vtt`} download>Download English captions</a>
+      </div>
+    </section>
+
+    <section class="release-section" id="films" aria-labelledby="films-title">
+      <h2 id="films-title">The two films</h2>
+      <div class="film-strip">
+        {films.map(({ title: filmTitle, file, line }) => (
+          <article>
+            <a class="film-link" href={`${album}/?video=${file}.mp4#music-video`}>
+              <img src={`${media}/${file}-poster.jpg`} width="640" height="360" alt="" loading="lazy" />
+              <h3>{filmTitle} <ArrowUpRight size={20} aria-hidden="true" /></h3>
+            </a>
+            <p>{line}</p>
+          </article>
+        ))}
+      </div>
+      <p class="credits">Encore Cut photo credit. <a href="https://commons.wikimedia.org/wiki/File:Gran_Via%2C_Madrid%2C_at_night.jpg">Gran Via, Madrid, at night</a> by Leonardo Angelini, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>. Cropped, resized and colour graded.</p>
+    </section>
+
+    <section class="release-section sleeve-section" id="sleeve" aria-labelledby="sleeve-title">
+      <div>
+        <h2 id="sleeve-title">The sleeve opens</h2>
+        <p>Masked Levi takes the map into the crowd in an eight-page coloured-pencil comic. The words, artwork and listening notes are all on the record’s sleeve.</p>
+        <ul class="sleeve-links">
+          <li><a href={`${media}/listening-comic.pdf`}>Read the comic <span>PDF</span></a></li>
+          <li><a href={`${media}/booklet.pdf`}>Open the booklet <span>PDF</span></a></li>
+          <li><a href={`${media}/lyrics-with-bonus-tracks-v2.txt`}>Read the lyrics <span>TXT</span></a></li>
+          <li><a href="/share?tag=who-keeps-the-map">Browse the collection artwork <span>Share</span></a></li>
+        </ul>
+      </div>
+      <a class="comic-page" href={`${media}/listening-comic.pdf`}>
+        <img src={`${assets}/first-page-v1.webp`} width="600" height="900" loading="lazy"
+          alt="The first illustrated page of the Who Keeps the Map? listening comic. Open the PDF to read the full page." />
+      </a>
+    </section>
+
+    <section class="release-section paper-section" aria-labelledby="paper-title">
+      <a class="paper-art" href="/share/artwork/map-ask-the-owner">
+        <img src={`${assets}/ask-the-owner-v1.webp`} width="864" height="1080" loading="lazy"
+          alt="Blue ink on a sheet of paper. Permission to keep your map. Ask the owner. An arrow lands on the signature: That’s you." />
+      </a>
+      <div>
+        <h2 id="paper-title">Ask the owner.</h2>
+        <p>A permission slip for the person who already owns the map.</p>
+        <div class="release-links">
+          <a href={`${assets}/ask-the-owner-v1.webp`} download><Download size={16} aria-hidden="true" /> Download the print</a>
+          <a href={`${assets}/ask-the-owner-square-v1.webp`} download>Square edition</a>
+          <a href="/learn">Start with your own project <ArrowUpRight size={16} aria-hidden="true" /></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="release-section" id="making-of" aria-labelledby="making-title">
+      <div class="section-head">
+        <h2 id="making-title">At the cut</h2>
+        <p>The original films and the new short share footage. The way they were made is different.</p>
+      </div>
+      <div class="making-grid">
+        <article>
+          <h3>Keep the beat. Change the shot.</h3>
+          <p>At 00:16.700, the first cut follows the red car. The revised cut shows Levi passing the release paperwork across, giving the next “Keep the keys” line a visible payoff.</p>
+          <div class="edit-comparison">
+            <figure><img src={`${assets}/edit-before.webp`} width="640" height="360" loading="lazy" alt="A red car in motion in the first master at 16.7 seconds" /><figcaption>First master</figcaption></figure>
+            <figure><img src={`${assets}/edit-after.webp`} width="640" height="360" loading="lazy" alt="Masked Levi passes release paperwork to a black-clad recipient in the revised master at 16.7 seconds" /><figcaption>Revised master</figcaption></figure>
+          </div>
+          <p>Five seconds changed. The remaining 900 decoded frames and the soundtrack match the first cut exactly.</p>
+          <div class="release-links">
+            <a href={`${assets}/keep-a-copy.mp4#t=12.9,17.9`}>Play the revised shot</a>
+            <a href={`${assets}/production-notes.json`}>Open edit and verification notes</a>
+            <a href={`${assets}/edit-source-v1.zip`} download>Download editable cut recipe</a>
+            <a href="https://media.loftwah.com/tools/video-clip">Try a clip in Media Studio <ArrowUpRight size={16} aria-hidden="true" /></a>
+          </div>
+        </article>
+        <article>
+          <h3>Where the originals came from</h3>
+          <p>The album’s release manifest records Suno provenance. The local film ledgers retain SLOPCANNON run records, chosen takes and multiple cuts. The approved Rhythm Cut used the song’s clock to cut from Mara’s performance to the things her lyrics set in motion. The Encore Cut built a different route around a receipt and a payoff.</p>
+          <details>
+            <summary>Sources and new production path</summary>
+            <p><a href="https://github.com/loftwah/loftwahfm/blob/71c6839/src/content/albums/who-keeps-the-map.yaml">Album release manifest</a></p>
+            <p><a href="https://github.com/loftwah/app-composer/issues/1356">Rhythm Cut decisions and craft reference</a></p>
+            <p><a href="https://github.com/loftwah/composer-media-studio/blob/b96f955/docs/editor-bridge-experiment.md">Studio’s local editor bridge</a> assembled this new short from the retained masters. The original films came from the earlier production work.</p>
+          </details>
+        </article>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .map-release {
+    --release-ink: #20182e;
+    --release-yellow: #f3fb55;
+    --release-line: color-mix(in srgb, var(--color-foreground) 27%, transparent);
+    max-inline-size: 1220px;
+    margin-inline: auto;
+  }
+  .release-header, .release-header nav, .hero-actions, .release-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem 1.25rem;
+  }
+  .release-header { justify-content: space-between; margin-block-end: .9rem; }
+  .release-header a, .hero-actions > a, .release-links > a {
+    display: inline-flex; align-items: center; gap: .4rem; min-block-size: 44px;
+  }
+  .release-header a:hover, .hero-actions > a:not(.listen):hover, .release-links a:hover { text-decoration: underline; }
+  .release-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: stretch;
+    background: var(--release-yellow);
+    color: var(--release-ink);
+    border-radius: 1rem;
+    overflow: clip;
+  }
+  .hero-copy { padding: clamp(1.25rem, 4.3vw, 4.3rem); align-self: center; }
+  .release-hero h1 {
+    font-size: clamp(3.35rem, 6.1vw, 6rem);
+    font-weight: 680;
+    letter-spacing: -.04em;
+    line-height: .93;
+    margin: 0 0 1.25rem;
+    text-wrap: balance;
+  }
+  .release-hero h1 span { color: #661caa; }
+  .album-line { font: 650 1rem/1.25 Space, sans-serif; }
+  .album-line span { margin-inline: .3em; }
+  .album-intro { font-size: clamp(1.08rem, 1.7vw, 1.35rem); max-inline-size: 33ch; margin: 0 0 1rem; }
+  .listen.button { background: var(--release-ink); color: #fff; text-align: center; }
+  .listen.button:hover { background: #4b186d; }
+  .hero-sleeve { background: #492e91; align-self: center; }
+  .hero-sleeve img, .release-section img, .release-section video { display: block; width: 100%; height: auto; }
+  .hero-sleeve:focus-visible { outline-offset: -5px; }
+  .release-section { border-block-start: 1px solid var(--release-line); margin-block-start: clamp(2rem, 5vw, 5.5rem); padding-block-start: clamp(1.25rem, 3vw, 2.6rem); scroll-margin-top: 1rem; }
+  .release-section h2 { color: var(--color-foreground); margin-block-end: .65rem; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: .35rem 2rem; flex-wrap: wrap; margin-block-end: .65rem; }
+  .section-head p { margin: 0; color: var(--color-muted); }
+  .release-section video { max-block-size: 74vh; background: #171025; aspect-ratio: 16 / 9; border-radius: .8rem; }
+  .release-links { margin-block-start: .4rem; }
+  .release-links a, .credits a { text-decoration: underline; text-underline-offset: .23em; }
+  .film-strip, .making-grid { display: grid; gap: clamp(1rem, 3vw, 2.25rem); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .film-strip img { border-radius: .8rem; aspect-ratio: 16 / 9; object-fit: cover; }
+  .film-strip h3 { display: flex; align-items: center; gap: .5rem; margin-block: .65rem .25rem; }
+  .film-strip p { margin-block: 0; color: var(--color-muted); }
+  .credits { font-size: .9rem; color: var(--color-muted); }
+  .sleeve-section, .paper-section { display: grid; align-items: center; gap: clamp(1rem, 5vw, 5rem); grid-template-columns: 1fr minmax(0, .75fr); }
+  .comic-page, .paper-art { max-inline-size: 380px; justify-self: center; }
+  .sleeve-links { padding: 0; list-style: none; }
+  .sleeve-links li { margin: 0; border-block-end: 1px solid var(--release-line); }
+  .sleeve-links a { min-block-size: 48px; display: flex; align-items: center; justify-content: space-between; }
+  .sleeve-links a:hover { text-decoration: underline; }
+  .sleeve-links span { color: var(--color-muted); font-size: .9rem; }
+  .paper-section { grid-template-columns: minmax(0, .85fr) 1fr; }
+  .paper-section h2 { font-weight: 670; }
+  .making-grid h3 { margin-block: .55rem; }
+  .making-grid details a { text-decoration: underline; }
+  .edit-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+  .edit-comparison figure { margin: 0; }
+  .edit-comparison figcaption { font-size: .9rem; margin-top: .4rem; color: var(--color-muted); }
+  @media (max-width: 720px) {
+    .release-hero, .film-strip, .sleeve-section, .paper-section, .making-grid { grid-template-columns: minmax(0, 1fr); }
+    .release-hero h1 { font-size: clamp(3rem, 12.8vw, 4.75rem); }
+    .hero-sleeve img { max-block-size: 500px; object-fit: contain; }
+    .hero-copy { padding-block: 1.6rem 1.35rem; }
+    .paper-section > div { order: -1; }
+  }
+</style>
