@@ -635,3 +635,37 @@ html[data-mode="dark"] .portfolio-decisions {
   font-weight: 650;
   font-size: 0.9rem;
 }
+
+.decision-intel-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.decision-intel-totals a {
+  display: block;
+  border: 1px solid var(--review-line);
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.65rem;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.decision-intel-level {
+  font-size: 0.825rem;
+  font-weight: 750;
+}
+
+.portfolio-decisions [data-level="good"] { color: #176840; }
+.portfolio-decisions [data-level="fix"] { color: #a1292c; }
+.portfolio-decisions [data-level="moonshot"] { color: #6542a6; }
+html[data-mode="dark"] .portfolio-decisions [data-level="good"] { color: #7ed9a7; }
+html[data-mode="dark"] .portfolio-decisions [data-level="fix"] { color: #ff9c95; }
+html[data-mode="dark"] .portfolio-decisions [data-level="moonshot"] { color: #cbb6ff; }
+
+.decision-research section > h3 { margin-block: 1.4rem 0.45rem; font-size: 1.1rem; }
+.decision-research-list h4 { margin: 0.25rem 0; font-weight: 730; }

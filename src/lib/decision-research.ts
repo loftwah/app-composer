@@ -2,6 +2,14 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { PluginRouteError } from "emdash";
 import type { z } from "zod";
 import clef from "../data/decision-research-clef.json";
+import {
+  filmOpeningReview,
+  intelligenceFindings,
+  intelligenceNotes,
+  intelligencePins,
+  socialReview,
+  socialSnapshot,
+} from "./decision-intelligence.ts";
 import { indexedProjects, preferencesId } from "./decision-interviews.ts";
 import {
   listDecisions,
@@ -104,10 +112,9 @@ async function share(
   input: z.infer<typeof researchInput>,
   page: number,
 ): Promise<ResearchReply> {
-  const wantsArt =
-    !input.kind || input.kind === "all" || input.kind === "artwork";
-  const wantsFilm =
-    !input.kind || input.kind === "all" || input.kind === "film";
+  const kind = input.social ? "artwork" : input.kind;
+  const wantsArt = !kind || kind === "all" || kind === "artwork";
+  const wantsFilm = !kind || kind === "all" || kind === "film";
   const [artwork, studio] = await Promise.all([
     wantsArt ? listShareArtwork() : Promise.resolve([]),
     wantsFilm ? loadStudioShowcase() : Promise.resolve([]),
@@ -167,7 +174,7 @@ async function share(
     project: "app-composer",
   }));
   const collection = [...artworkItems, ...films, ...tools, ...examples].filter(
-    (item) => !input.kind || input.kind === "all" || item.kind === input.kind,
+    (item) => !kind || kind === "all" || item.kind === kind,
   );
   const queries = words(input.query);
   const rows = collection.filter((item) => {
@@ -186,14 +193,44 @@ async function share(
       .toLowerCase();
     return queries.every((query) => text.includes(query));
   });
-  const window = pageOf(rows, page);
+  const filtered = input.social
+    ? (
+        await Promise.all(
+          rows.map(async (item) => {
+            const record = records.get(item.id);
+            if (!record) return null;
+            const revision = await artworkRevision(record);
+            const assessment = await socialReview(
+              item.id,
+              revision,
+              record.thumbnailUrl,
+            );
+            return (assessment?.status ?? "unreviewed") === input.social
+              ? { ...item, revision, social: assessment }
+              : null;
+          }),
+        )
+      )
+        .filter((item) => item !== null)
+        .sort((a, b) => (b.social?.score ?? 0) - (a.social?.score ?? 0))
+    : rows;
+  const window = pageOf<ResearchShareItem>(filtered, page);
   const items = await Promise.all(
     window.items.map(async (item) => {
       const record = item.kind === "artwork" ? records.get(item.id) : undefined;
-      if (!record) return item;
-      const revision = await artworkRevision(record);
+      if (!record)
+        return item.kind === "film"
+          ? { ...item, filmOpening: filmOpeningReview(item.id, item.href) }
+          : item;
+      const revision = item.revision ?? (await artworkRevision(record));
       const assessment = artworkScores[item.id];
-      const withRevision = { ...item, revision };
+      const withRevision = {
+        ...item,
+        revision,
+        social:
+          item.social ??
+          (await socialReview(item.id, revision, record.thumbnailUrl)),
+      };
       if (!assessment || assessment[0] !== revision) return withRevision;
       const [, label, confidence] = assessment;
       return {
@@ -344,6 +381,19 @@ export async function decisionResearch(
   input: z.infer<typeof researchInput>,
 ) {
   const page = input.page ?? 1;
+  if (input.view === "intel") {
+    const questions = await listDecisions(db, owner);
+    return {
+      view: "intel" as const,
+      snapshot: socialSnapshot,
+      evidence: intelligenceNotes,
+      findings: intelligenceFindings,
+      pins: intelligencePins.map((pin) => ({
+        ...pin,
+        answered: questions.some((q) => q.id === pin.id && q.status !== "open"),
+      })),
+    };
+  }
   if (input.view === "projects") return projects(db, owner);
   if (input.view === "share") return share(input, page);
   return feedback(db, owner, input, page);
@@ -376,7 +426,11 @@ export async function askAboutArtwork(
     category: "Creative review",
     tags: ["artwork"],
     project: "Share artwork",
-    subject: { assetId: artwork.assetId, revision },
+    subject: {
+      assetId: artwork.assetId,
+      revision,
+      thumbnailUrl: artwork.thumbnailUrl,
+    },
     question: `What should we do with “${artwork.title.slice(0, 137)}”?`,
     context:
       "Open the original piece before answering. Use the note to name a campaign or say what specifically works, fails or needs another attempt.",

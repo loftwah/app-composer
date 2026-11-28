@@ -10,7 +10,7 @@ const hooks = registerHooks({
   resolve(specifier, context, next) {
     if (specifier === "./share-catalogue-asset.ts") {
       return {
-        url: "data:text/javascript,export const publicShareArtwork=()=>({status:404});export const artworkRevision=()=>''",
+        url: "data:text/javascript,export const publicShareArtwork=()=>({status:404});export const artworkRevision=()=>'';export const sha256Bytes=async b=>Buffer.from(await crypto.subtle.digest('SHA-256',b)).toString('hex')",
         shortCircuit: true,
       };
     }

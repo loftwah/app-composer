@@ -6,14 +6,48 @@ import {
 } from "./portfolio-decision-contract.ts";
 
 const reference = z.string().regex(/^[a-z0-9][a-z0-9-]{0,127}$/);
+export const socialStatuses = [
+  "promising",
+  "revise",
+  "reference",
+  "unreviewed",
+] as const;
+export type SocialStatus = (typeof socialStatuses)[number];
+export const socialLabels: Record<SocialStatus, string> = {
+  promising: "Promising",
+  revise: "Needs an edit",
+  reference: "Library reference",
+  unreviewed: "Needs a fresh review",
+};
+export const socialPlacements = {
+  feed: "Feed image",
+  link: "Link card",
+  sequence: "Carousel, story or cover",
+  library: "Library reference",
+};
+export const socialFixes = {
+  ready: "Check the source, destination and final crop",
+  crop: "Make a dedicated crop or export",
+  legibility: "Improve contrast, hierarchy or small text",
+  purpose: "Give it a clearer audience and job",
+  retain: "Keep it as a reference",
+};
+export type SocialReview = {
+  status: Exclude<SocialStatus, "unreviewed">;
+  placement: string;
+  fix: string;
+  score: number;
+};
+
 export const researchInput = z
   .object({
-    view: z.enum(["projects", "share", "feedback"]),
+    view: z.enum(["intel", "projects", "share", "feedback"]),
     kind: z
       .enum(["all", "artwork", "film", "experience", "example"])
       .optional(),
     query: z.string().trim().max(100).optional(),
     project: reference.optional(),
+    social: z.enum(socialStatuses).optional(),
     feedbackProject: z.string().trim().max(80).optional(),
     category: z.enum(decisionCategories).optional(),
     page: z.number().int().min(1).max(1000).optional(),
@@ -71,6 +105,8 @@ export type ResearchShareItem = {
   feedbackHref?: string;
   revision?: string;
   assessment?: { label: string; confidence: number };
+  social?: SocialReview;
+  filmOpening?: string;
 };
 export type ResearchFeedback = {
   source: "decision" | "share";
@@ -88,6 +124,32 @@ export type ResearchFeedback = {
   updatedAt: string;
 };
 export type ResearchReply =
+  | {
+      view: "intel";
+      snapshot: {
+        evaluatedAt: string;
+        artwork: number;
+        films: number;
+        filmReviewed: number;
+        filmUnique: number;
+        counts: Record<SocialStatus, number>;
+      };
+      evidence: string;
+      findings: readonly {
+        level: "good" | "fix" | "moonshot";
+        title: string;
+        text: string;
+        label: string;
+        href: string;
+      }[];
+      pins: {
+        id: string;
+        title: string;
+        text: string;
+        source: string;
+        answered: boolean;
+      }[];
+    }
   | {
       view: "projects";
       projects: ResearchProject[];

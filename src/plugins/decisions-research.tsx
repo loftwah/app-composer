@@ -5,12 +5,21 @@ import {
   decisionReactionLabels,
 } from "../lib/portfolio-decision-contract";
 import { DecisionMedia } from "./decision-response-content";
-import type {
-  researchInput,
-  ResearchReply,
+import {
+  socialLabels,
+  socialStatuses,
+  type SocialStatus,
+  type researchInput,
+  type ResearchReply,
 } from "../lib/decision-research-contract.ts";
+import { DecisionIntelligencePanel } from "./decision-intelligence-panel";
 
-export const researchViews = ["projects", "share", "feedback"] as const;
+export const researchViews = [
+  "intel",
+  "projects",
+  "share",
+  "feedback",
+] as const;
 export type ResearchView = (typeof researchViews)[number];
 const percent = new Intl.NumberFormat("en-AU", {
   style: "percent",
@@ -31,6 +40,8 @@ export function DecisionResearch({
   load,
   ask,
   onGo,
+  initialSocial,
+  initialKind,
 }: {
   view: ResearchView;
   load: (
@@ -39,10 +50,17 @@ export function DecisionResearch({
   ) => Promise<ResearchReply>;
   ask: (id: string, revision: string) => Promise<string>;
   onGo: (id: string) => void;
+  initialSocial: string | null;
+  initialKind: string | null;
 }) {
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
-  const [kind, setKind] = useState<keyof typeof kindChoices>("all");
+  const [social, setSocial] = useState<SocialStatus | "">(
+    socialStatuses.find((status) => status === initialSocial) ?? "",
+  );
+  const [kind, setKind] = useState<keyof typeof kindChoices>(
+    social ? "artwork" : initialKind === "film" ? "film" : "all",
+  );
   const [project, setProject] = useState("");
   const [category, setCategory] = useState<
     (typeof decisionCategories)[number] | ""
@@ -61,7 +79,11 @@ export function DecisionResearch({
     setError("");
     const filters =
       view === "share"
-        ? { kind, ...(project ? { project } : {}) }
+        ? {
+            kind,
+            ...(project ? { project } : {}),
+            ...(social ? { social } : {}),
+          }
         : view === "feedback"
           ? {
               ...(project ? { feedbackProject: project } : {}),
@@ -79,7 +101,7 @@ export function DecisionResearch({
         if (!signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [view, load, search, kind, project, category, page, attempt]);
+  }, [view, load, search, kind, project, category, page, attempt, social]);
 
   function searchNow(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,11 +124,13 @@ export function DecisionResearch({
   return (
     <section className="decision-research" aria-labelledby="research-title">
       <h2 id="research-title" tabIndex={-1} data-decision-heading>
-        {view === "projects"
-          ? "Project interviews"
-          : view === "share"
-            ? "Share index"
-            : "Saved feedback"}
+        {view === "intel"
+          ? "Intelligence"
+          : view === "projects"
+            ? "Project interviews"
+            : view === "share"
+              ? "Share index"
+              : "Saved feedback"}
       </h2>
       {view === "projects" && (
         <p>
@@ -116,8 +140,8 @@ export function DecisionResearch({
       )}
       {view === "share" && (
         <p>
-          Search the live public catalogue. Clef suggests editorial roles from
-          metadata. Open the piece to judge it yourself.
+          Find public artwork, films and examples. Social review labels apply to
+          the exact artwork revision Clef saw.
         </p>
       )}
       {view === "feedback" && (
@@ -125,7 +149,7 @@ export function DecisionResearch({
           Your saved decision responses and Share reactions, most recent first.
         </p>
       )}
-      {view !== "projects" && (
+      {(view === "share" || view === "feedback") && (
         <form className="decision-research-form" onSubmit={searchNow}>
           <label>
             Search
@@ -147,12 +171,38 @@ export function DecisionResearch({
                       event.currentTarget.value as keyof typeof kindChoices,
                     );
                     setProject("");
+                    setSocial("");
                     setPage(1);
                   }}
                 >
                   {Object.entries(kindChoices).map(([id, label]) => (
                     <option key={id} value={id}>
                       {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Social review
+                <select
+                  value={social}
+                  onChange={(event) => {
+                    const value =
+                      socialStatuses.find(
+                        (status) => status === event.currentTarget.value,
+                      ) ?? "";
+                    setSocial(value);
+                    if (value) {
+                      setKind("artwork");
+                      setProject("");
+                    }
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All reviews</option>
+                  {socialStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {socialLabels[status]}
                     </option>
                   ))}
                 </select>
@@ -233,6 +283,9 @@ export function DecisionResearch({
           </button>
         </div>
       )}
+      {!busy && result?.view === "intel" && (
+        <DecisionIntelligencePanel result={result} onGo={onGo} />
+      )}
       {!busy && result?.view === "projects" && (
         <ul className="decision-research-list">
           {result.projects.map((item) => (
@@ -296,6 +349,17 @@ export function DecisionResearch({
                       </a>
                     </h3>
                     {item.description && <p>{item.description}</p>}
+                    {item.filmOpening && (
+                      <p>
+                        <strong>Opening review</strong> · {item.filmOpening}
+                      </p>
+                    )}
+                    {item.social && (
+                      <p>
+                        <strong>{socialLabels[item.social.status]}</strong> ·{" "}
+                        {item.social.placement}. {item.social.fix}.
+                      </p>
+                    )}
                     {item.assessment && (
                       <p>
                         Clef suggests {item.assessment.label.toLowerCase()} ·{" "}
@@ -362,25 +426,27 @@ export function DecisionResearch({
           {!result.items.length && <li>No saved feedback matches.</li>}
         </ul>
       )}
-      {!busy && result && result.view !== "projects" && (
-        <div className="decision-actions">
-          <button
-            type="button"
-            disabled={page === 1}
-            onClick={() => setPage((value) => value - 1)}
-          >
-            Previous page
-          </button>
-          <span>Page {page}</span>
-          <button
-            type="button"
-            disabled={!result.hasMore}
-            onClick={() => setPage((value) => value + 1)}
-          >
-            Next page
-          </button>
-        </div>
-      )}
+      {!busy &&
+        result &&
+        (result.view === "share" || result.view === "feedback") && (
+          <div className="decision-actions">
+            <button
+              type="button"
+              disabled={page === 1}
+              onClick={() => setPage((value) => value - 1)}
+            >
+              Previous page
+            </button>
+            <span>Page {page}</span>
+            <button
+              type="button"
+              disabled={!result.hasMore}
+              onClick={() => setPage((value) => value + 1)}
+            >
+              Next page
+            </button>
+          </div>
+        )}
     </section>
   );
 }

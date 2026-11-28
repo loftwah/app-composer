@@ -1,0 +1,532 @@
+{
+  "contract": 1,
+  "social": {
+    "model": "@cf/cloudflare/clef-flash",
+    "rubric": "share-social-2026-v1",
+    "artwork": 3764,
+    "reviewed": 3764,
+    "requests": 235,
+    "inputTokens": 2887833,
+    "byteRecheckAt": "2026-11-28T09:25:48.798Z",
+    "byteRecheckModelCalls": 0
+  },
+  "films": {
+    "model": "@cf/cloudflare/clef-omni",
+    "entries": 30,
+    "unique": 29,
+    "reviewed": 30,
+    "inputTokens": 43582,
+    "openingSeconds": 6,
+    "evaluatedAt": "2026-11-28T09:23:19.445Z"
+  },
+  "design": {
+    "model": "@cf/cloudflare/clef-flash",
+    "evaluated": "2026-11-28T09:20:39.112Z",
+    "results": [
+      {
+        "state": {
+          "instruction": "Judge visible phone crops in order. Only image 1 is shipping. Images 2 and 3 are Stitch design concepts. Compare their hierarchy and useful actions, model estimates no audience result or rights."
+        },
+        "questions": {
+          "first": {
+            "type": "choice",
+            "instructions": "Which first screen most quickly gets someone to an actual work worth exploring?",
+            "criteria": {
+              "live": "Image 1: current production Share opening",
+              "wall": "Image 2: Stitch artwork wall concept",
+              "feature": "Image 3: Stitch single-feature concept",
+              "unclear": "Insufficient or tied"
+            }
+          },
+          "identity": {
+            "type": "choice",
+            "instructions": "Which screen carries the most relevant, distinctive art direction? Do not assume an image shown in a concept is an approved original.",
+            "criteria": {
+              "live": "Image 1: current production Share opening",
+              "wall": "Image 2: Stitch artwork wall concept",
+              "feature": "Image 3: Stitch single-feature concept",
+              "unclear": "Insufficient or tied"
+            }
+          },
+          "action": {
+            "type": "choice",
+            "instructions": "Which screen most clearly explains what the visitor can do next with a piece?",
+            "criteria": {
+              "live": "Image 1: current production Share opening",
+              "wall": "Image 2: Stitch artwork wall concept",
+              "feature": "Image 3: Stitch single-feature concept",
+              "unclear": "Insufficient or tied"
+            }
+          },
+          "editorial": {
+            "type": "choice",
+            "instructions": "Which screen is the most useful starting point for a real, credited social campaign using originals from Share?",
+            "criteria": {
+              "live": "Image 1: current production Share opening",
+              "wall": "Image 2: Stitch artwork wall concept",
+              "feature": "Image 3: Stitch single-feature concept",
+              "unclear": "Insufficient or tied"
+            }
+          }
+        },
+        "imageHashes": [
+          "075eb567a22324b529891b455528de6b06b0049a4c27121bc3bbec8cb9f841cd",
+          "8bd1641857a22f517cc3c667f55558a4951b49a3558e764b7042e6399961a544",
+          "5734dfabba5ba4cb1eadb1846a08c0e5c9bbc38afa73bc4801dc95f52a485d11"
+        ],
+        "answers": {
+          "first": {
+            "type": "choice",
+            "choice": "live",
+            "probabilities": {
+              "live": 0.509,
+              "wall": 0.1113,
+              "feature": 0.2458,
+              "unclear": 0.1339
+            },
+            "confidence": 0.133
+          },
+          "identity": {
+            "type": "choice",
+            "choice": "live",
+            "probabilities": {
+              "live": 0.4005,
+              "wall": 0.1874,
+              "feature": 0.2818,
+              "unclear": 0.1303
+            },
+            "confidence": 0.0559
+          },
+          "action": {
+            "type": "choice",
+            "choice": "live",
+            "probabilities": {
+              "live": 0.3349,
+              "wall": 0.137,
+              "feature": 0.2737,
+              "unclear": 0.2544
+            },
+            "confidence": 0.0274
+          },
+          "editorial": {
+            "type": "choice",
+            "choice": "live",
+            "probabilities": {
+              "live": 0.8316,
+              "wall": 0.0461,
+              "feature": 0.0434,
+              "unclear": 0.0789
+            },
+            "confidence": 0.6025
+          }
+        }
+      }
+    ],
+    "receipts": [
+      {
+        "inputHash": "f5c9b34b6f8cd6943b34394fc7757bfc39bfbb254714aca60f23fe8aaefb3f87",
+        "questions": 4,
+        "usage": {
+          "input_tokens": 1584,
+          "output_tokens": 0
+        }
+      }
+    ],
+    "usage": {
+      "inputTokens": 1584,
+      "requests": 1
+    },
+    "stitchProjectId": "12955215949926250487",
+    "stitchScreenIds": [
+      "aba8e71e1b994c359df2a16b97445006",
+      "e34cdbf607884c5cb95340b52e8b62d7"
+    ],
+    "notes": [
+      "The wall mock invented attribution and a CC-BY licence.",
+      "The single-feature mock invented a live broadcast.",
+      "Both were retained as design concepts."
+    ]
+  },
+  "issueHistory": {
+    "screened": 382,
+    "candidates": 44,
+    "examined": 12,
+    "model": "@cf/cloudflare/clef-flash",
+    "evaluated": "2026-11-28T09:22:11.450Z",
+    "results": [
+      {
+        "state": {
+          "instruction": "Use only the distilled public issue evidence. Do not claim current defects or infer private owner views.",
+          "issues": [
+            {
+              "id": "1335",
+              "evidence": "A traced 306-second release guard spent 270 seconds uploading. Extra test scope cannot improve network upload."
+            },
+            {
+              "id": "1277",
+              "evidence": "A much shorter deploy guard concealed first-edit-to-live elapsed time above six minutes. Measure the whole path."
+            },
+            {
+              "id": "1443",
+              "evidence": "Owner had to repeat intent. The audit retains the objective, exact attempt, reason, and real next result."
+            },
+            {
+              "id": "1408",
+              "evidence": "Multiple branding systems initially became recolours of the same concept. Compare distinct complete treatments at the intended sizes."
+            },
+            {
+              "id": "1406",
+              "evidence": "Controls shifted size after interaction. An initial screenshot hid the usability fault. Exercise the changed interaction."
+            },
+            {
+              "id": "1422",
+              "evidence": "A tools-first redesign improved action reach but removed art the owner wanted. Restore successful accepted elements and grade character separately from task success."
+            },
+            {
+              "id": "1432",
+              "evidence": "Recommendations and owner reaction needed a clear hierarchy and private revisions. Keep suggestion, owner answer and actual result distinct."
+            },
+            {
+              "id": "1020",
+              "evidence": "Catalogue metadata predicted editorial roles but provided no pixels, crop or rights evidence. Inspect actual renders and retain exact media revision."
+            },
+            {
+              "id": "1125",
+              "evidence": "Stitch programme exhausted its screen allowance on previous runs. Reuse existing projects and use only a few meaningfully distinct candidates."
+            },
+            {
+              "id": "1386",
+              "evidence": "Existing upstream Fungi watch records changes. Reuse it for a scoped, practical test of original continuity."
+            },
+            {
+              "id": "1319",
+              "evidence": "Social previews recur as stale metadata, image or cache failures. Record real URL, current bytes and consumer behaviour."
+            },
+            {
+              "id": "425",
+              "evidence": "The flagship depends on a newcomer finishing an owned build; browsing the setup page is partial evidence."
+            }
+          ]
+        },
+        "questions": {
+          "issue_1335": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1335?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1277": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1277?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1443": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1443?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1408": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1408?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1406": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1406?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1422": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1422?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1432": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1432?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1020": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1020?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1125": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1125?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1386": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1386?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_1319": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 1319?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "issue_425": {
+            "type": "choice",
+            "instructions": "What is the highest-leverage prevention method for public issue 425?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          },
+          "next": {
+            "type": "choice",
+            "instructions": "Across cases, which change to method is the most useful default for routine work?",
+            "criteria": {
+              "proof": "Use one exact changed interaction or real output to verify the claim",
+              "continuity": "Give the next agent the accepted and rejected version, reason and current source",
+              "performance": "Measure the observed bottleneck and cut redundant work",
+              "explore": "Try a bounded alternative using an existing tool or project",
+              "unclear": "Needs better evidence"
+            }
+          }
+        },
+        "imageHashes": [],
+        "answers": {
+          "issue_1335": {
+            "type": "choice",
+            "choice": "performance",
+            "probabilities": {
+              "proof": 0.0104,
+              "continuity": 0.0215,
+              "performance": 0.9179,
+              "explore": 0.0345,
+              "unclear": 0.0157
+            },
+            "confidence": 0.8058
+          },
+          "issue_1277": {
+            "type": "choice",
+            "choice": "performance",
+            "probabilities": {
+              "proof": 0.0698,
+              "continuity": 0.0523,
+              "performance": 0.7089,
+              "explore": 0.0639,
+              "unclear": 0.1051
+            },
+            "confidence": 0.4067
+          },
+          "issue_1443": {
+            "type": "choice",
+            "choice": "continuity",
+            "probabilities": {
+              "proof": 0.2398,
+              "continuity": 0.4344,
+              "performance": 0.1274,
+              "explore": 0.0562,
+              "unclear": 0.1422
+            },
+            "confidence": 0.1072
+          },
+          "issue_1408": {
+            "type": "choice",
+            "choice": "continuity",
+            "probabilities": {
+              "proof": 0.1499,
+              "continuity": 0.3481,
+              "performance": 0.1618,
+              "explore": 0.1634,
+              "unclear": 0.1768
+            },
+            "confidence": 0.0347
+          },
+          "issue_1406": {
+            "type": "choice",
+            "choice": "proof",
+            "probabilities": {
+              "proof": 0.5679,
+              "continuity": 0.2278,
+              "performance": 0.0866,
+              "explore": 0.0549,
+              "unclear": 0.0628
+            },
+            "confidence": 0.2361
+          },
+          "issue_1422": {
+            "type": "choice",
+            "choice": "continuity",
+            "probabilities": {
+              "proof": 0.0885,
+              "continuity": 0.6874,
+              "performance": 0.0523,
+              "explore": 0.0978,
+              "unclear": 0.074
+            },
+            "confidence": 0.3727
+          },
+          "issue_1432": {
+            "type": "choice",
+            "choice": "continuity",
+            "probabilities": {
+              "proof": 0.1811,
+              "continuity": 0.4929,
+              "performance": 0.0885,
+              "explore": 0.1182,
+              "unclear": 0.1193
+            },
+            "confidence": 0.1398
+          },
+          "issue_1020": {
+            "type": "choice",
+            "choice": "continuity",
+            "probabilities": {
+              "proof": 0.284,
+              "continuity": 0.3525,
+              "performance": 0.104,
+              "explore": 0.0816,
+              "unclear": 0.1779
+            },
+            "confidence": 0.0675
+          },
+          "issue_1125": {
+            "type": "choice",
+            "choice": "performance",
+            "probabilities": {
+              "proof": 0.0385,
+              "continuity": 0.0527,
+              "performance": 0.561,
+              "explore": 0.3011,
+              "unclear": 0.0467
+            },
+            "confidence": 0.2648
+          },
+          "issue_1386": {
+            "type": "choice",
+            "choice": "explore",
+            "probabilities": {
+              "proof": 0.1107,
+              "continuity": 0.12,
+              "performance": 0.1784,
+              "explore": 0.5149,
+              "unclear": 0.076
+            },
+            "confidence": 0.1617
+          },
+          "issue_1319": {
+            "type": "choice",
+            "choice": "proof",
+            "probabilities": {
+              "proof": 0.4197,
+              "continuity": 0.2027,
+              "performance": 0.1957,
+              "explore": 0.0614,
+              "unclear": 0.1205
+            },
+            "confidence": 0.0923
+          },
+          "issue_425": {
+            "type": "choice",
+            "choice": "unclear",
+            "probabilities": {
+              "proof": 0.1581,
+              "continuity": 0.186,
+              "performance": 0.0729,
+              "explore": 0.0938,
+              "unclear": 0.4892
+            },
+            "confidence": 0.1413
+          },
+          "next": {
+            "type": "choice",
+            "choice": "performance",
+            "probabilities": {
+              "proof": 0.2424,
+              "continuity": 0.1966,
+              "performance": 0.3898,
+              "explore": 0.1609,
+              "unclear": 0.0103
+            },
+            "confidence": 0.0942
+          }
+        }
+      }
+    ],
+    "receipts": [
+      {
+        "inputHash": "ebc0cdd8f50a02f4a9d376193029e95e29aa956a6c8630e243c6c2f42a451321",
+        "questions": 13,
+        "usage": {
+          "input_tokens": 2720,
+          "output_tokens": 0
+        }
+      }
+    ],
+    "usage": {
+      "inputTokens": 2720,
+      "requests": 1
+    }
+  }
+}
