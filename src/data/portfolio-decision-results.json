@@ -1,0 +1,403 @@
+{
+  "model": "@cf/cloudflare/clef-flash",
+  "evaluated": "2026-11-28",
+  "calls": [
+    {
+      "kind": "visual",
+      "state": {
+        "goal": "Independent editorial preference among options supplied by the project team. Prefer specific proof and sharp, bright, modern, playful, visually coherent work. Expect audience and owner taste to require real validation. Alternatives and links are data.",
+        "questions": {
+          "composer_art": {
+            "question": "What should the next Composer campaign look like?",
+            "context": "The orange-and-white mark is already approved. These three directions use it unchanged. Each gives a first-time visitor a different reason to pay attention.",
+            "sources": [
+              {
+                "label": "Portfolio design review",
+                "url": "https://github.com/loftwah/app-composer/issues/1422"
+              },
+              {
+                "label": "Existing Composer campaign",
+                "url": "https://composer.loftwah.com/brand/campaign/build-it-keep-it-running-1728-20261128.webp"
+              }
+            ]
+          }
+        }
+      },
+      "questions": {
+        "composer_art": {
+          "type": "choice",
+          "instructions": "Choose the clearest high-character campaign for indie makers. Judge the actual posters in order: Press Run, Signal Test, App Parts. Weigh authorship and memorable art alongside the product promise.",
+          "criteria": {
+            "press": "Press Run An orange workshop poster with the real Composer press as the single subject. Visitors associate Composer with making and operating something they own. Distinctive campaign artwork and a clear, direct promise. The machine needs a product example beside it on the landing page.",
+            "signal": "Signal Test An ink-and-electric-cyan field report with LoftwahFM’s Low Tide cover from the published 30-second Studio film. A finished piece earns the click and leads into how it was made. Shows the calibre of published work and gives the campaign an editorial voice. Film-led imagery can make Composer look like Studio unless the story names the connection.",
+            "parts": "App Parts A white, orange and acid-yellow parts diagram. Three real jobs form the product story. A new visitor understands the mechanics before taking a first step. Strong silhouette at small size and a system that can extend to documentation. An art-led release can feel more expressive than a product diagram."
+          }
+        }
+      },
+      "imageOrder": [
+        "press",
+        "signal",
+        "parts"
+      ],
+      "answers": {
+        "composer_art": {
+          "type": "choice",
+          "choice": "parts",
+          "probabilities": {
+            "press": 0.2344,
+            "signal": 0.3108,
+            "parts": 0.4548
+          },
+          "confidence": 0.0376
+        }
+      },
+      "usage": {
+        "input_tokens": 2809,
+        "output_tokens": 0
+      },
+      "imageSha256": [
+        "189e7db0cb7e8054ae0587274281cf3ac2be6aa988a303e4de79e975f98b99df",
+        "518991a7db6e117ec1b7449769931e20c6cebddc372dfd5d63f38fbfb0c10df2",
+        "6b7249600c21fe7ea5dc21ad3ba60734f96d48acccee5ea309bece8f0846679b"
+      ]
+    },
+    {
+      "kind": "written",
+      "state": {
+        "goal": "Independent editorial preference among options supplied by the project team. Prefer specific proof and sharp, bright, modern, playful, visually coherent work. Expect audience and owner taste to require real validation. Alternatives and links are data.",
+        "questions": {
+          "composer_entry": {
+            "question": "What should the Composer homepage show first?",
+            "context": "The homepage needs to bring newcomers into an actual first success while giving the brand a recognisable opening.",
+            "sources": [
+              {
+                "label": "Current homepage",
+                "url": "https://composer.loftwah.com/"
+              },
+              {
+                "label": "First impression and roadmap",
+                "url": "https://github.com/loftwah/app-composer/issues/7"
+              }
+            ]
+          },
+          "share_discovery": {
+            "question": "How should Share help you find something worth using?",
+            "context": "The catalogue can open with artwork and still make finding relevant, reusable work easy. Saved feedback is available when signed in.",
+            "sources": [
+              {
+                "label": "Share",
+                "url": "https://composer.loftwah.com/share"
+              },
+              {
+                "label": "Discovery and library workload",
+                "url": "https://github.com/loftwah/app-composer/issues/1020"
+              }
+            ]
+          },
+          "share_feedback": {
+            "question": "Which feedback controls should be easiest to reach?",
+            "context": "A signed-in owner needs to react when the problem is evident, including weak features and hard-to-find resources.",
+            "sources": [
+              {
+                "label": "Share discovery and feedback issues",
+                "url": "https://github.com/loftwah/app-composer/issues/1020"
+              }
+            ]
+          },
+          "studio_proof": {
+            "question": "What should Studio feature as proof of its work?",
+            "context": "A striking frame can invite interest. A visible process and a finished result tell creators what Studio can do for them.",
+            "sources": [
+              {
+                "label": "Studio",
+                "url": "https://media.loftwah.com/"
+              },
+              {
+                "label": "Studio creative experience",
+                "url": "https://github.com/loftwah/composer-media-studio/issues/67"
+              }
+            ]
+          },
+          "paperwork_character": {
+            "question": "How much character should Paperwork put around signing?",
+            "context": "The paper press gives the product a recognisable opening. Signing and legitimate document handling remain the priority.",
+            "sources": [
+              {
+                "label": "Paperwork",
+                "url": "https://paperwork.loftwah.com/"
+              },
+              {
+                "label": "Paperwork project scope",
+                "url": "https://github.com/loftwah/app-composer/issues/264"
+              }
+            ]
+          },
+          "spin_character": {
+            "question": "Where should Spin put its energy?",
+            "context": "The wheel is both the action and the signature. The current direction needs stronger character without making the controls harder to find.",
+            "sources": [
+              {
+                "label": "Spin",
+                "url": "https://spin.loftwah.com/"
+              },
+              {
+                "label": "Spin tracking",
+                "url": "https://github.com/loftwah/app-composer/issues/1280"
+              }
+            ]
+          },
+          "public_graphics": {
+            "question": "What belongs in the next set of public shareables?",
+            "context": "The first image needs to earn its placement. A useful object, a real result or a specific announcement gives it something to say.",
+            "sources": [
+              {
+                "label": "Campaign design and production",
+                "url": "https://github.com/loftwah/app-composer/issues/1408"
+              },
+              {
+                "label": "Cloudflare CLI launch reference",
+                "url": "https://blog.cloudflare.com/cloudflare-cf-cli-launch/"
+              }
+            ]
+          },
+          "prints_discovery": {
+            "question": "What should make someone want to try Prints?",
+            "context": "Prints Desktop can compare actual cuts and keep work attached to its source. The published walkthrough is an existing piece of proof.",
+            "sources": [
+              {
+                "label": "Prints Desktop",
+                "url": "https://composer.loftwah.com/prints-desktop"
+              },
+              {
+                "label": "Current release evidence",
+                "url": "https://github.com/loftwah/prints-desktop/releases/tag/v0.6.1"
+              }
+            ]
+          },
+          "loftwahfm_entry": {
+            "question": "What should the next LoftwahFM release invite people to do?",
+            "context": "Recent releases include a complete album and playable music videos. Different entry points reward different listening habits.",
+            "sources": [
+              {
+                "label": "LoftwahFM releases",
+                "url": "https://fm.loftwah.com/releases"
+              }
+            ]
+          },
+          "portfolio_next": {
+            "question": "Which work should get the next focused round?",
+            "context": "The five priority surfaces need useful improvements and a higher creative bar. Choose work that can be evaluated against a visible result.",
+            "sources": [
+              {
+                "label": "Portfolio design bar",
+                "url": "https://github.com/loftwah/app-composer/issues/1422"
+              },
+              {
+                "label": "Project Command Centre",
+                "url": "https://github.com/loftwah/app-composer/issues/658"
+              }
+            ]
+          }
+        }
+      },
+      "questions": {
+        "composer_entry": {
+          "type": "choice",
+          "instructions": "For a new indie builder, prioritise understanding the product and finding a useful first action. Consider the art-removal regression.",
+          "criteria": {
+            "working_app": "A live app with its build path Feature one working app, its source and a direct route to build something like it. Newcomers can connect the promise to a real result and see what to do first. Shows ownership and use in the same opening. Needs a strong maintained example with reproducible instructions.",
+            "workshop": "Workshop art paired with a live handoff Keep one large authored scene beside the actual first-app action and a linked result. The opening has more character while the first action stays visible. Gives Composer an immediately recognisable visual world. The art competes for space on small screens.",
+            "task_select": "Choose a job first Lead with Build an app, Connect an existing app and Find a resource. People with a specific goal can go straight to the matching workflow. Fast to scan and easy to maintain. The opening has less room to show why Composer feels different."
+          }
+        },
+        "share_discovery": {
+          "type": "choice",
+          "instructions": "Pick the best starting point for reaching one useful item and understanding reuse. Consider both deliberate lookup and browsing.",
+          "criteria": {
+            "curated": "Three useful collections Lead with a print, an editable asset and a palette. Each opens a working resource with credit and reuse details. People who are browsing find distinct useful objects sooner. Gives the artwork an editorial reason to be featured. Picks need upkeep and rights review.",
+            "search": "Search with reuse filters Lead with search and project, rights and file-type filters. Show matched artwork immediately. Visitors with a particular need spend less time opening irrelevant work. Scales to a large collection. A person browsing for inspiration may have no good query.",
+            "related": "Follow a collection from one strong piece Feature a relevant original, then let visitors follow its project and related formats. Readers understand one object in depth and get useful discovery paths from it. Feeds curiosity with a real creative story. A weak lead makes the whole entry feel irrelevant."
+          }
+        },
+        "share_feedback": {
+          "type": "choice",
+          "instructions": "Choose the feedback affordance that captures the most actionable evidence with the least distraction. Evaluate options individually. The owner can choose multiple.",
+          "criteria": {
+            "item": "On the item Give each artwork detail a private action for featuring, hiding or explaining an issue. Feedback carries the exact artwork context. Easy to act at the moment of judgement. Does little for the problem of never finding an item.",
+            "results": "On search results Offer a quick note when a query disappoints, with an explicit choice to include that query. Search misses become directly diagnosable. Captures failed discovery before a visitor leaves. The prompt needs careful placement to keep results readable.",
+            "shortlist": "In a private shortlist Compare saved pieces and record why one earns a place over another. Useful reasoning travels with creative selections. Supports considered editorial work in batches. Adds a step when the owner wants immediate feedback."
+          }
+        },
+        "studio_proof": {
+          "type": "choice",
+          "instructions": "Choose the strongest honest proof for a visitor deciding whether to try Studio. Check that the evidence gives Studio a distinctive voice.",
+          "criteria": {
+            "frame_to_cut": "A finished cut with its edit Use the published 30-second Studio film, which opens on LoftwahFM’s Low Tide cover. Put a strong final frame beside the edit and link directly to playback. Visitors can see the finished work and understand how the shot became a cut. Turns artwork into credible workflow proof. A film-forward story can underrepresent image and audio work.",
+            "three_outputs": "Three finished formats Show one strong finished still, one video frame and one audio release, each with its source when available. Visitors can identify the format they want to make. Shows breadth and puts genuinely different work in view. Three pieces compete for the same headline.",
+            "open_tool": "A playable sample project Offer one guided sample edit with its published export and a direct editing entry. Visitors experience the tool before making an account commitment where access permits. Demonstrates utility by doing. Needs a safe maintained demo and a clear recovery path."
+          }
+        },
+        "paperwork_character": {
+          "type": "choice",
+          "instructions": "For a person who has a PDF ready, balance an immediate clear action, perceived trust and distinctiveness. Avoid relying on actual personal documents.",
+          "criteria": {
+            "press": "Paper press beside the drop zone Put the authored press in a bounded visual panel and keep the signing action visible at phone size. Visitors get a recognisable product without hunting for the PDF action. Recovers character while keeping the task obvious. On small screens the press may need a tighter, purpose-made crop.",
+            "sample": "Let the sample do the talking Show a clean white sample document with a visible place to sign and a clear try-it action. People understand the workflow before using their own document. The visual demonstrates the actual job. A document preview needs strong art direction to earn attention.",
+            "direct": "Straight to signing Lead with drop or choose PDF. Use the press as the campaign and editorial signature. Repeat signers reach the tool with the least friction. Protects clarity when the job is urgent. Gives the public opening less identity."
+          }
+        },
+        "spin_character": {
+          "type": "choice",
+          "instructions": "Recommend a visibly lively opening that lets a new visitor add choices and spin within seconds. Treat the prior Clef tie as unresolved evidence.",
+          "criteria": {
+            "showtime": "Make the live wheel the show Give the functioning wheel the largest space, with saturated wedges, clear inputs and a deliberate result reveal. A visitor learns Spin by doing the one memorable action. The expressive element is the actual product. The layout and motion need restraint around accessibility and long lists.",
+            "host": "Give it a host Put an original game-show host in presets and result states beside a clean wheel. Repeat use gains a distinctive voice and surprise. Character can change by context without moving the controls. Requires excellent original character work and carries higher taste risk.",
+            "night": "Run it like a party tool Lead with event-ready wheel presets, easy editing and a large audience view. Hosts move faster from idea to a usable live game. Gives Spin a clear audience and purpose. A party-first presentation can feel excessive for everyday decisions."
+          }
+        },
+        "public_graphics": {
+          "type": "choice",
+          "instructions": "For earning a meaningful click from builders or creators in a feed, rank each format. Prefer a concrete link destination and avoid judging by polish alone.",
+          "criteria": {
+            "one_object": "An original people can use Feature one usable resource, its creator and the exact destination. Compose for a readable feed crop. People can see the value and reach the item in one step. The card can show the actual asset at a meaningful size. Needs reliable rights, credits and a useful destination.",
+            "one_change": "Show what changed Use one frame pair, real product detail or concrete before-and-after for a meaningful release. People can understand the improvement without reading a long post. Makes a product claim easy to verify. Weak changes and cluttered screenshots produce weak cards.",
+            "event_card": "One event or invitation Use committed brand colour, a crisp headline and only the details a reader needs to act. The announcement is identifiable and useful at small sizes. Strong composition with very little material. Needs a real occasion or the card will feel generic."
+          }
+        },
+        "prints_discovery": {
+          "type": "choice",
+          "instructions": "Pick the best entry for an unfamiliar creator to understand why Prints is worth installing. Keep platforms and proof accurate.",
+          "criteria": {
+            "compare": "Compare things you almost kept Lead with real alternate cuts and the decision that selected the original. Creators recognise a workflow they can use immediately. A specific judgement reveals the value of the product. Requires source and alternate cuts that are cleared for use.",
+            "first_use": "Show one source-linked export Walk from an owned image to an exported copy with the source connection visible. People see how the app makes creative work easier to trace. Demonstrates a concrete capability in a tight sequence. The procedure may be less memorable than a good creative comparison.",
+            "gallery": "Lead with a finished series Open with a cohesive published series, then show the underlying workflow. People encounter the calibre of the work before the software. Makes space for artwork with a real story. The product benefit can disappear behind the gallery."
+          }
+        },
+        "loftwahfm_entry": {
+          "type": "choice",
+          "instructions": "Recommend the invitation with the strongest listener payoff and an honest use of actual release artefacts. Treat plays and listener preference as unmeasured here.",
+          "criteria": {
+            "video": "Watch the performance cut Lead with a strong moment from a published video and link straight to playback. People can experience the song and the performance in one tap. Gives the release a specific moment to talk about. The opening needs a quiet alternative for people browsing without sound.",
+            "album": "Play the record from the start Give the cover, first track and album sequence the lead. People who listen in order reach the intended album experience. Preserves the arc of a complete release. Requires a bigger time commitment from first-time listeners.",
+            "radio": "Turn on the station Use a real radio programme or set to introduce the release in context. People can discover the work as part of an ongoing listening session. Expresses LoftwahFM as a station with a point of view. Makes the individual track or video less immediate."
+          }
+        },
+        "portfolio_next": {
+          "type": "choice",
+          "instructions": "Rank options independently for current owner value and visible outcomes. Do not assume traffic analytics or a delivery effort that is not given.",
+          "criteria": {
+            "share_studio": "Share discovery and Studio proof Pick a small set of editable or usable work, build the discovery path and show its Studio source. Visitors can find a relevant resource and understand where it came from. Addresses the reported discovery regression and the weak display choices. Needs cross-project curation and actual usage checks.",
+            "composer": "Composer opening and campaigns Take a selected art direction through a flagship landing view and one real social placement. The public identity becomes tangible across two high-visibility surfaces. Lets the owner judge expression at the actual size of use. Does little for the everyday resource search and signing flows.",
+            "spin_paperwork": "Spin and Paperwork task openings Prototype the most expressive usable first screen for a spin and for a clean PDF signing task. Both tools become easier to recognise and use on a phone. Puts creative intensity and first-action performance in the same test. Two separate apps need specific visual and workflow decisions."
+          }
+        }
+      },
+      "answers": {
+        "composer_entry": {
+          "type": "choice",
+          "choice": "working_app",
+          "probabilities": {
+            "working_app": 0.8822,
+            "workshop": 0.0313,
+            "task_select": 0.0865
+          },
+          "confidence": 0.6802
+        },
+        "share_discovery": {
+          "type": "choice",
+          "choice": "curated",
+          "probabilities": {
+            "curated": 0.4167,
+            "search": 0.3422,
+            "related": 0.2411
+          },
+          "confidence": 0.0233
+        },
+        "share_feedback": {
+          "type": "choice",
+          "choice": "item",
+          "probabilities": {
+            "item": 0.8504,
+            "results": 0.0951,
+            "shortlist": 0.0545
+          },
+          "confidence": 0.6028
+        },
+        "studio_proof": {
+          "type": "choice",
+          "choice": "frame_to_cut",
+          "probabilities": {
+            "frame_to_cut": 0.594,
+            "three_outputs": 0.1663,
+            "open_tool": 0.2397
+          },
+          "confidence": 0.1569
+        },
+        "paperwork_character": {
+          "type": "choice",
+          "choice": "press",
+          "probabilities": {
+            "press": 0.7568,
+            "sample": 0.1634,
+            "direct": 0.0798
+          },
+          "confidence": 0.4086
+        },
+        "spin_character": {
+          "type": "choice",
+          "choice": "showtime",
+          "probabilities": {
+            "showtime": 0.7459,
+            "host": 0.0705,
+            "night": 0.1836
+          },
+          "confidence": 0.3925
+        },
+        "public_graphics": {
+          "type": "choice",
+          "choice": "one_object",
+          "probabilities": {
+            "one_object": 0.6392,
+            "one_change": 0.2936,
+            "event_card": 0.0672
+          },
+          "confidence": 0.2489
+        },
+        "prints_discovery": {
+          "type": "choice",
+          "choice": "first_use",
+          "probabilities": {
+            "compare": 0.3498,
+            "first_use": 0.5324,
+            "gallery": 0.1178
+          },
+          "confidence": 0.1295
+        },
+        "loftwahfm_entry": {
+          "type": "choice",
+          "choice": "video",
+          "probabilities": {
+            "video": 0.5762,
+            "album": 0.1806,
+            "radio": 0.2432
+          },
+          "confidence": 0.1356
+        },
+        "portfolio_next": {
+          "type": "choice",
+          "choice": "share_studio",
+          "probabilities": {
+            "share_studio": 0.6021,
+            "composer": 0.2328,
+            "spin_paperwork": 0.1651
+          },
+          "confidence": 0.166
+        }
+      },
+      "usage": {
+        "input_tokens": 3529,
+        "output_tokens": 0
+      }
+    }
+  ]
+}

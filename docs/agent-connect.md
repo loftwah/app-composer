@@ -143,6 +143,39 @@ call the review route at all, and a browser session is still required for
 Accept, Request changes, Reject or handoff. A test asserts the installed rule and
 that `hasScope(["mcp:tools:composer-stacks"], "admin")` is false.
 
+## Portfolio decisions in EmDash and MCP
+
+[Decisions](https://composer.loftwah.com/_emdash/admin/plugins/composer-decisions/review)
+is a private admin queue. It includes written alternatives, a recommendation,
+expected outcomes, pros and cons, sources, and rendered artwork where available.
+Save the allowed number of choices, context alone, or both. A save records a
+response and its revision without applying the decision.
+
+EmDash and MCP use the same records for the signed-in administrator. MCP access
+uses the existing Cloudflare Access boundary and an owner-issued EmDash token
+scoped to `mcp:tools:composer-decisions`. Keep the Access session or supported
+client authentication active for the existing endpoint
+`https://composer.loftwah.com/_emdash/api/mcp`. A plugin token alone does not
+satisfy the Access policy. In EmDash Plugins, an administrator enables the
+`composer-decisions` MCP tools and reviews the listed permissions.
+
+| Tool | Use |
+| --- | --- |
+| `composer-decisions__read` | Call with `{}` to list the queue or `{"id":"composer-art"}` to read the artwork brief, its preview links and your current response. Preview links open in the signed-in admin browser. |
+| `composer-decisions__record` | Save choices and context after explicit owner direction. Send `id`, the current `revision` (or 0), the full `selected` list and the full `note`. Read again after a stale-revision response. |
+| `composer-decisions__add` | Add a private brief with distinct options, sources, a choice limit and recommendation evidence. Supply a client UUID in `requestId` and reuse it on retries. |
+
+The starter queue uses Clef-flash responses and keeps provider confidence separate
+from each option weight. The numbers are model judgements, with no audience
+measurement or owner approval. An added brief reports the submitter's stated
+confidence and basis. See [the starter model inputs and results](../src/data/portfolio-decision-results.json)
+and [the campaign comp renderer](../scripts/render-decision-art.py). The source
+artwork is the existing Composer press, the LoftwahFM cover used in the published
+[Studio teaser](https://composer.loftwah.com/media-studio/films#studio-teaser),
+and the approved Composer mark and type. The comp review does not replace the
+separate [portfolio design work](https://github.com/loftwah/app-composer/issues/1422).
+See [#1432](https://github.com/loftwah/app-composer/issues/1432) for delivery and verification.
+
 ## Refusals
 
 | Case                                             | Result                                                       |
