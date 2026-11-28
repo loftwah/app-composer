@@ -14,6 +14,12 @@ import "./decisions-admin.css";
 class StaleDecisionResponse extends Error {}
 
 const overview = "overview";
+function questionLocation(id: string) {
+  const query = new URLSearchParams(
+    id === overview ? { view: overview } : { id },
+  );
+  return `${adminDecisions}?${query}`;
+}
 const endpoint = "/_emdash/api/plugins/composer-decisions/";
 const percent = new Intl.NumberFormat("en-AU", {
   style: "percent",
@@ -456,10 +462,7 @@ function DecisionsPage() {
 
   function go(id: string) {
     focusNext.current = true;
-    const query = new URLSearchParams(
-      id === overview ? { view: overview } : { id },
-    );
-    router.history.push(`${adminDecisions}?${query}`, undefined, {
+    router.history.push(questionLocation(id), undefined, {
       ignoreBlocker: true,
     });
   }
@@ -482,6 +485,12 @@ function DecisionsPage() {
         index.decisions.find(
           (entry) => !entry.archived && entry.status === "open",
         )?.id;
+      if (!requested && id) {
+        router.history.replace(questionLocation(id), undefined, {
+          ignoreBlocker: true,
+        });
+        return;
+      }
       const next =
         id && id !== overview
           ? await call<DecisionDetail>("read", { id }, signal)
@@ -496,7 +505,7 @@ function DecisionsPage() {
         if (!signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [requested, attempt]);
+  }, [requested, attempt, router.history]);
 
   useEffect(() => {
     if (!loading && focusNext.current) {
