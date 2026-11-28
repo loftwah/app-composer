@@ -56,7 +56,8 @@ async function readAppView(records: Claimed[], fetcher: typeof fetch) {
   const response = await fetcher(url, {
     method: "GET",
     headers: { accept: "application/json" },
-    redirect: "error",
+    // Workers accepts manual redirect handling. The status check below refuses 3xx.
+    redirect: "manual",
     cache: "no-store",
     signal,
   });
