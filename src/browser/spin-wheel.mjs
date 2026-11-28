@@ -1,4 +1,4 @@
-import { paintSpinPhoto, spinPhoto } from './spin-art.mjs';
+import { spinChoiceIcon } from './spin-art.mjs';
 
 export const turn = 2 * Math.PI;
 export const winnerAngle = (winner, count) => -winner * turn / count;
@@ -100,18 +100,15 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.closePath();
     context.fillStyle = surface;
     context.fill();
-    const photo = count <= 6 ? spinPhoto(label) : null;
-    if (photo) {
-      const artSize = count <= 3 ? 120 : 82;
+    const icon = count <= 6 ? spinChoiceIcon(label) : null;
+    if (icon) {
+      const artSize = count <= 3 ? 86 : 52;
       const artRadius = count <= 3 ? 152 : 157;
       const x = Math.cos(bearing) * artRadius;
       const y = Math.sin(bearing) * artRadius;
       context.save();
       context.clip();
-      context.shadowColor = 'rgba(31,22,39,.27)';
-      context.shadowBlur = 12;
-      context.shadowOffsetY = 6;
-      paintSpinPhoto(context, photo, x - artSize / 2, y - artSize / 2 - 8, artSize, artSize);
+      context.drawImage(icon, x - artSize / 2, y - artSize / 2 - 8, artSize, artSize);
       context.restore();
     }
     context.lineWidth = 2.8;
@@ -141,7 +138,7 @@ export function paintSpinWheel(context, labels, angle = 0, { winner = -1, bend =
     context.font = `750 ${labelSize}px system-ui, sans-serif`;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    if (photo) {
+    if (icon) {
       context.translate(0, count <= 3 ? 43 : 37);
       const maxWidth = count < 5 ? 174 : 106;
       context.font = `800 ${count < 5 ? 22 : 18}px system-ui, sans-serif`;
