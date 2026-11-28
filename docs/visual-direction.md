@@ -8,11 +8,13 @@ Owner direction, 28 November 2026 AEDT. App Composer carries this direction for 
 
 **Start far enough out that the owner may want to pull it back.** The owner has described the existing portfolio as okay and lukewarm. Treat earlier releases as evidence of implemented behaviour and identity. Set the quality bar by studying several proven outside products in the same use case. Look at their actual work and interactions. Name the specific decisions that make them good and translate those decisions into the current product.
 
-For visual work the direction is **sharp, modern, bright, fun and neon**. Commit to clear colour choices. Cloudflare is a reference for confident flat colour, with each product bringing its own palette and identity. Composer's public card expresses this with its canonical vivid orange, dark ink and exact interlocking mark. Default mixed palettes, beige retro equipment and generic clip-art imagery have already failed this brief.
+For visual work the direction is **sharp, modern, bright, fun and neon**. Commit to clear colour choices. Cloudflare is a reference for confident flat colour, with each product bringing its own palette and identity. Use Composer's canonical vivid orange, dark ink and exact interlocking mark. Default mixed palettes, beige retro equipment and generic clip-art imagery have already failed this brief.
 
 Take the same ambition into everything a user sees, reads or touches. Try genuinely different premises when the first one feels familiar, then select and refine the most expressive direction that does the job. A range of swatches following the same composition counts as one premise. Make every visible decision earn its place. Keep copy direct and distinctive, and make the interaction feel quick, clear and rewarding to use. Dense workspaces and high-consequence actions still need readable hierarchy, accessible controls and clear recovery.
 
 Verify rendered pixels at the real display size, including the phone and feed crop where relevant, and operate the real affected journey. Record the outside references, the creative choice and the actual live evidence in the existing PR or issue. Owner taste, technical checks and delivery state each need their own evidence. Follow explicit holds and the owning product's access, safety and release boundaries.
+
+Use the [28 November review](design-evidence/20261128/README.md) before returning to this campaign. It records the supplied examples, the rejected drafts, the two major revisions and the actual Clef questions and results. Judge creative ambition and task clarity separately. Give the most expressive direction a real rendered example, preserve imagery that earns its place, and keep weak or inconclusive judgments visible. A usable release records an implementation. Keep the creative outcome open until there is evidence for the requested bar.
 
 ## What the work needs to express
 
